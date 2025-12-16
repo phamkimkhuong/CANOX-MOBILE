@@ -1,0 +1,19 @@
+{
+  "name": "ebay_ecommerce_mobile_buyer",
+  "version": "1.0.0",
+  "main": "lib/tab.js",
+  "keywords": [
+    "cli",
+    "unix",
+    "table"
+  ],
+  "author": "Dave Pacheco <dap@joyent.com>",
+  "license": "MIT",
+  "dependencies": {
+    "assert-plus": "1.0.0",
+    "carrier": "0.1.7",
+    "extsprintf": "^1.3.0",
+    "strsplit": "^1.0.0"
+  },
+  "private": true
+}
