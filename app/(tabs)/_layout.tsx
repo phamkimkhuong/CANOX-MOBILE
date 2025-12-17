@@ -2,9 +2,8 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
-import { useColorScheme } from '@/components/useColorScheme';
-import { Colors } from '@/constants/Colors';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useUnistyles } from 'react-native-unistyles';
 
 // Helper để render Icon gọn gàng
 function TabBarIcon(props: {
@@ -23,18 +22,16 @@ function TabBarIcon(props: {
 // }
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
+  const { theme } = useUnistyles();
 
   return (
     <Tabs
       screenOptions={{
-        // tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        tabBarActiveTintColor: colors.tabIconSelected, // Màu xanh khi chọn
-        tabBarInactiveTintColor: colors.tabIconDefault, // Màu xám khi không chọn
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarInactiveTintColor: theme.colors.typographySecondary,
         // default background for tab bar
         tabBarStyle: {
-          backgroundColor: colors.cardBackground,
+          backgroundColor: theme.colors.surface,
           borderTopWidth: 0,
           elevation: 5, // Đổ bóng trên Android
           height: 60,

@@ -1,9 +1,18 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React from 'react';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Avatar, Text, useTheme } from 'react-native-paper';
+import '@/constants/unistyles';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-// Mock data
-const CATEGORIES = [
+type MdiIconName = React.ComponentProps<typeof MaterialCommunityIcons>['name'];
+
+type Category = {
+    id: number;
+    name: string;
+    icon: MdiIconName;
+};
+
+const CATEGORIES: Category[] = [
     { id: 1, name: 'Giày dép', icon: 'shoe-sneaker' },
     { id: 2, name: 'Điện thoại', icon: 'cellphone' },
     { id: 3, name: 'Thời trang', icon: 'tshirt-crew' },
@@ -12,20 +21,28 @@ const CATEGORIES = [
 ];
 
 export const CategoryRail = () => {
-    const theme = useTheme();
+    const { theme } = useUnistyles();
+    const styles = stylesheet;
 
     return (
         <View style={styles.container}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+            <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.scrollContent}
+            >
                 {CATEGORIES.map((cat) => (
-                    <TouchableOpacity key={cat.id} style={styles.item}>
-                        <Avatar.Icon
-                            size={50}
-                            icon={cat.icon}
-                            style={{ backgroundColor: theme.colors.elevation.level2 }}
-                            color={theme.colors.primary}
-                        />
-                        <Text variant="bodySmall" style={styles.text}>{cat.name}</Text>
+                    <TouchableOpacity key={cat.id} style={styles.item} activeOpacity={0.7}>
+                        <View style={styles.iconCircle}>
+                            <MaterialCommunityIcons
+                                name={cat.icon}
+                                size={24}
+                                color={theme.colors.primary}
+                            />
+                        </View>
+                        <Text style={styles.text} numberOfLines={1}>
+                            {cat.name}
+                        </Text>
                     </TouchableOpacity>
                 ))}
             </ScrollView>
@@ -33,20 +50,33 @@ export const CategoryRail = () => {
     );
 };
 
-const styles = StyleSheet.create({
+const stylesheet = StyleSheet.create((theme) => ({
     container: {
-        marginVertical: 10,
+        marginBottom: theme.margins.md,
     },
     scrollContent: {
-        paddingHorizontal: 16,
-        gap: 16, // Khoảng cách giữa các item
+        paddingHorizontal: theme.margins.md,
+        gap: 20,
     },
     item: {
         alignItems: 'center',
-        width: 60,
+        width: 64,
+    },
+    iconCircle: {
+        width: 52,
+        height: 52,
+        borderRadius: 20,
+        backgroundColor: '#f0f9ff',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 6,
+        borderWidth: 1,
+        borderColor: '#e0f2fe',
     },
     text: {
-        marginTop: 4,
+        fontSize: 12,
+        color: theme.colors.typographySecondary,
         textAlign: 'center',
+        fontWeight: '500',
     },
-});
+}));

@@ -1,61 +1,68 @@
-// components/home/HomeHeader.tsx
-import { Ionicons } from '@expo/vector-icons'; // Dùng icon cho đẹp
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
-import { Badge, Surface, useTheme } from 'react-native-paper';
+import '@/constants/unistyles';
+import { Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 
 export const HomeHeader = () => {
-    const theme = useTheme();
+    const { theme } = useUnistyles();
+    const styles = stylesheet;
 
     return (
-        <Surface style={styles.headerContainer} elevation={2}>
-            {/* 1. Thanh tìm kiếm (Chiếm phần lớn diện tích) */}
-            <View style={[styles.searchContainer, { backgroundColor: '#eff6ff' }]}>
-                <Ionicons name="search" size={20} color="#94a3b8" style={{ marginLeft: 10 }} />
+        <View style={styles.headerContainer}>
+            {/* 1. Thanh tìm kiếm */}
+            <View style={styles.searchContainer}>
+                <Ionicons name="search" size={20} color={theme.colors.secondary} style={{ marginLeft: 10 }} />
 
                 <TextInput
-                    placeholder="Search for products..."
-                    placeholderTextColor="#94a3b8"
+                    placeholder="Tìm kiếm sản phẩm..."
+                    placeholderTextColor={theme.colors.secondary}
                     style={styles.searchInput}
                 />
 
                 <TouchableOpacity style={styles.cameraBtn}>
-                    <Ionicons name="camera-outline" size={22} color="#94a3b8" />
+                    <Ionicons name="camera-outline" size={22} color={theme.colors.secondary} />
                 </TouchableOpacity>
             </View>
 
-            {/* 2. Các nút chức năng (Giỏ hàng & Chat) */}
+            {/* 2. Các nút chức năng */}
             <View style={styles.actions}>
                 <TouchableOpacity style={styles.iconBtn}>
-                    <Ionicons name="cart-outline" size={26} color="#475569" />
-                    {/* Badge thông báo màu đỏ */}
-                    <Badge style={styles.badge} size={16}>3</Badge>
+                    <Ionicons name="cart-outline" size={26} color={theme.colors.typographySecondary} />
+                    {/* Badge tự code bằng View thuần */}
+                    <View style={styles.badge}>
+                        <Text style={styles.badgeText}>3</Text>
+                    </View>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.iconBtn}>
-                    <Ionicons name="chatbubble-ellipses-outline" size={26} color="#475569" />
+                    <Ionicons name="chatbubble-ellipses-outline" size={26} color={theme.colors.typographySecondary} />
                 </TouchableOpacity>
             </View>
-        </Surface>
+        </View>
     );
 };
 
-const styles = StyleSheet.create({
+const stylesheet = StyleSheet.create((theme) => ({
     headerContainer: {
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        paddingTop: 10, // Cộng thêm SafeArea nếu cần
-        backgroundColor: 'rgba(255,255,255,0.95)', // Giả lập Backdrop blur
+        paddingHorizontal: theme.margins.md,
+        paddingBottom: 12,
+        // MAGIC CỦA UNISTYLES 3.0: Tự động cộng thêm chiều cao Status Bar
+        paddingTop: UnistylesRuntime.insets.top + 10,
+        backgroundColor: 'rgba(255,255,255,0.95)',
         flexDirection: 'row',
         alignItems: 'center',
         gap: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: '#f1f5f9',
     },
     searchContainer: {
-        flex: 1, // Chiếm hết không gian còn lại
+        flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         height: 40,
-        borderRadius: 20, // Rounded full
+        borderRadius: theme.radius.full, // Dùng token radius
+        backgroundColor: '#eff6ff',
         paddingHorizontal: 5,
     },
     searchInput: {
@@ -63,7 +70,8 @@ const styles = StyleSheet.create({
         height: '100%',
         paddingHorizontal: 8,
         fontSize: 14,
-        color: '#334155',
+        color: theme.colors.typography,
+        fontFamily: 'System', // Thay bằng font custom nếu có
     },
     cameraBtn: {
         padding: 8,
@@ -81,9 +89,18 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 0,
         right: 0,
-        backgroundColor: '#ef4444',
+        backgroundColor: theme.colors.error,
+        borderRadius: 10,
+        minWidth: 16,
+        height: 16,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1.5,
+        borderColor: '#fff', // Tạo viền trắng cho badge nổi bật
+    },
+    badgeText: {
         color: 'white',
-        fontSize: 10,
+        fontSize: 9,
         fontWeight: 'bold',
     }
-});
+}));

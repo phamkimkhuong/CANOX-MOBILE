@@ -1,26 +1,27 @@
-// components/home/HomeBanner.tsx
-import { LinearGradient } from 'expo-linear-gradient'; // Thư viện vừa cài
+import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { Dimensions, ImageBackground, ScrollView, StyleSheet, View } from 'react-native';
-import { Text } from 'react-native-paper';
+import '@/constants/unistyles';
+import { Dimensions, ImageBackground, ScrollView, Text, View } from 'react-native';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 const { width } = Dimensions.get('window');
-const CARD_WIDTH = width * 0.85; // Chiều rộng 85vw
+// Responsive: Nếu màn hình to (tablet) thì banner nhỏ lại chút
+const CARD_WIDTH = width * 0.88;
 
 const BANNERS = [
     {
         id: 1,
         title: 'Super Brand Day',
-        subtitle: 'Up to 70% off electronics',
+        subtitle: 'Giảm tới 70% đồ điện tử',
         tag: 'LIMITED TIME',
-        tagColor: '#0088cc', // Primary
+        tagColor: '#0088cc',
         tagText: '#fff',
-        image: 'https://img.freepik.com/free-vector/gradient-colorful-sale-background_23-2148847427.jpg', // Ảnh mẫu đẹp
+        image: 'https://img.freepik.com/free-vector/gradient-colorful-sale-background_23-2148847427.jpg',
     },
     {
         id: 2,
-        title: 'Summer Fashion',
-        subtitle: 'Refresh your wardrobe today',
+        title: 'Thời trang Hè',
+        subtitle: 'Bộ sưu tập mới nhất 2025',
         tag: 'NEW ARRIVALS',
         tagColor: '#fff',
         tagText: '#0088cc',
@@ -29,11 +30,13 @@ const BANNERS = [
 ];
 
 export const HomeBanner = () => {
+    const { theme } = useUnistyles();
+    const styles = stylesheet;
     return (
         <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            snapToInterval={CARD_WIDTH + 16} // Snap từng item (Card + margin)
+            snapToInterval={CARD_WIDTH + 16}
             decelerationRate="fast"
             contentContainerStyle={styles.scrollContent}
         >
@@ -42,22 +45,20 @@ export const HomeBanner = () => {
                     <ImageBackground
                         source={{ uri: item.image }}
                         style={styles.imageBg}
-                        imageStyle={{ borderRadius: 12 }} // Bo góc ảnh
+                        imageStyle={{ borderRadius: 12 }}
                     >
-                        {/* Lớp phủ Gradient đen mờ dần lên */}
                         <LinearGradient
                             colors={['transparent', 'rgba(0,0,0,0.8)']}
                             style={styles.gradient}
                         >
-                            {/* Badge Tag */}
                             <View style={[styles.tag, { backgroundColor: item.tagColor }]}>
-                                <Text style={{ color: item.tagText, fontSize: 10, fontWeight: 'bold' }}>
+                                <Text style={[styles.tagText, { color: item.tagText }]}>
                                     {item.tag}
                                 </Text>
                             </View>
 
-                            <Text variant="headlineSmall" style={styles.title}>{item.title}</Text>
-                            <Text variant="bodyMedium" style={styles.subtitle}>{item.subtitle}</Text>
+                            <Text style={styles.title}>{item.title}</Text>
+                            <Text style={styles.subtitle}>{item.subtitle}</Text>
                         </LinearGradient>
                     </ImageBackground>
                 </View>
@@ -66,33 +67,34 @@ export const HomeBanner = () => {
     );
 };
 
-const styles = StyleSheet.create({
+const stylesheet = StyleSheet.create((theme) => ({
     scrollContent: {
-        paddingHorizontal: 16,
-        paddingVertical: 16,
-        gap: 16,
+        paddingHorizontal: theme.margins.md,
+        paddingVertical: theme.margins.md,
+        gap: theme.margins.md,
     },
     cardContainer: {
         width: CARD_WIDTH,
-        height: CARD_WIDTH * 0.5, // Tỷ lệ 2:1
-        borderRadius: 12,
-        // Shadow giả lập tailwind shadow-md shadow-blue-100
-        shadowColor: '#0088cc',
+        height: CARD_WIDTH * 0.5,
+        borderRadius: theme.radius.m,
+        backgroundColor: theme.colors.surface,
+        // Shadow style thuần
+        shadowColor: theme.colors.primary,
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
-        elevation: 4, // Cho Android
-        backgroundColor: 'white',
+        shadowOpacity: 0.15,
+        shadowRadius: 10,
+        elevation: 5,
     },
     imageBg: {
         flex: 1,
         justifyContent: 'flex-end',
+        borderRadius: theme.radius.m,
+        overflow: 'hidden', // Để bo góc ảnh không bị lòi ra
     },
     gradient: {
-        height: '60%', // Gradient chỉ chiếm 60% dưới của ảnh
+        height: '65%',
         justifyContent: 'flex-end',
-        padding: 16,
-        borderRadius: 12,
+        padding: theme.margins.md,
     },
     tag: {
         alignSelf: 'flex-start',
@@ -101,12 +103,18 @@ const styles = StyleSheet.create({
         borderRadius: 6,
         marginBottom: 8,
     },
+    tagText: {
+        fontSize: 10,
+        fontWeight: 'bold',
+    },
     title: {
         color: 'white',
         fontWeight: 'bold',
-        lineHeight: 28,
+        fontSize: 22, // Tương đương headlineSmall
+        marginBottom: 4,
     },
     subtitle: {
         color: 'rgba(255,255,255,0.9)',
+        fontSize: 14,
     }
-});
+}));

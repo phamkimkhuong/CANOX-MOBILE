@@ -1,15 +1,29 @@
-import { Colors } from '@/constants/Colors';
+import '@/constants/unistyles';
+import { lightTheme } from '@/constants/unistyles';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { View } from 'react-native';
 import 'react-native-reanimated';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { useColorScheme } from '@/components/useColorScheme';
-import { AppDarkTheme, AppLightTheme } from '@/constants/MaterialTheme';
-import { PaperProvider } from 'react-native-paper';
+
+const NavigationTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: lightTheme.colors.primary,
+    background: lightTheme.colors.background,
+    card: lightTheme.colors.surface,
+    text: lightTheme.colors.typography,
+    border: lightTheme.colors.secondary,
+    notification: lightTheme.colors.error,
+  },
+};
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -42,43 +56,21 @@ export default function RootLayout() {
   }, [loaded]);
 
   if (!loaded) {
-    return null;
+    // return null;
+    return <View />;
   }
 
-  return <RootLayoutNav />
-}
-
-function RootLayoutNav() {
-  const colorScheme = useColorScheme();
-  const paperTheme = colorScheme === 'dark' ? AppDarkTheme : AppLightTheme;
-
-  // Customize the theme to change the colors of navigators.
-  const MyLightTheme = {
-    ...DefaultTheme,
-    colors: {
-      ...DefaultTheme.colors,
-      background: Colors.light.background, // Set nền toàn cục là #eef8ff
-      primary: Colors.light.tint,
-    },
-  };
-
-  // Dark theme customization
-  const MyDarkTheme = {
-    ...DarkTheme,
-    colors: {
-      ...DarkTheme.colors,
-      background: Colors.dark.background,
-    },
-  };
-
   return (
-    <PaperProvider theme={paperTheme}>
-      <ThemeProvider value={colorScheme === 'dark' ? MyDarkTheme : MyLightTheme}>
+    <SafeAreaProvider>
+      {/* 3. Inject Theme vào Navigation */}
+      <ThemeProvider value={NavigationTheme}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
         </Stack>
+        {/* 4. StatusBar luôn là Dark Content (chữ đen) vì nền sáng */}
+        <StatusBar style="dark" />
       </ThemeProvider>
-    </PaperProvider>
+    </SafeAreaProvider>
   );
 }

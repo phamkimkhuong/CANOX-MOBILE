@@ -1,8 +1,9 @@
+import '@/constants/unistyles';
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { IconButton, Surface, Text, useTheme } from 'react-native-paper';
+import { Image, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-// Định nghĩa kiểu dữ liệu đầu vào (Props)
 interface ProductCardProps {
     title: string;
     price: number;
@@ -12,78 +13,93 @@ interface ProductCardProps {
 }
 
 export const ProductCard = ({ title, price, image, originalPrice, onPress }: ProductCardProps) => {
-    const theme = useTheme();
+    const { theme } = useUnistyles();
+    const styles = stylesheet;
 
     return (
         <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={styles.container}>
-            <Surface style={styles.surface} elevation={1}>
-                {/* Ảnh sản phẩm */}
+            <View style={styles.surface}>
                 <Image source={{ uri: image }} style={styles.image} resizeMode="cover" />
 
-                {/* Nội dung */}
                 <View style={styles.content}>
-                    <Text variant="bodyMedium" numberOfLines={2} style={styles.title}>
+                    <Text numberOfLines={2} style={styles.title}>
                         {title}
                     </Text>
 
                     <View style={styles.priceRow}>
-                        <Text variant="titleMedium" style={{ color: theme.colors.error, fontWeight: 'bold' }}>
-                            ${price}
-                        </Text>
-                        {originalPrice && (
-                            <Text variant="bodySmall" style={styles.originalPrice}>
-                                ${originalPrice}
-                            </Text>
+                        <Text style={styles.price}>${price}</Text>
+                        {originalPrice != null && (
+                            <Text style={styles.originalPrice}>${originalPrice}</Text>
                         )}
                     </View>
                 </View>
 
-                {/* Nút Add to Cart nhỏ (Optional) */}
-                <IconButton
-                    icon="cart-plus"
-                    size={20}
-                    iconColor={theme.colors.primary}
-                    style={styles.cartBtn}
-                />
-            </Surface>
+                {/* Cart Button */}
+                <View style={styles.cartBtn}>
+                    <Ionicons name="add" size={18} color={theme.colors.onPrimary} />
+                </View>
+            </View>
         </TouchableOpacity>
     );
 };
 
-const styles = StyleSheet.create({
+const stylesheet = StyleSheet.create((theme) => ({
     container: {
-        width: '48%', // Chia đôi màn hình (có khoảng cách ở giữa)
-        marginBottom: 10,
+        width: '48%',
+        marginBottom: theme.margins.md,
     },
     surface: {
-        borderRadius: 8,
-        backgroundColor: 'white',
-        overflow: 'hidden', // Để ảnh bo góc theo surface
+        borderRadius: theme.radius.m,
+        backgroundColor: theme.colors.surface,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: '#f1f5f9',
+        shadowColor: '#64748b',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+        elevation: 2,
     },
     image: {
         width: '100%',
-        height: 140,
+        height: 150,
+        backgroundColor: '#f8fafc',
     },
     content: {
-        padding: 8,
+        padding: theme.margins.sm + 2,
     },
     title: {
-        marginBottom: 4,
-        height: 40, // Cố định chiều cao text để card đều nhau
+        marginBottom: 6,
+        height: 36,
+        fontSize: 13,
+        lineHeight: 18,
+        color: theme.colors.typography,
+        fontWeight: '500',
     },
     priceRow: {
         flexDirection: 'row',
         alignItems: 'baseline',
-        gap: 4,
+        gap: 6,
+    },
+    price: {
+        color: theme.colors.error,
+        fontWeight: '700',
+        fontSize: 15,
     },
     originalPrice: {
         textDecorationLine: 'line-through',
-        color: '#94a3b8',
+        color: theme.colors.typographySecondary,
+        fontSize: 11,
     },
     cartBtn: {
         position: 'absolute',
-        bottom: 0,
-        right: 0,
-        margin: 0,
+        bottom: 8,
+        right: 8,
+        width: 28,
+        height: 28,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: theme.colors.primary,
+        borderRadius: theme.radius.full,
     }
-});
+}));
