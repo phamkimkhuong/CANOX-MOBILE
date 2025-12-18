@@ -9,52 +9,37 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { z } from 'zod';
 
 import { AuthInput } from '@/components/auth/AuthInput';
-import { SocialLoginButtons } from '@/components/auth/SocialLoginButtons';
-import { useAuthStore } from '@/store/useAuthStore';
 
-// 1. Định nghĩa Schema Validation (Zod)
-const loginSchema = z.object({
-    email: z.string().min(1, 'Vui lòng nhập email').email('Email không hợp lệ'),
-    password: z.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự'),
+// Schema Validation
+const forgotPasswordSchema = z.object({
+    emailOrPhone: z.string().min(1, 'Vui lòng nhập email hoặc số điện thoại'),
 });
 
-type LoginFormData = z.infer<typeof loginSchema>;
+type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 
-export default function LoginScreen() {
+export default function ForgotPasswordScreen() {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const login = useAuthStore((state) => state.login);
 
-    // 2. Setup React Hook Form
-    const { control, handleSubmit, formState: { isSubmitting } } = useForm<LoginFormData>({
-        resolver: zodResolver(loginSchema),
+    const { control, handleSubmit, formState: { isSubmitting } } = useForm<ForgotPasswordFormData>({
+        resolver: zodResolver(forgotPasswordSchema),
         defaultValues: {
-            email: '',
-            password: '',
+            emailOrPhone: '',
         },
     });
 
-    // 3. Handle Submit Logic
-    const onSubmit = async (data: LoginFormData) => {
+    const onSubmit = async (_data: ForgotPasswordFormData) => {
         try {
             // TODO: Replace with actual API call using mutation hook
-            // eslint-disable-next-line no-console
-            console.log('Form Data:', data);
-
-            // Simulate network delay
             await new Promise(resolve => setTimeout(resolve, 1000));
 
-            const fakeToken = "jwt-token-xyz-123";
-            await login(fakeToken);
-
-            // Smart navigation logic
-            if (router.canGoBack()) {
-                router.back();
-            } else {
-                router.replace('/(tabs)');
-            }
+            Alert.alert(
+                'Đã gửi yêu cầu',
+                'Vui lòng kiểm tra email hoặc tin nhắn để đặt lại mật khẩu.',
+                [{ text: 'OK', onPress: () => router.replace('/(auth)/login') }]
+            );
         } catch {
-            Alert.alert("Lỗi đăng nhập", "Email hoặc mật khẩu không đúng.");
+            Alert.alert('Lỗi', 'Gửi yêu cầu thất bại. Vui lòng thử lại.');
         }
     };
 
@@ -65,27 +50,26 @@ export default function LoginScreen() {
                 style={styles.flex1}
             >
                 <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-
-                    {/* Header: Back Btn + Title */}
+                    {/* Header */}
                     <View style={styles.header}>
                         <TouchableOpacity
                             style={styles.backBtn}
-                            onPress={() => router.canGoBack() ? router.back() : router.replace('/(tabs)')}
+                            onPress={() => router.canGoBack() ? router.back() : router.replace('/(auth)/login')}
                         >
                             <MaterialIcons name="arrow-back" size={24} color={theme.colors.typography} />
                         </TouchableOpacity>
-                        <Text style={styles.headerTitle}>Đăng nhập</Text>
+                        <Text style={styles.headerTitle}>Quên mật khẩu</Text>
                         <View style={styles.headerSpacer} />
                     </View>
 
                     {/* Welcome Section */}
                     <View style={styles.welcomeSection}>
                         <View style={styles.iconCircle}>
-                            <MaterialIcons name="login" size={32} color={theme.colors.primary} />
+                            <MaterialIcons name="lock-reset" size={32} color={theme.colors.primary} />
                         </View>
-                        <Text style={styles.welcomeTitle}>Chào mừng trở lại</Text>
+                        <Text style={styles.welcomeTitle}>Đặt lại mật khẩu</Text>
                         <Text style={styles.welcomeSubtitle}>
-                            Đăng nhập để tiếp tục mua sắm, theo dõi đơn hàng và nhận ưu đãi độc quyền.
+                            Nhập email đã đăng ký để nhận link đặt lại mật khẩu
                         </Text>
                     </View>
 
@@ -94,58 +78,39 @@ export default function LoginScreen() {
                         <AuthInput
                             control={control}
                             name="email"
-                            label="Email hoặc Tên đăng nhập"
-                            icon="person"
-                            placeholder="nhập email hoặc tên đăng nhập"
+                            label="Email"
+                            icon="mail"
+                            placeholder="Nhập email"
                             keyboardType="email-address"
                         />
 
-                        <AuthInput
-                            control={control}
-                            name="password"
-                            label="Mật khẩu"
-                            icon="lock"
-                            placeholder="nhập mật khẩu"
-                            isPassword
-                        />
-
-                        <TouchableOpacity
-                            style={styles.forgotPassBtn}
-                            onPress={() => router.push('/(auth)/forgot-password')}
-                        >
-                            <Text style={styles.forgotPassText}>Quên mật khẩu?</Text>
-                        </TouchableOpacity>
+                        {/* Info Box */}
+                        <View style={styles.infoBox}>
+                            <MaterialIcons name="info-outline" size={20} color={theme.colors.primary} />
+                            <Text style={styles.infoText}>
+                                Nếu không nhận được email, vui lòng kiểm tra thư mục spam hoặc thử lại sau ít phút.
+                            </Text>
+                        </View>
 
                         {/* Submit Button */}
                         <TouchableOpacity
-                            style={[styles.loginBtn, isSubmitting && styles.loginBtnDisabled]}
+                            style={[styles.submitBtn, isSubmitting && styles.submitBtnDisabled]}
                             onPress={handleSubmit(onSubmit)}
                             disabled={isSubmitting}
                         >
-                            <Text style={styles.loginBtnText}>
-                                {isSubmitting ? 'Đang xử lý...' : 'Đăng nhập'}
+                            <Text style={styles.submitBtnText}>
+                                {isSubmitting ? 'Đang gửi...' : 'Gửi yêu cầu'}
                             </Text>
                         </TouchableOpacity>
-
-                        {/* Divider */}
-                        <View style={styles.dividerContainer}>
-                            <View style={styles.line} />
-                            <Text style={styles.dividerText}>Hoặc đăng nhập với</Text>
-                            <View style={styles.line} />
-                        </View>
-
-                        {/* Social Buttons */}
-                        <SocialLoginButtons />
                     </View>
 
                     {/* Footer */}
                     <View style={styles.footer}>
-                        <Text style={styles.footerText}>Bạn chưa có tài khoản? </Text>
-                        <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
-                            <Text style={styles.registerLink}>Đăng ký ngay</Text>
+                        <Text style={styles.footerText}>Đã nhớ mật khẩu? </Text>
+                        <TouchableOpacity onPress={() => router.replace('/(auth)/login')}>
+                            <Text style={styles.footerLink}>Đăng nhập</Text>
                         </TouchableOpacity>
                     </View>
-
                 </ScrollView>
             </KeyboardAvoidingView>
         </SafeAreaView>
@@ -224,17 +189,22 @@ const stylesheet = StyleSheet.create((theme) => ({
         shadowRadius: 10,
         elevation: 2,
     },
-    forgotPassBtn: {
-        alignSelf: 'flex-end',
-        marginTop: -theme.margins.sm,
+    infoBox: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        backgroundColor: `${theme.colors.primary}10`,
+        borderRadius: theme.radius.m,
+        padding: theme.margins.md,
         marginBottom: theme.margins.lg,
+        gap: 10,
     },
-    forgotPassText: {
-        color: theme.colors.primary,
-        fontWeight: '600',
-        fontSize: 14,
+    infoText: {
+        flex: 1,
+        fontSize: 13,
+        color: theme.colors.typographySecondary,
+        lineHeight: 20,
     },
-    loginBtn: {
+    submitBtn: {
         backgroundColor: theme.colors.primary,
         height: 50,
         borderRadius: theme.radius.full,
@@ -246,28 +216,13 @@ const stylesheet = StyleSheet.create((theme) => ({
         shadowRadius: 8,
         elevation: 4,
     },
-    loginBtnDisabled: {
+    submitBtnDisabled: {
         opacity: 0.7,
     },
-    loginBtnText: {
+    submitBtnText: {
         color: theme.colors.onPrimary,
         fontWeight: 'bold',
         fontSize: 16,
-    },
-    dividerContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginVertical: theme.margins.lg,
-    },
-    line: {
-        flex: 1,
-        height: 1,
-        backgroundColor: theme.colors.border,
-    },
-    dividerText: {
-        marginHorizontal: theme.margins.md,
-        color: theme.colors.typographySecondary,
-        fontSize: 14,
     },
     footer: {
         flexDirection: 'row',
@@ -279,7 +234,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.typographySecondary,
         fontSize: 14,
     },
-    registerLink: {
+    footerLink: {
         color: theme.colors.primary,
         fontWeight: 'bold',
         fontSize: 14,

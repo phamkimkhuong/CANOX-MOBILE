@@ -2,7 +2,7 @@ import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } f
 import * as SecureStore from 'expo-secure-store';
 import { z } from 'zod';
 
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8888';
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL || process.env.EXPO_PUBLIC_API_URL_LOCAL || 'http://localhost:8888/api/v1';
 const TIMEOUT = 30000; // 30s cho mobile (mạng yếu)
 const AUTH_TOKEN_KEY = 'user_access_token'; // Key lưu trong SecureStore
 

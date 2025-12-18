@@ -19,14 +19,27 @@ const lightTheme = {
         error: '#ef4444',
         typography: '#1c3024',
         typographySecondary: '#687076',
-        // Thêm màu cho React Navigation
+        // Semantic colors
+        primarySoft: 'rgba(0, 136, 204, 0.15)',
+        primaryLight: 'rgba(0, 136, 204, 0.10)',
+        primarySubtle: 'rgba(0, 136, 204, 0.08)',
+        primaryMuted: 'rgba(0, 136, 204, 0.05)',
+        secondaryLight: 'rgba(148, 163, 184, 0.30)',
+        surfaceTranslucent: 'rgba(255, 255, 255, 0.6)',
+        surfaceOverlay: 'rgba(255, 255, 255, 0.8)',
+        backgroundInput: 'rgba(238, 248, 255, 0.8)',
+        backgroundSurface: 'rgba(0, 136, 204, 0.06)',
+        textOnOverlay: 'rgba(255, 255, 255, 0.8)',
+        // React Navigation colors
         card: '#ffffff',
         text: '#1c3024',
         border: '#e8e8e8',
         notification: '#ef4444',
     },
     margins: {
+        zero: 0,
         sm: 8,
+        smd: 12,
         md: 16,
         lg: 24,
         xl: 32,
@@ -62,3 +75,4 @@ StyleSheet.configure({
 });
 
 export { lightTheme }; // Export ra để dùng cho React Navigation
+

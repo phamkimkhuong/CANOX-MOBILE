@@ -39,5 +39,6 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+stitch_ebay_th_ng_m_i_i_n_t
 .github
 .cursor

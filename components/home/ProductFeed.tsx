@@ -1,19 +1,30 @@
 import { ProductCard } from '@/components/ui/ProductCard';
 import { useProductFeed } from '@/hooks/api/useProducts';
 import { FlashList } from '@shopify/flash-list';
+import React, { useCallback } from 'react';
 
-type FeedProduct = {
+interface FeedProduct {
     id: number;
     title: string;
     price: number;
     thumbnail: string;
-};
+    rating?: number;
+    reviews?: number;
+    brand?: string;
+    discountPercentage?: number;
+}
 
 export const ProductFeed = () => {
     const { data, fetchNextPage, hasNextPage } = useProductFeed();
 
     // Flatten data từ các page
     const products: FeedProduct[] = data?.pages.flatMap((page) => page.products) ?? [];
+
+    const handleEndReached = useCallback(() => {
+        if (hasNextPage) {
+            void fetchNextPage();
+        }
+    }, [hasNextPage, fetchNextPage]);
 
     return (
         <FlashList
@@ -24,16 +35,16 @@ export const ProductFeed = () => {
                     title={item.title}
                     price={item.price}
                     image={item.thumbnail}
-                    onPress={() => { }}
+                    rating={item.rating}
+                    reviews={item.reviews}
+                    location={item.brand}
+                    discount={item.discountPercentage ? Math.round(item.discountPercentage) : undefined}
+                    onPress={() => {}}
                 />
             )}
-            onEndReached={() => {
-                if (hasNextPage) {
-                    void fetchNextPage();
-                }
-            }}
+            onEndReached={handleEndReached}
             onEndReachedThreshold={0.5}
-            numColumns={2} // Grid 2 cột chuẩn Shopee/eBay
+            numColumns={2}
         />
     );
 };

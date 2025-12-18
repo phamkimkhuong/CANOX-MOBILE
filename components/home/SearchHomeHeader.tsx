@@ -37,10 +37,6 @@ export const HomeHeader = () => {
 
                 <TouchableOpacity style={styles.iconBtn}>
                     <Ionicons name="chatbubble-ellipses-outline" size={26} color={theme.colors.typographySecondary} />
-                    {/* Badge tự code bằng View thuần */}
-                    <View style={styles.badge}>
-                        <Text style={styles.badgeText}>7</Text>
-                    </View>
                 </TouchableOpacity>
             </View>
         </View>
