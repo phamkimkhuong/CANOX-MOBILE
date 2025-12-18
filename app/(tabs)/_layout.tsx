@@ -90,6 +90,7 @@ export default function TabLayout() {
           title: 'Thông báo',
           tabBarIcon: ({ color }) => <TabBarIcon name="notifications" color={color} />,
           tabBarBadge: 7,
+          headerShown: false,
         }}
       />
       {/* 5. Tôi/Me ( app/(tabs)/me.tsx) */}
