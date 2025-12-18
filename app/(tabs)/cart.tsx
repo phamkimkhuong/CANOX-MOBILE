@@ -1,7 +1,10 @@
-import React from 'react';
 import '@/constants/unistyles';
+import React from 'react';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+
+// Auth protection is handled centrally by useAuthGuard in app/_layout.tsx
+// This screen only renders cart UI
 
 export default function CartScreen() {
     const { theme } = useUnistyles();

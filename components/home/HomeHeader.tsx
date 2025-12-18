@@ -1,6 +1,6 @@
+import '@/constants/unistyles';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import '@/constants/unistyles';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 
@@ -37,6 +37,10 @@ export const HomeHeader = () => {
 
                 <TouchableOpacity style={styles.iconBtn}>
                     <Ionicons name="chatbubble-ellipses-outline" size={26} color={theme.colors.typographySecondary} />
+                    {/* Badge tự code bằng View thuần */}
+                    <View style={styles.badge}>
+                        <Text style={styles.badgeText}>7</Text>
+                    </View>
                 </TouchableOpacity>
             </View>
         </View>

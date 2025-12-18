@@ -1,10 +1,10 @@
 import { CategoryRail } from '@/components/home/CategoryRail';
-import { HomeBanner } from '@/components/home/HomeBanner';
 import { HomeHeader } from '@/components/home/HomeHeader';
 import { ProductCard } from '@/components/ui/ProductCard';
-import React from 'react';
 import '@/constants/unistyles';
-import { FlatList, Text, View } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
+import React, { useCallback } from 'react';
+import { Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -20,40 +20,37 @@ export default function HomeScreen() {
   const { theme } = useUnistyles();
   const styles = stylesheet;
 
-  const renderListHeader = () => (
-    <View>
-      <HomeBanner />
-
-      <View style={styles.sectionPadding}>
-        <Text style={styles.sectionTitle}>Danh mục</Text>
-        <CategoryRail />
+  const renderListHeader = useCallback(
+    () => (
+      <View>
+        <View style={styles.sectionPadding}>
+          <CategoryRail />
+        </View>
+        <View style={styles.sectionPadding}>
+          <Text style={styles.sectionTitle}>Gợi ý hômm nay</Text>
+        </View>
       </View>
-
-      <View style={styles.sectionPadding}>
-        <Text style={styles.sectionTitle}>Gợi ý hôm nay</Text>
-      </View>
-    </View>
+    ),
+    [styles.sectionPadding, styles.sectionTitle]
   );
 
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: theme.colors.background }]}
-      edges={['top']}
+      edges={['bottom']}
     >
       <HomeHeader />
-
-      <FlatList
+      <FlashList
         data={PRODUCTS}
         keyExtractor={(item) => item.id.toString()}
         numColumns={2}
-        columnWrapperStyle={styles.row}
         ListHeaderComponent={renderListHeader}
         renderItem={({ item }) => (
           <ProductCard
             title={item.title}
             price={item.price}
             image={item.image}
-            onPress={() => console.log('Click', item.id)}
+            onPress={() => { }}
           />
         )}
         contentContainerStyle={styles.listContent}
@@ -76,11 +73,8 @@ const stylesheet = StyleSheet.create((theme) => ({
     color: theme.colors.typography,
     fontSize: 20, // thay cho variant="titleLarge"
   },
-  row: {
-    justifyContent: 'space-between',
-    paddingHorizontal: theme.margins.md,
-  },
   listContent: {
+    paddingHorizontal: theme.margins.md, // FlashList nên padding ở container
     paddingBottom: 20,
   },
 }));

@@ -1,8 +1,8 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
-
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+import { useAuthStore } from '@/store/useAuthStore';
 import { MaterialIcons } from '@expo/vector-icons';
+import { Tabs, router } from 'expo-router';
+import React from 'react';
 import { useUnistyles } from 'react-native-unistyles';
 
 // Helper để render Icon gọn gàng
@@ -23,6 +23,7 @@ function TabBarIcon(props: {
 
 export default function TabLayout() {
   const { theme } = useUnistyles();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   return (
     <Tabs
@@ -41,34 +42,15 @@ export default function TabLayout() {
         // Disable the static render of the header on web
         // to prevent a hydration error in React Navigation v6.
         headerShown: useClientOnlyValue(false, true),
+        // headerShown: false,
       }}>
-      {/* <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Trang chủ',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-          headerRight: () => (
-            <Link href="/modal" asChild>
-              <Pressable>
-                {({ pressed }) => (
-                  <FontAwesome
-                    name="info-circle"
-                    size={25}
-                    color={Colors[colorScheme ?? 'light'].text}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
-          ),
-        }}
-      /> */}
       {/* 1. Trang chủ app/(tabs)/index.tsx */}
       <Tabs.Screen
         name="index"
         options={{
           title: 'Trang chủ',
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
+          headerShown: false,
         }}
       />
       {/* 2. Danh mục/Category ( app/(tabs)/category.tsx) */}
@@ -86,8 +68,20 @@ export default function TabLayout() {
           title: 'Giỏ hàng',
           tabBarIcon: ({ color }) => <TabBarIcon name="shopping-cart" color={color} />,
           // Hiện badge số lượng sản phẩm trong giỏ hàng khi có (cần update số lượng động)
-          tabBarBadge: 3,
+          tabBarBadge: 4,
         }}
+        listeners={
+          {
+            tabPress: (e) => {
+              if (!isAuthenticated) {
+                // 1. Chặn hành động chuyển Tab mặc định (Ngăn không cho mount CartScreen)
+                e.preventDefault();
+                // 2. Chuyển hướng sang trang Login thủ công
+                router.push('/(auth)/login');
+              }
+            },
+          }
+        }
       />
       {/* 4. Thông báo/Notifications ( app/(tabs)/notify.tsx) */}
       <Tabs.Screen
@@ -95,6 +89,7 @@ export default function TabLayout() {
         options={{
           title: 'Thông báo',
           tabBarIcon: ({ color }) => <TabBarIcon name="notifications" color={color} />,
+          tabBarBadge: 7,
         }}
       />
       {/* 5. Tôi/Me ( app/(tabs)/me.tsx) */}

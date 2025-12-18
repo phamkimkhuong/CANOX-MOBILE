@@ -11,6 +11,7 @@ import { View } from 'react-native';
 import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { useAuthGuard } from '@/hooks/useAuthGuard';
 
 const NavigationTheme = {
   ...DefaultTheme,
@@ -44,6 +45,8 @@ export default function RootLayout() {
     ...FontAwesome.font,
   });
 
+  useAuthGuard();
+
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
@@ -66,6 +69,7 @@ export default function RootLayout() {
       <ThemeProvider value={NavigationTheme}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
         </Stack>
         {/* 4. StatusBar luôn là Dark Content (chữ đen) vì nền sáng */}

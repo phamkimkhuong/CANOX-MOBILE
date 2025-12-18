@@ -20,12 +20,10 @@ export const ProductCard = ({ title, price, image, originalPrice, onPress }: Pro
         <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={styles.container}>
             <View style={styles.surface}>
                 <Image source={{ uri: image }} style={styles.image} resizeMode="cover" />
-
                 <View style={styles.content}>
                     <Text numberOfLines={2} style={styles.title}>
                         {title}
                     </Text>
-
                     <View style={styles.priceRow}>
                         <Text style={styles.price}>${price}</Text>
                         {originalPrice != null && (
@@ -33,7 +31,6 @@ export const ProductCard = ({ title, price, image, originalPrice, onPress }: Pro
                         )}
                     </View>
                 </View>
-
                 {/* Cart Button */}
                 <View style={styles.cartBtn}>
                     <Ionicons name="add" size={18} color={theme.colors.onPrimary} />
@@ -45,7 +42,7 @@ export const ProductCard = ({ title, price, image, originalPrice, onPress }: Pro
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
-        width: '48%',
+        width: '90%',
         marginBottom: theme.margins.md,
     },
     surface: {
