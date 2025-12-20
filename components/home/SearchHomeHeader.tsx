@@ -1,5 +1,6 @@
 import '@/constants/unistyles';
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import React from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
@@ -35,14 +36,14 @@ export const HomeHeader = () => {
                     </View>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.iconBtn}>
+                {/* {Router to chat.tsx} */}
+                <TouchableOpacity style={styles.iconBtn} onPress={() => router.push('/chat')}>
                     <Ionicons name="chatbubble-ellipses-outline" size={26} color={theme.colors.typographySecondary} />
                 </TouchableOpacity>
             </View>
         </View>
     );
 };
-
 const stylesheet = StyleSheet.create((theme) => ({
     headerContainer: {
         paddingHorizontal: theme.margins.md,

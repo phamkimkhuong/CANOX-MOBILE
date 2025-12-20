@@ -82,6 +82,16 @@ export default function RootLayout() {
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />
             <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+            {/* Config UI Chat */}
+            <Stack.Screen
+              name="chat"
+              options={{
+                headerShown: false, // Ẩn header mặc định của React Navigation để tự custom
+                title: 'Tin nhắn',
+                presentation: 'card', // Hiệu ứng đẩy sang ngang chuẩn iOS/Android
+                animation: 'slide_from_right'
+              }}
+            />
           </Stack>
           {/* 4. StatusBar luôn là Dark Content (chữ đen) vì nền sáng */}
           <StatusBar style="dark" />

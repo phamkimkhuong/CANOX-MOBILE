@@ -1,0 +1,56 @@
+import { MaterialIcons } from '@expo/vector-icons';
+import React from 'react';
+import { Text, View } from 'react-native';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+
+export const ChatEmptyState: React.FC = () => {
+    const { theme } = useUnistyles();
+    const styles = stylesheet;
+
+    return (
+        <View style={styles.container}>
+            <View style={styles.iconContainer}>
+                <MaterialIcons
+                    name="chat-bubble-outline"
+                    size={64}
+                    color={theme.colors.secondary}
+                />
+            </View>
+            <Text style={styles.title}>Chưa có tin nhắn</Text>
+            <Text style={styles.subtitle}>
+                Bắt đầu trò chuyện với Shop để được hỗ trợ về sản phẩm
+            </Text>
+        </View>
+    );
+};
+
+const stylesheet = StyleSheet.create((theme) => ({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: theme.margins.xl,
+        paddingVertical: theme.margins.xl * 2,
+    },
+    iconContainer: {
+        width: 120,
+        height: 120,
+        borderRadius: 60,
+        backgroundColor: theme.colors.primaryMuted,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: theme.margins.lg,
+    },
+    title: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: theme.colors.typography,
+        marginBottom: theme.margins.sm,
+    },
+    subtitle: {
+        fontSize: 14,
+        color: theme.colors.typographySecondary,
+        textAlign: 'center',
+        lineHeight: 20,
+    },
+}));

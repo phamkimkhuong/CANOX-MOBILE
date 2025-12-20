@@ -1,0 +1,538 @@
+import { Conversation, MessageType, PARTNER_TYPE_CONFIG } from '@/types/chat';
+import { MaterialIcons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
+import { Image } from 'expo-image';
+import React, { useCallback, useEffect, useRef } from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Animated, {
+    runOnJS,
+    useAnimatedReaction,
+    useAnimatedStyle,
+    useSharedValue,
+    withSpring,
+    withTiming,
+} from 'react-native-reanimated';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { OnlineStatusBadge } from './OnlineStatusBadge';
+
+type MaterialIconName = React.ComponentProps<typeof MaterialIcons>['name'];
+
+// Current user ID for checking message sender
+const CURRENT_USER_ID = 'user_001';
+
+// Swipe thresholds
+const SWIPE_THRESHOLD = 80;
+const MAX_SWIPE_LEFT = 160; // Delete + Mute
+const MAX_SWIPE_RIGHT = 80; // Pin
+
+interface ConversationItemProps {
+    item: Conversation;
+    /** Currently opened row ID for mutual exclusion */
+    openedRowId?: string | null;
+    /** Callback when this row is swiped open */
+    onSwipeOpen?: (id: string | null) => void;
+    onPress?: (item: Conversation) => void;
+    onPin?: (item: Conversation) => void;
+    onMute?: (item: Conversation) => void;
+    onDelete?: (item: Conversation) => void;
+}
+
+/**
+ * Format timestamp to readable string
+ */
+const formatTime = (timestamp: string): string => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) {
+        return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+    }
+    if (diffDays === 1) return 'Hôm qua';
+    if (diffDays < 7) {
+        const days = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+        return days[date.getDay()];
+    }
+    return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
+};
+
+/**
+ * Get message preview with icon based on type
+ */
+const getMessagePreview = (
+    lastMessage: Conversation['lastMessage'],
+    isFromMe: boolean
+): { icon?: MaterialIconName; text: string } => {
+    const prefix = isFromMe ? 'Bạn: ' : '';
+
+    switch (lastMessage.type) {
+        case MessageType.IMAGE:
+            return { icon: 'image', text: `${prefix}Đã gửi một ảnh` };
+        case MessageType.PRODUCT:
+            return { icon: 'shopping-bag', text: `${prefix}Sản phẩm: ${lastMessage.content}` };
+        case MessageType.ORDER:
+            return { icon: 'local-shipping', text: lastMessage.content };
+        case MessageType.FILE:
+            return { icon: 'attach-file', text: lastMessage.content };
+        default:
+            return { text: `${prefix}${lastMessage.content}` };
+    }
+};
+
+export const ConversationItem: React.FC<ConversationItemProps> = ({
+    item,
+    openedRowId,
+    onSwipeOpen,
+    onPress,
+    onPin,
+    onMute,
+    onDelete,
+}) => {
+    const { theme } = useUnistyles();
+    const styles = stylesheet;
+
+    const translateX = useSharedValue(0);
+    useAnimatedReaction(
+        () => openedRowId,
+        (currentOpenId) => {
+            if (currentOpenId && currentOpenId !== item.id && translateX.value !== 0) {
+                translateX.value = withTiming(0, { duration: 300 });
+            }
+        },
+        [openedRowId, item.id]
+    );
+    const contextX = useRef(0);
+
+    const isFromMe = item.lastMessage.senderId === CURRENT_USER_ID;
+    const hasUnread = item.unreadCount > 0;
+    const messagePreview = getMessagePreview(item.lastMessage, isFromMe);
+    const partnerConfig = PARTNER_TYPE_CONFIG[item.partner.type];
+
+    // Auto-close this row when another row is opened (mutual exclusion)
+    useEffect(() => {
+        if (openedRowId !== null && openedRowId !== item.id && translateX.value !== 0) {
+            translateX.value = withSpring(0, { damping: 20 });
+        }
+    }, [openedRowId, item.id, translateX]);
+
+    // Notify parent when this row is swiped open
+    const notifySwipeOpen = useCallback(
+        (isOpen: boolean) => {
+            onSwipeOpen?.(isOpen ? item.id : null);
+        },
+        [item.id, onSwipeOpen]
+    );
+
+    const handlePress = useCallback(() => {
+        onPress?.(item);
+    }, [item, onPress]);
+
+    const handlePin = useCallback(() => {
+        translateX.value = withSpring(0);
+        onPin?.(item);
+    }, [item, onPin, translateX]);
+
+    const handleMute = useCallback(() => {
+        translateX.value = withSpring(0);
+        onMute?.(item);
+    }, [item, onMute, translateX]);
+
+    const handleDelete = useCallback(() => {
+        translateX.value = withSpring(0);
+        onDelete?.(item);
+    }, [item, onDelete, translateX]);
+
+    // Track if haptic has been triggered for current gesture
+    const hasTriggeredHaptic = useRef(false);
+
+    // Pan gesture for swipe actions
+    const panGesture = Gesture.Pan()
+        .onStart(() => {
+            contextX.current = translateX.value;
+            hasTriggeredHaptic.current = false;
+        })
+        .onUpdate((event) => {
+            const newValue = contextX.current + event.translationX;
+            // Clamp between -MAX_SWIPE_LEFT and MAX_SWIPE_RIGHT
+            translateX.value = Math.max(-MAX_SWIPE_LEFT, Math.min(MAX_SWIPE_RIGHT, newValue));
+
+            // Trigger haptic feedback when crossing threshold
+            if (!hasTriggeredHaptic.current &&
+                (Math.abs(newValue) > SWIPE_THRESHOLD)) {
+                hasTriggeredHaptic.current = true;
+                runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Light);
+            }
+        })
+        .onEnd((event) => {
+            const velocity = event.velocityX;
+            const shouldSnapLeft = translateX.value < -SWIPE_THRESHOLD || velocity < -500;
+            const shouldSnapRight = translateX.value > SWIPE_THRESHOLD || velocity > 500;
+
+            // Swipe left (negative) - show delete/mute
+            if (shouldSnapLeft && translateX.value < 0) {
+                translateX.value = withSpring(-MAX_SWIPE_LEFT, { damping: 20 });
+                runOnJS(notifySwipeOpen)(true);
+            }
+            // Swipe right (positive) - show pin
+            else if (shouldSnapRight && translateX.value > 0) {
+                translateX.value = withSpring(MAX_SWIPE_RIGHT, { damping: 20 });
+                runOnJS(notifySwipeOpen)(true);
+            }
+            // Reset
+            else {
+                translateX.value = withSpring(0, { damping: 20 });
+                runOnJS(notifySwipeOpen)(false);
+            }
+        });
+
+    // Tap gesture for press
+    const tapGesture = Gesture.Tap().onEnd(() => {
+        if (translateX.value === 0) {
+            runOnJS(handlePress)();
+        } else {
+            translateX.value = withSpring(0);
+            runOnJS(notifySwipeOpen)(false);
+        }
+    });
+
+    // Combine gestures
+    const composedGesture = Gesture.Simultaneous(panGesture, tapGesture);
+
+    const animatedStyle = useAnimatedStyle(() => ({
+        transform: [{ translateX: translateX.value }],
+    }));
+
+    // Right actions (visible on swipe left)
+    const rightActionsStyle = useAnimatedStyle(() => ({
+        opacity: translateX.value < -20 ? withTiming(1) : withTiming(0),
+    }));
+
+    // Left actions (visible on swipe right)
+    const leftActionsStyle = useAnimatedStyle(() => ({
+        opacity: translateX.value > 20 ? withTiming(1) : withTiming(0),
+    }));
+
+    const renderAvatar = () => {
+        // If partner has avatar image
+        if (item.partner.avatar) {
+            return (
+                <View style={styles.avatarContainer}>
+                    <Image
+                        source={{ uri: item.partner.avatar }}
+                        style={styles.avatar}
+                        contentFit="cover"
+                        transition={200}
+                    />
+                    <OnlineStatusBadge isOnline={item.partner.isOnline} />
+                </View>
+            );
+        }
+
+        // System/AI/Promo - show icon
+        return (
+            <View style={styles.avatarContainer}>
+                <View style={[styles.iconAvatar, { backgroundColor: partnerConfig.backgroundColor }]}>
+                    <MaterialIcons
+                        name={partnerConfig.icon as MaterialIconName}
+                        size={24}
+                        color={partnerConfig.iconColor}
+                    />
+                </View>
+            </View>
+        );
+    };
+
+    return (
+        <View style={styles.wrapper}>
+            {/* Left Action - Pin (swipe right) */}
+            <Animated.View style={[styles.leftActions, leftActionsStyle]}>
+                <TouchableOpacity
+                    style={[styles.actionButton, styles.pinButton]}
+                    onPress={handlePin}
+                    activeOpacity={0.8}
+                >
+                    <MaterialIcons
+                        name={item.isPinned ? 'push-pin' : 'push-pin'}
+                        size={22}
+                        color="#fff"
+                    />
+                    <Text style={styles.actionText}>{item.isPinned ? 'Bỏ ghim' : 'Ghim'}</Text>
+                </TouchableOpacity>
+            </Animated.View>
+
+            {/* Right Actions - Mute + Delete (swipe left) */}
+            <Animated.View style={[styles.rightActions, rightActionsStyle]}>
+                <TouchableOpacity
+                    style={[styles.actionButton, styles.muteButton]}
+                    onPress={handleMute}
+                    activeOpacity={0.8}
+                >
+                    <MaterialIcons
+                        name={item.isMuted ? 'notifications' : 'notifications-off'}
+                        size={22}
+                        color="#fff"
+                    />
+                    <Text style={styles.actionText}>{item.isMuted ? 'Bật' : 'Tắt'}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.actionButton, styles.deleteButton]}
+                    onPress={handleDelete}
+                    activeOpacity={0.8}
+                >
+                    <MaterialIcons name="delete" size={22} color="#fff" />
+                    <Text style={styles.actionText}>Xóa</Text>
+                </TouchableOpacity>
+            </Animated.View>
+
+            {/* Main Content */}
+            <GestureDetector gesture={composedGesture}>
+                <Animated.View style={[styles.container, animatedStyle]}>
+                    {renderAvatar()}
+
+                    <View style={styles.content}>
+                        {/* Name Row */}
+                        <View style={styles.nameRow}>
+                            <View style={styles.nameContainer}>
+                                <Text
+                                    style={[styles.name, hasUnread && styles.nameUnread]}
+                                    numberOfLines={1}
+                                >
+                                    {item.partner.name}
+                                </Text>
+                                {item.partner.isVerified && (
+                                    <MaterialIcons
+                                        name="verified"
+                                        size={14}
+                                        color={theme.colors.primary}
+                                        style={styles.verifiedIcon}
+                                    />
+                                )}
+                                {item.isPinned && (
+                                    <MaterialIcons
+                                        name="push-pin"
+                                        size={12}
+                                        color={theme.colors.secondary}
+                                        style={styles.pinnedIcon}
+                                    />
+                                )}
+                            </View>
+                            <Text style={[styles.time, hasUnread && styles.timeUnread]}>
+                                {formatTime(item.lastMessage.createdAt)}
+                            </Text>
+                        </View>
+
+                        {/* Message Row */}
+                        <View style={styles.messageRow}>
+                            <View style={styles.messagePreview}>
+                                {messagePreview.icon && (
+                                    <MaterialIcons
+                                        name={messagePreview.icon}
+                                        size={16}
+                                        color={theme.colors.secondary}
+                                        style={styles.messageIcon}
+                                    />
+                                )}
+                                <Text
+                                    style={[styles.message, hasUnread && styles.messageUnread]}
+                                    numberOfLines={1}
+                                >
+                                    {messagePreview.text}
+                                </Text>
+                            </View>
+
+                            {/* Badge or Read status */}
+                            {hasUnread ? (
+                                <View style={styles.badge}>
+                                    <Text style={styles.badgeText}>
+                                        {item.unreadCount > 99 ? '99+' : item.unreadCount}
+                                    </Text>
+                                </View>
+                            ) : item.lastMessage.isRead && isFromMe ? (
+                                <MaterialIcons
+                                    name="done-all"
+                                    size={16}
+                                    color={theme.colors.secondary}
+                                />
+                            ) : null}
+                        </View>
+
+                        {/* Response rate label */}
+                        {item.partner.responseRate && item.partner.responseRate >= 90 && (
+                            <View style={styles.responseRow}>
+                                <MaterialIcons
+                                    name="schedule"
+                                    size={12}
+                                    color={theme.colors.primary}
+                                />
+                                <Text style={styles.responseText}>
+                                    Phản hồi {item.partner.responseRate}%
+                                </Text>
+                            </View>
+                        )}
+                    </View>
+                </Animated.View>
+            </GestureDetector>
+        </View>
+    );
+};
+
+const stylesheet = StyleSheet.create((theme) => ({
+    wrapper: {
+        position: 'relative',
+        overflow: 'hidden',
+    },
+    container: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: theme.margins.md,
+        paddingVertical: theme.margins.smd,
+        backgroundColor: theme.colors.surface,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors.border,
+        gap: theme.margins.smd,
+    },
+    avatarContainer: {
+        position: 'relative',
+    },
+    avatar: {
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+    },
+    iconAvatar: {
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    content: {
+        flex: 1,
+    },
+    nameRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 4,
+    },
+    nameContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+        marginRight: theme.margins.sm,
+    },
+    name: {
+        fontSize: 15,
+        fontWeight: '600',
+        color: theme.colors.typography,
+        flexShrink: 1,
+    },
+    nameUnread: {
+        fontWeight: '700',
+    },
+    verifiedIcon: {
+        marginLeft: 4,
+    },
+    pinnedIcon: {
+        marginLeft: 4,
+        transform: [{ rotate: '45deg' }],
+    },
+    time: {
+        fontSize: 11,
+        color: theme.colors.secondary,
+    },
+    timeUnread: {
+        color: theme.colors.primary,
+        fontWeight: '500',
+    },
+    messageRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    messagePreview: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+        marginRight: theme.margins.sm,
+    },
+    messageIcon: {
+        marginRight: 4,
+    },
+    message: {
+        fontSize: 14,
+        color: theme.colors.typographySecondary,
+        flex: 1,
+    },
+    messageUnread: {
+        color: theme.colors.typography,
+        fontWeight: '500',
+    },
+    badge: {
+        backgroundColor: theme.colors.error,
+        minWidth: 20,
+        height: 20,
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 6,
+    },
+    badgeText: {
+        fontSize: 10,
+        fontWeight: '700',
+        color: theme.colors.onPrimary,
+    },
+    responseRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 4,
+        gap: 4,
+    },
+    responseText: {
+        fontSize: 11,
+        color: theme.colors.primary,
+        fontWeight: '500',
+    },
+    // Swipe Actions
+    leftActions: {
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        bottom: 0,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    rightActions: {
+        position: 'absolute',
+        right: 0,
+        top: 0,
+        bottom: 0,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    actionButton: {
+        width: 80,
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 4,
+    },
+    actionText: {
+        fontSize: 11,
+        fontWeight: '600',
+        color: theme.colors.onPrimary,
+    },
+    pinButton: {
+        backgroundColor: theme.colors.primary,
+    },
+    muteButton: {
+        backgroundColor: theme.colors.warning,
+    },
+    deleteButton: {
+        backgroundColor: theme.colors.error,
+    },
+}));

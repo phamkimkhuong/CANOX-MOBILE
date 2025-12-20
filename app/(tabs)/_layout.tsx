@@ -62,7 +62,17 @@ export default function TabLayout() {
           headerShown: false,
         }}
       />
-      {/* 3. Giỏ hàng/Cart ( app/(tabs)/cart.tsx) */}
+      {/* 3. Tin nhắn/Chat ( app/(tabs)/chat.tsx)
+      <Tabs.Screen
+        name="chat"
+        options={{
+          title: 'Tin nhắn',
+          tabBarIcon: ({ color }) => <TabBarIcon name="chat-bubble" color={color} />,
+          tabBarBadge: 3,
+          headerShown: false,
+        }}
+      /> */}
+      {/* 4. Giỏ hàng/Cart ( app/(tabs)/cart.tsx) */}
       <Tabs.Screen
         name="cart"
         options={{

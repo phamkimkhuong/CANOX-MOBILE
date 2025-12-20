@@ -17,6 +17,8 @@ const lightTheme = {
         surface: '#ffffff',
         secondary: '#94a3b8',
         error: '#ef4444',
+        success: '#22c55e',
+        warning: '#f97316',
         typography: '#1c3024',
         typographySecondary: '#687076',
         // Semantic colors
