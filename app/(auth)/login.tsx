@@ -1,4 +1,4 @@
-import { MaterialIcons } from '@expo/vector-icons';
+import { IconSymbol } from '@/components/ui/Icon';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import React from 'react';
@@ -72,7 +72,7 @@ export default function LoginScreen() {
                             style={styles.backBtn}
                             onPress={() => router.canGoBack() ? router.back() : router.replace('/(tabs)')}
                         >
-                            <MaterialIcons name="arrow-back" size={24} color={theme.colors.typography} />
+                            <IconSymbol name="arrow-back" size={24} color={theme.colors.typography} />
                         </TouchableOpacity>
                         <Text style={styles.headerTitle}>Đăng nhập</Text>
                         <View style={styles.headerSpacer} />
@@ -81,7 +81,7 @@ export default function LoginScreen() {
                     {/* Welcome Section */}
                     <View style={styles.welcomeSection}>
                         <View style={styles.iconCircle}>
-                            <MaterialIcons name="login" size={32} color={theme.colors.primary} />
+                            <IconSymbol name="login" size={32} color={theme.colors.primary} />
                         </View>
                         <Text style={styles.welcomeTitle}>Chào mừng trở lại</Text>
                         <Text style={styles.welcomeSubtitle}>

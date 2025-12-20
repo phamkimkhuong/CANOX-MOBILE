@@ -1,0 +1,130 @@
+import { Ionicons } from '@expo/vector-icons';
+import React from 'react';
+import { Platform, StyleProp, TextStyle } from 'react-native';
+
+/**
+ * IconSymbol - Lớp trừu tượng thống nhất cho icon trên cả iOS và Android
+ * 
+ * Từ Expo SDK 50+: Không dùng tiền tố ios-/md- nữa (đã deprecated)
+ * Sử dụng tên thống nhất: 'add', 'heart-outline', 'home', etc.
+ * 
+ * Mapping thông minh:
+ * - iOS: Hiển thị SF Symbols-like style từ Ionicons (thanh mảnh, tinh tế)
+ * - Android: Có thể map sang style phù hợp Material-like
+ */
+
+// Type cho tên icon sử dụng trong app
+export type IconSymbolName = keyof typeof ICON_MAP | keyof typeof Ionicons.glyphMap;
+
+// Định nghĩa map icon với platform-specific variants
+const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: keyof typeof Ionicons.glyphMap }> = {
+    // === Navigation Icons ===
+    share: {
+        ios: 'share-outline',           // Square with arrow (iOS native)
+        android: 'share-social-outline' // 3 connected dots (Android pattern)
+    },
+    more: {
+        ios: 'ellipsis-horizontal',     // Horizontal dots (iOS native)
+        android: 'ellipsis-vertical'    // Vertical dots (Android pattern)
+    },
+    back: {
+        ios: 'chevron-back',            // Chevron (iOS native)
+        android: 'arrow-back'           // Arrow (Android pattern)
+    },
+    forward: {
+        ios: 'chevron-forward',
+        android: 'arrow-forward'
+    },
+
+    // === Tab Bar Icons ===
+    home: { ios: 'home-outline', android: 'home-outline' },
+    'home-filled': { ios: 'home', android: 'home' },
+    cart: { ios: 'cart-outline', android: 'cart-outline' },
+    'cart-filled': { ios: 'cart', android: 'cart' },
+    category: { ios: 'grid-outline', android: 'grid-outline' },
+    notifications: { ios: 'notifications-outline', android: 'notifications-outline' },
+    'notifications-filled': { ios: 'notifications', android: 'notifications' },
+    person: { ios: 'person-outline', android: 'person-outline' },
+    'person-filled': { ios: 'person', android: 'person' },
+
+    // === Action Icons ===
+    search: { ios: 'search-outline', android: 'search-outline' },
+    close: { ios: 'close', android: 'close' },
+    add: { ios: 'add', android: 'add' },
+    remove: { ios: 'remove', android: 'remove' },
+    check: { ios: 'checkmark', android: 'checkmark' },
+
+    // === E-commerce Icons ===
+    'favorite-border': { ios: 'heart-outline', android: 'heart-outline' },
+    favorite: { ios: 'heart', android: 'heart' },
+    star: { ios: 'star', android: 'star' },
+    'star-border': { ios: 'star-outline', android: 'star-outline' },
+    'shopping-cart': { ios: 'cart-outline', android: 'cart-outline' },
+    'shopping-bag': { ios: 'bag-outline', android: 'bag-outline' },
+    'local-shipping': { ios: 'car-outline', android: 'car-outline' },
+
+    // === UI Icons ===
+    'chevron-right': { ios: 'chevron-forward', android: 'chevron-forward' },
+    'chevron-left': { ios: 'chevron-back', android: 'chevron-back' },
+    'arrow-back': { ios: 'chevron-back', android: 'arrow-back' },
+    login: { ios: 'log-in-outline', android: 'log-in-outline' },
+    'lock-reset': { ios: 'key-outline', android: 'key-outline' },
+    lock: { ios: 'lock-closed-outline', android: 'lock-closed-outline' },
+    mail: { ios: 'mail-outline', android: 'mail-outline' },
+    'info-outline': { ios: 'information-circle-outline', android: 'information-circle-outline' },
+    'verified-user': { ios: 'shield-checkmark-outline', android: 'shield-checkmark-outline' },
+
+    // === Category Icons (mapping từ MaterialIcons sang Ionicons) ===
+    bolt: { ios: 'flash-outline', android: 'flash-outline' },
+    'confirmation-number': { ios: 'ticket-outline', android: 'ticket-outline' },
+    smartphone: { ios: 'phone-portrait-outline', android: 'phone-portrait-outline' },
+    checkroom: { ios: 'shirt-outline', android: 'shirt-outline' },
+    'local-grocery-store': { ios: 'storefront-outline', android: 'storefront-outline' },
+    'monetization-on': { ios: 'cash-outline', android: 'cash-outline' },
+    public: { ios: 'globe-outline', android: 'globe-outline' },
+
+    // === Notification Icons ===
+    'local-fire-department': { ios: 'flame-outline', android: 'flame-outline' },
+    shield: { ios: 'shield-outline', android: 'shield-outline' },
+    'account-balance-wallet': { ios: 'wallet-outline', android: 'wallet-outline' },
+    percent: { ios: 'pricetag-outline', android: 'pricetag-outline' },
+
+    // === Communication Icons ===
+    chat: { ios: 'chatbubble-outline', android: 'chatbubble-outline' },
+    'chat-filled': { ios: 'chatbubble', android: 'chatbubble' },
+};
+
+interface IconSymbolProps {
+    name: IconSymbolName;
+    size?: number;
+    color?: string;
+    style?: StyleProp<TextStyle>;
+}
+
+/**
+ * IconSymbol Component
+ * 
+ * Usage:
+ * ```tsx
+ * <IconSymbol name="home" size={24} color="#000" />
+ * <IconSymbol name="heart-outline" size={20} color={theme.colors.primary} />
+ * ```
+ */
+export const IconSymbol = ({ name, size = 24, color = '#000', style }: IconSymbolProps) => {
+    const mappedIcon = ICON_MAP[name as string];
+
+    let iconName: keyof typeof Ionicons.glyphMap;
+
+    if (mappedIcon) {
+        // Icon có mapping -> chọn theo platform
+        iconName = Platform.OS === 'ios' ? mappedIcon.ios : mappedIcon.android;
+    } else {
+        // Không có trong map -> dùng trực tiếp (phải là valid Ionicons name)
+        iconName = name as keyof typeof Ionicons.glyphMap;
+    }
+
+    return <Ionicons name={iconName} size={size} color={color} style={style} />;
+};
+
+// Legacy export for backward compatibility
+export const Icon = IconSymbol;

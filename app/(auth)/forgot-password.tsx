@@ -1,4 +1,4 @@
-import { MaterialIcons } from '@expo/vector-icons';
+import { IconSymbol } from '@/components/ui/Icon';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import React from 'react';
@@ -56,7 +56,7 @@ export default function ForgotPasswordScreen() {
                             style={styles.backBtn}
                             onPress={() => router.canGoBack() ? router.back() : router.replace('/(auth)/login')}
                         >
-                            <MaterialIcons name="arrow-back" size={24} color={theme.colors.typography} />
+                            <IconSymbol name="arrow-back" size={24} color={theme.colors.typography} />
                         </TouchableOpacity>
                         <Text style={styles.headerTitle}>Quên mật khẩu</Text>
                         <View style={styles.headerSpacer} />
@@ -65,7 +65,7 @@ export default function ForgotPasswordScreen() {
                     {/* Welcome Section */}
                     <View style={styles.welcomeSection}>
                         <View style={styles.iconCircle}>
-                            <MaterialIcons name="lock-reset" size={32} color={theme.colors.primary} />
+                            <IconSymbol name="lock-reset" size={32} color={theme.colors.primary} />
                         </View>
                         <Text style={styles.welcomeTitle}>Đặt lại mật khẩu</Text>
                         <Text style={styles.welcomeSubtitle}>
@@ -86,7 +86,7 @@ export default function ForgotPasswordScreen() {
 
                         {/* Info Box */}
                         <View style={styles.infoBox}>
-                            <MaterialIcons name="info-outline" size={20} color={theme.colors.primary} />
+                            <IconSymbol name="info-outline" size={20} color={theme.colors.primary} />
                             <Text style={styles.infoText}>
                                 Nếu không nhận được email, vui lòng kiểm tra thư mục spam hoặc thử lại sau ít phút.
                             </Text>

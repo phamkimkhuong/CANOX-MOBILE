@@ -1,3 +1,4 @@
+import type { IconSymbolName } from '@/components/ui/Icon';
 import { z } from 'zod';
 
 /**
@@ -76,7 +77,7 @@ export type FlattenedNotificationItem = NotificationSectionHeader | Notification
 export interface FilterTab {
     key: NotificationFilter;
     label: string;
-    icon: string; // MaterialIcons name
+    icon: IconSymbolName | '';
 }
 
 export const FILTER_TABS: FilterTab[] = [

@@ -1,8 +1,8 @@
-import { MaterialIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { IconSymbol } from './Icon';
 
 interface ProductCardProps {
     title: string;
@@ -55,7 +55,7 @@ export const ProductCard = ({
 
                     {/* Favorite Button */}
                     <TouchableOpacity style={styles.favoriteBtn} activeOpacity={0.8}>
-                        <MaterialIcons name="favorite-border" size={18} color={theme.colors.secondary} />
+                        <IconSymbol name="favorite-border" size={18} color={theme.colors.secondary} />
                     </TouchableOpacity>
                 </View>
 
@@ -68,7 +68,7 @@ export const ProductCard = ({
                     {/* Rating */}
                     <View style={styles.ratingRow}>
                         {[1, 2, 3, 4, 5].map((star) => (
-                            <MaterialIcons
+                            <IconSymbol
                                 key={star}
                                 name={star <= Math.floor(rating) ? 'star' : 'star-border'}
                                 size={12}

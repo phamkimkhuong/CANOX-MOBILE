@@ -1,7 +1,7 @@
-import { MaterialIcons } from '@expo/vector-icons';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { IconSymbol } from './Icon';
 
 interface SectionHeaderProps {
     title: string;
@@ -18,7 +18,7 @@ export const SectionHeader = ({ title, onSeeAll }: SectionHeaderProps) => {
             {onSeeAll && (
                 <TouchableOpacity style={styles.seeAllBtn} onPress={onSeeAll}>
                     <Text style={styles.seeAllText}>See All</Text>
-                    <MaterialIcons name="chevron-right" size={16} color={theme.colors.secondary} />
+                    <IconSymbol name="chevron-right" size={16} color={theme.colors.secondary} />
                 </TouchableOpacity>
             )}
         </View>

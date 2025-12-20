@@ -1,4 +1,4 @@
-import { MaterialIcons } from '@expo/vector-icons';
+import { IconSymbol } from '@/components/ui/Icon';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
@@ -70,7 +70,7 @@ export default function RegisterScreen() {
 							style={styles.backBtn}
 							onPress={() => router.canGoBack() ? router.back() : router.replace('/(tabs)')}
 						>
-							<MaterialIcons name="arrow-back" size={24} color={theme.colors.typography} />
+							<IconSymbol name="arrow-back" size={24} color={theme.colors.typography} />
 						</TouchableOpacity>
 						<Text style={styles.headerTitle}>Đăng ký</Text>
 						<View style={styles.headerSpacer} />
@@ -79,7 +79,7 @@ export default function RegisterScreen() {
 					{/* Welcome Section */}
 					<View style={styles.welcomeSection}>
 						<View style={styles.iconCircle}>
-							<MaterialIcons name="shopping-bag" size={32} color={theme.colors.primary} />
+							<IconSymbol name="shopping-bag" size={32} color={theme.colors.primary} />
 						</View>
 						<Text style={styles.welcomeTitle}>Tạo tài khoản mới</Text>
 						<Text style={styles.welcomeSubtitle}>
@@ -124,7 +124,7 @@ export default function RegisterScreen() {
 						>
 							<View style={[styles.checkbox, agreedTerms && styles.checkboxChecked]}>
 								{agreedTerms && (
-									<MaterialIcons name="check" size={14} color={theme.colors.onPrimary} />
+									<IconSymbol name="check" size={14} color={theme.colors.onPrimary} />
 								)}
 							</View>
 							<Text style={styles.termsText}>

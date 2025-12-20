@@ -1,16 +1,16 @@
+import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 import { useAuthStore } from '@/store/useAuthStore';
-import { MaterialIcons } from '@expo/vector-icons';
 import { Tabs, router } from 'expo-router';
 import React from 'react';
 import { useUnistyles } from 'react-native-unistyles';
 
-// Helper để render Icon gọn gàng
+// Helper để render Icon gọn gàng với IconSymbol
 function TabBarIcon(props: {
-  name: React.ComponentProps<typeof MaterialIcons>['name'];
+  name: IconSymbolName;
   color: string;
 }) {
-  return <MaterialIcons size={24} style={{ marginBottom: -3 }} {...props} />;
+  return <IconSymbol size={24} style={{ marginBottom: -3 }} {...props} />;
 }
 
 // // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
@@ -59,6 +59,7 @@ export default function TabLayout() {
         options={{
           title: 'Danh mục',
           tabBarIcon: ({ color }) => <TabBarIcon name="category" color={color} />,
+          headerShown: false,
         }}
       />
       {/* 3. Giỏ hàng/Cart ( app/(tabs)/cart.tsx) */}

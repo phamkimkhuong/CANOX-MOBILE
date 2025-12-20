@@ -1,4 +1,4 @@
-import { MaterialIcons } from '@expo/vector-icons';
+import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import React, { useCallback, useRef, useState } from 'react';
 import {
     Animated,
@@ -15,12 +15,10 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 const INDICATOR_WIDTH = 40; // Thanh track chỉ rộng 40px
 const INDICATOR_HEIGHT = 4;
 
-type MaterialIconName = React.ComponentProps<typeof MaterialIcons>['name'];
-
 interface Category {
     id: number;
     name: string;
-    icon: MaterialIconName;
+    icon: IconSymbolName;
     color: string;
 }
 
@@ -91,7 +89,7 @@ export const CategoryRail = () => {
                 {CATEGORIES.map((cat) => (
                     <TouchableOpacity key={cat.id} style={styles.item} activeOpacity={0.7}>
                         <View style={styles.iconCircle}>
-                            <MaterialIcons name={cat.icon} size={24} color={cat.color} />
+                            <IconSymbol name={cat.icon} size={24} color={cat.color} />
                         </View>
                         <Text style={styles.text} numberOfLines={2}>
                             {cat.name}

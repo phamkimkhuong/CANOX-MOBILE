@@ -2,6 +2,7 @@ import '@/constants/unistyles';
 import { lightTheme } from '@/constants/unistyles';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -25,6 +26,14 @@ const NavigationTheme = {
     notification: lightTheme.colors.error,
   },
 };
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 2, // Thử lại 2 lần nếu lỗi mạng
+      staleTime: 1000 * 60, // Data cũ sau 1 phút
+    },
+  },
+});
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -64,17 +73,20 @@ export default function RootLayout() {
   }
 
   return (
-    <SafeAreaProvider>
-      {/* 3. Inject Theme vào Navigation */}
-      <ThemeProvider value={NavigationTheme}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-        </Stack>
-        {/* 4. StatusBar luôn là Dark Content (chữ đen) vì nền sáng */}
-        <StatusBar style="dark" />
-      </ThemeProvider>
-    </SafeAreaProvider>
+    <QueryClientProvider client={queryClient}>
+      <SafeAreaProvider>
+        {/* 3. Inject Theme vào Navigation */}
+
+        <ThemeProvider value={NavigationTheme}>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+          </Stack>
+          {/* 4. StatusBar luôn là Dark Content (chữ đen) vì nền sáng */}
+          <StatusBar style="dark" />
+        </ThemeProvider>
+      </SafeAreaProvider>
+    </QueryClientProvider>
   );
 }

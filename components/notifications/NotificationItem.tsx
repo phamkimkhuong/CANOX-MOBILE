@@ -1,48 +1,16 @@
+import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import { Notification, NOTIFICATION_TYPE_CONFIG } from '@/types/notification';
-import { MaterialIcons } from '@expo/vector-icons';
+import { formatTime } from '@/utils/date';
 import { Image } from 'expo-image';
 import React, { useCallback } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-
-type MaterialIconName = React.ComponentProps<typeof MaterialIcons>['name'];
 
 interface NotificationItemProps {
     item: Notification;
     onPress?: (item: Notification) => void;
 }
 
-/**
- * Format timestamp to readable time
- */
-const formatTime = (timestamp: string): string => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-
-    if (diffHours < 1) {
-        const diffMinutes = Math.floor(diffMs / (1000 * 60));
-        return diffMinutes <= 1 ? 'Vừa xong' : `${diffMinutes} phút trước`;
-    }
-
-    if (diffHours < 24) {
-        return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-    }
-
-    const yesterday = new Date(now);
-    yesterday.setDate(yesterday.getDate() - 1);
-    if (date.toDateString() === yesterday.toDateString()) {
-        return `Hôm qua, ${date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}`;
-    }
-
-    return date.toLocaleDateString('vi-VN', {
-        day: '2-digit',
-        month: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-    });
-};
 
 export const NotificationItem: React.FC<NotificationItemProps> = ({ item, onPress }) => {
     const { theme } = useUnistyles();
@@ -69,8 +37,8 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({ item, onPres
         // Show type-specific icon
         return (
             <View style={[styles.iconContainer, { backgroundColor: config.backgroundColor }]}>
-                <MaterialIcons
-                    name={config.icon as MaterialIconName}
+                <IconSymbol
+                    name={config.icon as IconSymbolName}
                     size={28}
                     color={config.iconColor}
                 />
@@ -110,7 +78,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({ item, onPres
                 </View>
             </View>
 
-            <MaterialIcons
+            <IconSymbol
                 name="chevron-right"
                 size={20}
                 color={theme.colors.secondary}

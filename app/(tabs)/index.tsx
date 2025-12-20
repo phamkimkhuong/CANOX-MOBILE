@@ -54,25 +54,6 @@ const PRODUCTS = [
     location: 'Shenzhen',
     discount: 50,
   },
-  {
-    id: 5,
-    title: 'Wireless Bluetooth Earbuds Pro',
-    price: 79.99,
-    image: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400',
-    rating: 4.6,
-    reviews: 890,
-    location: 'Tokyo',
-  },
-  {
-    id: 6,
-    title: 'Minimalist Leather Wallet',
-    price: 24.99,
-    image: 'https://images.unsplash.com/photo-1627123424574-724758594e93?w=400',
-    rating: 4.4,
-    reviews: 320,
-    location: 'Milan',
-    isMall: true,
-  },
 ];
 
 export default function HomeScreen() {
