@@ -1,3 +1,4 @@
+import { API_ROUTES } from '@/constants/apiRoutes';
 import { request } from '@/services/api/client';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { z } from 'zod';
@@ -15,7 +16,18 @@ const ResponseSchema = z.object({
     skip: z.number(),
     limit: z.number(),
 });
-
+export const useProductDetail = (productId: string) => {
+    return useInfiniteQuery({
+        queryKey: ['product', productId],
+        queryFn: () =>
+            request({
+                url: API_ROUTES.PRODUCTS.DETAIL(productId),
+                method: 'GET'
+            }, ProductSchema),
+        getNextPageParam: () => undefined, // Không phân trang cho chi tiết sản phẩm
+        initialPageParam: undefined, // Không phân trang cho chi tiết sản phẩm
+    });
+};
 export const useProductFeed = () => {
     return useInfiniteQuery({
         queryKey: ['products', 'feed'],

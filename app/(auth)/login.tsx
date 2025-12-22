@@ -6,56 +6,48 @@ import { useForm } from 'react-hook-form';
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { z } from 'zod';
 
 import { AuthInput } from '@/components/auth/AuthInput';
 import { SocialLoginButtons } from '@/components/auth/SocialLoginButtons';
-import { useAuthStore } from '@/store/useAuthStore';
-
-// 1. Định nghĩa Schema Validation (Zod)
-const loginSchema = z.object({
-    email: z.string().min(1, 'Vui lòng nhập email').email('Email không hợp lệ'),
-    password: z.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự'),
-});
-
-type LoginFormData = z.infer<typeof loginSchema>;
+import { useLogin } from '@/hooks/api/useAuth';
+import { LoginPayload, LoginRequestSchema } from '@/types/auth';
 
 export default function LoginScreen() {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const login = useAuthStore((state) => state.login);
 
     // 2. Setup React Hook Form
-    const { control, handleSubmit, formState: { isSubmitting } } = useForm<LoginFormData>({
-        resolver: zodResolver(loginSchema),
+    const { control, handleSubmit, formState: { isSubmitting } } = useForm<LoginPayload>({
+        resolver: zodResolver(LoginRequestSchema),
         defaultValues: {
-            email: '',
+            username: '',
             password: '',
         },
     });
-
+    const { mutate: login, isPending } = useLogin();
     // 3. Handle Submit Logic
-    const onSubmit = async (data: LoginFormData) => {
-        try {
-            // TODO: Replace with actual API call using mutation hook
-            // eslint-disable-next-line no-console
-            console.log('Form Data:', data);
-
-            // Simulate network delay
-            await new Promise(resolve => setTimeout(resolve, 1000));
-
-            const fakeToken = "jwt-token-xyz-123";
-            await login(fakeToken);
-
-            // Smart navigation logic
-            if (router.canGoBack()) {
-                router.back();
-            } else {
-                router.replace('/(tabs)');
+    const onSubmit = async (data: LoginPayload) => {
+        login(data, {
+            onError: (error: any) => {
+                // SENIOR UX: Mapping lỗi Backend vào React Hook Form
+                // Giả sử Backend trả về: { code: 'EMAIL_NOT_FOUND', message: 'Email chưa đăng ký' }
+                if (error.code === 'EMAIL_NOT_FOUND') {
+                    // setError('email', { message: error.message });
+                } else if (error.code === 'WRONG_PASSWORD') {
+                    // setError('password', { message: 'Mật khẩu không đúng' });
+                } else {
+                    // Lỗi hệ thống/Mạng -> Hiện Alert
+                    Alert.alert('Đăng nhập thất bại', error.message || 'Vui lòng thử lại sau');
+                }
+            },
+            onSuccess: () => {
+                if (router.canGoBack()) {
+                    router.back();
+                } else {
+                    router.replace('/(tabs)');
+                }
             }
-        } catch {
-            Alert.alert("Lỗi đăng nhập", "Email hoặc mật khẩu không đúng.");
-        }
+        });
     };
 
     return (
@@ -93,11 +85,11 @@ export default function LoginScreen() {
                     <View style={styles.card}>
                         <AuthInput
                             control={control}
-                            name="email"
-                            label="Email hoặc Tên đăng nhập"
+                            name="username"
+                            label="Tên đăng nhập"
                             icon="person"
-                            placeholder="nhập email hoặc tên đăng nhập"
-                            keyboardType="email-address"
+                            placeholder="Nhập tên đăng nhập"
+                            autoCapitalize="none"
                         />
 
                         <AuthInput
@@ -105,7 +97,7 @@ export default function LoginScreen() {
                             name="password"
                             label="Mật khẩu"
                             icon="lock"
-                            placeholder="nhập mật khẩu"
+                            placeholder="Nhập mật khẩu"
                             isPassword
                         />
 
@@ -118,12 +110,12 @@ export default function LoginScreen() {
 
                         {/* Submit Button */}
                         <TouchableOpacity
-                            style={[styles.loginBtn, isSubmitting && styles.loginBtnDisabled]}
+                            style={[styles.loginBtn, isSubmitting || isPending ? styles.loginBtnDisabled : null]}
+                            disabled={isSubmitting || isPending}
                             onPress={handleSubmit(onSubmit)}
-                            disabled={isSubmitting}
                         >
                             <Text style={styles.loginBtnText}>
-                                {isSubmitting ? 'Đang xử lý...' : 'Đăng nhập'}
+                                {isSubmitting || isPending ? 'Đang xử lý...' : 'Đăng nhập'}
                             </Text>
                         </TouchableOpacity>
 

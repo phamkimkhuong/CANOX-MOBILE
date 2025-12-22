@@ -3,19 +3,19 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { z } from 'zod';
 
 import { AuthInput } from '@/components/auth/AuthInput';
 import { SocialLoginButtons } from '@/components/auth/SocialLoginButtons';
+import { useRegister } from '@/hooks/api/useAuth';
+import { RegisterRequestSchema } from '@/types/auth';
 
 // Schema Validation
-const registerSchema = z.object({
-	email: z.string().min(1, 'Vui lòng nhập email').email('Email không hợp lệ'),
-	password: z.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự'),
-	confirmPassword: z.string().min(1, 'Vui lòng xác nhận mật khẩu'),
+const registerSchema = RegisterRequestSchema.extend({
+	confirmPassword: z.string()
 }).refine((data) => data.password === data.confirmPassword, {
 	message: 'Mật khẩu không khớp',
 	path: ['confirmPassword'],
@@ -27,10 +27,12 @@ export default function RegisterScreen() {
 	const { theme } = useUnistyles();
 	const styles = stylesheet;
 	const [agreedTerms, setAgreedTerms] = useState(false);
+	const { mutate: register, isPending } = useRegister();
 
 	const { control, handleSubmit, formState: { isSubmitting } } = useForm<RegisterFormData>({
 		resolver: zodResolver(registerSchema),
 		defaultValues: {
+			username: '',
 			email: '',
 			password: '',
 			confirmPassword: '',
@@ -42,16 +44,22 @@ export default function RegisterScreen() {
 			Alert.alert('Thông báo', 'Vui lòng đồng ý với Điều khoản sử dụng');
 			return;
 		}
-
 		try {
-			// TODO: Replace with actual API call using mutation hook
-			await new Promise(resolve => setTimeout(resolve, 1000));
-
-			Alert.alert(
-				'Đăng ký thành công',
-				'Vui lòng kiểm tra email để xác thực tài khoản.',
-				[{ text: 'OK', onPress: () => router.replace('/(auth)/login') }]
-			);
+			const { confirmPassword, ...payload } = data;
+			register(payload, {
+				onError: (error: any) => {
+					// Nếu muốn xử lý lỗi cụ thể tại màn hình này (ví dụ: focus vào ô input)
+					// thì viết thêm ở đây. Còn không thì hook useRegister đã log lỗi rồi.
+					if (error.code === 208) {
+						Alert.alert('Lỗi đăng ký', 'Tên đăng nhập hoặc email đã được sử dụng.');
+					}
+				}
+			});
+			// Alert.alert(
+			// 	'Đăng ký thành công',
+			// 	'Vui lòng kiểm tra email để xác thực tài khoản.',
+			// 	[{ text: 'OK', onPress: () => router.replace('/(auth)/login') }]
+			// );
 		} catch {
 			Alert.alert('Lỗi', 'Đăng ký thất bại. Vui lòng thử lại.');
 		}
@@ -91,10 +99,18 @@ export default function RegisterScreen() {
 					<View style={styles.card}>
 						<AuthInput
 							control={control}
+							name="username"
+							label="Tên đăng nhập"
+							placeholder="Nhập tên đăng nhập"
+							icon="person"
+							autoCapitalize="none"
+						/>
+						<AuthInput
+							control={control}
 							name="email"
 							label="Email"
 							icon="mail"
-							placeholder="nhập địa chỉ email của bạn"
+							placeholder="Nhập địa chỉ email của bạn"
 							keyboardType="email-address"
 						/>
 
@@ -103,7 +119,7 @@ export default function RegisterScreen() {
 							name="password"
 							label="Mật khẩu"
 							icon="lock"
-							placeholder="nhập mật khẩu"
+							placeholder="Nhập mật khẩu"
 							isPassword
 						/>
 
@@ -112,7 +128,7 @@ export default function RegisterScreen() {
 							name="confirmPassword"
 							label="Nhập lại mật khẩu"
 							icon="verified-user"
-							placeholder="nhập lại mật khẩu"
+							placeholder="Nhập lại mật khẩu"
 							isPassword
 						/>
 
@@ -137,13 +153,15 @@ export default function RegisterScreen() {
 
 						{/* Submit Button */}
 						<TouchableOpacity
-							style={[styles.submitBtn, isSubmitting && styles.submitBtnDisabled]}
+							style={[styles.submitBtn, (isSubmitting || isPending) && styles.submitBtnDisabled]}
+							disabled={isSubmitting || isPending || !agreedTerms}
 							onPress={handleSubmit(onSubmit)}
-							disabled={isSubmitting}
 						>
-							<Text style={styles.submitBtnText}>
-								{isSubmitting ? 'Đang xử lý...' : 'Đăng ký ngay'}
-							</Text>
+							{isPending ? ( // Hiển thị Spinner khi đang gọi API
+								<ActivityIndicator color="white" />
+							) : (
+								<Text style={styles.submitBtnText}>Đăng ký</Text>
+							)}
 						</TouchableOpacity>
 
 						{/* Divider */}
