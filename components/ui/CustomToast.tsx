@@ -1,10 +1,14 @@
-import { MaterialIcons } from '@expo/vector-icons';
+import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import React from 'react';
 import { Text, View } from 'react-native';
 import { BaseToastProps, ToastConfig } from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-// Định nghĩa props
+/**
+ * CustomToast - Toast notification component với styling tùy chỉnh
+ * 
+ * Hỗ trợ 3 loại toast: success, error, info
+ */
 interface CustomToastProps extends BaseToastProps {
     type: 'success' | 'error' | 'info';
 }
@@ -13,8 +17,11 @@ const ToastAlert = ({ text1, text2, type }: CustomToastProps) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
 
-    // Config màu sắc icon dựa theo type
-    const getIconConfig = () => {
+    /**
+     * Lấy config icon dựa theo loại toast
+     * @returns Object chứa tên icon và màu sắc tương ứng
+     */
+    const getIconConfig = (): { name: IconSymbolName; color: string } => {
         switch (type) {
             case 'success': return { name: 'check-circle', color: theme.colors.success || '#22c55e' };
             case 'error': return { name: 'error', color: theme.colors.error };
@@ -27,7 +34,7 @@ const ToastAlert = ({ text1, text2, type }: CustomToastProps) => {
     return (
         <View style={[styles.container, styles[`border${type}`]]}>
             <View style={styles.iconContainer}>
-                <MaterialIcons name={iconConfig.name as any} size={24} color={iconConfig.color} />
+                <IconSymbol name={iconConfig.name} size={24} color={iconConfig.color} />
             </View>
             <View style={styles.contentContainer}>
                 <Text style={styles.title}>{text1}</Text>

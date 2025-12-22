@@ -1,9 +1,17 @@
-import { MaterialIcons } from '@expo/vector-icons';
+import { IconSymbol } from '@/components/ui/Icon';
 import { Image } from 'expo-image';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+/**
+ * FlashSale - Component hiển thị sản phẩm Flash Sale với countdown timer
+ * 
+ * Features:
+ * - Countdown timer tự động cập nhật
+ * - Progress bar hiển thị số lượng đã bán
+ * - Horizontal scroll cho danh sách sản phẩm
+ */
 interface FlashProduct {
     id: number;
     image: string;
@@ -94,7 +102,7 @@ export const FlashSale = () => {
                 </View>
                 <TouchableOpacity style={styles.seeAllBtn}>
                     <Text style={styles.seeAllText}>See All</Text>
-                    <MaterialIcons name="chevron-right" size={16} color={theme.colors.secondary} />
+                    <IconSymbol name="chevron-right" size={16} color={theme.colors.secondary} />
                 </TouchableOpacity>
             </View>
 

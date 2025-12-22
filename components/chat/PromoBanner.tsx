@@ -1,12 +1,17 @@
-import { MaterialIcons } from '@expo/vector-icons';
+import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+/**
+ * PromoBanner - Banner quảng cáo hiển thị trong danh sách chat
+ * 
+ * Hiển thị thông tin khuyến mãi với icon và nội dung.
+ */
 interface PromoBannerProps {
     title: string;
     subtitle: string;
-    icon?: string;
+    icon?: IconSymbolName;
     onPress?: () => void;
 }
 
@@ -30,8 +35,8 @@ export const PromoBanner: React.FC<PromoBannerProps> = ({
                 <Text style={styles.title}>{title}</Text>
             </View>
             <View style={styles.iconContainer}>
-                <MaterialIcons
-                    name={icon as React.ComponentProps<typeof MaterialIcons>['name']}
+                <IconSymbol
+                    name={icon}
                     size={24}
                     color="#fff"
                 />

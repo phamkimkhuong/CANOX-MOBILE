@@ -92,6 +92,44 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     // === Communication Icons ===
     chat: { ios: 'chatbubble-outline', android: 'chatbubble-outline' },
     'chat-filled': { ios: 'chatbubble', android: 'chatbubble' },
+    'chat-bubble-outline': { ios: 'chatbubble-outline', android: 'chatbubble-outline' },
+    'chatbubble-ellipses-outline': { ios: 'chatbubble-ellipses-outline', android: 'chatbubble-ellipses-outline' },
+
+    // === Auth/Visibility Icons ===
+    visibility: { ios: 'eye-outline', android: 'eye-outline' },
+    'visibility-off': { ios: 'eye-off-outline', android: 'eye-off-outline' },
+    email: { ios: 'mail-outline', android: 'mail-outline' },
+
+    // === Toast/Status Icons ===
+    'check-circle': { ios: 'checkmark-circle', android: 'checkmark-circle' },
+    error: { ios: 'close-circle', android: 'close-circle' },
+    info: { ios: 'information-circle', android: 'information-circle' },
+
+    // === Action Icons (Extended) ===
+    tune: { ios: 'options-outline', android: 'options-outline' },
+    'push-pin': { ios: 'pin-outline', android: 'pin-outline' },
+    delete: { ios: 'trash-outline', android: 'trash-outline' },
+    'done-all': { ios: 'checkmark-done', android: 'checkmark-done' },
+    schedule: { ios: 'time-outline', android: 'time-outline' },
+    'attach-file': { ios: 'attach-outline', android: 'attach-outline' },
+    image: { ios: 'image-outline', android: 'image-outline' },
+    verified: { ios: 'checkmark-circle', android: 'checkmark-circle' },
+    'camera-outline': { ios: 'camera-outline', android: 'camera-outline' },
+
+    // === Notification Icons (Extended) ===
+    'notifications-none': { ios: 'notifications-outline', android: 'notifications-outline' },
+    'notifications-off': { ios: 'notifications-off-outline', android: 'notifications-off-outline' },
+
+    // === Partner Type Icons (Chat) ===
+    storefront: { ios: 'storefront-outline', android: 'storefront-outline' },
+    'local-mall': { ios: 'bag-handle-outline', android: 'bag-handle-outline' },
+    'smart-toy': { ios: 'game-controller-outline', android: 'game-controller-outline' },
+    campaign: { ios: 'megaphone-outline', android: 'megaphone-outline' },
+
+    // === Brand/Logo Icons ===
+    'logo-google': { ios: 'logo-google', android: 'logo-google' },
+    'logo-facebook': { ios: 'logo-facebook', android: 'logo-facebook' },
+    'logo-apple': { ios: 'logo-apple', android: 'logo-apple' },
 };
 
 interface IconSymbolProps {

@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { z } from 'zod';
@@ -12,6 +12,7 @@ import { AuthInput } from '@/components/auth/AuthInput';
 import { SocialLoginButtons } from '@/components/auth/SocialLoginButtons';
 import { useRegister } from '@/hooks/api/useAuth';
 import { RegisterRequestSchema } from '@/types/auth';
+import Toast from 'react-native-toast-message';
 
 // Schema Validation
 const registerSchema = RegisterRequestSchema.extend({
@@ -29,7 +30,7 @@ export default function RegisterScreen() {
 	const [agreedTerms, setAgreedTerms] = useState(false);
 	const { mutate: register, isPending } = useRegister();
 
-	const { control, handleSubmit, formState: { isSubmitting } } = useForm<RegisterFormData>({
+	const { control, handleSubmit, setError, setFocus, formState: { isSubmitting } } = useForm<RegisterFormData>({
 		resolver: zodResolver(registerSchema),
 		defaultValues: {
 			username: '',
@@ -41,27 +42,49 @@ export default function RegisterScreen() {
 
 	const onSubmit = async (data: RegisterFormData) => {
 		if (!agreedTerms) {
-			Alert.alert('Thông báo', 'Vui lòng đồng ý với Điều khoản sử dụng');
+			Toast.hide();
+			Toast.show({
+				type: 'error',
+				text1: 'Vui lòng đồng ý với Điều khoản sử dụng',
+				visibilityTime: 2000,
+			});
 			return;
 		}
 		try {
 			const { confirmPassword, ...payload } = data;
 			register(payload, {
 				onError: (error: any) => {
-					// Nếu muốn xử lý lỗi cụ thể tại màn hình này (ví dụ: focus vào ô input)
-					// thì viết thêm ở đây. Còn không thì hook useRegister đã log lỗi rồi.
 					if (error.code === 208) {
-						Alert.alert('Lỗi đăng ký', 'Tên đăng nhập hoặc email đã được sử dụng.');
+						setError('username', {
+							type: 'manual',
+							message: 'Tên đăng nhập đã được sử dụng'
+						});
+						setFocus('username');
 					}
-				}
+					else if (error.code === 209) {
+						setError('email', {
+							type: 'manual',
+							message: 'Email đã được sử dụng'
+						});
+						setFocus('email');
+					}
+				},
+				onSuccess: () => {
+					Toast.show({
+						type: 'success',
+						text1: 'Đăng ký thành công',
+						text2: 'Vui lòng đăng nhập.',
+					});
+					router.replace('/(auth)/login');
+				},
 			});
-			// Alert.alert(
-			// 	'Đăng ký thành công',
-			// 	'Vui lòng kiểm tra email để xác thực tài khoản.',
-			// 	[{ text: 'OK', onPress: () => router.replace('/(auth)/login') }]
-			// );
 		} catch {
-			Alert.alert('Lỗi', 'Đăng ký thất bại. Vui lòng thử lại.');
+			Toast.hide();
+			Toast.show({
+				type: 'error',
+				text1: 'Đăng ký thất bại. Vui lòng thử lại.',
+				visibilityTime: 2000,
+			});
 		}
 	};
 
@@ -154,7 +177,7 @@ export default function RegisterScreen() {
 						{/* Submit Button */}
 						<TouchableOpacity
 							style={[styles.submitBtn, (isSubmitting || isPending) && styles.submitBtnDisabled]}
-							disabled={isSubmitting || isPending || !agreedTerms}
+							disabled={isSubmitting || isPending}
 							onPress={handleSubmit(onSubmit)}
 						>
 							{isPending ? ( // Hiển thị Spinner khi đang gọi API

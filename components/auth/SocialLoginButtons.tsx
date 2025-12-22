@@ -1,8 +1,14 @@
-import { Ionicons } from '@expo/vector-icons';
+import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import React from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+/**
+ * SocialLoginButtons - Component hiển thị các nút đăng nhập bằng mạng xã hội
+ * 
+ * Hỗ trợ: Google, Facebook, Apple
+ * Sử dụng IconSymbol để đảm bảo consistency với toàn bộ dự án.
+ */
 export const SocialLoginButtons = () => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
@@ -16,11 +22,16 @@ export const SocialLoginButtons = () => {
     );
 };
 
-const SocialButton = ({ icon, color }: { icon: keyof typeof Ionicons.glyphMap; color: string }) => {
+/**
+ * SocialButton - Nút đăng nhập mạng xã hội đơn lẻ
+ * @param icon - Tên icon từ IconSymbolName
+ * @param color - Màu của icon (brand color)
+ */
+const SocialButton = ({ icon, color }: { icon: IconSymbolName; color: string }) => {
     const styles = stylesheet;
     return (
         <TouchableOpacity style={styles.socialBtn} activeOpacity={0.7}>
-            <Ionicons name={icon} size={24} color={color} />
+            <IconSymbol name={icon} size={24} color={color} />
         </TouchableOpacity>
     );
 };

@@ -1,8 +1,13 @@
+import { IconSymbol } from '@/components/ui/Icon';
 import React from 'react';
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { MaterialIcons } from '@expo/vector-icons';
 
+/**
+ * EmptyState - Component hiển thị khi không có thông báo nào
+ * 
+ * Hiển thị icon bell và message hướng dẫn.
+ */
 interface EmptyStateProps {
     filterLabel?: string;
 }
@@ -14,7 +19,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ filterLabel }) => {
     return (
         <View style={styles.container}>
             <View style={styles.iconContainer}>
-                <MaterialIcons
+                <IconSymbol
                     name="notifications-none"
                     size={64}
                     color={theme.colors.secondary}

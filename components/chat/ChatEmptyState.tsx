@@ -1,8 +1,13 @@
-import { MaterialIcons } from '@expo/vector-icons';
+import { IconSymbol } from '@/components/ui/Icon';
 import React from 'react';
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+/**
+ * ChatEmptyState - Component hiển thị khi không có cuộc trò chuyện nào
+ * 
+ * Hiển thị icon và message hướng dẫn người dùng bắt đầu trò chuyện.
+ */
 export const ChatEmptyState: React.FC = () => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
@@ -10,7 +15,7 @@ export const ChatEmptyState: React.FC = () => {
     return (
         <View style={styles.container}>
             <View style={styles.iconContainer}>
-                <MaterialIcons
+                <IconSymbol
                     name="chat-bubble-outline"
                     size={64}
                     color={theme.colors.secondary}

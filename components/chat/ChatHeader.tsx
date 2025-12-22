@@ -1,17 +1,26 @@
+import { IconSymbol } from '@/components/ui/Icon';
 import { CHAT_FILTER_TABS, ChatFilter } from '@/types/chat';
-import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+/**
+ * ChatHeader - Header component cho màn hình Chat
+ * 
+ * Bao gồm:
+ * - Title và nút back
+ * - Search bar với filter button
+ * - Filter tabs (All, Unread, Shop, Support)
+ */
 interface ChatHeaderProps {
     activeFilter: ChatFilter;
     onFilterChange: (filter: ChatFilter) => void;
     searchQuery: string;
     onSearchChange: (query: string) => void;
 }
+
 export const ChatHeader: React.FC<ChatHeaderProps> = ({
     activeFilter,
     onFilterChange,
@@ -33,14 +42,14 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
                     style={styles.backBtn}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
-                    <MaterialIcons name="arrow-back" size={24} color={theme.colors.typography} />
+                    <IconSymbol name="arrow-back" size={24} color={theme.colors.typography} />
                 </TouchableOpacity>
                 <Text style={styles.title}>Tin nhắn</Text>
             </View>
 
             {/* Search Bar */}
             <View style={styles.searchContainer}>
-                <MaterialIcons
+                <IconSymbol
                     name="search"
                     size={20}
                     color={theme.colors.secondary}
@@ -54,7 +63,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
                     onChangeText={onSearchChange}
                 />
                 <TouchableOpacity style={styles.filterBtn} activeOpacity={0.7}>
-                    <MaterialIcons name="tune" size={20} color={theme.colors.secondary} />
+                    <IconSymbol name="tune" size={20} color={theme.colors.secondary} />
                 </TouchableOpacity>
             </View>
 

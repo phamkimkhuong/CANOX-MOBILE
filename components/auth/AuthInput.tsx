@@ -1,14 +1,17 @@
-import { MaterialIcons } from '@expo/vector-icons';
+import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import React, { useState } from 'react';
 import { Control, Controller } from 'react-hook-form';
 import { Text, TextInput, TextInputProps, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+/**
+ * AuthInput - Input component dùng cho các form authentication
+ */
 interface AuthInputProps extends TextInputProps {
     control: Control<any>;
     name: string;
     label: string;
-    icon: keyof typeof MaterialIcons.glyphMap;
+    icon: IconSymbolName;
     isPassword?: boolean;
     placeholder: string;
 }
@@ -34,7 +37,7 @@ export const AuthInput = ({ control, name, label, icon, isPassword, placeholder,
                     ]}>
                         {/* Left Icon */}
                         <View style={styles.iconContainer}>
-                            <MaterialIcons name={icon} size={20} color={theme.colors.secondary} />
+                            <IconSymbol name={icon} size={20} color={theme.colors.secondary} />
                         </View>
 
                         <TextInput
@@ -59,7 +62,7 @@ export const AuthInput = ({ control, name, label, icon, isPassword, placeholder,
                                 style={styles.eyeBtn}
                                 onPress={() => setIsSecure(!isSecure)}
                             >
-                                <MaterialIcons
+                                <IconSymbol
                                     name={isSecure ? "visibility-off" : "visibility"}
                                     size={20}
                                     color={theme.colors.secondary}

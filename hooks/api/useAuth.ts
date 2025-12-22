@@ -11,14 +11,13 @@ export const useLogin = () => {
 
     return useMutation({
         mutationFn: async (data: LoginPayload) => {
-            // Sử dụng hàm request bọc Zod đã viết trong client.ts
             return request(
                 {
                     url: API_ROUTES.AUTH.LOGIN,
                     method: 'POST',
                     data,
                 },
-                AuthResponseSchema // Validate response trả về ngay lập tức
+                AuthResponseSchema
             );
         },
         onSuccess: async (data) => {
@@ -48,19 +47,23 @@ export const useRegister = () => {
                     data,
                 },
                 AuthResponseSchema
+
             );
         },
         onSuccess: (data) => {
-            // Đăng ký thành công, có thể điều hướng hoặc hiển thị thông báo
             console.log('Registration Successful:', data);
-            router.replace('/(auth)/login');
         },
         onError: (error: ApiError) => {
-            Toast.show({
-                type: 'error',
-                text1: 'Đăng ký thất bại',
-                text2: error.message,
-            });
+            if (error.status !== 208 && error.status !== 209) {
+                Toast.hide();
+                Toast.show({
+                    type: 'error',
+                    text1: 'Đăng ký thất bại',
+                    text2: error.message,
+                    visibilityTime: 2000,
+                });
+            }
+            console.error('Registration Error:', error);
         },
     });
 };

@@ -1,5 +1,5 @@
+import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import { Conversation, MessageType, PARTNER_TYPE_CONFIG } from '@/types/chat';
-import { MaterialIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import React, { useCallback, useEffect, useRef } from 'react';
@@ -15,8 +15,6 @@ import Animated, {
 } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { OnlineStatusBadge } from './OnlineStatusBadge';
-
-type MaterialIconName = React.ComponentProps<typeof MaterialIcons>['name'];
 
 // Current user ID for checking message sender
 const CURRENT_USER_ID = 'user_001';
@@ -40,6 +38,8 @@ interface ConversationItemProps {
 
 /**
  * Format timestamp to readable string
+ * @param timestamp - ISO timestamp string
+ * @returns Formatted time string (e.g., "14:30", "Hôm qua", "T2")
  */
 const formatTime = (timestamp: string): string => {
     const date = new Date(timestamp);
@@ -60,11 +60,14 @@ const formatTime = (timestamp: string): string => {
 
 /**
  * Get message preview with icon based on type
+ * @param lastMessage - Last message object
+ * @param isFromMe - Whether message was sent by current user
+ * @returns Object containing optional icon name and preview text
  */
 const getMessagePreview = (
     lastMessage: Conversation['lastMessage'],
     isFromMe: boolean
-): { icon?: MaterialIconName; text: string } => {
+): { icon?: IconSymbolName; text: string } => {
     const prefix = isFromMe ? 'Bạn: ' : '';
 
     switch (lastMessage.type) {
@@ -81,6 +84,15 @@ const getMessagePreview = (
     }
 };
 
+/**
+ * ConversationItem - Hiển thị một cuộc trò chuyện với swipe actions
+ * 
+ * Features:
+ * - Swipe left: Hiển thị nút Mute và Delete
+ * - Swipe right: Hiển thị nút Pin
+ * - Mutual exclusion: Chỉ 1 row được mở tại một thời điểm
+ * - Haptic feedback khi swipe qua threshold
+ */
 export const ConversationItem: React.FC<ConversationItemProps> = ({
     item,
     openedRowId,
@@ -214,6 +226,9 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
         opacity: translateX.value > 20 ? withTiming(1) : withTiming(0),
     }));
 
+    /**
+     * Render avatar - hiển thị ảnh partner hoặc icon dựa theo loại partner
+     */
     const renderAvatar = () => {
         // If partner has avatar image
         if (item.partner.avatar) {
@@ -234,8 +249,8 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
         return (
             <View style={styles.avatarContainer}>
                 <View style={[styles.iconAvatar, { backgroundColor: partnerConfig.backgroundColor }]}>
-                    <MaterialIcons
-                        name={partnerConfig.icon as MaterialIconName}
+                    <IconSymbol
+                        name={partnerConfig.icon as IconSymbolName}
                         size={24}
                         color={partnerConfig.iconColor}
                     />
@@ -253,8 +268,8 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
                     onPress={handlePin}
                     activeOpacity={0.8}
                 >
-                    <MaterialIcons
-                        name={item.isPinned ? 'push-pin' : 'push-pin'}
+                    <IconSymbol
+                        name="push-pin"
                         size={22}
                         color="#fff"
                     />
@@ -269,7 +284,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
                     onPress={handleMute}
                     activeOpacity={0.8}
                 >
-                    <MaterialIcons
+                    <IconSymbol
                         name={item.isMuted ? 'notifications' : 'notifications-off'}
                         size={22}
                         color="#fff"
@@ -281,7 +296,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
                     onPress={handleDelete}
                     activeOpacity={0.8}
                 >
-                    <MaterialIcons name="delete" size={22} color="#fff" />
+                    <IconSymbol name="delete" size={22} color="#fff" />
                     <Text style={styles.actionText}>Xóa</Text>
                 </TouchableOpacity>
             </Animated.View>
@@ -302,7 +317,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
                                     {item.partner.name}
                                 </Text>
                                 {item.partner.isVerified && (
-                                    <MaterialIcons
+                                    <IconSymbol
                                         name="verified"
                                         size={14}
                                         color={theme.colors.primary}
@@ -310,7 +325,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
                                     />
                                 )}
                                 {item.isPinned && (
-                                    <MaterialIcons
+                                    <IconSymbol
                                         name="push-pin"
                                         size={12}
                                         color={theme.colors.secondary}
@@ -327,7 +342,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
                         <View style={styles.messageRow}>
                             <View style={styles.messagePreview}>
                                 {messagePreview.icon && (
-                                    <MaterialIcons
+                                    <IconSymbol
                                         name={messagePreview.icon}
                                         size={16}
                                         color={theme.colors.secondary}
@@ -350,7 +365,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
                                     </Text>
                                 </View>
                             ) : item.lastMessage.isRead && isFromMe ? (
-                                <MaterialIcons
+                                <IconSymbol
                                     name="done-all"
                                     size={16}
                                     color={theme.colors.secondary}
@@ -361,7 +376,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
                         {/* Response rate label */}
                         {item.partner.responseRate && item.partner.responseRate >= 90 && (
                             <View style={styles.responseRow}>
-                                <MaterialIcons
+                                <IconSymbol
                                     name="schedule"
                                     size={12}
                                     color={theme.colors.primary}

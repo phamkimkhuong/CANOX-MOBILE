@@ -1,11 +1,15 @@
+import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import { FILTER_TABS, NotificationFilter } from '@/types/notification';
-import { MaterialIcons } from '@expo/vector-icons';
 import React from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-type MaterialIconName = React.ComponentProps<typeof MaterialIcons>['name'];
-
+/**
+ * FilterBar - Thanh filter cho màn hình thông báo
+ * 
+ * Hiển thị các chip filter (All, Order, Promo, System, etc.)
+ * với icon và trạng thái active/inactive.
+ */
 interface FilterBarProps {
     activeFilter: NotificationFilter;
     onFilterChange: (filter: NotificationFilter) => void;
@@ -32,8 +36,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({ activeFilter, onFilterChan
                             activeOpacity={0.7}
                         >
                             {tab.icon ? (
-                                <MaterialIcons
-                                    name={tab.icon as MaterialIconName}
+                                <IconSymbol
+                                    name={tab.icon as IconSymbolName}
                                     size={18}
                                     color={isActive ? theme.colors.primary : theme.colors.typographySecondary}
                                 />

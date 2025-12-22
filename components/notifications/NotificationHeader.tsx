@@ -1,9 +1,14 @@
-import { MaterialIcons } from '@expo/vector-icons';
+import { IconSymbol } from '@/components/ui/Icon';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+/**
+ * NotificationHeader - Header cho màn hình thông báo
+ * 
+ * Bao gồm title và nút "Đọc tất cả" để mark all notifications as read.
+ */
 interface NotificationHeaderProps {
     onMarkAllRead?: () => void;
 }
@@ -22,7 +27,7 @@ export const NotificationHeader: React.FC<NotificationHeaderProps> = ({ onMarkAl
                     onPress={onMarkAllRead}
                     activeOpacity={0.7}
                 >
-                    <MaterialIcons name="done-all" size={18} color={theme.colors.primary} />
+                    <IconSymbol name="done-all" size={18} color={theme.colors.primary} />
                     <Text style={styles.markAllText}>Đọc tất cả</Text>
                 </TouchableOpacity>
             </View>

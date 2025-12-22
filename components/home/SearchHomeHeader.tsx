@@ -1,10 +1,15 @@
+import { IconSymbol } from '@/components/ui/Icon';
 import '@/constants/unistyles';
-import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 
+/**
+ * HomeHeader - Header component cho trang chủ
+ * 
+ * Bao gồm thanh tìm kiếm và các nút chức năng (giỏ hàng, chat).
+ */
 export const HomeHeader = () => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
@@ -13,7 +18,7 @@ export const HomeHeader = () => {
         <View style={styles.headerContainer}>
             {/* 1. Thanh tìm kiếm */}
             <View style={styles.searchContainer}>
-                <Ionicons name="search" size={20} color={theme.colors.secondary} style={{ marginLeft: 10 }} />
+                <IconSymbol name="search" size={20} color={theme.colors.secondary} style={{ marginLeft: 10 }} />
 
                 <TextInput
                     placeholder="Tìm kiếm sản phẩm..."
@@ -22,14 +27,14 @@ export const HomeHeader = () => {
                 />
 
                 <TouchableOpacity style={styles.cameraBtn}>
-                    <Ionicons name="camera-outline" size={22} color={theme.colors.secondary} />
+                    <IconSymbol name="camera-outline" size={22} color={theme.colors.secondary} />
                 </TouchableOpacity>
             </View>
 
             {/* 2. Các nút chức năng */}
             <View style={styles.actions}>
                 <TouchableOpacity style={styles.iconBtn}>
-                    <Ionicons name="cart-outline" size={26} color={theme.colors.typographySecondary} />
+                    <IconSymbol name="cart" size={26} color={theme.colors.typographySecondary} />
                     {/* Badge tự code bằng View thuần */}
                     <View style={styles.badge}>
                         <Text style={styles.badgeText}>3</Text>
@@ -38,7 +43,7 @@ export const HomeHeader = () => {
 
                 {/* {Router to chat.tsx} */}
                 <TouchableOpacity style={styles.iconBtn} onPress={() => router.push('/chat')}>
-                    <Ionicons name="chatbubble-ellipses-outline" size={26} color={theme.colors.typographySecondary} />
+                    <IconSymbol name="chatbubble-ellipses-outline" size={26} color={theme.colors.typographySecondary} />
                 </TouchableOpacity>
             </View>
         </View>
