@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -17,7 +17,7 @@ export default function LoginScreen() {
     const styles = stylesheet;
 
     // 2. Setup React Hook Form
-    const { control, handleSubmit, formState: { isSubmitting } } = useForm<LoginPayload>({
+    const { control, handleSubmit, setError, setFocus, formState: { isSubmitting } } = useForm<LoginPayload>({
         resolver: zodResolver(LoginRequestSchema),
         defaultValues: {
             username: '',
@@ -29,23 +29,9 @@ export default function LoginScreen() {
     const onSubmit = async (data: LoginPayload) => {
         login(data, {
             onError: (error: any) => {
-                // SENIOR UX: Mapping lỗi Backend vào React Hook Form
-                // Giả sử Backend trả về: { code: 'EMAIL_NOT_FOUND', message: 'Email chưa đăng ký' }
-                if (error.code === 'EMAIL_NOT_FOUND') {
-                    // setError('email', { message: error.message });
-                } else if (error.code === 'WRONG_PASSWORD') {
-                    // setError('password', { message: 'Mật khẩu không đúng' });
-                } else {
-                    // Lỗi hệ thống/Mạng -> Hiện Alert
-                    Alert.alert('Đăng nhập thất bại', error.message || 'Vui lòng thử lại sau');
-                }
             },
             onSuccess: () => {
-                if (router.canGoBack()) {
-                    router.back();
-                } else {
-                    router.replace('/(tabs)');
-                }
+                console.log('Login successful');
             }
         });
     };

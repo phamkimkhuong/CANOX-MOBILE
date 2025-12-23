@@ -20,15 +20,26 @@ export const RegisterRequestSchema = z.object({
         .regex(PASSWORD_REGEX, 'Mật khẩu phải chứa chữ hoa, chữ thường và số'),
 });
 
-// 2. Schema cho Response
+// 2. Schema cho Response Login
 export const AuthResponseSchema = z.object({
-    accessToken: z.string(),
-    refreshToken: z.string(),
-    user: z.object({
-        id: z.string(),
-        email: z.string(),
-        name: z.string(),
-        avatar: z.string().nullable().optional(),
+    code: z.number(),
+    success: z.boolean(),
+    message: z.string(),
+    data: z.object({
+        accessToken: z.string(),
+        refreshToken: z.string(),
+        emailVerified: z.boolean(),
+        email: z.string().optional(),
+        user: z.object({
+            userId: z.string(),
+            username: z.string(),
+            email: z.string(),
+            status: z.string(),
+            roles: z.array(z.string()),
+            image: z.string().nullable().optional(),
+            buyerId: z.string().nullable().optional(),
+            buyer: z.any().nullable().optional(),
+        }),
     }),
 });
 

@@ -21,11 +21,29 @@ export const useLogin = () => {
                 AuthResponseSchema
             );
         },
-        onSuccess: async (data) => {
-            // 1. Lưu token vào SecureStore & Zustand
-            await loginStore(data.accessToken);
-            // 2. Lưu thêm Refresh Token (nếu có)
-            // await SecureStore.setItemAsync('refresh_token', data.refreshToken);
+        onSuccess: async (response) => {
+            const { accessToken, refreshToken, emailVerified, email } = response.data;
+            // Kiểm tra email verified
+            if (emailVerified === false) {
+                Toast.show({
+                    type: 'warning',
+                    text1: 'Tài khoản chưa kích hoạt',
+                    text2: 'Vui lòng xác thực email của bạn.',
+                });
+                router.push({
+                    pathname: '/(auth)/verify-otp',
+                    params: { email: email || '' },
+                });
+                return;
+            }
+            // Email đã verify -> Lưu token và đăng nhập
+            await loginStore(accessToken);
+            // TODO: Lưu refreshToken
+            // await SecureStore.setItemAsync('refresh_token', refreshToken);
+            Toast.show({
+                type: 'success',
+                text1: 'Đăng nhập thành công',
+            });
             router.replace('/(tabs)');
         },
         onError: (error: ApiError) => {
@@ -49,29 +67,6 @@ export const useRegister = () => {
                 },
                 RegisterResponseSchema
             );
-            // console.log('🔥 Testing GET to public endpoint...');
-            // try {
-            //     const response = await fetch('https://api.calatha.com/api/v1/public/products/new?page=0&size=1');
-            //     const result = await response.json();
-            //     console.log('✅ GET Success:', result.code);
-
-            //     // Nếu GET thành công, thử POST
-            //     console.log('🔥 Now testing POST...');
-            //     const postResponse = await fetch('https://api.calatha.com/api/v1/users/buyer', {
-            //         method: 'POST',
-            //         headers: { 'Content-Type': 'application/json' },
-            //         body: JSON.stringify(data),
-            //     });
-            //     const postResult = await postResponse.json();
-            //     console.log('✅ POST Success:', postResult);
-            //     return postResult;
-            // } catch (error: any) {
-            //     console.log('❌ Fetch error details:', error.message, error);
-            //     throw error;
-            // }
-        },
-        onSuccess: (data) => {
-            console.log('Registration Successful:', data);
         },
         onError: (error: ApiError) => {
             if (error.code !== 208 && error.code !== 209) {
@@ -143,5 +138,3 @@ export const useResendOtp = () => {
         },
     });
 };
-
-

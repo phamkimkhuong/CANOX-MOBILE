@@ -2,7 +2,7 @@ const API_PREFIX = '/api/v1';
 
 export const API_ROUTES = {
     AUTH: {
-        LOGIN: `${API_PREFIX}/auth/login`,
+        LOGIN: `${API_PREFIX}/auth/login/buyer/mobile`,
         REGISTER: `${API_PREFIX}/auth/register`,
         REFRESH_TOKEN: `${API_PREFIX}/auth/refresh`,
         LOGOUT: `${API_PREFIX}/auth/logout`,

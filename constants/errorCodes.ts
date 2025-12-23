@@ -9,6 +9,21 @@ const VI_MAP: Record<number, string> = {
     6001: "Lỗi máy chủ nội bộ!",
     6005: "Đã xảy ra lỗi không xác định!",
 
+    1000: "Không tìm thấy người dùng",
+    1001: "Không tìm thấy người dùng",
+    1002: "Người dùng đã tồn tại",
+    1003: "Thông tin đăng nhập không hợp lệ",
+    1004: "Truy cập bị từ chối",
+    1005: "Không có quyền truy cập",
+    1006: "Người dùng không có đủ quyền",
+    1007: "Tài khoản người dùng đã bị khóa",
+    1008: "Tài khoản người dùng đã bị vô hiệu hóa",
+    1009: "Mật khẩu đã hết hạn",
+    1010: "Tài khoản người dùng đã bị vô hiệu hóa",
+    1011: "Tài khoản người dùng đã bị khóa",
+    1012: "Tài khoản người dùng đã bị xóa",
+    1013: "Tài khoản người dùng đang chờ xác minh",
+
     // ===== OTP (2500-2599) =====
     2500: "Mã OTP đã hết hạn",
     2501: "Mã OTP đã được sử dụng",

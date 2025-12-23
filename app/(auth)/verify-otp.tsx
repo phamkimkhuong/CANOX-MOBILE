@@ -262,6 +262,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     scrollContent: {
         flexGrow: 1,
         paddingHorizontal: theme.margins.md,
+        paddingBottom: 40, // Đảm bảo không bị keyboard che trên màn hình nhỏ
     },
     header: {
         flexDirection: 'row',

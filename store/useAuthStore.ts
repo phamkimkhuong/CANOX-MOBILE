@@ -28,7 +28,6 @@ export const useAuthStore = create<AuthState>((set) => ({
     login: async (token) => {
         await SecureStore.setItemAsync('user_access_token', token);
         set({ token, isAuthenticated: true, hydrated: true });
-        // router.replace('/(tabs)'); // Chuyển hướng về Home
     },
     logout: async () => {
         await SecureStore.deleteItemAsync('user_access_token');
