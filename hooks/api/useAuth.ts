@@ -1,4 +1,5 @@
 import { API_ROUTES } from '@/constants/apiRoutes';
+import { authRoutes, ROUTES } from '@/constants/routes';
 import { ApiError, request } from '@/services/api/client';
 import { useAuthStore } from '@/store/useAuthStore';
 import { AuthResponseSchema, LoginPayload, RegisterPayload, RegisterResponseSchema, VerifyOtpPayload } from '@/types/auth';
@@ -30,10 +31,7 @@ export const useLogin = () => {
                     text1: 'Tài khoản chưa kích hoạt',
                     text2: 'Vui lòng xác thực email của bạn.',
                 });
-                router.push({
-                    pathname: '/(auth)/verify-otp',
-                    params: { email: email || '' },
-                });
+                router.push(authRoutes.verifyOtp({ phone: email || '', type: 'register' }));
                 return;
             }
             // Email đã verify -> Lưu token và đăng nhập
@@ -44,7 +42,7 @@ export const useLogin = () => {
                 type: 'success',
                 text1: 'Đăng nhập thành công',
             });
-            router.replace('/(tabs)');
+            router.replace(ROUTES.TABS.HOME);
         },
         onError: (error: ApiError) => {
             Toast.show({
@@ -98,7 +96,7 @@ export const useLogout = () => {
         onSuccess: async () => {
             // 1. Xoá token khỏi SecureStore & Zustand
             await logoutStore();
-            router.replace('/(auth)/login');
+            router.replace(ROUTES.AUTH.LOGIN);
         },
         onError: (error: ApiError) => {
             Toast.show({

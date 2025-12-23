@@ -1,3 +1,4 @@
+import { ROUTES } from '@/constants/routes';
 import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { create } from 'zustand';
@@ -32,6 +33,6 @@ export const useAuthStore = create<AuthState>((set) => ({
     logout: async () => {
         await SecureStore.deleteItemAsync('user_access_token');
         set({ token: null, isAuthenticated: false, hydrated: true });
-        router.replace('/(auth)/login'); // Đá về trang login
+        router.replace(ROUTES.AUTH.LOGIN); // Đá về trang login
     },
 }));

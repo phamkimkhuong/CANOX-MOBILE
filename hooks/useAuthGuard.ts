@@ -1,3 +1,4 @@
+import { ROUTES } from '@/constants/routes';
 import { useAuthStore } from '@/store/useAuthStore';
 import { router, useRootNavigationState, useSegments } from 'expo-router';
 import { useEffect, useRef } from 'react';
@@ -47,12 +48,12 @@ export const useAuthGuard = (): void => {
         // This prevents Android "child already has a parent" crash
         const task = InteractionManager.runAfterInteractions(() => {
             if (!isAuthenticated && isProtectedRoute) {
-                router.replace('/(auth)/login');
+                router.replace(ROUTES.AUTH.LOGIN);
                 return;
             }
 
             if (isAuthenticated && inAuthGroup) {
-                router.replace('/(tabs)');
+                router.replace(ROUTES.TABS.HOME);
             }
         });
 

@@ -1,5 +1,6 @@
 import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+import { ROUTES } from '@/constants/routes';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Tabs, router } from 'expo-router';
 import React from 'react';
@@ -88,7 +89,7 @@ export default function TabLayout() {
                 // 1. Chặn hành động chuyển Tab mặc định (Ngăn không cho mount CartScreen)
                 e.preventDefault();
                 // 2. Chuyển hướng sang trang Login thủ công
-                router.push('/(auth)/login');
+                router.push(ROUTES.AUTH.LOGIN);
               }
             },
           }
@@ -110,6 +111,7 @@ export default function TabLayout() {
         options={{
           title: 'Tôi',
           tabBarIcon: ({ color }) => <TabBarIcon name="person" color={color} />,
+          headerShown: false,
         }}
       />
     </Tabs>

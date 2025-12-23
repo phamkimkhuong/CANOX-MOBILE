@@ -1,4 +1,5 @@
 import { IconSymbol } from '@/components/ui/Icon';
+import { ROUTES } from '@/constants/routes';
 import '@/constants/unistyles';
 import { router } from 'expo-router';
 import React from 'react';
@@ -42,7 +43,7 @@ export const HomeHeader = () => {
                 </TouchableOpacity>
 
                 {/* {Router to chat.tsx} */}
-                <TouchableOpacity style={styles.iconBtn} onPress={() => router.push('/chat')}>
+                <TouchableOpacity style={styles.iconBtn} onPress={() => router.push(ROUTES.CHAT.LIST)}>
                     <IconSymbol name="chatbubble-ellipses-outline" size={26} color={theme.colors.typographySecondary} />
                 </TouchableOpacity>
             </View>

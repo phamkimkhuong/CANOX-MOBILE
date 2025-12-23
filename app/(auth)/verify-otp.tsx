@@ -1,5 +1,6 @@
 import { OtpInput } from '@/components/auth/OtpInput';
 import { IconSymbol } from '@/components/ui/Icon';
+import { ROUTES } from '@/constants/routes';
 import { useResendOtp, useVerifyOtp } from '@/hooks/api/useAuth';
 import { useCountdown } from '@/hooks/useCountdown';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -79,7 +80,7 @@ export default function VerifyOtpScreen() {
                             text1: 'Xác thực thành công',
                             text2: 'Chào mừng bạn đến với eBay!',
                         });
-                        router.replace('/(auth)/login');
+                        router.replace(ROUTES.AUTH.LOGIN);
                     },
                     onError: (error) => {
                         setHasError(true);
@@ -128,7 +129,7 @@ export default function VerifyOtpScreen() {
                 text1: 'Thiếu thông tin',
                 text2: 'Vui lòng đăng ký lại.',
             });
-            router.replace('/(auth)/register');
+            router.replace(ROUTES.AUTH.REGISTER);
         }
     }, [email]);
 
@@ -137,7 +138,7 @@ export default function VerifyOtpScreen() {
         if (router.canGoBack()) {
             router.back();
         } else {
-            router.replace('/(auth)/register');
+            router.replace(ROUTES.AUTH.REGISTER);
         }
     }, []);
 

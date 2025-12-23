@@ -1,0 +1,220 @@
+import type { Href } from 'expo-router';
+
+// ============================================
+// ROUTE DEFINITIONS - Type-Safe Navigation
+// ============================================
+// Centralized route management để tránh:
+// 1. Silent fails khi đổi path
+// 2. Hardcoded strings rải rác
+// 3. Typo không được IDE phát hiện
+// ============================================
+
+/**
+ * Static routes (không có params)
+ */
+export const ROUTES = {
+    // ============ TABS ============
+    TABS: {
+        HOME: '/(tabs)' as const,
+        INDEX: '/(tabs)/' as const,
+        CATEGORY: '/(tabs)/category' as const,
+        CART: '/(tabs)/cart' as const,
+        NOTIFY: '/(tabs)/notify' as const,
+        ME: '/(tabs)/me' as const,
+    },
+
+    // ============ AUTH ============
+    AUTH: {
+        LOGIN: '/(auth)/login' as const,
+        REGISTER: '/(auth)/register' as const,
+        FORGOT_PASSWORD: '/(auth)/forgot-password' as const,
+        VERIFY_OTP: '/(auth)/verify-otp' as const,
+    },
+
+    // ============ CHAT ============
+    CHAT: {
+        LIST: '/chat' as const,
+    },
+
+    // ============ MODAL ============
+    MODAL: '/modal' as const,
+
+    // ============ PROFILE SERVICES ============
+    PROFILE: {
+        WALLET: '/wallet' as const,
+        COINS: '/coins' as const,
+        VOUCHERS: '/vouchers' as const,
+        INTERNATIONAL_SHIPPING: '/international-shipping' as const,
+        SUPPORT: '/support' as const,
+        SETTINGS_SECURITY: '/settings/security' as const,
+    },
+
+    // ============ ORDERS ============
+    ORDERS: {
+        LIST: '/orders' as const,
+        PENDING_PAYMENT: '/orders?status=pending_payment' as const,
+        PROCESSING: '/orders?status=processing' as const,
+        SHIPPING: '/orders?status=shipping' as const,
+        REVIEW: '/orders?status=review' as const,
+    },
+
+    // ============ USER CONTENT ============
+    USER: {
+        FAVORITES: '/favorites' as const,
+        RECENT: '/recent' as const,
+        FOLLOWED_SHOPS: '/followed-shops' as const,
+    },
+} as const;
+
+/**
+ * Type cho tất cả static routes
+ */
+export type StaticRoute =
+    | (typeof ROUTES.TABS)[keyof typeof ROUTES.TABS]
+    | (typeof ROUTES.AUTH)[keyof typeof ROUTES.AUTH]
+    | (typeof ROUTES.CHAT)[keyof typeof ROUTES.CHAT]
+    | typeof ROUTES.MODAL
+    | (typeof ROUTES.PROFILE)[keyof typeof ROUTES.PROFILE]
+    | (typeof ROUTES.ORDERS)[keyof typeof ROUTES.ORDERS]
+    | (typeof ROUTES.USER)[keyof typeof ROUTES.USER];
+
+// ============================================
+// DYNAMIC ROUTE BUILDERS
+// ============================================
+// Các route có params, trả về Href để type-safe
+// ============================================
+
+/**
+ * Product routes với dynamic ID
+ */
+export const productRoutes = {
+    detail: (id: string): Href => ({
+        pathname: '/product/[id]',
+        params: { id },
+    }),
+} as const;
+
+/**
+ * Chat routes với dynamic ID
+ * NOTE: Cần tạo file app/chat/[id].tsx để route hoạt động
+ */
+export const chatRoutes = {
+    conversation: (conversationId: string): Href => ({
+        pathname: '/chat/[id]',
+        params: { id: conversationId },
+    } as unknown as Href),
+} as const;
+
+/**
+ * Order routes với dynamic ID
+ * NOTE: Cần tạo file app/order/[id].tsx để route hoạt động
+ */
+export const orderRoutes = {
+    detail: (orderId: string): Href => ({
+        pathname: '/order/[id]',
+        params: { id: orderId },
+    } as unknown as Href),
+} as const;
+
+/**
+ * Shop routes với dynamic ID
+ * NOTE: Cần tạo file app/shop/[id].tsx để route hoạt động
+ */
+export const shopRoutes = {
+    detail: (shopId: string): Href => ({
+        pathname: '/shop/[id]',
+        params: { id: shopId },
+    } as unknown as Href),
+} as const;
+
+/**
+ * Auth verify OTP với params
+ */
+export const authRoutes = {
+    verifyOtp: (params: { phone: string; type: 'register' | 'forgot-password' }): Href => ({
+        pathname: '/(auth)/verify-otp',
+        params,
+    }),
+} as const;
+
+// ============================================
+// TYPE-SAFE HREF HELPERS
+// ============================================
+
+/**
+ * Convert static route string to Href type
+ * Giúp IDE check được route có hợp lệ không
+ */
+export const href = <T extends StaticRoute>(route: T): Href => route as Href;
+
+/**
+ * Type guard để kiểm tra route có tồn tại
+ */
+export const isValidRoute = (route: string): route is StaticRoute => {
+    const allRoutes = [
+        ...Object.values(ROUTES.TABS),
+        ...Object.values(ROUTES.AUTH),
+        ...Object.values(ROUTES.CHAT),
+        ROUTES.MODAL,
+        ...Object.values(ROUTES.PROFILE),
+        ...Object.values(ROUTES.ORDERS),
+        ...Object.values(ROUTES.USER),
+    ];
+    return allRoutes.includes(route as StaticRoute);
+};
+
+// ============================================
+// ROUTE MAPPING FOR CONFIGS
+// ============================================
+// Dùng trong các config files để map key -> route
+// ============================================
+
+/**
+ * Order status route mapping
+ */
+export const ORDER_STATUS_ROUTES = {
+    pendingPayment: ROUTES.ORDERS.PENDING_PAYMENT,
+    processing: ROUTES.ORDERS.PROCESSING,
+    shipping: ROUTES.ORDERS.SHIPPING,
+    review: ROUTES.ORDERS.REVIEW,
+} as const;
+
+/**
+ * Quick stats route mapping
+ */
+export const QUICK_STATS_ROUTES = {
+    orders: ROUTES.ORDERS.LIST,
+    favorites: ROUTES.USER.FAVORITES,
+    recent: ROUTES.USER.RECENT,
+} as const;
+
+/**
+ * Service menu route mapping
+ */
+export const SERVICE_MENU_ROUTES = {
+    wallet: ROUTES.PROFILE.WALLET,
+    coins: ROUTES.PROFILE.COINS,
+    vouchers: ROUTES.PROFILE.VOUCHERS,
+    shipping: ROUTES.PROFILE.INTERNATIONAL_SHIPPING,
+} as const;
+
+/**
+ * Settings menu route mapping
+ */
+export const SETTINGS_MENU_ROUTES = {
+    support: ROUTES.PROFILE.SUPPORT,
+    security: ROUTES.PROFILE.SETTINGS_SECURITY,
+} as const;
+
+// ============================================
+// EXPORT TYPE FOR EXTERNAL USE
+// ============================================
+
+export type AppRoutes = typeof ROUTES;
+export type DynamicRouteBuilders = {
+    product: typeof productRoutes;
+    chat: typeof chatRoutes;
+    order: typeof orderRoutes;
+    shop: typeof shopRoutes;
+    auth: typeof authRoutes;
+};

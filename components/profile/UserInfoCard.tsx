@@ -1,0 +1,324 @@
+import { MEMBER_LEVEL_CONFIG, QUICK_STATS_CONFIG, UserProfile } from '@/types/profile';
+import { MaterialIcons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
+import { router } from 'expo-router';
+import React, { memo, useCallback } from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+
+interface UserInfoCardProps {
+    profile: UserProfile | undefined;
+    isLoading?: boolean;
+}
+
+/**
+ * User info card with avatar, name, level and quick stats
+ */
+export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
+    profile,
+    isLoading = false,
+}) => {
+    const { theme } = useUnistyles();
+    const styles = stylesheet;
+
+    const levelConfig = profile?.memberLevel
+        ? MEMBER_LEVEL_CONFIG[profile.memberLevel]
+        : MEMBER_LEVEL_CONFIG.BRONZE;
+
+    const handleEditProfile = useCallback(() => {
+        // TODO: Navigate to edit profile
+    }, []);
+
+    const handleStatPress = useCallback((route: string) => {
+        // TODO: Navigate to route
+    }, []);
+
+    // Skeleton loading state
+    if (isLoading) {
+        return (
+            <View style={styles.card}>
+                <View style={styles.profileRow}>
+                    <View style={[styles.avatarSkeleton]} />
+                    <View style={styles.infoContainer}>
+                        <View style={styles.nameSkeleton} />
+                        <View style={styles.badgeSkeleton} />
+                    </View>
+                </View>
+                <View style={styles.statsRow}>
+                    {[1, 2, 3].map((i) => (
+                        <View key={i} style={styles.statSkeleton} />
+                    ))}
+                </View>
+            </View>
+        );
+    }
+
+    if (!profile) return null;
+
+    return (
+        <View style={styles.card}>
+            {/* Decorative gradient circle */}
+            <View style={styles.decorCircle} />
+
+            {/* Profile Row */}
+            <View style={styles.profileRow}>
+                {/* Avatar */}
+                <View style={styles.avatarWrapper}>
+                    <Image
+                        source={{ uri: profile.avatar ?? undefined }}
+                        style={styles.avatar}
+                        placeholder={require('@/assets/images/icon.png')}
+                        contentFit="cover"
+                        transition={200}
+                    />
+                    {/* Level badge */}
+                    <View style={[styles.levelBadge, { backgroundColor: levelConfig.color }]}>
+                        <MaterialIcons
+                            name={levelConfig.icon as keyof typeof MaterialIcons.glyphMap}
+                            size={10}
+                            color="#fff"
+                        />
+                        <Text style={styles.levelBadgeText}>{levelConfig.label.toUpperCase()}</Text>
+                    </View>
+                </View>
+
+                {/* Info */}
+                <View style={styles.infoContainer}>
+                    <Text style={styles.name} numberOfLines={1}>
+                        {profile.fullName}
+                    </Text>
+
+                    <View style={styles.badgesRow}>
+                        {profile.isVerified && (
+                            <View style={styles.verifiedBadge}>
+                                <MaterialIcons name="verified-user" size={12} color={theme.colors.secondary} />
+                                <Text style={styles.verifiedText}>Đã xác thực</Text>
+                            </View>
+                        )}
+
+                        <TouchableOpacity
+                            style={styles.editBtn}
+                            onPress={handleEditProfile}
+                            activeOpacity={0.7}
+                        >
+                            <Text style={styles.editBtnText}>Sửa hồ sơ</Text>
+                            <MaterialIcons name="chevron-right" size={14} color={theme.colors.secondary} />
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </View>
+
+            {/* Quick Stats Row */}
+            <View style={styles.statsRow}>
+                {QUICK_STATS_CONFIG.map((stat) => (
+                    <TouchableOpacity
+                        key={stat.key}
+                        style={[styles.statCard, { backgroundColor: stat.bgColor }]}
+                        onPress={() => handleStatPress(stat.route)}
+                        activeOpacity={0.8}
+                    >
+                        {/* Background icon */}
+                        <View style={styles.statBgIcon}>
+                            <MaterialIcons
+                                name={stat.icon as keyof typeof MaterialIcons.glyphMap}
+                                size={50}
+                                color={stat.iconColor}
+                            />
+                        </View>
+
+                        {/* Icon */}
+                        <View style={[styles.statIconContainer, { backgroundColor: theme.colors.surface }]}>
+                            <MaterialIcons
+                                name={stat.icon as keyof typeof MaterialIcons.glyphMap}
+                                size={20}
+                                color={stat.iconColor}
+                            />
+                        </View>
+
+                        {/* Value & Label */}
+                        <Text style={styles.statValue}>
+                            {profile[stat.valueKey] ?? 0}
+                        </Text>
+                        <Text style={styles.statLabel}>{stat.label}</Text>
+                    </TouchableOpacity>
+                ))}
+            </View>
+        </View>
+    );
+});
+
+UserInfoCard.displayName = 'UserInfoCard';
+
+const stylesheet = StyleSheet.create((theme) => ({
+    card: {
+        backgroundColor: theme.colors.surface,
+        borderRadius: 24,
+        padding: 20,
+        marginHorizontal: theme.margins.md,
+        marginBottom: theme.margins.md,
+        position: 'relative',
+        overflow: 'hidden',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.05,
+        shadowRadius: 12,
+        elevation: 3,
+    },
+    decorCircle: {
+        position: 'absolute',
+        top: -40,
+        right: -40,
+        width: 160,
+        height: 160,
+        borderRadius: 80,
+        backgroundColor: theme.colors.primaryMuted,
+        opacity: 0.6,
+    },
+    profileRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: theme.margins.md,
+        zIndex: 1,
+    },
+    avatarWrapper: {
+        position: 'relative',
+    },
+    avatar: {
+        width: 72,
+        height: 72,
+        borderRadius: 36,
+        borderWidth: 4,
+        borderColor: theme.colors.surface,
+        backgroundColor: theme.colors.secondaryLight,
+    },
+    levelBadge: {
+        position: 'absolute',
+        bottom: -4,
+        right: -4,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 2,
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 10,
+        borderWidth: 2,
+        borderColor: theme.colors.surface,
+    },
+    levelBadgeText: {
+        fontSize: 9,
+        fontWeight: '700',
+        color: '#fff',
+    },
+    infoContainer: {
+        flex: 1,
+    },
+    name: {
+        fontSize: 20,
+        fontWeight: '700',
+        color: theme.colors.typography,
+        marginBottom: theme.margins.sm,
+    },
+    badgesRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: theme.margins.sm,
+    },
+    verifiedBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        backgroundColor: theme.colors.secondaryLight,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 8,
+    },
+    verifiedText: {
+        fontSize: 11,
+        fontWeight: '500',
+        color: theme.colors.typographySecondary,
+    },
+    editBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 8,
+    },
+    editBtnText: {
+        fontSize: 12,
+        fontWeight: '500',
+        color: theme.colors.secondary,
+    },
+    statsRow: {
+        flexDirection: 'row',
+        gap: theme.margins.sm,
+        marginTop: theme.margins.lg,
+    },
+    statCard: {
+        flex: 1,
+        padding: theme.margins.smd,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        position: 'relative',
+        overflow: 'hidden',
+    },
+    statBgIcon: {
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        opacity: 0.1,
+    },
+    statIconContainer: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: theme.margins.smd,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
+        elevation: 1,
+    },
+    statValue: {
+        fontSize: 22,
+        fontWeight: '800',
+        color: theme.colors.typography,
+        letterSpacing: -0.5,
+        marginBottom: 2,
+    },
+    statLabel: {
+        fontSize: 10,
+        fontWeight: '600',
+        color: theme.colors.secondary,
+    },
+    // Skeleton styles
+    avatarSkeleton: {
+        width: 72,
+        height: 72,
+        borderRadius: 36,
+        backgroundColor: theme.colors.secondaryLight,
+    },
+    nameSkeleton: {
+        width: '60%',
+        height: 20,
+        borderRadius: 4,
+        backgroundColor: theme.colors.secondaryLight,
+        marginBottom: theme.margins.sm,
+    },
+    badgeSkeleton: {
+        width: '40%',
+        height: 16,
+        borderRadius: 4,
+        backgroundColor: theme.colors.secondaryLight,
+    },
+    statSkeleton: {
+        flex: 1,
+        height: 120,
+        borderRadius: 20,
+        backgroundColor: theme.colors.secondaryLight,
+    },
+}));

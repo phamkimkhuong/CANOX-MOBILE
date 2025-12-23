@@ -3,6 +3,7 @@ import {
     CategoryHeader,
     CategorySidebar,
 } from '@/components/categories';
+import { ROUTES } from '@/constants/routes';
 import { useCategoryContent, useParentCategories } from '@/hooks/api/useCategories';
 import { router } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -54,7 +55,7 @@ export default function CategoryScreen() {
 
     // Handler: Cart press
     const handleCartPress = useCallback(() => {
-        router.push('/(tabs)/cart');
+        router.push(ROUTES.TABS.CART);
     }, []);
 
     return (
