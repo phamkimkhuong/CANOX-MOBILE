@@ -53,15 +53,16 @@ export default function RegisterScreen() {
 		try {
 			const { confirmPassword, ...payload } = data;
 			register(payload, {
-				onError: (error: any) => {
-					if (error.code === 208) {
+				onError: (error: unknown) => {
+					const apiError = error as { code?: number };
+					if (apiError.code === 208) {
 						setError('username', {
 							type: 'manual',
 							message: 'Tên đăng nhập đã được sử dụng'
 						});
 						setFocus('username');
 					}
-					else if (error.code === 209) {
+					else if (apiError.code === 209) {
 						setError('email', {
 							type: 'manual',
 							message: 'Email đã được sử dụng'
@@ -73,9 +74,13 @@ export default function RegisterScreen() {
 					Toast.show({
 						type: 'success',
 						text1: 'Đăng ký thành công',
-						text2: 'Vui lòng đăng nhập.',
+						text2: 'Vui lòng xác thực email của bạn.',
 					});
-					router.replace('/(auth)/login');
+					// Navigate to OTP verification with email param
+					router.push({
+						pathname: '/(auth)/verify-otp',
+						params: { email: data.email },
+					});
 				},
 			});
 		} catch {

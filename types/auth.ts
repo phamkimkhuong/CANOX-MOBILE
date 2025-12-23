@@ -32,7 +32,29 @@ export const AuthResponseSchema = z.object({
     }),
 });
 
+// Schema cho Register Response
+export const RegisterResponseSchema = z.object({
+    code: z.number(),
+    success: z.boolean(),
+    message: z.string(),
+    data: z.object({
+        userId: z.string(),
+        username: z.string(),
+        email: z.string(),
+        image: z.string().nullable().optional(),
+        status: z.string(), // 'INACTIVE' -> cần verify OTP
+        roleName: z.string(),
+    }),
+});
+
+export const VerifyOtpSchema = z.object({
+    email: z.string().email(), // Email người dùng
+    otpCode: z.string().length(6, 'Mã xác thực phải đủ 6 số'), // Mã 6 số
+});
+
+export type VerifyOtpPayload = z.infer<typeof VerifyOtpSchema>;
 // Type inference
 export type LoginPayload = z.infer<typeof LoginRequestSchema>;
 export type RegisterPayload = z.infer<typeof RegisterRequestSchema>;
 export type AuthResponse = z.infer<typeof AuthResponseSchema>;
+export type RegisterResponse = z.infer<typeof RegisterResponseSchema>;

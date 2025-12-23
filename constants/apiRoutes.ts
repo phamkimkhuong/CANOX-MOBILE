@@ -7,6 +7,8 @@ export const API_ROUTES = {
         REFRESH_TOKEN: `${API_PREFIX}/auth/refresh`,
         LOGOUT: `${API_PREFIX}/auth/logout`,
         ME: `${API_PREFIX}/auth/me`,
+        VERIFY_OTP: `${API_PREFIX}/auth/otp/verify`,
+        RESEND_OTP: `${API_PREFIX}/auth/otp/resend`,
     },
     USERS: {
         CREATE_ACCOUNT: `${API_PREFIX}/users/buyer`,

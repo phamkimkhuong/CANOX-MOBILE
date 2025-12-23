@@ -3,7 +3,11 @@ import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } f
 import * as SecureStore from 'expo-secure-store';
 import { z } from 'zod';
 
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL || process.env.EXPO_PUBLIC_API_URL_LOCAL;
+const BASE_URL =
+    // 'http://10.0.2.2:8888';
+    // 'http://192.168.1.15:8888';
+    // process.env.EXPO_PUBLIC_API_URL || process.env.EXPO_PUBLIC_API_URL_LOCAL ||
+    'https://api.calatha.com';
 const PUBLIC_ENDPOINTS = [
     '/auth/login',
     '/auth/refresh',
@@ -53,7 +57,7 @@ apiClient.interceptors.request.use(
             if (config.headers) {
                 delete config.headers.Authorization;
             }
-            // console.log("" + config.baseURL + config.url);
+            console.log("" + config.baseURL + config.url);
             return config;
         }
         try {
@@ -92,6 +96,11 @@ apiClient.interceptors.response.use(
             console.warn('Session expired. User needs to re-login.');
             await SecureStore.deleteItemAsync(AUTH_TOKEN_KEY);
         }
+        console.log('🚨 Raw Axios Error:', {
+            message: error.message,
+            code: error.code,
+            stack: error.stack?.substring(0, 200),
+        });
         const customError = new ApiError(
             finalMessage,
             statusCode,

@@ -1,7 +1,8 @@
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { ApiError, request } from '@/services/api/client';
 import { useAuthStore } from '@/store/useAuthStore';
-import { AuthResponseSchema, LoginPayload, RegisterPayload } from '@/types/auth';
+import { AuthResponseSchema, LoginPayload, RegisterPayload, RegisterResponseSchema, VerifyOtpPayload } from '@/types/auth';
+import { ResponseDefaultSchema } from '@/types/responseSchema';
 import { useMutation } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import Toast from 'react-native-toast-message';
@@ -46,15 +47,34 @@ export const useRegister = () => {
                     method: 'POST',
                     data,
                 },
-                AuthResponseSchema
-
+                RegisterResponseSchema
             );
+            // console.log('🔥 Testing GET to public endpoint...');
+            // try {
+            //     const response = await fetch('https://api.calatha.com/api/v1/public/products/new?page=0&size=1');
+            //     const result = await response.json();
+            //     console.log('✅ GET Success:', result.code);
+
+            //     // Nếu GET thành công, thử POST
+            //     console.log('🔥 Now testing POST...');
+            //     const postResponse = await fetch('https://api.calatha.com/api/v1/users/buyer', {
+            //         method: 'POST',
+            //         headers: { 'Content-Type': 'application/json' },
+            //         body: JSON.stringify(data),
+            //     });
+            //     const postResult = await postResponse.json();
+            //     console.log('✅ POST Success:', postResult);
+            //     return postResult;
+            // } catch (error: any) {
+            //     console.log('❌ Fetch error details:', error.message, error);
+            //     throw error;
+            // }
         },
         onSuccess: (data) => {
             console.log('Registration Successful:', data);
         },
         onError: (error: ApiError) => {
-            if (error.status !== 208 && error.status !== 209) {
+            if (error.code !== 208 && error.code !== 209) {
                 Toast.hide();
                 Toast.show({
                     type: 'error',
@@ -63,11 +83,11 @@ export const useRegister = () => {
                     visibilityTime: 2000,
                 });
             }
-            console.error('Registration Error:', error);
         },
     });
 };
 
+// Logout hook
 export const useLogout = () => {
     const logoutStore = useAuthStore((state) => state.logout);
 
@@ -91,6 +111,35 @@ export const useLogout = () => {
                 text1: 'Đăng xuất thất bại',
                 text2: error.message,
             });
+        },
+    });
+};
+
+// Verify OTP hook
+export const useVerifyOtp = () => {
+    return useMutation({
+        mutationFn: async (data: VerifyOtpPayload) => {
+            return request(
+                {
+                    url: API_ROUTES.AUTH.VERIFY_OTP,
+                    method: 'POST',
+                    data,
+                },
+                ResponseDefaultSchema
+            );
+        },
+    });
+};
+
+// Hook gửi lại mã
+export const useResendOtp = () => {
+    return useMutation({
+        mutationFn: async (email: string) => {
+            return request({
+                url: API_ROUTES.AUTH.RESEND_OTP,
+                method: 'POST',
+                data: { email, otpType: 'ACCOUNT_ACTIVATION' },
+            }, ResponseDefaultSchema);
         },
     });
 };
