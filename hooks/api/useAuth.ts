@@ -35,7 +35,7 @@ export const useLogin = () => {
                 return;
             }
             // Email đã verify -> Lưu token và đăng nhập
-            await loginStore(accessToken);
+            await loginStore(accessToken, refreshToken);
             // TODO: Lưu refreshToken
             // await SecureStore.setItemAsync('refresh_token', refreshToken);
             Toast.show({
