@@ -1,4 +1,5 @@
 import { ProfileMenuItem, SERVICE_MENU_CONFIG } from '@/types/profile';
+import { formatCurrency } from '@/utils/format';
 import { MaterialIcons } from '@expo/vector-icons';
 import React, { memo, useCallback } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
@@ -10,19 +11,6 @@ interface ServiceGridProps {
     voucherCount?: number;
     isLoading?: boolean;
 }
-
-/**
- * Formats currency for display
- */
-const formatCurrency = (amount: number): string => {
-    if (amount >= 1000000) {
-        return `${(amount / 1000000).toFixed(1)}M đ`;
-    }
-    if (amount >= 1000) {
-        return `${(amount / 1000).toFixed(0)}K đ`;
-    }
-    return `${amount.toLocaleString('vi-VN')} đ`;
-};
 
 /**
  * Service grid showing wallet, coins, vouchers, and shipping

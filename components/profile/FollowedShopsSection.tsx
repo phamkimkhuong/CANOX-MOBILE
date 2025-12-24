@@ -84,12 +84,6 @@ export const FollowedShopsSection: React.FC<FollowedShopsSectionProps> = memo(({
     const handlePressShop = useCallback((shopId: string) => {
         onPressShop?.(shopId);
     }, [onPressShop]);
-
-    // Don't render if no shops and not loading
-    if (!isLoading && shops.length === 0) {
-        return null;
-    }
-
     // Loading skeleton
     if (isLoading) {
         return (
@@ -103,6 +97,21 @@ export const FollowedShopsSection: React.FC<FollowedShopsSectionProps> = memo(({
                             <ShopItemSkeleton key={i} />
                         ))}
                     </View>
+                </View>
+            </View>
+        );
+    }
+
+    // Empty state - Keep layout stable by showing a placeholder instead of null
+    if (shops.length === 0) {
+        return (
+            <View style={styles.container}>
+                <View style={styles.header}>
+                    <Text style={styles.title}>Shop đang theo dõi</Text>
+                </View>
+                <View style={styles.emptyContainer}>
+                    <MaterialIcons name="storefront" size={24} color={theme.colors.secondaryLight} />
+                    <Text style={styles.emptyText}>Bạn chưa theo dõi shop nào</Text>
                 </View>
             </View>
         );
@@ -134,6 +143,8 @@ export const FollowedShopsSection: React.FC<FollowedShopsSectionProps> = memo(({
                     horizontal
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={styles.listContent}
+                    nestedScrollEnabled
+                    removeClippedSubviews={false} // Prevents disappearing items on some versions
                 />
             </View>
         </View>
@@ -145,13 +156,14 @@ FollowedShopsSection.displayName = 'FollowedShopsSection';
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
         marginBottom: theme.margins.md,
+        minHeight: 155, // Định nghĩa chiều cao để tránh nhảy layout
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: theme.margins.md,
-        marginBottom: theme.margins.md,
+        height: 45, // Cố định chiều cao header
     },
     title: {
         fontSize: 15,
@@ -172,6 +184,22 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     listContent: {
         paddingHorizontal: theme.margins.md,
+    },
+    emptyContainer: {
+        height: 110,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: theme.colors.surface,
+        marginHorizontal: theme.margins.md,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderStyle: 'dashed',
+        borderColor: theme.colors.secondaryLight,
+    },
+    emptyText: {
+        fontSize: 12,
+        color: theme.colors.secondary,
+        marginTop: 4,
     },
     shopItem: {
         width: 72,

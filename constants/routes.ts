@@ -96,35 +96,32 @@ export const productRoutes = {
 
 /**
  * Chat routes với dynamic ID
- * NOTE: Cần tạo file app/chat/[id].tsx để route hoạt động
  */
 export const chatRoutes = {
     conversation: (conversationId: string): Href => ({
         pathname: '/chat/[id]',
         params: { id: conversationId },
-    } as unknown as Href),
+    }),
 } as const;
 
 /**
  * Order routes với dynamic ID
- * NOTE: Cần tạo file app/order/[id].tsx để route hoạt động
  */
 export const orderRoutes = {
     detail: (orderId: string): Href => ({
         pathname: '/order/[id]',
         params: { id: orderId },
-    } as unknown as Href),
+    }),
 } as const;
 
 /**
  * Shop routes với dynamic ID
- * NOTE: Cần tạo file app/shop/[id].tsx để route hoạt động
  */
 export const shopRoutes = {
     detail: (shopId: string): Href => ({
         pathname: '/shop/[id]',
         params: { id: shopId },
-    } as unknown as Href),
+    }),
 } as const;
 
 /**

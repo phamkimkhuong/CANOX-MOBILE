@@ -1,3 +1,4 @@
+import { useAuthStore } from '@/store/useAuthStore';
 import {
     FollowedShop,
     MemberLevel,
@@ -69,6 +70,7 @@ export const profileQueryKeys = {
  * Cache: Long (30 minutes) - static data
  */
 export const useUserProfile = () => {
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     return useQuery({
         queryKey: profileQueryKeys.user(),
         queryFn: async (): Promise<UserProfile> => {
@@ -77,6 +79,7 @@ export const useUserProfile = () => {
             // Validate with Zod
             return UserProfileSchema.parse(MOCK_PROFILE);
         },
+        enabled: isAuthenticated,
         staleTime: 1000 * 60 * 30, // 30 minutes
         gcTime: 1000 * 60 * 60, // 1 hour
     });
