@@ -1,6 +1,6 @@
 import { ROUTES } from '@/constants/routes';
+import { Navigator } from '@/utils/navigation';
 import { MaterialIcons } from '@expo/vector-icons';
-import { router } from 'expo-router';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -27,11 +27,11 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     };
 
     const handleNotification = () => {
-        router.push(ROUTES.TABS.NOTIFY);
+        Navigator.push(ROUTES.TABS.NOTIFY);
     };
 
     const handleSettings = () => {
-        // TODO: Navigate to settings
+        Navigator.push(ROUTES.SETTINGS.INDEX);
     };
 
     return (

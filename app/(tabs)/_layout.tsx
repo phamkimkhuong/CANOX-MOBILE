@@ -81,6 +81,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabBarIcon name="shopping-cart" color={color} />,
           // Hiện badge số lượng sản phẩm trong giỏ hàng khi có (cần update số lượng động)
           tabBarBadge: 4,
+          headerShown: false,
         }}
         listeners={
           {

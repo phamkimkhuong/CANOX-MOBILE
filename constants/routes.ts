@@ -64,6 +64,21 @@ export const ROUTES = {
         RECENT: '/recent' as const,
         FOLLOWED_SHOPS: '/followed-shops' as const,
     },
+
+    // ============ SETTINGS ============
+    SETTINGS: {
+        INDEX: '/settings' as const,
+        PROFILE: '/settings/profile' as const,
+        CHANGE_PASSWORD: '/settings/change-password' as const,
+        LINKED_ACCOUNTS: '/settings/linked-accounts' as const,
+        BANK_CARDS: '/settings/bank-cards' as const,
+        NOTIFICATIONS: '/settings/notifications' as const,
+        LANGUAGE: '/settings/language' as const,
+        PRIVACY_POLICY: '/settings/privacy-policy' as const,
+        TERMS: '/settings/terms' as const,
+        RATE_APP: '/settings/rate-app' as const,
+        DELETE_ACCOUNT: '/settings/delete-account' as const,
+    },
 } as const;
 
 /**
@@ -76,7 +91,8 @@ export type StaticRoute =
     | typeof ROUTES.MODAL
     | (typeof ROUTES.PROFILE)[keyof typeof ROUTES.PROFILE]
     | (typeof ROUTES.ORDERS)[keyof typeof ROUTES.ORDERS]
-    | (typeof ROUTES.USER)[keyof typeof ROUTES.USER];
+    | (typeof ROUTES.USER)[keyof typeof ROUTES.USER]
+    | (typeof ROUTES.SETTINGS)[keyof typeof ROUTES.SETTINGS];
 
 // ============================================
 // DYNAMIC ROUTE BUILDERS
@@ -156,6 +172,7 @@ export const isValidRoute = (route: string): route is StaticRoute => {
         ...Object.values(ROUTES.PROFILE),
         ...Object.values(ROUTES.ORDERS),
         ...Object.values(ROUTES.USER),
+        ...Object.values(ROUTES.SETTINGS),
     ];
     return allRoutes.includes(route as StaticRoute);
 };

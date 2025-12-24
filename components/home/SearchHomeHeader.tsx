@@ -1,8 +1,9 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
 import '@/constants/unistyles';
-import { router } from 'expo-router';
-import React from 'react';
+import { useAuthStore } from '@/store/useAuthStore';
+import { Navigator } from '@/utils/navigation';
+import React, { useCallback } from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 
@@ -14,6 +15,15 @@ import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyl
 export const HomeHeader = () => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+    const handleCartPress = useCallback(() => {
+        if (isAuthenticated) {
+            Navigator.push(ROUTES.TABS.CART);
+        } else {
+            Navigator.push(ROUTES.AUTH.LOGIN);
+        }
+    }, [isAuthenticated]);
 
     return (
         <View style={styles.headerContainer}>
@@ -34,7 +44,7 @@ export const HomeHeader = () => {
 
             {/* 2. Các nút chức năng */}
             <View style={styles.actions}>
-                <TouchableOpacity style={styles.iconBtn}>
+                <TouchableOpacity style={styles.iconBtn} onPress={handleCartPress}>
                     <IconSymbol name="cart" size={26} color={theme.colors.typographySecondary} />
                     {/* Badge tự code bằng View thuần */}
                     <View style={styles.badge}>
@@ -43,7 +53,7 @@ export const HomeHeader = () => {
                 </TouchableOpacity>
 
                 {/* {Router to chat.tsx} */}
-                <TouchableOpacity style={styles.iconBtn} onPress={() => router.push(ROUTES.CHAT.LIST)}>
+                <TouchableOpacity style={styles.iconBtn} onPress={() => Navigator.push(ROUTES.CHAT.LIST)}>
                     <IconSymbol name="chatbubble-ellipses-outline" size={26} color={theme.colors.typographySecondary} />
                 </TouchableOpacity>
             </View>

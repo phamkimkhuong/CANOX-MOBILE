@@ -15,6 +15,7 @@ import {
     useWalletBalance,
 } from '@/hooks/api/useProfile';
 import { useAuthStore } from '@/store/useAuthStore';
+import { Navigator } from '@/utils/navigation';
 import React, { useCallback, useMemo } from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
@@ -69,7 +70,7 @@ export default function MeScreen() {
 
     // Handle settings menu item press
     const handleSettingsPress = useCallback((route: string) => {
-        // TODO: Navigate to settings route
+        Navigator.push(route as any);
     }, []);
 
     // Handle shop press

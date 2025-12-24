@@ -1,6 +1,7 @@
 import { Conversation, ConversationPage, ConversationSchema, LastMessage } from '@/types/chat';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef } from 'react';
+import { Alert } from 'react-native';
 
 /**
  * Socket event types for chat
@@ -123,7 +124,8 @@ export const useChatSocket = () => {
                     // Validate with Zod
                     const validated = ConversationSchema.safeParse(updatedConversation);
                     if (!validated.success) {
-                        console.error('[ChatSocket] Invalid conversation data:', validated.error);
+                        // console.error('[ChatSocket] Invalid conversation data:', validated.error);
+                        Alert.alert('Error', 'Invalid conversation data');
                         return oldData;
                     }
 

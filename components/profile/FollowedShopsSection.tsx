@@ -155,7 +155,7 @@ FollowedShopsSection.displayName = 'FollowedShopsSection';
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
-        marginBottom: theme.margins.md,
+        // marginBottom: theme.margins.md,
         minHeight: 155, // Định nghĩa chiều cao để tránh nhảy layout
     },
     header: {

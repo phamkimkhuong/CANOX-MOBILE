@@ -120,7 +120,7 @@ export const CategoryRail = () => {
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
-        paddingVertical: theme.margins.md,
+        paddingVertical: theme.margins.sm,
         backgroundColor: theme.colors.background, // Đảm bảo nền trùng màu app
     },
     row: {
@@ -129,13 +129,13 @@ const stylesheet = StyleSheet.create((theme) => ({
         gap: 12, // Khoảng cách giữa các item
     },
     item: {
-        width: 68, // Cố định width để căn text đều nhau
+        width: 66, // Cố định width để căn text đều nhau
         alignItems: 'center',
-        gap: 6,
+        gap: 5,
     },
     iconCircle: {
-        width: 48,
-        height: 48,
+        width: 45,
+        height: 45,
         borderRadius: 15,
         backgroundColor: theme.colors.surface,
         justifyContent: 'center',
@@ -159,8 +159,8 @@ const stylesheet = StyleSheet.create((theme) => ({
     indicatorContainer: {
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: theme.margins.md,
-        height: 10,
+        marginTop: theme.margins.sm,
+        // height: 10,
     },
     indicatorTrack: {
         height: INDICATOR_HEIGHT,

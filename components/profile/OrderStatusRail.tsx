@@ -135,9 +135,8 @@ const stylesheet = StyleSheet.create((theme) => ({
     card: {
         backgroundColor: theme.colors.surface,
         borderRadius: 24,
-        padding: 20,
+        padding: 12,
         marginHorizontal: theme.margins.md,
-        marginBottom: theme.margins.md,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.05,
@@ -148,7 +147,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: 20,
+        marginBottom: 8,
     },
     title: {
         fontSize: 15,
@@ -175,9 +174,9 @@ const stylesheet = StyleSheet.create((theme) => ({
         gap: theme.margins.sm,
     },
     iconContainer: {
-        width: 48,
-        height: 48,
-        borderRadius: 16,
+        width: 45,
+        height: 45,
+        borderRadius: 13,
         backgroundColor: theme.colors.secondaryLight,
         justifyContent: 'center',
         alignItems: 'center',

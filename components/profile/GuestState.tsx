@@ -57,7 +57,7 @@ export const GuestState: React.FC<GuestStateProps> = memo(({ onLogin, onRegister
                 entering={FadeInDown.duration(600).delay(200)}
                 style={styles.content}
             >
-                <Text style={styles.title}>Chào mừng bạn đến với Shopee</Text>
+                <Text style={styles.title}>Chào mừng bạn đến với Ebay</Text>
                 <Text style={styles.subtitle}>
                     Đăng nhập để nhận nhiều ưu đãi hấp dẫn và theo dõi đơn hàng dễ dàng
                 </Text>

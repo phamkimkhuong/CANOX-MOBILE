@@ -14,11 +14,21 @@ export const API_ROUTES = {
         CREATE_ACCOUNT: `${API_PREFIX}/users/buyer`,
     },
     PRODUCTS: {
-        LIST: `${API_PREFIX}/products`,
-        // Dùng hàm để đảm bảo type safety cho params
         DETAIL: (id: string | number) => `${API_PREFIX}/products/${id}`,
         REVIEWS: (id: string | number) => `${API_PREFIX}/products/${id}/reviews`,
-        SEARCH: `${API_PREFIX}/products/search`,
+    },
+    PUBLIC_PRODUCTS: {
+        PROMOTED: `${API_PREFIX}/public/products/promoted`,
+        SALE: `${API_PREFIX}/public/products/sale`,
+        NEW: `${API_PREFIX}/public/products/new`,
+        FEATURED: `${API_PREFIX}/public/products/featured`,
+        SEARCH: `${API_PREFIX}/public/products/search`,
+        SHOP_BY_ID: (shopId: string | number) => `${API_PREFIX}/public/products/shop/${shopId}`,
+        SLUG: (slug: string) => `${API_PREFIX}/public/products/slug/${slug}`,
+        RELATED: (productId: string | number) => `${API_PREFIX}/public/products/${productId}/related`,
+        CATEGORY: (categoryId: string | number) => `${API_PREFIX}/public/products/category/${categoryId}`,
+        CATEGORY_SLUG: (categorySlug: string) => `${API_PREFIX}/public/products/category/slug/${categorySlug}`,
+        VARIANT_ID: (variantId: string | number) => `${API_PREFIX}/public/products/by-variant/${variantId}`,
     },
     CART: {
         GET: `${API_PREFIX}/cart`,

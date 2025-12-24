@@ -17,7 +17,8 @@ const PUBLIC_ENDPOINTS = [
     '/password/reset',
     '/users/exists/email',
     '/users/exists/username',
-    '/users/buyer'
+    '/users/buyer',
+    '/public/*'
 ];
 const isPublicEndpoint = (url?: string): boolean => {
     if (!url) return false;

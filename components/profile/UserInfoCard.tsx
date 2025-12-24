@@ -1,7 +1,6 @@
 import { MEMBER_LEVEL_CONFIG, QUICK_STATS_CONFIG, UserProfile } from '@/types/profile';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
-import { router } from 'expo-router';
 import React, { memo, useCallback } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -89,10 +88,15 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
                     </Text>
 
                     <View style={styles.badgesRow}>
-                        {profile.isVerified && (
-                            <View style={styles.verifiedBadge}>
-                                <MaterialIcons name="verified-user" size={12} color={theme.colors.secondary} />
-                                <Text style={styles.verifiedText}>Đã xác thực</Text>
+                        {profile.isVerified ? (
+                            <View style={[styles.statusBadge, styles.verifiedBadge]}>
+                                <MaterialIcons name="verified" size={12} color={theme.colors.primary} />
+                                <Text style={[styles.statusText, styles.verifiedText]}>Đã xác thực</Text>
+                            </View>
+                        ) : (
+                            <View style={[styles.statusBadge, styles.unverifiedBadge]}>
+                                <MaterialIcons name="error-outline" size={12} color="#f59e0b" />
+                                <Text style={[styles.statusText, styles.unverifiedText]}>Chưa xác thực</Text>
                             </View>
                         )}
 
@@ -153,9 +157,9 @@ const stylesheet = StyleSheet.create((theme) => ({
     card: {
         backgroundColor: theme.colors.surface,
         borderRadius: 24,
-        padding: 20,
+        padding: 13,
         marginHorizontal: theme.margins.md,
-        marginBottom: theme.margins.md,
+        marginBottom: theme.margins.sm,
         position: 'relative',
         overflow: 'hidden',
         shadowColor: '#000',
@@ -184,9 +188,9 @@ const stylesheet = StyleSheet.create((theme) => ({
         position: 'relative',
     },
     avatar: {
-        width: 72,
-        height: 72,
-        borderRadius: 36,
+        width: 70,
+        height: 70,
+        borderRadius: 35,
         borderWidth: 4,
         borderColor: theme.colors.surface,
         backgroundColor: theme.colors.secondaryLight,
@@ -224,19 +228,33 @@ const stylesheet = StyleSheet.create((theme) => ({
         flexWrap: 'wrap',
         gap: theme.margins.sm,
     },
-    verifiedBadge: {
+    statusBadge: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 4,
-        backgroundColor: theme.colors.secondaryLight,
         paddingHorizontal: 8,
         paddingVertical: 4,
         borderRadius: 8,
     },
-    verifiedText: {
+    statusText: {
         fontSize: 11,
-        fontWeight: '500',
-        color: theme.colors.typographySecondary,
+        fontWeight: '600',
+    },
+    verifiedBadge: {
+        backgroundColor: theme.colors.primaryMuted || 'rgba(59, 130, 246, 0.1)',
+        borderWidth: 1,
+        borderColor: theme.colors.primaryMuted || 'rgba(59, 130, 246, 0.2)',
+    },
+    verifiedText: {
+        color: theme.colors.primary,
+    },
+    unverifiedBadge: {
+        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+        borderWidth: 1,
+        borderColor: 'rgba(245, 158, 11, 0.2)',
+    },
+    unverifiedText: {
+        color: '#f59e0b',
     },
     editBtn: {
         flexDirection: 'row',
@@ -253,7 +271,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     statsRow: {
         flexDirection: 'row',
         gap: theme.margins.sm,
-        marginTop: theme.margins.lg,
+        marginTop: theme.margins.md,
     },
     statCard: {
         flex: 1,
@@ -276,7 +294,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: theme.margins.smd,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.05,
