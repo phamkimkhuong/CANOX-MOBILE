@@ -1,84 +1,51 @@
 import { IconSymbol } from '@/components/ui/Icon';
+import { useFlashSale } from '@/hooks/api/useFlashSale';
+import { formatTimeLeft } from '@/utils/date';
 import { Image } from 'expo-image';
-import React, { useEffect, useState } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { FlashSaleSkeleton } from './FlashSaleSkeleton';
 
 /**
- * FlashSale - Component hiển thị sản phẩm Flash Sale với countdown timer
- * 
- * Features:
- * - Countdown timer tự động cập nhật
- * - Progress bar hiển thị số lượng đã bán
- * - Horizontal scroll cho danh sách sản phẩm
+ * FlashSale - Component hiển thị sản phẩm Flash Sale
  */
-interface FlashProduct {
-    id: number;
-    image: string;
-    price: number;
-    discount: number;
-    sold: number;
-    total: number;
-}
-
-const FLASH_PRODUCTS: FlashProduct[] = [
-    {
-        id: 1,
-        image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300',
-        price: 15.99,
-        discount: 50,
-        sold: 120,
-        total: 150,
-    },
-    {
-        id: 2,
-        image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300',
-        price: 89.0,
-        discount: 30,
-        sold: 45,
-        total: 100,
-    },
-    {
-        id: 3,
-        image: 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=300',
-        price: 65.0,
-        discount: 25,
-        sold: 98,
-        total: 100,
-    },
-    {
-        id: 4,
-        image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300',
-        price: 199.0,
-        discount: 40,
-        sold: 35,
-        total: 50,
-    },
-];
-
-export const FlashSale = () => {
+export const FlashSale = memo(() => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const [timeLeft, setTimeLeft] = useState({ hours: 2, minutes: 15, seconds: 30 });
 
-    // Countdown timer
+    // Fetch data từ API
+    const { data: flashSaleData, isLoading, isError } = useFlashSale();
+
+    // State cho đồng hồ đếm ngược
+    const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
+
     useEffect(() => {
-        const timer = setInterval(() => {
-            setTimeLeft((prev) => {
-                if (prev.seconds > 0) {
-                    return { ...prev, seconds: prev.seconds - 1 };
-                } else if (prev.minutes > 0) {
-                    return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
-                } else if (prev.hours > 0) {
-                    return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
-                }
-                return prev;
-            });
-        }, 1000);
-        return () => clearInterval(timer);
-    }, []);
+        if (!flashSaleData?.slot.endTime) return;
 
-    const formatTime = (num: number) => num.toString().padStart(2, '0');
+        const timer = setInterval(() => {
+            const time = formatTimeLeft(flashSaleData.slot.endTime);
+            if (time.total <= 0) {
+                clearInterval(timer);
+                // Có thể trigger refetch ở đây
+            } else {
+                setTimeLeft({
+                    hours: time.hours,
+                    minutes: time.minutes,
+                    seconds: time.seconds,
+                });
+            }
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [flashSaleData?.slot.endTime]);
+    if (isLoading) {
+        return <FlashSaleSkeleton />;
+    }
+    if (isError || !flashSaleData || flashSaleData.items.length === 0) {
+        return null;
+    }
+    const formatNumber = (num: number) => num.toString().padStart(2, '0');
 
     return (
         <View style={styles.container}>
@@ -88,20 +55,20 @@ export const FlashSale = () => {
                     <Text style={styles.title}>FLASH SALE</Text>
                     <View style={styles.timerRow}>
                         <View style={styles.timerBox}>
-                            <Text style={styles.timerText}>{formatTime(timeLeft.hours)}</Text>
+                            <Text style={styles.timerText}>{formatNumber(timeLeft.hours)}</Text>
                         </View>
                         <Text style={styles.timerColon}>:</Text>
                         <View style={styles.timerBox}>
-                            <Text style={styles.timerText}>{formatTime(timeLeft.minutes)}</Text>
+                            <Text style={styles.timerText}>{formatNumber(timeLeft.minutes)}</Text>
                         </View>
                         <Text style={styles.timerColon}>:</Text>
                         <View style={styles.timerBox}>
-                            <Text style={styles.timerText}>{formatTime(timeLeft.seconds)}</Text>
+                            <Text style={styles.timerText}>{formatNumber(timeLeft.seconds)}</Text>
                         </View>
                     </View>
                 </View>
                 <TouchableOpacity style={styles.seeAllBtn}>
-                    <Text style={styles.seeAllText}>See All</Text>
+                    <Text style={styles.seeAllText}>Xem tất cả</Text>
                     <IconSymbol name="chevron-right" size={16} color={theme.colors.secondary} />
                 </TouchableOpacity>
             </View>
@@ -112,47 +79,62 @@ export const FlashSale = () => {
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.scrollContent}
             >
-                {FLASH_PRODUCTS.map((product) => (
-                    <TouchableOpacity key={product.id} style={styles.productCard} activeOpacity={0.8}>
+                {flashSaleData.items.map((item) => (
+                    <TouchableOpacity key={item.id} style={styles.productCard} activeOpacity={0.8}>
                         <View style={styles.imageContainer}>
                             <Image
-                                source={{ uri: product.image }}
+                                source={{ uri: item.image }}
                                 style={styles.productImage}
                                 contentFit="cover"
+                                transition={200}
                             />
-                            <View style={styles.discountBadge}>
-                                <Text style={styles.discountText}>-{product.discount}%</Text>
-                            </View>
+                            {item.discountPercentage > 0 && (
+                                <View style={styles.discountBadge}>
+                                    <Text style={styles.discountText}>-{item.discountPercentage}%</Text>
+                                </View>
+                            )}
                         </View>
                         <View style={styles.productInfo}>
-                            <Text style={styles.price}>${product.price.toFixed(2)}</Text>
+                            <Text style={styles.price}>
+                                ₫{item.price.toLocaleString('vi-VN')}
+                            </Text>
                             {/* Progress Bar */}
                             <View style={styles.progressBg}>
                                 <View
                                     style={[
                                         styles.progressFill,
-                                        { width: `${(product.sold / product.total) * 100}%` },
+                                        { width: `${item.progress}%` },
                                     ]}
                                 />
+                                <View style={styles.progressLabelContainer}>
+                                    <Text style={styles.progressText}>
+                                        {item.soldCount > 0 ? `Đã bán ${item.soldCount}` : 'ĐANG BÁN CHẠY'}
+                                    </Text>
+                                </View>
                             </View>
-                            <Text style={styles.soldText}>{product.sold} sold</Text>
                         </View>
                     </TouchableOpacity>
                 ))}
             </ScrollView>
         </View>
     );
-};
+});
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
         backgroundColor: theme.colors.surface,
         paddingVertical: theme.margins.md,
+        borderRadius: theme.radius.m,
         shadowColor: theme.colors.primary,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.05,
         shadowRadius: 4,
         elevation: 2,
+    },
+    loadingContainer: {
+        height: 200,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     header: {
         flexDirection: 'row',
@@ -170,8 +152,8 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: 18,
         fontWeight: 'bold',
         fontStyle: 'italic',
-        color: '#f97316',
-        letterSpacing: 1,
+        color: theme.colors.warning,
+        letterSpacing: 0.5,
     },
     timerRow: {
         flexDirection: 'row',
@@ -207,16 +189,16 @@ const stylesheet = StyleSheet.create((theme) => ({
         gap: 12,
     },
     productCard: {
-        width: 130,
+        width: 140,
     },
     imageContainer: {
         width: '100%',
         aspectRatio: 1,
         borderRadius: theme.radius.m,
         overflow: 'hidden',
-        backgroundColor: theme.colors.primarySubtle,
         borderWidth: 1,
         borderColor: `${theme.colors.primary}10`,
+        backgroundColor: '#f8fafc',
     },
     productImage: {
         width: '100%',
@@ -230,34 +212,48 @@ const stylesheet = StyleSheet.create((theme) => ({
         paddingHorizontal: 6,
         paddingVertical: 3,
         borderBottomLeftRadius: theme.radius.m,
+        borderWidth: 1,
+        borderColor: '#fef3c7',
     },
     discountText: {
         fontSize: 10,
         fontWeight: 'bold',
-        color: theme.colors.typography,
+        color: theme.colors.notification,
     },
     productInfo: {
         marginTop: theme.margins.sm,
         gap: 4,
     },
     price: {
-        fontSize: 14,
+        fontSize: 15,
         fontWeight: 'bold',
-        color: theme.colors.primary,
+        color: theme.colors.notification,
     },
     progressBg: {
-        height: 6,
-        backgroundColor: `${theme.colors.secondary}30`,
-        borderRadius: 3,
+        position: 'relative',
+        height: 16,
+        backgroundColor: '#ffdbd2',
+        borderRadius: 8,
         overflow: 'hidden',
+        justifyContent: 'center',
     },
     progressFill: {
-        height: '100%',
-        backgroundColor: '#f97316',
-        borderRadius: 3,
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        bottom: 0,
+        backgroundColor: '#ee4d2d',
+        borderRadius: 8,
     },
-    soldText: {
+    progressLabelContainer: {
+        width: '100%',
+        alignItems: 'center',
+    },
+    progressText: {
         fontSize: 10,
-        color: theme.colors.secondary,
+        fontWeight: 'bold',
+        color: theme.colors.surface,
+        textTransform: 'uppercase',
     },
 }));
+

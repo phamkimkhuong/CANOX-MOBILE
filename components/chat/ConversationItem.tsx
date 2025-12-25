@@ -36,27 +36,7 @@ interface ConversationItemProps {
     onDelete?: (item: Conversation) => void;
 }
 
-/**
- * Format timestamp to readable string
- * @param timestamp - ISO timestamp string
- * @returns Formatted time string (e.g., "14:30", "Hôm qua", "T2")
- */
-const formatTime = (timestamp: string): string => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) {
-        return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-    }
-    if (diffDays === 1) return 'Hôm qua';
-    if (diffDays < 7) {
-        const days = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
-        return days[date.getDay()];
-    }
-    return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
-};
+import { formatTime } from '@/utils/date';
 
 /**
  * Get message preview with icon based on type

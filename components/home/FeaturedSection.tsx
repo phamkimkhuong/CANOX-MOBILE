@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import React from 'react';
+import React, { memo } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -46,7 +46,7 @@ const FEATURED_PRODUCTS: FeaturedProduct[] = [
     },
 ];
 
-export const FeaturedSection = () => {
+export const FeaturedSection = memo(() => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
 
@@ -109,7 +109,7 @@ export const FeaturedSection = () => {
             </ScrollView>
         </View>
     );
-};
+});
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {

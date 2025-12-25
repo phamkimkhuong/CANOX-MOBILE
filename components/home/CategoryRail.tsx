@@ -1,5 +1,5 @@
 import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { memo, useCallback, useRef, useState } from 'react';
 import {
     Animated,
     NativeScrollEvent,
@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-// Define kích thước cố định cho thanh chỉ báo (giống Shopee)
+// Define kích thước cố định cho thanh chỉ báo
 const INDICATOR_WIDTH = 40; // Thanh track chỉ rộng 40px
 const INDICATOR_HEIGHT = 4;
 
@@ -33,7 +33,7 @@ const CATEGORIES: Category[] = [
     { id: 9, name: 'Global', icon: 'public', color: '#2dd4bf' },
 ];
 
-export const CategoryRail = () => {
+export const CategoryRail = memo(() => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const scrollX = useRef(new Animated.Value(0)).current;
@@ -116,7 +116,7 @@ export const CategoryRail = () => {
             )}
         </View>
     );
-};
+});
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {

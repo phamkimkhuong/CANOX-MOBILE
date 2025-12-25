@@ -1,3 +1,4 @@
+import { SkeletonBox, SkeletonText } from '@/components/ui/Skeleton';
 import React from 'react';
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
@@ -6,21 +7,39 @@ interface NotificationSkeletonProps {
     count?: number;
 }
 
+/**
+ * Single notification item skeleton
+ * Mirrors the layout of NotificationItem component
+ */
 const SkeletonItem: React.FC = () => {
     const styles = stylesheet;
 
     return (
         <View style={styles.item}>
-            <View style={styles.iconSkeleton} />
+            {/* Icon/Avatar skeleton */}
+            <SkeletonBox width={56} height={56} borderRadius={12} />
+
+            {/* Text content skeleton */}
             <View style={styles.textContainer}>
-                <View style={styles.titleSkeleton} />
-                <View style={styles.messageSkeleton} />
-                <View style={styles.timeSkeleton} />
+                {/* Title skeleton */}
+                <SkeletonText width="70%" height={16} />
+
+                {/* Message skeleton (2 lines) */}
+                <SkeletonText width="100%" height={36} />
+
+                {/* Time skeleton */}
+                <SkeletonText width={60} height={12} />
             </View>
         </View>
     );
 };
 
+/**
+ * NotificationSkeleton - Loading placeholder for notification list
+ * 
+ * @example
+ * if (isLoading) return <NotificationSkeleton count={6} />;
+ */
 export const NotificationSkeleton: React.FC<NotificationSkeletonProps> = ({ count = 5 }) => {
     const styles = stylesheet;
 
@@ -28,12 +47,12 @@ export const NotificationSkeleton: React.FC<NotificationSkeletonProps> = ({ coun
         <View style={styles.container}>
             {/* Section header skeleton */}
             <View style={styles.sectionSkeleton}>
-                <View style={styles.sectionTextSkeleton} />
+                <SkeletonText width={80} height={12} />
             </View>
 
             {/* Items skeleton */}
             {Array.from({ length: count }).map((_, index) => (
-                <SkeletonItem key={index} />
+                <SkeletonItem key={`notification-skeleton-${index}`} />
             ))}
         </View>
     );
@@ -48,12 +67,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         paddingHorizontal: theme.margins.md,
         backgroundColor: theme.colors.backgroundSurface,
     },
-    sectionTextSkeleton: {
-        width: 80,
-        height: 12,
-        borderRadius: theme.radius.s,
-        backgroundColor: theme.colors.secondaryLight,
-    },
     item: {
         flexDirection: 'row',
         alignItems: 'flex-start',
@@ -64,33 +77,8 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderBottomColor: theme.colors.border,
         gap: theme.margins.smd,
     },
-    iconSkeleton: {
-        width: 56,
-        height: 56,
-        borderRadius: theme.radius.m,
-        backgroundColor: theme.colors.secondaryLight,
-    },
     textContainer: {
         flex: 1,
         gap: theme.margins.sm,
-    },
-    titleSkeleton: {
-        width: '70%',
-        height: 16,
-        borderRadius: theme.radius.s,
-        backgroundColor: theme.colors.secondaryLight,
-    },
-    messageSkeleton: {
-        width: '100%',
-        height: 36,
-        borderRadius: theme.radius.s,
-        backgroundColor: theme.colors.secondaryLight,
-    },
-    timeSkeleton: {
-        width: 60,
-        height: 12,
-        borderRadius: theme.radius.s,
-        backgroundColor: theme.colors.secondaryLight,
-        marginTop: theme.margins.sm,
     },
 }));

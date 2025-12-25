@@ -1,21 +1,26 @@
-import React, { useState } from 'react';
+import { FeedType } from '@/hooks/api/useHomeProducts';
+import React from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface ProductTabsProps {
-    onTabChange?: (tab: string) => void;
+    activeTab: FeedType;
+    onTabChange: (tab: FeedType) => void;
 }
 
-const TABS = ['Recommended', 'Best Selling', 'New Arrivals', 'Near You'];
+const TABS: { label: string; value: FeedType }[] = [
+    // { label: 'Gợi ý', value: 'promoted' },
+    // { label: 'Bán chạy', value: 'featured' },
+    { label: 'Hàng mới', value: 'new' },
+    { label: 'Giảm giá', value: 'sale' },
+];
 
-export const ProductTabs = ({ onTabChange }: ProductTabsProps) => {
+export const ProductTabs = ({ activeTab, onTabChange }: ProductTabsProps) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const [activeTab, setActiveTab] = useState(TABS[0]);
 
-    const handleTabPress = (tab: string) => {
-        setActiveTab(tab);
-        onTabChange?.(tab);
+    const handleTabPress = (tab: FeedType) => {
+        onTabChange(tab);
     };
 
     return (
@@ -27,13 +32,13 @@ export const ProductTabs = ({ onTabChange }: ProductTabsProps) => {
             >
                 {TABS.map((tab) => (
                     <TouchableOpacity
-                        key={tab}
-                        style={[styles.tab, activeTab === tab && styles.tabActive]}
-                        onPress={() => handleTabPress(tab)}
+                        key={tab.value}
+                        style={[styles.tab, activeTab === tab.value && styles.tabActive]}
+                        onPress={() => handleTabPress(tab.value)}
                         activeOpacity={0.7}
                     >
-                        <Text style={[styles.tabText, activeTab === tab && styles.tabTextActive]}>
-                            {tab}
+                        <Text style={[styles.tabText, activeTab === tab.value && styles.tabTextActive]}>
+                            {tab.label}
                         </Text>
                     </TouchableOpacity>
                 ))}

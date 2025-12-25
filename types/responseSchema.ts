@@ -7,3 +7,15 @@ export const ResponseDefaultSchema = z.object({
     message: z.string(),
     data: z.any()
 });
+
+export interface PaginatedResponse<T> {
+    code: number;
+    success: boolean;
+    data: {
+        content: T[];
+        page: number;
+        size: number;
+        totalPages: number;
+        hasNext: boolean;
+    };
+}
