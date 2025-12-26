@@ -17,7 +17,7 @@ export const SectionHeader = ({ title, onSeeAll }: SectionHeaderProps) => {
             <Text style={styles.title}>{title}</Text>
             {onSeeAll && (
                 <TouchableOpacity style={styles.seeAllBtn} onPress={onSeeAll}>
-                    <Text style={styles.seeAllText}>See All</Text>
+                    <Text style={styles.seeAllText}>Xem tất cả</Text>
                     <IconSymbol name="chevron-right" size={16} color={theme.colors.secondary} />
                 </TouchableOpacity>
             )}

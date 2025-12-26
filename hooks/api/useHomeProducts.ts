@@ -47,6 +47,7 @@ export const useProductFeed = (type: FeedType) => {
             };
         },
         getNextPageParam: (lastPage) => lastPage.nextPage,
+        placeholderData: (previousData) => previousData, // Giữ data cũ khi refetch để tránh nháy do loading
         staleTime: 1000 * 60 * 5, // Cache 5 phút
     });
 };

@@ -27,7 +27,6 @@ const BANNER_ASPECT_RATIO = 3; // 3:1 ratio
  * Features:
  * - Banner với aspect ratio cố định (tránh layout shift)
  * - Grid 3 cột cho items
- * - Section headers với "Xem tất cả"
  * - Featured brands section
  */
 export const CategoryContent: React.FC<CategoryContentProps> = ({

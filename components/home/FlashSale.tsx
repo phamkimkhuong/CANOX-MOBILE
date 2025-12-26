@@ -1,6 +1,7 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { useFlashSale } from '@/hooks/api/useFlashSale';
 import { formatTimeLeft } from '@/utils/date';
+import { formatCurrency } from '@/utils/format';
 import { Image } from 'expo-image';
 import React, { memo, useEffect, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
@@ -96,19 +97,21 @@ export const FlashSale = memo(() => {
                         </View>
                         <View style={styles.productInfo}>
                             <Text style={styles.price}>
-                                ₫{item.price.toLocaleString('vi-VN')}
+                                {formatCurrency(item.price)}
                             </Text>
                             {/* Progress Bar */}
                             <View style={styles.progressBg}>
+                                {/* Progress Fill with gradient effect */}
                                 <View
                                     style={[
                                         styles.progressFill,
-                                        { width: `${item.progress}%` },
+                                        { width: `${Math.max(item.progress, 30)}%` }, // Min 30% để luôn thấy màu
                                     ]}
                                 />
                                 <View style={styles.progressLabelContainer}>
+
                                     <Text style={styles.progressText}>
-                                        {item.soldCount > 0 ? `Đã bán ${item.soldCount}` : 'ĐANG BÁN CHẠY'}
+                                        {item.soldCount > 0 ? `Đã bán ${item.soldCount}` : 'Đang bán chạy'}
                                     </Text>
                                 </View>
                             </View>
@@ -227,13 +230,13 @@ const stylesheet = StyleSheet.create((theme) => ({
     price: {
         fontSize: 15,
         fontWeight: 'bold',
-        color: theme.colors.notification,
+        color: theme.colors.error,
     },
     progressBg: {
         position: 'relative',
-        height: 16,
-        backgroundColor: '#ffdbd2',
-        borderRadius: 8,
+        height: 12,
+        backgroundColor: '#ffaa94',
+        borderRadius: 5,
         overflow: 'hidden',
         justifyContent: 'center',
     },
@@ -243,17 +246,21 @@ const stylesheet = StyleSheet.create((theme) => ({
         top: 0,
         bottom: 0,
         backgroundColor: '#ee4d2d',
-        borderRadius: 8,
+        borderRadius: 9,
     },
     progressLabelContainer: {
-        width: '100%',
+        flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
+        gap: 2,
+        zIndex: 1,
     },
     progressText: {
         fontSize: 10,
         fontWeight: 'bold',
-        color: theme.colors.surface,
-        textTransform: 'uppercase',
+        color: theme.colors.background,
+        textShadowColor: 'rgba(0, 0, 0, 0.3)',
+        textShadowRadius: 2,
     },
 }));
 

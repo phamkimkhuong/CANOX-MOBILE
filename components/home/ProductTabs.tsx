@@ -1,5 +1,5 @@
 import { FeedType } from '@/hooks/api/useHomeProducts';
-import React from 'react';
+import React, { memo, useCallback } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -15,13 +15,17 @@ const TABS: { label: string; value: FeedType }[] = [
     { label: 'Giảm giá', value: 'sale' },
 ];
 
-export const ProductTabs = ({ activeTab, onTabChange }: ProductTabsProps) => {
+/**
+ * ProductTabs - Tab navigation cho Product Feed
+ */
+export const ProductTabs = memo(({ activeTab, onTabChange }: ProductTabsProps) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
 
-    const handleTabPress = (tab: FeedType) => {
+    const handleTabPress = useCallback((tab: FeedType) => {
+
         onTabChange(tab);
-    };
+    }, [onTabChange]);
 
     return (
         <View style={styles.container}>
@@ -45,21 +49,23 @@ export const ProductTabs = ({ activeTab, onTabChange }: ProductTabsProps) => {
             </ScrollView>
         </View>
     );
-};
+});
+
+ProductTabs.displayName = 'ProductTabs';
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
-        marginTop: theme.margins.smd,
         backgroundColor: theme.colors.surface,
         borderBottomWidth: 1,
         borderBottomColor: theme.colors.border,
+        borderRadius: theme.radius.m,
     },
     scrollContent: {
         paddingHorizontal: theme.margins.md,
         gap: theme.margins.lg,
     },
     tab: {
-        paddingVertical: 12,
+        paddingVertical: 10,
         borderBottomWidth: 2,
         borderBottomColor: 'transparent',
     },

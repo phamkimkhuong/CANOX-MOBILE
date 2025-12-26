@@ -1,54 +1,97 @@
-import { Image } from 'expo-image';
-import React, { memo } from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-
 import { SectionHeader } from '@/components/ui/SectionHeader';
+import { useProductFeed } from '@/hooks/api/useHomeProducts';
+import type { ProductFeedItem } from '@/types/product';
+import { formatCurrency } from '@/utils/format';
+import { Image } from 'expo-image';
+import React, { memo, useMemo } from 'react';
+import { Text, TouchableOpacity, View, ViewStyle } from 'react-native';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { FeaturedSectionSkeleton } from './FeaturedSectionSkeleton';
 
-interface FeaturedProduct {
-    id: number;
-    title: string;
-    price: number;
-    image: string;
-    badge?: string;
-    discount?: number;
+type BadgeType = 'mall' | 'bestSeller' | 'topRated' | null;
+
+interface BadgeInfo {
+    text: string;
+    type: BadgeType;
 }
 
-const FEATURED_MAIN = {
-    id: 0,
-    title: 'iPhone 15 Pro Max',
-    subtitle: 'Capture life in cinematic detail. Unbeatable performance.',
-    price: 1199,
-    image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=600',
+/**
+ * Xác định badge dựa trên dữ liệu sản phẩm
+ * Ưu tiên: Mall > Best Seller > Top Rated > null
+ */
+const getBadge = (product: ProductFeedItem): BadgeInfo | null => {
+    //  Mall - Shop chính hãng
+    if (product.isMall) {
+        return { text: 'Mall', type: 'mall' };
+    }
+    //  Best Seller - Bán chạy (sold > 500)
+    if (product.sold > 500) {
+        return { text: 'Bán chạy', type: 'bestSeller' };
+    }
+    // Top Rated - Đánh giá cao (rating >= 4.5 và có ít nhất 20 reviews)
+    if (product.rating >= 4.5 && product.reviews >= 20) {
+        return { text: 'Top', type: 'topRated' };
+    }
+    // Không có badge
+    return null;
 };
 
-const FEATURED_PRODUCTS: FeaturedProduct[] = [
-    {
-        id: 1,
-        title: 'Fast Wireless Charger',
-        price: 29.99,
-        image: 'https://images.unsplash.com/photo-1615526675159-e248c3021d3f?w=300',
-        badge: 'New',
-    },
-    {
-        id: 2,
-        title: 'Portable Bluetooth Speaker',
-        price: 49.50,
-        image: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=300',
-        discount: 10,
-    },
-    {
-        id: 3,
-        title: 'Ergonomic Laptop Stand',
-        price: 35.0,
-        image: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=300',
-        badge: 'Best Deal',
-    },
-];
+/**
+ * Tính discount badge nếu có giảm giá
+ */
+const getDiscountBadge = (item: ProductFeedItem): string | null => {
+    if (item.discountPercentage && item.discountPercentage > 0) {
+        return `-${Math.round(item.discountPercentage)}%`;
+    }
+    return null;
+};
 
+/**
+ * FeaturedSection - Component hiển thị sản phẩm Featured/Nổi bật
+ * 
+ * Data structure:
+ * - products[0] → Main Banner (sản phẩm lớn)
+ * - products.slice(1, 4) → Small Products (3 sản phẩm nhỏ)
+ */
 export const FeaturedSection = memo(() => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+
+    // Fetch data từ API
+    // const { data, isLoading, isError } = useProductFeed('featured');
+    const { data, isLoading, isError } = useProductFeed('new');
+
+    // Flatten pages và lấy products
+    const products = useMemo(() => {
+        return data?.pages.flatMap(page => page.items) ?? [];
+    }, [data]);
+
+    const mainProduct = products[0];
+    const smallProducts = products.slice(1, 4);
+
+    // Loading state
+    if (isLoading) {
+        return <FeaturedSectionSkeleton />;
+    }
+
+    // Error hoặc không có data
+    if (isError || !mainProduct) {
+        return null;
+    }
+
+    // Map badge type to style
+    const getBadgeStyle = (type: BadgeType): ViewStyle => {
+        switch (type) {
+            case 'mall':
+                return { backgroundColor: theme.colors.primary };
+            case 'bestSeller':
+                return { backgroundColor: theme.colors.warning };
+            case 'topRated':
+                return { backgroundColor: theme.colors.success };
+            default:
+                return { backgroundColor: theme.colors.primary };
+        }
+    };
 
     return (
         <View style={styles.container}>
@@ -58,55 +101,79 @@ export const FeaturedSection = memo(() => {
 
             {/* Main Featured Banner */}
             <TouchableOpacity style={styles.mainBanner} activeOpacity={0.9}>
-                <Image source={{ uri: FEATURED_MAIN.image }} style={styles.mainImage} contentFit="cover" />
+                <Image
+                    source={{ uri: mainProduct.thumbnail }}
+                    style={styles.mainImage}
+                    contentFit="cover"
+                    accessibilityLabel={mainProduct.title}
+                />
                 <View style={styles.mainOverlay}>
                     <View style={styles.editorBadge}>
                         <Text style={styles.editorBadgeText}>Editor's Pick</Text>
                     </View>
-                    <Text style={styles.mainTitle}>{FEATURED_MAIN.title}</Text>
-                    <Text style={styles.mainSubtitle}>{FEATURED_MAIN.subtitle}</Text>
+                    <Text style={styles.mainTitle} numberOfLines={2}>
+                        {mainProduct.title}
+                    </Text>
+                    <Text style={styles.mainSubtitle} numberOfLines={1}>
+                        {mainProduct.shopName}
+                    </Text>
                     <View style={styles.mainFooter}>
-                        <Text style={styles.mainPrice}>${FEATURED_MAIN.price}</Text>
+                        <Text style={styles.mainPrice}>
+                            {formatCurrency(mainProduct.price)}
+                        </Text>
                         <TouchableOpacity style={styles.buyNowBtn}>
-                            <Text style={styles.buyNowText}>Buy Now</Text>
+                            <Text style={styles.buyNowText}>Xem ngay</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
             </TouchableOpacity>
 
-            {/* Small Featured Products */}
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.scrollContent}
-            >
-                {FEATURED_PRODUCTS.map((product) => (
-                    <TouchableOpacity key={product.id} style={styles.smallCard} activeOpacity={0.8}>
-                        <View style={styles.smallImageContainer}>
-                            <Image source={{ uri: product.image }} style={styles.smallImage} contentFit="cover" />
-                            {product.badge && (
-                                <View
-                                    style={[
-                                        styles.smallBadge,
-                                        product.badge === 'Best Deal' && styles.bestDealBadge,
-                                    ]}
-                                >
-                                    <Text style={styles.smallBadgeText}>{product.badge}</Text>
+            {/* Small Featured Products*/}
+            {smallProducts.length > 0 && (
+                <View style={styles.smallProductsRow}>
+                    {smallProducts.map((product) => {
+                        const badge = getBadge(product);
+                        const discountBadge = getDiscountBadge(product);
+
+                        return (
+                            <TouchableOpacity
+                                key={product.id}
+                                style={styles.smallCard}
+                                activeOpacity={0.8}
+                            >
+                                <View style={styles.smallImageContainer}>
+                                    <Image
+                                        source={{ uri: product.thumbnail }}
+                                        style={styles.smallImage}
+                                        contentFit="cover"
+                                        accessibilityLabel={product.title}
+                                    />
+
+                                    {/* Feature badge - chỉ hiển thị nếu có */}
+                                    {badge && (
+                                        <View style={[styles.smallBadge, getBadgeStyle(badge.type)]}>
+                                            <Text style={styles.smallBadgeText}>{badge.text}</Text>
+                                        </View>
+                                    )}
+
+                                    {/* Discount badge - chỉ hiển thị nếu có giảm giá */}
+                                    {discountBadge && (
+                                        <View style={styles.discountBadge}>
+                                            <Text style={styles.discountText}>{discountBadge}</Text>
+                                        </View>
+                                    )}
                                 </View>
-                            )}
-                            {product.discount != null && (
-                                <View style={styles.discountBadge}>
-                                    <Text style={styles.discountText}>-{product.discount}%</Text>
-                                </View>
-                            )}
-                        </View>
-                        <Text style={styles.smallTitle} numberOfLines={2}>
-                            {product.title}
-                        </Text>
-                        <Text style={styles.smallPrice}>${product.price.toFixed(2)}</Text>
-                    </TouchableOpacity>
-                ))}
-            </ScrollView>
+                                <Text style={styles.smallTitle} numberOfLines={2}>
+                                    {product.title}
+                                </Text>
+                                <Text style={styles.smallPrice}>
+                                    {formatCurrency(product.price)}
+                                </Text>
+                            </TouchableOpacity>
+                        );
+                    })}
+                </View>
+            )}
         </View>
     );
 });
@@ -115,6 +182,8 @@ const stylesheet = StyleSheet.create((theme) => ({
     container: {
         marginTop: theme.margins.smd,
         backgroundColor: theme.colors.surface,
+        marginBottom: theme.margins.md,
+        borderRadius: 10
     },
     headerPadding: {
         paddingHorizontal: theme.margins.md,
@@ -181,12 +250,15 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontWeight: '600',
         color: theme.colors.onPrimary,
     },
-    scrollContent: {
+    smallProductsRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         paddingHorizontal: theme.margins.md,
-        gap: 12,
+        paddingBottom: theme.margins.md,
     },
     smallCard: {
-        width: 100,
+        flex: 1,
+        marginHorizontal: theme.margins.sm / 2,
     },
     smallImageContainer: {
         width: '100%',
@@ -204,13 +276,9 @@ const stylesheet = StyleSheet.create((theme) => ({
         position: 'absolute',
         bottom: 6,
         left: 6,
-        backgroundColor: theme.colors.primary,
         paddingHorizontal: 6,
         paddingVertical: 2,
         borderRadius: theme.radius.s,
-    },
-    bestDealBadge: {
-        backgroundColor: '#f97316',
     },
     smallBadgeText: {
         fontSize: 9,
@@ -241,6 +309,6 @@ const stylesheet = StyleSheet.create((theme) => ({
     smallPrice: {
         fontSize: 14,
         fontWeight: 'bold',
-        color: theme.colors.primary,
+        color: theme.colors.error,
     },
 }));

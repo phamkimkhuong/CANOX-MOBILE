@@ -1,13 +1,34 @@
 /**
  * Formats currency for display
+ * - Hiển thị đầy đủ số với dấu phân cách hàng nghìn
+ * - Ký hiệu đ nằm sau số
  */
 export const formatCurrency = (amount: number): string => {
-    if (amount >= 1000000) {
-        return `${(amount / 1000000).toFixed(1)}M đ`;
+    return `${amount.toLocaleString('vi-VN')} đ`;
+};
+
+/**
+ * Formats sold count for display
+ * - Dưới 1000: hiển thị số gốc (999)
+ * - Đúng 1000: 1K
+ * - 1001-1999: 1K+
+ * - 2500: 2K+
+ * - 10000: 10K
+ * - 10500: 10K+
+ */
+export const formatSoldCount = (count: number): string => {
+    if (count < 1000) {
+        return count.toString();
     }
-    if (amount >= 1000) {
-        return `${(amount / 1000).toFixed(0)}K đ`;
+
+    const thousands = Math.floor(count / 1000);
+    const remainder = count % 1000;
+
+    // Nếu là số chẵn nghìn thì không có dấu +
+    if (remainder === 0) {
+        return `${thousands}K`;
     }
-    // return `${amount.toLocaleString('vi-VN')} đ`;
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+
+    // Nếu có dư thì thêm dấu +
+    return `${thousands}K+`;
 };

@@ -9,7 +9,6 @@ import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyl
 
 /**
  * HomeHeader - Header component cho trang chủ
- * 
  * Bao gồm thanh tìm kiếm và các nút chức năng (giỏ hàng, chat).
  */
 export const HomeHeader = () => {
@@ -46,7 +45,6 @@ export const HomeHeader = () => {
             <View style={styles.actions}>
                 <TouchableOpacity style={styles.iconBtn} onPress={handleCartPress}>
                     <IconSymbol name="cart" size={26} color={theme.colors.typographySecondary} />
-                    {/* Badge tự code bằng View thuần */}
                     <View style={styles.badge}>
                         <Text style={styles.badgeText}>3</Text>
                     </View>
@@ -63,8 +61,7 @@ export const HomeHeader = () => {
 const stylesheet = StyleSheet.create((theme) => ({
     headerContainer: {
         paddingHorizontal: theme.margins.md,
-        paddingBottom: 12,
-        // MAGIC CỦA UNISTYLES 3.0: Tự động cộng thêm chiều cao Status Bar
+        paddingBottom: theme.margins.sm,
         paddingTop: UnistylesRuntime.insets.top + 10,
         backgroundColor: 'rgba(255,255,255,0.95)',
         flexDirection: 'row',

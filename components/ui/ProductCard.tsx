@@ -1,3 +1,4 @@
+import { formatCurrency, formatSoldCount } from '@/utils/format';
 import { Image } from 'expo-image';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
@@ -11,6 +12,7 @@ interface ProductCardProps {
     originalPrice?: number;
     rating?: number;
     reviews?: number;
+    sold?: number;
     location?: string;
     discount?: number;
     isMall?: boolean;
@@ -24,6 +26,7 @@ export const ProductCard = ({
     originalPrice,
     rating = 4.5,
     reviews = 0,
+    sold = 0,
     location,
     discount,
     isMall,
@@ -84,14 +87,19 @@ export const ProductCard = ({
 
                     {/* Price Row */}
                     <View style={styles.priceRow}>
-                        <Text style={styles.price}>${price.toFixed(2)}</Text>
+                        <Text style={styles.price}>{formatCurrency(price)}</Text>
                         {originalPrice != null && originalPrice > price && (
-                            <Text style={styles.originalPrice}>${originalPrice.toFixed(2)}</Text>
+                            <Text style={styles.originalPrice}>{formatCurrency(originalPrice)}</Text>
                         )}
                     </View>
 
-                    {/* Location */}
-                    {location && <Text style={styles.location}>{location}</Text>}
+                    {/* Sold & Location Row */}
+                    <View style={styles.metaRow}>
+                        {sold > 0 && (
+                            <Text style={styles.soldText}>Đã bán {formatSoldCount(sold)}</Text>
+                        )}
+                        {location && <Text style={styles.location}>{location}</Text>}
+                    </View>
                 </View>
             </View>
         </TouchableOpacity>
@@ -102,6 +110,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     container: {
         flex: 1,
         padding: theme.margins.sm / 2,
+        paddingTop: 0,
     },
     surface: {
         borderRadius: theme.radius.m,
@@ -191,7 +200,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         gap: 6,
     },
     price: {
-        color: theme.colors.primary,
+        color: theme.colors.error,
         fontWeight: '700',
         fontSize: 15,
     },
@@ -200,9 +209,18 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.secondary,
         fontSize: 11,
     },
+    metaRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginTop: 4,
+    },
+    soldText: {
+        fontSize: 11,
+        color: theme.colors.secondary,
+    },
     location: {
         fontSize: 11,
         color: theme.colors.secondary,
-        marginTop: 4,
     },
 }));

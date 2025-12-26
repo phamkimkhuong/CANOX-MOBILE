@@ -89,7 +89,7 @@ export const CategoryRail = memo(() => {
                 {CATEGORIES.map((cat) => (
                     <TouchableOpacity key={cat.id} style={styles.item} activeOpacity={0.7}>
                         <View style={styles.iconCircle}>
-                            <IconSymbol name={cat.icon} size={24} color={cat.color} />
+                            <IconSymbol name={cat.icon} size={20} color={cat.color} />
                         </View>
                         <Text style={styles.text} numberOfLines={2}>
                             {cat.name}
@@ -120,7 +120,7 @@ export const CategoryRail = memo(() => {
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
-        paddingVertical: theme.margins.sm,
+        paddingVertical: theme.margins.sm / 2,
         backgroundColor: theme.colors.background, // Đảm bảo nền trùng màu app
     },
     row: {
@@ -129,14 +129,14 @@ const stylesheet = StyleSheet.create((theme) => ({
         gap: 12, // Khoảng cách giữa các item
     },
     item: {
-        width: 66, // Cố định width để căn text đều nhau
+        width: 64, // Cố định width để căn text đều nhau
         alignItems: 'center',
-        gap: 5,
+        gap: 4,
     },
     iconCircle: {
-        width: 45,
-        height: 45,
-        borderRadius: 15,
+        width: 40,
+        height: 40,
+        borderRadius: 12,
         backgroundColor: theme.colors.surface,
         justifyContent: 'center',
         alignItems: 'center',
@@ -149,18 +149,17 @@ const stylesheet = StyleSheet.create((theme) => ({
         elevation: 1,
     },
     text: {
-        fontSize: 11,
+        fontSize: 10,
         color: theme.colors.typography,
         textAlign: 'center',
         fontWeight: '500',
-        lineHeight: 14,
+        lineHeight: 12,
     },
     // Style cho thanh chỉ báo
     indicatorContainer: {
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: theme.margins.sm,
-        // height: 10,
+        marginTop: theme.margins.sm / 2,
     },
     indicatorTrack: {
         height: INDICATOR_HEIGHT,
