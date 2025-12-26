@@ -7,7 +7,6 @@ import type {
 } from '@/types/category';
 import { FlashList } from '@shopify/flash-list';
 import { Image } from 'expo-image';
-import { LinearGradient } from 'expo-linear-gradient';
 import React, { useCallback, useMemo } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -19,7 +18,6 @@ interface CategoryContentProps {
 
 // Constants
 const NUM_COLUMNS = 3;
-const BANNER_ASPECT_RATIO = 3; // 3:1 ratio 
 
 /**
  * CategoryContent - Nội dung chính bên phải
@@ -45,15 +43,6 @@ export const CategoryContent: React.FC<CategoryContentProps> = ({
 
         const items: FlattenedCategoryItem[] = [];
 
-        // 1. Banner
-        if (data.banner) {
-            items.push({
-                type: 'banner',
-                id: data.banner.id,
-                data: data.banner,
-            });
-        }
-
         // 2. SubCategories với items
         data.subCategories.forEach((subCategory: SubCategory) => {
             // Section header
@@ -75,7 +64,7 @@ export const CategoryContent: React.FC<CategoryContentProps> = ({
             });
         });
 
-        // 3. Featured Brands
+        // Featured Brands
         if (data.featuredBrands && data.featuredBrands.length > 0) {
             items.push({
                 type: 'brands',
@@ -87,34 +76,7 @@ export const CategoryContent: React.FC<CategoryContentProps> = ({
         return items;
     }, [data]);
 
-    const renderBanner = useCallback(
-        (bannerData: CategoryContentData['banner']) => {
-            if (!bannerData) return null;
 
-            return (
-                <View style={styles.bannerContainer}>
-                    <Image
-                        source={{ uri: bannerData.imageUrl }}
-                        style={styles.bannerImage}
-                        contentFit="cover"
-                        transition={300}
-                    />
-                    <LinearGradient
-                        colors={['rgba(0,136,204,0.85)', 'transparent']}
-                        start={{ x: 0, y: 0.5 }}
-                        end={{ x: 1, y: 0.5 }}
-                        style={styles.bannerGradient}
-                    >
-                        <Text style={styles.bannerTitle}>{bannerData.title}</Text>
-                        {bannerData.subtitle && (
-                            <Text style={styles.bannerSubtitle}>{bannerData.subtitle}</Text>
-                        )}
-                    </LinearGradient>
-                </View>
-            );
-        },
-        [styles]
-    );
 
     const renderSectionHeader = useCallback(
         (title: string, showSeeAll?: boolean) => (
@@ -187,8 +149,6 @@ export const CategoryContent: React.FC<CategoryContentProps> = ({
     const renderItem = useCallback(
         ({ item }: { item: FlattenedCategoryItem }) => {
             switch (item.type) {
-                case 'banner':
-                    return renderBanner(item.data);
                 case 'section-header':
                     return renderSectionHeader(item.title, item.showSeeAll);
                 case 'grid-item':
@@ -199,7 +159,7 @@ export const CategoryContent: React.FC<CategoryContentProps> = ({
                     return null;
             }
         },
-        [renderBanner, renderSectionHeader, renderGridItem, renderBrands]
+        [renderSectionHeader, renderGridItem, renderBrands]
     );
 
     const keyExtractor = useCallback((item: FlattenedCategoryItem) => item.id, []);
@@ -249,8 +209,6 @@ const CategoryContentSkeleton: React.FC = () => {
 
     return (
         <View style={styles.container}>
-            {/* Banner Skeleton */}
-            <View style={styles.skeletonBanner} />
 
             {/* Section Header Skeleton */}
             <View style={styles.skeletonSectionHeader}>
@@ -305,38 +263,6 @@ const stylesheet = StyleSheet.create((theme) => ({
     emptyText: {
         fontSize: 14,
         color: theme.colors.secondary,
-    },
-
-    // Banner styles
-    bannerContainer: {
-        margin: theme.margins.smd,
-        borderRadius: theme.radius.m,
-        overflow: 'hidden',
-        aspectRatio: BANNER_ASPECT_RATIO,
-        backgroundColor: theme.colors.background,
-    },
-    bannerImage: {
-        width: '100%',
-        height: '100%',
-    },
-    bannerGradient: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        justifyContent: 'center',
-        paddingHorizontal: theme.margins.md,
-    },
-    bannerTitle: {
-        fontSize: 16,
-        fontWeight: '700',
-        color: '#ffffff',
-    },
-    bannerSubtitle: {
-        fontSize: 11,
-        color: 'rgba(255,255,255,0.9)',
-        marginTop: 2,
     },
 
     // Section Header styles
@@ -426,12 +352,6 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
 
     // Skeleton styles
-    skeletonBanner: {
-        margin: theme.margins.smd,
-        aspectRatio: BANNER_ASPECT_RATIO,
-        backgroundColor: theme.colors.background,
-        borderRadius: theme.radius.m,
-    },
     skeletonSectionHeader: {
         flexDirection: 'row',
         alignItems: 'center',

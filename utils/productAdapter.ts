@@ -1,13 +1,5 @@
 import { ProductFeedItem, ProductResponseItem } from '@/types/product';
-
-// Cần cấu hình biến môi trường cho CDN URL
-const CDN_BASE_URL = process.env.EXPO_PUBLIC_CDN_BASE_URL;
-
-export const getImageUrl = (path: string | null): string => {
-    if (!path) return 'https://via.placeholder.com/300'; // Ảnh mặc định
-    if (path.startsWith('http')) return path; // Đã là full url
-    return `${CDN_BASE_URL}${path}`; // Ghép base url
-};
+import { toPublicUrl } from './url';
 
 /**
  * Transform Raw API Data -> Lightweight UI Model
@@ -29,13 +21,13 @@ export const transformProduct = (raw: ProductResponseItem): ProductFeedItem => {
     return {
         id: raw.id,
         title: raw.name,
-        thumbnail: getImageUrl(primaryMedia?.url),
+        thumbnail: toPublicUrl(primaryMedia?.url),
         price: displayPrice,
         originalPrice: raw.basePrice > displayPrice ? raw.basePrice : undefined,
         discountPercentage: discount > 0 ? discount : undefined,
         rating: raw.reviewStatistics.averageRating,
         reviews: raw.reviewStatistics.totalReviews,
-        sold: raw.reviewStatistics.verifiedPurchaseCount, // Dùng số lượt mua làm số đã bán
+        sold: raw.reviewStatistics.verifiedPurchaseCount,
         shopName: raw.shop.shopName,
     };
 };

@@ -96,6 +96,9 @@ export const FlashSale = memo(() => {
                             )}
                         </View>
                         <View style={styles.productInfo}>
+                            <Text style={styles.productName} numberOfLines={1}>
+                                {item.name}
+                            </Text>
                             <Text style={styles.price}>
                                 {formatCurrency(item.price)}
                             </Text>
@@ -226,6 +229,11 @@ const stylesheet = StyleSheet.create((theme) => ({
     productInfo: {
         marginTop: theme.margins.sm,
         gap: 4,
+    },
+    productName: {
+        fontSize: 12,
+        fontWeight: '500',
+        color: theme.colors.typography,
     },
     price: {
         fontSize: 15,

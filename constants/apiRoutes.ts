@@ -17,6 +17,9 @@ export const API_ROUTES = {
         DETAIL: (id: string | number) => `${API_PREFIX}/products/${id}`,
         REVIEWS: (id: string | number) => `${API_PREFIX}/products/${id}/reviews`,
     },
+    CATEGORIES: {
+        GETALL: `${API_PREFIX}/categories/tree`,
+    },
     PUBLIC_PRODUCTS: {
         PROMOTED: `${API_PREFIX}/public/products/promoted`,
         SALE: `${API_PREFIX}/public/products/sale`,

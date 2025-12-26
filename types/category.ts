@@ -1,4 +1,5 @@
 import type { IconSymbolName } from '@/components/ui/Icon';
+import z from 'zod';
 
 /**
  * Category Domain Types
@@ -39,19 +40,7 @@ export interface ParentCategory {
     name: string;
     icon?: IconSymbolName; // Icon hiển thị bên cạnh tên (optional)
     iconColor?: string; // Màu icon custom
-    banner?: CategoryBanner; // Banner quảng cáo cho danh mục
     children: SubCategory[]; // Các subcategory
-}
-
-/**
- * Banner quảng cáo đầu Content
- */
-export interface CategoryBanner {
-    id: string;
-    imageUrl: string;
-    title: string;
-    subtitle?: string;
-    actionUrl?: string; // Deep link khi bấm vào banner
 }
 
 /**
@@ -68,7 +57,6 @@ export interface FeaturedBrand {
  */
 export interface CategoryContentData {
     parentId: string;
-    banner?: CategoryBanner;
     subCategories: SubCategory[];
     featuredBrands?: FeaturedBrand[];
 }
@@ -90,12 +78,6 @@ export interface CategoryGridItem {
     sectionId: string;
 }
 
-export interface CategoryBannerItem {
-    type: 'banner';
-    id: string;
-    data: CategoryBanner;
-}
-
 export interface CategoryBrandSection {
     type: 'brands';
     id: string;
@@ -105,5 +87,36 @@ export interface CategoryBrandSection {
 export type FlattenedCategoryItem =
     | CategorySectionHeader
     | CategoryGridItem
-    | CategoryBannerItem
     | CategoryBrandSection;
+
+
+export const CategoryNodeSchema: z.ZodType<CategoryNode> = z.lazy(() =>
+    z.object({
+        id: z.string(),
+        name: z.string(),
+        slug: z.string(),
+        active: z.boolean(),
+        parentId: z.string().nullable(),
+        imageBasePath: z.string().nullable(),
+        imageExtension: z.string().nullable(),
+        children: z.array(CategoryNodeSchema).nullable(), // Đệ quy
+    })
+);
+
+export type CategoryNode = {
+    id: string;
+    name: string;
+    slug: string;
+    active: boolean;
+    parentId: string | null;
+    imageBasePath: string | null;
+    imageExtension: string | null;
+    children: CategoryNode[] | null;
+};
+
+export const CategoryTreeResponseSchema = z.object({
+    code: z.number(),
+    success: z.boolean(),
+    message: z.string(),
+    data: z.array(CategoryNodeSchema),
+});

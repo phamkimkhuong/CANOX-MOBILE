@@ -2,7 +2,7 @@ import { API_ROUTES } from '@/constants/apiRoutes';
 import { request } from '@/services/api/client';
 import { FlashSaleData, FlashSaleItem, FlashSaleResponse, FlashSaleResponseSchema } from '@/types/home';
 import { getNextFlashSaleSlot } from '@/utils/date';
-import { getImageUrl } from '@/utils/product';
+import { getImageUrl } from '@/utils/productAdapter';
 import { useQuery } from '@tanstack/react-query';
 
 /**
@@ -47,6 +47,7 @@ export const useFlashSale = () => {
                 return {
                     id: product.id,
                     productId: product.id,
+                    name: product.name,
                     image: getImageUrl(primaryMedia?.url),
                     price: product.priceAfterBestVoucher || product.priceMin,
                     originalPrice: product.basePrice,

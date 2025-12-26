@@ -2,7 +2,7 @@ import { API_ROUTES } from '@/constants/apiRoutes';
 import { request } from '@/services/api/client';
 import { PaginatedProductResponseSchema, ProductFeedItem, ProductResponseItem } from '@/types/product';
 import { PaginatedResponse } from '@/types/responseSchema';
-import { transformProduct } from '@/utils/product';
+import { transformProduct } from '@/utils/productAdapter';
 import { useInfiniteQuery } from '@tanstack/react-query';
 
 // Type cho các loại Feed

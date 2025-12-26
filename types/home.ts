@@ -17,6 +17,7 @@ export interface FlashSaleSlot {
 export interface FlashSaleItem {
     id: string;
     productId: string;
+    name: string;
     image: string;
     price: number;
     originalPrice: number;

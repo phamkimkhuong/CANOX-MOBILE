@@ -18,7 +18,8 @@ const PUBLIC_ENDPOINTS = [
     '/users/exists/email',
     '/users/exists/username',
     '/users/buyer',
-    '/public/**'
+    '/public/**',
+    '/categories/tree',
 ];
 const isPublicEndpoint = (url?: string): boolean => {
     if (!url) return false;
@@ -63,7 +64,7 @@ apiClient.interceptors.request.use(
         }
         console.log("no public " + config.baseURL + config.url);
         try {
-            // Lấy token từ nơi an toàn nhất (theo rule Persistence)
+            // Lấy token từ SecureStore
             const token = await SecureStore.getItemAsync(AUTH_TOKEN_KEY);
             if (token && config.headers) {
                 config.headers.Authorization = `Bearer ${token}`;
