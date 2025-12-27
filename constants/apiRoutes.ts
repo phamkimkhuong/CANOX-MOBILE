@@ -43,5 +43,12 @@ export const API_ROUTES = {
     CHAT: {
         CONVERSATIONS: `${API_PREFIX}/conversations`,
         MESSAGES: (conversationId: string) => `${API_PREFIX}/conversations/${conversationId}/messages`,
-    }
+    },
+    NOTIFICATIONS: {
+        GET: `${API_PREFIX}/notifications`,
+        MARK_AS_READ: (notificationId: string) => `${API_PREFIX}/notifications/${notificationId}/read`,
+        COUNT_UNREAD: `${API_PREFIX}/notifications/count-unread`,
+        MARK_ALL_AS_READ: `${API_PREFIX}/notifications/read-all`,
+        CHECK_NEW: `${API_PREFIX}/notifications/check-new`,
+    },
 } as const; // <--- as const để TS hiểu đây là readonly values

@@ -19,19 +19,20 @@ export type NotificationType = (typeof NotificationType)[keyof typeof Notificati
 export const NotificationFilter = {
     ALL: 'ALL',
     ORDER: 'ORDER',
+    PRODUCT: 'PRODUCT',
     PROMO: 'PROMO',
+    SHIPPING: 'SHIPPING',
     WALLET: 'WALLET',
 } as const;
 
 export type NotificationFilter = (typeof NotificationFilter)[keyof typeof NotificationFilter];
 
 /**
- * Zod Schema for Notification
- * Used for API response validation
+ * UI MODEL (Domain Model cho Frontend) Frontend
  */
 export const NotificationSchema = z.object({
     id: z.string(),
-    type: z.enum(['ORDER', 'PROMO', 'SYSTEM', 'WALLET']),
+    type: z.enum(['ORDER', 'PROMO', 'SYSTEM', 'SHIPPING', 'PRODUCT', 'WALLET']),
     title: z.string(),
     message: z.string(),
     timestamp: z.string(), // ISO date string
@@ -44,16 +45,11 @@ export const NotificationSchema = z.object({
 
 export type Notification = z.infer<typeof NotificationSchema>;
 
-/**
- * Zod Schema for paginated API response
- */
-export const NotificationPageSchema = z.object({
-    data: z.array(NotificationSchema),
-    nextCursor: z.string().nullable(),
-    hasMore: z.boolean(),
-});
-
-export type NotificationPage = z.infer<typeof NotificationPageSchema>;
+export interface NotificationPage {
+    data: Notification[];
+    nextCursor: number | null;
+    hasMore: boolean;
+}
 
 /**
  * Section types for FlashList data flattening
@@ -84,6 +80,8 @@ export const FILTER_TABS: FilterTab[] = [
     { key: NotificationFilter.ALL, label: 'Tất cả', icon: '' },
     { key: NotificationFilter.ORDER, label: 'Đơn hàng', icon: 'local-shipping' },
     { key: NotificationFilter.PROMO, label: 'Khuyến mãi', icon: 'percent' },
+    { key: NotificationFilter.PRODUCT, label: 'Sản phẩm', icon: 'cube-outline' },
+    { key: NotificationFilter.SHIPPING, label: 'Vận chuyển', icon: 'airplane-outline' },
     { key: NotificationFilter.WALLET, label: 'Ví & Dịch vụ', icon: 'account-balance-wallet' },
 ];
 
@@ -118,3 +116,51 @@ export const NOTIFICATION_TYPE_CONFIG: Record<NotificationType, NotificationType
         iconColor: '#16a34a', // green-600
     },
 };
+
+/**
+ * API RESPONSE MODEL (Data Transfer Object) Backend Response
+ */
+export const NotificationResponseItemSchema = z.object({
+    id: z.string(),
+    userId: z.string(),
+    recipientRole: z.enum(['BUYER', 'SHOP', 'ADMIN', 'SYSTEM', 'EMPLOYEE']),
+    type: z.string(), // SYSTEM, etc.
+    priority: z.enum(['HIGH', 'NORMAL', 'LOW']),
+    title: z.string(),
+    content: z.string(),
+    readStatus: z.enum(['READ', 'UNREAD']),
+    redirectUrl: z.string().nullable(),
+    redirectType: z.enum(['INTERNAL_PAGE', 'EXTERNAL_URL', 'DEEP_LINK']).nullable(),
+    relatedEntityType: z.string().nullable(),
+    relatedEntityId: z.string().nullable(),
+    category: z.string().nullable(), // ORDER, PROMO...
+    imageUrl: z.string().nullable(),
+    groupId: z.string().nullable(),
+    campaignId: z.string().nullable(),
+    traceId: z.string().nullable(),
+    expiresAt: z.string().nullable(),
+    scheduledAt: z.string().nullable(),
+    metadata: z.record(z.string(), z.unknown()).nullable(),
+    createdDate: z.string(),
+    updatedDate: z.string().nullable(),
+    isExpired: z.boolean(),
+    isVisible: z.boolean(),
+});
+export type NotificationResponseItem = z.infer<typeof NotificationResponseItemSchema>;
+
+/**
+ * Schema cho API Response pagination
+ */
+export const NotificationApiResponseSchema = z.object({
+    code: z.number(),
+    success: z.boolean(),
+    data: z.object({
+        content: z.array(NotificationResponseItemSchema),
+        page: z.number(),
+        size: z.number(),
+        totalElements: z.number(),
+        totalPages: z.number(),
+        hasNext: z.boolean(),
+        nextPage: z.number(),
+    }),
+});

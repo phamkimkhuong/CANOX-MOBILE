@@ -55,14 +55,26 @@ export const apiClient: AxiosInstance = axios.create({
 // 3. Request Interceptor (Lớp bảo vệ 1: Authentication)
 apiClient.interceptors.request.use(
     async (config) => {
+        // Helper để build full URL với params
+        const buildFullUrl = () => {
+            let fullUrl = `${config.baseURL}${config.url}`;
+            if (config.params && Object.keys(config.params).length > 0) {
+                const queryString = new URLSearchParams(config.params).toString();
+                fullUrl += `?${queryString}`;
+            }
+            return fullUrl;
+        };
+
         if (isPublicEndpoint(config.url)) {
             if (config.headers) {
                 delete config.headers.Authorization;
             }
-            console.log("" + config.baseURL + config.url);
+            console.log(`📤 [PUBLIC] ${config.method?.toUpperCase()} ${buildFullUrl()}`);
             return config;
         }
-        console.log("no public " + config.baseURL + config.url);
+
+        console.log(`🔐 [AUTH] ${config.method?.toUpperCase()} ${buildFullUrl()}`);
+
         try {
             // Lấy token từ SecureStore
             const token = await SecureStore.getItemAsync(AUTH_TOKEN_KEY);

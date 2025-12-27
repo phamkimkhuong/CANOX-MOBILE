@@ -11,9 +11,13 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
  */
 interface NotificationHeaderProps {
     onMarkAllRead?: () => void;
+    isMarkingAll?: boolean; // Trạng thái loading khi đang đánh dấu tất cả
 }
 
-export const NotificationHeader: React.FC<NotificationHeaderProps> = ({ onMarkAllRead }) => {
+export const NotificationHeader: React.FC<NotificationHeaderProps> = ({
+    onMarkAllRead,
+    isMarkingAll = false,
+}) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
@@ -23,12 +27,22 @@ export const NotificationHeader: React.FC<NotificationHeaderProps> = ({ onMarkAl
             <View style={styles.content}>
                 <Text style={styles.title}>Thông báo</Text>
                 <TouchableOpacity
-                    style={styles.markAllButton}
+                    style={[styles.markAllButton, isMarkingAll && styles.markAllButtonDisabled]}
                     onPress={onMarkAllRead}
                     activeOpacity={0.7}
+                    disabled={isMarkingAll} // Disable khi đang loading
                 >
-                    <IconSymbol name="done-all" size={18} color={theme.colors.primary} />
-                    <Text style={styles.markAllText}>Đọc tất cả</Text>
+                    <IconSymbol
+                        name="done-all"
+                        size={18}
+                        color={isMarkingAll ? theme.colors.secondary : theme.colors.primary}
+                    />
+                    <Text style={[
+                        styles.markAllText,
+                        isMarkingAll && styles.markAllTextDisabled
+                    ]}>
+                        Đọc tất cả
+                    </Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -59,9 +73,15 @@ const stylesheet = StyleSheet.create((theme) => ({
         alignItems: 'center',
         gap: 4,
     },
+    markAllButtonDisabled: {
+        opacity: 0.6,
+    },
     markAllText: {
         fontSize: 14,
         fontWeight: '600',
         color: theme.colors.primary,
+    },
+    markAllTextDisabled: {
+        color: theme.colors.secondary,
     },
 }));

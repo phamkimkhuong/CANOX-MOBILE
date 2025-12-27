@@ -13,6 +13,7 @@ import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { toastConfig } from '@/components/ui/CustomToast';
+import { WebSocketProvider } from '@/components/WebSocketProvider';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Toast from 'react-native-toast-message';
@@ -78,31 +79,33 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
-        <SafeAreaProvider>
-          {/* 3. Inject Theme vào Navigation */}
+        <WebSocketProvider autoConnect={false}>
+          <SafeAreaProvider>
+            {/* 3. Inject Theme vào Navigation */}
 
-          <ThemeProvider value={NavigationTheme}>
-            <Stack>
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-              <Stack.Screen name="settings" options={{ headerShown: false }} />
-              <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-              {/* Config UI Chat */}
-              <Stack.Screen
-                name="chat"
-                options={{
-                  headerShown: false, // Ẩn header mặc định của React Navigation để tự custom
-                  title: 'Tin nhắn',
-                  presentation: 'card', // Hiệu ứng đẩy sang ngang chuẩn iOS/Android
-                  animation: 'slide_from_right'
-                }}
-              />
-            </Stack>
-            <Toast config={toastConfig} />
-            {/* 4. StatusBar luôn là Dark Content (chữ đen) vì nền sáng */}
-            <StatusBar style="dark" />
-          </ThemeProvider>
-        </SafeAreaProvider>
+            <ThemeProvider value={NavigationTheme}>
+              <Stack>
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                <Stack.Screen name="settings" options={{ headerShown: false }} />
+                <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+                {/* Config UI Chat */}
+                <Stack.Screen
+                  name="chat"
+                  options={{
+                    headerShown: false, // Ẩn header mặc định của React Navigation để tự custom
+                    title: 'Tin nhắn',
+                    presentation: 'card', // Hiệu ứng đẩy sang ngang chuẩn iOS/Android
+                    animation: 'slide_from_right'
+                  }}
+                />
+              </Stack>
+              <Toast config={toastConfig} />
+              {/* 4. StatusBar luôn là Dark Content (chữ đen) vì nền sáng */}
+              <StatusBar style="dark" />
+            </ThemeProvider>
+          </SafeAreaProvider>
+        </WebSocketProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>
   );

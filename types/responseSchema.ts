@@ -4,7 +4,7 @@ import z from "zod";
 export const ResponseDefaultSchema = z.object({
     code: z.number(),
     success: z.boolean(),
-    message: z.string(),
+    message: z.string().optional(),
     data: z.any()
 });
 

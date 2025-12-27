@@ -4,7 +4,7 @@ import { NotificationHeader } from '@/components/notifications/NotificationHeade
 import { NotificationItem } from '@/components/notifications/NotificationItem';
 import { NotificationSkeleton } from '@/components/notifications/NotificationSkeleton';
 import { SectionHeader } from '@/components/notifications/SectionHeader';
-import { useMarkAsRead, useNotifications } from '@/hooks/api/useNotifications';
+import { useMarkAllAsRead, useMarkAsRead, useNotifications } from '@/hooks/api/useNotifications';
 import {
     FILTER_TABS,
     FlattenedNotificationItem,
@@ -12,6 +12,7 @@ import {
     NotificationFilter,
 } from '@/types/notification';
 import { FlashList } from '@shopify/flash-list';
+import { router } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, RefreshControl, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -32,16 +33,23 @@ export default function NotifyScreen() {
         refetch,
     } = useNotifications(activeFilter);
 
-    const { markAllAsRead } = useMarkAsRead();
+    const markAllAsRead = useMarkAllAsRead();
+    const markAsRead = useMarkAsRead();
 
     const handleFilterChange = useCallback((filter: NotificationFilter) => {
         setActiveFilter(filter);
     }, []);
 
     const handleNotificationPress = useCallback((item: Notification) => {
-        // TODO: Navigate to detail or perform action
-        console.log('Notification pressed:', item.id);
-    }, []);
+        // Gửi request đánh dấu đã đọc (fire-and-forget)
+        if (!item.isRead) {
+            markAsRead.mutate(item.id);
+        }
+        // Navigate đến trang chi tiết nếu có actionUrl
+        if (item.actionUrl) {
+            router.push(item.actionUrl as any);
+        }
+    }, [markAsRead]);
 
     const handleLoadMore = useCallback(() => {
         if (hasNextPage && !isFetchingNextPage) {
@@ -86,7 +94,10 @@ export default function NotifyScreen() {
     if (isLoading) {
         return (
             <View style={styles.container}>
-                <NotificationHeader onMarkAllRead={markAllAsRead} />
+                <NotificationHeader
+                    onMarkAllRead={() => markAllAsRead.mutate()}
+                    isMarkingAll={markAllAsRead.isPending}
+                />
                 <FilterBar activeFilter={activeFilter} onFilterChange={handleFilterChange} />
                 <NotificationSkeleton count={6} />
             </View>
@@ -95,7 +106,10 @@ export default function NotifyScreen() {
 
     return (
         <View style={styles.container}>
-            <NotificationHeader onMarkAllRead={markAllAsRead} />
+            <NotificationHeader
+                onMarkAllRead={() => markAllAsRead.mutate()}
+                isMarkingAll={markAllAsRead.isPending}
+            />
             <FilterBar activeFilter={activeFilter} onFilterChange={handleFilterChange} />
 
             <FlashList

@@ -1,7 +1,7 @@
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { request } from '@/services/api/client';
 import { CategoryTreeResponseSchema } from '@/types/category';
-import { transformContentData, transformToSidebarData } from '@/utils/categoryAdapter';
+import { transformContentData, transformToSidebarData } from '@/utils/adapter/categoryAdapter';
 import { useQuery } from '@tanstack/react-query';
 
 export const useCategoryTree = () => {

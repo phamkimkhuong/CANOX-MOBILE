@@ -1,5 +1,5 @@
 import { ProductFeedItem, ProductResponseItem } from '@/types/product';
-import { toPublicUrl } from './url';
+import { toPublicUrl } from '@/utils/url';
 
 /**
  * Transform Raw API Data -> Lightweight UI Model
