@@ -23,7 +23,13 @@ const PUBLIC_ENDPOINTS = [
 ];
 const isPublicEndpoint = (url?: string): boolean => {
     if (!url) return false;
-    return PUBLIC_ENDPOINTS.some((endpoint) => url.includes(endpoint));
+    return PUBLIC_ENDPOINTS.some((endpoint) => {
+        if (endpoint.endsWith('/**')) {
+            const prefix = endpoint.slice(0, -2);
+            return url.includes(prefix);
+        }
+        return url === endpoint || url.includes(endpoint);
+    });
 };
 // console.log('API Base URL:', BASE_URL);
 const TIMEOUT = 30000; // 30s cho mobile (mạng yếu)

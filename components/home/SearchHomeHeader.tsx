@@ -24,6 +24,14 @@ export const HomeHeader = () => {
         }
     }, [isAuthenticated]);
 
+    const handleChatPress = useCallback(() => {
+        if (isAuthenticated) {
+            Navigator.push(ROUTES.CHAT.LIST);
+        } else {
+            Navigator.push(ROUTES.AUTH.LOGIN);
+        }
+    }, [isAuthenticated]);
+
     return (
         <View style={styles.headerContainer}>
             {/* 1. Thanh tìm kiếm */}
@@ -51,7 +59,7 @@ export const HomeHeader = () => {
                 </TouchableOpacity>
 
                 {/* {Router to chat.tsx} */}
-                <TouchableOpacity style={styles.iconBtn} onPress={() => Navigator.push(ROUTES.CHAT.LIST)}>
+                <TouchableOpacity style={styles.iconBtn} onPress={handleChatPress}>
                     <IconSymbol name="chatbubble-ellipses-outline" size={26} color={theme.colors.typographySecondary} />
                 </TouchableOpacity>
             </View>

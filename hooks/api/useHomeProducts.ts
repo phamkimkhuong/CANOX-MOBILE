@@ -31,7 +31,7 @@ export const useProductFeed = (type: FeedType) => {
                     method: 'GET',
                     params: {
                         page: pageParam,
-                        size: 10,
+                        size: 20,
                     }
                 },
                 PaginatedProductResponseSchema
