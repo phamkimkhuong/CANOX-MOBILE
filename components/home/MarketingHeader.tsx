@@ -14,6 +14,10 @@ interface MarketingHeaderProps {
      * Used by parent to know when to trigger scroll on tab change
      */
     onHeightMeasured?: (height: number) => void;
+    /**
+     * Callback khi user tap vào sản phẩm
+     */
+    onProductPress?: (productId: string) => void;
 }
 
 /**
@@ -30,7 +34,7 @@ const HEIGHT_CHANGE_THRESHOLD = 10;
  * - FlashSale
  * - FeaturedSection
  */
-export const MarketingHeader = memo(({ onHeightMeasured }: MarketingHeaderProps) => {
+export const MarketingHeader = memo(({ onHeightMeasured, onProductPress }: MarketingHeaderProps) => {
     const styles = stylesheet;
     const lastHeight = useRef(0);
 
@@ -52,8 +56,8 @@ export const MarketingHeader = memo(({ onHeightMeasured }: MarketingHeaderProps)
             <View style={styles.categoryContainer}>
                 <CategoryRail />
             </View>
-            <FlashSale />
-            <FeaturedSection />
+            <FlashSale onProductPress={onProductPress} />
+            <FeaturedSection onProductPress={onProductPress} />
         </View>
     );
 });

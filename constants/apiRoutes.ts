@@ -14,7 +14,7 @@ export const API_ROUTES = {
         CREATE_ACCOUNT: `${API_PREFIX}/users/buyer`,
     },
     PRODUCTS: {
-        DETAIL: (id: string | number) => `${API_PREFIX}/products/${id}`,
+        DETAIL: (id: string | number) => `${API_PREFIX}/public/products/${id}`,
         REVIEWS: (id: string | number) => `${API_PREFIX}/products/${id}/reviews`,
     },
     CATEGORIES: {

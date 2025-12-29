@@ -11,7 +11,11 @@ import { FlashSaleSkeleton } from './FlashSaleSkeleton';
 /**
  * FlashSale - Component hiển thị sản phẩm Flash Sale
  */
-export const FlashSale = memo(() => {
+interface FlashSaleProps {
+    onProductPress?: (productId: string) => void;
+}
+
+export const FlashSale = memo(({ onProductPress }: FlashSaleProps = {}) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
 
@@ -81,7 +85,12 @@ export const FlashSale = memo(() => {
                 contentContainerStyle={styles.scrollContent}
             >
                 {flashSaleData.items.map((item) => (
-                    <TouchableOpacity key={item.id} style={styles.productCard} activeOpacity={0.8}>
+                    <TouchableOpacity
+                        key={item.id}
+                        style={styles.productCard}
+                        activeOpacity={0.8}
+                        onPress={() => onProductPress?.(item.id)}
+                    >
                         <View style={styles.imageContainer}>
                             <Image
                                 source={{ uri: item.image }}

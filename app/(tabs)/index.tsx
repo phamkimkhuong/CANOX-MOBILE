@@ -257,7 +257,7 @@ export default function HomeScreen() {
   const renderItem = useCallback(({ item }: ListRenderItemInfo<ListItem>) => {
     switch (item.type) {
       case 'header':
-        return <MarketingHeader onHeightMeasured={handleMarketingHeaderLayout} />;
+        return <MarketingHeader onHeightMeasured={handleMarketingHeaderLayout} onProductPress={handleProductPress} />;
       case 'tabs':
         // Tabs inline - sẽ cuộn đi khi scroll
         return (

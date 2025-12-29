@@ -99,6 +99,14 @@ export default function RootLayout() {
                     animation: 'slide_from_right'
                   }}
                 />
+                {/* Config Product Detail - [id].tsx */}
+                <Stack.Screen
+                  name="product/[id]"
+                  options={{
+                    headerShown: false,
+                    animation: 'slide_from_right'
+                  }}
+                />
               </Stack>
               <Toast config={toastConfig} />
               {/* 4. StatusBar luôn là Dark Content (chữ đen) vì nền sáng */}

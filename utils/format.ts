@@ -1,20 +1,43 @@
 /**
- * Formats currency for display
- * - Hiển thị đầy đủ số với dấu phân cách hàng nghìn
- * - Ký hiệu đ nằm sau số
+ * ==============================================
+ * FORMAT UTILITIES - Single Source of Truth
+ * ==============================================
+ * Centralized formatting functions for the app
+ */
+
+/**
+ * Formats currency for display (Standard Vietnamese format)
+ * Output: "100.000 đ"
+ * 
+ * @recommended - Use this for most cases
  */
 export const formatCurrency = (amount: number): string => {
     return `${amount.toLocaleString('vi-VN')} đ`;
 };
 
 /**
+ * Formats price in short form (for badges, cards)
+ * - >= 1M: "1.5tr"
+ * - >= 1K: "500k"
+ * - < 1K: "999"
+ */
+export const formatPriceShort = (price: number): string => {
+    if (price >= 1000000) {
+        return `${(price / 1000000).toFixed(1)}tr`;
+    }
+    if (price >= 1000) {
+        return `${Math.round(price / 1000)}k`;
+    }
+    return price.toString();
+};
+
+/**
  * Formats sold count for display
- * - Dưới 1000: hiển thị số gốc (999)
- * - Đúng 1000: 1K
- * - 1001-1999: 1K+
- * - 2500: 2K+
- * - 10000: 10K
- * - 10500: 10K+
+ * - < 1000: "999"
+ * - 1000: "1K"
+ * - 1001-1999: "1K+"
+ * - 2500: "2K+"
+ * - 10000: "10K"
  */
 export const formatSoldCount = (count: number): string => {
     if (count < 1000) {
@@ -31,4 +54,16 @@ export const formatSoldCount = (count: number): string => {
 
     // Nếu có dư thì thêm dấu +
     return `${thousands}K+`;
+};
+
+/**
+ * Format sold count (simplified - for compact display)
+ * - >= 1K: "1.5k"
+ * - < 1K: "999"
+ */
+export const formatSoldCountSimple = (count: number): string => {
+    if (count >= 1000) {
+        return `${(count / 1000).toFixed(1)}k`;
+    }
+    return count.toString();
 };

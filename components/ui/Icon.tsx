@@ -130,6 +130,15 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     'logo-google': { ios: 'logo-google', android: 'logo-google' },
     'logo-facebook': { ios: 'logo-facebook', android: 'logo-facebook' },
     'logo-apple': { ios: 'logo-apple', android: 'logo-apple' },
+
+    // === Product Detail Icons ===
+    play: { ios: 'play', android: 'play' },
+    'play-circle': { ios: 'play-circle', android: 'play-circle' },
+    'chevron-up': { ios: 'chevron-up', android: 'chevron-up' },
+    'chevron-down': { ios: 'chevron-down', android: 'chevron-down' },
+    'location-outline': { ios: 'location-outline', android: 'location-outline' },
+    'storefront-outline': { ios: 'storefront-outline', android: 'storefront-outline' },
+    'image-outline': { ios: 'image-outline', android: 'image-outline' },
 };
 
 interface IconSymbolProps {

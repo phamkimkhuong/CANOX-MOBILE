@@ -41,7 +41,7 @@ export default function VerifyOtpScreen() {
 
     // Countdown timer
     const {
-        seconds: countdown,
+        // seconds: countdown,
         isActive: isCountdownActive,
         formatted: countdownFormatted,
         start: startCountdown,

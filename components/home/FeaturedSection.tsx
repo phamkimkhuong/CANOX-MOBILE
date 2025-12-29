@@ -53,7 +53,11 @@ const getDiscountBadge = (item: ProductFeedItem): string | null => {
  * - products[0] → Main Banner (sản phẩm lớn)
  * - products.slice(1, 4) → Small Products (3 sản phẩm nhỏ)
  */
-export const FeaturedSection = memo(() => {
+interface FeaturedSectionProps {
+    onProductPress?: (productId: string) => void;
+}
+
+export const FeaturedSection = memo(({ onProductPress }: FeaturedSectionProps = {}) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
 
@@ -100,7 +104,11 @@ export const FeaturedSection = memo(() => {
             </View>
 
             {/* Main Featured Banner */}
-            <TouchableOpacity style={styles.mainBanner} activeOpacity={0.9}>
+            <TouchableOpacity
+                style={styles.mainBanner}
+                activeOpacity={0.9}
+                onPress={() => onProductPress?.(mainProduct.id)}
+            >
                 <Image
                     source={{ uri: mainProduct.thumbnail }}
                     style={styles.mainImage}
@@ -140,6 +148,7 @@ export const FeaturedSection = memo(() => {
                                 key={product.id}
                                 style={styles.smallCard}
                                 activeOpacity={0.8}
+                                onPress={() => onProductPress?.(product.id)}
                             >
                                 <View style={styles.smallImageContainer}>
                                     <Image

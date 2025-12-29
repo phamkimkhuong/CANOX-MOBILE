@@ -1,41 +1,365 @@
-import { useLocalSearchParams } from 'expo-router';
-import React from 'react';
-import { Text, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import {
+    ProductDescription,
+    ProductDetailSkeleton,
+    ProductGallery,
+    ProductInfoSection,
+    ProductNavBar,
+    ProductSpecs,
+    ShopInfoCard,
+    StickyBottomBar,
+    VariantBottomSheet,
+    VariantSelectorRow,
+} from '@/components/product';
+import type { ProductGalleryRef } from '@/components/product/ProductGallery';
+import { IconSymbol } from '@/components/ui/Icon';
+import { useProductDetail } from '@/hooks/api/useProductDetail';
+import { useProductVariant } from '@/hooks/useProductVariant';
+import { findGalleryIndexByVariant } from '@/utils/adapter/productDetailAdapter';
+import { router, useLocalSearchParams } from 'expo-router';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { Pressable, RefreshControl, Text, View } from 'react-native';
+import Animated, {
+    useAnimatedScrollHandler,
+    useSharedValue,
+} from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+// ============================================
+// MAIN COMPONENT
+// ============================================
 export default function ProductDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
+    const insets = useSafeAreaInsets();
+    const { theme } = useUnistyles();
+    const [variantSheetVisible, setVariantSheetVisible] = useState(false);
+
+    // === Data Fetching ===
+    const {
+        data: product,
+        isLoading,
+        isError,
+        error,
+        refetch,
+        isRefetching,
+    } = useProductDetail(id ?? '');
+
+    // === Variant Selection ===
+    const {
+        selectedOptions,
+        selectionResult,
+        selectOption,
+        getOptionsWithAvailability,
+    } = useProductVariant(product);
+
+    // === Scroll Animation ===
+    const scrollY = useSharedValue(0);
+
+    const scrollHandler = useAnimatedScrollHandler({
+        onScroll: (event) => {
+            scrollY.value = event.contentOffset.y;
+        },
+    });
+
+    // === Gallery Ref for scrolling to variant image ===
+    const galleryRef = useRef<ProductGalleryRef>(null);
+
+    // ============================================
+    // MEMOIZED VALUES - Tránh tính toán lại mỗi render
+    // ============================================
+
+    /**
+     * ⚡ P0-3 FIX: Memoize options with availability
+     * Trước đây gọi trong render body → tính lại mỗi render
+     */
+    const optionsWithAvailability = useMemo(() => {
+        return getOptionsWithAvailability();
+    }, [getOptionsWithAvailability]);
+
+    /**
+     * Extract primitive values để tránh object dependency
+     * Giúp callbacks không thay đổi reference khi object thay đổi
+     */
+    const canAddToCart = selectionResult.canAddToCart;
+    const selectedVariantId = selectionResult.selectedVariant?.id;
+    const selectedVariantMedia = selectionResult.selectedVariant?.media;
+    const productId = product?.id;
+    const shopId = product?.shop.id;
+    const productGallery = product?.gallery;
+
+    /**
+     * Memoize current image for bottom sheet
+     */
+    const currentImage = useMemo(() => {
+        return selectedVariantMedia?.[0]?.url ?? productGallery?.[0]?.url;
+    }, [selectedVariantMedia, productGallery]);
+
+    // ============================================
+    // HANDLERS - Optimized với primitive dependencies
+    // ============================================
+
+    const handleOpenVariantSheet = useCallback(() => {
+        setVariantSheetVisible(true);
+    }, []);
+
+    const handleCloseVariantSheet = useCallback(() => {
+        setVariantSheetVisible(false);
+    }, []);
+
+    /**
+     * ⚡ P0-4 FIX: Dùng primitive values thay vì object
+     */
+    const handleConfirmVariant = useCallback(() => {
+        setVariantSheetVisible(false);
+
+        // Scroll gallery to variant image if exists
+        if (selectedVariantMedia?.[0] && productGallery && selectedVariantId) {
+            const index = findGalleryIndexByVariant(productGallery, selectedVariantId);
+            galleryRef.current?.scrollToIndex(index);
+        }
+    }, [selectedVariantMedia, productGallery, selectedVariantId]);
+
+    const handleChatPress = useCallback(() => {
+        if (shopId) {
+            router.push(`/chat/${shopId}`);
+        }
+    }, [shopId]);
+
+    const handleShopPress = useCallback(() => {
+        if (shopId) {
+            router.push(`/shop/${shopId}`);
+        }
+    }, [shopId]);
+
+    /**
+     * ⚡ P0-4 FIX: Dùng primitive canAddToCart thay vì object selectionResult
+     */
+    const handleAddToCart = useCallback(() => {
+        if (!canAddToCart) {
+            handleOpenVariantSheet();
+            return;
+        }
+
+        // TODO: Implement add to cart mutation
+        if (__DEV__) {
+            console.log('Add to cart:', {
+                productId,
+                variantId: selectedVariantId,
+                quantity: 1,
+            });
+        }
+    }, [canAddToCart, productId, selectedVariantId, handleOpenVariantSheet]);
+
+    /**
+     * ⚡ P0-4 FIX: Dùng primitive canAddToCart thay vì object selectionResult
+     */
+    const handleBuyNow = useCallback(() => {
+        if (!canAddToCart) {
+            handleOpenVariantSheet();
+            return;
+        }
+
+        router.push({
+            pathname: '/(tabs)/cart',
+            params: {
+                action: 'buy-now',
+                productId: productId ?? '',
+                variantId: selectedVariantId ?? '',
+                quantity: '1',
+            },
+        } as never);
+    }, [canAddToCart, productId, selectedVariantId, handleOpenVariantSheet]);
+
+    const handleCartPress = useCallback(() => {
+        router.push('/(tabs)/cart');
+    }, []);
+
+    const handleSharePress = useCallback(() => {
+        // TODO: Implement share functionality
+        if (__DEV__) {
+            console.log('Share product:', productId);
+        }
+    }, [productId]);
+
+    /**
+     * Memoized callback cho image press
+     */
+    const handleImagePress = useCallback((index: number) => {
+        // TODO: Open fullscreen image viewer
+        if (__DEV__) {
+            console.log('View image:', index);
+        }
+    }, []);
+
+    // ============================================
+    // EARLY RETURNS - Loading & Error States
+    // ============================================
+
+    if (isLoading) {
+        return <ProductDetailSkeleton />;
+    }
+
+    if (isError || !product) {
+        return (
+            <View style={styles.errorContainer}>
+                <IconSymbol
+                    name="error"
+                    size={64}
+                    color={theme.colors.error}
+                />
+                <Text style={styles.errorTitle}>Không thể tải sản phẩm</Text>
+                <Text style={styles.errorMessage}>
+                    {error instanceof Error ? error.message : 'Đã có lỗi xảy ra'}
+                </Text>
+                <Pressable style={styles.retryButton} onPress={() => refetch()}>
+                    <Text style={styles.retryText}>Thử lại</Text>
+                </Pressable>
+            </View>
+        );
+    }
+
+    // ============================================
+    // RENDER
+    // ============================================
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Chi tiết sản phẩm</Text>
-            <Text style={styles.id}>ID: {id}</Text>
-            <Text style={styles.placeholder}>🚧 Đang phát triển...</Text>
+            {/* Animated NavBar */}
+            <ProductNavBar
+                scrollY={scrollY}
+                title={product.name}
+                cartItemCount={0} // TODO: Get from cart store
+                onCartPress={handleCartPress}
+                onSharePress={handleSharePress}
+            />
+
+            {/* Main Scroll Content */}
+            <Animated.ScrollView
+                style={styles.scrollView}
+                onScroll={scrollHandler}
+                scrollEventThrottle={16}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 100 + insets.bottom }}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={isRefetching}
+                        onRefresh={refetch}
+                        tintColor={theme.colors.primary}
+                    />
+                }
+            >
+                {/* Gallery - with forwardRef */}
+                <ProductGallery
+                    ref={galleryRef}
+                    gallery={product.gallery}
+                    onImagePress={handleImagePress}
+                />
+
+                {/* Product Info */}
+                <ProductInfoSection
+                    name={product.name}
+                    priceDisplay={selectionResult.displayPrice}
+                    rating={product.rating}
+                    totalReviews={product.totalReviews}
+                    totalSold={product.totalSold}
+                    flashSale={product.flashSale}
+                />
+
+                {/* Variant Selector */}
+                {product.hasVariants && (
+                    <VariantSelectorRow
+                        options={product.options}
+                        selectedOptions={selectedOptions}
+                        selectionSummary={selectionResult.selectionSummary}
+                        onPress={handleOpenVariantSheet}
+                    />
+                )}
+
+                {/* Shop Info */}
+                <ShopInfoCard
+                    shop={product.shop}
+                    onChatPress={handleChatPress}
+                    onViewShopPress={handleShopPress}
+                />
+
+                {/* Specifications */}
+                {product.specifications.length > 0 && (
+                    <ProductSpecs specifications={product.specifications} />
+                )}
+
+                {/* Description */}
+                <ProductDescription description={product.description} />
+            </Animated.ScrollView>
+
+            {/* Sticky Bottom Bar */}
+            <StickyBottomBar
+                isFullySelected={selectionResult.isFullySelected}
+                inventoryStatus={selectionResult.inventoryStatus}
+                canAddToCart={canAddToCart}
+                onChatPress={handleChatPress}
+                onShopPress={handleShopPress}
+                onAddToCartPress={handleAddToCart}
+                onBuyNowPress={handleBuyNow}
+            />
+
+            {/* Variant Bottom Sheet */}
+            {product.hasVariants && (
+                <VariantBottomSheet
+                    visible={variantSheetVisible}
+                    onClose={handleCloseVariantSheet}
+                    options={optionsWithAvailability}
+                    selectedOptions={selectedOptions}
+                    onSelectOption={selectOption}
+                    currentPrice={selectionResult.displayPrice.currentPrice}
+                    originalPrice={selectionResult.displayPrice.originalPrice}
+                    currentStock={selectionResult.availableStock}
+                    selectedImage={currentImage}
+                    onConfirm={handleConfirmVariant}
+                />
+            )}
         </View>
     );
 }
 
+// ============================================
+// STYLES
+// ============================================
 const styles = StyleSheet.create((theme) => ({
     container: {
+        flex: 1,
+        backgroundColor: theme.colors.background,
+    },
+    scrollView: {
+        flex: 1,
+    },
+    errorContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: theme.colors.background,
         padding: theme.margins.lg,
+        gap: theme.margins.md,
     },
-    title: {
-        fontSize: 24,
-        fontWeight: '700',
+    errorTitle: {
+        fontSize: 18,
+        fontWeight: '600',
         color: theme.colors.typography,
-        marginBottom: theme.margins.md,
     },
-    id: {
+    errorMessage: {
         fontSize: 14,
         color: theme.colors.typographySecondary,
-        marginBottom: theme.margins.lg,
+        textAlign: 'center',
     },
-    placeholder: {
-        fontSize: 16,
-        color: theme.colors.secondary,
+    retryButton: {
+        marginTop: theme.margins.md,
+        paddingHorizontal: theme.margins.lg,
+        paddingVertical: theme.margins.smd,
+        backgroundColor: theme.colors.primary,
+        borderRadius: theme.radius.m,
+    },
+    retryText: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: theme.colors.surface,
     },
 }));

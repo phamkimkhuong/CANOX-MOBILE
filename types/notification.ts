@@ -6,7 +6,9 @@ import { z } from 'zod';
  */
 export const NotificationType = {
     ORDER: 'ORDER',
+    PRODUCT: 'PRODUCT',
     PROMO: 'PROMO',
+    SHIPPING: 'SHIPPING',
     SYSTEM: 'SYSTEM',
     WALLET: 'WALLET',
 } as const;
@@ -97,23 +99,33 @@ export interface NotificationTypeConfig {
 export const NOTIFICATION_TYPE_CONFIG: Record<NotificationType, NotificationTypeConfig> = {
     ORDER: {
         icon: 'local-shipping',
-        backgroundColor: '#dbeafe', // blue-100
-        iconColor: '#2563eb', // blue-600
+        backgroundColor: '#dbeafe',
+        iconColor: '#2563eb',
+    },
+    PRODUCT: {
+        icon: 'cube-outline',
+        backgroundColor: '#fef3c7',
+        iconColor: '#d97706',
     },
     PROMO: {
         icon: 'local-fire-department',
-        backgroundColor: '#ffedd5', // orange-100
-        iconColor: '#ea580c', // orange-600
+        backgroundColor: '#ffedd5',
+        iconColor: '#ea580c',
+    },
+    SHIPPING: {
+        icon: 'airplane-outline',
+        backgroundColor: '#e0e7ff',
+        iconColor: '#4f46e5',
     },
     SYSTEM: {
         icon: 'shield',
-        backgroundColor: '#dbeafe', // blue-100
-        iconColor: '#2563eb', // blue-600
+        backgroundColor: '#dbeafe',
+        iconColor: '#2563eb',
     },
     WALLET: {
         icon: 'account-balance-wallet',
-        backgroundColor: '#dcfce7', // green-100
-        iconColor: '#16a34a', // green-600
+        backgroundColor: '#dcfce7',
+        iconColor: '#16a34a',
     },
 };
 
