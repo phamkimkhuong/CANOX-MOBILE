@@ -2,6 +2,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
 import '@/constants/unistyles';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useCartStore } from '@/store/useCartStore';
 import { Navigator } from '@/utils/navigation';
 import React, { useCallback } from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -15,6 +16,7 @@ export const HomeHeader = () => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+    const cartItemCount = useCartStore((state) => state.totalQuantity);
 
     const handleCartPress = useCallback(() => {
         if (isAuthenticated) {
@@ -53,9 +55,13 @@ export const HomeHeader = () => {
             <View style={styles.actions}>
                 <TouchableOpacity style={styles.iconBtn} onPress={handleCartPress}>
                     <IconSymbol name="cart" size={26} color={theme.colors.typographySecondary} />
-                    <View style={styles.badge}>
-                        <Text style={styles.badgeText}>3</Text>
-                    </View>
+                    {cartItemCount > 0 && (
+                        <View style={styles.badge}>
+                            <Text style={styles.badgeText}>
+                                {cartItemCount > 99 ? '99+' : cartItemCount}
+                            </Text>
+                        </View>
+                    )}
                 </TouchableOpacity>
 
                 {/* {Router to chat.tsx} */}

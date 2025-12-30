@@ -62,7 +62,6 @@ export default function CategoryScreen() {
         <View style={styles.container}>
             {/* Header với Search */}
             <CategoryHeader
-                cartCount={3}
                 onCartPress={handleCartPress}
             />
 

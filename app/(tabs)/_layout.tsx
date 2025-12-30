@@ -1,7 +1,9 @@
 import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 import { ROUTES } from '@/constants/routes';
+import { useCart } from '@/hooks/api/useCart';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useCartStore } from '@/store/useCartStore';
 import { Tabs, router } from 'expo-router';
 import React from 'react';
 import { useUnistyles } from 'react-native-unistyles';
@@ -25,6 +27,8 @@ function TabBarIcon(props: {
 export default function TabLayout() {
   const { theme } = useUnistyles();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  useCart();
+  const cartItemCount = useCartStore((state) => state.totalQuantity);
 
   return (
     <Tabs
@@ -79,17 +83,19 @@ export default function TabLayout() {
         options={{
           title: 'Giỏ hàng',
           tabBarIcon: ({ color }) => <TabBarIcon name="shopping-cart" color={color} />,
-          // Hiện badge số lượng sản phẩm trong giỏ hàng khi có (cần update số lượng động)
-          tabBarBadge: 4,
+          // Hiện badge số lượng sản phẩm trong giỏ hàng khi có
+          tabBarBadge: cartItemCount > 0
+            ? (cartItemCount > 99 ? '99+' : cartItemCount)
+            : undefined,
           headerShown: false,
         }}
         listeners={
           {
             tabPress: (e) => {
               if (!isAuthenticated) {
-                // 1. Chặn hành động chuyển Tab mặc định (Ngăn không cho mount CartScreen)
+                // Chặn hành động chuyển Tab mặc định (Ngăn không cho mount CartScreen)
                 e.preventDefault();
-                // 2. Chuyển hướng sang trang Login thủ công
+                // Chuyển hướng sang trang Login thủ công
                 router.push(ROUTES.AUTH.LOGIN);
               }
             },

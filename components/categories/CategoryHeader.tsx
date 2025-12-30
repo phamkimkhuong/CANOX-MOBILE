@@ -1,4 +1,5 @@
 import { IconSymbol } from '@/components/ui/Icon';
+import { useCartStore } from '@/store/useCartStore';
 import React from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
@@ -15,13 +16,15 @@ interface CategoryHeaderProps {
  * 
  */
 export const CategoryHeader: React.FC<CategoryHeaderProps> = ({
-    cartCount = 0,
+    cartCount,
     onCartPress,
     onChatPress,
     onSearchFocus,
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+    const storeCartCount = useCartStore((state) => state.totalQuantity);
+    const displayCount = cartCount ?? storeCartCount;
 
     return (
         <View style={styles.container}>
@@ -45,10 +48,10 @@ export const CategoryHeader: React.FC<CategoryHeaderProps> = ({
                     activeOpacity={0.7}
                 >
                     <IconSymbol name="cart-outline" size={24} color={theme.colors.typographySecondary} />
-                    {cartCount > 0 && (
+                    {displayCount > 0 && (
                         <View style={styles.badge}>
                             <Text style={styles.badgeText}>
-                                {cartCount > 99 ? '99+' : cartCount}
+                                {displayCount > 99 ? '99+' : displayCount}
                             </Text>
                         </View>
                     )}
