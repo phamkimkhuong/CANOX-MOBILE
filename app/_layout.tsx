@@ -101,6 +101,13 @@ export default function RootLayout() {
                     animation: 'slide_from_right'
                   }}
                 />
+                <Stack.Screen
+                  name="voucher"
+                  options={{
+                    headerShown: false,
+                    animation: 'slide_from_right'
+                  }}
+                />
               </Stack>
               <Toast config={toastConfig} />
               {/* 4. StatusBar luôn là Dark Content (chữ đen) vì nền sáng */}

@@ -43,7 +43,7 @@ export const ROUTES = {
     PROFILE: {
         WALLET: '/wallet' as const,
         COINS: '/coins' as const,
-        VOUCHERS: '/vouchers' as const,
+        VOUCHERS: '/voucher' as const,
         INTERNATIONAL_SHIPPING: '/international-shipping' as const,
         SUPPORT: '/support' as const,
         SETTINGS_SECURITY: '/settings/security' as const,

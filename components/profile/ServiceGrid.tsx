@@ -1,6 +1,7 @@
 import { ProfileMenuItem, SERVICE_MENU_CONFIG } from '@/types/profile';
 import { formatCurrency } from '@/utils/format';
 import { MaterialIcons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import React, { memo, useCallback } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -25,7 +26,9 @@ export const ServiceGrid: React.FC<ServiceGridProps> = memo(({
     const styles = stylesheet;
 
     const handlePress = useCallback((route: string) => {
-        // TODO: Navigate to service route
+        if (route) {
+            router.push(route as never);
+        }
     }, []);
 
     /**

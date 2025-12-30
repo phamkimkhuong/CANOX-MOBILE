@@ -140,6 +140,7 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     'storefront-outline': { ios: 'storefront-outline', android: 'storefront-outline' },
     'image-outline': { ios: 'image-outline', android: 'image-outline' },
     'rate-review': { ios: 'chatbox-ellipses-outline', android: 'chatbox-ellipses-outline' },
+    'auto-awesome': { ios: 'sparkles-outline', android: 'sparkles-outline' },
 };
 
 interface IconSymbolProps {

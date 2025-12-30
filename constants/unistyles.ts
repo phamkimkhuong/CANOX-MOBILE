@@ -21,6 +21,7 @@ const lightTheme = {
         warning: '#f97316',
         typography: '#1c3024',
         typographySecondary: '#687076',
+        info: '#0ea5e9',
         // Semantic colors
         primarySoft: 'rgba(0, 136, 204, 0.15)',
         primaryLight: 'rgba(0, 136, 204, 0.10)',
@@ -32,6 +33,8 @@ const lightTheme = {
         backgroundInput: 'rgba(238, 248, 255, 0.8)',
         backgroundSurface: 'rgba(0, 136, 204, 0.06)',
         textOnOverlay: 'rgba(255, 255, 255, 0.8)',
+        infoSoft: 'rgba(14, 165, 233, 0.15)',
+        infoLight: 'rgba(14, 165, 233, 0.10)',
         // React Navigation colors
         card: '#ffffff',
         text: '#1c3024',
@@ -45,6 +48,7 @@ const lightTheme = {
         md: 16,
         lg: 24,
         xl: 32,
+        xxl: 48,
     },
     // Thêm borderRadius chuẩn E-commerce
     radius: {

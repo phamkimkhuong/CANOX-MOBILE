@@ -87,3 +87,95 @@ export interface ProductTranslation {
         international: string;
     };
 }
+
+/**
+ * Voucher module translations
+ */
+export interface VoucherTranslation {
+    header: {
+        title: string;
+        myVouchers: string;
+        searchPlaceholder: string;
+    };
+    filters: {
+        all: string;
+        shipping: string;
+        cashback: string;
+        international: string;
+        shopMall: string;
+        discount: string;
+        live: string;
+    };
+    sort: {
+        label: string;
+        popular: string;
+        newest: string;
+        expiring: string;
+    };
+    card: {
+        minOrder: string;
+        maxDiscount: string;
+        expiry: string;
+        expiryToday: string;
+        expiringSoon: string;
+        almostGone: string;
+        used: string;
+        conditions: string;
+        freeShipping: string;
+        discount: string;
+        discountUpTo: string;
+        cashback: string;
+        coins: string;
+    };
+    actions: {
+        collect: string;
+        use: string;
+        collected: string;
+        expired: string;
+        soldout: string;
+        reminder: string;
+    };
+    featured: {
+        title: string;
+        aiPick: string;
+    };
+    list: {
+        title: string;
+        empty: string;
+        emptyDescription: string;
+        loadMore: string;
+        loading: string;
+    };
+    badges: {
+        hot: string;
+        new: string;
+        limited: string;
+        extra: string;
+        xtra: string;
+        exclusive: string;
+    };
+    progress: {
+        used: string;
+    };
+    error: {
+        loadFailed: string;
+        collectFailed: string;
+        retry: string;
+    };
+    success: {
+        collected: string;
+        reminderSet: string;
+    };
+    live: {
+        startingAt: string;
+        liveNow: string;
+    };
+    types: {
+        shipping: string;
+        discount: string;
+        cashback: string;
+        international: string;
+        live: string;
+        shop: string;
+    };
+}
