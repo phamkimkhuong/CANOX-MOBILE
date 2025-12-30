@@ -1,3 +1,4 @@
+import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import type { GalleryItem } from '@/types/productDetail';
 import { Image } from 'expo-image';
 import React, {
@@ -18,19 +19,11 @@ import Animated, {
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { IconSymbol } from '../ui/Icon';
 
-// ============================================
-// CONSTANTS
-// ============================================
-
 const THUMBNAIL_SIZE = 60;
 const THUMBNAIL_GAP = 8;
 
 // Placeholder blurhash for image loading
 const IMAGE_PLACEHOLDER = 'L6PZfSi_.AyE_3t7t7R**0o#DgR4';
-
-// ============================================
-// TYPES
-// ============================================
 
 interface ProductGalleryProps {
     gallery: GalleryItem[];
@@ -233,10 +226,10 @@ export const ProductGallery = memo(forwardRef<ProductGalleryRef, ProductGalleryP
     initialIndex = 0,
 }, ref) => {
     const { theme } = useUnistyles();
-    
+
     const { width: screenWidth } = useWindowDimensions();
     const galleryHeight = screenWidth; // Square aspect ratio
-    
+
     const flatListRef = useRef<Animated.FlatList<GalleryItem>>(null);
     const thumbnailScrollRef = useRef<Animated.ScrollView>(null);
     const [activeIndex, setActiveIndex] = useState(initialIndex);
@@ -348,7 +341,7 @@ export const ProductGallery = memo(forwardRef<ProductGalleryRef, ProductGalleryP
                     size={48}
                     color={theme.colors.secondary}
                 />
-                <Text style={styles.emptyText}>Không có hình ảnh</Text>
+                <Text style={styles.emptyText}>{PRODUCT_STRINGS.gallery.noImages}</Text>
             </View>
         );
     }

@@ -437,6 +437,20 @@ export interface ProductOptionUI {
     }>;
 }
 
+export interface ReviewStatistics {
+    reviewableId?: string;
+    totalReviews: number;
+    averageRating: number;
+    ratingDistribution?: Record<string, number>;
+    ratingPercentage?: Record<string, number>;
+    verifiedPurchaseCount?: number;
+    verifiedPurchasePercentage?: number;
+    commentCount?: number;
+    mediaReviewCount?: number;
+    imageReviewCount?: number;
+    videoReviewCount?: number;
+}
+
 /**
  * Product Detail đã transform cho UI
  */
@@ -464,11 +478,17 @@ export interface ProductDetailUI {
     // Stats
     rating: number;
     totalReviews: number;
+    reviewStatistics: ReviewStatistics;
     totalSold: number;
 
     // Features
     flashSale?: FlashSaleInfo;
     vouchers: VoucherUI[];
+    bestVoucher?: {
+        discountType: 'PERCENTAGE' | 'FIXED_AMOUNT';
+        discountValue: number;
+        maxDiscount?: number;
+    };
     shipping?: ShippingInfo;
     specifications: ProductSpec[];
 

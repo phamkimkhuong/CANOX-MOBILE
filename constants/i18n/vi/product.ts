@@ -14,7 +14,9 @@
  * ```
  */
 
-export const PRODUCT_STRINGS = {
+import { ProductTranslation } from '../types';
+
+export const PRODUCT_STRINGS: ProductTranslation = {
     // === Product Description ===
     description: {
         title: 'Mô tả sản phẩm',
@@ -75,6 +77,23 @@ export const PRODUCT_STRINGS = {
         soldPrefix: 'Đã bán',
     },
 
+    // === Reviews ===
+    reviews: {
+        title: 'Đánh giá sản phẩm',
+        viewAll: 'Xem tất cả',
+        noReviews: 'Chưa có đánh giá',
+        beFirst: 'Hãy là người đầu tiên đánh giá sản phẩm này',
+        reviewCount: 'đánh giá',
+        filterAll: 'Tất cả',
+        filter5Star: '5 Sao',
+        filterWithMedia: 'Có Hình ảnh',
+        qna: 'Hỏi đáp về sản phẩm',
+        askQuestion: 'Đặt câu hỏi',
+        questions: 'câu hỏi',
+        newest: 'Mới nhất',
+        viewAllReviews: 'Xem tất cả đánh giá để biết thêm chi tiết về sản phẩm',
+    },
+
     // === Gallery ===
     gallery: {
         noImages: 'Không có hình ảnh',
@@ -85,6 +104,17 @@ export const PRODUCT_STRINGS = {
         loadFailed: 'Không thể tải sản phẩm',
         generic: 'Đã có lỗi xảy ra',
         retry: 'Thử lại',
+        notFound: 'Không tìm thấy sản phẩm',
+        notFoundDetail: 'Sản phẩm này hiện tại không khả dụng hoặc đã bị gỡ bỏ.',
+        home: 'Trang chủ',
+    },
+
+    // === Navigation ===
+    navigation: {
+        title: 'Chi tiết sản phẩm',
+    },
+    related: {
+        title: 'Có thể bạn cũng thích',
     },
 
     // === Badges ===

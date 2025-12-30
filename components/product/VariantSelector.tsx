@@ -1,3 +1,4 @@
+import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import type { ProductOptionUI, SelectedOptions } from '@/types/productDetail';
 import { formatCurrency } from '@/utils/adapter/productDetailAdapter';
 import { Image } from 'expo-image';
@@ -13,15 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { IconSymbol } from '../ui/Icon';
 
-// ============================================
-// CONSTANTS
-// ============================================
-
 const IMAGE_PLACEHOLDER = 'L6PZfSi_.AyE_3t7t7R**0o#DgR4';
-
-// ============================================
-// TYPES
-// ============================================
 
 interface VariantSelectorRowProps {
     options: ProductOptionUI[];
@@ -79,13 +72,13 @@ export const VariantSelectorRow = memo<VariantSelectorRowProps>(({
 }) => {
     const { theme } = useUnistyles();
 
-    const displayText = selectionSummary || 'Chọn phân loại';
+    const displayText = selectionSummary || PRODUCT_STRINGS.variant.placeholder;
     const hasSelection = selectionSummary.length > 0;
 
     return (
         <Pressable style={rowStyles.container} onPress={onPress}>
             <View style={rowStyles.content}>
-                <Text style={rowStyles.label}>Phân loại</Text>
+                <Text style={rowStyles.label}>{PRODUCT_STRINGS.variant.label}</Text>
                 <View style={rowStyles.valueContainer}>
                     <Text
                         style={[
@@ -335,7 +328,7 @@ export const VariantBottomSheet = memo<VariantBottomSheetProps>(({
                             )}
                             {currentStock !== undefined && (
                                 <Text style={sheetStyles.stockText}>
-                                    Kho: {currentStock}
+                                    {PRODUCT_STRINGS.variant.stock}: {currentStock}
                                 </Text>
                             )}
                         </View>
@@ -371,7 +364,7 @@ export const VariantBottomSheet = memo<VariantBottomSheetProps>(({
                     {/* Confirm Button */}
                     <View style={sheetStyles.footer}>
                         <Pressable style={sheetStyles.confirmButton} onPress={onConfirm}>
-                            <Text style={sheetStyles.confirmText}>Xác nhận</Text>
+                            <Text style={sheetStyles.confirmText}>{PRODUCT_STRINGS.variant.confirm}</Text>
                         </Pressable>
                     </View>
                 </Pressable>

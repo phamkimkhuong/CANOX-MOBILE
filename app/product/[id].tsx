@@ -4,14 +4,18 @@ import {
     ProductGallery,
     ProductInfoSection,
     ProductNavBar,
+    ProductReviews,
     ProductSpecs,
+    RelatedProducts,
     ShopInfoCard,
     StickyBottomBar,
     VariantBottomSheet,
-    VariantSelectorRow,
+    VariantSelectorRow
 } from '@/components/product';
 import type { ProductGalleryRef } from '@/components/product/ProductGallery';
 import { IconSymbol } from '@/components/ui/Icon';
+import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
+import { ROUTES, chatRoutes, shopRoutes } from '@/constants/routes';
 import { useProductDetail } from '@/hooks/api/useProductDetail';
 import { useProductVariant } from '@/hooks/useProductVariant';
 import { findGalleryIndexByVariant } from '@/utils/adapter/productDetailAdapter';
@@ -25,9 +29,7 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-// ============================================
-// MAIN COMPONENT
-// ============================================
+
 export default function ProductDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const insets = useSafeAreaInsets();
@@ -49,6 +51,7 @@ export default function ProductDetailScreen() {
         selectedOptions,
         selectionResult,
         selectOption,
+        resetSelection,
         getOptionsWithAvailability,
     } = useProductVariant(product);
 
@@ -94,10 +97,6 @@ export default function ProductDetailScreen() {
         return selectedVariantMedia?.[0]?.url ?? productGallery?.[0]?.url;
     }, [selectedVariantMedia, productGallery]);
 
-    // ============================================
-    // HANDLERS - Optimized với primitive dependencies
-    // ============================================
-
     const handleOpenVariantSheet = useCallback(() => {
         setVariantSheetVisible(true);
     }, []);
@@ -106,9 +105,6 @@ export default function ProductDetailScreen() {
         setVariantSheetVisible(false);
     }, []);
 
-    /**
-     * ⚡ P0-4 FIX: Dùng primitive values thay vì object
-     */
     const handleConfirmVariant = useCallback(() => {
         setVariantSheetVisible(false);
 
@@ -121,19 +117,25 @@ export default function ProductDetailScreen() {
 
     const handleChatPress = useCallback(() => {
         if (shopId) {
-            router.push(`/chat/${shopId}`);
+            router.push(chatRoutes.conversation(shopId));
         }
     }, [shopId]);
 
     const handleShopPress = useCallback(() => {
         if (shopId) {
-            router.push(`/shop/${shopId}`);
+            router.push(shopRoutes.detail(shopId));
         }
     }, [shopId]);
 
     /**
-     * ⚡ P0-4 FIX: Dùng primitive canAddToCart thay vì object selectionResult
+     * Handle pull-to-refresh: Reset variant selection to default state
      */
+    const handleRefresh = useCallback(() => {
+        refetch();
+        resetSelection();
+    }, [refetch, resetSelection]);
+
+
     const handleAddToCart = useCallback(() => {
         if (!canAddToCart) {
             handleOpenVariantSheet();
@@ -150,9 +152,7 @@ export default function ProductDetailScreen() {
         }
     }, [canAddToCart, productId, selectedVariantId, handleOpenVariantSheet]);
 
-    /**
-     * ⚡ P0-4 FIX: Dùng primitive canAddToCart thay vì object selectionResult
-     */
+
     const handleBuyNow = useCallback(() => {
         if (!canAddToCart) {
             handleOpenVariantSheet();
@@ -160,7 +160,7 @@ export default function ProductDetailScreen() {
         }
 
         router.push({
-            pathname: '/(tabs)/cart',
+            pathname: ROUTES.TABS.CART,
             params: {
                 action: 'buy-now',
                 productId: productId ?? '',
@@ -171,7 +171,7 @@ export default function ProductDetailScreen() {
     }, [canAddToCart, productId, selectedVariantId, handleOpenVariantSheet]);
 
     const handleCartPress = useCallback(() => {
-        router.push('/(tabs)/cart');
+        router.push(ROUTES.TABS.CART);
     }, []);
 
     const handleSharePress = useCallback(() => {
@@ -191,6 +191,26 @@ export default function ProductDetailScreen() {
         }
     }, []);
 
+    /**
+     * Handle view all reviews
+     */
+    const handleViewAllReviews = useCallback(() => {
+        // TODO: Navigate to reviews screen
+        if (__DEV__) {
+            console.log('View all reviews for product:', productId);
+        }
+    }, [productId]);
+
+    /**
+     * Handle ask question
+     */
+    const handleAskQuestion = useCallback(() => {
+        // TODO: Navigate to Q&A screen or open modal
+        if (__DEV__) {
+            console.log('Ask question about product:', productId);
+        }
+    }, [productId]);
+
     // ============================================
     // EARLY RETURNS - Loading & Error States
     // ============================================
@@ -201,19 +221,40 @@ export default function ProductDetailScreen() {
 
     if (isError || !product) {
         return (
-            <View style={styles.errorContainer}>
-                <IconSymbol
-                    name="error"
-                    size={64}
-                    color={theme.colors.error}
-                />
-                <Text style={styles.errorTitle}>Không thể tải sản phẩm</Text>
-                <Text style={styles.errorMessage}>
-                    {error instanceof Error ? error.message : 'Đã có lỗi xảy ra'}
-                </Text>
-                <Pressable style={styles.retryButton} onPress={() => refetch()}>
-                    <Text style={styles.retryText}>Thử lại</Text>
-                </Pressable>
+            <View style={styles.container}>
+                {/* NavBar vẫn cho phép quay lại */}
+                <ProductNavBar scrollY={scrollY} title={PRODUCT_STRINGS.navigation.title} />
+
+                <View style={{ flex: 1 }}>
+                    <ProductDetailSkeleton />
+                    <View style={styles.errorOverlay}>
+                        <View style={styles.errorCard}>
+                            <View style={styles.errorIconCircle}>
+                                <IconSymbol
+                                    name="error"
+                                    size={40}
+                                    color={theme.colors.error}
+                                />
+                            </View>
+                            <Text style={styles.errorTitle}>{PRODUCT_STRINGS.error.notFound}</Text>
+                            <Text style={styles.errorMessage}>
+                                {error instanceof Error ? error.message : PRODUCT_STRINGS.error.notFoundDetail}
+                            </Text>
+
+                            <View style={styles.errorActions}>
+                                <Pressable style={styles.retryButton} onPress={() => refetch()}>
+                                    <Text style={styles.retryText}>{PRODUCT_STRINGS.error.retry}</Text>
+                                </Pressable>
+                                <Pressable
+                                    style={[styles.retryButton, styles.homeButton]}
+                                    onPress={() => router.replace(ROUTES.TABS.HOME)}
+                                >
+                                    <Text style={styles.homeButtonText}>{PRODUCT_STRINGS.error.home}</Text>
+                                </Pressable>
+                            </View>
+                        </View>
+                    </View>
+                </View>
             </View>
         );
     }
@@ -243,7 +284,7 @@ export default function ProductDetailScreen() {
                 refreshControl={
                     <RefreshControl
                         refreshing={isRefetching}
-                        onRefresh={refetch}
+                        onRefresh={handleRefresh}
                         tintColor={theme.colors.primary}
                     />
                 }
@@ -275,6 +316,15 @@ export default function ProductDetailScreen() {
                     />
                 )}
 
+                {/* Product Reviews */}
+                <ProductReviews
+                    reviewStatistics={product.reviewStatistics}
+                    rating={product.rating}
+                    totalReviews={product.totalReviews}
+                    onViewAllPress={handleViewAllReviews}
+                    onAskQuestionPress={handleAskQuestion}
+                />
+
                 {/* Shop Info */}
                 <ShopInfoCard
                     shop={product.shop}
@@ -289,13 +339,15 @@ export default function ProductDetailScreen() {
 
                 {/* Description */}
                 <ProductDescription description={product.description} />
+
+                {/* Related Products */}
+                <RelatedProducts productId={id ?? ''} />
             </Animated.ScrollView>
 
             {/* Sticky Bottom Bar */}
             <StickyBottomBar
                 isFullySelected={selectionResult.isFullySelected}
                 inventoryStatus={selectionResult.inventoryStatus}
-                canAddToCart={canAddToCart}
                 onChatPress={handleChatPress}
                 onShopPress={handleShopPress}
                 onAddToCartPress={handleAddToCart}
@@ -321,9 +373,6 @@ export default function ProductDetailScreen() {
     );
 }
 
-// ============================================
-// STYLES
-// ============================================
 const styles = StyleSheet.create((theme) => ({
     container: {
         flex: 1,
@@ -336,9 +385,50 @@ const styles = StyleSheet.create((theme) => ({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: theme.colors.background,
         padding: theme.margins.lg,
+    },
+    errorOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: theme.margins.lg,
+    },
+    errorCard: {
+        backgroundColor: theme.colors.surface,
+        borderRadius: theme.radius.l,
+        padding: theme.margins.xl,
+        width: '100%',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.1,
+        shadowRadius: 20,
+        elevation: 10,
+    },
+    errorIconCircle: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        backgroundColor: '#FFF0F0',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: theme.margins.md,
+    },
+    errorActions: {
+        flexDirection: 'row',
+        marginTop: theme.margins.lg,
         gap: theme.margins.md,
+    },
+    homeButton: {
+        backgroundColor: theme.colors.background,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+    },
+    homeButtonText: {
+        color: theme.colors.typography,
+        fontSize: 14,
+        fontWeight: '600',
     },
     errorTitle: {
         fontSize: 18,

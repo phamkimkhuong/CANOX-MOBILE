@@ -1,9 +1,11 @@
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { request } from '@/services/api/client';
+import { PaginatedProductResponseSchema } from '@/types/product';
 import {
     ProductDetailAPIResponseSchema,
     type ProductDetailUI,
 } from '@/types/productDetail';
+import { transformProduct } from '@/utils/adapter/productAdapter';
 import { transformProductDetail } from '@/utils/adapter/productDetailAdapter';
 import { useQuery } from '@tanstack/react-query';
 
@@ -50,22 +52,6 @@ interface UseProductDetailOptions {
 
 /**
  * Hook để fetch và quản lý Product Detail data
- * 
- * Features:
- * - Zod validation cho API response
- * - Transform data thành UI-ready format
- * - Optimized caching với TanStack Query
- * - TypeScript strict typing
- * 
- * @example
- * ```tsx
- * const { data, isLoading, error } = useProductDetail('product-123');
- * 
- * if (isLoading) return <ProductDetailSkeleton />;
- * if (error) return <ErrorState />;
- * 
- * return <ProductDetailContent data={data} />;
- * ```
  */
 export const useProductDetail = (
     productId: string,
@@ -81,6 +67,37 @@ export const useProductDetail = (
         gcTime: 10 * 60 * 1000, // 10 minutes
         retry: 2,
         refetchOnWindowFocus: false,
+    });
+};
+
+/**
+ * Fetch related products from API
+ */
+const fetchRelatedProducts = async (productId: string) => {
+    const response = await request(
+        {
+            url: API_ROUTES.PUBLIC_PRODUCTS.RELATED(productId),
+            method: 'GET',
+            params: { page: 0, size: 20 },
+        },
+        PaginatedProductResponseSchema
+    );
+
+    return {
+        ...response.data,
+        content: response.data.content.map(transformProduct),
+    };
+};
+
+/**
+ * Hook to fetch related products
+ */
+export const useRelatedProducts = (productId: string) => {
+    return useQuery({
+        queryKey: PRODUCT_DETAIL_QUERY_KEYS.related(productId),
+        queryFn: () => fetchRelatedProducts(productId),
+        enabled: !!productId,
+        staleTime: 5 * 60 * 1000,
     });
 };
 

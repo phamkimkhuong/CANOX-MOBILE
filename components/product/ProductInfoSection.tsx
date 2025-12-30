@@ -1,3 +1,4 @@
+import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import type { FlashSaleInfo, PriceDisplay } from '@/types/productDetail';
 import { formatCurrency } from '@/utils/adapter/productDetailAdapter';
 import React, { memo, useMemo } from 'react';
@@ -5,10 +6,6 @@ import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { IconSymbol } from '../ui/Icon';
 import { ProductFlashSaleBar } from './ProductFlashSaleBar';
-
-// ============================================
-// TYPES
-// ============================================
 
 interface ProductInfoSectionProps {
     name: string;
@@ -104,21 +101,14 @@ const StatsRow = memo<{
             <View style={styles.statItem}>
                 <IconSymbol name="star" size={14} color="#FFB800" />
                 <Text style={styles.statValue}>{formattedRating}</Text>
-            </View>
-
-            <View style={styles.statDivider} />
-
-            {/* Reviews */}
-            <View style={styles.statItem}>
-                <Text style={styles.statLabel}>Đánh giá</Text>
-                <Text style={styles.statValue}>{formattedReviews}</Text>
+                <Text style={styles.statLabel}> ({formattedReviews})</Text>
             </View>
 
             <View style={styles.statDivider} />
 
             {/* Sold */}
             <View style={styles.statItem}>
-                <Text style={styles.statLabel}>Đã bán</Text>
+                <Text style={styles.statLabel}>{PRODUCT_STRINGS.info.sold}</Text>
                 <Text style={styles.statValue}>{formattedSold}</Text>
             </View>
         </View>
@@ -153,41 +143,33 @@ export const ProductInfoSection = memo<ProductInfoSectionProps>(({
 }) => {
     const { theme } = useUnistyles();
 
-    // ============================================
-    // MEMOIZED BADGES - Tránh tạo JSX mới mỗi render
-    // ============================================
-    
     const badgesContent = useMemo(() => (
         <View style={styles.badgeRow}>
             {isMall && (
                 <View style={[styles.badge, styles.mallBadge]}>
-                    <Text style={styles.mallText}>Mall</Text>
+                    <Text style={styles.mallText}>{PRODUCT_STRINGS.badges.mall}</Text>
                 </View>
             )}
             {isInternational && (
                 <View style={[styles.badge, styles.internationalBadge]}>
                     <IconSymbol name="public" size={12} color={theme.colors.primary} />
-                    <Text style={styles.internationalText}>Quốc tế</Text>
+                    <Text style={styles.internationalText}>{PRODUCT_STRINGS.badges.international}</Text>
                 </View>
             )}
             {priceDisplay.voucherDiscount && (
                 <View style={[styles.badge, styles.voucherBadge]}>
                     <IconSymbol name="confirmation-number" size={12} color={theme.colors.success} />
                     <Text style={styles.voucherText}>
-                        Giảm {formatCurrency(priceDisplay.voucherDiscount)}
+                        {PRODUCT_STRINGS.info.discount} {formatCurrency(priceDisplay.voucherDiscount)}
                     </Text>
                 </View>
             )}
         </View>
     ), [isMall, isInternational, priceDisplay.voucherDiscount, theme.colors.primary, theme.colors.success]);
 
-    // ============================================
-    // RENDER
-    // ============================================
-
     return (
-        <View style={styles.container}>
-            {/* Flash Sale Banner - Đã được memo, sẽ tự quản lý countdown */}
+        <View style={[styles.container, flashSale?.isActive && { paddingTop: 5 }]}>
+            {/* Flash Sale Banner  */}
             {flashSale?.isActive && (
                 <ProductFlashSaleBar
                     flashSale={flashSale}
@@ -195,36 +177,36 @@ export const ProductInfoSection = memo<ProductInfoSectionProps>(({
                 />
             )}
 
-            {/* Price Section - Memo riêng */}
+            {/* Price Section */}
             <PriceSection priceDisplay={priceDisplay} />
 
-            {/* Badges */}
-            {badgesContent}
+            {/* Badges & Stats Row - Combined horizontally to save space */}
+            <View style={styles.badgesAndStatsRow}>
+                <View style={styles.badgesWrapper}>
+                    {badgesContent}
+                </View>
+                <StatsRow
+                    rating={rating}
+                    totalReviews={totalReviews}
+                    totalSold={totalSold}
+                />
+            </View>
 
-            {/* Title */}
             <Text style={styles.title} numberOfLines={3}>
                 {name}
             </Text>
-
-            {/* Stats Row - Memo riêng */}
-            <StatsRow
-                rating={rating}
-                totalReviews={totalReviews}
-                totalSold={totalSold}
-            />
         </View>
     );
 });
 
 ProductInfoSection.displayName = 'ProductInfoSection';
 
-// ============================================
-// STYLES
-// ============================================
 const styles = StyleSheet.create((theme) => ({
     container: {
         backgroundColor: theme.colors.surface,
-        padding: theme.margins.md,
+        paddingHorizontal: theme.margins.sm,
+        paddingBottom: theme.margins.sm,
+        paddingTop: 4,
     },
     priceContainer: {
         flexDirection: 'row',
@@ -263,7 +245,16 @@ const styles = StyleSheet.create((theme) => ({
         flexDirection: 'row',
         flexWrap: 'wrap',
         gap: theme.margins.sm,
-        marginBottom: theme.margins.smd,
+    },
+    badgesAndStatsRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: theme.margins.sm,
+        gap: theme.margins.sm,
+    },
+    badgesWrapper: {
+        flex: 1,
     },
     badge: {
         flexDirection: 'row',
@@ -306,14 +297,10 @@ const styles = StyleSheet.create((theme) => ({
         fontWeight: '500',
         color: theme.colors.typography,
         lineHeight: 22,
-        marginBottom: theme.margins.smd,
     },
     statsRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingTop: theme.margins.smd,
-        borderTopWidth: 1,
-        borderTopColor: theme.colors.border,
     },
     statItem: {
         flexDirection: 'row',

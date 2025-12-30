@@ -68,20 +68,6 @@ const SIZE_CONFIG = {
  * 
  * Single Source of Truth cho việc render countdown digits trong toàn app.
  * Hỗ trợ nhiều size và theme để tái sử dụng ở Home, Product Detail, etc.
- * 
- * @example
- * ```tsx
- * // Home page (light theme)
- * <CountdownDigits duration={duration} size="medium" variant="light" />
- * 
- * // Product Detail (dark theme)
- * <CountdownDigits 
- *   duration={duration} 
- *   size="small" 
- *   variant="dark" 
- *   showLabel 
- * />
- * ```
  */
 export const CountdownDigits = memo<CountdownDigitsProps>(({
     duration,
@@ -209,10 +195,6 @@ export const CountdownDigits = memo<CountdownDigitsProps>(({
 });
 
 CountdownDigits.displayName = 'CountdownDigits';
-
-// ============================================
-// STYLES
-// ============================================
 
 const styles = StyleSheet.create((theme) => ({
     wrapper: {

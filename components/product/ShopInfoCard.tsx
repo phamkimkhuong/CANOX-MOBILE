@@ -1,3 +1,5 @@
+import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
+import { shopRoutes } from '@/constants/routes';
 import type { ShopUI } from '@/types/productDetail';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
@@ -5,10 +7,6 @@ import React, { memo, useCallback, useMemo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { IconSymbol } from '../ui/Icon';
-
-// ============================================
-// CONSTANTS
-// ============================================
 
 const IMAGE_PLACEHOLDER = 'L6PZfSi_.AyE_3t7t7R**0o#DgR4';
 
@@ -23,7 +21,7 @@ interface ShopInfoCardProps {
 // ============================================
 
 const formatResponseTime = (time?: string): string => {
-    if (!time) return 'Vài phút';
+    if (!time) return PRODUCT_STRINGS.shop.defaultResponseTime;
     return time;
 };
 
@@ -53,28 +51,28 @@ export const ShopInfoCard = memo<ShopInfoCardProps>(({
         if (onViewShopPress) {
             onViewShopPress();
         } else {
-            router.push(`/shop/${shop.id}`);
+            router.push(shopRoutes.detail(shop.id));
         }
     }, [onViewShopPress, shop.id]);
 
     // Memoize formatted values
-    const formattedRating = useMemo(() => 
-        shop.rating?.toFixed(1) ?? '-', 
+    const formattedRating = useMemo(() =>
+        shop.rating?.toFixed(1) ?? '-',
         [shop.rating]
     );
-    
-    const formattedResponseRate = useMemo(() => 
-        shop.responseRate ? `${shop.responseRate}%` : '-', 
+
+    const formattedResponseRate = useMemo(() =>
+        shop.responseRate ? `${shop.responseRate}%` : '-',
         [shop.responseRate]
     );
-    
-    const formattedResponseTime = useMemo(() => 
-        formatResponseTime(shop.responseTime), 
+
+    const formattedResponseTime = useMemo(() =>
+        formatResponseTime(shop.responseTime),
         [shop.responseTime]
     );
-    
-    const formattedProductCount = useMemo(() => 
-        formatCount(shop.productCount), 
+
+    const formattedProductCount = useMemo(() =>
+        formatCount(shop.productCount),
         [shop.productCount]
     );
 
@@ -108,7 +106,11 @@ export const ShopInfoCard = memo<ShopInfoCardProps>(({
                 {/* Shop Info */}
                 <View style={styles.info}>
                     <Pressable onPress={handleViewShop}>
-                        <Text style={styles.shopName} numberOfLines={1}>
+                        <Text
+                            style={styles.shopName}
+                            numberOfLines={2}
+                            ellipsizeMode="tail"
+                        >
                             {shop.shopName}
                         </Text>
                     </Pressable>
@@ -126,7 +128,7 @@ export const ShopInfoCard = memo<ShopInfoCardProps>(({
                     )}
                     {shop.lastOnline && (
                         <Text style={styles.onlineStatus}>
-                            Online {shop.lastOnline}
+                            {PRODUCT_STRINGS.shop.online} {shop.lastOnline}
                         </Text>
                     )}
                 </View>
@@ -139,7 +141,16 @@ export const ShopInfoCard = memo<ShopInfoCardProps>(({
                             size={18}
                             color={theme.colors.primary}
                         />
-                        <Text style={styles.chatButtonText}>Chat</Text>
+                        <Text style={styles.chatButtonText}>{PRODUCT_STRINGS.bottomBar.chat}</Text>
+                    </Pressable>
+
+                    <Pressable style={styles.viewShopButton} onPress={handleViewShop}>
+                        <IconSymbol
+                            name="storefront-outline"
+                            size={18}
+                            color={theme.colors.primary}
+                        />
+                        <Text style={styles.viewShopText}>{PRODUCT_STRINGS.shop.viewShop}</Text>
                     </Pressable>
                 </View>
             </View>
@@ -148,40 +159,30 @@ export const ShopInfoCard = memo<ShopInfoCardProps>(({
             <View style={styles.statsRow}>
                 <View style={styles.statItem}>
                     <Text style={styles.statValue}>{formattedRating}</Text>
-                    <Text style={styles.statLabel}>Đánh giá</Text>
+                    <Text style={styles.statLabel}>{PRODUCT_STRINGS.shop.rating}</Text>
                 </View>
 
                 <View style={styles.statDivider} />
 
                 <View style={styles.statItem}>
                     <Text style={styles.statValue}>{formattedResponseRate}</Text>
-                    <Text style={styles.statLabel}>Tỉ lệ phản hồi</Text>
+                    <Text style={styles.statLabel}>{PRODUCT_STRINGS.shop.responseRate}</Text>
                 </View>
 
                 <View style={styles.statDivider} />
 
                 <View style={styles.statItem}>
                     <Text style={styles.statValue}>{formattedResponseTime}</Text>
-                    <Text style={styles.statLabel}>Thời gian phản hồi</Text>
+                    <Text style={styles.statLabel}>{PRODUCT_STRINGS.shop.responseTime}</Text>
                 </View>
 
                 <View style={styles.statDivider} />
 
                 <View style={styles.statItem}>
                     <Text style={styles.statValue}>{formattedProductCount}</Text>
-                    <Text style={styles.statLabel}>Sản phẩm</Text>
+                    <Text style={styles.statLabel}>{PRODUCT_STRINGS.shop.products}</Text>
                 </View>
             </View>
-
-            {/* View Shop Button */}
-            <Pressable style={styles.viewShopButton} onPress={handleViewShop}>
-                <Text style={styles.viewShopText}>Xem Shop</Text>
-                <IconSymbol
-                    name="chevron-right"
-                    size={18}
-                    color={theme.colors.primary}
-                />
-            </Pressable>
         </View>
     );
 });
@@ -192,13 +193,13 @@ const styles = StyleSheet.create((theme) => ({
     container: {
         backgroundColor: theme.colors.surface,
         marginTop: theme.margins.sm,
-        paddingVertical: theme.margins.md,
+        paddingVertical: theme.margins.sm,
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: theme.margins.md,
-        marginBottom: theme.margins.md,
+        paddingHorizontal: theme.margins.sm,
+        marginBottom: theme.margins.sm,
     },
     avatarContainer: {
         position: 'relative',
@@ -230,6 +231,7 @@ const styles = StyleSheet.create((theme) => ({
         fontSize: 15,
         fontWeight: '600',
         color: theme.colors.typography,
+        lineHeight: 20,
         marginBottom: 2,
     },
     locationRow: {
@@ -248,6 +250,8 @@ const styles = StyleSheet.create((theme) => ({
         marginTop: 2,
     },
     actions: {
+        flexDirection: 'row',
+        gap: 8,
         marginLeft: theme.margins.sm,
     },
     chatButton: {
@@ -298,12 +302,15 @@ const styles = StyleSheet.create((theme) => ({
     viewShopButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
-        marginTop: theme.margins.smd,
-        paddingVertical: theme.margins.sm,
+        gap: 4,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: theme.radius.m,
+        borderWidth: 1,
+        borderColor: theme.colors.primary,
     },
     viewShopText: {
-        fontSize: 14,
+        fontSize: 13,
         fontWeight: '600',
         color: theme.colors.primary,
     },

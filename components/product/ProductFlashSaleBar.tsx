@@ -1,14 +1,12 @@
 import { CountdownDigits } from '@/components/ui/CountdownDigits';
 import { IconSymbol } from '@/components/ui/Icon';
+import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import { useCountdown } from '@/hooks/useCountdown';
 import type { FlashSaleInfo } from '@/types/productDetail';
 import React, { memo } from 'react';
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-// ============================================
-// TYPES
-// ============================================
 
 interface ProductFlashSaleBarProps {
     /** Flash Sale info từ ProductDetailUI */
@@ -16,10 +14,6 @@ interface ProductFlashSaleBarProps {
     /** Callback khi countdown kết thúc */
     onExpired?: () => void;
 }
-
-// ============================================
-// COMPONENT
-// ============================================
 
 /**
  * ProductFlashSaleBar - Flash Sale banner cho Product Detail
@@ -66,10 +60,10 @@ export const ProductFlashSaleBar = memo<ProductFlashSaleBarProps>(({
     // Xác định trạng thái hiển thị
     const isAlmostSoldOut = soldPercentage >= 80;
     const statusText = isAlmostSoldOut
-        ? 'Sắp hết hàng'
+        ? PRODUCT_STRINGS.flashSale.soldOut
         : flashSale.quantitySold && flashSale.quantitySold > 0
-            ? `Đã bán ${flashSale.quantitySold}`
-            : 'Đang bán chạy';
+            ? `${PRODUCT_STRINGS.flashSale.soldPrefix} ${flashSale.quantitySold}`
+            : PRODUCT_STRINGS.flashSale.selling;
 
     return (
         <View style={styles.container}>
@@ -77,7 +71,7 @@ export const ProductFlashSaleBar = memo<ProductFlashSaleBarProps>(({
             <View style={styles.header}>
                 <View style={styles.titleRow}>
                     <IconSymbol name="bolt" size={18} color="#FFD700" />
-                    <Text style={styles.title}>FLASH SALE</Text>
+                    <Text style={styles.title}>{PRODUCT_STRINGS.flashSale.title}</Text>
                     {flashSale.discountPercentage && flashSale.discountPercentage > 0 && (
                         <View style={styles.discountBadge}>
                             <Text style={styles.discountText}>
@@ -93,7 +87,7 @@ export const ProductFlashSaleBar = memo<ProductFlashSaleBarProps>(({
                     size="small"
                     variant="dark"
                     showLabel
-                    labelText="Kết thúc trong"
+                    labelText={PRODUCT_STRINGS.flashSale.endsIn}
                 />
             </View>
 
@@ -133,16 +127,13 @@ export const ProductFlashSaleBar = memo<ProductFlashSaleBarProps>(({
 
 ProductFlashSaleBar.displayName = 'ProductFlashSaleBar';
 
-// ============================================
-// STYLES
-// ============================================
-
 const styles = StyleSheet.create((theme) => ({
     container: {
         backgroundColor: '#FFF5F5',
         borderRadius: theme.radius.m,
-        padding: theme.margins.smd,
-        marginBottom: theme.margins.md,
+        paddingHorizontal: theme.margins.sm,
+        paddingVertical: theme.margins.sm,
+        marginBottom: theme.margins.sm,
         borderWidth: 1,
         borderColor: '#FFE0E0',
     },
@@ -151,44 +142,44 @@ const styles = StyleSheet.create((theme) => ({
         alignItems: 'center',
         justifyContent: 'space-between',
         flexWrap: 'wrap',
-        gap: theme.margins.sm,
+        gap: 4,
     },
     titleRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: 4,
     },
     title: {
-        fontSize: 14,
+        fontSize: 13,
         fontWeight: '800',
         color: theme.colors.error,
-        letterSpacing: 1,
+        letterSpacing: 0.5,
     },
     discountBadge: {
         backgroundColor: theme.colors.error,
         borderRadius: 4,
-        paddingHorizontal: 6,
-        paddingVertical: 2,
+        paddingHorizontal: 4,
+        paddingVertical: 1,
     },
     discountText: {
-        fontSize: 11,
+        fontSize: 10,
         fontWeight: '700',
         color: theme.colors.surface,
     },
     progressContainer: {
-        marginTop: theme.margins.sm,
-        gap: 4,
+        marginTop: 6,
+        gap: 2,
     },
     progressTrack: {
-        height: 18,
+        height: 12,
         backgroundColor: '#FFE0E0',
-        borderRadius: 9,
+        borderRadius: 6,
         overflow: 'hidden',
         position: 'relative',
     },
     progressFill: {
         height: '100%',
-        borderRadius: 9,
+        borderRadius: 6,
         justifyContent: 'center',
         alignItems: 'flex-end',
         paddingRight: 4,
@@ -196,10 +187,10 @@ const styles = StyleSheet.create((theme) => ({
     fireIcon: {
         position: 'absolute',
         right: 4,
-        top: 3,
+        top: 1,
     },
     statusText: {
-        fontSize: 11,
+        fontSize: 12,
         fontWeight: '600',
         color: theme.colors.warning,
         textAlign: 'center',

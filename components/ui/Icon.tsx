@@ -139,6 +139,7 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     'location-outline': { ios: 'location-outline', android: 'location-outline' },
     'storefront-outline': { ios: 'storefront-outline', android: 'storefront-outline' },
     'image-outline': { ios: 'image-outline', android: 'image-outline' },
+    'rate-review': { ios: 'chatbox-ellipses-outline', android: 'chatbox-ellipses-outline' },
 };
 
 interface IconSymbolProps {

@@ -1,3 +1,4 @@
+import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import { Image } from 'expo-image';
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { LayoutChangeEvent } from 'react-native';
@@ -139,10 +140,10 @@ export const ProductDescription = memo<ProductDescriptionProps>(({
         return (
             <View style={styles.container}>
                 <View style={styles.header}>
-                    <Text style={styles.title}>Mô tả sản phẩm</Text>
+                    <Text style={styles.title}>{PRODUCT_STRINGS.description.title}</Text>
                 </View>
                 <View style={styles.emptyContainer}>
-                    <Text style={styles.emptyText}>Chưa có mô tả</Text>
+                    <Text style={styles.emptyText}>{PRODUCT_STRINGS.description.empty}</Text>
                 </View>
             </View>
         );
@@ -204,7 +205,7 @@ export const ProductDescription = memo<ProductDescriptionProps>(({
         <View style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                <Text style={styles.title}>Mô tả sản phẩm</Text>
+                <Text style={styles.title}>{PRODUCT_STRINGS.description.title}</Text>
             </View>
 
             {/* Content */}
@@ -237,7 +238,7 @@ export const ProductDescription = memo<ProductDescriptionProps>(({
             {needsExpansion && (
                 <Pressable style={styles.toggleButton} onPress={handleToggle}>
                     <Text style={styles.toggleText}>
-                        {isExpanded ? 'Thu gọn' : 'Xem thêm'}
+                        {isExpanded ? PRODUCT_STRINGS.description.collapse : PRODUCT_STRINGS.description.viewMore}
                     </Text>
                     <IconSymbol
                         name={isExpanded ? 'chevron-up' : 'chevron-down'}

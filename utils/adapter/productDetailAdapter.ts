@@ -242,31 +242,43 @@ export const calculatePriceDisplay = (
 ): PriceDisplay => {
     // Nếu đã chọn variant cụ thể
     if (selectedVariant) {
-        const voucherDiscount = data.priceAfterBestVoucher && data.basePrice > 0
-            ? data.basePrice - data.priceAfterBestVoucher
-            : 0;
+        let finalPrice = selectedVariant.price;
+        let discountAmount = 0;
+        // 1. Lấy voucher tốt nhất hiện có (Sàn hoặc Shop)
+        const bestVoucher = data.bestPlatformVoucher || data.bestShopVoucher;
 
-        const priceAfterVoucher = voucherDiscount > 0
-            ? selectedVariant.price - voucherDiscount
-            : selectedVariant.price;
+        // 2. Tự tính lại tiền giảm giá cho Variant này
+        if (bestVoucher) {
+            if (bestVoucher.discountType === 'PERCENTAGE') {
+                // Tính % giảm: Giá variant * % / 100
+                const rawDiscount = (selectedVariant.price * bestVoucher.discountValue) / 100;
 
-        const discountPercentage = selectedVariant.originalPrice
-            ? Math.round(
-                ((selectedVariant.originalPrice - priceAfterVoucher) /
-                    selectedVariant.originalPrice) *
-                100
-            )
-            : voucherDiscount > 0
-                ? Math.round((voucherDiscount / selectedVariant.price) * 100)
-                : undefined;
+                // Áp dụng trần (Max Discount) nếu có
+                // Ví dụ: Giảm 5% của 8.570.000 = 428.500, nhưng max là 250.000 -> Lấy 250.000
+                discountAmount = bestVoucher.maxDiscount
+                    ? Math.min(rawDiscount, bestVoucher.maxDiscount)
+                    : rawDiscount;
+            } else {
+                // Giảm tiền mặt cố định (FIXED)
+                discountAmount = bestVoucher.discountValue;
+            }
+        }
 
+        // 3. Giá cuối cùng = Giá Variant - Tiền giảm
+        finalPrice = selectedVariant.price - discountAmount;
+
+        // 4. Tính % giảm tổng (để hiện badge -XX%)
+        // So sánh giá cuối (8.32tr) với giá gốc của variant (8.57tr)
+        const totalDiscountPercent = Math.round(
+            ((selectedVariant.price - finalPrice) / selectedVariant.price) * 100
+        );
         return {
-            currentPrice: priceAfterVoucher, // ← Giá SAU voucher
-            originalPrice: selectedVariant.price, // ← Giá GỐC variant (trước voucher)
-            discountPercentage,
+            currentPrice: finalPrice, // 8.320.000 (Đã đúng)
+            originalPrice: selectedVariant.price, // 8.570.000 (Giá gạch ngang)
+            discountPercentage: totalDiscountPercent > 0 ? totalDiscountPercent : undefined,
             isRange: false,
-            voucherDiscount: data.bestPlatformVoucher?.discountValue,
-            priceAfterVoucher,
+            voucherDiscount: discountAmount,
+            priceAfterVoucher: finalPrice,
         };
     }
 
@@ -285,26 +297,26 @@ export const calculatePriceDisplay = (
     if (hasRange) {
         // Có khoảng giá (nhiều variants khác giá)
         return {
-            currentPrice: displayPrice, // ← Giá SAU voucher
-            originalPrice: hasBestVoucher ? data.priceMin : undefined, // ← Giá trước voucher
+            currentPrice: displayPrice,
+            originalPrice: hasBestVoucher ? data.priceMin : undefined,
             priceRange: {
                 min: displayPrice,
                 max: data.priceMax,
             },
             discountPercentage,
             isRange: true,
-            voucherDiscount: data.bestPlatformVoucher?.discountValue,
+            voucherDiscount: data.bestPlatformVoucher?.discountAmount,
             priceAfterVoucher: data.priceAfterBestVoucher,
         };
     }
 
     // Giá cố định (không có variant hoặc tất cả variant cùng giá)
     return {
-        currentPrice: displayPrice, // ← Giá SAU voucher
-        originalPrice: hasBestVoucher ? data.basePrice : undefined, // ← Giá trước voucher
+        currentPrice: displayPrice,
+        originalPrice: hasBestVoucher ? data.basePrice : undefined,
         discountPercentage,
         isRange: false,
-        voucherDiscount: data.bestPlatformVoucher?.discountValue,
+        voucherDiscount: data.bestPlatformVoucher?.discountAmount,
         priceAfterVoucher: data.priceAfterBestVoucher,
     };
 };
@@ -426,8 +438,6 @@ export const calculateTotalStock = (variants: ProductVariant[]): number => {
  * 1. Nếu API trả về flashSale với isActive = true → Dùng luôn
  * 2. Nếu API có promotedUntil → Tạo flash sale từ promotedUntil
  * 3. FALLBACK: Lấy slot từ Home (getNextFlashSaleSlot)
- * 
- * Khi Backend có API thật, chỉ cần sửa logic này, UI không cần động vào.
  */
 export const buildFlashSaleInfo = (
     data: ProductDetailResponse,
@@ -508,6 +518,14 @@ export const transformProductDetail = (
     // Collect and transform vouchers
     const vouchers = collectVouchers(data);
 
+    // Extract best voucher for variant price calculation
+    const apiVoucher = data.bestPlatformVoucher || data.bestShopVoucher;
+    const bestVoucher = apiVoucher ? {
+        discountType: apiVoucher.discountType,
+        discountValue: apiVoucher.discountValue,
+        maxDiscount: apiVoucher.maxDiscount ?? undefined,
+    } : undefined;
+
     // Calculate total stock
     const totalStock = calculateTotalStock(data.variants);
 
@@ -542,10 +560,12 @@ export const transformProductDetail = (
         rating: data.reviewStatistics.averageRating,
         totalReviews: data.reviewStatistics.totalReviews,
         totalSold: data.totalSold ?? 0,
+        reviewStatistics: data.reviewStatistics,
 
         // Features - Sử dụng fallback logic
         flashSale,
         vouchers,
+        bestVoucher,
         shipping: data.shipping,
         specifications,
         categoryPath: buildCategoryPath(data.category),

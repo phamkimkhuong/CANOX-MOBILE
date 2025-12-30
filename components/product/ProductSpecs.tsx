@@ -1,3 +1,4 @@
+import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import type { ProductSpec } from '@/types/productDetail';
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { LayoutAnimation, Pressable, Text, View } from 'react-native';
@@ -13,10 +14,6 @@ interface SpecRowProps {
     value: string;
     isEven: boolean;
 }
-
-// ============================================
-// SPEC ROW - Memoized
-// ============================================
 
 /**
  */
@@ -101,7 +98,7 @@ export const ProductSpecs = memo<ProductSpecsProps>(({
         <View style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                <Text style={styles.title}>Thông tin chi tiết</Text>
+                <Text style={styles.title}>{PRODUCT_STRINGS.specs.title}</Text>
             </View>
 
             {/* Specs List */}
@@ -120,7 +117,7 @@ export const ProductSpecs = memo<ProductSpecsProps>(({
             {hasMore && (
                 <Pressable style={styles.toggleButton} onPress={handleToggle}>
                     <Text style={styles.toggleText}>
-                        {isExpanded ? 'Thu gọn' : 'Xem chi tiết'}
+                        {isExpanded ? PRODUCT_STRINGS.specs.collapse : PRODUCT_STRINGS.specs.viewMore}
                     </Text>
                     <IconSymbol
                         name={isExpanded ? 'chevron-up' : 'chevron-down'}

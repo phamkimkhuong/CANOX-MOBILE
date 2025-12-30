@@ -8,7 +8,7 @@ import type {
     VariantSelectionResult,
 } from '@/types/productDetail';
 import { createKeyFromSelection } from '@/utils/adapter/productDetailAdapter';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const LOW_STOCK_THRESHOLD = 5;
 
@@ -85,33 +85,33 @@ const isValueAvailable = (
 
     // Đếm số options đã chọn (không tính empty string)
     const selectedCount = Object.values(testSelection).filter(v => v !== '').length;
-    
+
     // Nếu chưa chọn đủ các option khác
     if (selectedCount < product.options.length) {
         // Kiểm tra xem có ít nhất 1 variant match không
         for (const [key, variantValue] of product.variantMatrix) {
             // Parse key từ JSON format
             const parsedKey = parseVariantMatrixKey(key);
-            
+
             // Check xem variant này có chứa option value đang test không
             const hasMatchingValue = parsedKey[normalizedOptionName] === normalizedValueName;
-            
+
             if (!hasMatchingValue) continue;
-            
+
             // Check xem variant có match với các options đã chọn khác không
             let matchesOtherSelections = true;
             for (const [selOptName, selOptValue] of Object.entries(testSelection)) {
                 if (selOptValue === '') continue; // Skip empty selections
-                
+
                 const normalizedSelOptName = normalizeString(selOptName);
                 const normalizedSelOptValue = normalizeString(selOptValue);
-                
+
                 if (parsedKey[normalizedSelOptName] !== normalizedSelOptValue) {
                     matchesOtherSelections = false;
                     break;
                 }
             }
-            
+
             // Nếu variant match và còn hàng → available
             if (matchesOtherSelections && variantValue.isAvailable) {
                 return true;
@@ -172,32 +172,6 @@ interface ProductOptionWithAvailability extends ProductOptionUI {
  * - Xác định giá hiển thị (range hoặc cụ thể)
  * - Check inventory status
  * - Disable options không khả dụng
- * 
- * @example
- * ```tsx
- * const {
- *   selectedOptions,
- *   selectionResult,
- *   selectOption,
- *   getOptionsWithAvailability,
- * } = useProductVariant(productData);
- * 
- * // Render options
- * const options = getOptionsWithAvailability();
- * options.map(option => (
- *   option.values.map(value => (
- *     <TouchableOpacity
- *       disabled={!value.isAvailable}
- *       onPress={() => selectOption(option.name, value.name)}
- *     />
- *   ))
- * ));
- * 
- * // Check if can add to cart
- * if (selectionResult.canAddToCart) {
- *   addToCart(selectionResult.selectedVariant.id);
- * }
- * ```
  */
 export const useProductVariant = (
     product: ProductDetailUI | undefined,
@@ -206,29 +180,52 @@ export const useProductVariant = (
     const { autoSelectFirst = false } = options;
 
     // ===== STATE =====
-    const [selectedOptions, setSelectedOptions] = useState<SelectedOptions>(() => {
-        if (!product?.options) return {};
+    const [selectedOptions, setSelectedOptions] = useState<SelectedOptions>({});
 
-        // Initialize empty selection
+    useEffect(() => {
+        if (!product?.options) {
+            setSelectedOptions({});
+            return;
+        }
+
+        // Initialize empty selection for all options
         const initial: SelectedOptions = {};
         for (const option of product.options) {
             initial[option.name] = '';
         }
 
-        // Auto select first available if enabled
+        // Auto select first available variant if enabled
         if (autoSelectFirst && product.options.length > 0) {
             // Find first available variant
-            for (const [_, value] of product.variantMatrix) {
+            for (const [key, value] of product.variantMatrix) {
                 if (value.isAvailable) {
-                    // Get option values from this variant
-                    // This is simplified - in real app, need to parse the key
+                    // Parse the key to get option values
+                    try {
+                        const parsedSelection = JSON.parse(key) as Record<string, string>;
+                        // Map parsed keys to actual option names (case-insensitive match)
+                        for (const option of product.options) {
+                            const normalizedOptionName = option.name.trim().replace(/\s+/g, ' ').toLowerCase();
+                            const selectedValue = parsedSelection[normalizedOptionName];
+                            if (selectedValue) {
+                                // Find the actual value name from the option
+                                const matchingValue = option.values.find(
+                                    v => v.name.trim().replace(/\s+/g, ' ').toLowerCase() === selectedValue
+                                );
+                                if (matchingValue) {
+                                    initial[option.name] = matchingValue.name;
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        // If parsing fails, keep empty selection
+                    }
                     break;
                 }
             }
         }
 
-        return initial;
-    });
+        setSelectedOptions(initial);
+    }, [product?.id, autoSelectFirst]);
 
     // ===== DERIVED: Current Variant =====
     const currentVariant = useMemo((): VariantMatrixValue | null => {
@@ -257,16 +254,39 @@ export const useProductVariant = (
         }
 
         if (currentVariant) {
+            let finalPrice = currentVariant.price;
+            let discountAmount = 0;
+
+            // Calculate voucher discount if available
+            if (product.bestVoucher) {
+                if (product.bestVoucher.discountType === 'PERCENTAGE') {
+                    // Calculate percentage discount
+                    const rawDiscount = (currentVariant.price * product.bestVoucher.discountValue) / 100;
+
+                    // Apply max discount cap if set
+                    discountAmount = product.bestVoucher.maxDiscount
+                        ? Math.min(rawDiscount, product.bestVoucher.maxDiscount)
+                        : rawDiscount;
+                } else {
+                    // Fixed amount discount
+                    discountAmount = product.bestVoucher.discountValue;
+                }
+
+                finalPrice -= discountAmount;
+            }
+
+            // Fallback: If variant doesn't have originalPrice, use variant.price as original
+            const originalPriceValue = currentVariant.originalPrice || currentVariant.price;
+
             return {
-                currentPrice: currentVariant.price,
-                originalPrice: currentVariant.originalPrice,
-                discountPercentage: currentVariant.originalPrice
+                currentPrice: finalPrice,
+                originalPrice: discountAmount > 0 ? originalPriceValue : undefined,
+                discountPercentage: discountAmount > 0 && originalPriceValue
                     ? Math.round(
-                        ((currentVariant.originalPrice - currentVariant.price) /
-                            currentVariant.originalPrice) *
-                        100
+                        ((originalPriceValue - finalPrice) / originalPriceValue) * 100
                     )
                     : undefined,
+                voucherDiscount: discountAmount > 0 ? discountAmount : undefined,
                 isRange: false,
             };
         }

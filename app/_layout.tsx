@@ -1,3 +1,4 @@
+import '@/constants/i18n';
 import '@/constants/unistyles';
 import { lightTheme } from '@/constants/unistyles';
 import FontAwesome from '@expo/vector-icons/FontAwesome';

@@ -1,3 +1,4 @@
+import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import type { InventoryStatus } from '@/types/productDetail';
 import React, { memo, useMemo } from 'react';
 import { Pressable, Text, View } from 'react-native';
@@ -8,7 +9,6 @@ import { IconSymbol } from '../ui/Icon';
 interface StickyBottomBarProps {
     isFullySelected: boolean;
     inventoryStatus: InventoryStatus;
-    canAddToCart: boolean;
     onChatPress?: () => void;
     onShopPress?: () => void;
     onAddToCartPress?: () => void;
@@ -17,16 +17,9 @@ interface StickyBottomBarProps {
     onFavoritePress?: () => void;
 }
 
-// ============================================
-// MAIN COMPONENT - Memoized
-// ============================================
-
-/**
- */
 export const StickyBottomBar = memo<StickyBottomBarProps>(({
     isFullySelected,
     inventoryStatus,
-    canAddToCart,
     onChatPress,
     onShopPress,
     onAddToCartPress,
@@ -38,20 +31,18 @@ export const StickyBottomBar = memo<StickyBottomBarProps>(({
     const { theme } = useUnistyles();
 
     const isOutOfStock = inventoryStatus === 'out_of_stock';
-    const isDisabled = !canAddToCart || isOutOfStock;
+    const isDisabled = isOutOfStock;
 
     // Memoize button texts để tránh tính lại mỗi render
     const addToCartText = useMemo(() => {
-        if (isOutOfStock) return 'Hết hàng';
-        if (!isFullySelected) return 'Chọn phân loại';
-        return 'Thêm vào giỏ';
-    }, [isOutOfStock, isFullySelected]);
+        if (isOutOfStock) return PRODUCT_STRINGS.bottomBar.outOfStock;
+        return PRODUCT_STRINGS.bottomBar.addToCart;
+    }, [isOutOfStock]);
 
     const buyNowText = useMemo(() => {
-        if (isOutOfStock) return 'Hết hàng';
-        if (!isFullySelected) return 'Chọn phân loại';
-        return 'Mua ngay';
-    }, [isOutOfStock, isFullySelected]);
+        if (isOutOfStock) return PRODUCT_STRINGS.bottomBar.outOfStock;
+        return PRODUCT_STRINGS.bottomBar.buyNow;
+    }, [isOutOfStock]);
 
     // Memoize container style với safe area
     const containerStyle = useMemo(() => [
@@ -69,7 +60,7 @@ export const StickyBottomBar = memo<StickyBottomBarProps>(({
                         size={22}
                         color={theme.colors.typography}
                     />
-                    <Text style={styles.iconLabel}>Chat</Text>
+                    <Text style={styles.iconLabel}>{PRODUCT_STRINGS.bottomBar.chat}</Text>
                 </Pressable>
 
                 <View style={styles.divider} />
@@ -80,7 +71,7 @@ export const StickyBottomBar = memo<StickyBottomBarProps>(({
                         size={22}
                         color={theme.colors.typography}
                     />
-                    <Text style={styles.iconLabel}>Shop</Text>
+                    <Text style={styles.iconLabel}>{PRODUCT_STRINGS.bottomBar.shop}</Text>
                 </Pressable>
             </View>
 
@@ -93,7 +84,7 @@ export const StickyBottomBar = memo<StickyBottomBarProps>(({
                         isDisabled && styles.buttonDisabled,
                     ]}
                     onPress={onAddToCartPress}
-                    disabled={isDisabled && isOutOfStock}
+                    disabled={isDisabled}
                 >
                     <Text
                         style={[
@@ -112,7 +103,7 @@ export const StickyBottomBar = memo<StickyBottomBarProps>(({
                         isDisabled && styles.buttonDisabled,
                     ]}
                     onPress={onBuyNowPress}
-                    disabled={isDisabled && isOutOfStock}
+                    disabled={isDisabled}
                 >
                     <Text
                         style={[

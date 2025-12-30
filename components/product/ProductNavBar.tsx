@@ -1,4 +1,6 @@
 import { IconSymbol } from '@/components/ui/Icon';
+import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
+import { ROUTES } from '@/constants/routes';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React from 'react';
@@ -124,7 +126,7 @@ export const ProductNavBar: React.FC<ProductNavBarProps> = ({
         if (router.canGoBack()) {
             router.back();
         } else {
-            router.replace('/(tabs)');
+            router.replace(ROUTES.TABS.HOME);
         }
     };
 
@@ -187,7 +189,7 @@ export const ProductNavBar: React.FC<ProductNavBarProps> = ({
                 {/* Center: Title (appears on scroll) */}
                 <Animated.View style={[styles.centerSection, animatedTitleStyle]}>
                     <Text style={styles.title} numberOfLines={1}>
-                        {title ?? 'Chi tiết sản phẩm'}
+                        {title ?? PRODUCT_STRINGS.navigation.title}
                     </Text>
                 </Animated.View>
 
