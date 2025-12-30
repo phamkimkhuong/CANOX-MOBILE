@@ -7,7 +7,7 @@ import type { ProductFeedItem } from '@/types/product';
 import { FlashList, FlashListRef, ListRenderItemInfo } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
 import React, { memo, useCallback, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Dimensions, LayoutChangeEvent, NativeScrollEvent, NativeSyntheticEvent, Text, View } from 'react-native';
+import { ActivityIndicator, LayoutChangeEvent, NativeScrollEvent, NativeSyntheticEvent, Text, useWindowDimensions, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -84,7 +84,7 @@ const ProductRowItem = memo(({
 
 ProductRowItem.displayName = 'ProductRowItem';
 
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+
 
 /**
  * HomeScreen 
@@ -101,10 +101,9 @@ export default function HomeScreen() {
   const styles = stylesheet;
   const router = useRouter();
 
-  // State quản lý tab đang active
-  const [activeTab, setActiveTab] = useState<FeedType>('new');
+  const { height: screenHeight } = useWindowDimensions();
 
-  // Refs cho scroll control
+  const [activeTab, setActiveTab] = useState<FeedType>('new');
   const listRef = useRef<FlashListRef<ListItem>>(null);
 
   // scrollY: Vị trí cuộn hiện tại (chạy trên UI Thread)
@@ -119,8 +118,8 @@ export default function HomeScreen() {
   const [homeHeaderHeight, setHomeHeaderHeight] = useState(0);
 
   const minHeightStyle = useMemo(() => ({
-    minHeight: SCREEN_HEIGHT + headerHeightRef.current
-  }), []);
+    minHeight: screenHeight + headerHeightRef.current
+  }), [screenHeight]);
 
   // Fetch product data theo activeTab
   const {

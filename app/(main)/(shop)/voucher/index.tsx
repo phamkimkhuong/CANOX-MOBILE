@@ -15,7 +15,7 @@ import {
     VoucherCard,
 } from '@/components/voucher';
 import { VOUCHER_STRINGS } from '@/constants/i18n/vi/voucher';
-import { useVoucherList } from '@/hooks/useVoucherList';
+import { useVoucherList } from '@/hooks/api/useVoucherList';
 import { MaterialIcons } from '@expo/vector-icons';
 import { FlashList } from '@shopify/flash-list';
 import { router } from 'expo-router';

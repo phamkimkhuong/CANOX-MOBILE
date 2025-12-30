@@ -126,6 +126,10 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     'smart-toy': { ios: 'game-controller-outline', android: 'game-controller-outline' },
     campaign: { ios: 'megaphone-outline', android: 'megaphone-outline' },
 
+    // === Voucher Type Icons ===
+    'flight-takeoff': { ios: 'airplane-outline', android: 'airplane-outline' },
+    videocam: { ios: 'videocam-outline', android: 'videocam-outline' },
+
     // === Brand/Logo Icons ===
     'logo-google': { ios: 'logo-google', android: 'logo-google' },
     'logo-facebook': { ios: 'logo-facebook', android: 'logo-facebook' },

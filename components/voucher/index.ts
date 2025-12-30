@@ -1,7 +1,4 @@
-// Voucher Components - Atomic Design Structure
-
-// Atoms
-export { TicketSeparator } from './TicketSeparator';
+export { TicketSeparator } from '@/components/ui/TicketSeparator';
 export { UsageProgressBar } from './UsageProgressBar';
 export { VoucherBadge } from './VoucherBadge';
 export type { BadgeVariant } from './VoucherBadge';

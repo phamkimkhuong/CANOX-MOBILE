@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dimensions, View } from 'react-native';
+import { useWindowDimensions, View } from 'react-native';
 import Animated, {
     useAnimatedStyle,
     useSharedValue,
@@ -9,9 +9,6 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const GALLERY_HEIGHT = SCREEN_WIDTH;
 
 // ============================================
 // ANIMATED SKELETON BOX
@@ -67,12 +64,16 @@ export const ProductDetailSkeleton: React.FC = () => {
     const insets = useSafeAreaInsets();
     const { theme } = useUnistyles();
 
+    // Reactive screen dimensions - tự động update khi xoay màn hình
+    const { width: screenWidth } = useWindowDimensions();
+    const galleryHeight = screenWidth; // Gallery là hình vuông
+
     return (
         <View style={[styles.container, { paddingTop: insets.top }]}>
             {/* Gallery Skeleton */}
             <SkeletonBox
-                width={SCREEN_WIDTH}
-                height={GALLERY_HEIGHT}
+                width={screenWidth}
+                height={galleryHeight}
                 borderRadius={0}
             />
 
@@ -83,7 +84,7 @@ export const ProductDetailSkeleton: React.FC = () => {
                     <SkeletonBox width={80} height={16} borderRadius={4} />
                     <SkeletonBox width={60} height={20} borderRadius={4} />
                 </View>
-                <SkeletonBox width={SCREEN_WIDTH - 32} height={48} borderRadius={8} style={styles.titleSkeleton} />
+                <SkeletonBox width={screenWidth - 32} height={48} borderRadius={8} style={styles.titleSkeleton} />
                 <View style={styles.row}>
                     <SkeletonBox width={60} height={16} borderRadius={4} />
                     <SkeletonBox width={80} height={16} borderRadius={4} />

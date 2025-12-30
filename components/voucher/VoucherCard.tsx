@@ -13,22 +13,22 @@
  * - Progress bar cho FOMO
  */
 
+import { IconSymbol, type IconSymbolName } from '@/components/ui/Icon';
 import { VOUCHER_STRINGS } from '@/constants/i18n/vi/voucher';
 import type { VoucherCardProps } from '@/types/voucher';
 import { VOUCHER_TYPE_CONFIG } from '@/types/voucher';
-import { MaterialIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import React, { memo, useCallback, useMemo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-import { TicketSeparator } from './TicketSeparator';
+import { TicketSeparator } from '@/components/ui/TicketSeparator';
 import { UsageProgressBar } from './UsageProgressBar';
 import { VoucherBadge } from './VoucherBadge';
 import { VoucherStatusButton } from './VoucherStatusButton';
 
 const CARD_HEIGHT = 100;
-const LEFT_SECTION_WIDTH = 100;
+const LEFT_SECTION_FLEX = 0.25;
 const IMAGE_PLACEHOLDER = 'L6PZfSi_.AyE_3t7t7R**0o#DgR4';
 
 /**
@@ -45,7 +45,7 @@ export const VoucherCard = memo<VoucherCardProps>(({
     const { theme } = useUnistyles();
 
     // Get type config for colors
-    const typeConfig = useMemo(() => 
+    const typeConfig = useMemo(() =>
         VOUCHER_TYPE_CONFIG[voucher.type] ?? VOUCHER_TYPE_CONFIG.discount,
         [voucher.type]
     );
@@ -98,8 +98,8 @@ export const VoucherCard = memo<VoucherCardProps>(({
         // Platform voucher with icon
         return (
             <View style={styles.leftIconContent}>
-                <MaterialIcons
-                    name={typeConfig.icon as keyof typeof MaterialIcons.glyphMap}
+                <IconSymbol
+                    name={typeConfig.icon as IconSymbolName}
                     size={32}
                     color={typeConfig.textColor}
                 />
@@ -146,8 +146,8 @@ export const VoucherCard = memo<VoucherCardProps>(({
                 <View style={styles.separatorContainer}>
                     <TicketSeparator
                         height={CARD_HEIGHT}
-                        backgroundColor={bgColor}
-                        lineColor={voucher.brandLogo ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.3)'}
+                        separatorBgColor={voucher.brandLogo ? theme.colors.surface : typeConfig.bgColor}
+                        dashedLineColor={voucher.brandLogo ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.4)'}
                     />
                 </View>
             </View>
@@ -235,7 +235,7 @@ const styles = StyleSheet.create((theme) => ({
 
     // Left Section
     leftSection: {
-        width: LEFT_SECTION_WIDTH,
+        flex: LEFT_SECTION_FLEX,
         alignItems: 'center',
         justifyContent: 'center',
         position: 'relative',
@@ -296,9 +296,9 @@ const styles = StyleSheet.create((theme) => ({
         bottom: 0,
     },
 
-    // Right Section
+
     rightSection: {
-        flex: 1,
+        flex: 1 - LEFT_SECTION_FLEX,
         padding: 12,
         justifyContent: 'center',
     },

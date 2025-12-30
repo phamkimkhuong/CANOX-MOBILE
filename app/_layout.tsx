@@ -78,34 +78,23 @@ export default function RootLayout() {
             {/* 3. Inject Theme vào Navigation */}
 
             <ThemeProvider value={NavigationTheme}>
-              <Stack>
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-                <Stack.Screen name="settings" options={{ headerShown: false }} />
-                <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-                {/* Config UI Chat */}
+              <Stack screenOptions={{ headerShown: false }}>
+                {/* Tab Navigator - Có Tab Bar */}
+                <Stack.Screen name="(tabs)" />
+
+                {/* Auth Flow - Không có Tab Bar */}
+                <Stack.Screen name="(auth)" />
+
+                {/* Main Stack - Tất cả pushed screens (không có Tab Bar) */}
+                {/* Header được quản lý bởi (main)/_layout.tsx */}
+                <Stack.Screen name="(main)" />
+
+                {/* Global Modal */}
                 <Stack.Screen
-                  name="chat"
+                  name="modal"
                   options={{
-                    headerShown: false, // Ẩn header mặc định của React Navigation để tự custom
-                    title: 'Tin nhắn',
-                    presentation: 'card', // Hiệu ứng đẩy sang ngang chuẩn iOS/Android
-                    animation: 'slide_from_right'
-                  }}
-                />
-                {/* Config Product Detail - [id].tsx */}
-                <Stack.Screen
-                  name="product/[id]"
-                  options={{
-                    headerShown: false,
-                    animation: 'slide_from_right'
-                  }}
-                />
-                <Stack.Screen
-                  name="voucher"
-                  options={{
-                    headerShown: false,
-                    animation: 'slide_from_right'
+                    presentation: 'modal',
+                    headerShown: true,
                   }}
                 />
               </Stack>
