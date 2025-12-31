@@ -1,9 +1,5 @@
 import { create } from 'zustand';
 
-// ============================================
-// TYPES
-// ============================================
-
 interface CartState {
     // Badge count (synced with server)
     totalQuantity: number;
@@ -28,6 +24,10 @@ interface CartState {
     // Edit mode
     isEditMode: boolean;
     setEditMode: (isEdit: boolean) => void;
+
+    // Calculation status (for animations)
+    isCalculating: boolean;
+    setIsCalculating: (isCalc: boolean) => void;
 }
 
 // ============================================
@@ -80,8 +80,11 @@ export const useCartStore = create<CartState>((set) => ({
     setPlatformVoucher: (voucherId) => set({ appliedPlatformVoucherId: voucherId }),
 
     // ========================================
-    // Edit Mode
+    // Edit Mode & Calc Status
     // ========================================
     isEditMode: false,
     setEditMode: (isEdit) => set({ isEditMode: isEdit }),
+
+    isCalculating: false,
+    setIsCalculating: (isCalc) => set({ isCalculating: isCalc }),
 }));

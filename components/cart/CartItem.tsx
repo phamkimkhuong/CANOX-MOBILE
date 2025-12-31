@@ -18,10 +18,11 @@
  * />
  */
 
+import { useCartStore } from '@/store/useCartStore';
 import type { CartItemUI } from '@/types/cart';
 import { formatCurrency } from '@/utils/format';
 import { Image } from 'expo-image';
-import React, { memo, useCallback } from 'react';
+import React, { memo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { IconSymbol } from '../ui/Icon';
@@ -31,17 +32,16 @@ import { CartCheckbox } from './CartCheckbox';
 interface CartItemProps {
     /** Cart item data */
     item: CartItemUI;
-    /** Whether item is selected */
-    isSelected: boolean;
-    /** Toggle selection callback */
-    onToggleSelect: () => void;
-    /** Quantity change callback (debounced) */
-    onQuantityChange: (quantity: number) => void;
-    /** Variant change callback (opens bottom sheet) */
-    onVariantPress?: () => void;
-    /** Find similar product callback */
-    onFindSimilar?: () => void;
-    onDelete?: () => void;
+    /** Toggle selection callback (receives id) */
+    onToggleSelect: (id: string) => void;
+    /** Quantity change callback (receives id and value) */
+    onQuantityChange: (id: string, quantity: number) => void;
+    /** Variant change callback (receives id) */
+    onVariantPress?: (id: string) => void;
+    /** Find similar product callback (receives id) */
+    onFindSimilar?: (id: string) => void;
+    /** Delete item callback (receives id) */
+    onDelete?: (id: string) => void;
 }
 
 // ============================================
@@ -50,7 +50,6 @@ interface CartItemProps {
 
 export const CartItem: React.FC<CartItemProps> = memo(({
     item,
-    isSelected,
     onToggleSelect,
     onQuantityChange,
     onVariantPress,
@@ -58,6 +57,7 @@ export const CartItem: React.FC<CartItemProps> = memo(({
     onDelete,
 }) => {
     const { theme } = useUnistyles();
+    const isSelected = useCartStore(state => state.selectedItemIds.has(item.id));
 
     const {
         productName,
@@ -70,22 +70,13 @@ export const CartItem: React.FC<CartItemProps> = memo(({
         maxQuantity,
         isOutOfStock,
     } = item;
-
-    // Handle quantity change with optimistic update
-    const handleQuantityChange = useCallback(
-        (newQuantity: number) => {
-            onQuantityChange(newQuantity);
-        },
-        [onQuantityChange]
-    );
-
     return (
         <View style={[styles.container, isOutOfStock && styles.outOfStockContainer]}>
             {/* Checkbox Column */}
             <View style={styles.checkboxColumn}>
                 <CartCheckbox
                     checked={isSelected}
-                    onToggle={onToggleSelect}
+                    onToggle={() => onToggleSelect(item.id)}
                     disabled={isOutOfStock}
                 />
             </View>
@@ -127,7 +118,7 @@ export const CartItem: React.FC<CartItemProps> = memo(({
                     {/* Variant Selector */}
                     {variantAttributes && (
                         <Pressable
-                            onPress={onVariantPress}
+                            onPress={() => onVariantPress?.(item.id)}
                             style={styles.variantSelector}
                             disabled={isOutOfStock}
                             accessibilityLabel="Chọn phân loại hàng"
@@ -161,7 +152,7 @@ export const CartItem: React.FC<CartItemProps> = memo(({
                         {/* Quantity Stepper or Find Similar Button */}
                         {isOutOfStock ? (
                             <Pressable
-                                onPress={onFindSimilar}
+                                onPress={() => onFindSimilar?.(item.id)}
                                 style={styles.findSimilarButton}
                                 accessibilityLabel="Tìm sản phẩm tương tự"
                                 accessibilityRole="button"
@@ -173,7 +164,7 @@ export const CartItem: React.FC<CartItemProps> = memo(({
                                 value={quantity}
                                 min={1}
                                 max={maxQuantity}
-                                onValueChange={handleQuantityChange}
+                                onValueChange={(newQty) => onQuantityChange(item.id, newQty)}
                                 size="small"
                             />
                         )}
@@ -181,17 +172,6 @@ export const CartItem: React.FC<CartItemProps> = memo(({
                 </View>
             </View>
         </View>
-    );
-}, (prevProps, nextProps) => {
-    // Custom comparison for memo optimization
-    // Only re-render if these specific props change
-    return (
-        prevProps.isSelected === nextProps.isSelected &&
-        prevProps.item.id === nextProps.item.id &&
-        prevProps.item.quantity === nextProps.item.quantity &&
-        prevProps.item.unitPrice === nextProps.item.unitPrice &&
-        prevProps.item.isOutOfStock === nextProps.item.isOutOfStock &&
-        prevProps.item.variantAttributes === nextProps.item.variantAttributes
     );
 });
 

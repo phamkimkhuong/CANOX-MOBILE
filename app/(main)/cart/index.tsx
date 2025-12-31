@@ -21,7 +21,7 @@ import {
     VOUCHER_BAR_HEIGHT,
 } from '@/components/cart';
 import { IconSymbol } from '@/components/ui/Icon';
-import { useCartCalculations } from '@/hooks/useCartCalculations';
+import { useCartCalculations } from '@/hooks/api/useCartCalculations';
 import { useCartStore } from '@/store/useCartStore';
 import type { CartShopUI, CartUI } from '@/types/cart';
 import { generateMockCartData, getShopCheckboxState } from '@/utils/adapter/cartAdapter';
@@ -32,19 +32,10 @@ import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-// ============================================
-// CONSTANTS
-// ============================================
-
 // const TAB_BAR_HEIGHT = 60; // No longer needed for Full Screen
 const ADDRESS_BAR_HEIGHT = 72;
 
-// ============================================
-// TYPES
-// ============================================
-
 interface CartHeaderProps {
-    itemCount: number;
     onEditPress: () => void;
     isEditMode: boolean;
 }
@@ -57,10 +48,11 @@ interface AddressBarProps {
 // SUB-COMPONENTS
 // ============================================
 
-const CartHeader: React.FC<CartHeaderProps> = ({ itemCount, onEditPress, isEditMode }) => {
+const CartHeader: React.FC<CartHeaderProps> = ({ onEditPress, isEditMode }) => {
     const { theme } = useUnistyles();
     const insets = useSafeAreaInsets();
     const router = useRouter();
+    const totalQuantity = useCartStore((state) => state.totalQuantity);
 
     return (
         <View style={[styles.header, { paddingTop: insets.top }]}>
@@ -73,8 +65,7 @@ const CartHeader: React.FC<CartHeaderProps> = ({ itemCount, onEditPress, isEditM
                 >
                     <IconSymbol name="arrow-back" size={24} color={theme.colors.typography} />
                 </Pressable>
-
-                <Text style={styles.headerTitle}>Giỏ hàng ({itemCount})</Text>
+                <Text style={styles.headerTitle}>Giỏ hàng ({totalQuantity})</Text>
 
                 <Pressable
                     onPress={onEditPress}
@@ -169,6 +160,8 @@ export default function CartScreen() {
         isEditMode,
         setEditMode,
         toggleItemSelection,
+        totalQuantity,
+        setTotalQuantity,
     } = useCartStore();
 
     // ========================================
@@ -195,6 +188,16 @@ export default function CartScreen() {
         return () => clearTimeout(timer);
     }, [setSelectedItemIds]);
 
+    useEffect(() => {
+        if (cartData) {
+            const count = cartData.shops.reduce(
+                (sum, shop) => sum + shop.items.length,
+                0
+            );
+            setTotalQuantity(count);
+        }
+    }, [cartData, setTotalQuantity]);
+
     // ========================================
     // CALCULATIONS (Derived State)
     // ========================================
@@ -219,6 +222,18 @@ export default function CartScreen() {
     // ========================================
     // CALLBACKS
     // ========================================
+
+    const handleToggleItem = useCallback((itemId: string) => {
+        toggleItem(itemId);
+    }, [toggleItem]);
+
+    const handleToggleShop = useCallback((shopId: string) => {
+        toggleShop(shopId);
+    }, [toggleShop]);
+
+    const handleToggleSelectAll = useCallback(() => {
+        toggleSelectAll();
+    }, [toggleSelectAll]);
 
     const handleQuantityChange = useCallback(
         (itemId: string, quantity: number) => {
@@ -309,8 +324,8 @@ export default function CartScreen() {
                     shop={shop}
                     selectedIds={selectedItemIds}
                     shopCheckboxState={shopCheckboxState}
-                    onToggleShop={() => toggleShop(shop.shopId)}
-                    onToggleItem={toggleItem}
+                    onToggleShop={() => handleToggleShop(shop.shopId)}
+                    onToggleItem={handleToggleItem}
                     onQuantityChange={handleQuantityChange}
                     onDeleteItem={handleDeleteItem}
                     onNavigateToShop={() => handleNavigateToShop(shop.shopId)}
@@ -322,8 +337,8 @@ export default function CartScreen() {
         },
         [
             selectedItemIds,
-            toggleShop,
-            toggleItem,
+            handleToggleShop,
+            handleToggleItem,
             handleQuantityChange,
             handleDeleteItem,
             handleNavigateToShop,
@@ -343,10 +358,6 @@ export default function CartScreen() {
     // ========================================
 
     const shops = cartData?.shops ?? [];
-    const totalItemCount = shops.reduce(
-        (sum, shop) => sum + shop.items.length,
-        0
-    );
 
     // Get applied platform voucher object
     const appliedPlatformVoucher = appliedPlatformVoucherId
@@ -357,7 +368,6 @@ export default function CartScreen() {
         <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
             {/* Header */}
             <CartHeader
-                itemCount={totalItemCount}
                 onEditPress={() => setEditMode(!isEditMode)}
                 isEditMode={isEditMode}
             />
@@ -388,7 +398,7 @@ export default function CartScreen() {
                     <CartFooter
                         selectAllState={selectAllState}
                         calculation={calculation}
-                        onToggleSelectAll={toggleSelectAll}
+                        onToggleSelectAll={handleToggleSelectAll}
                         onCheckout={handleCheckout}
                         onVoucherPress={handlePlatformVoucherPress}
                         appliedPlatformVoucher={appliedPlatformVoucher}

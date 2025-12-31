@@ -20,7 +20,14 @@
 import type { CartCalculationResult, CheckboxState, VoucherUI } from '@/types/cart';
 import { formatCurrency } from '@/utils/format';
 import React, { memo } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import Animated, {
+    runOnJS,
+    useAnimatedStyle,
+    useSharedValue,
+    withSequence,
+    withTiming
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { IconSymbol } from '../ui/Icon';
@@ -47,16 +54,60 @@ interface CartFooterProps {
     tabBarHeight?: number;
 }
 
-// ============================================
-// CONSTANTS
-// ============================================
-
 const CHECKOUT_BAR_HEIGHT = 56;
 const VOUCHER_BAR_HEIGHT = 44;
 
 // ============================================
 // COMPONENT
 // ============================================
+
+const AnimatedPrice: React.FC<{ value: number; isCalculating?: boolean }> = ({ value, isCalculating }) => {
+    const { theme } = useUnistyles();
+    const rotation = useSharedValue(0);
+    const opacity = useSharedValue(1);
+    const [displayValue, setDisplayValue] = React.useState(value);
+
+    // Trigger animation when value changes
+    React.useEffect(() => {
+        if (value !== displayValue) {
+            // Sequence: Rotate out -> Switch Value -> Rotate in
+            rotation.value = withSequence(
+                withTiming(-90, { duration: 150 }, (finished) => {
+                    if (finished) {
+                        runOnJS(setDisplayValue)(value);
+                        rotation.value = withTiming(0, { duration: 150 });
+                    }
+                })
+            );
+            opacity.value = withSequence(
+                withTiming(0, { duration: 150 }),
+                withTiming(1, { duration: 150 })
+            );
+        }
+    }, [value]);
+
+    const animatedStyle = useAnimatedStyle(() => ({
+        transform: [{ rotateX: `${rotation.value}deg` }],
+        opacity: opacity.value,
+    }));
+
+    return (
+        <View style={styles.priceWrapper}>
+            {isCalculating && (
+                <ActivityIndicator
+                    size="small"
+                    color={theme.colors.primary}
+                    style={styles.priceLoader}
+                />
+            )}
+            <Animated.View style={[animatedStyle, isCalculating && { opacity: 0.5 }]}>
+                <Text style={styles.totalAmount}>
+                    {formatCurrency(displayValue)}
+                </Text>
+            </Animated.View>
+        </View>
+    );
+};
 
 export const CartFooter: React.FC<CartFooterProps> = memo(({
     selectAllState,
@@ -145,11 +196,10 @@ export const CartFooter: React.FC<CartFooterProps> = memo(({
                 <View style={styles.checkoutRight}>
                     {/* Price Info */}
                     <View style={styles.priceContainer}>
-                        <View style={styles.totalRow}>
-                            <Text style={styles.totalAmount}>
-                                {formatCurrency(totalAmount)}
-                            </Text>
-                        </View>
+                        <AnimatedPrice
+                            value={totalAmount}
+                            isCalculating={calculation.isCalculating}
+                        />
                         {totalSavings > 0 && (
                             <Text style={styles.savingsText}>
                                 Tiết kiệm {formatCurrency(totalSavings)}
@@ -250,6 +300,15 @@ const styles = StyleSheet.create((theme) => ({
     },
     priceContainer: {
         alignItems: 'flex-end',
+        justifyContent: 'center',
+    },
+    priceWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    priceLoader: {
+        transform: [{ scale: 0.8 }],
     },
     totalRow: {
         flexDirection: 'row',

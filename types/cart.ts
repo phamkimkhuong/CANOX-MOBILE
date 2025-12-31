@@ -168,4 +168,6 @@ export interface CartCalculationResult {
     selectedCount: number;
     /** Có item nào hết hàng không */
     hasOutOfStockItems: boolean;
+    /** Đang trong quá trình tính toán (loading animation) */
+    isCalculating?: boolean;
 }

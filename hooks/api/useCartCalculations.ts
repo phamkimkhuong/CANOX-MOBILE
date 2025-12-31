@@ -8,6 +8,11 @@
  * const { calculation, toggleItem, toggleShop, selectAll } = useCartCalculations(cartData);
  */
 
+import type {
+    CartCalculationResult,
+    CartUI,
+    CheckboxState
+} from '@/types/cart';
 import {
     calculateCartTotal,
     getAllCheckboxState,
@@ -15,22 +20,15 @@ import {
     getShopCheckboxState,
     getShopItemIds,
 } from '@/utils/adapter/cartAdapter';
-import { useCallback, useMemo } from 'react';
-import type {
-    CartCalculationResult,
-    CartShopUI,
-    CartUI,
-    CheckboxState,
-    VoucherUI,
-} from '@/types/cart';
+import { useCallback, useDeferredValue, useMemo } from 'react';
 
 // ============================================
-// TYPES
+// HOOK IMPLEMENTATION
 // ============================================
 
 export interface UseCartCalculationsReturn {
     /** Kết quả tính toán giá (Derived State) */
-    calculation: CartCalculationResult;
+    calculation: CartCalculationResult & { isCalculating: boolean };
     /** Trạng thái checkbox "Tất cả" */
     selectAllState: CheckboxState;
     /** Lấy trạng thái checkbox của shop */
@@ -64,10 +62,6 @@ export interface UseCartCalculationsOptions {
     onPlatformVoucherChange: (voucherId: string | null) => void;
 }
 
-// ============================================
-// HOOK IMPLEMENTATION
-// ============================================
-
 export const useCartCalculations = ({
     cartData,
     selectedIds,
@@ -80,15 +74,18 @@ export const useCartCalculations = ({
     const shops = cartData?.shops ?? [];
     const platformVouchers = cartData?.platformVouchers ?? [];
 
+    const deferredSelectedIds = useDeferredValue(selectedIds);
+    const deferredShopVouchers = useDeferredValue(appliedShopVouchers);
+    const deferredPlatformVoucherId = useDeferredValue(appliedPlatformVoucherId);
+
     // ========================================
     // DERIVED CALCULATIONS (Memoized)
     // ========================================
 
     /**
      * Main price calculation - recalculates on any dependency change
-     * This is the "Single Source of Truth" for all pricing
      */
-    const calculation = useMemo<CartCalculationResult>(() => {
+    const calculation = useMemo<CartCalculationResult & { isCalculating: boolean }>(() => {
         if (!cartData || shops.length === 0) {
             return {
                 subtotal: 0,
@@ -98,17 +95,28 @@ export const useCartCalculations = ({
                 totalSavings: 0,
                 selectedCount: 0,
                 hasOutOfStockItems: false,
+                isCalculating: false,
             };
         }
 
-        return calculateCartTotal(
+        const result = calculateCartTotal(
             shops,
-            selectedIds,
-            appliedShopVouchers,
-            appliedPlatformVoucherId,
+            deferredSelectedIds,
+            deferredShopVouchers,
+            deferredPlatformVoucherId,
             platformVouchers
         );
-    }, [shops, selectedIds, appliedShopVouchers, appliedPlatformVoucherId, platformVouchers, cartData]);
+
+        const isCalculating =
+            selectedIds !== deferredSelectedIds ||
+            appliedShopVouchers !== deferredShopVouchers ||
+            appliedPlatformVoucherId !== deferredPlatformVoucherId;
+
+        return {
+            ...result,
+            isCalculating,
+        };
+    }, [shops, deferredSelectedIds, deferredShopVouchers, deferredPlatformVoucherId, platformVouchers, cartData, selectedIds, appliedShopVouchers, appliedPlatformVoucherId]);
 
     /**
      * "Select All" checkbox state
@@ -165,8 +173,6 @@ export const useCartCalculations = ({
 
     /**
      * Toggle all items in a shop
-     * - If shop is unchecked/indeterminate -> select all shop items
-     * - If shop is checked -> deselect all shop items
      */
     const toggleShop = useCallback(
         (shopId: string) => {
@@ -178,10 +184,8 @@ export const useCartCalculations = ({
             const newSelectedIds = new Set(selectedIds);
 
             if (shopState === 'checked') {
-                // Deselect all shop items
                 shopItemIds.forEach((id) => newSelectedIds.delete(id));
             } else {
-                // Select all shop items
                 shopItemIds.forEach((id) => newSelectedIds.add(id));
             }
 
@@ -192,17 +196,13 @@ export const useCartCalculations = ({
 
     /**
      * Toggle select all
-     * - If not all selected -> select all
-     * - If all selected -> deselect all
      */
     const toggleSelectAll = useCallback(() => {
         const allSelectableIds = getSelectableItemIds(shops);
 
         if (selectAllState === 'checked') {
-            // Deselect all
             onSelectionChange(new Set());
         } else {
-            // Select all
             onSelectionChange(new Set(allSelectableIds));
         }
     }, [shops, selectAllState, onSelectionChange]);
@@ -242,10 +242,6 @@ export const useCartCalculations = ({
 // HELPER HOOK: Selection State Only
 // ============================================
 
-/**
- * Lightweight hook for components that only need selection state
- * (e.g., CartCheckbox in isolated memo components)
- */
 export interface UseItemSelectionReturn {
     isSelected: boolean;
     toggle: () => void;

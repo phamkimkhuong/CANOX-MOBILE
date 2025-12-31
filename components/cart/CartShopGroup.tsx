@@ -89,7 +89,6 @@ export const CartShopGroup: React.FC<CartShopGroupProps> = memo(({
     // Render single item (memoized factory)
     const renderItem = useCallback(
         (item: CartItemUI, index: number) => {
-            const isSelected = selectedIds.has(item.id);
             const isLast = index === items.length - 1;
 
             return (
@@ -105,12 +104,11 @@ export const CartShopGroup: React.FC<CartShopGroupProps> = memo(({
                     >
                         <CartItem
                             item={item}
-                            isSelected={isSelected}
-                            onToggleSelect={() => onToggleItem(item.id)}
-                            onQuantityChange={(qty) => onQuantityChange(item.id, qty)}
-                            onVariantPress={() => onVariantPress?.(item.id)}
-                            onFindSimilar={() => onFindSimilar?.(item.id)}
-                            onDelete={() => onDeleteItem(item.id)}
+                            onToggleSelect={onToggleItem}
+                            onQuantityChange={onQuantityChange}
+                            onVariantPress={onVariantPress}
+                            onFindSimilar={onFindSimilar}
+                            onDelete={onDeleteItem}
                         />
                     </SwipeableRow>
 
@@ -120,7 +118,6 @@ export const CartShopGroup: React.FC<CartShopGroupProps> = memo(({
             );
         },
         [
-            selectedIds,
             items.length,
             isEditMode,
             onToggleItem,

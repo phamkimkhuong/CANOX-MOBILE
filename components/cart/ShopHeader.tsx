@@ -24,10 +24,6 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { IconSymbol } from '../ui/Icon';
 import { CartCheckbox } from './CartCheckbox';
 
-// ============================================
-// TYPES
-// ============================================
-
 interface ShopHeaderProps {
     /** Shop display name */
     shopName: string;
@@ -37,7 +33,6 @@ interface ShopHeaderProps {
     isMall?: boolean;
     /** Toggle shop selection */
     onToggleSelect: () => void;
-    /** Navigate to shop page */
     onNavigateToShop?: () => void;
     /** Edit button pressed */
     onEditPress?: () => void;
