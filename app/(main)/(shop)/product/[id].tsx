@@ -160,7 +160,7 @@ export default function ProductDetailScreen() {
         }
 
         router.push({
-            pathname: ROUTES.TABS.CART,
+            pathname: ROUTES.CART.INDEX,
             params: {
                 action: 'buy-now',
                 productId: productId ?? '',
@@ -171,7 +171,7 @@ export default function ProductDetailScreen() {
     }, [canAddToCart, productId, selectedVariantId, handleOpenVariantSheet]);
 
     const handleCartPress = useCallback(() => {
-        router.push(ROUTES.TABS.CART);
+        router.push(ROUTES.CART.INDEX);
     }, []);
 
     const handleSharePress = useCallback(() => {

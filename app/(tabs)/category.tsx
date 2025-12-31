@@ -55,7 +55,7 @@ export default function CategoryScreen() {
 
     // Handler: Cart press
     const handleCartPress = useCallback(() => {
-        router.push(ROUTES.TABS.CART);
+        router.push(ROUTES.CART.INDEX);
     }, []);
 
     return (

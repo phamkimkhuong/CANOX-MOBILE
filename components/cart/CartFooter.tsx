@@ -1,0 +1,291 @@
+/**
+ * CartFooter - Sticky checkout bar at bottom of cart
+ * 
+ * Features:
+ * - Select All checkbox
+ * - Total price display with savings
+ * - Buy button with item count
+ * - Platform voucher selector
+ * - Proper safe area handling
+ * 
+ * @example
+ * <CartFooter 
+ *   selectAllState="indeterminate"
+ *   calculation={cartCalculation}
+ *   onToggleSelectAll={() => toggleSelectAll()}
+ *   onCheckout={() => navigateToCheckout()}
+ * />
+ */
+
+import type { CartCalculationResult, CheckboxState, VoucherUI } from '@/types/cart';
+import { formatCurrency } from '@/utils/format';
+import React, { memo } from 'react';
+import { Pressable, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { IconSymbol } from '../ui/Icon';
+import { CartCheckbox } from './CartCheckbox';
+
+// ============================================
+// TYPES
+// ============================================
+
+interface CartFooterProps {
+    /** Select All checkbox state */
+    selectAllState: CheckboxState;
+    /** Cart calculation results */
+    calculation: CartCalculationResult;
+    /** Toggle select all */
+    onToggleSelectAll: () => void;
+    /** Proceed to checkout */
+    onCheckout: () => void;
+    /** Open platform voucher selector */
+    onVoucherPress?: () => void;
+    /** Applied platform voucher */
+    appliedPlatformVoucher?: VoucherUI | null;
+    /** Height of tab bar (for proper positioning) */
+    tabBarHeight?: number;
+}
+
+// ============================================
+// CONSTANTS
+// ============================================
+
+const CHECKOUT_BAR_HEIGHT = 56;
+const VOUCHER_BAR_HEIGHT = 44;
+
+// ============================================
+// COMPONENT
+// ============================================
+
+export const CartFooter: React.FC<CartFooterProps> = memo(({
+    selectAllState,
+    calculation,
+    onToggleSelectAll,
+    onCheckout,
+    onVoucherPress,
+    appliedPlatformVoucher,
+    tabBarHeight = 0,
+}) => {
+    const { theme } = useUnistyles();
+    const insets = useSafeAreaInsets();
+
+    const {
+        totalAmount,
+        totalSavings,
+        selectedCount,
+    } = calculation;
+
+    const hasSelection = selectedCount > 0;
+    const showVoucherBar = onVoucherPress !== undefined;
+
+    // Calculate total footer height for external use
+    const totalFooterHeight =
+        CHECKOUT_BAR_HEIGHT +
+        (showVoucherBar ? VOUCHER_BAR_HEIGHT : 0) +
+        insets.bottom;
+
+    return (
+        <View
+            style={[
+                styles.container,
+                {
+                    bottom: tabBarHeight,
+                    paddingBottom: insets.bottom,
+                },
+            ]}
+        >
+            {/* Platform Voucher Bar */}
+            {showVoucherBar && (
+                <Pressable
+                    onPress={onVoucherPress}
+                    style={styles.voucherBar}
+                    accessibilityLabel="Chọn voucher nền tảng"
+                    accessibilityRole="button"
+                >
+                    <View style={styles.voucherLeft}>
+                        <IconSymbol
+                            name="local-activity"
+                            size={20}
+                            color={theme.colors.primary}
+                        />
+                        <Text style={styles.voucherLabel}>
+                            {appliedPlatformVoucher
+                                ? appliedPlatformVoucher.title
+                                : 'Shop Voucher'}
+                        </Text>
+                    </View>
+                    <View style={styles.voucherRight}>
+                        <Text style={styles.voucherPrompt}>
+                            {appliedPlatformVoucher
+                                ? appliedPlatformVoucher.discountDisplay
+                                : 'Chọn hoặc nhập mã'}
+                        </Text>
+                        <IconSymbol
+                            name="chevron-right"
+                            size={18}
+                            color={theme.colors.secondary}
+                        />
+                    </View>
+                </Pressable>
+            )}
+
+            {/* Main Checkout Bar */}
+            <View style={styles.checkoutBar}>
+                {/* Select All */}
+                <View style={styles.selectAllContainer}>
+                    <CartCheckbox
+                        state={selectAllState}
+                        onToggle={onToggleSelectAll}
+                    />
+                    <Text style={styles.selectAllText}>Tất cả</Text>
+                </View>
+
+                {/* Price & Checkout */}
+                <View style={styles.checkoutRight}>
+                    {/* Price Info */}
+                    <View style={styles.priceContainer}>
+                        <View style={styles.totalRow}>
+                            <Text style={styles.totalAmount}>
+                                {formatCurrency(totalAmount)}
+                            </Text>
+                        </View>
+                        {totalSavings > 0 && (
+                            <Text style={styles.savingsText}>
+                                Tiết kiệm {formatCurrency(totalSavings)}
+                            </Text>
+                        )}
+                    </View>
+
+                    {/* Checkout Button */}
+                    <Pressable
+                        onPress={onCheckout}
+                        disabled={!hasSelection}
+                        style={[
+                            styles.checkoutButton,
+                            !hasSelection && styles.checkoutButtonDisabled,
+                        ]}
+                        accessibilityLabel={`Mua ${selectedCount} sản phẩm`}
+                        accessibilityRole="button"
+                    >
+                        <Text style={styles.checkoutButtonText}>
+                            Mua hàng {hasSelection ? `(${selectedCount})` : ''}
+                        </Text>
+                    </Pressable>
+                </View>
+            </View>
+        </View>
+    );
+});
+
+CartFooter.displayName = 'CartFooter';
+
+// Export constants for layout calculations
+export { CHECKOUT_BAR_HEIGHT, VOUCHER_BAR_HEIGHT };
+
+const styles = StyleSheet.create((theme) => ({
+    container: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        backgroundColor: theme.colors.surface,
+        borderTopWidth: 1,
+        borderTopColor: theme.colors.border,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -4 },
+        shadowOpacity: 0.05,
+        shadowRadius: 8,
+        elevation: 8,
+    },
+    voucherBar: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: theme.margins.md,
+        paddingVertical: theme.margins.sm,
+        backgroundColor: theme.colors.primaryMuted,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors.border,
+    },
+    voucherLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: theme.margins.sm,
+    },
+    voucherLabel: {
+        fontSize: 12,
+        color: theme.colors.typography,
+    },
+    voucherRight: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+    },
+    voucherPrompt: {
+        fontSize: 12,
+        color: theme.colors.typographySecondary,
+    },
+    checkoutBar: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: theme.margins.md,
+        paddingVertical: theme.margins.smd,
+        gap: theme.margins.sm,
+    },
+    selectAllContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: theme.margins.sm,
+    },
+    selectAllText: {
+        fontSize: 14,
+        fontWeight: '500',
+        color: theme.colors.typography,
+    },
+    checkoutRight: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: theme.margins.smd,
+    },
+    priceContainer: {
+        alignItems: 'flex-end',
+    },
+    totalRow: {
+        flexDirection: 'row',
+        alignItems: 'baseline',
+        gap: 4,
+    },
+
+    totalAmount: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: theme.colors.primary,
+    },
+    savingsText: {
+        fontSize: 10,
+        fontWeight: '500',
+        color: theme.colors.success,
+    },
+    checkoutButton: {
+        backgroundColor: theme.colors.primary,
+        borderRadius: theme.radius.m,
+        paddingHorizontal: theme.margins.lg,
+        paddingVertical: theme.margins.smd,
+        shadowColor: theme.colors.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    checkoutButtonDisabled: {
+        backgroundColor: theme.colors.secondary,
+        shadowOpacity: 0,
+        elevation: 0,
+    },
+    checkoutButtonText: {
+        fontSize: 14,
+        fontWeight: '700',
+        color: theme.colors.onPrimary,
+    },
+}));

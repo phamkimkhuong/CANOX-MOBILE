@@ -1,0 +1,186 @@
+/**
+ * CartShopGroup - Organism component for a shop's cart section
+ * 
+ * Combines:
+ * - ShopHeader with 3-state checkbox
+ * - List of CartItems
+ * - ShopVoucherSelector
+ * - SwipeableRow wrapper for each item
+ * 
+ * @example
+ * <CartShopGroup 
+ *   shop={shopData}
+ *   selectedIds={selectedIds}
+ *   onToggleShop={() => toggleShop(shopId)}
+ *   onToggleItem={(id) => toggleItem(id)}
+ * />
+ */
+
+import type { CartItemUI, CartShopUI, CheckboxState } from '@/types/cart';
+import React, { memo, useCallback } from 'react';
+import { View } from 'react-native';
+import { StyleSheet } from 'react-native-unistyles';
+import { SwipeableRow } from '../ui/SwipeableRow';
+import { CartItem } from './CartItem';
+import { ShopHeader } from './ShopHeader';
+import { ShopVoucherSelector } from './ShopVoucherSelector';
+
+// ============================================
+// TYPES
+// ============================================
+
+interface CartShopGroupProps {
+    /** Shop data with items */
+    shop: CartShopUI;
+    /** Set of selected item IDs */
+    selectedIds: Set<string>;
+    /** Shop checkbox state (calculated externally) */
+    shopCheckboxState: CheckboxState;
+    /** Toggle all items in shop */
+    onToggleShop: () => void;
+    /** Toggle single item */
+    onToggleItem: (itemId: string) => void;
+    /** Update item quantity */
+    onQuantityChange: (itemId: string, quantity: number) => void;
+    /** Delete item */
+    onDeleteItem: (itemId: string) => void;
+    /** Navigate to shop */
+    onNavigateToShop?: () => void;
+    /** Open variant selector for item */
+    onVariantPress?: (itemId: string) => void;
+    /** Find similar product */
+    onFindSimilar?: (itemId: string) => void;
+    /** Open voucher selection */
+    onVoucherPress: () => void;
+    /** Is in edit mode */
+    isEditMode?: boolean;
+    /** Toggle edit mode */
+    onEditModeToggle?: () => void;
+}
+
+// ============================================
+// COMPONENT
+// ============================================
+
+export const CartShopGroup: React.FC<CartShopGroupProps> = memo(({
+    shop,
+    selectedIds,
+    shopCheckboxState,
+    onToggleShop,
+    onToggleItem,
+    onQuantityChange,
+    onDeleteItem,
+    onNavigateToShop,
+    onVariantPress,
+    onFindSimilar,
+    onVoucherPress,
+    isEditMode = false,
+    onEditModeToggle,
+}) => {
+    const {
+        shopId,
+        shopName,
+        isMall,
+        items,
+        appliedVoucherId,
+        availableVouchers,
+    } = shop;
+
+    // Find applied voucher object
+    const appliedVoucher = appliedVoucherId
+        ? availableVouchers.find((v) => v.id === appliedVoucherId) ?? null
+        : null;
+
+    // Render single item (memoized factory)
+    const renderItem = useCallback(
+        (item: CartItemUI, index: number) => {
+            const isSelected = selectedIds.has(item.id);
+            const isLast = index === items.length - 1;
+
+            return (
+                <View key={item.id}>
+                    <SwipeableRow
+                        onDelete={() => onDeleteItem(item.id)}
+                        onFindSimilar={
+                            item.isOutOfStock
+                                ? undefined
+                                : () => onFindSimilar?.(item.id)
+                        }
+                        disabled={isEditMode}
+                    >
+                        <CartItem
+                            item={item}
+                            isSelected={isSelected}
+                            onToggleSelect={() => onToggleItem(item.id)}
+                            onQuantityChange={(qty) => onQuantityChange(item.id, qty)}
+                            onVariantPress={() => onVariantPress?.(item.id)}
+                            onFindSimilar={() => onFindSimilar?.(item.id)}
+                            onDelete={() => onDeleteItem(item.id)}
+                        />
+                    </SwipeableRow>
+
+                    {/* Divider (except for last item) */}
+                    {!isLast && <View style={styles.divider} />}
+                </View>
+            );
+        },
+        [
+            selectedIds,
+            items.length,
+            isEditMode,
+            onToggleItem,
+            onQuantityChange,
+            onDeleteItem,
+            onVariantPress,
+            onFindSimilar,
+        ]
+    );
+
+    return (
+        <View style={styles.container}>
+            {/* Shop Header */}
+            <ShopHeader
+                shopName={shopName}
+                checkboxState={shopCheckboxState}
+                isMall={isMall}
+                onToggleSelect={onToggleShop}
+                onNavigateToShop={onNavigateToShop}
+                onEditPress={onEditModeToggle}
+                isEditMode={isEditMode}
+            />
+
+            {/* Cart Items */}
+            <View style={styles.itemsContainer}>
+                {items.map((item, index) => renderItem(item, index))}
+            </View>
+
+            {/* Shop Voucher Selector */}
+            {availableVouchers.length > 0 && (
+                <ShopVoucherSelector
+                    appliedVoucher={appliedVoucher}
+                    availableCount={availableVouchers.length}
+                    onPress={onVoucherPress}
+                />
+            )}
+        </View>
+    );
+});
+
+CartShopGroup.displayName = 'CartShopGroup';
+
+const styles = StyleSheet.create((theme) => ({
+    container: {
+        backgroundColor: theme.colors.surface,
+        borderRadius: theme.radius.l,
+        overflow: 'hidden',
+        marginBottom: theme.margins.smd,
+    },
+    itemsContainer: {
+        // Items render here
+    },
+    divider: {
+        height: 1,
+        backgroundColor: theme.colors.border,
+        marginHorizontal: theme.margins.smd,
+    },
+}));

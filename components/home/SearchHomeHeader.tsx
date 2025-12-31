@@ -20,7 +20,7 @@ export const HomeHeader = () => {
 
     const handleCartPress = useCallback(() => {
         if (isAuthenticated) {
-            Navigator.push(ROUTES.TABS.CART);
+            Navigator.push(ROUTES.CART.INDEX);
         } else {
             Navigator.push(ROUTES.AUTH.LOGIN);
         }
@@ -28,7 +28,7 @@ export const HomeHeader = () => {
 
     const handleChatPress = useCallback(() => {
         if (isAuthenticated) {
-            Navigator.push(ROUTES.CHAT.LIST);
+            Navigator.push(ROUTES.TABS.CHAT);
         } else {
             Navigator.push(ROUTES.AUTH.LOGIN);
         }

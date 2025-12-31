@@ -4,7 +4,7 @@ import { ROUTES } from '@/constants/routes';
 import { useCart } from '@/hooks/api/useCart';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useCartStore } from '@/store/useCartStore';
-import { Tabs, router } from 'expo-router';
+import { router, Tabs } from 'expo-router';
 import React from 'react';
 import { useUnistyles } from 'react-native-unistyles';
 
@@ -77,16 +77,23 @@ export default function TabLayout() {
           headerShown: false,
         }}
       /> */}
-      {/* 4. Giỏ hàng/Cart ( app/(tabs)/cart.tsx) */}
+      {/* 4. Thông báo/Notifications ( app/(tabs)/notify.tsx) */}
       <Tabs.Screen
-        name="cart"
+        name="notify"
         options={{
-          title: 'Giỏ hàng',
-          tabBarIcon: ({ color }) => <TabBarIcon name="shopping-cart" color={color} />,
-          // Hiện badge số lượng sản phẩm trong giỏ hàng khi có
-          tabBarBadge: cartItemCount > 0
-            ? (cartItemCount > 99 ? '99+' : cartItemCount)
-            : undefined,
+          title: 'Thông báo',
+          tabBarIcon: ({ color }) => <TabBarIcon name="notifications" color={color} />,
+          tabBarBadge: 7,
+          headerShown: false,
+        }}
+      />
+      {/* 4. Tin nhắn/Chat ( app/(tabs)/chat.tsx) */}
+      <Tabs.Screen
+        name="chat"
+        options={{
+          title: 'Tin nhắn',
+          tabBarIcon: ({ color }) => <TabBarIcon name="chat-bubble" color={color} />,
+          tabBarBadge: 3,
           headerShown: false,
         }}
         listeners={
@@ -101,16 +108,6 @@ export default function TabLayout() {
             },
           }
         }
-      />
-      {/* 4. Thông báo/Notifications ( app/(tabs)/notify.tsx) */}
-      <Tabs.Screen
-        name="notify"
-        options={{
-          title: 'Thông báo',
-          tabBarIcon: ({ color }) => <TabBarIcon name="notifications" color={color} />,
-          tabBarBadge: 7,
-          headerShown: false,
-        }}
       />
       {/* 5. Tôi/Me ( app/(tabs)/me.tsx) */}
       <Tabs.Screen

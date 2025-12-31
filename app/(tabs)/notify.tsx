@@ -141,7 +141,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         backgroundColor: theme.colors.background,
     },
     listContent: {
-        paddingBottom: theme.margins.lg,
+        paddingBottom: theme.margins.md,
     },
     loadingFooter: {
         paddingVertical: theme.margins.md,

@@ -92,6 +92,7 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     // === Communication Icons ===
     chat: { ios: 'chatbubble-outline', android: 'chatbubble-outline' },
     'chat-filled': { ios: 'chatbubble', android: 'chatbubble' },
+    'chat-bubble': { ios: 'chatbubble-outline', android: 'chatbubble-outline' },
     'chat-bubble-outline': { ios: 'chatbubble-outline', android: 'chatbubble-outline' },
     'chatbubble-ellipses-outline': { ios: 'chatbubble-ellipses-outline', android: 'chatbubble-ellipses-outline' },
 
@@ -145,6 +146,9 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     'image-outline': { ios: 'image-outline', android: 'image-outline' },
     'rate-review': { ios: 'chatbox-ellipses-outline', android: 'chatbox-ellipses-outline' },
     'auto-awesome': { ios: 'sparkles-outline', android: 'sparkles-outline' },
+    'location-on': { ios: 'location-outline', android: 'location-outline' },
+    'keyboard-arrow-down': { ios: 'chevron-down', android: 'chevron-down' },
+    'local-activity': { ios: 'ticket-outline', android: 'ticket-outline' },
 };
 
 interface IconSymbolProps {
@@ -156,12 +160,6 @@ interface IconSymbolProps {
 
 /**
  * IconSymbol Component
- * 
- * Usage:
- * ```tsx
- * <IconSymbol name="home" size={24} color="#000" />
- * <IconSymbol name="heart-outline" size={20} color={theme.colors.primary} />
- * ```
  */
 export const IconSymbol = ({ name, size = 24, color = '#000', style }: IconSymbolProps) => {
     const mappedIcon = ICON_MAP[name as string];

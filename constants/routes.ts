@@ -18,7 +18,7 @@ export const ROUTES = {
         HOME: '/(tabs)' as const,
         INDEX: '/(tabs)/' as const,
         CATEGORY: '/(tabs)/category' as const,
-        CART: '/(tabs)/cart' as const,
+        CHAT: '/(tabs)/chat' as const,
         NOTIFY: '/(tabs)/notify' as const,
         ME: '/(tabs)/me' as const,
     },
@@ -31,9 +31,9 @@ export const ROUTES = {
         VERIFY_OTP: '/(auth)/verify-otp' as const,
     },
 
-    // ============ CHAT ============
-    CHAT: {
-        LIST: '/chat' as const,
+    // ============ CART ============
+    CART: {
+        INDEX: '/cart' as const,
     },
 
     // ============ MODAL ============
@@ -87,7 +87,7 @@ export const ROUTES = {
 export type StaticRoute =
     | (typeof ROUTES.TABS)[keyof typeof ROUTES.TABS]
     | (typeof ROUTES.AUTH)[keyof typeof ROUTES.AUTH]
-    | (typeof ROUTES.CHAT)[keyof typeof ROUTES.CHAT]
+    | (typeof ROUTES.CART)[keyof typeof ROUTES.CART]
     | typeof ROUTES.MODAL
     | (typeof ROUTES.PROFILE)[keyof typeof ROUTES.PROFILE]
     | (typeof ROUTES.ORDERS)[keyof typeof ROUTES.ORDERS]
@@ -167,7 +167,7 @@ export const isValidRoute = (route: string): route is StaticRoute => {
     const allRoutes = [
         ...Object.values(ROUTES.TABS),
         ...Object.values(ROUTES.AUTH),
-        ...Object.values(ROUTES.CHAT),
+        ...Object.values(ROUTES.CART),
         ROUTES.MODAL,
         ...Object.values(ROUTES.PROFILE),
         ...Object.values(ROUTES.ORDERS),
