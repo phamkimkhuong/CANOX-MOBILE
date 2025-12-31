@@ -25,10 +25,6 @@ import { CartItem } from './CartItem';
 import { ShopHeader } from './ShopHeader';
 import { ShopVoucherSelector } from './ShopVoucherSelector';
 
-// ============================================
-// TYPES
-// ============================================
-
 interface CartShopGroupProps {
     /** Shop data with items */
     shop: CartShopUI;
@@ -44,7 +40,6 @@ interface CartShopGroupProps {
     onQuantityChange: (itemId: string, quantity: number) => void;
     /** Delete item */
     onDeleteItem: (itemId: string) => void;
-    /** Navigate to shop */
     onNavigateToShop?: () => void;
     /** Open variant selector for item */
     onVariantPress?: (itemId: string) => void;

@@ -138,10 +138,35 @@ npm run android
 npm run a
 ```
 
-#### iOS (chỉ trên macOS)
-```bash
-npm run ios
-```
+#### iOS (macOS only)
+
+Để chạy được trên iOS, bạn cần thực hiện theo các giai đoạn sau:
+
+**Giai đoạn 1: Cài đặt môi trường (Chỉ làm 1 lần)**
+1.  **Cài đặt Xcode**: Tải từ App Store (Yêu cầu trống ít nhất 60GB ổ cứng).
+2.  **Mở Xcode**: Chấp nhận các điều khoản và đợi cài đặt các "Component" bổ sung.
+3.  **Command Line Tools**: Vào `Xcode > Settings > Locations`, đảm bảo đã chọn phiên bản Xcode tại dòng *Command Line Tools*.
+4.  **Cài đặt CocoaPods**: Mở Terminal và chạy lệnh:
+    ```bash
+    sudo gem install cocoapods
+    ```
+
+**Giai đoạn 2: Chuẩn bị dự án**
+1.  Tại thư mục gốc, cài đặt JS dependencies: `npm install`
+2.  Tạo thư mục native ios (nếu chưa có): `npx expo prebuild`
+3.  Cài đặt Native dependencies bằng CocoaPods: 
+    ```bash
+    npx pod-install
+    ```
+
+**Giai đoạn 3: Chạy ứng dụng**
+*   **Cách 1: Chạy tự động từ Terminal (Dùng hàng ngày)**:
+    ```bash
+    npm run ios
+    ```
+*   **Cách 2: Chạy trực tiếp từ Xcode (Khi cần cấu hình sâu hoặc debug lỗi Native)**:
+    1. Mở file workspace: `open ios/ebay.xcworkspace`
+    2. Trong giao diện Xcode, chọn thiết bị giả lập (Simulator) và nhấn nút **Play (Run)** ở góc trên bên trái.
 
 ## 📁 Cấu trúc dự án
 

@@ -28,10 +28,6 @@ import { IconSymbol } from '../ui/Icon';
 import { QuantityStepper } from '../ui/QuantityStepper';
 import { CartCheckbox } from './CartCheckbox';
 
-// ============================================
-// TYPES
-// ============================================
-
 interface CartItemProps {
     /** Cart item data */
     item: CartItemUI;
@@ -45,7 +41,6 @@ interface CartItemProps {
     onVariantPress?: () => void;
     /** Find similar product callback */
     onFindSimilar?: () => void;
-    /** Delete item callback */
     onDelete?: () => void;
 }
 
