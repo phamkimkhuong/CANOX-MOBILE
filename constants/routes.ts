@@ -36,6 +36,11 @@ export const ROUTES = {
         INDEX: '/cart' as const,
     },
 
+    // ============ CHECKOUT ============
+    CHECKOUT: {
+        INDEX: '/checkout' as const,
+    },
+
     // ============ MODAL ============
     MODAL: '/modal' as const,
 
@@ -88,6 +93,7 @@ export type StaticRoute =
     | (typeof ROUTES.TABS)[keyof typeof ROUTES.TABS]
     | (typeof ROUTES.AUTH)[keyof typeof ROUTES.AUTH]
     | (typeof ROUTES.CART)[keyof typeof ROUTES.CART]
+    | (typeof ROUTES.CHECKOUT)[keyof typeof ROUTES.CHECKOUT]
     | typeof ROUTES.MODAL
     | (typeof ROUTES.PROFILE)[keyof typeof ROUTES.PROFILE]
     | (typeof ROUTES.ORDERS)[keyof typeof ROUTES.ORDERS]
@@ -111,14 +117,14 @@ export const productRoutes = {
 } as const;
 
 /**
- * Chat routes với dynamic ID
+ * Chat routes - Disabled until /chat/[id] is implemented
  */
-export const chatRoutes = {
-    conversation: (conversationId: string): Href => ({
-        pathname: '/chat/[id]',
-        params: { id: conversationId },
-    }),
-} as const;
+// export const chatRoutes = {
+//     conversation: (conversationId: string): Href => ({
+//         pathname: '/chat/[id]',
+//         params: { id: conversationId },
+//     }),
+// } as const;
 
 /**
  * Order routes với dynamic ID
@@ -168,6 +174,7 @@ export const isValidRoute = (route: string): route is StaticRoute => {
         ...Object.values(ROUTES.TABS),
         ...Object.values(ROUTES.AUTH),
         ...Object.values(ROUTES.CART),
+        ...Object.values(ROUTES.CHECKOUT),
         ROUTES.MODAL,
         ...Object.values(ROUTES.PROFILE),
         ...Object.values(ROUTES.ORDERS),
@@ -227,7 +234,6 @@ export const SETTINGS_MENU_ROUTES = {
 export type AppRoutes = typeof ROUTES;
 export type DynamicRouteBuilders = {
     product: typeof productRoutes;
-    chat: typeof chatRoutes;
     order: typeof orderRoutes;
     shop: typeof shopRoutes;
     auth: typeof authRoutes;

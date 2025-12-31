@@ -62,6 +62,15 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     'shopping-cart': { ios: 'cart-outline', android: 'cart-outline' },
     'shopping-bag': { ios: 'bag-outline', android: 'bag-outline' },
     'local-shipping': { ios: 'car-outline', android: 'car-outline' },
+    shipping: { ios: 'car-outline', android: 'car-outline' },
+    'shipping-fast': { ios: 'car-sport-outline', android: 'car-sport-outline' },
+    receipt: { ios: 'receipt-outline', android: 'receipt-outline' },
+    store: { ios: 'storefront-outline', android: 'storefront-outline' },
+    ticket: { ios: 'ticket-outline', android: 'ticket-outline' },
+    note: { ios: 'document-text-outline', android: 'document-text-outline' },
+    'note-filled': { ios: 'document-text', android: 'document-text' },
+    card: { ios: 'card-outline', android: 'card-outline' },
+    wallet: { ios: 'wallet-outline', android: 'wallet-outline' },
 
     // === UI Icons ===
     'chevron-right': { ios: 'chevron-forward', android: 'chevron-forward' },
@@ -141,6 +150,7 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     'play-circle': { ios: 'play-circle', android: 'play-circle' },
     'chevron-up': { ios: 'chevron-up', android: 'chevron-up' },
     'chevron-down': { ios: 'chevron-down', android: 'chevron-down' },
+    location: { ios: 'location-sharp', android: 'location-sharp' },
     'location-outline': { ios: 'location-outline', android: 'location-outline' },
     'storefront-outline': { ios: 'storefront-outline', android: 'storefront-outline' },
     'image-outline': { ios: 'image-outline', android: 'image-outline' },

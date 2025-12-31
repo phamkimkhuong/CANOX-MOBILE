@@ -21,8 +21,10 @@ import {
     VOUCHER_BAR_HEIGHT,
 } from '@/components/cart';
 import { IconSymbol } from '@/components/ui/Icon';
+import { ROUTES } from '@/constants/routes';
 import { useCartCalculations } from '@/hooks/api/useCartCalculations';
 import { useCartStore } from '@/store/useCartStore';
+import { useCheckoutStore } from '@/store/useCheckoutStore';
 import type { CartShopUI, CartUI } from '@/types/cart';
 import { generateMockCartData, getShopCheckboxState } from '@/utils/adapter/cartAdapter';
 import { FlashList } from '@shopify/flash-list';
@@ -306,10 +308,26 @@ export default function CartScreen() {
     }, []);
 
     const handleCheckout = useCallback(() => {
-        // TODO: Navigate to checkout
-        console.log('Proceeding to checkout with', calculation.selectedCount, 'items');
-        router.push('/modal');
-    }, [calculation.selectedCount, router]);
+        if (calculation.selectedCount === 0) {
+            // In production: Show toast or alert
+            console.log('No items selected');
+            return;
+        }
+
+        if (!cartData) return;
+
+        // Initialize Checkout Session before navigation
+        // This transfers selected items from Cart store to Checkout store
+        useCheckoutStore.getState().initSession(
+            cartData.shops,
+            selectedItemIds,
+            null, // In production: Get default address from user store
+            cartData.platformVouchers // Pass platform vouchers from cart
+        );
+
+        // Proceed to checkout
+        router.push(ROUTES.CHECKOUT.INDEX);
+    }, [calculation.selectedCount, cartData, selectedItemIds, router]);
 
     // ========================================
     // RENDER HELPERS
