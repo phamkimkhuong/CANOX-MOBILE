@@ -34,16 +34,11 @@ import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-// const TAB_BAR_HEIGHT = 60; // No longer needed for Full Screen
-const ADDRESS_BAR_HEIGHT = 72;
+
 
 interface CartHeaderProps {
     onEditPress: () => void;
     isEditMode: boolean;
-}
-
-interface AddressBarProps {
-    onPress: () => void;
 }
 
 // ============================================
@@ -81,35 +76,6 @@ const CartHeader: React.FC<CartHeaderProps> = ({ onEditPress, isEditMode }) => {
                 </Pressable>
             </View>
         </View>
-    );
-};
-
-const AddressBar: React.FC<AddressBarProps> = ({ onPress }) => {
-    const { theme } = useUnistyles();
-
-    return (
-        <Pressable
-            onPress={onPress}
-            style={styles.addressBar}
-            accessibilityLabel="Thay đổi địa chỉ giao hàng"
-            accessibilityRole="button"
-        >
-            <View style={styles.addressIcon}>
-                <IconSymbol name="location-on" size={18} color={theme.colors.primary} />
-            </View>
-            <View style={styles.addressContent}>
-                <View style={styles.addressTitleRow}>
-                    <Text style={styles.addressTitle}>Giao tới: Nhà riêng</Text>
-                    <View style={styles.defaultBadge}>
-                        <Text style={styles.defaultBadgeText}>Mặc định</Text>
-                    </View>
-                </View>
-                <Text style={styles.addressText} numberOfLines={1}>
-                    123 Đường Nguyễn Huệ, Phường Bến Nghé, Quận 1, TP.HCM
-                </Text>
-            </View>
-            <IconSymbol name="chevron-right" size={20} color={theme.colors.secondary} />
-        </Pressable>
     );
 };
 
@@ -302,10 +268,6 @@ export default function CartScreen() {
         console.log('Open platform voucher sheet');
     }, []);
 
-    const handleAddressPress = useCallback(() => {
-        // TODO: Open address selection
-        console.log('Open address selection');
-    }, []);
 
     const handleCheckout = useCallback(() => {
         if (calculation.selectedCount === 0) {
@@ -397,9 +359,6 @@ export default function CartScreen() {
                 <EmptyCart />
             ) : (
                 <>
-                    {/* Address Bar */}
-                    <AddressBar onPress={handleAddressPress} />
-
                     {/* Shop Groups List */}
                     <FlashList
                         data={shops}
@@ -452,54 +411,6 @@ const styles = StyleSheet.create((theme) => ({
     headerAction: {
         fontSize: 14,
         fontWeight: '600',
-    },
-    addressBar: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: theme.margins.md,
-        paddingVertical: theme.margins.sm,
-        backgroundColor: theme.colors.primaryMuted,
-        borderBottomWidth: 1,
-        borderBottomColor: theme.colors.primarySubtle,
-        gap: theme.margins.smd,
-    },
-    addressIcon: {
-        width: 32,
-        height: 32,
-        borderRadius: theme.radius.full,
-        backgroundColor: theme.colors.primaryLight,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    addressContent: {
-        flex: 1,
-    },
-    addressTitleRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: theme.margins.sm,
-    },
-    addressTitle: {
-        fontSize: 14,
-        fontWeight: '500',
-        color: theme.colors.typography,
-    },
-    defaultBadge: {
-        backgroundColor: theme.colors.primaryLight,
-        paddingHorizontal: 6,
-        paddingVertical: 2,
-        borderRadius: theme.radius.s,
-    },
-    defaultBadgeText: {
-        fontSize: 10,
-        fontWeight: '700',
-        color: theme.colors.primary,
-        textTransform: 'uppercase',
-    },
-    addressText: {
-        fontSize: 12,
-        color: theme.colors.typographySecondary,
-        marginTop: 2,
     },
     emptyContainer: {
         flex: 1,

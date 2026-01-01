@@ -96,7 +96,9 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     'local-fire-department': { ios: 'flame-outline', android: 'flame-outline' },
     shield: { ios: 'shield-outline', android: 'shield-outline' },
     'account-balance-wallet': { ios: 'wallet-outline', android: 'wallet-outline' },
+    'account-balance': { ios: 'business-outline', android: 'business-outline' }, // Bank icon
     percent: { ios: 'pricetag-outline', android: 'pricetag-outline' },
+    cash: { ios: 'cash-outline', android: 'cash-outline' }, // Cash/money icon
 
     // === Communication Icons ===
     chat: { ios: 'chatbubble-outline', android: 'chatbubble-outline' },

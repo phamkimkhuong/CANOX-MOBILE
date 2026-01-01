@@ -9,6 +9,7 @@
  */
 
 import { IconSymbol } from '@/components/ui/Icon';
+import { formatCurrency } from '@/utils/format';
 import React from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
@@ -38,13 +39,6 @@ export const CheckoutFooter: React.FC<CheckoutFooterProps> = ({
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('vi-VN', {
-            style: 'currency',
-            currency: 'VND',
-        }).format(amount);
-    };
 
     const isDisabled = !canPlaceOrder || isSubmitting;
     const firstBlockReason = blockReasons[0];

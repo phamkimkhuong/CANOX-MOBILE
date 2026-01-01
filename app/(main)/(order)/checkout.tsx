@@ -29,6 +29,7 @@ import {
     CheckoutFooter,
     CheckoutHeader,
     CheckoutShopGroup,
+    CheckoutSkeleton,
     PaymentMethodSection,
     PlatformVoucherSelector,
 } from '@/components/checkout';
@@ -332,9 +333,13 @@ export default function CheckoutScreen() {
         return (
             <View style={styles.container}>
                 <CheckoutHeader title="Thanh toán" onBack={handleBack} />
-                <View style={styles.loadingContainer}>
-                    {/* Add skeleton here */}
-                </View>
+                <ScrollView
+                    style={styles.scrollView}
+                    contentContainerStyle={styles.scrollContent}
+                    showsVerticalScrollIndicator={false}
+                >
+                    <CheckoutSkeleton />
+                </ScrollView>
             </View>
         );
     }
@@ -409,7 +414,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
 
     scrollContent: {
-        paddingBottom: theme.margins.md,
+        paddingBottom: theme.margins.zero,
     },
 
     loadingContainer: {
@@ -419,6 +424,6 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
 
     footerSpacer: {
-        height: 100, // Space for sticky footer
+        height: theme.margins.md, // Space for sticky footer
     },
 }));

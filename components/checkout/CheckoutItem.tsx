@@ -9,6 +9,7 @@
  */
 
 import type { CheckoutItemUI } from '@/types/checkout';
+import { formatCurrency } from '@/utils/format';
 import { Image } from 'expo-image';
 import React from 'react';
 import { Text, View } from 'react-native';
@@ -22,15 +23,8 @@ export const CheckoutItem: React.FC<CheckoutItemProps> = ({ item }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
 
-    const formattedPrice = new Intl.NumberFormat('vi-VN', {
-        style: 'currency',
-        currency: 'VND',
-    }).format(item.unitPrice);
-
-    const totalPrice = new Intl.NumberFormat('vi-VN', {
-        style: 'currency',
-        currency: 'VND',
-    }).format(item.unitPrice * item.quantity);
+    const formattedPrice = formatCurrency(item.unitPrice);
+    const totalPrice = formatCurrency(item.unitPrice * item.quantity);
 
     return (
         <View style={styles.container}>

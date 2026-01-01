@@ -41,6 +41,12 @@ export const ROUTES = {
         INDEX: '/checkout' as const,
     },
 
+    // ============ ADDRESS ============
+    ADDRESS: {
+        LIST: '/(main)/address/list' as const,
+        ADD: '/(main)/address/add' as const,
+    },
+
     // ============ MODAL ============
     MODAL: '/modal' as const,
 
@@ -94,6 +100,7 @@ export type StaticRoute =
     | (typeof ROUTES.AUTH)[keyof typeof ROUTES.AUTH]
     | (typeof ROUTES.CART)[keyof typeof ROUTES.CART]
     | (typeof ROUTES.CHECKOUT)[keyof typeof ROUTES.CHECKOUT]
+    | (typeof ROUTES.ADDRESS)[keyof typeof ROUTES.ADDRESS]
     | typeof ROUTES.MODAL
     | (typeof ROUTES.PROFILE)[keyof typeof ROUTES.PROFILE]
     | (typeof ROUTES.ORDERS)[keyof typeof ROUTES.ORDERS]
@@ -147,6 +154,21 @@ export const shopRoutes = {
 } as const;
 
 /**
+ * Address routes với dynamic ID
+ * Note: Cast through unknown vì routes này chưa implement trong file system
+ */
+export const addressRoutes = {
+    detail: (addressId: string): Href => ({
+        pathname: '/(main)/address/[id]',
+        params: { id: addressId },
+    } as unknown as Href),
+    edit: (addressId: string): Href => ({
+        pathname: '/(main)/address/[id]/edit',
+        params: { id: addressId },
+    } as unknown as Href),
+} as const;
+
+/**
  * Auth verify OTP với params
  */
 export const authRoutes = {
@@ -175,6 +197,7 @@ export const isValidRoute = (route: string): route is StaticRoute => {
         ...Object.values(ROUTES.AUTH),
         ...Object.values(ROUTES.CART),
         ...Object.values(ROUTES.CHECKOUT),
+        ...Object.values(ROUTES.ADDRESS),
         ROUTES.MODAL,
         ...Object.values(ROUTES.PROFILE),
         ...Object.values(ROUTES.ORDERS),
@@ -236,5 +259,6 @@ export type DynamicRouteBuilders = {
     product: typeof productRoutes;
     order: typeof orderRoutes;
     shop: typeof shopRoutes;
+    address: typeof addressRoutes;
     auth: typeof authRoutes;
 };

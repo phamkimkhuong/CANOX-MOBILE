@@ -188,10 +188,6 @@ const calculateShopSubtotal = (
     };
 };
 
-// ============================================
-// MAIN CALCULATION FUNCTION
-// ============================================
-
 /**
  * Calculate entire checkout
  * This is the SINGLE SOURCE OF TRUTH for checkout pricing
@@ -217,35 +213,44 @@ const calculateCheckoutTotal = (
 
     // 3. Calculate platform voucher discount
     let platformVoucherDiscount = 0;
+    let shippingDiscount = 0;
     let platformVoucherValidation: VoucherValidationResult | null = null;
 
     if (platformVoucherId) {
         const platformVoucher = platformVouchers.find((v) => v.id === platformVoucherId);
         if (platformVoucher) {
-            // Platform voucher applies to (subtotal - shop discounts)
-            const applicableAmount = subtotal - totalShopVoucherDiscount;
+            // Detect voucher type: freeship vs discount
+            const isFreeshipping = isFreeshippingVoucher(platformVoucher);
 
             // Parse min order (simplified - in production, store minOrderAmount in VoucherUI)
             const minOrderMatch = platformVoucher.minOrderDisplay.match(/(\d+)k/);
             const minOrder = minOrderMatch ? parseInt(minOrderMatch[1], 10) * 1000 : 0;
 
-            platformVoucherValidation = validateVoucher(
+            // For freeship: check against subtotal, for discount: check against (subtotal - shopDiscounts)
+            const applicableAmount = isFreeshipping
+                ? subtotal
+                : subtotal - totalShopVoucherDiscount;
+
+            // Validate voucher eligibility (min order check)
+            platformVoucherValidation = validateVoucherEligibility(
                 platformVoucher,
                 applicableAmount,
                 minOrder
             );
 
             if (platformVoucherValidation.isValid) {
-                platformVoucherDiscount = platformVoucherValidation.discountAmount;
+                if (isFreeshipping) {
+                    // Freeship voucher: discount shipping fee
+                    shippingDiscount = calculateShippingDiscount(platformVoucher, totalShippingFee);
+                } else {
+                    // Regular discount voucher
+                    platformVoucherDiscount = calculateDiscountAmount(platformVoucher, applicableAmount);
+                }
             }
         }
     }
 
-    // 4. Shipping discount (from free ship voucher - simplified)
-    // In production: Check for specific "free_shipping" voucher type
-    const shippingDiscount = 0; // Placeholder
-
-    // 5. Final calculation
+    // 4. Final calculation
     const totalAmount = Math.max(
         0,
         subtotal +
@@ -258,7 +263,7 @@ const calculateCheckoutTotal = (
     const totalSavings =
         totalShopVoucherDiscount + platformVoucherDiscount + shippingDiscount;
 
-    // 6. Check if any shipping is still loading
+    // 5. Check if any shipping is still loading
     let isCalculatingShipping = false;
     for (const isLoading of isLoadingShipping.values()) {
         if (isLoading) {
@@ -280,6 +285,77 @@ const calculateCheckoutTotal = (
         isCalculatingShipping,
         platformVoucherValidation,
     };
+};
+
+/**
+ * Detect if voucher is a freeship voucher
+ * Check by code containing 'freeship' or discountDisplay being 'Freeship'
+ */
+const isFreeshippingVoucher = (voucher: VoucherUI): boolean => {
+    const codeUpper = voucher.code.toUpperCase();
+    const displayLower = voucher.discountDisplay.toLowerCase();
+    return codeUpper.includes('FREESHIP') || displayLower.includes('freeship');
+};
+
+/**
+ * Validate voucher eligibility (min order check only)
+ */
+const validateVoucherEligibility = (
+    voucher: VoucherUI,
+    applicableAmount: number,
+    minOrderAmount: number
+): VoucherValidationResult => {
+    if (applicableAmount < minOrderAmount) {
+        return {
+            isValid: false,
+            invalidReason: `Đơn hàng tối thiểu ${formatCurrencyShort(minOrderAmount)}`,
+            discountAmount: 0,
+            shouldAutoRemove: true,
+        };
+    }
+
+    return {
+        isValid: true,
+        discountAmount: 0, // Will be calculated separately
+        shouldAutoRemove: false,
+    };
+};
+
+/**
+ * Calculate shipping discount from freeship voucher
+ * Parses max discount from description or uses shipping fee as cap
+ */
+const calculateShippingDiscount = (voucher: VoucherUI, totalShippingFee: number): number => {
+    // Try to parse max discount from description (e.g. "Giảm tối đa 50k phí vận chuyển")
+    const maxMatch = voucher.description.match(/(\d+)k/);
+    const maxDiscount = maxMatch ? parseInt(maxMatch[1], 10) * 1000 : totalShippingFee;
+
+    // Discount is min of shipping fee and max discount
+    return Math.min(totalShippingFee, maxDiscount);
+};
+
+/**
+ * Calculate discount amount for non-freeship vouchers
+ */
+const calculateDiscountAmount = (voucher: VoucherUI, applicableAmount: number): number => {
+    const isPercentage = voucher.discountDisplay.includes('%');
+    let discountAmount = 0;
+
+    if (isPercentage) {
+        const percent = parseInt(voucher.discountDisplay.replace(/[^\d]/g, ''), 10) || 0;
+        discountAmount = Math.floor(applicableAmount * (percent / 100));
+        // Cap at max discount from description or default 100k
+        const maxMatch = voucher.description.match(/(\d+)k/);
+        const maxDiscount = maxMatch ? parseInt(maxMatch[1], 10) * 1000 : 100000;
+        discountAmount = Math.min(discountAmount, maxDiscount);
+    } else {
+        // Fixed amount (parse "15k" -> 15000)
+        const amount = parseInt(voucher.discountDisplay.replace(/[^\d]/g, ''), 10) || 0;
+        discountAmount = amount * 1000;
+    }
+
+    // Discount cannot exceed order amount
+    return Math.min(discountAmount, applicableAmount);
 };
 
 // ============================================

@@ -13,6 +13,7 @@
  */
 
 import { IconSymbol } from '@/components/ui/Icon';
+import { formatCurrency } from '@/utils/format';
 import { useRouter } from 'expo-router';
 import React, { useCallback } from 'react';
 import { Pressable, Text, View } from 'react-native';
@@ -165,14 +166,6 @@ export const CheckoutShopGroup: React.FC<CheckoutShopGroupProps> = ({ shop }) =>
     );
 };
 
-// Utility
-const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat('vi-VN', {
-        style: 'currency',
-        currency: 'VND',
-    }).format(amount);
-};
-
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
         backgroundColor: theme.colors.surface,
@@ -182,7 +175,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     shopHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: theme.margins.md,
+        paddingVertical: theme.margins.sm,
         paddingHorizontal: theme.margins.md,
     },
 

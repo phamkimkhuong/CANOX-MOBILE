@@ -13,6 +13,7 @@
 
 import { IconSymbol } from '@/components/ui/Icon';
 import type { CheckoutCalculationResult } from '@/types/checkout';
+import { formatCurrency } from '@/utils/format';
 import React from 'react';
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -24,13 +25,6 @@ interface BillSummaryProps {
 export const BillSummary: React.FC<BillSummaryProps> = ({ calculation }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('vi-VN', {
-            style: 'currency',
-            currency: 'VND',
-        }).format(amount);
-    };
 
     return (
         <View style={styles.container}>
@@ -83,7 +77,7 @@ export const BillSummary: React.FC<BillSummaryProps> = ({ calculation }) => {
                 {/* Platform Voucher Discount (if any) */}
                 {calculation.platformVoucherDiscount > 0 && (
                     <View style={styles.row}>
-                        <Text style={styles.label}>Voucher Shopee</Text>
+                        <Text style={styles.label}>Voucher </Text>
                         <Text style={styles.discountValue}>
                             -{formatCurrency(calculation.platformVoucherDiscount)}
                         </Text>
@@ -141,7 +135,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: theme.margins.md,
-        paddingTop: theme.margins.md,
+        paddingTop: theme.margins.sm,
         paddingBottom: theme.margins.sm,
         gap: theme.margins.sm,
     },

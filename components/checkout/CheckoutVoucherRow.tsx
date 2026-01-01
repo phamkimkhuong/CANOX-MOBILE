@@ -8,6 +8,7 @@
 
 import { IconSymbol } from '@/components/ui/Icon';
 import type { VoucherUI } from '@/types/cart';
+import { formatCurrency } from '@/utils/format';
 import React, { useCallback, useState } from 'react';
 import { Modal, Pressable, ScrollView, Text, TouchableWithoutFeedback, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -49,13 +50,6 @@ export const CheckoutVoucherRow: React.FC<CheckoutVoucherRowProps> = ({
         setIsModalVisible(false);
     }, [onSelect]);
 
-    const formatDiscount = (amount: number) => {
-        return new Intl.NumberFormat('vi-VN', {
-            style: 'currency',
-            currency: 'VND',
-        }).format(amount);
-    };
-
     // No vouchers available
     if (availableVouchers.length === 0) {
         return null;
@@ -91,7 +85,7 @@ export const CheckoutVoucherRow: React.FC<CheckoutVoucherRowProps> = ({
                             </Text>
                             {discountAmount > 0 && (
                                 <Text style={styles.discountText}>
-                                    -{formatDiscount(discountAmount)}
+                                    -{formatCurrency(discountAmount)}
                                 </Text>
                             )}
                         </View>
@@ -241,7 +235,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     container: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: theme.margins.smd,
+        paddingVertical: theme.margins.sm,
         paddingHorizontal: theme.margins.md,
         gap: theme.margins.sm,
     },

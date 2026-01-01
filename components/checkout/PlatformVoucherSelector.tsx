@@ -7,6 +7,7 @@
 
 import { IconSymbol } from '@/components/ui/Icon';
 import type { VoucherUI } from '@/types/cart';
+import { formatCurrency } from '@/utils/format';
 import React, { useCallback, useState } from 'react';
 import { Modal, Pressable, ScrollView, Text, TouchableWithoutFeedback, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -48,13 +49,6 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
         [onSelect]
     );
 
-    const formatDiscount = (amount: number) => {
-        return new Intl.NumberFormat('vi-VN', {
-            style: 'currency',
-            currency: 'VND',
-        }).format(amount);
-    };
-
     return (
         <>
             {/* Section Container */}
@@ -68,7 +62,7 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
                             color={theme.colors.error}
                         />
                     </View>
-                    <Text style={styles.title}>Voucher Shopee</Text>
+                    <Text style={styles.title}>Voucher Ebay</Text>
                 </View>
 
                 {/* Selector */}
@@ -79,7 +73,7 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
                     ]}
                     onPress={() => setIsModalVisible(true)}
                     accessibilityRole="button"
-                    accessibilityLabel="Chọn voucher Shopee"
+                    accessibilityLabel="Chọn voucher Ebay"
                 >
                     {selectedVoucher ? (
                         <View style={styles.selectedContent}>
@@ -99,7 +93,7 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
                             </Text>
                             {discountAmount > 0 && !isInvalid && (
                                 <Text style={styles.discountText}>
-                                    -{formatDiscount(discountAmount)}
+                                    -{formatCurrency(discountAmount)}
                                 </Text>
                             )}
                         </View>
@@ -153,7 +147,7 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
                                             color={theme.colors.error}
                                         />
                                         <Text style={styles.modalTitle}>
-                                            Voucher Shopee
+                                            Voucher Ebay
                                         </Text>
                                     </View>
                                     <Pressable
@@ -298,7 +292,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: theme.margins.md,
-        paddingTop: theme.margins.md,
+        paddingTop: theme.margins.sm,
         paddingBottom: theme.margins.sm,
         gap: theme.margins.sm,
     },
@@ -322,7 +316,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: theme.margins.md,
-        paddingBottom: theme.margins.md,
+        paddingBottom: theme.margins.sm,
     },
 
     selectorRowPressed: {

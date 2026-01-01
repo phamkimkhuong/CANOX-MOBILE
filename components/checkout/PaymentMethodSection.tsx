@@ -42,7 +42,7 @@ const PAYMENT_METHODS: Array<{
         {
             id: 'e_wallet',
             name: 'Ví điện tử',
-            description: 'MoMo, ZaloPay, VNPay, ShopeePay...',
+            description: 'MoMo, ZaloPay, VNPay...',
             icon: 'account-balance-wallet',
             iconColor: '#A855F7',
         },
@@ -238,7 +238,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: theme.margins.md,
-        paddingTop: theme.margins.md,
+        paddingTop: theme.margins.sm,
         paddingBottom: theme.margins.sm,
         gap: theme.margins.sm,
     },
@@ -262,8 +262,8 @@ const stylesheet = StyleSheet.create((theme) => ({
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: theme.margins.md,
-        paddingBottom: theme.margins.md,
-        gap: theme.margins.smd,
+        paddingBottom: theme.margins.sm,
+        gap: theme.margins.sm,
     },
 
     selectedRowPressed: {

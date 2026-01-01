@@ -27,3 +27,5 @@ export { default as PaymentMethodSection } from './PaymentMethodSection';
 export { default as BillSummary } from './BillSummary';
 export { default as CheckoutFooter } from './CheckoutFooter';
 
+// Skeleton
+export { default as CheckoutSkeleton } from './CheckoutSkeleton';

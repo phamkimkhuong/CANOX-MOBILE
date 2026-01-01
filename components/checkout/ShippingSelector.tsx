@@ -11,6 +11,7 @@
 
 import { IconSymbol } from '@/components/ui/Icon';
 import type { ShippingMethod } from '@/types/checkout';
+import { formatCurrency } from '@/utils/format';
 import React, { useCallback, useState } from 'react';
 import { Modal, Pressable, Text, TouchableWithoutFeedback, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -38,13 +39,6 @@ export const ShippingSelector: React.FC<ShippingSelectorProps> = ({
         onSelect(methodId);
         setIsModalVisible(false);
     }, [onSelect]);
-
-    const formatPrice = (amount: number) => {
-        return new Intl.NumberFormat('vi-VN', {
-            style: 'currency',
-            currency: 'VND',
-        }).format(amount);
-    };
 
     // Loading state
     if (isLoading) {
@@ -115,7 +109,7 @@ export const ShippingSelector: React.FC<ShippingSelectorProps> = ({
                                         {selectedMethod.name}
                                     </Text>
                                     <Text style={styles.price}>
-                                        {formatPrice(selectedMethod.fee)}
+                                        {formatCurrency(selectedMethod.fee)}
                                     </Text>
                                 </View>
                                 <Text style={styles.description}>
@@ -218,7 +212,7 @@ export const ShippingSelector: React.FC<ShippingSelectorProps> = ({
                                                         styles.optionPrice,
                                                         method.fee === 0 && styles.optionPriceFree,
                                                     ]}>
-                                                        {formatPrice(method.fee)}
+                                                        {formatCurrency(method.fee)}
                                                     </Text>
                                                 </View>
                                                 <Text style={styles.optionDescription}>

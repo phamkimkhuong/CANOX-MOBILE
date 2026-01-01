@@ -1,15 +1,17 @@
 /**
  * AddressCard Component
  * 
- * Displays the delivery address with airmail-style decoration.
+ * Displays the delivery address with premium styling.
  * Features:
- * - Red/blue diagonal stripes border (airmail style)
- * - Map pin icon
+ * - Primary-colored background (primaryMuted)
+ * - Circular icon with primaryLight background
+ * - "Default" badge when address is default
  * - Tap to edit address
  * - Empty state when no address
  */
 
 import { IconSymbol } from '@/components/ui/Icon';
+import { ROUTES, href } from '@/constants/routes';
 import type { DeliveryAddress } from '@/types/checkout';
 import { formatFullAddress } from '@/types/checkout';
 import { useRouter } from 'expo-router';
@@ -22,189 +24,160 @@ interface AddressCardProps {
     onPress?: () => void;
 }
 
+/**
+ * AddressCard - Premium styled address display component
+ * 
+ * Used in Checkout screen to show delivery address.
+ * Applies Cart-style design with primaryMuted background.
+ */
 export const AddressCard: React.FC<AddressCardProps> = ({ address, onPress }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const router = useRouter();
 
+    /**
+     * Handle card press - navigate to address selection or call custom handler
+     */
     const handlePress = () => {
         if (onPress) {
             onPress();
         } else {
-            // Default: navigate to address selection
-            router.push('/(main)/address/list' as never);
+            router.push(href(ROUTES.ADDRESS.LIST));
         }
     };
 
     return (
-        <View style={styles.container}>
-            {/* Airmail Stripe Top */}
-            <View style={styles.airmailStripe}>
-                {Array.from({ length: 20 }).map((_, index) => (
-                    <View
-                        key={`stripe-${index}`}
-                        style={[
-                            styles.stripeBlock,
-                            { backgroundColor: index % 2 === 0 ? theme.colors.error : theme.colors.primary },
-                        ]}
-                    />
-                ))}
-            </View>
-
-            {/* Content */}
-            <Pressable
-                style={({ pressed }) => [
-                    styles.content,
-                    pressed && styles.contentPressed,
-                ]}
-                onPress={handlePress}
-                accessibilityRole="button"
-                accessibilityLabel={address ? 'Thay đổi địa chỉ giao hàng' : 'Thêm địa chỉ giao hàng'}
-            >
-                {/* Location Icon with modern wrapper */}
-                <View style={styles.iconContainer}>
-                    <IconSymbol
-                        name="location"
-                        size={22}
-                        color={theme.colors.error}
-                    />
-                </View>
-
-                {/* Address Info */}
-                <View style={styles.infoContainer}>
-                    {address ? (
-                        <>
-                            {/* Label */}
-                            <Text style={styles.label}>Địa Chỉ Nhận Hàng</Text>
-
-                            {/* Name + Phone */}
-                            <View style={styles.nameRow}>
-                                <Text style={styles.name} numberOfLines={1}>
-                                    {address.recipientName}
-                                </Text>
-                                <View style={styles.divider} />
-                                <Text style={styles.phone}>{address.phoneNumber}</Text>
-                            </View>
-
-                            {/* Full Address */}
-                            <Text style={styles.address} numberOfLines={2}>
-                                {formatFullAddress(address)}
-                            </Text>
-                        </>
-                    ) : (
-                        <View style={styles.emptyContainer}>
-                            <IconSymbol
-                                name="add-circle-outline"
-                                size={20}
-                                color={theme.colors.primary}
-                            />
-                            <Text style={styles.emptyText}>
-                                Thêm địa chỉ giao hàng
-                            </Text>
-                        </View>
-                    )}
-                </View>
-
-                {/* Arrow */}
+        <Pressable
+            onPress={handlePress}
+            style={({ pressed }) => [
+                styles.container,
+                pressed && styles.containerPressed,
+            ]}
+            accessibilityLabel={address ? 'Thay đổi địa chỉ giao hàng' : 'Thêm địa chỉ giao hàng'}
+            accessibilityRole="button"
+        >
+            {/* Location Icon with circular background */}
+            <View style={styles.iconWrapper}>
                 <IconSymbol
-                    name="chevron-right"
-                    size={20}
-                    color={theme.colors.typographySecondary}
+                    name="location-on"
+                    size={18}
+                    color={theme.colors.primary}
                 />
-            </Pressable>
-
-            {/* Airmail Stripe Bottom */}
-            <View style={styles.airmailStripe}>
-                {Array.from({ length: 20 }).map((_, index) => (
-                    <View
-                        key={`stripe-bottom-${index}`}
-                        style={[
-                            styles.stripeBlock,
-                            { backgroundColor: index % 2 === 0 ? theme.colors.error : theme.colors.primary },
-                        ]}
-                    />
-                ))}
             </View>
-        </View>
+
+            {/* Address Content */}
+            <View style={styles.contentContainer}>
+                {address ? (
+                    <>
+                        {/* Title row with optional default badge */}
+                        <View style={styles.titleRow}>
+                            <Text style={styles.title}>
+                                Giao tới: {address.recipientName}
+                            </Text>
+                            {address.isDefault && (
+                                <View style={styles.defaultBadge}>
+                                    <Text style={styles.defaultBadgeText}>Mặc định</Text>
+                                </View>
+                            )}
+                        </View>
+
+                        {/* Phone number */}
+                        <Text style={styles.phone}>{address.phoneNumber}</Text>
+
+                        {/* Full address */}
+                        <Text style={styles.addressText} numberOfLines={1}>
+                            {formatFullAddress(address)}
+                        </Text>
+                    </>
+                ) : (
+                    <View style={styles.emptyContainer}>
+                        <IconSymbol
+                            name="add-circle-outline"
+                            size={20}
+                            color={theme.colors.primary}
+                        />
+                        <Text style={styles.emptyText}>
+                            Thêm địa chỉ giao hàng
+                        </Text>
+                    </View>
+                )}
+            </View>
+
+            {/* Chevron arrow */}
+            <IconSymbol
+                name="chevron-right"
+                size={20}
+                color={theme.colors.typographySecondary}
+            />
+        </Pressable>
     );
 };
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
-        backgroundColor: theme.colors.surface,
-        overflow: 'hidden',
-    },
-
-    airmailStripe: {
-        flexDirection: 'row',
-        height: 4,
-    },
-
-    stripeBlock: {
-        flex: 1,
-        height: 4,
-        transform: [{ skewX: '-20deg' }],
-        marginHorizontal: -1,
-    },
-
-    content: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: theme.margins.lg,
         paddingHorizontal: theme.margins.md,
+        paddingVertical: theme.margins.sm,
+        backgroundColor: theme.colors.primaryMuted,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors.primarySubtle,
+        gap: theme.margins.smd,
     },
 
-    contentPressed: {
-        backgroundColor: theme.colors.background,
+    containerPressed: {
+        backgroundColor: theme.colors.primarySubtle,
     },
 
-    iconContainer: {
+    iconWrapper: {
         width: 32,
+        height: 32,
+        borderRadius: theme.radius.full,
+        backgroundColor: theme.colors.primaryLight,
+        justifyContent: 'center',
         alignItems: 'center',
     },
 
-    infoContainer: {
+    contentContainer: {
         flex: 1,
-        marginLeft: theme.margins.sm,
-        marginRight: theme.margins.sm,
     },
 
-    label: {
-        fontSize: 12,
-        fontWeight: '500',
-        color: theme.colors.typographySecondary,
-        marginBottom: 4,
-    },
-
-    nameRow: {
+    titleRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 4,
+        gap: theme.margins.sm,
     },
 
-    name: {
+    title: {
         fontSize: 14,
-        fontWeight: '600',
+        fontWeight: '500',
         color: theme.colors.typography,
-        flexShrink: 1,
     },
 
-    divider: {
-        width: 1,
-        height: 14,
-        backgroundColor: theme.colors.border,
-        marginHorizontal: theme.margins.sm,
+    defaultBadge: {
+        backgroundColor: theme.colors.primaryLight,
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: theme.radius.s,
+    },
+
+    defaultBadgeText: {
+        fontSize: 10,
+        fontWeight: '700',
+        color: theme.colors.primary,
+        textTransform: 'uppercase',
     },
 
     phone: {
-        fontSize: 14,
-        color: theme.colors.typography,
+        fontSize: 12,
+        color: theme.colors.typographySecondary,
+        marginTop: 2,
     },
 
-    address: {
-        fontSize: 13,
+    addressText: {
+        fontSize: 12,
         color: theme.colors.typographySecondary,
-        lineHeight: 18,
+        marginTop: 2,
     },
 
     emptyContainer: {

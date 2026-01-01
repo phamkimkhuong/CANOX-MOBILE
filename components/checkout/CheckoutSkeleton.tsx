@@ -1,0 +1,332 @@
+/**
+ * CheckoutSkeleton Component
+ * 
+ * Loading placeholder for the Checkout screen.
+ * Mirrors the structure of actual checkout components:
+ * - Address Card
+ * - Shop Groups (Items + Voucher + Shipping + Note)
+ * - Platform Voucher
+ * - Payment Method
+ * - Bill Summary
+ */
+
+import { SkeletonBox, SkeletonCircle, SkeletonText } from '@/components/ui/Skeleton';
+import React from 'react';
+import { View } from 'react-native';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+
+/**
+ * Skeleton for Address Card section
+ */
+const SkeletonAddressCard: React.FC = () => {
+    const styles = stylesheet;
+
+    return (
+        <View style={styles.addressCard}>
+            <SkeletonCircle size={32} />
+            <View style={styles.addressContent}>
+                <SkeletonText width="50%" height={14} />
+                <SkeletonText width="30%" height={12} />
+                <SkeletonText width="80%" height={12} />
+            </View>
+            <SkeletonBox width={20} height={20} borderRadius={4} />
+        </View>
+    );
+};
+
+/**
+ * Skeleton for a single checkout item
+ */
+const SkeletonCheckoutItem: React.FC = () => {
+    const { theme } = useUnistyles();
+    const styles = stylesheet;
+
+    return (
+        <View style={styles.itemRow}>
+            {/* Product Image */}
+            <SkeletonBox width={72} height={72} borderRadius={theme.radius.m} />
+
+            {/* Product Info */}
+            <View style={styles.itemInfo}>
+                <SkeletonText width="90%" height={14} />
+                <SkeletonBox width={100} height={20} borderRadius={4} style={{ marginTop: 4 }} />
+                <View style={styles.itemPriceRow}>
+                    <SkeletonText width={80} height={14} />
+                </View>
+            </View>
+        </View>
+    );
+};
+
+/**
+ * Skeleton for Shop Group section
+ */
+const SkeletonShopGroup: React.FC = () => {
+    const { theme } = useUnistyles();
+    const styles = stylesheet;
+
+    return (
+        <View style={styles.shopGroup}>
+            {/* Shop Header */}
+            <View style={styles.shopHeader}>
+                <SkeletonBox width={32} height={32} borderRadius={10} />
+                <SkeletonText width={120} height={15} />
+                <SkeletonBox width={18} height={18} borderRadius={4} />
+            </View>
+
+            {/* Divider */}
+            <View style={styles.divider} />
+
+            {/* Items */}
+            <View style={styles.itemsContainer}>
+                <SkeletonCheckoutItem />
+                <SkeletonCheckoutItem />
+            </View>
+
+            {/* Divider */}
+            <View style={styles.divider} />
+
+            {/* Voucher Row */}
+            <View style={styles.sectionRow}>
+                <SkeletonBox width={36} height={36} borderRadius={10} />
+                <SkeletonText width={150} height={14} />
+            </View>
+
+            {/* Divider */}
+            <View style={styles.divider} />
+
+            {/* Shipping Row */}
+            <View style={styles.sectionRow}>
+                <SkeletonBox width={40} height={40} borderRadius={12} />
+                <View style={{ flex: 1 }}>
+                    <SkeletonText width="60%" height={14} />
+                    <SkeletonText width="40%" height={12} style={{ marginTop: 4 }} />
+                </View>
+            </View>
+
+            {/* Divider */}
+            <View style={styles.divider} />
+
+            {/* Note Row */}
+            <View style={styles.sectionRow}>
+                <SkeletonBox width={36} height={36} borderRadius={10} />
+                <SkeletonText width={120} height={14} />
+            </View>
+
+            {/* Subtotal Row */}
+            <View style={styles.subtotalRow}>
+                <SkeletonText width={100} height={14} />
+                <SkeletonText width={80} height={16} />
+            </View>
+        </View>
+    );
+};
+
+/**
+ * Skeleton for Platform Voucher section
+ */
+const SkeletonPlatformVoucher: React.FC = () => {
+    const styles = stylesheet;
+
+    return (
+        <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+                <SkeletonBox width={32} height={32} borderRadius={10} />
+                <SkeletonText width={120} height={15} />
+            </View>
+            <View style={styles.sectionRow}>
+                <SkeletonText width={200} height={14} />
+                <SkeletonBox width={18} height={18} borderRadius={4} />
+            </View>
+        </View>
+    );
+};
+
+/**
+ * Skeleton for Payment Method section
+ */
+const SkeletonPaymentMethod: React.FC = () => {
+    const styles = stylesheet;
+
+    return (
+        <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+                <SkeletonBox width={32} height={32} borderRadius={10} />
+                <SkeletonText width={160} height={15} />
+            </View>
+            <View style={styles.sectionRow}>
+                <SkeletonBox width={40} height={40} borderRadius={12} />
+                <SkeletonText width={180} height={14} />
+                <SkeletonBox width={18} height={18} borderRadius={4} />
+            </View>
+        </View>
+    );
+};
+
+/**
+ * Skeleton for Bill Summary section
+ */
+const SkeletonBillSummary: React.FC = () => {
+    const styles = stylesheet;
+
+    return (
+        <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+                <SkeletonBox width={32} height={32} borderRadius={10} />
+                <SkeletonText width={140} height={15} />
+            </View>
+            <View style={styles.summaryContent}>
+                <View style={styles.summaryRow}>
+                    <SkeletonText width={120} height={14} />
+                    <SkeletonText width={80} height={14} />
+                </View>
+                <View style={styles.summaryRow}>
+                    <SkeletonText width={140} height={14} />
+                    <SkeletonText width={60} height={14} />
+                </View>
+                <View style={styles.summaryDivider} />
+                <View style={styles.summaryRow}>
+                    <SkeletonText width={100} height={16} />
+                    <SkeletonText width={100} height={20} />
+                </View>
+            </View>
+        </View>
+    );
+};
+
+/**
+ * CheckoutSkeleton - Main loading placeholder for Checkout screen
+ * 
+ * @example
+ * if (!isInitialized) return <CheckoutSkeleton />;
+ */
+export const CheckoutSkeleton: React.FC = () => {
+    const styles = stylesheet;
+
+    return (
+        <View style={styles.container}>
+            {/* Address Card */}
+            <SkeletonAddressCard />
+
+            {/* Shop Groups */}
+            <SkeletonShopGroup />
+
+            {/* Platform Voucher */}
+            <SkeletonPlatformVoucher />
+
+            {/* Payment Method */}
+            <SkeletonPaymentMethod />
+
+            {/* Bill Summary */}
+            <SkeletonBillSummary />
+        </View>
+    );
+};
+
+const stylesheet = StyleSheet.create((theme) => ({
+    container: {
+        flex: 1,
+        backgroundColor: theme.colors.background,
+    },
+
+    // Address Card
+    addressCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: theme.margins.md,
+        paddingVertical: theme.margins.sm,
+        backgroundColor: theme.colors.primaryMuted,
+        gap: theme.margins.smd,
+    },
+    addressContent: {
+        flex: 1,
+        gap: 4,
+    },
+
+    // Shop Group
+    shopGroup: {
+        backgroundColor: theme.colors.surface,
+        marginBottom: theme.margins.sm,
+    },
+    shopHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: theme.margins.md,
+        paddingHorizontal: theme.margins.md,
+        gap: theme.margins.smd,
+    },
+    divider: {
+        height: 1,
+        backgroundColor: theme.colors.border,
+        marginHorizontal: theme.margins.md,
+    },
+    itemsContainer: {
+        paddingVertical: theme.margins.sm,
+    },
+    itemRow: {
+        flexDirection: 'row',
+        paddingVertical: theme.margins.sm,
+        paddingHorizontal: theme.margins.md,
+        gap: theme.margins.md,
+    },
+    itemInfo: {
+        flex: 1,
+        justifyContent: 'center',
+    },
+    itemPriceRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 6,
+    },
+    sectionRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: theme.margins.smd,
+        paddingHorizontal: theme.margins.md,
+        gap: theme.margins.sm,
+    },
+    subtotalRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        paddingVertical: theme.margins.smd,
+        paddingHorizontal: theme.margins.md,
+        borderTopWidth: 1,
+        borderTopColor: theme.colors.border,
+        backgroundColor: theme.colors.background,
+        gap: theme.margins.sm,
+    },
+
+    // Generic Section
+    section: {
+        backgroundColor: theme.colors.surface,
+        marginBottom: theme.margins.sm,
+    },
+    sectionHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: theme.margins.md,
+        paddingTop: theme.margins.md,
+        paddingBottom: theme.margins.sm,
+        gap: theme.margins.sm,
+    },
+
+    // Bill Summary
+    summaryContent: {
+        paddingHorizontal: theme.margins.md,
+        paddingBottom: theme.margins.md,
+    },
+    summaryRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 8,
+    },
+    summaryDivider: {
+        height: 1,
+        backgroundColor: theme.colors.border,
+        marginVertical: theme.margins.sm,
+    },
+}));
+
+export default CheckoutSkeleton;
