@@ -15,7 +15,7 @@ import type {
     VariantMatrixValue,
     Voucher,
     VoucherUI,
-} from '@/types/productDetail';
+} from '@/types/product/productDetail';
 import { getNextFlashSaleSlot } from '../date';
 
 

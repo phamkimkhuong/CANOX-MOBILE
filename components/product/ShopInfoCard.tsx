@@ -1,6 +1,6 @@
 import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import { shopRoutes } from '@/constants/routes';
-import type { ShopUI } from '@/types/productDetail';
+import type { ShopUI } from '@/types/product/productDetail';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import React, { memo, useCallback, useMemo } from 'react';

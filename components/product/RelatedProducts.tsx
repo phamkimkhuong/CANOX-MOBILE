@@ -1,6 +1,6 @@
 import { ProductCard } from '@/components/ui/ProductCard';
 import { productRoutes } from '@/constants/routes';
-import { useRelatedProducts } from '@/hooks/api/useProductDetail';
+import { useRelatedProducts } from '@/hooks/api/product/useProductDetail';
 import { router } from 'expo-router';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';

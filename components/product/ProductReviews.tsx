@@ -1,5 +1,5 @@
 import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
-import type { ReviewStatistics } from '@/types/productDetail';
+import type { ReviewStatistics } from '@/types/product/productDetail';
 import { createLogger } from '@/utils/logger';
 import React, { memo, useCallback, useMemo } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';

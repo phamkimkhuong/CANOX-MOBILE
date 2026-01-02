@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ProductResponseItemSchema } from './product';
+import { ProductResponseItemSchema } from './product/product';
 
 /**
  * Flash Sale Slot Data (FE Simulated)

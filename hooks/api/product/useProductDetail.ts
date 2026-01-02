@@ -1,10 +1,10 @@
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { request } from '@/services/api/client';
-import { PaginatedProductResponseSchema } from '@/types/product';
+import { PaginatedProductResponseSchema } from '@/types/product/product';
 import {
     ProductDetailAPIResponseSchema,
     type ProductDetailUI,
-} from '@/types/productDetail';
+} from '@/types/product/productDetail';
 import { transformProduct } from '@/utils/adapter/productAdapter';
 import { transformProductDetail } from '@/utils/adapter/productDetailAdapter';
 import { useQuery } from '@tanstack/react-query';

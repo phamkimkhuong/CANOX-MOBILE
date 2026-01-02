@@ -1,5 +1,5 @@
 import { ProductCard } from '@/components/ui/ProductCard';
-import { useProductFeed } from '@/hooks/api/useProducts';
+import { useProductFeed } from '@/hooks/api/product/useProducts';
 import { FlashList } from '@shopify/flash-list';
 import React, { useCallback } from 'react';
 
@@ -39,7 +39,7 @@ export const ProductFeed = () => {
                     reviews={item.reviews}
                     location={item.brand}
                     discount={item.discountPercentage ? Math.round(item.discountPercentage) : undefined}
-                    onPress={() => {}}
+                    onPress={() => { }}
                 />
             )}
             onEndReached={handleEndReached}

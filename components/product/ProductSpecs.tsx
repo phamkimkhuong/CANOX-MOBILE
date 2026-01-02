@@ -1,5 +1,5 @@
 import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
-import type { ProductSpec } from '@/types/productDetail';
+import type { ProductSpec } from '@/types/product/productDetail';
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { LayoutAnimation, Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';

@@ -1,6 +1,6 @@
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { useProductFeed } from '@/hooks/api/useHomeProducts';
-import type { ProductFeedItem } from '@/types/product';
+import type { ProductFeedItem } from '@/types/product/product';
 import { formatCurrency } from '@/utils/format';
 import { Image } from 'expo-image';
 import React, { memo, useMemo } from 'react';

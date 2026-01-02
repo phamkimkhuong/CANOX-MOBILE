@@ -2,7 +2,7 @@ import { CountdownDigits } from '@/components/ui/CountdownDigits';
 import { IconSymbol } from '@/components/ui/Icon';
 import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import { useCountdown } from '@/hooks/useCountdown';
-import type { FlashSaleInfo } from '@/types/productDetail';
+import type { FlashSaleInfo } from '@/types/product/productDetail';
 import React, { memo } from 'react';
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';

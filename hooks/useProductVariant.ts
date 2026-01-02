@@ -6,7 +6,7 @@ import type {
     SelectedOptions,
     VariantMatrixValue,
     VariantSelectionResult,
-} from '@/types/productDetail';
+} from '@/types/product/productDetail';
 import { createKeyFromSelection } from '@/utils/adapter/productDetailAdapter';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 

@@ -1,4 +1,4 @@
-import { ProductFeedItem, ProductResponseItem } from '@/types/product';
+import { ProductFeedItem, ProductResponseItem } from '@/types/product/product';
 import { toPublicUrl } from '@/utils/url';
 
 /**

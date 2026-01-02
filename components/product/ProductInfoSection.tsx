@@ -1,5 +1,5 @@
 import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
-import type { FlashSaleInfo, PriceDisplay } from '@/types/productDetail';
+import type { FlashSaleInfo, PriceDisplay } from '@/types/product/productDetail';
 import { formatCurrency } from '@/utils/adapter/productDetailAdapter';
 import React, { memo, useMemo } from 'react';
 import { Text, View } from 'react-native';

@@ -16,7 +16,7 @@ import type { ProductGalleryRef } from '@/components/product/ProductGallery';
 import { IconSymbol } from '@/components/ui/Icon';
 import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import { ROUTES, chatRoutes, shopRoutes } from '@/constants/routes';
-import { useProductDetail } from '@/hooks/api/useProductDetail';
+import { useProductDetail } from '@/hooks/api/product/useProductDetail';
 import { useProductVariant } from '@/hooks/useProductVariant';
 import { findGalleryIndexByVariant } from '@/utils/adapter/productDetailAdapter';
 import { createLogger } from '@/utils/logger';

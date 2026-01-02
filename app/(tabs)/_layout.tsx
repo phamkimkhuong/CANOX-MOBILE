@@ -2,7 +2,7 @@ import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 import { ROUTES } from '@/constants/routes';
 import { useScrollToTopContext } from '@/contexts/ScrollToTopContext';
-import { useCart } from '@/hooks/api/useCart';
+import { useCart } from '@/hooks/api/cart/useCart';
 import { useUnreadNotificationCount } from '@/hooks/api/useNotifications';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useCartStore } from '@/store/useCartStore';

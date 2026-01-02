@@ -1,5 +1,5 @@
 import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
-import type { InventoryStatus } from '@/types/productDetail';
+import type { InventoryStatus } from '@/types/product/productDetail';
 import React, { memo, useMemo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

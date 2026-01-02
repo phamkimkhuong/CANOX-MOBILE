@@ -1,5 +1,5 @@
 import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
-import type { GalleryItem } from '@/types/productDetail';
+import type { GalleryItem } from '@/types/product/productDetail';
 import { Image } from 'expo-image';
 import React, {
     forwardRef,

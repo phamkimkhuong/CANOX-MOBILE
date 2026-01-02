@@ -22,7 +22,7 @@ import {
 } from '@/components/cart';
 import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
-import { useCartCalculations } from '@/hooks/api/useCartCalculations';
+import { useCartCalculations } from '@/hooks/api/cart/useCartCalculations';
 import { useCartStore } from '@/store/useCartStore';
 import { useCheckoutStore } from '@/store/useCheckoutStore';
 import type { CartShopUI, CartUI } from '@/types/cart';

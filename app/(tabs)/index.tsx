@@ -4,7 +4,7 @@ import { HomeHeader } from '@/components/home/SearchHomeHeader';
 import { ProductCard } from '@/components/ui/ProductCard';
 import { useScrollToTopHandler } from '@/contexts/ScrollToTopContext';
 import { FeedType, useProductFeed } from '@/hooks/api/useHomeProducts';
-import type { ProductFeedItem } from '@/types/product';
+import type { ProductFeedItem } from '@/types/product/product';
 import { FlashList, FlashListRef, ListRenderItemInfo } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
 import React, { memo, useCallback, useMemo, useRef, useState } from 'react';
