@@ -1,5 +1,5 @@
 import { ROUTES } from '@/constants/routes';
-import { ORDER_STATUS_CONFIG, OrderStats } from '@/types/profile';
+import { ORDER_STATUS_CONFIG, OrderStats } from '@/types/profile/profile';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { memo, useCallback } from 'react';

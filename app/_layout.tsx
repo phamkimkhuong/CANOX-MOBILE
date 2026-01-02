@@ -18,6 +18,7 @@ import { toastConfig } from '@/components/ui/CustomToast';
 import { WebSocketProvider } from '@/components/WebSocketProvider';
 import { ScrollToTopProvider } from '@/contexts/ScrollToTopContext';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
+import { useTokenRefreshOnForeground } from '@/hooks/useTokenRefresh';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Toast from 'react-native-toast-message';
 
@@ -54,6 +55,9 @@ export default function RootLayout() {
   });
 
   useAuthGuard();
+
+  // Layer 1: Token refresh when app returns to foreground
+  useTokenRefreshOnForeground();
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {

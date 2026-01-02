@@ -3,6 +3,7 @@
  */
 
 import { createBuyerAddress, deleteBuyerAddress, getBuyerAddresses, getCountry, updateBuyerAddress } from '@/services/api/addressApi';
+import { isSessionExpiredError } from '@/services/api/client';
 import { useAuthStore } from '@/store/useAuthStore';
 import type {
     AddressFormData,
@@ -27,10 +28,6 @@ export const COUNTRY_KEY = ['country'] as const;
 
 // Default fallback nếu API country fail
 const DEFAULT_COUNTRY_NAME = 'Việt Nam';
-
-// ============================================
-// HOOKS
-// ============================================
 
 /**
  * Hook fetch danh sách địa chỉ của user
@@ -193,12 +190,10 @@ export const useAddAddress = () => {
                 text1: 'Thêm địa chỉ thành công',
             });
         },
-        onError: (error: Error) => {
-            Toast.show({
-                type: 'error',
-                text1: 'Thêm địa chỉ thất bại',
-                text2: error.message,
-            });
+        onError: (error) => {
+            const message = error instanceof Error ? error.message : 'Lỗi không xác định';
+            if (isSessionExpiredError(error)) return;
+            Toast.show({ type: 'error', text1: 'Thêm địa chỉ thất bại', text2: message });
         },
     });
 };
@@ -252,12 +247,10 @@ export const useUpdateAddress = () => {
                 text1: 'Cập nhật địa chỉ thành công',
             });
         },
-        onError: (error: Error) => {
-            Toast.show({
-                type: 'error',
-                text1: 'Cập nhật địa chỉ thất bại',
-                text2: error.message,
-            });
+        onError: (error) => {
+            const message = error instanceof Error ? error.message : 'Lỗi không xác định';
+            if (isSessionExpiredError(error)) return;
+            Toast.show({ type: 'error', text1: 'Cập nhật địa chỉ thất bại', text2: message });
         },
     });
 };
@@ -288,12 +281,10 @@ export const useDeleteAddress = () => {
                 text1: 'Xóa địa chỉ thành công',
             });
         },
-        onError: (error: Error) => {
-            Toast.show({
-                type: 'error',
-                text1: 'Xóa địa chỉ thất bại',
-                text2: error.message,
-            });
+        onError: (error) => {
+            const message = error instanceof Error ? error.message : 'Lỗi không xác định';
+            if (isSessionExpiredError(error)) return;
+            Toast.show({ type: 'error', text1: 'Xóa địa chỉ thất bại', text2: message });
         },
     });
 };

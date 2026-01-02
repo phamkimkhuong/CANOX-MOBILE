@@ -4,14 +4,12 @@ import { router, useRootNavigationState, useSegments } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import { InteractionManager } from 'react-native';
 
-// Routes that require authentication
-const PROTECTED_TABS = new Set(['cart']);
-
 /**
  * Global auth gate:
- * - Hydrates auth state from SecureStore on app start
- * - Redirects unauthenticated users to /(auth)/login when accessing protected routes
- * - Redirects authenticated users away from auth screens to /(tabs)
+ * 
+ * Responsibilities:
+ *  Hydrates auth state from SecureStore on app start
+ *  Redirects authenticated users away from auth screens to /(tabs)
  */
 export const useAuthGuard = (): void => {
     const segments = useSegments();
@@ -31,27 +29,17 @@ export const useAuthGuard = (): void => {
         void hydrate();
     }, [hydrate, navigationState?.key]);
 
-    // 2) Enforce route access based on auth + current route group.
+    // 2) Redirect authenticated users away from auth screens.
     useEffect(() => {
         if (!navigationState?.key) return;
         if (!hydrated) return;
 
         const firstSegment = segments[0];
-        const secondSegment = segments[1];
         const inAuthGroup = firstSegment === '(auth)';
-        const isProtectedRoute =
-            firstSegment === '(tabs)' &&
-            secondSegment != null &&
-            PROTECTED_TABS.has(secondSegment);
 
         // Wait for animations/interactions to complete before redirecting
-        // This prevents Android "child already has a parent" crash
         const task = InteractionManager.runAfterInteractions(() => {
-            if (!isAuthenticated && isProtectedRoute) {
-                router.replace(ROUTES.AUTH.LOGIN);
-                return;
-            }
-
+            // If user is logged in but on auth screen, redirect to home
             if (isAuthenticated && inAuthGroup) {
                 router.replace(ROUTES.TABS.HOME);
             }
@@ -60,4 +48,3 @@ export const useAuthGuard = (): void => {
         return () => task.cancel();
     }, [hydrated, isAuthenticated, navigationState?.key, segments]);
 };
-

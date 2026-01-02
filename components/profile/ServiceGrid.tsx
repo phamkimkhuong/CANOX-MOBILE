@@ -1,4 +1,4 @@
-import { ProfileMenuItem, SERVICE_MENU_CONFIG } from '@/types/profile';
+import { ProfileMenuItem, SERVICE_MENU_CONFIG } from '@/types/profile/profile';
 import { formatCurrency } from '@/utils/format';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';

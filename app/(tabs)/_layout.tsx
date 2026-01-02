@@ -47,6 +47,20 @@ export default function TabLayout() {
     triggerScrollToTop('index');
   }, [triggerScrollToTop]);
 
+  /**
+   * Create protected tab press handler
+   * Prevents tab navigation and redirects to login if not authenticated
+   * This prevents the 'child already has parent' crash on Android
+   */
+  const createProtectedTabListener = useCallback(() => ({
+    tabPress: (e: { preventDefault: () => void }) => {
+      if (!isAuthenticated) {
+        e.preventDefault();
+        router.push(ROUTES.AUTH.LOGIN);
+      }
+    },
+  }), [isAuthenticated]);
+
   return (
     <Tabs
       screenOptions={{
@@ -106,8 +120,9 @@ export default function TabLayout() {
           tabBarBadge: unreadCount && unreadCount > 0 ? unreadCount : undefined,
           headerShown: false,
         }}
+        listeners={createProtectedTabListener}
       />
-      {/* 4. Tin nhắn/Chat ( app/(tabs)/chat.tsx) */}
+      {/* 5. Tin nhắn/Chat ( app/(tabs)/chat.tsx) */}
       <Tabs.Screen
         name="chat"
         options={{
@@ -116,18 +131,7 @@ export default function TabLayout() {
           tabBarBadge: 3,
           headerShown: false,
         }}
-        listeners={
-          {
-            tabPress: (e) => {
-              if (!isAuthenticated) {
-                // Chặn hành động chuyển Tab mặc định (Ngăn không cho mount CartScreen)
-                e.preventDefault();
-                // Chuyển hướng sang trang Login thủ công
-                router.push(ROUTES.AUTH.LOGIN);
-              }
-            },
-          }
-        }
+        listeners={createProtectedTabListener}
       />
       {/* 5. Tôi/Me ( app/(tabs)/me.tsx) */}
       <Tabs.Screen

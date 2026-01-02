@@ -8,7 +8,7 @@ import {
     UserProfile,
     WalletBalance,
     WalletBalanceSchema
-} from '@/types/profile';
+} from '@/types/profile/profile';
 import { UserMeResponseSchema } from '@/types/user';
 import { transformOrderCount } from '@/utils/adapter/order/orderCountAdapter';
 import { transformUserMe } from '@/utils/adapter/userAdapter';

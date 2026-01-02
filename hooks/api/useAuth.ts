@@ -1,6 +1,6 @@
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { authRoutes, ROUTES } from '@/constants/routes';
-import { ApiError, request } from '@/services/api/client';
+import { ApiError, isSessionExpiredError, request } from '@/services/api/client';
 import { useAuthStore } from '@/store/useAuthStore';
 import { AuthResponseSchema, LoginPayload, RegisterPayload, RegisterResponseSchema, VerifyOtpPayload } from '@/types/auth';
 import { ResponseDefaultSchema } from '@/types/responseSchema';
@@ -99,10 +99,12 @@ export const useLogout = () => {
             router.replace(ROUTES.AUTH.LOGIN);
         },
         onError: (error: ApiError) => {
+            const message = error.message;
+            if (isSessionExpiredError(error)) return;
             Toast.show({
                 type: 'error',
                 text1: 'Đăng xuất thất bại',
-                text2: error.message,
+                text2: message,
             });
         },
     });

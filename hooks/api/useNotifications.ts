@@ -1,5 +1,5 @@
 import { API_ROUTES } from '@/constants/apiRoutes';
-import { apiClient, request } from '@/services/api/client';
+import { apiClient, isSessionExpiredError, request } from '@/services/api/client';
 import { useAuthStore } from '@/store/useAuthStore';
 import {
     FlattenedNotificationItem,
@@ -212,6 +212,10 @@ export const useMarkAllAsRead = () => {
                     queryClient.setQueryData(queryKey, data);
                 });
             }
+
+            // Ignore SessionExpiredError - logout is happening
+            if (isSessionExpiredError(_err)) return;
+
             Toast.show({
                 type: 'error',
                 text1: 'Đánh dấu tất cả đã đọc thất bại',

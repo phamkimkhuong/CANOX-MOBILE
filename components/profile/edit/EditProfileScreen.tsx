@@ -5,7 +5,7 @@ import {
     dateToApiFormat,
     useUpdateProfile,
 } from '@/hooks/api/useUpdateProfile';
-import { Gender, UpdateProfilePayload } from '@/types/user';
+import { Gender, ProfileFormSchema, ProfileFormValues, UpdateProfilePayload } from '@/types/user';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router, Stack } from 'expo-router';
 import React, { useEffect } from 'react';
@@ -23,29 +23,10 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { z } from 'zod';
 import { AvatarEditView } from './AvatarEditView';
 import { DatePickerField } from './DatePickerField';
 import { GenderSelector } from './GenderSelector';
 import { ProfileInput } from './ProfileInput';
-
-// Form validation schema
-const profileFormSchema = z.object({
-    fullName: z
-        .string()
-        .min(1, 'Họ tên không được để trống')
-        .max(100, 'Họ tên tối đa 100 ký tự'),
-    phone: z
-        .string()
-        .min(10, 'Số điện thoại phải có ít nhất 10 số')
-        .max(11, 'Số điện thoại tối đa 11 số')
-        .regex(/^[0-9]+$/, 'Số điện thoại chỉ được chứa số'),
-    dateOfBirth: z.date().nullable(),
-    gender: z.enum(['MALE', 'FEMALE', 'OTHER']).nullable(),
-    email: z.string().email().optional(), // Read-only field
-});
-
-type FormSchema = z.infer<typeof profileFormSchema>;
 
 /**
  * EditProfileScreen - Edit user profile information
@@ -81,8 +62,8 @@ export default function EditProfileScreen() {
         setValue,
         watch,
         formState: { errors, isDirty },
-    } = useForm<FormSchema>({
-        resolver: zodResolver(profileFormSchema),
+    } = useForm<ProfileFormValues>({
+        resolver: zodResolver(ProfileFormSchema),
         defaultValues: {
             fullName: '',
             phone: '',
@@ -114,7 +95,7 @@ export default function EditProfileScreen() {
     }, [profile, setValue]);
 
     // Handle form submission
-    const onSubmit = (data: FormSchema) => {
+    const onSubmit = (data: ProfileFormValues) => {
         const payload: UpdateProfilePayload = {
             fullName: data.fullName,
             phone: data.phone,

@@ -6,7 +6,7 @@
  */
 
 import { OrderCountApiResponse } from '@/types/order/orderCount';
-import { OrderStats } from '@/types/profile';
+import { OrderStats } from '@/types/profile/profile';
 
 /**
  * Transform Order Count API Response → OrderStats (Profile UI)

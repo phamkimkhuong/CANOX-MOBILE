@@ -107,8 +107,29 @@ export interface ProfileFormData {
     phone: string;
     dateOfBirth: Date | null;
     gender: Gender | null;
-    email: string; // Read-only, display only
 }
+
+/**
+ * Form validation schema for EditProfileScreen
+ * Uses Date type for dateOfBirth (for DatePicker component)
+ * Must be converted to string (YYYY-MM-DD) before sending to API
+ */
+export const ProfileFormSchema = z.object({
+    fullName: z
+        .string()
+        .min(1, 'Họ tên không được để trống')
+        .max(100, 'Họ tên tối đa 100 ký tự'),
+    phone: z
+        .string()
+        .min(10, 'Số điện thoại phải có ít nhất 10 số')
+        .max(11, 'Số điện thoại tối đa 11 số')
+        .regex(/^[0-9]+$/, 'Số điện thoại chỉ được chứa số'),
+    dateOfBirth: z.date().nullable(),
+    gender: z.enum(['MALE', 'FEMALE', 'OTHER']).nullable(),
+    email: z.string().email().optional(), // Read-only field
+});
+
+export type ProfileFormValues = z.infer<typeof ProfileFormSchema>;
 
 /**
  * Update Profile Response

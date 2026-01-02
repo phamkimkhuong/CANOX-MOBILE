@@ -3,8 +3,6 @@
  * 
  * Context to communicate the "scroll to top" event between Tab Navigator and screens.
  * Pattern: When user taps on the active tab, the screen will scroll to the top.
- * 
- * This is the standard UX used by Instagram, Twitter, TikTok, etc.
  */
 
 import React, { createContext, useCallback, useContext, useRef } from 'react';

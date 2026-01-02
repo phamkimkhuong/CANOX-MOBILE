@@ -1,5 +1,22 @@
+/**
+ * useAuthStore - Zustand store for authentication state
+ * 
+ * Features:
+ * - Secure token storage via TokenManager
+ * - Hydration from SecureStore on app launch
+ * - Session management (login/logout)
+ * - Integration with TokenManager for 3-layer refresh strategy
+ */
+
 import { ROUTES } from '@/constants/routes';
 import { queryClient } from '@/services/api/queryClient';
+import {
+    checkTokenOnAppLaunch,
+    clearTokens,
+    getAccessToken,
+    saveTokens,
+    setOnRefreshFailedCallback,
+} from '@/services/auth/tokenManager';
 import { logger } from '@/utils/logger';
 import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
@@ -9,73 +26,146 @@ import { useCartStore } from './useCartStore';
 const BUYER_ID_KEY = 'user_buyer_id';
 
 interface AuthState {
+    /** Current access token (in-memory) */
     token: string | null;
+    /** Buyer ID from backend */
     buyerId: string | null;
+    /** Authentication status */
     isAuthenticated: boolean;
+    /** Whether store has been hydrated from storage */
     hydrated: boolean;
+
+    // Actions
     hydrate: () => Promise<void>;
     login: (accessToken: string, refreshToken: string, buyerId: string | null) => Promise<void>;
     logout: () => Promise<void>;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+// ============================================
+// STORE
+// ============================================
+
+export const useAuthStore = create<AuthState>((set, get) => ({
     token: null,
     buyerId: null,
     isAuthenticated: false,
     hydrated: false,
-    hydrate: async () => {
-        const storedToken = await SecureStore.getItemAsync('user_access_token');
-        const storedBuyerId = await SecureStore.getItemAsync(BUYER_ID_KEY);
 
-        if (storedToken) {
+    /**
+     * Hydrate auth state from secure storage on app launch
+     * Also triggers eager token refresh if needed (Layer 1)
+     */
+    hydrate: async () => {
+        try {
+            const [storedToken, storedBuyerId] = await Promise.all([
+                getAccessToken(),
+                SecureStore.getItemAsync(BUYER_ID_KEY),
+            ]);
+
+            if (storedToken) {
+                set({
+                    token: storedToken,
+                    buyerId: storedBuyerId,
+                    isAuthenticated: true,
+                    hydrated: true,
+                });
+
+                // Register callback for when token refresh fails
+                // This will trigger logout flow
+                setOnRefreshFailedCallback(() => {
+                    logger.auth.warn('Token refresh failed - triggering auto-logout');
+                    get().logout();
+                });
+
+                // Layer 1: Check token health and refresh if needed
+                // This runs in background, doesn't block hydration
+                checkTokenOnAppLaunch().catch((error) => {
+                    logger.auth.error('Error during token health check:', error);
+                });
+
+                return;
+            }
+
+            set({ token: null, buyerId: null, isAuthenticated: false, hydrated: true });
+        } catch (error) {
+            logger.auth.error('Error hydrating auth state:', error);
+            set({ token: null, buyerId: null, isAuthenticated: false, hydrated: true });
+        }
+    },
+
+    /**
+     * Login - Save tokens and update state
+     * TokenManager handles proactive refresh scheduling (Layer 2)
+     */
+    login: async (accessToken: string, refreshToken: string, buyerId: string | null) => {
+        try {
+            // Save tokens using TokenManager (handles expiry tracking & proactive refresh)
+            await saveTokens(accessToken, refreshToken);
+
+            // Save buyerId separately
+            if (buyerId) {
+                await SecureStore.setItemAsync(BUYER_ID_KEY, buyerId);
+            }
+
+            logger.auth.info('Login Success - Tokens stored, proactive refresh scheduled');
+
             set({
-                token: storedToken,
-                buyerId: storedBuyerId,
+                token: accessToken,
+                buyerId,
                 isAuthenticated: true,
                 hydrated: true,
             });
-            return;
+        } catch (error) {
+            logger.auth.error('Error during login:', error);
+            throw error;
         }
-
-        set({ token: null, buyerId: null, isAuthenticated: false, hydrated: true });
     },
-    login: async (accessToken: string, refreshToken: string, buyerId: string | null) => {
-        // Lưu tokens và buyerId vào SecureStore
-        await SecureStore.setItemAsync('user_access_token', accessToken);
-        await SecureStore.setItemAsync('user_refresh_token', refreshToken);
-        if (buyerId) {
-            await SecureStore.setItemAsync(BUYER_ID_KEY, buyerId);
-        }
 
-        logger.auth.info('🚀 Login Success - Access Token & BuyerId stored');
-
-        set({
-            token: accessToken,
-            buyerId,
-            isAuthenticated: true,
-            hydrated: true,
-        });
-    },
+    /**
+     * Logout - Clear all auth data and redirect to login
+     */
     logout: async () => {
-        // 1. Clear SecureStore
-        await SecureStore.deleteItemAsync('user_access_token');
-        await SecureStore.deleteItemAsync('user_refresh_token');
-        await SecureStore.deleteItemAsync(BUYER_ID_KEY);
+        try {
+            // 1. Clear tokens using TokenManager
+            await clearTokens();
+            await SecureStore.deleteItemAsync(BUYER_ID_KEY);
 
-        // 2. Clear Zustand stores
-        useCartStore.getState().clear();
+            // 2. Clear cart store
+            useCartStore.getState().clear();
 
-        // 3. Clear TanStack Query caches (user-specific data)
-        queryClient.removeQueries({ queryKey: ['cart'] });
-        queryClient.removeQueries({ queryKey: ['user-addresses'] });
-        queryClient.removeQueries({ queryKey: ['profile'] });
-        queryClient.removeQueries({ queryKey: ['notifications'] });
-        queryClient.removeQueries({ queryKey: ['orders'] });
+            // 3. Clear user-specific query caches
+            queryClient.removeQueries({ queryKey: ['cart'] });
+            queryClient.removeQueries({ queryKey: ['user-addresses'] });
+            queryClient.removeQueries({ queryKey: ['profile'] });
+            queryClient.removeQueries({ queryKey: ['notifications'] });
+            queryClient.removeQueries({ queryKey: ['orders'] });
 
-        // 4. Reset auth state
-        set({ token: null, buyerId: null, isAuthenticated: false, hydrated: true });
+            logger.auth.info('Logout complete - User data cleared');
 
-        // 5. Navigate to login
-        router.replace(ROUTES.AUTH.LOGIN);
+            // 4. Reset auth state
+            set({ token: null, buyerId: null, isAuthenticated: false, hydrated: true });
+
+            // 5. Navigate to login
+            router.replace(ROUTES.AUTH.LOGIN);
+        } catch (error) {
+            logger.auth.error('Error during logout:', error);
+            // Force reset state even if cleanup fails
+            set({ token: null, buyerId: null, isAuthenticated: false, hydrated: true });
+        }
     },
 }));
+
+// ============================================
+// SELECTORS (Optimized subscriptions)
+// ============================================
+
+/**
+ * Check if user is authenticated
+ * Use this instead of accessing store directly for better performance
+ */
+export const useIsAuthenticated = () => useAuthStore((state) => state.isAuthenticated);
+
+/**
+ * Get current buyer ID
+ */
+export const useBuyerId = () => useAuthStore((state) => state.buyerId);

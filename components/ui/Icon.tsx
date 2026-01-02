@@ -196,6 +196,20 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     'checkbox': { ios: 'checkbox', android: 'checkbox' },
     call: { ios: 'call-outline', android: 'call-outline' },
     'my-location': { ios: 'navigate-outline', android: 'navigate-outline' },
+
+    // === Profile/Form Icons ===
+    phone: { ios: 'call-outline', android: 'call-outline' },
+    'phone-outline': { ios: 'call-outline', android: 'call-outline' },
+    calendar: { ios: 'calendar-outline', android: 'calendar-outline' },
+    'calendar-month': { ios: 'calendar-outline', android: 'calendar-outline' },
+    'calendar-outline': { ios: 'calendar-outline', android: 'calendar-outline' },
+    camera: { ios: 'camera-outline', android: 'camera-outline' },
+    'camera-alt': { ios: 'camera-outline', android: 'camera-outline' },
+    edit: { ios: 'create-outline', android: 'create-outline' },
+    'edit-outline': { ios: 'create-outline', android: 'create-outline' },
+    'person-outline': { ios: 'person-outline', android: 'person-outline' },
+    'male-female': { ios: 'male-female-outline', android: 'male-female-outline' },
+    transgender: { ios: 'transgender-outline', android: 'transgender-outline' },
 };
 
 interface IconSymbolProps {

@@ -1,4 +1,4 @@
-import { FollowedShop } from '@/types/profile';
+import { FollowedShop } from '@/types/profile/profile';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import React, { memo, useCallback } from 'react';

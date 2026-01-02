@@ -4,7 +4,7 @@
  * ==============================================
  */
 
-import { UserProfile } from '@/types/profile';
+import { UserProfile } from '@/types/profile/profile';
 import { Gender, UserMeData } from '@/types/user';
 
 /**

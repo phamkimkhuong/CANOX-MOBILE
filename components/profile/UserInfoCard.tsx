@@ -1,4 +1,6 @@
-import { MEMBER_LEVEL_CONFIG, QUICK_STATS_CONFIG, UserProfile } from '@/types/profile';
+import { ROUTES } from '@/constants/routes';
+import { MEMBER_LEVEL_CONFIG, QUICK_STATS_CONFIG, UserProfile } from '@/types/profile/profile';
+import { Navigator } from '@/utils/navigation';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import React, { memo, useCallback } from 'react';
@@ -25,11 +27,11 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
         : MEMBER_LEVEL_CONFIG.BRONZE;
 
     const handleEditProfile = useCallback(() => {
-        // TODO: Navigate to edit profile
+        Navigator.push(ROUTES.USER.EDIT_PROFILE);
     }, []);
 
     const handleStatPress = useCallback((route: string) => {
-        // TODO: Navigate to route
+        Navigator.push(route as never);
     }, []);
 
     // Skeleton loading state

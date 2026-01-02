@@ -1,4 +1,4 @@
-import { SETTINGS_MENU_CONFIG, SettingsMenuItem } from '@/types/profile';
+import { SETTINGS_MENU_CONFIG, SettingsMenuItem } from '@/types/profile/profile';
 import { MaterialIcons } from '@expo/vector-icons';
 import React, { memo, useCallback } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';

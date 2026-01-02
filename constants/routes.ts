@@ -74,6 +74,7 @@ export const ROUTES = {
 
     // ============ USER CONTENT ============
     USER: {
+        EDIT_PROFILE: '/(main)/(user)/edit-profile' as const,
         FAVORITES: '/favorites' as const,
         RECENT: '/recent' as const,
         FOLLOWED_SHOPS: '/followed-shops' as const,
