@@ -67,3 +67,29 @@ export const formatSoldCountSimple = (count: number): string => {
     }
     return count.toString();
 };
+
+/**
+ * Format Vietnamese phone number for display
+ * Input: "0901234567" or "+84901234567"
+ * Output: "(+84) 901 234 567"
+ */
+export const formatPhoneNumber = (phone: string): string => {
+    // Remove all non-digit characters
+    const digits = phone.replace(/\D/g, '');
+
+    // Handle +84 prefix
+    let normalized = digits;
+    if (digits.startsWith('84') && digits.length > 9) {
+        normalized = digits.slice(2);
+    } else if (digits.startsWith('0')) {
+        normalized = digits.slice(1);
+    }
+
+    // Format as (+84) xxx xxx xxx
+    if (normalized.length === 9) {
+        return `(+84) ${normalized.slice(0, 3)} ${normalized.slice(3, 6)} ${normalized.slice(6)}`;
+    }
+
+    // Fallback: return original if can't parse
+    return phone;
+};

@@ -51,4 +51,17 @@ export const API_ROUTES = {
         MARK_ALL_AS_READ: `${API_PREFIX}/notifications/read-all`,
         CHECK_NEW: `${API_PREFIX}/notifications/check-new`,
     },
-} as const; // <--- as const để TS hiểu đây là readonly values
+    ADDRESS: {
+        COUNTRY: `${API_PREFIX}/address/country`,
+        PROVINCES: `${API_PREFIX}/address/provinces`,
+        WARDS_BY_PROVINCE: (provinceCode: string) => `${API_PREFIX}/address/provinces/${provinceCode}/wards`,
+        WARD_DETAIL: (wardCode: string) => `${API_PREFIX}/address/wards/${wardCode}`,
+    },
+    BUYER_ADDRESS: {
+        LIST: (buyerId: string) => `${API_PREFIX}/buyers/${buyerId}/address`,
+        CREATE: (buyerId: string) => `${API_PREFIX}/buyers/${buyerId}/address`,
+        UPDATE: (buyerId: string, addressId: string) => `${API_PREFIX}/buyers/${buyerId}/address/${addressId}`,
+        DELETE: (buyerId: string, addressId: string) => `${API_PREFIX}/buyers/${buyerId}/address/${addressId}`,
+        SET_DEFAULT: (buyerId: string, addressId: string) => `${API_PREFIX}/buyers/${buyerId}/address/${addressId}/default`,
+    },
+} as const;  // <--- as const để TS hiểu đây là readonly values

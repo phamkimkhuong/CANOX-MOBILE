@@ -2,6 +2,7 @@ import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 import { ROUTES } from '@/constants/routes';
 import { useCart } from '@/hooks/api/useCart';
+import { useUnreadNotificationCount } from '@/hooks/api/useNotifications';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useCartStore } from '@/store/useCartStore';
 import { router, Tabs } from 'expo-router';
@@ -29,6 +30,9 @@ export default function TabLayout() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   useCart();
   const cartItemCount = useCartStore((state) => state.totalQuantity);
+
+  // Fetch unread notification count for badge
+  const { data: unreadCount } = useUnreadNotificationCount();
 
   return (
     <Tabs
@@ -83,7 +87,7 @@ export default function TabLayout() {
         options={{
           title: 'Thông báo',
           tabBarIcon: ({ color }) => <TabBarIcon name="notifications" color={color} />,
-          tabBarBadge: 7,
+          tabBarBadge: unreadCount && unreadCount > 0 ? unreadCount : undefined,
           headerShown: false,
         }}
       />

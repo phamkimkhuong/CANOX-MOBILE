@@ -1,5 +1,5 @@
 import { API_ROUTES } from '@/constants/apiRoutes';
-import { request } from '@/services/api/client';
+import { apiClient, request } from '@/services/api/client';
 import {
     FlattenedNotificationItem,
     Notification,
@@ -9,31 +9,69 @@ import {
 } from '@/types/notification';
 import { ResponseDefaultSchema } from '@/types/responseSchema';
 import { mapApiNotificationToUi } from '@/utils/adapter/notificationAdapter';
-import { InfiniteData, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { InfiniteData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import Toast from 'react-native-toast-message';
 
 const PAGE_SIZE = 20;
 
+// ============================================
+// UNREAD COUNT HOOK (Lightweight for TabBar badge)
+// ============================================
+
+interface UnreadCountResponse {
+    code: number;
+    success: boolean;
+    data: number;
+}
+
 /**
- * Simulate API fetch with pagination
+ * Hook to fetch unread notification count
+ * Lightweight polling for TabBar badge display
+ */
+export const useUnreadNotificationCount = () => {
+    return useQuery({
+        queryKey: ['notifications', 'unread-count'],
+        queryFn: async (): Promise<number> => {
+            const response = await apiClient.get<UnreadCountResponse>(
+                API_ROUTES.NOTIFICATIONS.COUNT_UNREAD
+            );
+
+            if (response.data.success) {
+                return response.data.data;
+            }
+            return 0;
+        },
+        staleTime: 1000 * 60, // 1 minute - refresh frequently
+        gcTime: 1000 * 60 * 5, // 5 minutes
+        refetchInterval: 1000 * 60 * 2, // Poll every 2 minutes
+        refetchOnWindowFocus: true,
+    });
+};
+
+// ============================================
+// NOTIFICATIONS LIST HOOK
+// ============================================
+
+
+/**
+ * Fetch notifications with pagination
  */
 const fetchNotifications = async (
     pageParam: number,
     filter: NotificationFilter
 ): Promise<NotificationPage> => {
-    // 1. Map Filter UI sang Params API
-    const params: any = {
+    const params: Record<string, string | number> = {
         page: pageParam,
         size: PAGE_SIZE,
-        sort: 'createdDate,desc', // Luôn sort mới nhất
-        recipientRole: 'BUYER', // Hardcode
+        sort: 'createdDate,desc',
     };
-    // Check API hỗ trợ filter theo 'category' hoặc 'type'
+
+    // Filter by type/category if not "ALL"
     if (filter !== NotificationFilter.ALL) {
         params.type = filter;
-        // params.category = filter;
     }
+
     const response = await request(
         {
             url: API_ROUTES.NOTIFICATIONS.GET,
@@ -42,6 +80,7 @@ const fetchNotifications = async (
         },
         NotificationApiResponseSchema
     );
+
     const { content, hasNext, nextPage } = response.data;
     return {
         data: content.map(mapApiNotificationToUi),

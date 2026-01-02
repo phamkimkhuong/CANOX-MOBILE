@@ -16,6 +16,7 @@
  * - Sticky footer with "Đặt hàng" button
  */
 
+import { ROUTES } from '@/constants/routes';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import React, { useCallback, useEffect } from 'react';
@@ -36,27 +37,10 @@ import {
 
 // Store & Hooks
 import { useCheckoutCalculation } from '@/hooks/api/useCheckoutCalculation';
+import { useDefaultAddress } from '@/hooks/api/useUserAddresses';
 import { useCheckoutStore } from '@/store/useCheckoutStore';
 import type { CartShopUI, VoucherUI } from '@/types/cart';
-import type { DeliveryAddress, PaymentMethodType } from '@/types/checkout';
-
-// ============================================
-// MOCK DATA
-// ============================================
-
-/**
- * Mock user address - In production: fetch from user profile
- */
-const MOCK_ADDRESS: DeliveryAddress = {
-    id: 'addr-001',
-    recipientName: 'Nguyễn Văn An',
-    phoneNumber: '0901234567',
-    addressLine: '123 Nguyễn Huệ',
-    ward: 'Phường Bến Nghé',
-    district: 'Quận 1',
-    city: 'TP. Hồ Chí Minh',
-    isDefault: true,
-};
+import type { PaymentMethodType } from '@/types/checkout';
 
 /**
  * Mock platform vouchers - In production: fetch from API
@@ -183,6 +167,9 @@ export default function CheckoutScreen() {
     const styles = stylesheet;
     const router = useRouter();
 
+    // Fetch user's default address from API
+    const { data: defaultShippingAddress, isLoading: isLoadingAddress } = useDefaultAddress();
+
     // Store state
     const shops = useCheckoutStore((s) => s.shops);
     const deliveryAddress = useCheckoutStore((s) => s.deliveryAddress);
@@ -213,11 +200,14 @@ export default function CheckoutScreen() {
     // INITIALIZATION
     // ========================================
 
+    // Initialize checkout session once address is loaded
     useEffect(() => {
-        // Initialize checkout session with mock data
-        // In production: Get selected items from useCartStore
+        // Wait for address loading to complete before initializing
+        if (isLoadingAddress) return;
+
         if (!isInitialized) {
             // Create set of all item IDs from mock data
+            // TODO: In production, get from useCartStore
             const selectedItemIds = new Set<string>();
             MOCK_CART_SHOPS.forEach((shop) => {
                 shop.items.forEach((item) => {
@@ -225,14 +215,15 @@ export default function CheckoutScreen() {
                 });
             });
 
+            // Use ShippingAddress directly (unified type)
             initSession(
                 MOCK_CART_SHOPS,
                 selectedItemIds,
-                MOCK_ADDRESS,
+                defaultShippingAddress ?? null,
                 MOCK_PLATFORM_VOUCHERS
             );
         }
-    }, [isInitialized, initSession]);
+    }, [isInitialized, isLoadingAddress, defaultShippingAddress, initSession]);
 
     // Cleanup on unmount
     useFocusEffect(
@@ -249,13 +240,17 @@ export default function CheckoutScreen() {
     // HANDLERS
     // ========================================
 
+    /**
+     * Navigate to address selection screen
+     * Pass current address ID so it's pre-selected in the list
+     */
     const handleAddressPress = useCallback(() => {
-        // In production: Navigate to address selection
-        Alert.alert(
-            'Chọn địa chỉ',
-            'Tính năng chọn địa chỉ sẽ được implement sau.'
-        );
-    }, []);
+        const params = new URLSearchParams({ mode: 'selection' });
+        if (deliveryAddress?.id) {
+            params.append('selectedId', deliveryAddress.id);
+        }
+        router.push(`${ROUTES.ADDRESS.LIST}?${params.toString()}` as never);
+    }, [router, deliveryAddress?.id]);
 
     const handlePlatformVoucherSelect = useCallback(
         (voucherId: string | null) => {
@@ -424,6 +419,6 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
 
     footerSpacer: {
-        height: theme.margins.md, // Space for sticky footer
+        height: theme.margins.sm, // Space for sticky footer
     },
 }));

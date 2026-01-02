@@ -11,6 +11,7 @@
  * 4. VoucherValidation: Logic for voucher stacking & auto-removal
  */
 
+import type { ShippingAddress } from '@/types/address';
 import type { CartItemUI, VoucherUI } from './cart';
 
 // ============================================
@@ -73,29 +74,22 @@ export interface PaymentMethod {
 }
 
 // ============================================
-// ADDRESS TYPES
+// ADDRESS TYPES (Re-export from address.ts for consistency)
 // ============================================
 
-/**
- * DeliveryAddress - Địa chỉ giao hàng
- */
-export interface DeliveryAddress {
-    id: string;
-    recipientName: string;
-    phoneNumber: string;
-    addressLine: string; // "123 Đường ABC"
-    ward: string; // "Phường Bến Nghé"
-    district: string; // "Quận 1"
-    city: string; // "TP. Hồ Chí Minh"
-    isDefault: boolean;
-    label?: 'home' | 'office' | 'other'; // Nhãn địa chỉ
-}
+// Use ShippingAddress as the unified address type
+// DeliveryAddress is deprecated - use ShippingAddress instead
+export type { ShippingAddress } from '@/types/address';
 
 /**
- * Format địa chỉ đầy đủ
+ * Format địa chỉ đầy đủ cho hiển thị
  */
-export const formatFullAddress = (address: DeliveryAddress): string => {
-    return `${address.addressLine}, ${address.ward}, ${address.district}, ${address.city}`;
+export const formatFullAddress = (address: ShippingAddress): string => {
+    return [
+        address.streetAddress,
+        address.wardName,
+        address.provinceName,
+    ].filter(Boolean).join(', ');
 };
 
 // ============================================

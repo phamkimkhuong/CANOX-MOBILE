@@ -23,7 +23,9 @@ export const useLogin = () => {
             );
         },
         onSuccess: async (response) => {
-            const { accessToken, refreshToken, emailVerified, email } = response.data;
+            const { accessToken, refreshToken, emailVerified, email, user } = response.data;
+            const buyerId = user.buyerId ?? null;
+
             // Kiểm tra email verified
             if (emailVerified === false) {
                 Toast.show({
@@ -34,10 +36,8 @@ export const useLogin = () => {
                 router.push(authRoutes.verifyOtp({ phone: email || '', type: 'register' }));
                 return;
             }
-            // Email đã verify -> Lưu token và đăng nhập
-            await loginStore(accessToken, refreshToken);
-            // TODO: Lưu refreshToken
-            // await SecureStore.setItemAsync('refresh_token', refreshToken);
+            // Email đã verify -> Lưu token và buyerId vào store
+            await loginStore(accessToken, refreshToken, buyerId);
             Toast.show({
                 type: 'success',
                 text1: 'Đăng nhập thành công',

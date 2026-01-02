@@ -43,8 +43,11 @@ export const ROUTES = {
 
     // ============ ADDRESS ============
     ADDRESS: {
-        LIST: '/(main)/address/list' as const,
-        ADD: '/(main)/address/add' as const,
+        /** List all addresses - mode: 'selection' | 'management' */
+        LIST: '/address/list' as const,
+        ADD: '/address/add' as const,
+        /** Edit existing address (with ?id=xxx param) */
+        EDIT: '/address/add' as const,
     },
 
     // ============ MODAL ============
@@ -126,12 +129,12 @@ export const productRoutes = {
 /**
  * Chat routes - Disabled until /chat/[id] is implemented
  */
-// export const chatRoutes = {
-//     conversation: (conversationId: string): Href => ({
-//         pathname: '/chat/[id]',
-//         params: { id: conversationId },
-//     }),
-// } as const;
+export const chatRoutes = {
+    conversation: (conversationId: string): Href => ({
+        pathname: '/chat/[id]',
+        params: { id: conversationId },
+    } as unknown as Href),
+} as const;
 
 /**
  * Order routes với dynamic ID

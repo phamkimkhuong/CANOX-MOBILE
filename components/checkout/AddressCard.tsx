@@ -12,15 +12,15 @@
 
 import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES, href } from '@/constants/routes';
-import type { DeliveryAddress } from '@/types/checkout';
-import { formatFullAddress } from '@/types/checkout';
+import type { ShippingAddress } from '@/types/address';
+import { formatShippingAddress } from '@/utils/adapter/addressAdapter';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface AddressCardProps {
-    address: DeliveryAddress | null;
+    address: ShippingAddress | null;
     onPress?: () => void;
 }
 
@@ -82,11 +82,11 @@ export const AddressCard: React.FC<AddressCardProps> = ({ address, onPress }) =>
                         </View>
 
                         {/* Phone number */}
-                        <Text style={styles.phone}>{address.phoneNumber}</Text>
+                        <Text style={styles.phone}>{address.phone}</Text>
 
                         {/* Full address */}
                         <Text style={styles.addressText} numberOfLines={1}>
-                            {formatFullAddress(address)}
+                            {formatShippingAddress(address)}
                         </Text>
                     </>
                 ) : (

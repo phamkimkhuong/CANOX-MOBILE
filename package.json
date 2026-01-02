@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
+    "clear": "expo start --clear",
     "pre": "expo prebuild",
     "android": "expo run:android",
     "a": "expo run:android --device",

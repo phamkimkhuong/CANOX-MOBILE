@@ -161,6 +161,18 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     'location-on': { ios: 'location-outline', android: 'location-outline' },
     'keyboard-arrow-down': { ios: 'chevron-down', android: 'chevron-down' },
     'local-activity': { ios: 'ticket-outline', android: 'ticket-outline' },
+
+    // === Address Icons ===
+    'home-pin': { ios: 'home-outline', android: 'home-outline' },
+    'location-city': { ios: 'business-outline', android: 'business-outline' },
+    'work-outline': { ios: 'briefcase-outline', android: 'briefcase-outline' },
+    'edit-square': { ios: 'create-outline', android: 'create-outline' },
+    'radio-button-on': { ios: 'radio-button-on', android: 'radio-button-on' },
+    'radio-button-off': { ios: 'radio-button-off', android: 'radio-button-off' },
+    'checkbox-outline': { ios: 'checkbox-outline', android: 'checkbox-outline' },
+    'checkbox': { ios: 'checkbox', android: 'checkbox' },
+    call: { ios: 'call-outline', android: 'call-outline' },
+    'my-location': { ios: 'navigate-outline', android: 'navigate-outline' },
 };
 
 interface IconSymbolProps {

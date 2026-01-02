@@ -15,8 +15,8 @@
 import type { CartShopUI, VoucherUI } from '@/types/cart';
 import type {
     CheckoutShopUI,
-    DeliveryAddress,
     PaymentMethodType,
+    ShippingAddress,
     ShippingMethod,
 } from '@/types/checkout';
 import { toCheckoutItem } from '@/types/checkout';
@@ -27,30 +27,14 @@ import { create } from 'zustand';
 // ============================================
 
 interface CheckoutState {
-    // ========================================
-    // Session Data
-    // ========================================
-    /** Checkout đã được khởi tạo chưa */
     isInitialized: boolean;
-    /** Danh sách shop với items đã chọn */
     shops: CheckoutShopUI[];
-    /** Địa chỉ giao hàng */
-    deliveryAddress: DeliveryAddress | null;
-    /** Platform vouchers available */
+    deliveryAddress: ShippingAddress | null;
     platformVouchers: VoucherUI[];
-
-    // ========================================
-    // User Choices
-    // ========================================
-    /** Map: shopId -> shippingMethodId */
     shippingMethodMap: Map<string, string>;
-    /** Map: shopId -> note string */
     shopNotes: Map<string, string>;
-    /** Map: shopId -> voucherId */
     shopVouchers: Map<string, string>;
-    /** Platform voucher đang áp dụng */
     platformVoucherId: string | null;
-    /** Phương thức thanh toán */
     paymentMethod: PaymentMethodType;
 
     // ========================================
@@ -75,7 +59,7 @@ interface CheckoutState {
     initSession: (
         cartShops: CartShopUI[],
         selectedIds: Set<string>,
-        address: DeliveryAddress | null,
+        address: ShippingAddress | null,
         platformVouchers: VoucherUI[]
     ) => void;
 
@@ -116,7 +100,7 @@ interface CheckoutState {
     // Actions - Address
     // ========================================
     /** Update delivery address */
-    setDeliveryAddress: (address: DeliveryAddress) => void;
+    setDeliveryAddress: (address: ShippingAddress) => void;
 
     // ========================================
     // Actions - Submission
