@@ -1,14 +1,19 @@
 /**
- * Cart Screen
+ * Cart Screen - Hybrid Architecture
  * 
- * Main shopping cart screen with:
+ * Features:
+ * - Real API data fetching (useCart)
+ * - Client-side selection state (Zustand)
+ * - API mutations for quantity & remove
  * - Shop groups with 3-level checkbox logic
- * - Quantity stepper with debounce
  * - Swipe-to-delete functionality
- * - 2-tier voucher system (Shop + Platform)
- * - Sticky checkout footer above TabBar
+ * - 2-tier voucher system
+ * - Sticky checkout footer
  * 
- * Auth protection is handled centrally by useAuthGuard in app/_layout.tsx
+ * Architecture:
+ * - Data: From API (server)
+ * - Selection: Client-side (Zustand) - backend doesn't support
+ * - Quantity/Remove: API mutations (optimistic updates)
  */
 
 import '@/constants/unistyles';
@@ -22,20 +27,23 @@ import {
 } from '@/components/cart';
 import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
-import { useCartCalculations } from '@/hooks/api/cart/useCartCalculations';
+import {
+    useCart,
+    useCartCalculations,
+    useRemoveCartItem,
+    useUpdateCartItemQuantity,
+} from '@/hooks/api/cart';
 import { useCartStore } from '@/store/useCartStore';
 import { useCheckoutStore } from '@/store/useCheckoutStore';
-import type { CartShopUI, CartUI } from '@/types/cart';
-import { generateMockCartData, getShopCheckboxState } from '@/utils/adapter/cartAdapter';
+import type { CartShopUI } from '@/types/cart';
+import { getShopCheckboxState } from '@/utils/adapter/cartAdapter';
 import { logger } from '@/utils/logger';
 import { FlashList } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-
-
 
 interface CartHeaderProps {
     onEditPress: () => void;
@@ -111,14 +119,20 @@ export default function CartScreen() {
     const router = useRouter();
 
     // ========================================
-    // STATE
+    // API HOOKS
     // ========================================
 
-    // Mock data - Replace with useCart() query later
-    const [cartData, setCartData] = useState<CartUI | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+    // Fetch cart data from API
+    const { data: cartData, isLoading, error, refetch } = useCart();
 
-    // Zustand store
+    // API Mutations
+    const { mutate: updateQuantity } = useUpdateCartItemQuantity();
+    const { mutate: removeItem } = useRemoveCartItem();
+
+    // ========================================
+    // CLIENT STATE (Zustand)
+    // ========================================
+
     const {
         selectedItemIds,
         setSelectedItemIds,
@@ -129,7 +143,6 @@ export default function CartScreen() {
         isEditMode,
         setEditMode,
         toggleItemSelection,
-        totalQuantity,
         setTotalQuantity,
     } = useCartStore();
 
@@ -137,26 +150,18 @@ export default function CartScreen() {
     // EFFECTS
     // ========================================
 
-    // Load mock data on mount
+    // Auto-select all items when cart data loads
     useEffect(() => {
-        const mockData = generateMockCartData();
-        setCartData(mockData);
+        if (cartData && cartData.shops.length > 0) {
+            const allSelectableIds = cartData.shops
+                .flatMap((shop) => shop.items)
+                .filter((item) => !item.isOutOfStock)
+                .map((item) => item.id);
+            setSelectedItemIds(new Set(allSelectableIds));
+        }
+    }, [cartData, setSelectedItemIds]); // Dependency on cartData object
 
-        // Auto-select all items initially (UX improvement)
-        const allSelectableIds = mockData.shops
-            .flatMap((shop) => shop.items)
-            .filter((item) => !item.isOutOfStock)
-            .map((item) => item.id);
-        setSelectedItemIds(new Set(allSelectableIds));
-
-        // Simulated loading delay for skeleton demo
-        const timer = setTimeout(() => {
-            setIsLoading(false);
-        }, 800);
-
-        return () => clearTimeout(timer);
-    }, [setSelectedItemIds]);
-
+    // Update total quantity badge
     useEffect(() => {
         if (cartData) {
             const count = cartData.shops.reduce(
@@ -168,7 +173,7 @@ export default function CartScreen() {
     }, [cartData, setTotalQuantity]);
 
     // ========================================
-    // CALCULATIONS (Derived State)
+    // CALCULATIONS (Client-side selection)
     // ========================================
 
     const {
@@ -177,9 +182,8 @@ export default function CartScreen() {
         toggleItem,
         toggleShop,
         toggleSelectAll,
-        isItemSelected,
     } = useCartCalculations({
-        cartData,
+        cartData: cartData ?? null, // Convert undefined to null
         selectedIds: selectedItemIds,
         appliedShopVouchers,
         appliedPlatformVoucherId,
@@ -189,7 +193,7 @@ export default function CartScreen() {
     });
 
     // ========================================
-    // CALLBACKS
+    // EVENT HANDLERS
     // ========================================
 
     const handleToggleItem = useCallback((itemId: string) => {
@@ -204,91 +208,69 @@ export default function CartScreen() {
         toggleSelectAll();
     }, [toggleSelectAll]);
 
+    // API mutation: Update quantity
     const handleQuantityChange = useCallback(
         (itemId: string, quantity: number) => {
-            // TODO: Call API to update quantity
-            // For now, update local mock data
-            setCartData((prev) => {
-                if (!prev) return prev;
-                return {
-                    ...prev,
-                    shops: prev.shops.map((shop) => ({
-                        ...shop,
-                        items: shop.items.map((item) =>
-                            item.id === itemId ? { ...item, quantity } : item
-                        ),
-                    })),
-                };
-            });
+            logger.cart.info('Update quantity', { itemId, quantity });
+            updateQuantity({ itemId, quantity });
         },
-        []
+        [updateQuantity]
     );
 
+    // API mutation: Remove item
     const handleDeleteItem = useCallback(
         (itemId: string) => {
-            // Remove from selection if exists
+            logger.cart.info('Delete item', { itemId });
+
+            // Remove from client selection
             if (selectedItemIds.has(itemId)) {
                 toggleItemSelection(itemId);
             }
 
-            // Remove from cart data
-            setCartData((prev) => {
-                if (!prev) return prev;
-                return {
-                    ...prev,
-                    shops: prev.shops
-                        .map((shop) => ({
-                            ...shop,
-                            items: shop.items.filter((item) => item.id !== itemId),
-                        }))
-                        .filter((shop) => shop.items.length > 0), // Remove empty shops
-                };
-            });
+            // Call API to remove
+            removeItem({ itemId });
         },
-        [setSelectedItemIds]
+        [removeItem, selectedItemIds, toggleItemSelection]
     );
 
     const handleNavigateToShop = useCallback(
         (shopId: string) => {
-            // TODO: Navigate to shop page
-            logger.cart.info('Navigate to shop:', shopId);
+            logger.cart.info('Navigate to shop', { shopId });
+            // TODO: Implement shop page navigation
         },
         []
     );
 
     const handleVoucherPress = useCallback(
         (shopId: string) => {
+            logger.cart.info('Open shop voucher sheet', { shopId });
             // TODO: Open voucher bottom sheet
-            logger.cart.info('Open voucher sheet for shop:', shopId);
         },
         []
     );
 
     const handlePlatformVoucherPress = useCallback(() => {
-        // TODO: Open platform voucher bottom sheet
         logger.cart.info('Open platform voucher sheet');
+        // TODO: Open platform voucher bottom sheet
     }, []);
-
 
     const handleCheckout = useCallback(() => {
         if (calculation.selectedCount === 0) {
-            // In production: Show toast or alert
             logger.cart.warn('No items selected');
+            // TODO: Show toast
             return;
         }
 
         if (!cartData) return;
 
-        // Initialize Checkout Session before navigation
-        // This transfers selected items from Cart store to Checkout store
+        // Initialize checkout session
         useCheckoutStore.getState().initSession(
             cartData.shops,
             selectedItemIds,
-            null, // In production: Get default address from user store
-            cartData.platformVouchers // Pass platform vouchers from cart
+            null, // TODO: Get default address
+            cartData.platformVouchers
         );
 
-        // Proceed to checkout
         router.push(ROUTES.CHECKOUT.INDEX);
     }, [calculation.selectedCount, cartData, selectedItemIds, router]);
 
@@ -329,7 +311,6 @@ export default function CartScreen() {
         ]
     );
 
-    // Calculate footer height for list padding
     const footerHeight = useMemo(() => {
         return CHECKOUT_BAR_HEIGHT + VOUCHER_BAR_HEIGHT + insets.bottom;
     }, [insets.bottom]);
@@ -340,50 +321,77 @@ export default function CartScreen() {
 
     const shops = cartData?.shops ?? [];
 
-    // Get applied platform voucher object
     const appliedPlatformVoucher = appliedPlatformVoucherId
         ? cartData?.platformVouchers.find((v) => v.id === appliedPlatformVoucherId) ?? null
         : null;
 
+    // Loading state
+    if (isLoading) {
+        return (
+            <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+                <CartHeader onEditPress={() => { }} isEditMode={false} />
+                <CartSkeleton />
+            </View>
+        );
+    }
+
+    // Error state
+    if (error) {
+        return (
+            <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+                <CartHeader onEditPress={() => { }} isEditMode={false} />
+                <View style={styles.emptyContainer}>
+                    <IconSymbol name="error-outline" size={64} color={theme.colors.error} />
+                    <Text style={styles.emptyTitle}>Không thể tải giỏ hàng</Text>
+                    <Text style={styles.emptySubtitle}>Vui lòng thử lại sau</Text>
+                    <Pressable
+                        onPress={() => refetch()}
+                        style={styles.shopNowButton}
+                    >
+                        <Text style={styles.shopNowText}>Thử lại</Text>
+                    </Pressable>
+                </View>
+            </View>
+        );
+    }
+
+    // Empty cart
+    if (!cartData || shops.length === 0) {
+        return (
+            <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+                <CartHeader onEditPress={() => { }} isEditMode={false} />
+                <EmptyCart />
+            </View>
+        );
+    }
+
     return (
         <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-            {/* Header */}
             <CartHeader
                 onEditPress={() => setEditMode(!isEditMode)}
                 isEditMode={isEditMode}
             />
 
-            {/* Content */}
-            {isLoading ? (
-                <CartSkeleton />
-            ) : shops.length === 0 ? (
-                <EmptyCart />
-            ) : (
-                <>
-                    {/* Shop Groups List */}
-                    <FlashList
-                        data={shops}
-                        renderItem={renderShopGroup}
-                        keyExtractor={(shop) => shop.shopId}
-                        contentContainerStyle={{
-                            padding: theme.margins.smd,
-                            paddingBottom: footerHeight + theme.margins.md,
-                        }}
-                        showsVerticalScrollIndicator={false}
-                    />
+            <FlashList
+                data={shops}
+                renderItem={renderShopGroup}
+                keyExtractor={(shop) => shop.shopId}
+                contentContainerStyle={{
+                    padding: theme.margins.smd,
+                    paddingBottom: footerHeight + theme.margins.md,
+                }}
+                showsVerticalScrollIndicator={false}
+            />
 
-                    {/* Checkout Footer */}
-                    <CartFooter
-                        selectAllState={selectAllState}
-                        calculation={calculation}
-                        onToggleSelectAll={handleToggleSelectAll}
-                        onCheckout={handleCheckout}
-                        onVoucherPress={handlePlatformVoucherPress}
-                        appliedPlatformVoucher={appliedPlatformVoucher}
-                        tabBarHeight={0}
-                    />
-                </>
-            )}
+            <CartFooter
+                selectAllState={selectAllState}
+                calculation={calculation}
+                onToggleSelectAll={handleToggleSelectAll}
+                onCheckout={handleCheckout}
+                onVoucherPress={handlePlatformVoucherPress}
+                appliedPlatformVoucher={appliedPlatformVoucher}
+                tabBarHeight={0}
+            />
         </View>
     );
 }
@@ -402,7 +410,7 @@ const styles = StyleSheet.create((theme) => ({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: theme.margins.md,
-        height: 56, // Fixed height for content
+        height: 56,
     },
     headerTitle: {
         fontSize: 18,

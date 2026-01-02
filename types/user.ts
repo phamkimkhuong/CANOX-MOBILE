@@ -74,3 +74,49 @@ export const UserMeResponseSchema = z.object({
 });
 
 export type UserMeResponse = z.infer<typeof UserMeResponseSchema>;
+
+/**
+ * ==============================================
+ * UPDATE PROFILE TYPES
+ * ==============================================
+ * API PUT /api/v1/buyers/{buyerId}
+ */
+
+export type Gender = 'MALE' | 'FEMALE' | 'OTHER';
+
+/**
+ * Payload for updating buyer profile
+ */
+export const UpdateProfilePayloadSchema = z.object({
+    fullName: z.string().min(1, 'Họ tên không được để trống').max(100, 'Họ tên tối đa 100 ký tự'),
+    phone: z.string()
+        .min(10, 'Số điện thoại phải có ít nhất 10 số')
+        .max(11, 'Số điện thoại tối đa 11 số')
+        .regex(/^[0-9]+$/, 'Số điện thoại chỉ được chứa số'),
+    dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Ngày sinh không hợp lệ').nullable().optional(),
+    gender: z.enum(['MALE', 'FEMALE', 'OTHER']).nullable().optional(),
+});
+
+export type UpdateProfilePayload = z.infer<typeof UpdateProfilePayloadSchema>;
+
+/**
+ * Form data type (display format DD/MM/YYYY -> API format YYYY-MM-DD)
+ */
+export interface ProfileFormData {
+    fullName: string;
+    phone: string;
+    dateOfBirth: Date | null;
+    gender: Gender | null;
+    email: string; // Read-only, display only
+}
+
+/**
+ * Update Profile Response
+ */
+export const UpdateProfileResponseSchema = z.object({
+    code: z.number(),
+    success: z.boolean(),
+    message: z.string(),
+});
+
+export type UpdateProfileResponse = z.infer<typeof UpdateProfileResponseSchema>;

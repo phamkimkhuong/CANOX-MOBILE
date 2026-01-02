@@ -5,7 +5,7 @@
  */
 
 import { UserProfile } from '@/types/profile';
-import { UserMeData } from '@/types/user';
+import { Gender, UserMeData } from '@/types/user';
 
 /**
  * Transform User Me API Data → UserProfile (Profile UI)
@@ -27,6 +27,8 @@ export const transformUserMe = (apiData: UserMeData): UserProfile => {
         email: apiData.email,
         phone: buyer?.phone || undefined,
         avatar: apiData.image || null,
+        dateOfBirth: buyer?.dateOfBirth || null,
+        gender: (buyer?.gender as Gender) || null,
         // Default to BRONZE - can be enhanced with member level API later
         memberLevel: 'BRONZE',
         isVerified: apiData.status === 'ACTIVE',

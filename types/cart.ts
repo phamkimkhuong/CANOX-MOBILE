@@ -4,36 +4,57 @@ import { z } from 'zod';
 // ZOD SCHEMAS (API Validation)
 // ============================================
 
-// Schema cho từng Item trong giỏ (dựa trên JSON items)
+// Schema cho từng Item trong giỏ (từ API /api/v1/cart)
 export const CartItemSchema = z.object({
     id: z.string(),
+    cartId: z.string(),
     variantId: z.string(),
+    version: z.number(),
     productName: z.string(),
-    sku: z.string().optional(),
-    variantAttributes: z.string().optional(),
-    unitPrice: z.number(),
-    quantity: z.number(),
-    totalPrice: z.number(),
+    sku: z.string(),
+    variantAttributes: z.string().nullable().optional(),
     shopId: z.string(),
     shopName: z.string(),
+    shopLogo: z.string().nullable().optional(),
     imageBasePath: z.string().nullable().optional(),
     imageExtension: z.string().nullable().optional(),
-    // Extended fields from API
-    originalPrice: z.number().optional(),
-    discountPercent: z.number().optional(),
-    isOutOfStock: z.boolean().optional(),
-    maxQuantity: z.number().optional(),
+
+    // Pricing
+    unitPrice: z.number(),
+    discountAmount: z.number(),
+    quantity: z.number(),
+    totalPrice: z.number(),
+
+    // Selection (Server-managed)
+    selectedForCheckout: z.boolean(),
+
+    // Stock Management
+    availableStock: z.number(),
+    stockStatus: z.enum(['IN_STOCK', 'LOW_STOCK', 'OUT_OF_STOCK']),
+    stockMessage: z.string(),
+    previousQuantity: z.number().nullable().optional(),
 });
 
 // Schema cho Shop trong giỏ
 export const CartShopSchema = z.object({
     shopId: z.string(),
     shopName: z.string(),
+    shopLogo: z.string().nullable().optional(),
+    ownerName: z.string().nullable().optional(),
+    isVerified: z.boolean().nullable().optional(),
+    rating: z.number().nullable().optional(),
     items: z.array(CartItemSchema),
+
+    // Shop-level aggregates (from API)
     itemCount: z.number(),
-    // Extended fields
-    shopAvatarUrl: z.string().optional(),
-    isMall: z.boolean().optional(),
+    totalQuantity: z.number(),
+    subtotal: z.number(),
+    discount: z.number(),
+    total: z.number(),
+
+    // Selection state (Server-managed)
+    allSelected: z.boolean(),
+    hasSelectedItems: z.boolean(),
 });
 
 // Schema cho Voucher
@@ -50,15 +71,29 @@ export const VoucherSchema = z.object({
     isApplicable: z.boolean().optional(),
 });
 
-// Schema cho toàn bộ Giỏ hàng (Root)
+// Schema cho toàn bộ Giỏ hàng (Root - từ API)
 export const CartResponseSchema = z.object({
     id: z.string(),
+    buyerId: z.string(),
+    currency: z.string(),
     totalAmount: z.number(),
+    totalDiscount: z.number(),
     itemCount: z.number(),
+    createdDate: z.string(),
+    lastModifiedDate: z.string(),
+    version: z.number(),
     shops: z.array(CartShopSchema),
-    // Extended fields
-    availableShopVouchers: z.array(VoucherSchema).optional(),
-    availablePlatformVouchers: z.array(VoucherSchema).optional(),
+    shopCount: z.number(),
+    warnings: z.array(z.any()).optional(),
+    hasChanges: z.boolean().optional(),
+});
+
+// Full API Response Wrapper
+export const CartApiResponseSchema = z.object({
+    code: z.number(),
+    success: z.boolean(),
+    message: z.string(),
+    data: CartResponseSchema,
 });
 
 // ============================================
@@ -80,17 +115,30 @@ export type CartResponse = z.infer<typeof CartResponseSchema>;
  */
 export interface CartItemUI {
     id: string;
+    version: number; // For concurrency control (If-Match header)
     variantId: string;
     productName: string;
-    variantAttributes: string; // "Màu: Trắng, Size: L"
+    variantAttributes: string;
     imageUrl: string;
     unitPrice: number;
+    quantity: number;
+    totalPrice: number;
+    shopId: string;
+
+    // Server-managed selection
+    selectedForCheckout: boolean;
+
+    // Stock management
+    availableStock: number;
+    stockStatus: 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK';
+    stockMessage: string;
+    isOutOfStock: boolean;
+    maxQuantity: number;
+
+    // Discount
+    discountAmount: number;
     originalPrice: number | null;
     discountPercent: number | null;
-    quantity: number;
-    maxQuantity: number;
-    isOutOfStock: boolean;
-    shopId: string;
 }
 
 /**
@@ -99,12 +147,22 @@ export interface CartItemUI {
 export interface CartShopUI {
     shopId: string;
     shopName: string;
-    shopAvatarUrl: string | null;
-    isMall: boolean;
+    shopLogoUrl: string | null;
     items: CartItemUI[];
-    /** Voucher đang được áp dụng cho shop này */
+
+    // Shop totals (from API)
+    itemCount: number;
+    totalQuantity: number;
+    subtotal: number;
+    discount: number;
+    total: number;
+
+    // Selection state (Server-managed)
+    allSelected: boolean;
+    hasSelectedItems: boolean;
+
+    // Voucher (Client state - optional feature)
     appliedVoucherId: string | null;
-    /** Danh sách voucher có thể chọn */
     availableVouchers: VoucherUI[];
 }
 

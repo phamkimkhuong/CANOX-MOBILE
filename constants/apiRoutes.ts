@@ -74,4 +74,7 @@ export const API_ROUTES = {
         CANCEL: (orderId: string) => `${API_PREFIX}/buyer/orders/${orderId}/cancel`,
         CONFIRM_RECEIVED: (orderId: string) => `${API_PREFIX}/buyer/orders/${orderId}/confirm-received`,
     },
+    BUYERS_INFORMATION: {
+        UPDATE: (buyerId: string) => `${API_PREFIX}/buyers/${buyerId}`,
+    },
 } as const;  // <--- as const để TS hiểu đây là readonly values
