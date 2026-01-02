@@ -16,6 +16,7 @@ import {
 } from '@/components/voucher';
 import { VOUCHER_STRINGS } from '@/constants/i18n/vi/voucher';
 import { useVoucherList } from '@/hooks/api/useVoucherList';
+import { createLogger } from '@/utils/logger';
 import { MaterialIcons } from '@expo/vector-icons';
 import { FlashList } from '@shopify/flash-list';
 import { router } from 'expo-router';
@@ -36,6 +37,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+
+const log = createLogger('VoucherScreen');
 
 const AnimatedFlashList = Animated.createAnimatedComponent(FlashList) as any;
 
@@ -88,7 +91,7 @@ export default function VoucherScreen() {
 
     const handleMyVouchers = useCallback(() => {
         // TODO: Navigate to my vouchers
-        console.log('Navigate to my vouchers');
+        log.info('Navigate to my vouchers');
     }, []);
 
     const handleCollect = useCallback(async (id: string) => {
@@ -105,7 +108,7 @@ export default function VoucherScreen() {
 
     const handleViewConditions = useCallback((id: string) => {
         // TODO: Show conditions modal
-        console.log('View conditions for:', id);
+        log.info('View conditions for:', id);
     }, []);
 
     // List header component

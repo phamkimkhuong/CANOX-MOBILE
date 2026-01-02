@@ -1,5 +1,6 @@
 import { ROUTES } from '@/constants/routes';
 import { queryClient } from '@/services/api/queryClient';
+import { logger } from '@/utils/logger';
 import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { create } from 'zustand';
@@ -46,7 +47,7 @@ export const useAuthStore = create<AuthState>((set) => ({
             await SecureStore.setItemAsync(BUYER_ID_KEY, buyerId);
         }
 
-        console.log('🚀 Login Success - Access Token & BuyerId stored');
+        logger.auth.info('🚀 Login Success - Access Token & BuyerId stored');
 
         set({
             token: accessToken,

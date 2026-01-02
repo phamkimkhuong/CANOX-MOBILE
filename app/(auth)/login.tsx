@@ -1,5 +1,6 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
+import { logger } from '@/utils/logger';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import React from 'react';
@@ -32,7 +33,7 @@ export default function LoginScreen() {
             onError: (error: any) => {
             },
             onSuccess: () => {
-                console.log('Login successful');
+                logger.auth.info('Login successful');
             }
         });
     };

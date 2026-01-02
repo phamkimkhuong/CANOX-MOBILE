@@ -61,6 +61,7 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     'star-border': { ios: 'star-outline', android: 'star-outline' },
     'shopping-cart': { ios: 'cart-outline', android: 'cart-outline' },
     'shopping-bag': { ios: 'bag-outline', android: 'bag-outline' },
+    'cart-plus': { ios: 'cart-outline', android: 'cart-outline' }, // Alias for rebuy
     'local-shipping': { ios: 'car-outline', android: 'car-outline' },
     shipping: { ios: 'car-outline', android: 'car-outline' },
     'shipping-fast': { ios: 'car-sport-outline', android: 'car-sport-outline' },
@@ -70,12 +71,14 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     note: { ios: 'document-text-outline', android: 'document-text-outline' },
     'note-filled': { ios: 'document-text', android: 'document-text' },
     card: { ios: 'card-outline', android: 'card-outline' },
+    'credit-card-outline': { ios: 'card-outline', android: 'card-outline' }, // Alias
     wallet: { ios: 'wallet-outline', android: 'wallet-outline' },
 
     // === UI Icons ===
     'chevron-right': { ios: 'chevron-forward', android: 'chevron-forward' },
     'chevron-left': { ios: 'chevron-back', android: 'chevron-back' },
     'arrow-back': { ios: 'chevron-back', android: 'arrow-back' },
+    'arrow-left': { ios: 'chevron-back', android: 'arrow-back' }, // Alias for arrow-back
     login: { ios: 'log-in-outline', android: 'log-in-outline' },
     'lock-reset': { ios: 'key-outline', android: 'key-outline' },
     lock: { ios: 'lock-closed-outline', android: 'lock-closed-outline' },
@@ -141,6 +144,26 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     // === Voucher Type Icons ===
     'flight-takeoff': { ios: 'airplane-outline', android: 'airplane-outline' },
     videocam: { ios: 'videocam-outline', android: 'videocam-outline' },
+
+    // === Order Status Icons ===
+    'clock-outline': { ios: 'time-outline', android: 'time-outline' },
+    'credit-card-clock-outline': { ios: 'card-outline', android: 'card-outline' },
+    'check-circle-outline': { ios: 'checkmark-circle-outline', android: 'checkmark-circle-outline' },
+    'truck-fast-outline': { ios: 'car-sport-outline', android: 'car-sport-outline' },
+    'truck-fast': { ios: 'car-sport', android: 'car-sport' },
+    'truck-check-outline': { ios: 'car-sport-outline', android: 'car-sport-outline' },
+    'truck-alert-outline': { ios: 'warning-outline', android: 'warning-outline' },
+    'truck-delivery-outline': { ios: 'car-sport-outline', android: 'car-sport-outline' },
+    'package-variant': { ios: 'cube-outline', android: 'cube-outline' },
+    'package-variant-closed-check': { ios: 'cube-outline', android: 'cube-outline' },
+    'package-variant-closed-minus': { ios: 'cube-outline', android: 'cube-outline' },
+    'package-variant-minus': { ios: 'cube-outline', android: 'cube-outline' },
+    'package-variant-closed-remove': { ios: 'cube-outline', android: 'cube-outline' },
+    'check-all': { ios: 'checkmark-done-outline', android: 'checkmark-done-outline' },
+    'close-circle-outline': { ios: 'close-circle-outline', android: 'close-circle-outline' },
+    'shopping-outline': { ios: 'bag-outline', android: 'bag-outline' },
+    'store-outline': { ios: 'storefront-outline', android: 'storefront-outline' },
+    'store-check-outline': { ios: 'storefront-outline', android: 'storefront-outline' },
 
     // === Brand/Logo Icons ===
     'logo-google': { ios: 'logo-google', android: 'logo-google' },

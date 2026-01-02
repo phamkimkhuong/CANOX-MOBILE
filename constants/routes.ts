@@ -65,11 +65,11 @@ export const ROUTES = {
 
     // ============ ORDERS ============
     ORDERS: {
-        LIST: '/orders' as const,
-        PENDING_PAYMENT: '/orders?status=pending_payment' as const,
-        PROCESSING: '/orders?status=processing' as const,
-        SHIPPING: '/orders?status=shipping' as const,
-        REVIEW: '/orders?status=review' as const,
+        LIST: '/(main)/(order)/orders' as const,
+        PENDING_PAYMENT: '/(main)/(order)/orders' as const,
+        PROCESSING: '/(main)/(order)/orders' as const,
+        SHIPPING: '/(main)/(order)/orders' as const,
+        REVIEW: '/(main)/(order)/orders' as const,
     },
 
     // ============ USER CONTENT ============
@@ -158,7 +158,6 @@ export const shopRoutes = {
 
 /**
  * Address routes với dynamic ID
- * Note: Cast through unknown vì routes này chưa implement trong file system
  */
 export const addressRoutes = {
     detail: (addressId: string): Href => ({

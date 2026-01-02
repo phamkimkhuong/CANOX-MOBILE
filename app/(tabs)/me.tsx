@@ -161,7 +161,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         flex: 1,
     },
     scrollContent: {
-        paddingTop: theme.margins.md,
-        paddingBottom: 100, // Space for tab bar
+        paddingTop: theme.margins.sm,
+        paddingBottom: theme.margins.zero, // Space for tab bar
     },
 }));

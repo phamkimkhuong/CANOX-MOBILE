@@ -19,6 +19,7 @@ import { ROUTES, chatRoutes, shopRoutes } from '@/constants/routes';
 import { useProductDetail } from '@/hooks/api/useProductDetail';
 import { useProductVariant } from '@/hooks/useProductVariant';
 import { findGalleryIndexByVariant } from '@/utils/adapter/productDetailAdapter';
+import { createLogger } from '@/utils/logger';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Pressable, RefreshControl, Text, View } from 'react-native';
@@ -28,6 +29,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+
+const log = createLogger('ProductDetail');
 
 
 export default function ProductDetailScreen() {
@@ -143,13 +146,11 @@ export default function ProductDetailScreen() {
         }
 
         // TODO: Implement add to cart mutation
-        if (__DEV__) {
-            console.log('Add to cart:', {
-                productId,
-                variantId: selectedVariantId,
-                quantity: 1,
-            });
-        }
+        log.info('Add to cart:', {
+            productId,
+            variantId: selectedVariantId,
+            quantity: 1,
+        });
     }, [canAddToCart, productId, selectedVariantId, handleOpenVariantSheet]);
 
 
@@ -176,9 +177,7 @@ export default function ProductDetailScreen() {
 
     const handleSharePress = useCallback(() => {
         // TODO: Implement share functionality
-        if (__DEV__) {
-            console.log('Share product:', productId);
-        }
+        log.info('Share product:', productId);
     }, [productId]);
 
     /**
@@ -186,9 +185,7 @@ export default function ProductDetailScreen() {
      */
     const handleImagePress = useCallback((index: number) => {
         // TODO: Open fullscreen image viewer
-        if (__DEV__) {
-            console.log('View image:', index);
-        }
+        log.info('View image:', index);
     }, []);
 
     /**
@@ -196,9 +193,7 @@ export default function ProductDetailScreen() {
      */
     const handleViewAllReviews = useCallback(() => {
         // TODO: Navigate to reviews screen
-        if (__DEV__) {
-            console.log('View all reviews for product:', productId);
-        }
+        log.info('View all reviews for product:', productId);
     }, [productId]);
 
     /**
@@ -206,9 +201,7 @@ export default function ProductDetailScreen() {
      */
     const handleAskQuestion = useCallback(() => {
         // TODO: Navigate to Q&A screen or open modal
-        if (__DEV__) {
-            console.log('Ask question about product:', productId);
-        }
+        log.info('Ask question about product:', productId);
     }, [productId]);
 
     // ============================================

@@ -13,6 +13,10 @@ export const API_ROUTES = {
     USERS: {
         CREATE_ACCOUNT: `${API_PREFIX}/users/buyer`,
     },
+    PROFILE: {
+        USER_ME: `${API_PREFIX}/users/me`,
+        ORDER_STATS: `${API_PREFIX}/buyer/orders/count-by-status`,
+    },
     PRODUCTS: {
         DETAIL: (id: string | number) => `${API_PREFIX}/public/products/${id}`,
         REVIEWS: (id: string | number) => `${API_PREFIX}/products/${id}/reviews`,
@@ -63,5 +67,11 @@ export const API_ROUTES = {
         UPDATE: (buyerId: string, addressId: string) => `${API_PREFIX}/buyers/${buyerId}/address/${addressId}`,
         DELETE: (buyerId: string, addressId: string) => `${API_PREFIX}/buyers/${buyerId}/address/${addressId}`,
         SET_DEFAULT: (buyerId: string, addressId: string) => `${API_PREFIX}/buyers/${buyerId}/address/${addressId}/default`,
+    },
+    ORDERS: {
+        LIST: `${API_PREFIX}/buyer/orders`,
+        DETAIL: (orderId: string) => `${API_PREFIX}/buyer/orders/${orderId}`,
+        CANCEL: (orderId: string) => `${API_PREFIX}/buyer/orders/${orderId}/cancel`,
+        CONFIRM_RECEIVED: (orderId: string) => `${API_PREFIX}/buyer/orders/${orderId}/confirm-received`,
     },
 } as const;  // <--- as const để TS hiểu đây là readonly values

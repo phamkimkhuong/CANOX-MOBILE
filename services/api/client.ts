@@ -1,4 +1,5 @@
 import { getErrorMessageByCode } from '@/constants/errorCodes';
+import { logger } from '@/utils/logger';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import { z } from 'zod';
@@ -75,11 +76,11 @@ apiClient.interceptors.request.use(
             if (config.headers) {
                 delete config.headers.Authorization;
             }
-            console.log(`📤 [PUBLIC] ${config.method?.toUpperCase()} ${buildFullUrl()}`);
+            logger.api.info(`📤 [PUBLIC] ${config.method?.toUpperCase()} ${buildFullUrl()}`);
             return config;
         }
 
-        console.log(`🔐 [AUTH] ${config.method?.toUpperCase()} ${buildFullUrl()}`);
+        logger.api.info(`🔐 [AUTH] ${config.method?.toUpperCase()} ${buildFullUrl()}`);
 
         try {
             // Lấy token từ SecureStore
@@ -88,7 +89,7 @@ apiClient.interceptors.request.use(
                 config.headers.Authorization = `Bearer ${token}`;
             }
         } catch (error) {
-            console.error('Error retrieving token from SecureStore:', error);
+            logger.api.error('Error retrieving token from SecureStore:', error);
         }
         return config;
     },
@@ -114,10 +115,10 @@ apiClient.interceptors.response.use(
         if (statusCode === 401 && !isPublicEndpoint(error.config?.url)) {
             // TODO: Implement logic Refresh Token hoặc Logout tại đây.
             // Vì đây là file utility, ta có thể emit event hoặc gọi store global để logout.
-            console.warn('Session expired. User needs to re-login.');
+            logger.auth.warn('Session expired. User needs to re-login.');
             await SecureStore.deleteItemAsync(AUTH_TOKEN_KEY);
         }
-        console.log('🚨 Raw Axios Error:', {
+        logger.api.error('🚨 Raw Axios Error:', {
             message: error.message,
             code: error.code,
             stack: error.stack?.substring(0, 200),
@@ -151,7 +152,7 @@ export async function request<T>(
         if (!parseResult.success) {
             // Nếu Backend trả sai cấu trúc so với quy định -> Báo lỗi ngay lập tức
             // Giúp Dev phát hiện lỗi Backend sớm, tránh crash App ngầm
-            console.error('❌ API Validation Error:', {
+            logger.api.error('❌ API Validation Error:', {
                 url: config.url,
                 errors: parseResult.error.format(),
                 data: response.data,

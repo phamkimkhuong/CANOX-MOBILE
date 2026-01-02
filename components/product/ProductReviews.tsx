@@ -1,9 +1,12 @@
 import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import type { ReviewStatistics } from '@/types/productDetail';
+import { createLogger } from '@/utils/logger';
 import React, { memo, useCallback, useMemo } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { IconSymbol } from '../ui/Icon';
+
+const log = createLogger('ProductReviews');
 
 interface ProductReviewsProps {
     /** Review statistics từ product data */
@@ -187,9 +190,7 @@ export const ProductReviews = memo<ProductReviewsProps>(({
     // Callbacks
     const handleFilterPress = useCallback((filterId: string) => {
         // TODO: Implement filter logic
-        if (__DEV__) {
-            console.log('Filter selected:', filterId);
-        }
+        log.info('Filter selected:', filterId);
     }, []);
 
     // Empty state khi chưa có đánh giá

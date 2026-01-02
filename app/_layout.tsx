@@ -16,6 +16,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { toastConfig } from '@/components/ui/CustomToast';
 import { WebSocketProvider } from '@/components/WebSocketProvider';
+import { ScrollToTopProvider } from '@/contexts/ScrollToTopContext';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Toast from 'react-native-toast-message';
@@ -74,35 +75,37 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
         <WebSocketProvider autoConnect={false}>
-          <SafeAreaProvider>
-            {/* 3. Inject Theme vào Navigation */}
+          <ScrollToTopProvider>
+            <SafeAreaProvider>
+              {/* 3. Inject Theme vào Navigation */}
 
-            <ThemeProvider value={NavigationTheme}>
-              <Stack screenOptions={{ headerShown: false }}>
-                {/* Tab Navigator - Có Tab Bar */}
-                <Stack.Screen name="(tabs)" />
+              <ThemeProvider value={NavigationTheme}>
+                <Stack screenOptions={{ headerShown: false }}>
+                  {/* Tab Navigator - Có Tab Bar */}
+                  <Stack.Screen name="(tabs)" />
 
-                {/* Auth Flow - Không có Tab Bar */}
-                <Stack.Screen name="(auth)" />
+                  {/* Auth Flow - Không có Tab Bar */}
+                  <Stack.Screen name="(auth)" />
 
-                {/* Main Stack - Tất cả pushed screens (không có Tab Bar) */}
-                {/* Header được quản lý bởi (main)/_layout.tsx */}
-                <Stack.Screen name="(main)" />
+                  {/* Main Stack - Tất cả pushed screens (không có Tab Bar) */}
+                  {/* Header được quản lý bởi (main)/_layout.tsx */}
+                  <Stack.Screen name="(main)" />
 
-                {/* Global Modal */}
-                <Stack.Screen
-                  name="modal"
-                  options={{
-                    presentation: 'modal',
-                    headerShown: true,
-                  }}
-                />
-              </Stack>
-              <Toast config={toastConfig} />
-              {/* 4. StatusBar luôn là Dark Content (chữ đen) vì nền sáng */}
-              <StatusBar style="dark" />
-            </ThemeProvider>
-          </SafeAreaProvider>
+                  {/* Global Modal */}
+                  <Stack.Screen
+                    name="modal"
+                    options={{
+                      presentation: 'modal',
+                      headerShown: true,
+                    }}
+                  />
+                </Stack>
+                <Toast config={toastConfig} />
+                {/* 4. StatusBar luôn là Dark Content (chữ đen) vì nền sáng */}
+                <StatusBar style="dark" />
+              </ThemeProvider>
+            </SafeAreaProvider>
+          </ScrollToTopProvider>
         </WebSocketProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>

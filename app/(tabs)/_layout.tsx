@@ -1,12 +1,13 @@
 import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 import { ROUTES } from '@/constants/routes';
+import { useScrollToTopContext } from '@/contexts/ScrollToTopContext';
 import { useCart } from '@/hooks/api/useCart';
 import { useUnreadNotificationCount } from '@/hooks/api/useNotifications';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useCartStore } from '@/store/useCartStore';
 import { router, Tabs } from 'expo-router';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useUnistyles } from 'react-native-unistyles';
 
 // Helper để render Icon gọn gàng với IconSymbol
@@ -34,6 +35,18 @@ export default function TabLayout() {
   // Fetch unread notification count for badge
   const { data: unreadCount } = useUnreadNotificationCount();
 
+  // Scroll to top context
+  const { triggerScrollToTop } = useScrollToTopContext();
+
+  /**
+   * Handler: When user presses Home tab while already on Home tab
+   * => Scroll to top
+   */
+  const handleHomeTabPress = useCallback(() => {
+    // Trigger scroll to top cho màn hình index
+    triggerScrollToTop('index');
+  }, [triggerScrollToTop]);
+
   return (
     <Tabs
       screenOptions={{
@@ -60,6 +73,9 @@ export default function TabLayout() {
           title: 'Trang chủ',
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
           headerShown: false,
+        }}
+        listeners={{
+          tabPress: handleHomeTabPress,
         }}
       />
       {/* 2. Danh mục/Category ( app/(tabs)/category.tsx) */}

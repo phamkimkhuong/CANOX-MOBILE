@@ -14,7 +14,10 @@ import {
     filterVouchersByType,
     sortVouchers
 } from '@/utils/adapter/voucherAdapter';
+import { createLogger } from '@/utils/logger';
 import { useCallback, useMemo, useState } from 'react';
+
+const log = createLogger('Voucher');
 
 // ============================================
 // MOCK DATA - Replace with API call
@@ -241,12 +244,12 @@ export const useVoucherList = (): UseVoucherListResult => {
 
     const useVoucher = useCallback((id: string) => {
         // Navigate to checkout or show usage modal
-        console.log('Use voucher:', id);
+        log.info('Use voucher:', id);
     }, []);
 
     const setReminder = useCallback(async (id: string) => {
         // TODO: Call API to set reminder
-        console.log('Set reminder for:', id);
+        log.info('Set reminder for:', id);
     }, []);
 
     const refetch = useCallback(() => {

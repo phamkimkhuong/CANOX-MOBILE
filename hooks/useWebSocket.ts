@@ -19,6 +19,7 @@ import {
     useWebSocketStatus
 } from '@/components/WebSocketProvider';
 import { MessageCallback } from '@/services/websocket';
+import { logger } from '@/utils/logger';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef } from 'react';
 
@@ -76,9 +77,7 @@ export function useNotificationSubscription(options: {
 
     const handleNotification = useCallback(
         (message: unknown) => {
-            if (__DEV__) {
-                console.log('🔔 [useNotificationSubscription] New notification:', message);
-            }
+            logger.ws.info(' New notification:', message);
 
             // Invalidate notification queries để refetch
             queryClient.invalidateQueries({ queryKey: ['notifications'] });
@@ -139,13 +138,11 @@ export function useWebSocketDebug() {
     const { connected, state, error } = useWebSocketStatus();
 
     useEffect(() => {
-        if (__DEV__) {
-            console.log('[WebSocket Debug]', {
-                connected,
-                state,
-                error,
-            });
-        }
+        logger.ws.debug('Connection status:', {
+            connected,
+            state,
+            error,
+        });
     }, [connected, state, error]);
 
     return { connected, state, error };

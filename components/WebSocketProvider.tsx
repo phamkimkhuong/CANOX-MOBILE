@@ -21,6 +21,7 @@ import {
     WebSocketState,
 } from '@/services/websocket';
 import { useAuthStore } from '@/store/useAuthStore';
+import { logger } from '@/utils/logger';
 import React, {
     createContext,
     ReactNode,
@@ -118,9 +119,7 @@ export function WebSocketProvider({
         if (isAuthenticated && token && !connected) {
             // User logged in → Connect
             wsServiceRef.current.connect(token).catch((err) => {
-                if (__DEV__) {
-                    console.error('[WebSocketProvider] Auto-connect failed:', err);
-                }
+                logger.ws.error('Auto-connect failed:', err);
             });
         } else if (!isAuthenticated && connected) {
             // User logged out → Disconnect
@@ -157,9 +156,7 @@ export function WebSocketProvider({
     const subscribe = useCallback(
         (topic: string, callback: MessageCallback): (() => void) => {
             if (!wsServiceRef.current) {
-                if (__DEV__) {
-                    console.warn('[WebSocketProvider] Service not initialized');
-                }
+                logger.ws.warn('Service not initialized');
                 return () => { };
             }
             return wsServiceRef.current.subscribe(topic, callback);
@@ -170,9 +167,7 @@ export function WebSocketProvider({
     const sendMessage = useCallback(
         (destination: string, data: unknown): void => {
             if (!wsServiceRef.current) {
-                if (__DEV__) {
-                    console.warn('[WebSocketProvider] Service not initialized');
-                }
+                logger.ws.warn('Service not initialized');
                 return;
             }
             wsServiceRef.current.send(destination, data);
@@ -190,9 +185,7 @@ export function WebSocketProvider({
     const subscribeToNotifications = useCallback(
         (callback: MessageCallback): (() => void) => {
             if (!wsServiceRef.current) {
-                if (__DEV__) {
-                    console.warn('[WebSocketProvider] Service not initialized');
-                }
+                logger.ws.warn('Service not initialized');
                 return () => { };
             }
             return wsServiceRef.current.subscribeToNotifications(callback);

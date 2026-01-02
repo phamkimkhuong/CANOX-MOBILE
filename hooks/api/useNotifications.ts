@@ -1,5 +1,6 @@
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { apiClient, request } from '@/services/api/client';
+import { useAuthStore } from '@/store/useAuthStore';
 import {
     FlattenedNotificationItem,
     Notification,
@@ -30,6 +31,8 @@ interface UnreadCountResponse {
  * Lightweight polling for TabBar badge display
  */
 export const useUnreadNotificationCount = () => {
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
     return useQuery({
         queryKey: ['notifications', 'unread-count'],
         queryFn: async (): Promise<number> => {
@@ -42,10 +45,13 @@ export const useUnreadNotificationCount = () => {
             }
             return 0;
         },
-        staleTime: 1000 * 60, // 1 minute - refresh frequently
-        gcTime: 1000 * 60 * 5, // 5 minutes
-        refetchInterval: 1000 * 60 * 2, // Poll every 2 minutes
-        refetchOnWindowFocus: true,
+        enabled: isAuthenticated,
+        staleTime: 1000 * 60, // 1 minute - data is fresh for 1 minute
+        gcTime: 1000 * 60 * 5, // 5 minutes - keep in cache
+        refetchInterval: isAuthenticated ? 1000 * 60 * 2 : false, // Poll every 2 minutes
+        refetchOnWindowFocus: false, // Disable to avoid duplicate calls
+        refetchOnMount: false, // Don't refetch on every mount if data is fresh
+        retry: 1, // Only retry once on failure
     });
 };
 
@@ -93,11 +99,14 @@ const fetchNotifications = async (
  * Hook to fetch notifications with infinite scroll
  */
 export const useNotifications = (filter: NotificationFilter = NotificationFilter.ALL) => {
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
     const query = useInfiniteQuery({
         queryKey: ['notifications', filter],
         queryFn: ({ pageParam = 0 }) => fetchNotifications(pageParam as number, filter), // Default page 0
         initialPageParam: 0,
         getNextPageParam: (lastPage) => lastPage.nextCursor,
+        enabled: isAuthenticated,
         staleTime: 1000 * 60 * 5, // 5 minutes
         gcTime: 1000 * 60 * 30, // 30 minutes
     });

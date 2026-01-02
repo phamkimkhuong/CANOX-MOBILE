@@ -1,39 +1,19 @@
+import { API_ROUTES } from '@/constants/apiRoutes';
+import { request } from '@/services/api/client';
 import { useAuthStore } from '@/store/useAuthStore';
+import { OrderCountResponseSchema } from '@/types/order/orderCount';
 import {
     FollowedShop,
-    MemberLevel,
     OrderStats,
-    OrderStatsSchema,
     UserProfile,
-    UserProfileSchema,
     WalletBalance,
-    WalletBalanceSchema,
+    WalletBalanceSchema
 } from '@/types/profile';
+import { UserMeResponseSchema } from '@/types/user';
+import { transformOrderCount } from '@/utils/adapter/order/orderCountAdapter';
+import { transformUserMe } from '@/utils/adapter/userAdapter';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
-
-// MOCK DATA
-
-const MOCK_PROFILE: UserProfile = {
-    id: 'u1',
-    username: 'nguyenvana',
-    fullName: 'Nguyen Van A',
-    email: 'nguyenvana@gmail.com',
-    avatar: 'https://i.pravatar.cc/300',
-    memberLevel: MemberLevel.GOLD,
-    isVerified: true,
-    totalOrders: 12,
-    favoriteCount: 8,
-    recentViewCount: 5,
-    followingShops: 5,
-};
-
-const MOCK_ORDER_STATS: OrderStats = {
-    pendingPayment: 1,
-    processing: 0,
-    shipping: 2,
-    review: 0,
-};
 
 const MOCK_WALLET: WalletBalance = {
     balance: 500000,
@@ -71,13 +51,19 @@ export const profileQueryKeys = {
  */
 export const useUserProfile = () => {
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
     return useQuery({
         queryKey: profileQueryKeys.user(),
         queryFn: async (): Promise<UserProfile> => {
-            // Simulate network delay
-            await new Promise((r) => setTimeout(r, 800));
-            // Validate with Zod
-            return UserProfileSchema.parse(MOCK_PROFILE);
+            const response = await request(
+                {
+                    url: API_ROUTES.PROFILE.USER_ME,
+                    method: 'GET',
+                },
+                UserMeResponseSchema
+            );
+
+            return transformUserMe(response.data);
         },
         enabled: isAuthenticated,
         staleTime: 1000 * 60 * 30, // 30 minutes
@@ -91,12 +77,21 @@ export const useUserProfile = () => {
  * Auto refetch on window focus
  */
 export const useOrderStats = () => {
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
     return useQuery({
         queryKey: profileQueryKeys.orderStats(),
         queryFn: async (): Promise<OrderStats> => {
-            await new Promise((r) => setTimeout(r, 500));
-            return OrderStatsSchema.parse(MOCK_ORDER_STATS);
+            const response = await request(
+                {
+                    url: API_ROUTES.PROFILE.ORDER_STATS,
+                    method: 'GET',
+                },
+                OrderCountResponseSchema
+            );
+            return transformOrderCount(response.data);
         },
+        enabled: isAuthenticated,
         staleTime: 1000 * 60 * 2, // 2 minutes
         gcTime: 1000 * 60 * 10, // 10 minutes
         refetchOnWindowFocus: true,

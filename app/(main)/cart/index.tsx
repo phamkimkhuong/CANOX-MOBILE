@@ -27,6 +27,7 @@ import { useCartStore } from '@/store/useCartStore';
 import { useCheckoutStore } from '@/store/useCheckoutStore';
 import type { CartShopUI, CartUI } from '@/types/cart';
 import { generateMockCartData, getShopCheckboxState } from '@/utils/adapter/cartAdapter';
+import { logger } from '@/utils/logger';
 import { FlashList } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -250,7 +251,7 @@ export default function CartScreen() {
     const handleNavigateToShop = useCallback(
         (shopId: string) => {
             // TODO: Navigate to shop page
-            console.log('Navigate to shop:', shopId);
+            logger.cart.info('Navigate to shop:', shopId);
         },
         []
     );
@@ -258,21 +259,21 @@ export default function CartScreen() {
     const handleVoucherPress = useCallback(
         (shopId: string) => {
             // TODO: Open voucher bottom sheet
-            console.log('Open voucher sheet for shop:', shopId);
+            logger.cart.info('Open voucher sheet for shop:', shopId);
         },
         []
     );
 
     const handlePlatformVoucherPress = useCallback(() => {
         // TODO: Open platform voucher bottom sheet
-        console.log('Open platform voucher sheet');
+        logger.cart.info('Open platform voucher sheet');
     }, []);
 
 
     const handleCheckout = useCallback(() => {
         if (calculation.selectedCount === 0) {
             // In production: Show toast or alert
-            console.log('No items selected');
+            logger.cart.warn('No items selected');
             return;
         }
 

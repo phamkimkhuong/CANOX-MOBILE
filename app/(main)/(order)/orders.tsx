@@ -1,0 +1,107 @@
+/**
+ * ==============================================
+ * ORDER HISTORY SCREEN
+ * ==============================================
+ * Màn hình lịch sử đơn hàng với tabs theo trạng thái
+ * 
+ * Chiến lược:
+ * - 5 Tabs: Chờ xác nhận, Đang giao, Đã giao, Hoàn thành, Đã hủy
+ * - Mỗi tab là một API call riêng (lazy fetch)
+ * 
+ * Deep Link Support:
+ * - ?tab=pendingPayment -> CREATED
+ * - ?tab=processing -> CREATED  
+ * - ?tab=shipping -> FULFILLING
+ * - ?tab=review -> COMPLETED
+ */
+
+import {
+    OrderHistoryHeader,
+    OrderListTab,
+    OrderTabsBar,
+} from '@/components/orders';
+import { useCartStore } from '@/store/useCartStore';
+import { OrderTabStatus } from '@/types/order/order';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useCallback, useMemo, useState } from 'react';
+import { View } from 'react-native';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+
+/**
+ * Map profile status keys to OrderTabStatus
+ */
+const mapProfileTabToOrderTab = (profileTab: string | undefined): OrderTabStatus => {
+    switch (profileTab) {
+        case 'pendingPayment':
+        case 'processing':
+            return 'CREATED';
+        case 'shipping':
+            return 'FULFILLING';
+        case 'review':
+            return 'COMPLETED';
+        default:
+            // Log invalid param for debugging (only in dev)
+            if (__DEV__ && profileTab) {
+                console.warn(`[Orders] Unknown tab param: "${profileTab}", using default CREATED`);
+            }
+            return 'CREATED';
+    }
+};
+
+export default function OrderHistoryScreen() {
+    const { theme } = useUnistyles();
+    const styles = stylesheet;
+    const router = useRouter();
+
+    // Get tab param from URL for deep linking
+    const { tab } = useLocalSearchParams<{ tab?: string }>();
+
+    // Map the tab param to OrderTabStatus
+    const initialTab = useMemo(() => mapProfileTabToOrderTab(tab), [tab]);
+
+    // State for active tab - initialized from URL param
+    const [activeTab, setActiveTab] = useState<OrderTabStatus>(initialTab);
+
+    // Cart badge from store
+    const cartItemCount = useCartStore((state) => state.totalQuantity);
+
+    // Handlers
+    const handleTabChange = useCallback((newTab: OrderTabStatus) => {
+        setActiveTab(newTab);
+    }, []);
+
+    const handleCartPress = useCallback(() => {
+        router.push('/(main)/cart');
+    }, [router]);
+
+    return (
+        <View style={styles.container}>
+            {/* Header */}
+            <OrderHistoryHeader
+                onCartPress={handleCartPress}
+                cartBadge={cartItemCount}
+            />
+
+            {/* Tab Bar */}
+            <OrderTabsBar
+                activeTab={activeTab}
+                onTabChange={handleTabChange}
+            />
+
+            {/* Content - Hiển thị tab đang active */}
+            <View style={styles.content}>
+                <OrderListTab status={activeTab} />
+            </View>
+        </View>
+    );
+}
+
+const stylesheet = StyleSheet.create((theme) => ({
+    container: {
+        flex: 1,
+        backgroundColor: theme.colors.background,
+    },
+    content: {
+        flex: 1,
+    },
+}));

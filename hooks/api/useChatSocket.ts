@@ -1,7 +1,10 @@
 import { Conversation, ConversationPage, ConversationSchema, LastMessage } from '@/types/chat';
+import { createLogger } from '@/utils/logger';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef } from 'react';
 import { Alert } from 'react-native';
+
+const log = createLogger('ChatSocket');
 
 /**
  * Socket event types for chat
@@ -28,13 +31,13 @@ class MockChatSocket {
 
     connect(): void {
         this.connected = true;
-        console.log('[ChatSocket] Connected');
+        log.info('Connected');
     }
 
     disconnect(): void {
         this.connected = false;
         this.listeners.clear();
-        console.log('[ChatSocket] Disconnected');
+        log.info('Disconnected');
     }
 
     on<K extends keyof ChatSocketEvents>(
@@ -110,7 +113,7 @@ export const useChatSocket = () => {
                     // If conversation not found, it might be a new conversation
                     // In production, you'd fetch it from the socket event
                     if (!conversationToMove) {
-                        console.warn('[ChatSocket] Conversation not found:', conversationId);
+                        log.warn('Conversation not found:', conversationId);
                         return oldData;
                     }
 

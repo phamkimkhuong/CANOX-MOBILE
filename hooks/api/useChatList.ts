@@ -4,8 +4,11 @@ import {
     ConversationPage,
     ConversationPageSchema,
 } from '@/types/chat';
+import { createLogger } from '@/utils/logger';
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
+
+const log = createLogger('Chat');
 
 /**
  * Current user ID (mock)
@@ -203,7 +206,7 @@ const fetchConversations = async (
     // Apply search filter first
     if (searchQuery && searchQuery.trim().length > 0) {
         const query = searchQuery.toLowerCase().trim();
-        filtered = filtered.filter((conv) => 
+        filtered = filtered.filter((conv) =>
             conv.partner.name.toLowerCase().includes(query) ||
             conv.lastMessage.content.toLowerCase().includes(query)
         );
@@ -287,7 +290,7 @@ export const useConversationActions = () => {
         mutationFn: async (conversationId: string) => {
             // Simulate API call
             await new Promise((resolve) => setTimeout(resolve, 300));
-            console.log('Pinned:', conversationId);
+            log.info('Pinned:', conversationId);
             return { success: true };
         },
         onSuccess: () => {
@@ -298,7 +301,7 @@ export const useConversationActions = () => {
     const muteConversation = useMutation({
         mutationFn: async (conversationId: string) => {
             await new Promise((resolve) => setTimeout(resolve, 300));
-            console.log('Muted:', conversationId);
+            log.info('Muted:', conversationId);
             return { success: true };
         },
         onSuccess: () => {
@@ -309,7 +312,7 @@ export const useConversationActions = () => {
     const deleteConversation = useMutation({
         mutationFn: async (conversationId: string) => {
             await new Promise((resolve) => setTimeout(resolve, 300));
-            console.log('Deleted:', conversationId);
+            log.info('Deleted:', conversationId);
             return { success: true };
         },
         onSuccess: () => {
@@ -320,7 +323,7 @@ export const useConversationActions = () => {
     const markAsRead = useMutation({
         mutationFn: async (conversationId: string) => {
             await new Promise((resolve) => setTimeout(resolve, 200));
-            console.log('Marked as read:', conversationId);
+            log.info('Marked as read:', conversationId);
             return { success: true };
         },
         onSuccess: () => {

@@ -10,6 +10,7 @@
  */
 
 import { WEBSOCKET_CONFIG } from '@/constants/webSocket.config';
+import { logger } from '@/utils/logger';
 import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
 import * as SecureStore from 'expo-secure-store';
 
@@ -68,7 +69,7 @@ export class WebSocketService {
      * Private constructor để enforce singleton
      */
     private constructor() {
-        console.log('[WebSocketService] Instance created');
+        logger.ws.info('Instance created');
     }
 
     /**
@@ -90,19 +91,19 @@ export class WebSocketService {
             try {
                 // Prevent duplicate connections
                 if (this.state === WebSocketState.CONNECTED && this.connected) {
-                    console.log('[WebSocketService] Already connected, skipping');
+                    logger.ws.info('Already connected, skipping');
                     resolve();
                     return;
                 }
 
                 if (this.state === WebSocketState.CONNECTING) {
-                    console.log('[WebSocketService] Connection in progress, skipping');
+                    logger.ws.info('Connection in progress, skipping');
                     resolve();
                     return;
                 }
 
                 this.state = WebSocketState.CONNECTING;
-                console.log('[WebSocketService] Connecting...');
+                logger.ws.info('Connecting...');
 
                 // Lấy token từ SecureStore nếu không được truyền vào
                 let authToken = token;
@@ -120,7 +121,7 @@ export class WebSocketService {
                     brokerURL: wsUrl,
 
                     // Debug (chỉ enable trong development)
-                    debug: __DEV__ ? (str) => console.log('[STOMP]', str) : () => { },
+                    debug: __DEV__ ? (str) => logger.ws.debug(str) : () => { },
 
                     // Heartbeat settings
                     heartbeatIncoming: WEBSOCKET_CONFIG.connection.heartbeatIncoming,
@@ -136,7 +137,7 @@ export class WebSocketService {
 
                     // Callbacks
                     onConnect: (frame) => {
-                        console.log('[WebSocketService] Connected!', frame);
+                        logger.ws.info('Connected!', frame);
                         this.connected = true;
                         this.state = WebSocketState.CONNECTED;
                         this.reconnectAttempts = 0;
@@ -154,7 +155,7 @@ export class WebSocketService {
                     },
 
                     onDisconnect: (frame) => {
-                        console.log('[WebSocketService] Disconnected', frame);
+                        logger.ws.info('Disconnected', frame);
                         this.connected = false;
                         this.state = WebSocketState.DISCONNECTED;
 
@@ -164,7 +165,7 @@ export class WebSocketService {
 
                     onStompError: (frame) => {
                         const errorMessage = frame.headers['message'] || 'Unknown STOMP error';
-                        console.error('[WebSocketService] STOMP Error:', errorMessage);
+                        logger.ws.error('STOMP Error:', errorMessage);
                         this.state = WebSocketState.ERROR;
 
                         // Notify error callbacks
@@ -181,13 +182,13 @@ export class WebSocketService {
                     },
 
                     onWebSocketError: (event) => {
-                        console.error('[WebSocketService] WebSocket Error:', event);
+                        logger.ws.error('WebSocket Error:', event);
                         this.state = WebSocketState.ERROR;
                         this.onErrorCallbacks.forEach((cb) => cb('WebSocket connection error'));
                     },
 
                     onWebSocketClose: (event) => {
-                        console.log('[WebSocketService] WebSocket Closed:', event);
+                        logger.ws.info('WebSocket Closed:', event);
                         this.connected = false;
 
                         // Auto reconnect if not intentional disconnect
@@ -200,7 +201,7 @@ export class WebSocketService {
                 // Connection timeout
                 const connectTimeout = setTimeout(() => {
                     if (this.state === WebSocketState.CONNECTING) {
-                        console.error('[WebSocketService] Connection timeout');
+                        logger.ws.error('Connection timeout');
                         this.state = WebSocketState.ERROR;
                         reject(new Error('Connection timeout'));
                     }
@@ -220,7 +221,7 @@ export class WebSocketService {
                 };
 
             } catch (error) {
-                console.error('[WebSocketService] Connect error:', error);
+                logger.ws.error('Connect error:', error);
                 this.state = WebSocketState.ERROR;
                 reject(error);
             }
@@ -232,7 +233,7 @@ export class WebSocketService {
      */
     private handleReconnection(): void {
         if (this.reconnectAttempts >= WEBSOCKET_CONFIG.connection.maxReconnectAttempts) {
-            console.error('[WebSocketService] Max reconnect attempts reached');
+            logger.ws.error('Max reconnect attempts reached');
             this.state = WebSocketState.ERROR;
             return;
         }
@@ -240,13 +241,13 @@ export class WebSocketService {
         this.reconnectAttempts++;
         this.state = WebSocketState.RECONNECTING;
 
-        console.log(
-            `[WebSocketService] Reconnecting... (${this.reconnectAttempts}/${WEBSOCKET_CONFIG.connection.maxReconnectAttempts})`
+        logger.ws.info(
+            `Reconnecting... (${this.reconnectAttempts}/${WEBSOCKET_CONFIG.connection.maxReconnectAttempts})`
         );
 
         this.reconnectTimer = setTimeout(() => {
             this.connect().catch((error) => {
-                console.error('[WebSocketService] Reconnection failed:', error);
+                logger.ws.error('Reconnection failed:', error);
             });
         }, WEBSOCKET_CONFIG.connection.reconnectDelay);
     }
@@ -255,7 +256,7 @@ export class WebSocketService {
      * Ngắt kết nối WebSocket
      */
     disconnect(): void {
-        console.log('[WebSocketService] Disconnecting...');
+        logger.ws.info('Disconnecting...');
 
         // Clear reconnect timer
         if (this.reconnectTimer) {
@@ -267,9 +268,9 @@ export class WebSocketService {
         this.subscriptions.forEach((subscription, topic) => {
             try {
                 subscription.unsubscribe();
-                console.log(`[WebSocketService] Unsubscribed from ${topic}`);
+                logger.ws.debug(`Unsubscribed from ${topic}`);
             } catch (error) {
-                console.error(`[WebSocketService] Error unsubscribing from ${topic}:`, error);
+                logger.ws.error(`Error unsubscribing from ${topic}:`, error);
             }
         });
         this.subscriptions.clear();
@@ -279,7 +280,7 @@ export class WebSocketService {
             try {
                 this.stompClient.deactivate();
             } catch (error) {
-                console.error('[WebSocketService] Error deactivating client:', error);
+                logger.ws.error('Error deactivating client:', error);
             }
         }
 
@@ -287,7 +288,7 @@ export class WebSocketService {
         this.state = WebSocketState.DISCONNECTED;
         this.reconnectAttempts = 0;
 
-        console.log('[WebSocketService] Disconnected');
+        logger.ws.info('Disconnected');
     }
 
     /**
@@ -298,13 +299,13 @@ export class WebSocketService {
      */
     subscribe(topic: string, callback: MessageCallback): () => void {
         if (!this.connected || !this.stompClient) {
-            console.warn('[WebSocketService] Not connected, cannot subscribe to', topic);
+            logger.ws.warn('Not connected, cannot subscribe to', topic);
             return () => { };
         }
 
         // Check if already subscribed
         if (this.subscriptions.has(topic)) {
-            console.warn('[WebSocketService] Already subscribed to', topic);
+            logger.ws.warn('Already subscribed to', topic);
             // Return unsubscribe for existing subscription
             return () => this.unsubscribe(topic);
         }
@@ -318,18 +319,18 @@ export class WebSocketService {
                         callback(parsedData);
                     }
                 } catch (error) {
-                    console.error('[WebSocketService] Error parsing message:', error);
+                    logger.ws.error('Error parsing message:', error);
                 }
             });
 
             this.subscriptions.set(topic, subscription);
-            console.log(`[WebSocketService] Subscribed to ${topic}`);
+            logger.ws.info(`Subscribed to ${topic}`);
 
             // Return unsubscribe function
             return () => this.unsubscribe(topic);
 
         } catch (error) {
-            console.error(`[WebSocketService] Failed to subscribe to ${topic}:`, error);
+            logger.ws.error(`Failed to subscribe to ${topic}:`, error);
             return () => { };
         }
     }
@@ -343,9 +344,9 @@ export class WebSocketService {
             try {
                 subscription.unsubscribe();
                 this.subscriptions.delete(topic);
-                console.log(`[WebSocketService] Unsubscribed from ${topic}`);
+                logger.ws.debug(`Unsubscribed from ${topic}`);
             } catch (error) {
-                console.error(`[WebSocketService] Error unsubscribing from ${topic}:`, error);
+                logger.ws.error(`Error unsubscribing from ${topic}:`, error);
             }
         }
     }
@@ -357,7 +358,7 @@ export class WebSocketService {
      */
     send(destination: string, data: unknown): void {
         if (!this.connected || !this.stompClient) {
-            console.warn('[WebSocketService] Not connected, cannot send to', destination);
+            logger.ws.warn('Not connected, cannot send to', destination);
             return;
         }
 
@@ -368,11 +369,9 @@ export class WebSocketService {
                 body,
             });
 
-            if (__DEV__) {
-                console.log(`[WebSocketService] Sent to ${destination}:`, data);
-            }
+            logger.ws.debug(`Sent to ${destination}:`, data);
         } catch (error) {
-            console.error(`[WebSocketService] Failed to send to ${destination}:`, error);
+            logger.ws.error(`Failed to send to ${destination}:`, error);
         }
     }
 
@@ -386,7 +385,7 @@ export class WebSocketService {
             }
             return null;
         } catch (error) {
-            console.error('[WebSocketService] Failed to parse message:', error, message.body);
+            logger.ws.error('Failed to parse message:', error, message.body);
             return null;
         }
     }
@@ -469,7 +468,7 @@ export class WebSocketService {
      * Force reconnection
      */
     async forceReconnect(): Promise<void> {
-        console.log('[WebSocketService] Force reconnecting...');
+        logger.ws.info('Force reconnecting...');
         this.disconnect();
         await new Promise((resolve) => setTimeout(resolve, 1000));
         return this.connect();

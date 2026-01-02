@@ -1,5 +1,7 @@
+import { ROUTES } from '@/constants/routes';
 import { ORDER_STATUS_CONFIG, OrderStats } from '@/types/profile';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import React, { memo, useCallback } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -30,14 +32,18 @@ export const OrderStatusRail: React.FC<OrderStatusRailProps> = memo(({
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+    const router = useRouter();
 
-    const handlePress = useCallback((route: string) => {
-        // TODO: Navigate to order list with filter
-    }, []);
+    const handlePress = useCallback((statusKey: string) => {
+        router.push({
+            pathname: ROUTES.ORDERS.LIST,
+            params: { tab: statusKey },
+        });
+    }, [router]);
 
     const handleViewHistory = useCallback(() => {
-        // TODO: Navigate to order history
-    }, []);
+        router.push(ROUTES.ORDERS.LIST);
+    }, [router]);
 
     // Error state
     if (isError) {
@@ -101,7 +107,7 @@ export const OrderStatusRail: React.FC<OrderStatusRailProps> = memo(({
                         <TouchableOpacity
                             key={item.key}
                             style={styles.statusItem}
-                            onPress={() => handlePress(item.route)}
+                            onPress={() => handlePress(item.key)}
                             activeOpacity={0.7}
                         >
                             <View style={styles.iconContainer}>
@@ -134,8 +140,9 @@ OrderStatusRail.displayName = 'OrderStatusRail';
 const stylesheet = StyleSheet.create((theme) => ({
     card: {
         backgroundColor: theme.colors.surface,
-        borderRadius: 24,
-        padding: 12,
+        borderRadius: 15,
+        paddingHorizontal: theme.margins.md,
+        paddingVertical: theme.margins.sm,
         marginHorizontal: theme.margins.md,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },

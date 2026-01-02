@@ -2,6 +2,7 @@ import { MarketingHeader } from '@/components/home/MarketingHeader';
 import { ProductTabs } from '@/components/home/ProductTabs';
 import { HomeHeader } from '@/components/home/SearchHomeHeader';
 import { ProductCard } from '@/components/ui/ProductCard';
+import { useScrollToTopHandler } from '@/contexts/ScrollToTopContext';
 import { FeedType, useProductFeed } from '@/hooks/api/useHomeProducts';
 import type { ProductFeedItem } from '@/types/product';
 import { FlashList, FlashListRef, ListRenderItemInfo } from '@shopify/flash-list';
@@ -129,6 +130,19 @@ export default function HomeScreen() {
     hasNextPage,
     isFetchingNextPage,
   } = useProductFeed(activeTab);
+
+  /**
+   * Scroll to Top Handler - Register with context to handle when user returns to Home tab
+   */
+  const scrollToTop = useCallback(() => {
+    listRef.current?.scrollToOffset({
+      offset: 0,
+      animated: true,
+    });
+  }, []);
+
+  // Đăng ký handler với context (tự cleanup khi unmount)
+  useScrollToTopHandler('index', scrollToTop);
 
   /**
    * Tạo mảng data cho FlashList

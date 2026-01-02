@@ -22,6 +22,7 @@ import type {
     ShopSubtotal,
     VoucherValidationResult,
 } from '@/types/checkout';
+import { logger } from '@/utils/logger';
 import { useCallback, useEffect, useMemo } from 'react';
 
 // ============================================
@@ -442,7 +443,7 @@ export const useCheckoutCalculation = (): UseCheckoutCalculationReturn => {
     useEffect(() => {
         if (calculation.platformVoucherValidation?.shouldAutoRemove && platformVoucherId) {
             // Show warning before removing (in production: use toast)
-            console.warn('Platform voucher auto-removed:', platformVoucherWarning);
+            logger.cart.warn('Platform voucher auto-removed:', platformVoucherWarning);
             applyPlatformVoucher(null);
         }
     }, [calculation.platformVoucherValidation, platformVoucherId, platformVoucherWarning, applyPlatformVoucher]);
