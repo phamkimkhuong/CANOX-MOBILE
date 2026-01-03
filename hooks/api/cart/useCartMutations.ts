@@ -11,6 +11,7 @@
 
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { request } from '@/services/api/client';
+import { useCartStore } from '@/store/useCartStore';
 import { CartApiResponseSchema, CartUI } from '@/types/cart';
 import { ResponseDefaultSchema } from '@/types/responseSchema';
 import { transformCart } from '@/utils/adapter/cartAdapter';
@@ -205,6 +206,97 @@ export const useRemoveCartItem = () => {
         onSuccess: () => {
             logger.cart.info('Item removed successfully');
             queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
+        },
+    });
+};
+
+// ==============================================
+// MUTATION: Clear Cart (Remove All Items)
+// ==============================================
+
+/**
+ * Clear all items from cart via API
+ * 
+ * API: DELETE /api/v1/cart/items
+ * Headers: Idempotency-Key (required), If-Match (required)
+ * Response: { code, success, message, data: {} }
+ */
+export const useClearCart = () => {
+    const queryClient = useQueryClient();
+    const setTotalQuantity = useCartStore((state) => state.setTotalQuantity);
+
+    return useMutation({
+        mutationFn: async (): Promise<void> => {
+            logger.cart.info('Clearing cart');
+
+            const idempotencyKey = uuidv4();
+
+            await request(
+                {
+                    url: API_ROUTES.CART.CLEAR,
+                    method: 'DELETE',
+                    headers: {
+                        'Idempotency-Key': idempotencyKey,
+                        'If-Match': '0',
+                    },
+                },
+                ResponseDefaultSchema
+            );
+        },
+
+        // Optimistic update - clear cart immediately
+        onMutate: async () => {
+            await queryClient.cancelQueries({ queryKey: CART_QUERY_KEY });
+
+            const previousCart = queryClient.getQueryData<CartUI>(CART_QUERY_KEY);
+
+            // Set empty cart optimistically
+            const emptyCart: CartUI = {
+                shops: [],
+                platformVouchers: previousCart?.platformVouchers ?? [],
+                appliedPlatformVoucherId: null,
+            };
+            queryClient.setQueryData(CART_QUERY_KEY, emptyCart);
+
+            // Reset badge count
+            setTotalQuantity(0);
+
+            return { previousCart };
+        },
+
+        onError: (error, variables, context) => {
+            logger.cart.warn('Clear cart failed, rolling back', { error });
+
+            // Rollback to previous state
+            if (context?.previousCart) {
+                queryClient.setQueryData(CART_QUERY_KEY, context.previousCart);
+                const totalItems = context.previousCart.shops.reduce(
+                    (sum, shop) => sum + shop.itemCount,
+                    0
+                );
+                setTotalQuantity(totalItems);
+            }
+
+            const errorMessage = error instanceof Error ? error.message : 'Không thể xóa giỏ hàng';
+            Toast.show({
+                type: 'error',
+                text1: 'Xóa giỏ hàng thất bại',
+                text2: errorMessage,
+                position: 'top',
+                visibilityTime: 3000,
+            });
+        },
+
+        onSuccess: () => {
+            logger.cart.info('Cart cleared successfully');
+            queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
+
+            Toast.show({
+                type: 'success',
+                text1: 'Đã xóa giỏ hàng',
+                position: 'top',
+                visibilityTime: 2000,
+            });
         },
     });
 };

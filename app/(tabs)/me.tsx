@@ -1,5 +1,5 @@
 import {
-    FollowedShopsSection,
+    // FollowedShopsSection, // TODO: Enable when BE has follow shop API
     GuestState,
     OrderStatusRail,
     ProfileHeader,
@@ -8,11 +8,11 @@ import {
     UserInfoCard,
 } from '@/components/profile';
 import {
-    useFollowedShops,
+    // useFollowedShops,
     useOrderStats,
     useRefreshProfile,
     useUserProfile,
-    useWalletBalance,
+    useWalletBalance
 } from '@/hooks/api/profile/useProfile';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Navigator } from '@/utils/navigation';
@@ -50,10 +50,11 @@ export default function MeScreen() {
         isLoading: isLoadingWallet,
     } = useWalletBalance();
 
-    const {
-        data: followedShops,
-        isLoading: isLoadingShops,
-    } = useFollowedShops();
+    // TODO: Enable when BE has follow shop API
+    // const {
+    //     data: followedShops,
+    //     isLoading: isLoadingShops,
+    // } = useFollowedShops();
 
     // Refresh all queries
     const { refresh, isRefreshing } = useRefreshProfile();
@@ -73,15 +74,16 @@ export default function MeScreen() {
         Navigator.push(route as any);
     }, []);
 
-    // Handle shop press
-    const handleShopPress = useCallback((shopId: string) => {
-        // TODO: Navigate to shop page
-    }, []);
+    // TODO: Enable when BE has follow shop API
+    // // Handle shop press
+    // const handleShopPress = useCallback((shopId: string) => {
+    //     // TODO: Navigate to shop page
+    // }, []);
 
-    // Handle view all shops
-    const handleViewAllShops = useCallback(() => {
-        // TODO: Navigate to followed shops list
-    }, []);
+    // // Handle view all shops
+    // const handleViewAllShops = useCallback(() => {
+    //     // TODO: Navigate to followed shops list
+    // }, []);
 
     // Memoized refresh control
     const refreshControl = useMemo(() => (
@@ -129,13 +131,13 @@ export default function MeScreen() {
                     onRetry={handleOrdersRetry}
                 />
 
-                {/* Followed Shops */}
-                <FollowedShopsSection
+                {/* Followed Shops - TODO: Enable when BE has follow shop API */}
+                {/* <FollowedShopsSection
                     shops={followedShops ?? []}
                     isLoading={isLoadingShops}
                     onPressShop={handleShopPress}
                     onViewAll={handleViewAllShops}
-                />
+                /> */}
 
                 {/* Services Grid */}
                 <ServiceGrid

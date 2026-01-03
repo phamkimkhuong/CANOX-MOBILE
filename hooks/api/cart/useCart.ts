@@ -4,8 +4,12 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { useCartStore } from '@/store/useCartStore';
 import { CartApiResponseSchema, CartUI } from '@/types/cart';
 import { transformCart } from '@/utils/adapter/cartAdapter';
+import { logger } from '@/utils/logger';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
+import 'react-native-get-random-values';
+import Toast from 'react-native-toast-message';
+import { v4 as uuidv4 } from 'uuid';
 
 const CART_QUERY_KEY = ['cart'];
 
@@ -47,8 +51,28 @@ export const useCart = () => {
     return query;
 };
 
+// ==============================================
+// Add to Cart Input/Output types
+// ==============================================
+
+export interface AddToCartInput {
+    variantId: string;
+    quantity: number;
+}
+
+export interface AddToCartResult {
+    success: boolean;
+    cart?: CartUI;
+    message?: string;
+}
+
 /**
  * Hook to add item to cart
+ * 
+ * API: POST /api/v1/cart/items
+ * Headers: Idempotency-Key (required)
+ * Body: { variantId: string, quantity: number }
+ * 
  * Uses optimistic update for instant UI feedback
  */
 export const useAddToCart = () => {
@@ -57,12 +81,23 @@ export const useAddToCart = () => {
     const setTotalQuantity = useCartStore((state) => state.setTotalQuantity);
 
     return useMutation({
-        mutationFn: async (data: { productId: string; variantId: string; quantity: number }) => {
+        mutationFn: async ({ variantId, quantity }: AddToCartInput): Promise<CartUI> => {
+            logger.cart.info('Adding to cart', { variantId, quantity });
+
+            // Generate unique idempotency key for this request
+            const idempotencyKey = uuidv4();
+
             const response = await request(
                 {
                     url: API_ROUTES.CART.ADD,
                     method: 'POST',
-                    data,
+                    data: {
+                        variantId,
+                        quantity,
+                    },
+                    headers: {
+                        'Idempotency-Key': idempotencyKey,
+                    },
                 },
                 CartApiResponseSchema
             );
@@ -70,18 +105,33 @@ export const useAddToCart = () => {
             return transformCart(response.data);
         },
 
-        onMutate: async (variables) => {
+        // Optimistic update for instant UI feedback
+        onMutate: async ({ quantity }) => {
             await queryClient.cancelQueries({ queryKey: CART_QUERY_KEY });
-            incrementCart(1);
+            // Optimistically increment badge count by quantity
+            incrementCart(quantity);
         },
 
-        // On error: Invalidate to refetch correct data from server
-        onError: () => {
+        // On error: Rollback and show error message
+        onError: (error) => {
+            logger.cart.warn('Add to cart failed', { error });
+            // Invalidate to refetch correct data from server
             queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
+
+            const errorMessage = error instanceof Error ? error.message : 'Không thể thêm vào giỏ hàng';
+            Toast.show({
+                type: 'error',
+                text1: 'Thêm vào giỏ thất bại',
+                text2: errorMessage,
+                position: 'top',
+                visibilityTime: 3000,
+            });
         },
 
-        // On success: Update cache with transformed data
+        // On success: Update cache with transformed data and show success message
         onSuccess: (cartUI) => {
+            logger.cart.info('Added to cart successfully');
+
             if (cartUI) {
                 const totalItems = cartUI.shops.reduce(
                     (sum, shop) => sum + shop.itemCount,
@@ -89,6 +139,13 @@ export const useAddToCart = () => {
                 );
                 setTotalQuantity(totalItems);
                 queryClient.setQueryData(CART_QUERY_KEY, cartUI);
+
+                Toast.show({
+                    type: 'success',
+                    text1: 'Đã thêm vào giỏ hàng',
+                    position: 'top',
+                    visibilityTime: 2000,
+                });
             } else {
                 queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
             }

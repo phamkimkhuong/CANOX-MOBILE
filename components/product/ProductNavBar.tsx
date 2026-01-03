@@ -1,6 +1,7 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import { ROUTES } from '@/constants/routes';
+import { useCartStore } from '@/store/useCartStore';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React from 'react';
@@ -23,7 +24,6 @@ const SCROLL_THRESHOLD = 150; // Điểm chuyển màu header
 interface ProductNavBarProps {
     scrollY: SharedValue<number>;
     title?: string;
-    cartItemCount?: number;
     onCartPress?: () => void;
     onSharePress?: () => void;
     onMorePress?: () => void;
@@ -113,7 +113,6 @@ const NavButton: React.FC<NavButtonProps> = ({
 export const ProductNavBar: React.FC<ProductNavBarProps> = ({
     scrollY,
     title,
-    cartItemCount = 0,
     onCartPress,
     onSharePress,
     onMorePress,
@@ -121,6 +120,7 @@ export const ProductNavBar: React.FC<ProductNavBarProps> = ({
     const insets = useSafeAreaInsets();
     const { theme } = useUnistyles();
     const { id } = useLocalSearchParams<{ id: string }>();
+    const cartItemCount = useCartStore((state) => state.totalQuantity);
 
     const handleGoBack = () => {
         if (router.canGoBack()) {

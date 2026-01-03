@@ -19,7 +19,10 @@ export interface ProductTranslation {
         label: string;
         placeholder: string;
         confirm: string;
+        addToCart: string;
+        buyNow: string;
         stock: string;
+        quantity: string;
     };
     bottomBar: {
         chat: string;

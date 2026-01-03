@@ -10,12 +10,14 @@ import {
     ShopInfoCard,
     StickyBottomBar,
     VariantBottomSheet,
-    VariantSelectorRow
+    VariantSelectorRow,
+    VariantSheetMode
 } from '@/components/product';
 import type { ProductGalleryRef } from '@/components/product/ProductGallery';
 import { IconSymbol } from '@/components/ui/Icon';
 import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import { ROUTES, chatRoutes, shopRoutes } from '@/constants/routes';
+import { useAddToCart } from '@/hooks/api/cart';
 import { useProductDetail } from '@/hooks/api/product/useProductDetail';
 import { useProductVariant } from '@/hooks/useProductVariant';
 import { findGalleryIndexByVariant } from '@/utils/adapter/productDetailAdapter';
@@ -38,6 +40,9 @@ export default function ProductDetailScreen() {
     const insets = useSafeAreaInsets();
     const { theme } = useUnistyles();
     const [variantSheetVisible, setVariantSheetVisible] = useState(false);
+    /** Tracks how the variant sheet was opened - determines button text and action */
+    const [variantSheetMode, setVariantSheetMode] = useState<VariantSheetMode>('select');
+    const [quantity, setQuantity] = useState(1);
 
     // === Data Fetching ===
     const {
@@ -58,6 +63,9 @@ export default function ProductDetailScreen() {
         getOptionsWithAvailability,
     } = useProductVariant(product);
 
+    // === Add to Cart Mutation ===
+    const { mutate: addToCart, isPending: isAddingToCart } = useAddToCart();
+
     // === Scroll Animation ===
     const scrollY = useSharedValue(0);
 
@@ -74,18 +82,10 @@ export default function ProductDetailScreen() {
     // MEMOIZED VALUES - Tránh tính toán lại mỗi render
     // ============================================
 
-    /**
-     * ⚡ P0-3 FIX: Memoize options with availability
-     * Trước đây gọi trong render body → tính lại mỗi render
-     */
     const optionsWithAvailability = useMemo(() => {
         return getOptionsWithAvailability();
     }, [getOptionsWithAvailability]);
 
-    /**
-     * Extract primitive values để tránh object dependency
-     * Giúp callbacks không thay đổi reference khi object thay đổi
-     */
     const canAddToCart = selectionResult.canAddToCart;
     const selectedVariantId = selectionResult.selectedVariant?.id;
     const selectedVariantMedia = selectionResult.selectedVariant?.media;
@@ -100,23 +100,81 @@ export default function ProductDetailScreen() {
         return selectedVariantMedia?.[0]?.url ?? productGallery?.[0]?.url;
     }, [selectedVariantMedia, productGallery]);
 
-    const handleOpenVariantSheet = useCallback(() => {
+    /**
+     * Open variant sheet with specified mode
+     * Mode determines what action the confirm button performs
+     */
+    const handleOpenVariantSheet = useCallback((mode: VariantSheetMode = 'select') => {
+        setVariantSheetMode(mode);
         setVariantSheetVisible(true);
     }, []);
 
     const handleCloseVariantSheet = useCallback(() => {
         setVariantSheetVisible(false);
+        // Reset mode to default after close
+        setVariantSheetMode('select');
     }, []);
 
+    /**
+     * Handle variant sheet confirm action based on current mode:
+     * - 'select': Just close the sheet (user was selecting variant)
+     * - 'add-to-cart': Add to cart then close sheet
+     * - 'buy-now': Add to cart then navigate to checkout
+     */
     const handleConfirmVariant = useCallback(() => {
-        setVariantSheetVisible(false);
-
-        // Scroll gallery to variant image if exists
-        if (selectedVariantMedia?.[0] && productGallery && selectedVariantId) {
-            const index = findGalleryIndexByVariant(productGallery, selectedVariantId);
-            galleryRef.current?.scrollToIndex(index);
+        if (!canAddToCart || !selectedVariantId) {
+            return;
         }
-    }, [selectedVariantMedia, productGallery, selectedVariantId]);
+
+        // Action based on mode
+        if (variantSheetMode === 'add-to-cart') {
+            // Add to cart from sheet
+            log.info('Add to cart from sheet:', { variantId: selectedVariantId, quantity });
+            addToCart(
+                { variantId: selectedVariantId, quantity },
+                {
+                    onSuccess: () => {
+                        setVariantSheetVisible(false);
+                        setVariantSheetMode('select');
+                        setQuantity(1);
+                    },
+                }
+            );
+        } else if (variantSheetMode === 'buy-now') {
+            // Add to cart and navigate to checkout
+            log.info('Buy now from sheet:', { variantId: selectedVariantId, quantity });
+
+            // Temporary: Navigate directly and cleanup UI
+            setVariantSheetVisible(false);
+            setVariantSheetMode('select');
+            setQuantity(1);
+            router.push(ROUTES.CHECKOUT.INDEX);
+
+            /* Commented out until API integration is finalized
+            addToCart(
+                { variantId: selectedVariantId, quantity },
+                {
+                    onSuccess: () => {
+                        setVariantSheetVisible(false);
+                        setVariantSheetMode('select');
+                        setQuantity(1);
+                        router.push(ROUTES.CHECKOUT.INDEX);
+                    },
+                }
+            );
+            */
+        } else {
+            // Default 'select' mode: just close and scroll to variant image
+            setVariantSheetVisible(false);
+            setVariantSheetMode('select');
+
+            // Scroll gallery to variant image if exists
+            if (selectedVariantMedia?.[0] && productGallery && selectedVariantId) {
+                const index = findGalleryIndexByVariant(productGallery, selectedVariantId);
+                galleryRef.current?.scrollToIndex(index);
+            }
+        }
+    }, [variantSheetMode, canAddToCart, selectedVariantId, quantity, addToCart, selectedVariantMedia, productGallery]);
 
     const handleChatPress = useCallback(() => {
         if (shopId) {
@@ -139,37 +197,67 @@ export default function ProductDetailScreen() {
     }, [refetch, resetSelection]);
 
 
+    /**
+     * Handle Add to Cart action
+     * - If variant not selected: open variant sheet in add-to-cart mode
+     * - If variant selected: call addToCart mutation directly
+     */
     const handleAddToCart = useCallback(() => {
-        if (!canAddToCart) {
-            handleOpenVariantSheet();
+        if (!canAddToCart || !selectedVariantId) {
+            // Open sheet with 'add-to-cart' mode - button will say "Thêm vào giỏ"
+            handleOpenVariantSheet('add-to-cart');
             return;
         }
 
-        // TODO: Implement add to cart mutation
+        // Variant already selected, add to cart directly
         log.info('Add to cart:', {
-            productId,
             variantId: selectedVariantId,
-            quantity: 1,
+            quantity,
         });
-    }, [canAddToCart, productId, selectedVariantId, handleOpenVariantSheet]);
+
+        addToCart(
+            { variantId: selectedVariantId, quantity },
+            {
+                onSuccess: () => {
+                    // Reset quantity to 1 for next add
+                    setQuantity(1);
+                },
+            }
+        );
+    }, [canAddToCart, selectedVariantId, quantity, handleOpenVariantSheet, addToCart]);
 
 
+    /**
+     * Handle Buy Now action
+     * - If variant not selected: open variant sheet in buy-now mode
+     * - If variant selected: add to cart and navigate to checkout
+     */
     const handleBuyNow = useCallback(() => {
-        if (!canAddToCart) {
-            handleOpenVariantSheet();
+        if (!canAddToCart || !selectedVariantId) {
+            // Open sheet with 'buy-now' mode - button will say "Mua ngay"
+            handleOpenVariantSheet('buy-now');
             return;
         }
 
-        router.push({
-            pathname: ROUTES.CART.INDEX,
-            params: {
-                action: 'buy-now',
-                productId: productId ?? '',
-                variantId: selectedVariantId ?? '',
-                quantity: '1',
-            },
-        } as never);
-    }, [canAddToCart, productId, selectedVariantId, handleOpenVariantSheet]);
+        // Variant already selected, proceed to checkout directly
+        log.info('Buy now:', { variantId: selectedVariantId, quantity });
+
+        // Temporary: Navigate directly and cleanup UI
+        setQuantity(1);
+        router.push(ROUTES.CHECKOUT.INDEX);
+
+        /* Commented out until API integration is finalized
+        addToCart(
+            { variantId: selectedVariantId, quantity },
+            {
+                onSuccess: () => {
+                    setQuantity(1);
+                    router.push(ROUTES.CHECKOUT.INDEX);
+                },
+            }
+        );
+        */
+    }, [canAddToCart, selectedVariantId, quantity, handleOpenVariantSheet, addToCart]);
 
     const handleCartPress = useCallback(() => {
         router.push(ROUTES.CART.INDEX);
@@ -262,7 +350,6 @@ export default function ProductDetailScreen() {
             <ProductNavBar
                 scrollY={scrollY}
                 title={product.name}
-                cartItemCount={0} // TODO: Get from cart store
                 onCartPress={handleCartPress}
                 onSharePress={handleSharePress}
             />
@@ -305,7 +392,7 @@ export default function ProductDetailScreen() {
                         options={product.options}
                         selectedOptions={selectedOptions}
                         selectionSummary={selectionResult.selectionSummary}
-                        onPress={handleOpenVariantSheet}
+                        onPress={() => handleOpenVariantSheet('select')}
                     />
                 )}
 
@@ -359,7 +446,11 @@ export default function ProductDetailScreen() {
                     originalPrice={selectionResult.displayPrice.originalPrice}
                     currentStock={selectionResult.availableStock}
                     selectedImage={currentImage}
+                    quantity={quantity}
+                    onQuantityChange={setQuantity}
+                    mode={variantSheetMode}
                     onConfirm={handleConfirmVariant}
+                    isConfirmDisabled={!selectionResult.canAddToCart}
                 />
             )}
         </View>

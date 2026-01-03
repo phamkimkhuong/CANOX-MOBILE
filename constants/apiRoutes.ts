@@ -43,10 +43,12 @@ export const API_ROUTES = {
         UPDATE: (itemId: string) => `${API_PREFIX}/cart/items/${itemId}`,
         REMOVE: (itemId: string) => `${API_PREFIX}/cart/items/${itemId}`,
         CLEAR: `${API_PREFIX}/cart`,
+        CHECKOUT_PREVIEW: `${API_PREFIX}/cart/checkout`,
     },
     CHAT: {
         CONVERSATIONS: `${API_PREFIX}/conversations`,
         MESSAGES: (conversationId: string) => `${API_PREFIX}/conversations/${conversationId}/messages`,
+        UNREAD_COUNT: `${API_PREFIX}/chat/conversations/unread/messages/count`,
     },
     NOTIFICATIONS: {
         GET: `${API_PREFIX}/notifications`,

@@ -10,4 +10,5 @@ export { RelatedProducts } from './RelatedProducts';
 export { ShopInfoCard } from './ShopInfoCard';
 export { StickyBottomBar } from './StickyBottomBar';
 export { VariantBottomSheet, VariantSelectorRow } from './VariantSelector';
+export type { VariantSheetMode } from './VariantSelector';
 

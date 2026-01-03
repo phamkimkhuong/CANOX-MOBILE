@@ -92,7 +92,7 @@ export const OrderStatusRail: React.FC<OrderStatusRailProps> = memo(({
                     onPress={handleViewHistory}
                     activeOpacity={0.7}
                 >
-                    <Text style={styles.viewAllText}>Xem lịch sử</Text>
+                    <Text style={styles.viewAllText}>Xem lịch sử mua hàng</Text>
                     <MaterialIcons name="arrow-forward" size={14} color={theme.colors.secondary} />
                 </TouchableOpacity>
             </View>
@@ -144,6 +144,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         paddingHorizontal: theme.margins.md,
         paddingVertical: theme.margins.sm,
         marginHorizontal: theme.margins.md,
+        marginBottom: theme.margins.sm,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.05,
@@ -167,8 +168,8 @@ const stylesheet = StyleSheet.create((theme) => ({
         gap: 4,
     },
     viewAllText: {
-        fontSize: 12,
-        fontWeight: '500',
+        fontSize: 13,
+        fontWeight: '600',
         color: theme.colors.secondary,
     },
     statusRow: {

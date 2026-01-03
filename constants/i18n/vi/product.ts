@@ -37,7 +37,10 @@ export const PRODUCT_STRINGS: ProductTranslation = {
         label: 'Phân loại',
         placeholder: 'Chọn phân loại',
         confirm: 'Xác nhận',
+        addToCart: 'Thêm vào giỏ',
+        buyNow: 'Mua ngay',
         stock: 'Kho',
+        quantity: 'Số lượng',
     },
 
     // === Sticky Bottom Bar ===

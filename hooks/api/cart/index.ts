@@ -6,10 +6,13 @@
 
 // Query hooks
 export { useAddToCart, useCart } from './useCart';
+export type { AddToCartInput } from './useCart';
 
-// Mutation hooks (quantity + remove only, selection is client-side)
+// Mutation hooks (quantity, remove, clear)
 export {
-    useRemoveCartItem, useUpdateCartItemQuantity
+    useClearCart,
+    useRemoveCartItem,
+    useUpdateCartItemQuantity
 } from './useCartMutations';
 
 // Calculation hooks (client-side selection logic)

@@ -23,6 +23,14 @@ interface VariantSelectorRowProps {
     onPress: () => void;
 }
 
+/**
+ * Mode determines the button text and behavior:
+ * - 'select': Just selecting variant (confirm button)
+ * - 'add-to-cart': Opened from Add to Cart button
+ * - 'buy-now': Opened from Buy Now button
+ */
+export type VariantSheetMode = 'select' | 'add-to-cart' | 'buy-now';
+
 interface VariantBottomSheetProps {
     visible: boolean;
     onClose: () => void;
@@ -33,7 +41,11 @@ interface VariantBottomSheetProps {
     originalPrice?: number;
     currentStock?: number;
     selectedImage?: string;
+    quantity: number;
+    onQuantityChange: (quantity: number) => void;
+    mode: VariantSheetMode;
     onConfirm: () => void;
+    isConfirmDisabled?: boolean;
 }
 
 interface OptionWithAvailability extends ProductOptionUI {
@@ -249,6 +261,7 @@ const valueStyles = StyleSheet.create((theme) => ({
 // ============================================
 
 /**
+ * VariantBottomSheet - Bottom sheet for selecting product variants and quantity
  */
 export const VariantBottomSheet = memo<VariantBottomSheetProps>(({
     visible,
@@ -260,7 +273,11 @@ export const VariantBottomSheet = memo<VariantBottomSheetProps>(({
     originalPrice,
     currentStock,
     selectedImage,
+    quantity,
+    onQuantityChange,
+    mode,
     onConfirm,
+    isConfirmDisabled = false,
 }) => {
     const { theme } = useUnistyles();
     const insets = useSafeAreaInsets();
@@ -281,6 +298,19 @@ export const VariantBottomSheet = memo<VariantBottomSheetProps>(({
         sheetStyles.container,
         { paddingBottom: insets.bottom + 16 },
     ], [insets.bottom]);
+
+    // Memoize button text based on mode
+    const buttonText = useMemo(() => {
+        switch (mode) {
+            case 'add-to-cart':
+                return PRODUCT_STRINGS.variant.addToCart;
+            case 'buy-now':
+                return PRODUCT_STRINGS.variant.buyNow;
+            case 'select':
+            default:
+                return PRODUCT_STRINGS.variant.confirm;
+        }
+    }, [mode]);
 
     // Memoize stop propagation handler
     const handleContainerPress = useCallback((e: { stopPropagation: () => void }) => {
@@ -361,10 +391,72 @@ export const VariantBottomSheet = memo<VariantBottomSheetProps>(({
                         ))}
                     </ScrollView>
 
-                    {/* Confirm Button */}
+                    {/* Quantity Selector */}
+                    <View style={sheetStyles.quantitySection}>
+                        <Text style={sheetStyles.quantityLabel}>
+                            {PRODUCT_STRINGS.variant.quantity}
+                        </Text>
+                        <View style={sheetStyles.quantityControl}>
+                            <Pressable
+                                style={[
+                                    sheetStyles.quantityButton,
+                                    quantity <= 1 && sheetStyles.quantityButtonDisabled,
+                                ]}
+                                onPress={() => onQuantityChange(Math.max(1, quantity - 1))}
+                                disabled={quantity <= 1}
+                            >
+                                <IconSymbol
+                                    name="remove"
+                                    size={20}
+                                    color={quantity <= 1 ? theme.colors.secondary : theme.colors.typography}
+                                />
+                            </Pressable>
+                            <Text style={sheetStyles.quantityValue}>{quantity}</Text>
+                            <Pressable
+                                style={[
+                                    sheetStyles.quantityButton,
+                                    currentStock !== undefined && quantity >= currentStock && sheetStyles.quantityButtonDisabled,
+                                ]}
+                                onPress={() => onQuantityChange(
+                                    currentStock !== undefined
+                                        ? Math.min(currentStock, quantity + 1)
+                                        : quantity + 1
+                                )}
+                                disabled={currentStock !== undefined && quantity >= currentStock}
+                            >
+                                <IconSymbol
+                                    name="add"
+                                    size={20}
+                                    color={
+                                        currentStock !== undefined && quantity >= currentStock
+                                            ? theme.colors.secondary
+                                            : theme.colors.typography
+                                    }
+                                />
+                            </Pressable>
+                        </View>
+                    </View>
+
+                    {/* Action Button - text changes based on mode */}
                     <View style={sheetStyles.footer}>
-                        <Pressable style={sheetStyles.confirmButton} onPress={onConfirm}>
-                            <Text style={sheetStyles.confirmText}>{PRODUCT_STRINGS.variant.confirm}</Text>
+                        <Pressable
+                            style={[
+                                sheetStyles.confirmButton,
+                                mode === 'add-to-cart' && sheetStyles.confirmButtonSoft,
+                                isConfirmDisabled && sheetStyles.confirmButtonDisabled
+                            ]}
+                            onPress={onConfirm}
+                            disabled={isConfirmDisabled}
+                        >
+                            <Text
+                                style={[
+                                    sheetStyles.confirmText,
+                                    mode === 'add-to-cart' && sheetStyles.confirmTextSoft,
+                                    isConfirmDisabled && sheetStyles.confirmTextDisabled
+                                ]}
+                            >
+                                {buttonText}
+                            </Text>
                         </Pressable>
                     </View>
                 </Pressable>
@@ -460,6 +552,47 @@ const sheetStyles = StyleSheet.create((theme) => ({
         flexWrap: 'wrap',
         gap: 8,
     },
+    // Quantity Selector Styles
+    quantitySection: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: theme.margins.md,
+        borderTopWidth: 1,
+        borderTopColor: theme.colors.border,
+    },
+    quantityLabel: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: theme.colors.typography,
+    },
+    quantityControl: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+    },
+    quantityButton: {
+        width: 36,
+        height: 36,
+        borderRadius: theme.radius.m,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        backgroundColor: theme.colors.surface,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    quantityButtonDisabled: {
+        backgroundColor: theme.colors.background,
+        borderColor: theme.colors.border,
+        opacity: 0.5,
+    },
+    quantityValue: {
+        fontSize: 16,
+        fontWeight: '500',
+        color: theme.colors.typography,
+        minWidth: 40,
+        textAlign: 'center',
+    },
     footer: {
         paddingVertical: theme.margins.md,
         borderTopWidth: 1,
@@ -470,11 +603,28 @@ const sheetStyles = StyleSheet.create((theme) => ({
         borderRadius: theme.radius.m,
         paddingVertical: 14,
         alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
+        borderColor: 'transparent',
+    },
+    confirmButtonSoft: {
+        backgroundColor: theme.colors.primarySoft,
+        borderColor: theme.colors.primary,
+    },
+    confirmButtonDisabled: {
+        backgroundColor: theme.colors.background,
+        borderColor: theme.colors.border,
     },
     confirmText: {
         fontSize: 16,
         fontWeight: '600',
         color: theme.colors.surface,
+    },
+    confirmTextSoft: {
+        color: theme.colors.primary,
+    },
+    confirmTextDisabled: {
+        color: theme.colors.secondary,
     },
 }));
 

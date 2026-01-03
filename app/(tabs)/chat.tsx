@@ -5,7 +5,7 @@ import {
     ConversationItem,
     PromoBanner,
 } from '@/components/chat';
-import { useChatList, useConversationActions } from '@/hooks/api/useChatList';
+import { useChatList, useConversationActions } from '@/hooks/api/chat/useChatList';
 import { useChatSocket } from '@/hooks/api/useChatSocket';
 import { useDebounce } from '@/hooks/useDebounce';
 import { ChatFilter, Conversation } from '@/types/chat';
