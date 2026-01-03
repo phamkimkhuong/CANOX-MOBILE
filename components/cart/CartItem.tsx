@@ -288,7 +288,7 @@ const styles = StyleSheet.create((theme) => ({
     currentPrice: {
         fontSize: 16,
         fontWeight: '700',
-        color: theme.colors.primary,
+        color: theme.colors.error,
     },
     findSimilarButton: {
         borderWidth: 1,

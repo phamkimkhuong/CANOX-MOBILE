@@ -12,9 +12,13 @@
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { request } from '@/services/api/client';
 import { CartApiResponseSchema, CartUI } from '@/types/cart';
+import { ResponseDefaultSchema } from '@/types/responseSchema';
 import { transformCart } from '@/utils/adapter/cartAdapter';
 import { logger } from '@/utils/logger';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import 'react-native-get-random-values';
+import Toast from 'react-native-toast-message';
+import { v4 as uuidv4 } from 'uuid';
 
 const CART_QUERY_KEY = ['cart'];
 
@@ -38,14 +42,13 @@ export const useUpdateCartItemQuantity = () => {
         mutationFn: async ({ itemId, quantity }: UpdateQuantityParams): Promise<CartUI> => {
             logger.cart.info('Updating quantity', { itemId, quantity });
 
-            // Generate idempotency key (UUID v4)
-            const idempotencyKey = `update-qty-${itemId}-${Date.now()}-${Math.random()}`;
-
-            // Get current cart to extract version/etag for If-Match
+            // Get current cart to extract version for If-Match 
             const currentCart = queryClient.getQueryData<CartUI>(CART_QUERY_KEY);
             const currentItem = currentCart?.shops
                 .flatMap(s => s.items)
                 .find(i => i.id === itemId);
+            const idempotencyKey = uuidv4();
+            const version = currentItem?.version;
 
             const response = await request(
                 {
@@ -54,7 +57,7 @@ export const useUpdateCartItemQuantity = () => {
                     data: { quantity },
                     headers: {
                         'Idempotency-Key': idempotencyKey,
-                        'If-Match': currentItem?.version?.toString() || '*', // Use version or wildcard
+                        'If-Match': "0"
                     },
                 },
                 CartApiResponseSchema
@@ -79,7 +82,6 @@ export const useUpdateCartItemQuantity = () => {
                                 ? {
                                     ...item,
                                     quantity,
-                                    totalPrice: item.unitPrice * quantity
                                 }
                                 : item
                         ),
@@ -94,9 +96,20 @@ export const useUpdateCartItemQuantity = () => {
 
         onError: (error, variables, context) => {
             logger.cart.warn('Quantity update failed, rolling back', { error });
+            // Rollback optimistic update
             if (context?.previousCart) {
                 queryClient.setQueryData(CART_QUERY_KEY, context.previousCart);
             }
+            const errorMessage = error instanceof Error ? error.message : 'Không thể cập nhật số lượng';
+            Toast.show({
+                type: 'error',
+                text1: 'Cập nhật thất bại',
+                text2: errorMessage.includes('version') || errorMessage.includes('refresh')
+                    ? 'Giỏ hàng đã được cập nhật. Vui lòng làm mới trang.'
+                    : 'Vui lòng kiểm tra lại số lượng và thử lại.',
+                position: 'top',
+                visibilityTime: 3000,
+            });
         },
 
         onSuccess: (cartUI) => {
@@ -121,18 +134,31 @@ export const useRemoveCartItem = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async ({ itemId }: RemoveItemParams): Promise<CartUI> => {
+        mutationFn: async ({ itemId }: RemoveItemParams): Promise<void> => {
             logger.cart.info('Removing item', { itemId });
+
+            // Get current cart to extract version for If-Match
+            const currentCart = queryClient.getQueryData<CartUI>(CART_QUERY_KEY);
+            const currentItem = currentCart?.shops
+                .flatMap(s => s.items)
+                .find(i => i.id === itemId);
+
+            const version = currentItem?.version;
+            const idempotencyKey = uuidv4();
 
             const response = await request(
                 {
                     url: API_ROUTES.CART.REMOVE(itemId),
                     method: 'DELETE',
+                    headers: {
+                        'Idempotency-Key': idempotencyKey,
+                        // 'If-Match': version ? version.toString(),
+                        'If-Match': '0',
+                    },
                 },
-                CartApiResponseSchema
+                ResponseDefaultSchema
             );
 
-            return transformCart(response.data);
         },
 
         // Optimistic update
@@ -163,11 +189,22 @@ export const useRemoveCartItem = () => {
             if (context?.previousCart) {
                 queryClient.setQueryData(CART_QUERY_KEY, context.previousCart);
             }
+            const errorMessage = error instanceof Error ? error.message : 'Không thể xóa sản phẩm';
+            Toast.show({
+                type: 'error',
+                text1: 'Xóa thất bại',
+                text2: errorMessage.includes('version') || errorMessage.includes('refresh')
+                    ? 'Giỏ hàng đã được cập nhật. Vui lòng làm mới trang.'
+                    : 'Vui lòng kiểm tra lại số lượng và thử lại.',
+                position: 'top',
+                visibilityTime: 3000,
+            });
         },
 
-        onSuccess: (cartUI) => {
+
+        onSuccess: () => {
             logger.cart.info('Item removed successfully');
-            queryClient.setQueryData(CART_QUERY_KEY, cartUI);
+            queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
         },
     });
 };

@@ -13,7 +13,7 @@ import {
     useRefreshProfile,
     useUserProfile,
     useWalletBalance,
-} from '@/hooks/api/useProfile';
+} from '@/hooks/api/profile/useProfile';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Navigator } from '@/utils/navigation';
 import React, { useCallback, useMemo } from 'react';

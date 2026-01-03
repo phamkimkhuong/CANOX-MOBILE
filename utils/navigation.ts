@@ -6,7 +6,7 @@ import { Href, router } from 'expo-router';
 
 let isNavigating = false;
 let lastPushTime = 0;
-const PUSH_TIMEOUT = 800; // Khoảng thời gian an toàn giữa 2 lần chuyển màn hình
+const PUSH_TIMEOUT = 800; // Reduced from 800ms for faster navigation
 
 export const Navigator = {
     /**

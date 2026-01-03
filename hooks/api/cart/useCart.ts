@@ -27,15 +27,17 @@ export const useCart = () => {
             return transformCart(response.data);
         },
         enabled: isAuthenticated,
-        staleTime: 1000 * 60 * 5, // 5 minutes
-        gcTime: 1000 * 60 * 10, // 10 minutes
+        staleTime: 1000 * 10,
+        gcTime: 1000 * 60 * 10,
+        refetchOnMount: true,
+        refetchOnWindowFocus: true,
     });
 
     // Sync cart count to Zustand badge
     useEffect(() => {
         if (query.data) {
             const totalItems = query.data.shops.reduce(
-                (sum, shop) => sum + shop.totalQuantity,
+                (sum, shop) => sum + shop.itemCount,
                 0
             );
             setTotalQuantity(totalItems);
@@ -68,10 +70,9 @@ export const useAddToCart = () => {
             return transformCart(response.data);
         },
 
-        // Optimistic update: Increment badge immediately
         onMutate: async (variables) => {
             await queryClient.cancelQueries({ queryKey: CART_QUERY_KEY });
-            incrementCart(variables.quantity);
+            incrementCart(1);
         },
 
         // On error: Invalidate to refetch correct data from server
@@ -83,7 +84,7 @@ export const useAddToCart = () => {
         onSuccess: (cartUI) => {
             if (cartUI) {
                 const totalItems = cartUI.shops.reduce(
-                    (sum, shop) => sum + shop.totalQuantity,
+                    (sum, shop) => sum + shop.itemCount,
                     0
                 );
                 setTotalQuantity(totalItems);

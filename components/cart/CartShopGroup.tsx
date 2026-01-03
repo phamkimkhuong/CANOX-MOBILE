@@ -23,7 +23,7 @@ import { StyleSheet } from 'react-native-unistyles';
 import { SwipeableRow } from '../ui/SwipeableRow';
 import { CartItem } from './CartItem';
 import { ShopHeader } from './ShopHeader';
-import { ShopVoucherSelector } from './ShopVoucherSelector';
+// import { ShopVoucherSelector } from './ShopVoucherSelector';
 
 interface CartShopGroupProps {
     /** Shop data with items */
@@ -36,9 +36,7 @@ interface CartShopGroupProps {
     onToggleShop: () => void;
     /** Toggle single item */
     onToggleItem: (itemId: string) => void;
-    /** Update item quantity */
     onQuantityChange: (itemId: string, quantity: number) => void;
-    /** Delete item */
     onDeleteItem: (itemId: string) => void;
     onNavigateToShop?: () => void;
     /** Open variant selector for item */
@@ -75,7 +73,6 @@ export const CartShopGroup: React.FC<CartShopGroupProps> = memo(({
     const {
         shopId,
         shopName,
-        isMall,
         items,
         appliedVoucherId,
         availableVouchers,
@@ -134,7 +131,6 @@ export const CartShopGroup: React.FC<CartShopGroupProps> = memo(({
             <ShopHeader
                 shopName={shopName}
                 checkboxState={shopCheckboxState}
-                isMall={isMall}
                 onToggleSelect={onToggleShop}
                 onNavigateToShop={onNavigateToShop}
                 onEditPress={onEditModeToggle}
@@ -146,14 +142,15 @@ export const CartShopGroup: React.FC<CartShopGroupProps> = memo(({
                 {items.map((item, index) => renderItem(item, index))}
             </View>
 
-            {/* Shop Voucher Selector */}
-            {availableVouchers.length > 0 && (
+
+            {/* TEMPORARILY HIDDEN - Shop Voucher Selector */}
+            {/* {availableVouchers.length > 0 && (
                 <ShopVoucherSelector
                     appliedVoucher={appliedVoucher}
                     availableCount={availableVouchers.length}
                     onPress={onVoucherPress}
                 />
-            )}
+            )} */}
         </View>
     );
 });

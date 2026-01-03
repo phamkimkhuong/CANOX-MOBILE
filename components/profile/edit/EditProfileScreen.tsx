@@ -1,10 +1,10 @@
 import { IconSymbol } from '@/components/ui/Icon';
-import { useUserProfile } from '@/hooks/api/useProfile';
+import { useUserProfile } from '@/hooks/api/profile/useProfile';
 import {
     apiFormatToDate,
     dateToApiFormat,
     useUpdateProfile,
-} from '@/hooks/api/useUpdateProfile';
+} from '@/hooks/api/profile/useUpdateProfile';
 import { Gender, ProfileFormSchema, ProfileFormValues, UpdateProfilePayload } from '@/types/user';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router, Stack } from 'expo-router';
@@ -30,16 +30,6 @@ import { ProfileInput } from './ProfileInput';
 
 /**
  * EditProfileScreen - Edit user profile information
- * 
- * Features:
- * - Avatar display (read-only, no upload)
- * - Full name input
- * - Gender selector (Segmented Control)
- * - Date of birth (Native DatePicker)
- * - Phone number input
- * - Email (read-only with lock icon)
- * - Form validation with zod
- * - API integration with TanStack Query mutation
  */
 export default function EditProfileScreen() {
     const { theme } = useUnistyles();

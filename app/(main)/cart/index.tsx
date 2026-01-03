@@ -41,7 +41,7 @@ import { logger } from '@/utils/logger';
 import { FlashList } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -123,7 +123,7 @@ export default function CartScreen() {
     // ========================================
 
     // Fetch cart data from API
-    const { data: cartData, isLoading, error, refetch } = useCart();
+    const { data: cartData, isLoading, isFetching, error, refetch } = useCart();
 
     // API Mutations
     const { mutate: updateQuantity } = useUpdateCartItemQuantity();
@@ -143,7 +143,6 @@ export default function CartScreen() {
         isEditMode,
         setEditMode,
         toggleItemSelection,
-        setTotalQuantity,
     } = useCartStore();
 
     // ========================================
@@ -160,17 +159,6 @@ export default function CartScreen() {
             setSelectedItemIds(new Set(allSelectableIds));
         }
     }, [cartData, setSelectedItemIds]); // Dependency on cartData object
-
-    // Update total quantity badge
-    useEffect(() => {
-        if (cartData) {
-            const count = cartData.shops.reduce(
-                (sum, shop) => sum + shop.items.length,
-                0
-            );
-            setTotalQuantity(count);
-        }
-    }, [cartData, setTotalQuantity]);
 
     // ========================================
     // CALCULATIONS (Client-side selection)
@@ -211,7 +199,6 @@ export default function CartScreen() {
     // API mutation: Update quantity
     const handleQuantityChange = useCallback(
         (itemId: string, quantity: number) => {
-            logger.cart.info('Update quantity', { itemId, quantity });
             updateQuantity({ itemId, quantity });
         },
         [updateQuantity]
@@ -372,6 +359,14 @@ export default function CartScreen() {
                 isEditMode={isEditMode}
             />
 
+            {/* Show when background revalidation is happening */}
+            {isFetching && cartData && (
+                <View style={styles.syncBar}>
+                    <ActivityIndicator size="small" color={theme.colors.primary} />
+                    <Text style={styles.syncText}>Đang cập nhật giá mới nhất...</Text>
+                </View>
+            )}
+
             <FlashList
                 data={shops}
                 renderItem={renderShopGroup}
@@ -381,11 +376,16 @@ export default function CartScreen() {
                     paddingBottom: footerHeight + theme.margins.md,
                 }}
                 showsVerticalScrollIndicator={false}
+                // Apply opacity when syncing for "honest" visual feedback
+                style={{ opacity: isFetching ? 0.7 : 1 }}
             />
 
             <CartFooter
                 selectAllState={selectAllState}
-                calculation={calculation}
+                calculation={{
+                    ...calculation,
+                    isCalculating: isFetching, // Disable checkout & show loader when syncing
+                }}
                 onToggleSelectAll={handleToggleSelectAll}
                 onCheckout={handleCheckout}
                 onVoucherPress={handlePlatformVoucherPress}
@@ -449,5 +449,20 @@ const styles = StyleSheet.create((theme) => ({
         fontSize: 14,
         fontWeight: '700',
         color: theme.colors.onPrimary,
+    },
+    syncBar: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: theme.margins.sm,
+        paddingVertical: theme.margins.sm,
+        backgroundColor: theme.colors.primaryMuted,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors.border,
+    },
+    syncText: {
+        fontSize: 12,
+        color: theme.colors.primary,
+        fontWeight: '500',
     },
 }));

@@ -1,5 +1,5 @@
 import { IconSymbol } from '@/components/ui/Icon';
-import { dateToDisplayFormat } from '@/hooks/api/useUpdateProfile';
+import { dateToDisplayFormat } from '@/hooks/api/profile/useUpdateProfile';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import React, { useState } from 'react';
 import { Platform, Text, TouchableOpacity, View } from 'react-native';

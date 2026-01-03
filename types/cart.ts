@@ -85,7 +85,7 @@ export const CartResponseSchema = z.object({
     shops: z.array(CartShopSchema),
     shopCount: z.number(),
     warnings: z.array(z.any()).optional(),
-    hasChanges: z.boolean().optional(),
+    hasChanges: z.boolean().nullish(),
 });
 
 // Full API Response Wrapper
@@ -95,7 +95,6 @@ export const CartApiResponseSchema = z.object({
     message: z.string(),
     data: CartResponseSchema,
 });
-
 // ============================================
 // INFERRED TYPES (API Response)
 // ============================================

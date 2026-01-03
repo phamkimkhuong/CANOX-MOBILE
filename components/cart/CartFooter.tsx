@@ -7,14 +7,6 @@
  * - Buy button with item count
  * - Platform voucher selector
  * - Proper safe area handling
- * 
- * @example
- * <CartFooter 
- *   selectAllState="indeterminate"
- *   calculation={cartCalculation}
- *   onToggleSelectAll={() => toggleSelectAll()}
- *   onCheckout={() => navigateToCheckout()}
- * />
  */
 
 import type { CartCalculationResult, CheckboxState, VoucherUI } from '@/types/cart';
@@ -30,7 +22,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { IconSymbol } from '../ui/Icon';
+// import { IconSymbol } from '../ui/Icon';
 import { CartCheckbox } from './CartCheckbox';
 
 // ============================================
@@ -146,8 +138,8 @@ export const CartFooter: React.FC<CartFooterProps> = memo(({
                 },
             ]}
         >
-            {/* Platform Voucher Bar */}
-            {showVoucherBar && (
+            {/* TEMPORARILY HIDDEN - Platform Voucher Bar */}
+            {/* {showVoucherBar && (
                 <Pressable
                     onPress={onVoucherPress}
                     style={styles.voucherBar}
@@ -179,7 +171,8 @@ export const CartFooter: React.FC<CartFooterProps> = memo(({
                         />
                     </View>
                 </Pressable>
-            )}
+            )} */}
+
 
             {/* Main Checkout Bar */}
             <View style={styles.checkoutBar}>
@@ -319,7 +312,7 @@ const styles = StyleSheet.create((theme) => ({
     totalAmount: {
         fontSize: 18,
         fontWeight: '700',
-        color: theme.colors.primary,
+        color: theme.colors.error,
     },
     savingsText: {
         fontSize: 10,

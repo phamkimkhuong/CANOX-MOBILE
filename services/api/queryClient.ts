@@ -75,8 +75,7 @@ export const queryClient = new QueryClient({
             refetchOnReconnect: true,
         },
         mutations: {
-            // Mutations also use custom retry logic
-            retry: shouldRetry,
+            retry: false,
         },
     },
 });
