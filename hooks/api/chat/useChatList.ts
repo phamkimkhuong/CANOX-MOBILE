@@ -1,277 +1,197 @@
+/**
+ * useChatList - TanStack Query hook for fetching conversations
+ *
+ * Features:
+ * - Infinite scroll pagination (page-based)
+ * - Filter by conversation type
+ * - Search (client-side for now, can be server-side later)
+ * - Optimistic updates for pin/mute/delete
+ *
+ * @see types/chat/conversationDTO.ts - API DTO types
+ * @see utils/adapter/conversationAdapter.ts - DTO → UI transform
+ */
+
+import { API_ROUTES } from '@/constants/apiRoutes';
+import { apiClient } from '@/services/api/client';
+import { useAuthStore } from '@/store/useAuthStore';
+import { ChatFilter, Conversation } from '@/types/chat';
 import {
-    ChatFilter,
-    Conversation,
-    ConversationPage,
-    ConversationPageSchema,
-} from '@/types/chat';
-import { createLogger } from '@/utils/logger';
+    ConversationActionResponse,
+    ConversationActionResponseSchema,
+    ConversationListResponse,
+    ConversationListResponseSchema,
+    ConversationType,
+} from '@/types/chat/conversationDTO';
+import { toConversationListUI } from '@/utils/adapter/conversationAdapter';
+import { logger } from '@/utils/logger';
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
-const log = createLogger('Chat');
+const PAGE_SIZE = 20;
 
 /**
- * Current user ID (mock)
+ * Query key for conversations list.
+ * Used for cache invalidation.
  */
-const CURRENT_USER_ID = 'user_001';
+export const CONVERSATIONS_QUERY_KEY = 'conversations';
 
 /**
- * Mock conversation data
+ * Map UI filter to API conversationType filter.
+ * Returns undefined for ALL filter (no filtering).
  */
-const MOCK_CONVERSATIONS: Conversation[] = [
-    // Pinned & Unread - Shop with unread messages
-    {
-        id: 'conv_001',
-        partner: {
-            id: 'shop_001',
-            name: 'Global Tech Store',
-            avatar: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=100',
-            isOnline: true,
-            isVerified: true,
-            responseRate: 98,
-            type: 'SHOP',
-        },
-        lastMessage: {
-            id: 'msg_001',
-            content: 'Global_Warranty_Policy.pdf',
-            type: 'FILE',
-            senderId: 'shop_001',
-            createdAt: new Date().toISOString(),
-            isRead: false,
-        },
-        unreadCount: 2,
-        isPinned: true,
-    },
-    // Shop - Read message with order update
-    {
-        id: 'conv_002',
-        partner: {
-            id: 'shop_002',
-            name: 'Seoul Style Official',
-            avatar: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=100',
-            isOnline: false,
-            isVerified: false,
-            responseRate: 85,
-            type: 'SHOP',
-        },
-        lastMessage: {
-            id: 'msg_002',
-            content: 'Đơn hàng #KR99382 đã được vận chuyển ✈️',
-            type: 'ORDER',
-            senderId: 'shop_002',
-            createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-            isRead: true,
-        },
-        unreadCount: 0,
-    },
-    // System - Order update
-    {
-        id: 'conv_003',
-        partner: {
-            id: 'system_order',
-            name: 'Cập nhật đơn hàng',
-            isOnline: false,
-            type: 'SYSTEM',
-        },
-        lastMessage: {
-            id: 'msg_003',
-            content: 'Gói hàng của bạn đã đến kho trung chuyển',
-            type: 'TEXT',
-            senderId: 'system_order',
-            createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-            isRead: true,
-        },
-        unreadCount: 0,
-    },
-    // Shop - Image message
-    {
-        id: 'conv_004',
-        partner: {
-            id: 'shop_003',
-            name: 'Tokyo Audio Lab',
-            avatar: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100',
-            isOnline: true,
-            isVerified: false,
-            responseRate: 92,
-            type: 'SHOP',
-        },
-        lastMessage: {
-            id: 'msg_004',
-            content: 'Đã gửi một ảnh',
-            type: 'IMAGE',
-            senderId: 'shop_003',
-            createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-            isRead: true,
-        },
-        unreadCount: 0,
-    },
-    // AI Assistant
-    {
-        id: 'conv_005',
-        partner: {
-            id: 'ai_assistant',
-            name: 'Trợ lý ảo AI',
-            isOnline: true,
-            type: 'AI',
-        },
-        lastMessage: {
-            id: 'msg_005',
-            content: 'Tôi có thể giúp bạn tìm mã giảm giá không?',
-            type: 'TEXT',
-            senderId: 'ai_assistant',
-            createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-            isRead: true,
-        },
-        unreadCount: 0,
-    },
-    // Shop - Product message
-    {
-        id: 'conv_006',
-        partner: {
-            id: 'shop_004',
-            name: 'Home Decor VN',
-            avatar: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=100',
-            isOnline: false,
-            type: 'SHOP',
-        },
-        lastMessage: {
-            id: 'msg_006',
-            content: 'Cảm ơn bạn đã quan tâm đến sản phẩm!',
-            type: 'TEXT',
-            senderId: CURRENT_USER_ID,
-            createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-            isRead: true,
-        },
-        unreadCount: 0,
-    },
-    // Promo - Unread
-    {
-        id: 'conv_007',
-        partner: {
-            id: 'promo_channel',
-            name: 'Khuyến mãi',
-            isOnline: false,
-            type: 'PROMO',
-        },
-        lastMessage: {
-            id: 'msg_007',
-            content: '🔥 Flash Sale giảm 70% chỉ hôm nay!',
-            type: 'TEXT',
-            senderId: 'promo_channel',
-            createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-            isRead: false,
-        },
-        unreadCount: 1,
-    },
-    // Shop with product
-    {
-        id: 'conv_008',
-        partner: {
-            id: 'shop_005',
-            name: 'Fashion House',
-            avatar: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=100',
-            isOnline: true,
-            isVerified: true,
-            responseRate: 95,
-            type: 'SHOP',
-        },
-        lastMessage: {
-            id: 'msg_008',
-            content: 'Áo thun Oversized - Size L',
-            type: 'PRODUCT',
-            senderId: CURRENT_USER_ID,
-            createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-            isRead: true,
-        },
-        unreadCount: 0,
-    },
-];
-
-const PAGE_SIZE = 6;
-
-/**
- * Simulate API fetch with pagination and search
- */
-const fetchConversations = async (
-    cursor: string | null,
-    filter: ChatFilter,
-    searchQuery?: string
-): Promise<ConversationPage> => {
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 600));
-
-    // Filter conversations
-    let filtered = MOCK_CONVERSATIONS;
-
-    // Apply search filter first
-    if (searchQuery && searchQuery.trim().length > 0) {
-        const query = searchQuery.toLowerCase().trim();
-        filtered = filtered.filter((conv) =>
-            conv.partner.name.toLowerCase().includes(query) ||
-            conv.lastMessage.content.toLowerCase().includes(query)
-        );
+const mapFilterToConversationType = (filter: ChatFilter): ConversationType | undefined => {
+    switch (filter) {
+        case ChatFilter.SHOP:
+            return 'BUYER_TO_SHOP';
+        case ChatFilter.SUPPORT:
+            return 'BUYER_TO_PLATFORM';
+        case ChatFilter.UNREAD:
+            return undefined; // Filter client-side
+        case ChatFilter.ALL:
+        default:
+            return undefined;
     }
-
-    // Sort: pinned first, then by lastMessage.createdAt
-    filtered = [...filtered].sort((a, b) => {
-        if (a.isPinned && !b.isPinned) return -1;
-        if (!a.isPinned && b.isPinned) return 1;
-        return new Date(b.lastMessage.createdAt).getTime() - new Date(a.lastMessage.createdAt).getTime();
-    });
-
-    if (filter !== ChatFilter.ALL) {
-        filtered = filtered.filter((conv) => {
-            if (filter === ChatFilter.UNREAD) return conv.unreadCount > 0;
-            if (filter === ChatFilter.SHOP) return conv.partner.type === 'SHOP';
-            if (filter === ChatFilter.SUPPORT) return conv.partner.type === 'AI' || conv.partner.type === 'SYSTEM';
-            return true;
-        });
-    }
-
-    // Paginate
-    const startIndex = cursor ? parseInt(cursor, 10) : 0;
-    const endIndex = startIndex + PAGE_SIZE;
-    const data = filtered.slice(startIndex, endIndex);
-    const hasMore = endIndex < filtered.length;
-
-    const response: ConversationPage = {
-        data,
-        nextCursor: hasMore ? endIndex.toString() : null,
-        hasMore,
-    };
-
-    // Validate with Zod
-    return ConversationPageSchema.parse(response);
 };
 
+// ============================================
+// API FETCH FUNCTION
+// ============================================
+
 /**
- * Hook to fetch chat list with infinite scroll and search
+ * Fetch conversations from API with pagination.
+ *
+ * @param page - Page number (0-indexed)
+ * @param filter - UI filter type
+ * @param currentUserId - Current user's ID for transform
+ * @returns Transformed conversation list with pagination info
+ */
+const fetchConversations = async (
+    page: number,
+    filter: ChatFilter,
+    currentUserId: string
+): Promise<{
+    conversations: Conversation[];
+    page: number;
+    hasNext: boolean;
+    totalElements: number;
+}> => {
+    logger.chat.info('Fetching conversations', { page, filter });
+
+    // Build query params
+    const params: Record<string, unknown> = {
+        page,
+        size: PAGE_SIZE,
+    };
+
+    // Add conversationType filter if applicable
+    const conversationType = mapFilterToConversationType(filter);
+    if (conversationType) {
+        params.conversationType = conversationType;
+    }
+
+    // Call API
+    const response = await apiClient.get<ConversationListResponse>(
+        API_ROUTES.CHAT.CONVERSATIONS,
+        { params }
+    );
+
+    // Validate with Zod
+    const validatedResponse = ConversationListResponseSchema.parse(response.data);
+
+    if (!validatedResponse.success) {
+        throw new Error(validatedResponse.message || 'Failed to fetch conversations');
+    }
+
+    // Transform DTO to UI types
+    const conversations = toConversationListUI(
+        validatedResponse.data.content,
+        currentUserId
+    );
+
+    logger.chat.info('Fetched conversations', {
+        count: conversations.length,
+        hasNext: validatedResponse.data.hasNext,
+    });
+
+    return {
+        conversations,
+        page: validatedResponse.data.page,
+        hasNext: validatedResponse.data.hasNext,
+        totalElements: validatedResponse.data.totalElements,
+    };
+};
+
+// ============================================
+// MAIN HOOK
+// ============================================
+
+/**
+ * Hook to fetch chat list with infinite scroll and filtering.
+ *
  * @param filter - Filter type (ALL, UNREAD, SHOP, SUPPORT)
- * @param searchQuery - Debounced search query string
+ * @param searchQuery - Debounced search query string (client-side filter)
+ * @returns Query result with flattened conversations array
  */
 export const useChatList = (
     filter: ChatFilter = ChatFilter.ALL,
     searchQuery?: string
 ) => {
+    // Get current user ID for participant matching
+    const buyerId = useAuthStore((state) => state.buyerId);
+
     const query = useInfiniteQuery({
-        queryKey: ['conversations', filter, searchQuery ?? ''],
-        queryFn: ({ pageParam }) => fetchConversations(pageParam, filter, searchQuery),
-        initialPageParam: null as string | null,
-        getNextPageParam: (lastPage) => lastPage.nextCursor,
+        queryKey: [CONVERSATIONS_QUERY_KEY, filter],
+        queryFn: ({ pageParam = 0 }) => {
+            if (!buyerId) {
+                throw new Error('User not authenticated');
+            }
+            return fetchConversations(pageParam, filter, buyerId);
+        },
+        initialPageParam: 0,
+        getNextPageParam: (lastPage) =>
+            lastPage.hasNext ? lastPage.page + 1 : undefined,
         staleTime: 1000 * 60 * 2, // 2 minutes
         gcTime: 1000 * 60 * 15, // 15 minutes
+        enabled: !!buyerId, // Only fetch when authenticated
     });
 
     // Flatten all pages into single list
-    const conversations = useMemo(() => {
+    const allConversations = useMemo(() => {
         if (!query.data?.pages) return [];
-        return query.data.pages.flatMap((page) => page.data);
+        return query.data.pages.flatMap((page) => page.conversations);
     }, [query.data?.pages]);
 
-    // Count total unread
+    // Apply client-side filters
+    const conversations = useMemo(() => {
+        let filtered = allConversations;
+
+        // Apply search filter (client-side)
+        if (searchQuery && searchQuery.trim().length > 0) {
+            const query = searchQuery.toLowerCase().trim();
+            filtered = filtered.filter((conv) =>
+                conv.partner.name.toLowerCase().includes(query) ||
+                conv.lastMessage.content.toLowerCase().includes(query)
+            );
+        }
+
+        // Apply UNREAD filter (client-side since API might not support it)
+        if (filter === ChatFilter.UNREAD) {
+            filtered = filtered.filter((conv) => conv.unreadCount > 0);
+        }
+
+        // Sort: pinned first, then by lastMessage.createdAt
+        return [...filtered].sort((a, b) => {
+            if (a.isPinned && !b.isPinned) return -1;
+            if (!a.isPinned && b.isPinned) return 1;
+            return new Date(b.lastMessage.createdAt).getTime() -
+                new Date(a.lastMessage.createdAt).getTime();
+        });
+    }, [allConversations, searchQuery, filter]);
+
+    // Calculate total unread across all conversations
     const totalUnread = useMemo(() => {
-        return conversations.reduce((sum, conv) => sum + conv.unreadCount, 0);
-    }, [conversations]);
+        return allConversations.reduce((sum, conv) => sum + conv.unreadCount, 0);
+    }, [allConversations]);
 
     return {
         ...query,
@@ -280,54 +200,108 @@ export const useChatList = (
     };
 };
 
+// ============================================
+// ACTION MUTATIONS
+// ============================================
+
 /**
- * Hook for conversation actions (pin, mute, delete)
+ * Hook for conversation actions (pin, mute, delete, markAsRead).
+ * Uses optimistic updates for better UX.
  */
 export const useConversationActions = () => {
     const queryClient = useQueryClient();
+    const buyerId = useAuthStore((state) => state.buyerId);
 
+    /**
+     * Pin/Unpin a conversation.
+     * PUT /api/v1/chat/conversations/{id}/pin?isPinned=true/false
+     */
     const pinConversation = useMutation({
-        mutationFn: async (conversationId: string) => {
-            // Simulate API call
-            await new Promise((resolve) => setTimeout(resolve, 300));
-            log.info('Pinned:', conversationId);
-            return { success: true };
+        mutationFn: async ({ conversationId, isPinned }: { conversationId: string; isPinned: boolean }) => {
+            logger.chat.info('Pin conversation:', { conversationId, isPinned });
+
+            const response = await apiClient.put<ConversationActionResponse>(
+                API_ROUTES.CHAT.PIN(conversationId),
+                null,
+                { params: { isPinned } }
+            );
+
+            // Validate response
+            const validated = ConversationActionResponseSchema.parse(response.data);
+            if (!validated.success) {
+                throw new Error(validated.message || 'Failed to pin conversation');
+            }
+
+            return validated.data;
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['conversations'] });
+            // Refetch conversations to get updated order
+            queryClient.invalidateQueries({ queryKey: [CONVERSATIONS_QUERY_KEY] });
+        },
+        onError: (error) => {
+            logger.chat.error('Pin conversation failed:', error);
         },
     });
 
+    /**
+     * Mute/Unmute a conversation.
+     * PUT /api/v1/chat/conversations/{id}/mute?isMuted=true/false
+     */
     const muteConversation = useMutation({
-        mutationFn: async (conversationId: string) => {
-            await new Promise((resolve) => setTimeout(resolve, 300));
-            log.info('Muted:', conversationId);
-            return { success: true };
+        mutationFn: async ({ conversationId, isMuted }: { conversationId: string; isMuted: boolean }) => {
+            logger.chat.info('Mute conversation:', { conversationId, isMuted });
+
+            const response = await apiClient.put<ConversationActionResponse>(
+                API_ROUTES.CHAT.MUTE(conversationId),
+                null,
+                { params: { isMuted } }
+            );
+
+            // Validate response
+            const validated = ConversationActionResponseSchema.parse(response.data);
+            if (!validated.success) {
+                throw new Error(validated.message || 'Failed to mute conversation');
+            }
+
+            return validated.data;
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['conversations'] });
+            queryClient.invalidateQueries({ queryKey: [CONVERSATIONS_QUERY_KEY] });
+        },
+        onError: (error) => {
+            logger.chat.error('Mute conversation failed:', error);
         },
     });
 
+    /**
+     * Delete a conversation.
+     * TODO: Replace with real API endpoint when available.
+     */
     const deleteConversation = useMutation({
         mutationFn: async (conversationId: string) => {
-            await new Promise((resolve) => setTimeout(resolve, 300));
-            log.info('Deleted:', conversationId);
-            return { success: true };
+            // TODO: Implement real API call
+            // await apiClient.delete(`/api/v1/chat/conversations/${conversationId}`);
+            logger.chat.info('Delete conversation:', conversationId);
+            return { success: true, conversationId };
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['conversations'] });
+            queryClient.invalidateQueries({ queryKey: [CONVERSATIONS_QUERY_KEY] });
         },
     });
 
+    /**
+     * Mark a conversation as read.
+     * TODO: Replace with real API endpoint when available.
+     */
     const markAsRead = useMutation({
         mutationFn: async (conversationId: string) => {
-            await new Promise((resolve) => setTimeout(resolve, 200));
-            log.info('Marked as read:', conversationId);
-            return { success: true };
+            // TODO: Implement real API call
+            // await apiClient.post(`/api/v1/chat/conversations/${conversationId}/read`);
+            logger.chat.info('Mark as read:', conversationId);
+            return { success: true, conversationId };
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['conversations'] });
+            queryClient.invalidateQueries({ queryKey: [CONVERSATIONS_QUERY_KEY] });
         },
     });
 

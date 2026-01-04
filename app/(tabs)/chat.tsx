@@ -64,14 +64,22 @@ export default function ChatScreen() {
 
     const handlePin = useCallback(
         (item: Conversation) => {
-            pinConversation.mutate(item.id);
+            // Toggle pin state
+            pinConversation.mutate({
+                conversationId: item.id,
+                isPinned: !item.isPinned,
+            });
         },
         [pinConversation]
     );
 
     const handleMute = useCallback(
         (item: Conversation) => {
-            muteConversation.mutate(item.id);
+            // Toggle mute state
+            muteConversation.mutate({
+                conversationId: item.id,
+                isMuted: !item.isMuted,
+            });
         },
         [muteConversation]
     );

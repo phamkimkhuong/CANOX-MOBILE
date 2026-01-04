@@ -1,10 +1,27 @@
-import { Conversation, ConversationPage, ConversationSchema, LastMessage } from '@/types/chat';
+/**
+ * useChatSocket - WebSocket hook for real-time chat updates
+ *
+ * Handles real-time updates to the conversation list cache
+ * without conflicting with pagination structure.
+ */
+
+import { CONVERSATIONS_QUERY_KEY } from '@/hooks/api/chat/useChatList';
+import { Conversation, LastMessage } from '@/types/chat';
 import { createLogger } from '@/utils/logger';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef } from 'react';
-import { Alert } from 'react-native';
 
 const log = createLogger('ChatSocket');
+
+/**
+ * Page structure returned by useChatList
+ */
+interface ConversationQueryPage {
+    conversations: Conversation[];
+    page: number;
+    hasNext: boolean;
+    totalElements: number;
+}
 
 /**
  * Socket event types for chat
@@ -86,10 +103,10 @@ export const useChatSocket = () => {
     const handleNewMessage = useCallback(
         (data: ChatSocketEvents['NEW_MESSAGE']) => {
             queryClient.setQueriesData<{
-                pages: ConversationPage[];
-                pageParams: (string | null)[];
+                pages: ConversationQueryPage[];
+                pageParams: number[];
             }>(
-                { queryKey: ['conversations'] },
+                { queryKey: [CONVERSATIONS_QUERY_KEY] },
                 (oldData) => {
                     if (!oldData) return oldData;
 
@@ -101,9 +118,9 @@ export const useChatSocket = () => {
                     // Find the conversation across all pages
                     for (let pageIdx = 0; pageIdx < oldData.pages.length; pageIdx++) {
                         const page = oldData.pages[pageIdx];
-                        const idx = page.data.findIndex((c) => c.id === conversationId);
+                        const idx = page.conversations.findIndex((c) => c.id === conversationId);
                         if (idx !== -1) {
-                            conversationToMove = { ...page.data[idx] };
+                            conversationToMove = { ...page.conversations[idx] };
                             foundInPage = pageIdx;
                             foundIndex = idx;
                             break;
@@ -124,52 +141,29 @@ export const useChatSocket = () => {
                         unreadCount: conversationToMove.unreadCount + 1,
                     };
 
-                    // Validate with Zod
-                    const validated = ConversationSchema.safeParse(updatedConversation);
-                    if (!validated.success) {
-                        // console.error('[ChatSocket] Invalid conversation data:', validated.error);
-                        Alert.alert('Error', 'Invalid conversation data');
-                        return oldData;
-                    }
-
                     // Create new pages array
                     const newPages = oldData.pages.map((page, pageIdx) => {
                         if (pageIdx === foundInPage) {
                             // Remove from original position
                             return {
                                 ...page,
-                                data: page.data.filter((_, idx) => idx !== foundIndex),
+                                conversations: page.conversations.filter((_, idx) => idx !== foundIndex),
                             };
                         }
                         return page;
                     });
 
                     // Handle pinned conversations - they stay at top
-                    if (updatedConversation.isPinned) {
-                        // Find insertion point among pinned items
-                        const firstPage = newPages[0];
-                        const pinnedCount = firstPage.data.filter((c) => c.isPinned).length;
-                        newPages[0] = {
-                            ...firstPage,
-                            data: [
-                                ...firstPage.data.slice(0, pinnedCount),
-                                validated.data,
-                                ...firstPage.data.slice(pinnedCount),
-                            ],
-                        };
-                    } else {
-                        // Insert after pinned items at top of first page
-                        const firstPage = newPages[0];
-                        const pinnedCount = firstPage.data.filter((c) => c.isPinned).length;
-                        newPages[0] = {
-                            ...firstPage,
-                            data: [
-                                ...firstPage.data.slice(0, pinnedCount),
-                                validated.data,
-                                ...firstPage.data.slice(pinnedCount),
-                            ],
-                        };
-                    }
+                    const firstPage = newPages[0];
+                    const pinnedCount = firstPage.conversations.filter((c) => c.isPinned).length;
+                    newPages[0] = {
+                        ...firstPage,
+                        conversations: [
+                            ...firstPage.conversations.slice(0, pinnedCount),
+                            updatedConversation,
+                            ...firstPage.conversations.slice(pinnedCount),
+                        ],
+                    };
 
                     return {
                         ...oldData,
@@ -187,16 +181,16 @@ export const useChatSocket = () => {
     const handleConversationUpdated = useCallback(
         (conversation: Conversation) => {
             queryClient.setQueriesData<{
-                pages: ConversationPage[];
-                pageParams: (string | null)[];
+                pages: ConversationQueryPage[];
+                pageParams: number[];
             }>(
-                { queryKey: ['conversations'] },
+                { queryKey: [CONVERSATIONS_QUERY_KEY] },
                 (oldData) => {
                     if (!oldData) return oldData;
 
                     const newPages = oldData.pages.map((page) => ({
                         ...page,
-                        data: page.data.map((c) =>
+                        conversations: page.conversations.map((c) =>
                             c.id === conversation.id ? conversation : c
                         ),
                     }));
@@ -217,16 +211,16 @@ export const useChatSocket = () => {
     const handleConversationDeleted = useCallback(
         (data: ChatSocketEvents['CONVERSATION_DELETED']) => {
             queryClient.setQueriesData<{
-                pages: ConversationPage[];
-                pageParams: (string | null)[];
+                pages: ConversationQueryPage[];
+                pageParams: number[];
             }>(
-                { queryKey: ['conversations'] },
+                { queryKey: [CONVERSATIONS_QUERY_KEY] },
                 (oldData) => {
                     if (!oldData) return oldData;
 
                     const newPages = oldData.pages.map((page) => ({
                         ...page,
-                        data: page.data.filter((c) => c.id !== data.conversationId),
+                        conversations: page.conversations.filter((c) => c.id !== data.conversationId),
                     }));
 
                     return {
@@ -268,16 +262,16 @@ export const useChatSocket = () => {
     const markAsReadOptimistic = useCallback(
         (conversationId: string) => {
             queryClient.setQueriesData<{
-                pages: ConversationPage[];
-                pageParams: (string | null)[];
+                pages: ConversationQueryPage[];
+                pageParams: number[];
             }>(
-                { queryKey: ['conversations'] },
+                { queryKey: [CONVERSATIONS_QUERY_KEY] },
                 (oldData) => {
                     if (!oldData) return oldData;
 
                     const newPages = oldData.pages.map((page) => ({
                         ...page,
-                        data: page.data.map((c) =>
+                        conversations: page.conversations.map((c) =>
                             c.id === conversationId
                                 ? { ...c, unreadCount: 0, lastMessage: { ...c.lastMessage, isRead: true } }
                                 : c

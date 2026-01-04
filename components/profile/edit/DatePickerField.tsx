@@ -38,7 +38,7 @@ export const DatePickerField: React.FC<DatePickerFieldProps> = ({
 
     const handleChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
         // On Android, picker auto-closes
-        if (Platform.OS === 'android') {
+        if (Platform.OS === 'android' || event.type === 'dismissed') {
             setShowPicker(false);
         }
 

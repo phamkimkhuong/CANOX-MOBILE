@@ -215,37 +215,3 @@ export interface CheckoutCalculationResult {
     /** Platform voucher có valid không (để hiển thị warning) */
     platformVoucherValidation: VoucherValidationResult | null;
 }
-
-// ============================================
-// ORDER CREATION TYPES
-// ============================================
-
-/**
- * CreateOrderPayload - Payload gửi lên API tạo đơn
- */
-export interface CreateOrderPayload {
-    addressId: string;
-    paymentMethod: PaymentMethodType;
-    platformVoucherId: string | null;
-    shops: Array<{
-        shopId: string;
-        items: Array<{
-            variantId: string;
-            quantity: number;
-        }>;
-        shippingMethodId: string;
-        shopVoucherId: string | null;
-        note: string;
-    }>;
-}
-
-/**
- * CreateOrderResponse - Response từ API
- */
-export interface CreateOrderResponse {
-    orderId: string;
-    orderNumber: string;
-    status: 'pending_payment' | 'processing';
-    totalAmount: number;
-    paymentDeadline?: string; // ISO date string
-}

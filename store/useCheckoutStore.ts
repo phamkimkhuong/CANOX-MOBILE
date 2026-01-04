@@ -1,25 +1,9 @@
 /**
  * useCheckoutStore - Zustand store for Checkout Session
- * 
- * KEY PRINCIPLE: This is a TEMPORARY session store.
- * - Created when user enters Checkout from Cart
- * - Destroyed when order is placed or user leaves
- * - NOT persisted to storage
- * 
- * State Categories:
- * 1. Session Data: Items grouped by shop (derived from Cart selection)
- * 2. User Choices: Shipping method, notes, vouchers, payment method
- * 3. UI State: Loading states, validation errors
  */
 
-import type { CartShopUI, VoucherUI } from '@/types/cart';
-import type {
-    CheckoutShopUI,
-    PaymentMethodType,
-    ShippingAddress,
-    ShippingMethod,
-} from '@/types/checkout';
-import { toCheckoutItem } from '@/types/checkout';
+import type { CheckoutShopUI, PaymentMethodType, ShippingAddress } from '@/types/checkout';
+import type { CheckoutPreviewUI } from '@/utils/adapter/checkoutPreviewAdapter';
 import { create } from 'zustand';
 
 // ============================================
@@ -28,89 +12,45 @@ import { create } from 'zustand';
 
 interface CheckoutState {
     isInitialized: boolean;
-    shops: CheckoutShopUI[];
-    deliveryAddress: ShippingAddress | null;
-    platformVouchers: VoucherUI[];
-    shippingMethodMap: Map<string, string>;
+    /** Preview response từ server - chứa shops, calculation, validation */
+    previewData: CheckoutPreviewUI | null;
+    isLoadingPreview: boolean;
+    /** Items được chọn từ Cart để checkout */
+    selectedItemIds: Set<string>;
+    /** Selected shipping method per shop: Map<shopId, serviceCode> */
+    selectedShipping: Map<string, string>;
+    /** Selected shop voucher per shop: Map<shopId, voucherCode> */
+    selectedShopVouchers: Map<string, string>;
+    selectedPlatformVoucher: string | null;
     shopNotes: Map<string, string>;
-    shopVouchers: Map<string, string>;
-    platformVoucherId: string | null;
     paymentMethod: PaymentMethodType;
-
-    // ========================================
-    // UI State
-    // ========================================
-    /** Đang load shipping options */
-    isLoadingShipping: Map<string, boolean>;
+    /** Selected delivery address */
+    deliveryAddress: ShippingAddress | null;
     /** Đang submit order */
     isSubmitting: boolean;
-    /** Validation errors */
-    validationErrors: Map<string, string>;
 
-    // ========================================
-    // Actions - Session Management
-    // ========================================
-    /**
-     * Initialize checkout session từ Cart selection
-     * @param cartShops - Shops từ Cart với selected items
-     * @param selectedIds - Set of selected item IDs
-     * @param address - User's delivery address
-     */
-    initSession: (
-        cartShops: CartShopUI[],
-        selectedIds: Set<string>,
-        address: ShippingAddress | null,
-        platformVouchers: VoucherUI[]
-    ) => void;
-
-    /** Reset/Clear session */
+    initSession: (selectedItemIds: Set<string>, address: ShippingAddress | null) => void;
+    /** Reset session khi rời checkout */
     resetSession: () => void;
+    setPreviewData: (data: CheckoutPreviewUI | null) => void;
+    /** Set loading state for preview */
+    setLoadingPreview: (isLoading: boolean) => void;
 
     // ========================================
-    // Actions - Shipping
+    // Actions - User Selections
     // ========================================
-    /** Set shipping options for a shop */
-    setShopShippingOptions: (shopId: string, methods: ShippingMethod[]) => void;
-    /** Select shipping method for a shop */
-    selectShippingMethod: (shopId: string, methodId: string) => void;
-    /** Set loading state for shipping */
-    setShippingLoading: (shopId: string, isLoading: boolean) => void;
-
-    // ========================================
-    // Actions - Notes
-    // ========================================
-    /** Update note for a shop */
+    selectShippingMethod: (shopId: string, serviceCode: string) => void;
+    applyShopVoucher: (shopId: string, voucherCode: string | null) => void;
+    applyPlatformVoucher: (voucherCode: string | null) => void;
     setShopNote: (shopId: string, note: string) => void;
-
-    // ========================================
-    // Actions - Vouchers
-    // ========================================
-    /** Apply shop voucher */
-    applyShopVoucher: (shopId: string, voucherId: string | null) => void;
-    /** Apply platform voucher */
-    applyPlatformVoucher: (voucherId: string | null) => void;
-
-    // ========================================
-    // Actions - Payment
-    // ========================================
-    /** Set payment method */
     setPaymentMethod: (method: PaymentMethodType) => void;
-
-    // ========================================
-    // Actions - Address
-    // ========================================
-    /** Update delivery address */
     setDeliveryAddress: (address: ShippingAddress) => void;
 
     // ========================================
-    // Actions - Submission
+    // Actions - UI State
     // ========================================
     /** Set submitting state */
     setSubmitting: (isSubmitting: boolean) => void;
-    /** Set validation error */
-    setValidationError: (key: string, message: string | null) => void;
-    /** Clear all validation errors */
-    clearValidationErrors: () => void;
 }
 
 // ============================================
@@ -118,18 +58,26 @@ interface CheckoutState {
 // ============================================
 
 const initialState = {
+    // Session
     isInitialized: false,
-    shops: [],
-    deliveryAddress: null,
-    platformVouchers: [],
-    shippingMethodMap: new Map<string, string>(),
+
+    // Server Data
+    previewData: null as CheckoutPreviewUI | null,
+    isLoadingPreview: false,
+
+    // Checkout Items
+    selectedItemIds: new Set<string>(),
+
+    // User Selections
+    selectedShipping: new Map<string, string>(),
+    selectedShopVouchers: new Map<string, string>(),
+    selectedPlatformVoucher: null as string | null,
     shopNotes: new Map<string, string>(),
-    shopVouchers: new Map<string, string>(),
-    platformVoucherId: null,
     paymentMethod: 'cod' as PaymentMethodType,
-    isLoadingShipping: new Map<string, boolean>(),
+    deliveryAddress: null as ShippingAddress | null,
+
+    // UI State
     isSubmitting: false,
-    validationErrors: new Map<string, string>(),
 };
 
 // ============================================
@@ -140,64 +88,28 @@ export const useCheckoutStore = create<CheckoutState>((set, get) => ({
     ...initialState,
 
     // ========================================
-    // Session Management
+    // Session Actions
     // ========================================
-    initSession: (cartShops, selectedIds, address, platformVouchers) => {
-        // Filter và transform cart items thành checkout items
-        const checkoutShops: CheckoutShopUI[] = cartShops
-            .map((shop) => {
-                // Chỉ lấy items đã được select và không out of stock
-                const selectedItems = shop.items
-                    .filter((item) => selectedIds.has(item.id) && !item.isOutOfStock)
-                    .map(toCheckoutItem);
 
-                if (selectedItems.length === 0) return null;
-
-                return {
-                    shopId: shop.shopId,
-                    shopName: shop.shopName,
-                    isMall: shop.isMall,
-                    items: selectedItems,
-                    shippingOptions: {
-                        shopId: shop.shopId,
-                        methods: [], // Will be loaded separately
-                        selectedMethodId: '',
-                        isLoading: true,
-                    },
-                    appliedVoucherId: shop.appliedVoucherId,
-                    availableVouchers: shop.availableVouchers,
-                    note: '',
-                } as CheckoutShopUI;
-            })
-            .filter((shop): shop is CheckoutShopUI => shop !== null);
-
-        // Initialize maps
-        const shippingMethodMap = new Map<string, string>();
-        const shopNotes = new Map<string, string>();
-        const shopVouchers = new Map<string, string>();
-        const isLoadingShipping = new Map<string, boolean>();
-
-        checkoutShops.forEach((shop) => {
-            shopNotes.set(shop.shopId, '');
-            isLoadingShipping.set(shop.shopId, true);
-            if (shop.appliedVoucherId) {
-                shopVouchers.set(shop.shopId, shop.appliedVoucherId);
-            }
-        });
-
+    /**
+     * Initialize checkout session với selected items từ Cart.
+     * Cart gọi hàm này TRƯỚC khi navigate, data sẵn sàng ngay.
+     */
+    initSession: (selectedItemIds, address) => {
         set({
             isInitialized: true,
-            shops: checkoutShops,
+            selectedItemIds: new Set(selectedItemIds),
             deliveryAddress: address,
-            platformVouchers,
-            shippingMethodMap,
-            shopNotes,
-            shopVouchers,
-            isLoadingShipping,
-            platformVoucherId: null,
+            // Reset selections
+            selectedShipping: new Map(),
+            selectedShopVouchers: new Map(),
+            selectedPlatformVoucher: null,
+            shopNotes: new Map(),
             paymentMethod: 'cod',
+            // Reset preview
+            previewData: null,
+            isLoadingPreview: false,
             isSubmitting: false,
-            validationErrors: new Map(),
         });
     },
 
@@ -205,163 +117,63 @@ export const useCheckoutStore = create<CheckoutState>((set, get) => ({
         set(initialState);
     },
 
-    // ========================================
-    // Shipping
-    // ========================================
-    setShopShippingOptions: (shopId, methods) => {
-        const { shops, shippingMethodMap } = get();
-
-        // Update shop với shipping options
-        const updatedShops = shops.map((shop) => {
-            if (shop.shopId !== shopId) return shop;
-
-            // Auto-select first method if none selected
-            const selectedMethodId = shippingMethodMap.get(shopId) || methods[0]?.id || '';
-
-            return {
-                ...shop,
-                shippingOptions: {
-                    ...shop.shippingOptions,
-                    methods,
-                    selectedMethodId,
-                    isLoading: false,
-                },
-            };
-        });
-
-        // Update shipping method map
-        const newShippingMap = new Map(shippingMethodMap);
-        if (!newShippingMap.has(shopId) && methods.length > 0) {
-            newShippingMap.set(shopId, methods[0].id);
-        }
-
-        // Update loading state
-        const newLoadingMap = new Map(get().isLoadingShipping);
-        newLoadingMap.set(shopId, false);
-
-        set({
-            shops: updatedShops,
-            shippingMethodMap: newShippingMap,
-            isLoadingShipping: newLoadingMap,
-        });
+    /**
+     * Update preview data from API response.
+     * Server đã trả về selectedShippingMethod trong mỗi shop.
+     * KHÔNG sync selectedShipping từ server nữa - tránh trigger re-render loop.
+     */
+    setPreviewData: (data) => {
+        set({ previewData: data });
     },
 
-    selectShippingMethod: (shopId, methodId) => {
-        const { shops, shippingMethodMap } = get();
-
-        // Update shop
-        const updatedShops = shops.map((shop) => {
-            if (shop.shopId !== shopId) return shop;
-            return {
-                ...shop,
-                shippingOptions: {
-                    ...shop.shippingOptions,
-                    selectedMethodId: methodId,
-                },
-            };
-        });
-
-        // Update map
-        const newMap = new Map(shippingMethodMap);
-        newMap.set(shopId, methodId);
-
-        set({
-            shops: updatedShops,
-            shippingMethodMap: newMap,
-        });
-    },
-
-    setShippingLoading: (shopId, isLoading) => {
-        const newMap = new Map(get().isLoadingShipping);
-        newMap.set(shopId, isLoading);
-        set({ isLoadingShipping: newMap });
+    setLoadingPreview: (isLoading) => {
+        set({ isLoadingPreview: isLoading });
     },
 
     // ========================================
-    // Notes
+    // User Selection Actions
     // ========================================
-    setShopNote: (shopId, note) => {
-        const { shops, shopNotes } = get();
 
-        // Update shop
-        const updatedShops = shops.map((shop) => {
-            if (shop.shopId !== shopId) return shop;
-            return { ...shop, note };
-        });
-
-        // Update map
-        const newMap = new Map(shopNotes);
-        newMap.set(shopId, note);
-
-        set({
-            shops: updatedShops,
-            shopNotes: newMap,
-        });
+    selectShippingMethod: (shopId, serviceCode) => {
+        const newMap = new Map(get().selectedShipping);
+        newMap.set(shopId, serviceCode);
+        set({ selectedShipping: newMap });
     },
 
-    // ========================================
-    // Vouchers
-    // ========================================
-    applyShopVoucher: (shopId, voucherId) => {
-        const { shops, shopVouchers } = get();
-
-        // Update shop
-        const updatedShops = shops.map((shop) => {
-            if (shop.shopId !== shopId) return shop;
-            return { ...shop, appliedVoucherId: voucherId };
-        });
-
-        // Update map
-        const newMap = new Map(shopVouchers);
-        if (voucherId === null) {
+    applyShopVoucher: (shopId, voucherCode) => {
+        const newMap = new Map(get().selectedShopVouchers);
+        if (voucherCode === null) {
             newMap.delete(shopId);
         } else {
-            newMap.set(shopId, voucherId);
+            newMap.set(shopId, voucherCode);
         }
-
-        set({
-            shops: updatedShops,
-            shopVouchers: newMap,
-        });
+        set({ selectedShopVouchers: newMap });
     },
 
-    applyPlatformVoucher: (voucherId) => {
-        set({ platformVoucherId: voucherId });
+    applyPlatformVoucher: (voucherCode) => {
+        set({ selectedPlatformVoucher: voucherCode });
     },
 
-    // ========================================
-    // Payment
-    // ========================================
+    setShopNote: (shopId, note) => {
+        const newMap = new Map(get().shopNotes);
+        newMap.set(shopId, note);
+        set({ shopNotes: newMap });
+    },
+
     setPaymentMethod: (method) => {
         set({ paymentMethod: method });
     },
 
-    // ========================================
-    // Address
-    // ========================================
     setDeliveryAddress: (address) => {
         set({ deliveryAddress: address });
     },
 
     // ========================================
-    // Submission
+    // UI State Actions
     // ========================================
+
     setSubmitting: (isSubmitting) => {
         set({ isSubmitting });
-    },
-
-    setValidationError: (key, message) => {
-        const newMap = new Map(get().validationErrors);
-        if (message === null) {
-            newMap.delete(key);
-        } else {
-            newMap.set(key, message);
-        }
-        set({ validationErrors: newMap });
-    },
-
-    clearValidationErrors: () => {
-        set({ validationErrors: new Map() });
     },
 }));
 
@@ -369,34 +181,141 @@ export const useCheckoutStore = create<CheckoutState>((set, get) => ({
 // SELECTOR HOOKS (for optimized re-renders)
 // ============================================
 
+// Empty array constant để tránh tạo array mới mỗi lần
+const EMPTY_SHOPS: CheckoutShopUI[] = [];
+
 /**
- * Select specific shop data
+ * Get shops from preview data.
+ * Returns stable empty array if no preview data yet.
  */
-export const useCheckoutShop = (shopId: string) => {
-    return useCheckoutStore((state) => state.shops.find((s) => s.shopId === shopId));
+export const useCheckoutShops = () => {
+    return useCheckoutStore((s) => s.previewData?.shops ?? EMPTY_SHOPS);
 };
 
 /**
- * Select shipping method for a shop
+ * Get selected shipping method ID for a shop.
+ * Falls back to server default if no user selection.
  */
-export const useShopShippingMethod = (shopId: string) => {
-    return useCheckoutStore((state) => {
-        const shop = state.shops.find((s) => s.shopId === shopId);
-        if (!shop) return null;
-        return shop.shippingOptions.methods.find(
-            (m) => m.id === shop.shippingOptions.selectedMethodId
-        ) ?? null;
+export const useSelectedShippingMethod = (shopId: string) => {
+    return useCheckoutStore((s) => {
+        const userSelection = s.selectedShipping.get(shopId);
+        if (userSelection) return userSelection;
+
+        const shop = s.previewData?.shops.find((sh) => sh.shopId === shopId);
+        return shop?.shippingOptions.selectedMethodId ?? null;
     });
 };
 
 /**
- * Check if any shipping is still loading
+ * Get shipping data for a shop.
+ * Returns null if shop not found.
  */
-export const useIsAnyShippingLoading = () => {
-    return useCheckoutStore((state) => {
-        for (const isLoading of state.isLoadingShipping.values()) {
-            if (isLoading) return true;
+export const useShopShipping = (shopId: string) => {
+    const methods = useCheckoutStore(
+        (s) => s.previewData?.shops.find((sh) => sh.shopId === shopId)?.shippingOptions.methods ?? null
+    );
+    const serverDefault = useCheckoutStore(
+        (s) => s.previewData?.shops.find((sh) => sh.shopId === shopId)?.shippingOptions.selectedMethodId ?? null
+    );
+    const userSelection = useCheckoutStore((s) => s.selectedShipping.get(shopId) ?? null);
+    const isLoading = useCheckoutStore((s) => s.isLoadingPreview);
+
+    if (!methods) return null;
+
+    const selectedId = userSelection ?? serverDefault ?? '';
+    const selectedMethod = methods.find((m) => m.id === selectedId) ?? null;
+
+    return {
+        methods,
+        selectedMethodId: selectedId,
+        selectedMethod,
+        isLoading,
+    };
+};
+
+export const useShopNote = (shopId: string) => {
+    return useCheckoutStore((s) => s.shopNotes.get(shopId) ?? '');
+};
+
+export const useSelectedShopVoucher = (shopId: string) => {
+    return useCheckoutStore((s) => s.selectedShopVouchers.get(shopId) ?? null);
+};
+
+export const useIsCheckoutLoading = () => {
+    return useCheckoutStore((s) => s.isLoadingPreview || s.isSubmitting);
+};
+
+// ============================================
+// CALCULATION & VALIDATION SELECTORS
+// ============================================
+
+/** Get calculation from preview data - server-side calculated */
+export const useCheckoutCalculation = () => {
+    return useCheckoutStore((s) => s.previewData?.calculation ?? null);
+};
+
+/** Get shop subtotal by shopId */
+export const useShopSubtotal = (shopId: string) => {
+    return useCheckoutStore((s) =>
+        s.previewData?.calculation.shopSubtotals.find((sub) => sub.shopId === shopId) ?? null
+    );
+};
+
+/** Check if order can be placed */
+export const useCanPlaceOrder = () => {
+    return useCheckoutStore((s) => {
+        if (!s.previewData) return false;
+        if (s.isLoadingPreview) return false;
+        if (!s.previewData.isValid) return false;
+        if (!s.previewData.addressId) return false;
+
+        // Check if all shops have shipping available
+        const hasShippingUnavailable = s.previewData.shops.some(
+            (shop) => shop.shippingOptions.methods.length === 0
+        );
+        if (hasShippingUnavailable) return false;
+
+        return true;
+    });
+};
+
+// Constant arrays for stable references - CRITICAL to avoid infinite loops
+const EMPTY_REASONS: string[] = [];
+const LOADING_REASONS: string[] = ['Đang tính toán...'];
+const PENDING_REASONS: string[] = ['Đang tải dữ liệu...'];
+const NO_ADDRESS_REASONS: string[] = ['Chưa có địa chỉ giao hàng'];
+const NO_SHIPPING_REASONS: string[] = ['Không hỗ trợ giao đến địa chỉ này'];
+const EMPTY_WARNINGS: string[] = [];
+
+/** Get reasons why order cannot be placed */
+export const useOrderBlockReasons = () => {
+    return useCheckoutStore((s) => {
+        if (s.isLoadingPreview) return LOADING_REASONS;
+        if (!s.previewData) return PENDING_REASONS;
+        if (s.previewData.validationErrors.length > 0) {
+            return s.previewData.validationErrors;
         }
-        return false;
+        if (!s.previewData.addressId) {
+            return NO_ADDRESS_REASONS;
+        }
+        // Check if all shops have shipping available
+        const hasShippingUnavailable = s.previewData.shops.some(
+            (shop) => shop.shippingOptions.methods.length === 0
+        );
+        if (hasShippingUnavailable) {
+            return NO_SHIPPING_REASONS;
+        }
+        return EMPTY_REASONS;
     });
 };
+
+/** Check if preview data is valid */
+export const useIsPreviewValid = () => {
+    return useCheckoutStore((s) => s.previewData?.isValid ?? false);
+};
+
+/** Get warnings from preview */
+export const usePreviewWarnings = () => {
+    return useCheckoutStore((s) => s.previewData?.warnings ?? EMPTY_WARNINGS);
+};
+

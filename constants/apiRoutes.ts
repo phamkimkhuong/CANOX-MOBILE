@@ -46,8 +46,10 @@ export const API_ROUTES = {
         CHECKOUT_PREVIEW: `${API_PREFIX}/cart/checkout`,
     },
     CHAT: {
-        CONVERSATIONS: `${API_PREFIX}/conversations`,
-        MESSAGES: (conversationId: string) => `${API_PREFIX}/conversations/${conversationId}/messages`,
+        CONVERSATIONS: `${API_PREFIX}/chat/conversations`,
+        MESSAGES: (conversationId: string) => `${API_PREFIX}/chat/conversations/${conversationId}/messages`,
+        PIN: (conversationId: string) => `${API_PREFIX}/chat/conversations/${conversationId}/pin`,
+        MUTE: (conversationId: string) => `${API_PREFIX}/chat/conversations/${conversationId}/mute`,
         UNREAD_COUNT: `${API_PREFIX}/chat/conversations/unread/messages/count`,
     },
     NOTIFICATIONS: {

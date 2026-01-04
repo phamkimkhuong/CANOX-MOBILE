@@ -154,11 +154,22 @@ export const logger = {
     /** Performance logs:  */
     perf: createLogger(' Perf'),
 
+    /** Product logs:  */
+    product: createLogger(' Product'),
+
+    /** User logs:  */
+    user: createLogger(' User'),
+
     /** Cart/Checkout logs:  */
     cart: createLogger(' Cart'),
 
+    checkout: createLogger(' Checkout'),
+
     /** Orders logs:  */
     orders: createLogger(' Orders'),
+
+    /** Chat logs:  */
+    chat: createLogger('Chat'),
 };
 
 // ============================================

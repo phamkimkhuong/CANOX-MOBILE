@@ -1,6 +1,6 @@
 /**
  * CheckoutShopGroup Component
- * 
+ *
  * Organism that groups all checkout items by shop.
  * Contains:
  * - Shop header with name
@@ -8,8 +8,10 @@
  * - Shop voucher selector
  * - Shipping method selector
  * - Shop note input
- * 
- * Layout follows the HTML design: Shop Icon | Shop Name > items > voucher > shipping > note
+ *
+ * DATA SOURCES:
+ * - Display data: previewData.shops[] (server)
+ * - User selections: store.selectedShipping, store.selectedShopVouchers
  */
 
 import { IconSymbol } from '@/components/ui/Icon';
@@ -24,8 +26,12 @@ import { CheckoutVoucherRow } from './CheckoutVoucherRow';
 import { ShippingSelector } from './ShippingSelector';
 import { ShopNoteInput } from './ShopNoteInput';
 
-import { useCheckoutCalculation } from '@/hooks/api/useCheckoutCalculation';
-import { useCheckoutStore, useShopShippingMethod } from '@/store/useCheckoutStore';
+import {
+    useCheckoutStore,
+    useSelectedShopVoucher,
+    useShopNote,
+    useShopShipping,
+} from '@/store/useCheckoutStore';
 import type { CheckoutShopUI } from '@/types/checkout';
 
 interface CheckoutShopGroupProps {
@@ -41,19 +47,17 @@ export const CheckoutShopGroup: React.FC<CheckoutShopGroupProps> = ({ shop }) =>
     const selectShippingMethod = useCheckoutStore((s) => s.selectShippingMethod);
     const setShopNote = useCheckoutStore((s) => s.setShopNote);
     const applyShopVoucher = useCheckoutStore((s) => s.applyShopVoucher);
-    const shopVouchers = useCheckoutStore((s) => s.shopVouchers);
-    const shopNotes = useCheckoutStore((s) => s.shopNotes);
-    const isLoadingShipping = useCheckoutStore((s) => s.isLoadingShipping);
+    const previewData = useCheckoutStore((s) => s.previewData);
 
-    // Derived state
-    const selectedShippingMethod = useShopShippingMethod(shop.shopId);
-    const { getShopSubtotal } = useCheckoutCalculation();
-    const shopSubtotal = getShopSubtotal(shop.shopId);
+    // Selector hooks for this shop
+    const shippingData = useShopShipping(shop.shopId);
+    const selectedVoucherId = useSelectedShopVoucher(shop.shopId);
+    const currentNote = useShopNote(shop.shopId);
 
-    // Current values
-    const selectedVoucherId = shopVouchers.get(shop.shopId) ?? null;
-    const currentNote = shopNotes.get(shop.shopId) ?? '';
-    const isShippingLoading = isLoadingShipping.get(shop.shopId) ?? true;
+    // Get shop subtotal from previewData
+    const shopSubtotal = previewData?.calculation.shopSubtotals.find(
+        (s) => s.shopId === shop.shopId
+    );
 
     // Handlers
     const handleShippingSelect = useCallback(
@@ -135,12 +139,14 @@ export const CheckoutShopGroup: React.FC<CheckoutShopGroupProps> = ({ shop }) =>
             <View style={styles.divider} />
 
             {/* Shipping Method */}
-            <ShippingSelector
-                methods={shop.shippingOptions.methods}
-                selectedMethodId={shop.shippingOptions.selectedMethodId}
-                isLoading={isShippingLoading}
-                onSelect={handleShippingSelect}
-            />
+            {shippingData && (
+                <ShippingSelector
+                    methods={shippingData.methods}
+                    selectedMethodId={shippingData.selectedMethodId}
+                    isLoading={shippingData.isLoading}
+                    onSelect={handleShippingSelect}
+                />
+            )}
 
             {/* Divider */}
             <View style={styles.divider} />

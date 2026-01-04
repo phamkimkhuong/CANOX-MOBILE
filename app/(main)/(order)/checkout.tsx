@@ -1,25 +1,14 @@
 /**
  * Checkout Screen
- * 
- * Main checkout flow screen.
- * Path: /checkout
- * 
- * Flow:
- * 1. Receives selected items from Cart via initSession()
- * 2. User selects address, shipping method, vouchers, payment
- * 3. User places order -> navigates to Order Success
- * 
- * Key UX decisions:
- * - No "Chat với Shop" button (UX anti-pattern)
- * - "Ghi chú cho Shop" input instead
- * - Voucher stacking with auto-removal when invalid
- * - Sticky footer with "Đặt hàng" button
+ * ARCHITECTURE:
+ * - Server data: previewData (shops, calculation, validation)
+ * - User selections: store Maps (shipping, vouchers, notes)
  */
 
 import { ROUTES } from '@/constants/routes';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Alert, ScrollView, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -36,127 +25,22 @@ import {
 } from '@/components/checkout';
 
 // Store & Hooks
-import { useCheckoutCalculation } from '@/hooks/api/useCheckoutCalculation';
-import { useDefaultAddress } from '@/hooks/api/useUserAddresses';
-import { useCheckoutStore } from '@/store/useCheckoutStore';
-import type { CartShopUI, VoucherUI } from '@/types/cart';
+import { useCart } from '@/hooks/api/cart/useCart';
+import { useCheckoutPreview } from '@/hooks/api/checkout/useCheckoutPreview';
+import { useUserAddresses } from '@/hooks/api/useUserAddresses';
+import { useDebounce } from '@/hooks/useDebounce';
+import {
+    useCanPlaceOrder,
+    useCheckoutCalculation,
+    useCheckoutShops,
+    useCheckoutStore,
+    useOrderBlockReasons,
+    usePreviewWarnings,
+} from '@/store/useCheckoutStore';
+import type { VoucherUI } from '@/types/cart';
 import type { PaymentMethodType } from '@/types/checkout';
-
-/**
- * Mock platform vouchers - In production: fetch from API
- */
-const MOCK_PLATFORM_VOUCHERS: VoucherUI[] = [
-    {
-        id: 'plat-v001',
-        code: 'FREESHIP50K',
-        title: 'Freeship đơn từ 100k',
-        description: 'Giảm tối đa 50k phí vận chuyển',
-        discountDisplay: 'Freeship',
-        minOrderDisplay: '100k',
-        isApplicable: true,
-        expiresAt: '2025-02-28',
-    },
-    {
-        id: 'plat-v002',
-        code: 'SALE10',
-        title: 'Giảm 10% đơn từ 200k',
-        description: 'Giảm tối đa 100k',
-        discountDisplay: '10%',
-        minOrderDisplay: '200k',
-        isApplicable: true,
-        expiresAt: '2025-02-28',
-    },
-];
-
-/**
- * Mock cart data for testing - In production: use actual cart store
- */
-const MOCK_CART_SHOPS: CartShopUI[] = [
-    {
-        shopId: 'shop-001',
-        shopName: 'Tech World Store',
-        shopAvatarUrl: 'https://picsum.photos/seed/shop1/100',
-        isMall: true,
-        appliedVoucherId: null,
-        items: [
-            {
-                id: 'item-001',
-                variantId: 'var-001',
-                productName: 'iPhone 15 Pro Max 256GB - Titan Đen',
-                variantAttributes: '256GB, Titan Đen',
-                imageUrl: 'https://picsum.photos/seed/iphone15/400',
-                unitPrice: 28990000,
-                originalPrice: 32990000,
-                discountPercent: 12,
-                quantity: 1,
-                maxQuantity: 10,
-                isOutOfStock: false,
-                shopId: 'shop-001',
-            },
-            {
-                id: 'item-002',
-                variantId: 'var-002',
-                productName: 'Ốp lưng iPhone 15 Pro Max MagSafe Leather',
-                variantAttributes: 'Đen',
-                imageUrl: 'https://picsum.photos/seed/case/400',
-                unitPrice: 1490000,
-                originalPrice: 1990000,
-                discountPercent: 25,
-                quantity: 2,
-                maxQuantity: 5,
-                isOutOfStock: false,
-                shopId: 'shop-001',
-            },
-        ],
-        availableVouchers: [
-            {
-                id: 'shop-v001',
-                code: 'TECHSALE',
-                title: 'Giảm 5%',
-                description: 'Giảm 5% cho đơn từ 500k',
-                discountDisplay: '5%',
-                minOrderDisplay: '500k',
-                isApplicable: true,
-                expiresAt: '2025-02-28',
-            },
-        ],
-    },
-    {
-        shopId: 'shop-002',
-        shopName: 'Fashion Việt',
-        shopAvatarUrl: 'https://picsum.photos/seed/shop2/100',
-        isMall: false,
-        appliedVoucherId: null,
-        items: [
-            {
-                id: 'item-003',
-                variantId: 'var-003',
-                productName: 'Áo thun unisex cotton 100% - Basic Tee',
-                variantAttributes: 'Trắng, Size L',
-                imageUrl: 'https://picsum.photos/seed/tshirt/400',
-                unitPrice: 199000,
-                originalPrice: 299000,
-                discountPercent: 33,
-                quantity: 3,
-                maxQuantity: 20,
-                isOutOfStock: false,
-                shopId: 'shop-002',
-            },
-        ],
-        availableVouchers: [
-            {
-                id: 'shop-v002',
-                code: 'FASHIONNEW',
-                title: 'Giảm 15k',
-                description: 'Giảm 15k cho đơn từ 150k',
-                discountDisplay: '15k',
-                minOrderDisplay: '150k',
-                isApplicable: true,
-                expiresAt: '2025-02-28',
-            },
-        ],
-    },
-];
+import type { CheckoutPreviewRequest } from '@/types/checkout/checkoutPreview';
+import { logger } from '@/utils/logger';
 
 // ============================================
 // SCREEN COMPONENT
@@ -167,71 +51,203 @@ export default function CheckoutScreen() {
     const styles = stylesheet;
     const router = useRouter();
 
-    // Fetch user's default address from API
-    const { data: defaultShippingAddress, isLoading: isLoadingAddress } = useDefaultAddress();
+    // ========================================
+    // API Hooks
+    // ========================================
+    const { mutate: callPreview } = useCheckoutPreview();
+    const { data: cartData } = useCart();
+    const { data: userAddresses } = useUserAddresses();
 
-    // Store state
-    const shops = useCheckoutStore((s) => s.shops);
-    const deliveryAddress = useCheckoutStore((s) => s.deliveryAddress);
-    const platformVouchers = useCheckoutStore((s) => s.platformVouchers);
-    const platformVoucherId = useCheckoutStore((s) => s.platformVoucherId);
+    // ========================================
+    // Store state & selectors
+    // ========================================
+    const isInitialized = useCheckoutStore((s) => s.isInitialized);
+    const previewData = useCheckoutStore((s) => s.previewData);
     const paymentMethod = useCheckoutStore((s) => s.paymentMethod);
     const isSubmitting = useCheckoutStore((s) => s.isSubmitting);
-    const isInitialized = useCheckoutStore((s) => s.isInitialized);
+    const selectedShipping = useCheckoutStore((s) => s.selectedShipping);
+    const selectedShopVouchers = useCheckoutStore((s) => s.selectedShopVouchers);
+    const selectedPlatformVoucher = useCheckoutStore((s) => s.selectedPlatformVoucher);
+    const selectedItemIds = useCheckoutStore((s) => s.selectedItemIds);
+    const isLoadingPreview = useCheckoutStore((s) => s.isLoadingPreview);
+    const storeDeliveryAddress = useCheckoutStore((s) => s.deliveryAddress);
+
+    // Computed selectors from store
+    const shops = useCheckoutShops();
+    const calculationData = useCheckoutCalculation();
+    const canPlaceOrder = useCanPlaceOrder();
+    const orderBlockReasons = useOrderBlockReasons();
+    const warnings = usePreviewWarnings();
+
+    // Default calculation for null safety
+    const calculation = calculationData ?? {
+        subtotal: 0,
+        totalShippingFee: 0,
+        totalShopVoucherDiscount: 0,
+        platformVoucherDiscount: 0,
+        shippingDiscount: 0,
+        totalAmount: 0,
+        totalSavings: 0,
+        totalItemCount: 0,
+        shopSubtotals: [],
+        isCalculatingShipping: true,
+        platformVoucherValidation: null,
+    };
+
+    // Platform voucher validation from warnings
+    const platformVoucherWarning = useMemo(() => {
+        const voucherWarning = warnings.find(
+            (w) => w.toLowerCase().includes('voucher') || w.toLowerCase().includes('mã giảm')
+        );
+        return voucherWarning ?? null;
+    }, [warnings]);
+    const isPlatformVoucherValid = platformVoucherWarning === null;
+
+    // Delivery address - Optimistic display:
+    const deliveryAddress = useMemo(() => {
+        // Ưu tiên 1: Address từ store (user vừa chọn - optimistic)
+        if (storeDeliveryAddress) {
+            return storeDeliveryAddress;
+        }
+        // Ưu tiên 2: Address từ server response
+        if (!previewData?.addressId || !userAddresses) return null;
+        return userAddresses.find((addr) => addr.id === previewData.addressId) ?? null;
+    }, [storeDeliveryAddress, previewData?.addressId, userAddresses]);
 
     // Store actions
-    const initSession = useCheckoutStore((s) => s.initSession);
     const resetSession = useCheckoutStore((s) => s.resetSession);
-    const setDeliveryAddress = useCheckoutStore((s) => s.setDeliveryAddress);
     const applyPlatformVoucher = useCheckoutStore((s) => s.applyPlatformVoucher);
     const setPaymentMethod = useCheckoutStore((s) => s.setPaymentMethod);
     const setSubmitting = useCheckoutStore((s) => s.setSubmitting);
-
-    // Calculation hook
-    const {
-        calculation,
-        isPlatformVoucherValid,
-        platformVoucherWarning,
-        canPlaceOrder,
-        orderBlockReasons,
-    } = useCheckoutCalculation();
+    const setPreviewData = useCheckoutStore((s) => s.setPreviewData);
+    const setLoadingPreview = useCheckoutStore((s) => s.setLoadingPreview);
 
     // ========================================
-    // INITIALIZATION
+    // BUILD PREVIEW REQUEST
     // ========================================
+    const buildPreviewRequest = useCallback((): CheckoutPreviewRequest | null => {
+        // Cần cart data để lấy shop info
+        if (!cartData?.shops?.length) return null;
 
-    // Initialize checkout session once address is loaded
-    useEffect(() => {
-        // Wait for address loading to complete before initializing
-        if (isLoadingAddress) return;
+        // Cần selected items từ store
+        if (selectedItemIds.size === 0) return null;
 
-        if (!isInitialized) {
-            // Create set of all item IDs from mock data
-            // TODO: In production, get from useCartStore
-            const selectedItemIds = new Set<string>();
-            MOCK_CART_SHOPS.forEach((shop) => {
-                shop.items.forEach((item) => {
-                    selectedItemIds.add(item.id);
-                });
-            });
+        // Filter shops có items được chọn
+        const shopsWithSelection = cartData.shops
+            .map((shop) => ({
+                ...shop,
+                items: shop.items.filter((item) => selectedItemIds.has(item.id)),
+            }))
+            .filter((shop) => shop.items.length > 0);
 
-            // Use ShippingAddress directly (unified type)
-            initSession(
-                MOCK_CART_SHOPS,
-                selectedItemIds,
-                defaultShippingAddress ?? null,
-                MOCK_PLATFORM_VOUCHERS
-            );
+        if (shopsWithSelection.length === 0) return null;
+
+        const request: CheckoutPreviewRequest = {
+            shops: shopsWithSelection.map((shop) => {
+                const voucherCode = selectedShopVouchers.get(shop.shopId);
+                const shippingCode = selectedShipping.get(shop.shopId);
+
+                return {
+                    shopId: shop.shopId,
+                    itemIds: shop.items.map((item) => item.id),
+                    vouchers: voucherCode ? [voucherCode] : [],
+                    serviceCode: shippingCode ? parseInt(shippingCode, 10) : undefined,
+                };
+            }),
+            allSelectedItemIds: [...selectedItemIds],
+        };
+
+        // Add address if user selected one
+        if (storeDeliveryAddress?.id) {
+            request.shippingAddress = {
+                addressId: storeDeliveryAddress.id,
+            };
+            request.usingSavedAddress = true;
         }
-    }, [isInitialized, isLoadingAddress, defaultShippingAddress, initSession]);
+
+        // Add payment method
+        if (paymentMethod) {
+            request.paymentMethod = paymentMethod;
+        }
+
+        // Add platform voucher
+        if (selectedPlatformVoucher) {
+            request.allDiscountCodes = [selectedPlatformVoucher];
+        }
+
+        return request;
+    }, [
+        cartData,
+        selectedItemIds,
+        selectedShipping,
+        selectedShopVouchers,
+        selectedPlatformVoucher,
+        storeDeliveryAddress,
+        paymentMethod,
+    ]);
+
+    // ========================================
+    // CALL PREVIEW API
+    // ========================================
+
+    // Track last fetched request to avoid duplicates
+    const lastRequestKey = useRef<string | null>(null);
+
+    // Stable ref cho mutation function
+    const callPreviewRef = useRef(callPreview);
+    callPreviewRef.current = callPreview;
+
+    const doFetchPreview = useCallback(
+        (request: CheckoutPreviewRequest) => {
+            setLoadingPreview(true);
+
+            callPreviewRef.current(request, {
+                onSuccess: (data) => {
+                    setPreviewData(data);
+                    setLoadingPreview(false);
+                    logger.checkout.info('Preview updated', {
+                        grandTotal: data.calculation.totalAmount,
+                        isValid: data.isValid,
+                    });
+                },
+                onError: (error) => {
+                    setLoadingPreview(false);
+                    logger.checkout.error('Preview failed', { error: error.message });
+                },
+            });
+        },
+        [setPreviewData, setLoadingPreview]
+    );
+
+    // ========================================
+    // DEBOUNCED REQUEST
+    // ========================================
+
+    const currentRequest = useMemo(() => {
+        if (!isInitialized) return null;
+        return buildPreviewRequest();
+    }, [isInitialized, buildPreviewRequest]);
+
+    const debouncedRequest = useDebounce(currentRequest, 300);
+
+    useEffect(() => {
+        if (!debouncedRequest) return;
+
+        // Serialize request để compare - SKIP nếu giống hệt
+        const requestKey = JSON.stringify(debouncedRequest);
+        if (lastRequestKey.current === requestKey) {
+            return;
+        }
+        lastRequestKey.current = requestKey;
+
+        doFetchPreview(debouncedRequest);
+    }, [debouncedRequest, doFetchPreview]);
 
     // Cleanup on unmount
     useFocusEffect(
         useCallback(() => {
             return () => {
-                // Reset session when leaving checkout (user abandoned)
-                // In production: Only reset if order was NOT placed
-                // resetSession();
+                // Don't reset here - only reset when explicitly leaving
             };
         }, [])
     );
@@ -240,10 +256,6 @@ export default function CheckoutScreen() {
     // HANDLERS
     // ========================================
 
-    /**
-     * Navigate to address selection screen
-     * Pass current address ID so it's pre-selected in the list
-     */
     const handleAddressPress = useCallback(() => {
         const params = new URLSearchParams({ mode: 'selection' });
         if (deliveryAddress?.id) {
@@ -272,12 +284,11 @@ export default function CheckoutScreen() {
         setSubmitting(true);
 
         try {
-            // Simulate API call
+            // TODO: Call actual create order API
             await new Promise((resolve) => setTimeout(resolve, 2000));
 
-            // Success - Navigate to order success
             Alert.alert(
-                'Đặt hàng thành công! 🎉',
+                'Đặt hàng thành công!',
                 `Đơn hàng của bạn đang được xử lý.\nTổng thanh toán: ${new Intl.NumberFormat('vi-VN', {
                     style: 'currency',
                     currency: 'VND',
@@ -287,7 +298,6 @@ export default function CheckoutScreen() {
                         text: 'Xem đơn hàng',
                         onPress: () => {
                             resetSession();
-                            // router.replace('/order/ORDER-001');
                             router.back();
                         },
                     },
@@ -301,30 +311,34 @@ export default function CheckoutScreen() {
     }, [canPlaceOrder, calculation.totalAmount, resetSession, router, setSubmitting]);
 
     const handleBack = useCallback(() => {
-        // Confirm before leaving if session has changes
-        Alert.alert(
-            'Hủy thanh toán?',
-            'Thông tin thanh toán sẽ không được lưu.',
-            [
-                { text: 'Ở lại', style: 'cancel' },
-                {
-                    text: 'Hủy',
-                    style: 'destructive',
-                    onPress: () => {
-                        resetSession();
-                        router.back();
-                    },
+        Alert.alert('Hủy thanh toán?', 'Thông tin thanh toán sẽ không được lưu.', [
+            { text: 'Ở lại', style: 'cancel' },
+            {
+                text: 'Hủy',
+                style: 'destructive',
+                onPress: () => {
+                    resetSession();
+                    router.back();
                 },
-            ]
-        );
+            },
+        ]);
     }, [resetSession, router]);
+
+    // ========================================
+    // DERIVED STATE
+    // ========================================
+
+    // Platform vouchers - TODO: get from API or previewData
+    const availablePlatformVouchers = useMemo<VoucherUI[]>(() => {
+        return [];
+    }, []);
 
     // ========================================
     // RENDER
     // ========================================
 
-    // Loading state
-    if (!isInitialized) {
+    // Show skeleton while loading
+    if (!isInitialized || (!previewData && isLoadingPreview)) {
         return (
             <View style={styles.container}>
                 <CheckoutHeader title="Thanh toán" onBack={handleBack} />
@@ -352,20 +366,17 @@ export default function CheckoutScreen() {
                 keyboardShouldPersistTaps="handled"
             >
                 {/* Address Card */}
-                <AddressCard
-                    address={deliveryAddress}
-                    onPress={handleAddressPress}
-                />
+                <AddressCard address={deliveryAddress} onPress={handleAddressPress} />
 
-                {/* Shop Groups */}
+                {/* Shop Groups - từ previewData */}
                 {shops.map((shop) => (
                     <CheckoutShopGroup key={shop.shopId} shop={shop} />
                 ))}
 
                 {/* Platform Voucher */}
                 <PlatformVoucherSelector
-                    availableVouchers={platformVouchers}
-                    selectedVoucherId={platformVoucherId}
+                    availableVouchers={availablePlatformVouchers}
+                    selectedVoucherId={selectedPlatformVoucher}
                     discountAmount={calculation.platformVoucherDiscount}
                     isInvalid={!isPlatformVoucherValid}
                     warningMessage={platformVoucherWarning}
@@ -419,6 +430,6 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
 
     footerSpacer: {
-        height: theme.margins.sm, // Space for sticky footer
+        height: theme.margins.sm,
     },
 }));

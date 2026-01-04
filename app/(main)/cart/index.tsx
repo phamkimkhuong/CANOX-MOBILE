@@ -244,19 +244,12 @@ export default function CartScreen() {
     const handleCheckout = useCallback(() => {
         if (calculation.selectedCount === 0) {
             logger.cart.warn('No items selected');
-            // TODO: Show toast
             return;
         }
 
         if (!cartData) return;
 
-        // Initialize checkout session
-        useCheckoutStore.getState().initSession(
-            cartData.shops,
-            selectedItemIds,
-            null, // TODO: Get default address
-            cartData.platformVouchers
-        );
+        useCheckoutStore.getState().initSession(selectedItemIds, null);
 
         router.push(ROUTES.CHECKOUT.INDEX);
     }, [calculation.selectedCount, cartData, selectedItemIds, router]);
