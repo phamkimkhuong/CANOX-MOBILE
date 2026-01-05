@@ -8,6 +8,7 @@
  */
 
 import { z } from 'zod';
+import { ResponseDefaultSchema, createPaginatedResponseSchema } from './responseSchema';
 
 // ============================================
 // PROVINCE & WARD TYPES (Location Picker)
@@ -226,39 +227,11 @@ export const WardSchema = z.object({
     province: ProvinceSchema.nullable(),
 });
 
-export const PagedContentSchema = <T extends z.ZodTypeAny>(itemSchema: T) =>
-    z.object({
-        content: z.array(itemSchema),
-        page: z.number(),
-        size: z.number(),
-        totalElements: z.number(),
-        totalPages: z.number(),
-        hasNext: z.boolean(),
-        hasPrevious: z.boolean(),
-        previousPage: z.number(),
-        nextPage: z.number(),
-        empty: z.boolean(),
-        first: z.boolean(),
-        last: z.boolean(),
-    });
+export const ProvinceListResponseSchema = createPaginatedResponseSchema(ProvinceSchema);
 
-export const ProvinceListResponseSchema = z.object({
-    code: z.number(),
-    success: z.boolean(),
-    message: z.string(),
-    data: PagedContentSchema(ProvinceSchema),
-});
+export const WardListResponseSchema = createPaginatedResponseSchema(WardSchema);
 
-export const WardListResponseSchema = z.object({
-    code: z.number(),
-    success: z.boolean(),
-    message: z.string(),
-    data: PagedContentSchema(WardSchema),
-});
-
-export const WardDetailResponseSchema = z.object({
-    code: z.number(),
-    success: z.boolean(),
+export const WardDetailResponseSchema = ResponseDefaultSchema.extend({
     message: z.string(),
     data: WardSchema,
 });

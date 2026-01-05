@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ResponseDefaultSchema } from './responseSchema';
 
 /**
  * ==============================================
@@ -66,9 +67,7 @@ export type UserMeData = z.infer<typeof UserMeDataSchema>;
 /**
  * Full API Response Wrapper
  */
-export const UserMeResponseSchema = z.object({
-    code: z.number(),
-    success: z.boolean(),
+export const UserMeResponseSchema = ResponseDefaultSchema.extend({
     message: z.string(),
     data: UserMeDataSchema,
 });
@@ -134,10 +133,9 @@ export type ProfileFormValues = z.infer<typeof ProfileFormSchema>;
 /**
  * Update Profile Response
  */
-export const UpdateProfileResponseSchema = z.object({
-    code: z.number(),
-    success: z.boolean(),
+export const UpdateProfileResponseSchema = ResponseDefaultSchema.extend({
     message: z.string(),
+    data: z.any().optional(),
 });
 
 export type UpdateProfileResponse = z.infer<typeof UpdateProfileResponseSchema>;

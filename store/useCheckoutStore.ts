@@ -12,10 +12,10 @@ import { create } from 'zustand';
 
 interface CheckoutState {
     isInitialized: boolean;
-    /** Preview response từ server - chứa shops, calculation, validation */
+    /** Preview response from server - contains shops, calculation, validation */
     previewData: CheckoutPreviewUI | null;
     isLoadingPreview: boolean;
-    /** Items được chọn từ Cart để checkout */
+    /** Items selected from Cart for checkout */
     selectedItemIds: Set<string>;
     /** Selected shipping method per shop: Map<shopId, serviceCode> */
     selectedShipping: Map<string, string>;
@@ -26,11 +26,11 @@ interface CheckoutState {
     paymentMethod: PaymentMethodType;
     /** Selected delivery address */
     deliveryAddress: ShippingAddress | null;
-    /** Đang submit order */
+    /** Submitting order */
     isSubmitting: boolean;
 
     initSession: (selectedItemIds: Set<string>, address: ShippingAddress | null) => void;
-    /** Reset session khi rời checkout */
+    /** Reset session when leaving checkout */
     resetSession: () => void;
     setPreviewData: (data: CheckoutPreviewUI | null) => void;
     /** Set loading state for preview */
@@ -92,8 +92,8 @@ export const useCheckoutStore = create<CheckoutState>((set, get) => ({
     // ========================================
 
     /**
-     * Initialize checkout session với selected items từ Cart.
-     * Cart gọi hàm này TRƯỚC khi navigate, data sẵn sàng ngay.
+     * Initialize checkout session with selected items from Cart.
+     * Cart calls this BEFORE navigating, data is ready immediately.
      */
     initSession: (selectedItemIds, address) => {
         set({
@@ -119,8 +119,8 @@ export const useCheckoutStore = create<CheckoutState>((set, get) => ({
 
     /**
      * Update preview data from API response.
-     * Server đã trả về selectedShippingMethod trong mỗi shop.
-     * KHÔNG sync selectedShipping từ server nữa - tránh trigger re-render loop.
+     * Server returned selectedShippingMethod in each shop.
+     * DO NOT sync selectedShipping from server anymore - avoid trigger re-render loop.
      */
     setPreviewData: (data) => {
         set({ previewData: data });
@@ -181,7 +181,7 @@ export const useCheckoutStore = create<CheckoutState>((set, get) => ({
 // SELECTOR HOOKS (for optimized re-renders)
 // ============================================
 
-// Empty array constant để tránh tạo array mới mỗi lần
+// Empty array constant to avoid creating new array every time
 const EMPTY_SHOPS: CheckoutShopUI[] = [];
 
 /**

@@ -13,3 +13,8 @@ export * from './conversation';
 // API DTO Types (for hooks/adapters) - Raw API response types
 export * from './conversationDTO';
 
+// Message Types (for chat detail view)
+export * from './message';
+
+// Context Bar Types (for chat detail sticky bar)
+export * from './contextBar';

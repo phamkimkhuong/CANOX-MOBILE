@@ -6,23 +6,23 @@ import { AppState, AppStateStatus } from 'react-native';
 // ============================================
 
 interface CountdownDuration {
-    /** Số giờ còn lại */
+    /** Hours remaining */
     hours: number;
-    /** Số phút còn lại */
+    /** Minutes remaining */
     minutes: number;
-    /** Số giây còn lại */
+    /** Seconds remaining */
     seconds: number;
-    /** Tổng số giây còn lại */
+    /** Total seconds remaining */
     totalSeconds: number;
 }
 
 interface UseCountdownOptions {
     /** 
-     * Target date (ISO string) - thời điểm kết thúc countdown
-     * Ưu tiên cao hơn duration nếu cả 2 được cung cấp
+     * Target date (ISO string) - countdown end time
+     * Higher priority than duration if both provided
      */
     targetDate?: string;
-    /** Duration in seconds (fallback nếu không có targetDate) */
+    /** Duration in seconds (fallback if no targetDate) */
     duration?: number;
     /** Callback when countdown reaches 0 */
     onComplete?: () => void;
@@ -31,11 +31,11 @@ interface UseCountdownOptions {
 }
 
 interface UseCountdownReturn {
-    /** Duration object với hours, minutes, seconds */
+    /** Duration object with hours, minutes, seconds */
     duration: CountdownDuration;
-    /** Còn đang chạy không */
+    /** Is active */
     isActive: boolean;
-    /** Đã hết thời gian chưa */
+    /** Is expired */
     isExpired: boolean;
     /** Formatted time string (HH:MM:SS) */
     formatted: string;
@@ -52,7 +52,7 @@ interface UseCountdownReturn {
 // ============================================
 
 /**
- * Tính duration từ target date
+ * Calculate duration from target date
  */
 const calculateDurationFromTarget = (targetDate: string): CountdownDuration => {
     const diff = new Date(targetDate).getTime() - Date.now();
@@ -67,7 +67,7 @@ const calculateDurationFromTarget = (targetDate: string): CountdownDuration => {
 };
 
 /**
- * Tính duration từ seconds
+ * Calculate duration from seconds
  */
 const calculateDurationFromSeconds = (totalSeconds: number): CountdownDuration => {
     const safeSeconds = Math.max(0, totalSeconds);
@@ -81,7 +81,7 @@ const calculateDurationFromSeconds = (totalSeconds: number): CountdownDuration =
 };
 
 /**
- * Format duration thành string HH:MM:SS
+ * Format duration to HH:MM:SS string
  */
 const formatDuration = (d: CountdownDuration): string => {
     const pad = (n: number) => n.toString().padStart(2, '0');
@@ -93,19 +93,19 @@ const formatDuration = (d: CountdownDuration): string => {
 // ============================================
 
 /**
- * useCountdown - Hook đếm ngược với hỗ trợ background/foreground
+ * useCountdown - Countdown hook with background/foreground support
  * 
- * Single Source of Truth cho countdown logic trong toàn app.
+ * Single Source of Truth for countdown logic in entire app.
  * 
  * Features:
- * - Nhận targetDate (ISO string) hoặc duration (seconds)
- * - Tự động xử lý AppState (background/foreground)
- * - Trả về hours, minutes, seconds đã tính toán
- * - Không bị drift sau nhiều giây
+ * - Accepts targetDate (ISO string) or duration (seconds)
+ * - Automatically handles AppState (background/foreground)
+ * - Returns calculated hours, minutes, seconds
+ * - No drift after many seconds
  * 
  * @example
  * ```tsx
- * // Sử dụng với targetDate (Flash Sale)
+ * // Use with targetDate (Flash Sale)
  * const { duration, isExpired } = useCountdown({
  *   targetDate: '2025-12-30T00:00:00Z',
  *   autoStart: true,
@@ -122,7 +122,7 @@ export const useCountdown = ({
     onComplete,
     autoStart = false,
 }: UseCountdownOptions): UseCountdownReturn => {
-    // Tính initial duration
+    // Calculate initial duration
     const getInitialDuration = useCallback((): CountdownDuration => {
         if (targetDate) {
             return calculateDurationFromTarget(targetDate);
@@ -133,7 +133,7 @@ export const useCountdown = ({
     const [duration, setDuration] = useState<CountdownDuration>(getInitialDuration);
     const [isActive, setIsActive] = useState(autoStart);
 
-    // Refs để track state qua closures
+    // Refs to track state via closures
     const endTimestampRef = useRef<number | null>(null);
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const onCompleteRef = useRef(onComplete);
@@ -143,7 +143,7 @@ export const useCountdown = ({
         onCompleteRef.current = onComplete;
     }, [onComplete]);
 
-    // Tính remaining time dựa trên mode
+    // Calculate remaining time based on mode
     const calculateRemaining = useCallback((): CountdownDuration => {
         if (targetDate) {
             return calculateDurationFromTarget(targetDate);
@@ -160,10 +160,10 @@ export const useCountdown = ({
     // Start countdown
     const start = useCallback(() => {
         if (targetDate) {
-            // Mode targetDate: không cần set endTimestamp, tính trực tiếp từ targetDate
+            // TargetDate mode: no need to set endTimestamp, calc directly from targetDate
             setDuration(calculateDurationFromTarget(targetDate));
         } else {
-            // Mode duration: set end timestamp
+            // Duration mode: set end timestamp
             endTimestampRef.current = Date.now() + initialDuration * 1000;
             setDuration(calculateDurationFromSeconds(initialDuration));
         }
@@ -239,7 +239,7 @@ export const useCountdown = ({
         };
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    // Re-sync khi targetDate thay đổi
+    // Re-sync when targetDate changes
     useEffect(() => {
         if (targetDate && isActive) {
             setDuration(calculateDurationFromTarget(targetDate));

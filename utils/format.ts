@@ -47,12 +47,12 @@ export const formatSoldCount = (count: number): string => {
     const thousands = Math.floor(count / 1000);
     const remainder = count % 1000;
 
-    // Nếu là số chẵn nghìn thì không có dấu +
+    // If exact thousands, no + sign
     if (remainder === 0) {
         return `${thousands}K`;
     }
 
-    // Nếu có dư thì thêm dấu +
+    // If remainder, add + sign
     return `${thousands}K+`;
 };
 

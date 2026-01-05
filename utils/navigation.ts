@@ -10,12 +10,12 @@ const PUSH_TIMEOUT = 800; // Reduced from 800ms for faster navigation
 
 export const Navigator = {
     /**
-     * Chuyển màn hình an toàn, chống nhấn đúp (Double Tap)
+     * Safe navigation, prevents double taps
      */
     push: (route: Href | string) => {
         const now = Date.now();
 
-        // Nếu đang trong quá trình chuyển cảnh hoặc nhấn quá nhanh (< 800ms)
+        // If navigating or tapped too fast (< 800ms)
         if (isNavigating || (now - lastPushTime < PUSH_TIMEOUT)) {
             return;
         }
@@ -25,22 +25,22 @@ export const Navigator = {
 
         router.push(route as Href);
 
-        // Reset lại lock sau một khoảng thời gian
+        // Reset lock after a duration
         setTimeout(() => {
             isNavigating = false;
         }, PUSH_TIMEOUT);
     },
 
     /**
-     * Sử dụng navigate thay vì push cho các màn hình singletion/tab
-     * Navigate thông minh hơn trong việc xử lý stack
+     * Use navigate instead of push for singleton/tab screens
+     * Navigate is smarter in handling stack
      */
     navigate: (route: Href | string) => {
         router.navigate(route as Href);
     },
 
     /**
-     * Quay lại màn hình trước
+     * Go back to previous screen
      */
     back: () => {
         router.back();

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { createPaginatedResponseSchema } from './responseSchema';
 
 // ============================================
 // VOUCHER ENUMS & CONSTANTS
@@ -131,6 +132,11 @@ export const VoucherResponseSchema = z.object({
 });
 
 export type VoucherResponse = z.infer<typeof VoucherResponseSchema>;
+
+/**
+ * Voucher list response from API
+ */
+export const VoucherListResponseSchema = createPaginatedResponseSchema(VoucherResponseSchema);
 
 // ============================================
 // UI MODELS - Đã transform cho render

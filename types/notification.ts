@@ -1,5 +1,6 @@
 import type { IconSymbolName } from '@/components/ui/Icon';
 import { z } from 'zod';
+import { createPaginatedResponseSchema } from './responseSchema';
 
 /**
  * Notification Types Enum
@@ -166,21 +167,4 @@ export type NotificationResponseItem = z.infer<typeof NotificationResponseItemSc
  * Schema cho API Response pagination
  * Matches actual API response with all pagination fields
  */
-export const NotificationApiResponseSchema = z.object({
-    code: z.number(),
-    success: z.boolean(),
-    data: z.object({
-        content: z.array(NotificationResponseItemSchema),
-        page: z.number(),
-        size: z.number(),
-        totalElements: z.number(),
-        totalPages: z.number(),
-        hasNext: z.boolean(),
-        hasPrevious: z.boolean(),
-        previousPage: z.number(),
-        nextPage: z.number(),
-        empty: z.boolean(),
-        first: z.boolean(),
-        last: z.boolean(),
-    }),
-});
+export const NotificationApiResponseSchema = createPaginatedResponseSchema(NotificationResponseItemSchema);

@@ -19,3 +19,18 @@ export interface PaginatedResponse<T> {
         hasNext: boolean;
     };
 }
+
+/**
+ * Helper function to create a paginated response schema
+ */
+export const createPaginatedResponseSchema = <T extends z.ZodTypeAny>(contentSchema: T) =>
+    ResponseDefaultSchema.extend({
+        data: z.object({
+            content: z.array(contentSchema),
+            page: z.number(),
+            size: z.number(),
+            totalElements: z.number().optional(),
+            totalPages: z.number(),
+            hasNext: z.boolean(),
+        }),
+    });

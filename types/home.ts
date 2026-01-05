@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ProductResponseItemSchema } from './product/product';
+import { createPaginatedResponseSchema } from './responseSchema';
 
 /**
  * Flash Sale Slot Data (FE Simulated)
@@ -38,17 +39,6 @@ export interface FlashSaleData {
 /**
  * Schema cho API response
  */
-export const FlashSaleResponseSchema = z.object({
-    code: z.number(),
-    success: z.boolean(),
-    data: z.object({
-        content: z.array(ProductResponseItemSchema),
-        page: z.number(),
-        size: z.number(),
-        totalElements: z.number(),
-        totalPages: z.number(),
-        hasNext: z.boolean(),
-    }),
-});
+export const FlashSaleResponseSchema = createPaginatedResponseSchema(ProductResponseItemSchema);
 
 export type FlashSaleResponse = z.infer<typeof FlashSaleResponseSchema>;

@@ -6,7 +6,7 @@ import { Notification, NotificationResponseItem } from '@/types/notification';
 export const mapApiNotificationToUi = (item: NotificationResponseItem): Notification => {
     return {
         id: item.id,
-        // Logic map type: Ưu tiên category, nếu null thì fallback về type
+        // Logic map type: Prioritize category, if null then fallback to type
         type: (item.category || item.type) as any,
         title: item.title,
         message: item.content,
@@ -14,7 +14,7 @@ export const mapApiNotificationToUi = (item: NotificationResponseItem): Notifica
         isRead: item.readStatus === 'READ',
         image: item.imageUrl || undefined,
         actionUrl: item.redirectUrl || undefined,
-        // actionLabel: Có thể tự sinh dựa trên relatedEntityType (VD: "Xem đơn hàng")
+        // actionLabel: Can be generated based on relatedEntityType (Ex: "View order")
         actionLabel: item.relatedEntityType === 'ORDER' ? 'Xem chi tiết' : undefined,
     };
 }; 

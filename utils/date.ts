@@ -1,14 +1,14 @@
 import { FlashSaleSlot } from '@/types/home';
 
 /**
- * Tính toán khung giờ Flash Sale tiếp theo (Mô phỏng theo block 3 tiếng)
- * Ví dụ: 00:00, 03:00, 06:00, 09:00, 12:00, 15:00, 18:00, 21:00
+ * Calculate next Flash Sale slot (Simulate 3-hour block)
+ * Example: 00:00, 03:00, 06:00, 09:00, 12:00, 15:00, 18:00, 21:00
  */
 export const getNextFlashSaleSlot = (): FlashSaleSlot => {
     const now = new Date();
     const hours = now.getHours();
 
-    // Tìm khung giờ kế tiếp chia hết cho 3
+    // Find next slot divisible by 3
     const slotStartHour = Math.floor(hours / 3) * 3;
     const slotEndHour = slotStartHour + 3;
 
@@ -18,7 +18,7 @@ export const getNextFlashSaleSlot = (): FlashSaleSlot => {
     const endTime = new Date(now);
     endTime.setHours(slotEndHour, 0, 0, 0);
 
-    // Định dạng label hiển thị (e.g. "09:00")
+    // Format display label (e.g. "09:00")
     const label = `${slotStartHour.toString().padStart(2, '0')}:00`;
 
     return {
@@ -30,7 +30,7 @@ export const getNextFlashSaleSlot = (): FlashSaleSlot => {
 };
 
 /**
- * Format thời gian còn lại (ms) -> { hours, minutes, seconds }
+ * Format remaining time (ms) -> { hours, minutes, seconds }
  */
 export const formatTimeLeft = (targetDate: string) => {
     const total = Date.parse(targetDate) - Date.now();
@@ -47,7 +47,7 @@ export const formatTimeLeft = (targetDate: string) => {
 };
 
 /**
- * Format timestamp to readable string (e.g., "14:30", "Hôm qua", "T2")
+ * Format timestamp to readable string (e.g., "14:30", "Yesterday", "Mon")
  */
 export const formatTime = (timestamp: string): string => {
     const date = new Date(timestamp);
@@ -76,4 +76,58 @@ export const formatTime = (timestamp: string): string => {
         hour: '2-digit',
         minute: '2-digit',
     });
+};
+
+/**
+ * Check if two dates are within a time threshold (default 5 mins)
+ */
+export const isWithinTimeThreshold = (
+    date1: string | Date | undefined,
+    date2: string | Date | undefined,
+    thresholdMinutes: number = 5
+): boolean => {
+    if (!date1 || !date2) return false;
+
+    const t1 = new Date(date1).getTime();
+    const t2 = new Date(date2).getTime();
+    const diff = Math.abs(t2 - t1);
+
+    return diff < thresholdMinutes * 60 * 1000;
+};
+
+/**
+ * Format time for display (HH:mm)
+ */
+export const formatMessageTime = (date: string | Date): string => {
+    const d = new Date(date);
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
+};
+
+/**
+ * Format date for display in separators
+ * Returns: "Hôm nay", "Hôm qua", "DD/MM" or "DD/MM/YYYY"
+ */
+export const formatDateLabel = (date: string | Date): string => {
+    const d = new Date(date);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const isToday = d.toDateString() === today.toDateString();
+    const isYesterday = d.toDateString() === yesterday.toDateString();
+
+    if (isToday) return 'Hôm nay';
+    if (isYesterday) return 'Hôm qua';
+
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+
+    if (year === today.getFullYear()) {
+        return `${day}/${month}`;
+    }
+
+    return `${day}/${month}/${year}`;
 };

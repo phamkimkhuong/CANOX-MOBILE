@@ -92,7 +92,7 @@ export function useCache(): UseCacheReturn {
     // Calculate cache size on mount with a delay to let UI transition finish
     useEffect(() => {
         const task = InteractionManager.runAfterInteractions(() => {
-            // Thêm một khoảng nghỉ ngắn tầm 500ms để người dùng kịp nhìn thấy màn hình
+            // Add short delay (~500ms) for user to see screen
             setTimeout(() => {
                 refreshCacheSize();
             }, 500);

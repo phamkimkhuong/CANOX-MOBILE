@@ -2,72 +2,72 @@
  * ==============================================
  * ORDER ACTIONS - Button Logic Strategy
  * ==============================================
- * Xác định nút bấm nào hiển thị dựa trên trạng thái đơn hàng
- * Sử dụng Strategy Pattern để tránh if-else lồng nhau trong View
+ * Determine which buttons to display based on order status
+ * Use Strategy Pattern to avoid nested if-else in View
  */
 
 import { Order, OrderAction, OrderStatus } from '@/types/order/order';
 
 /**
- * Ma trận trạng thái - nút bấm
- * Mỗi status có danh sách actions tương ứng
+ * Status - Button Matrix
+ * Each status has corresponding actions list
  * 
  * Visual Hierarchy:
- * - primary: Nút nổi bật nhất (có màu nền)
- * - secondary: Nút phụ (có viền)
- * - danger: Nút hủy/nguy hiểm (màu đỏ)
+ * - primary: Most prominent button (with background color)
+ * - secondary: Secondary button (bordered)
+ * - danger: Cancel/Danger button (red)
  */
 const ACTION_MATRIX: Record<OrderStatus, OrderAction[]> = {
-    // Chờ xác nhận - Có thể hủy đơn
+    // Created - Can cancel
     CREATED: [
         { label: 'Liên hệ Shop', type: 'secondary', action: 'contact', icon: 'chatbubble-ellipses-outline' },
         { label: 'Hủy đơn', type: 'danger', action: 'cancel', icon: 'close-circle-outline' },
     ],
-    // Chờ thanh toán
+    // Awaiting Payment
     AWAITING_PAYMENT: [
         { label: 'Thanh toán ngay', type: 'primary', action: 'pay', icon: 'credit-card-outline' },
         { label: 'Hủy đơn', type: 'danger', action: 'cancel', icon: 'close-circle-outline' },
     ],
-    // Đã thanh toán
+    // Paid
     PAID: [
         { label: 'Liên hệ Shop', type: 'secondary', action: 'contact', icon: 'chatbubble-ellipses-outline' },
     ],
-    // Bị từ chối
+    // Rejected
     REJECTED: [
         { label: 'Mua lại', type: 'primary', action: 'rebuy', icon: 'cart-plus' },
     ],
-    // Đang xử lý/đóng gói
+    // Processing/Packing
     FULFILLING: [
         { label: 'Liên hệ Shop', type: 'secondary', action: 'contact', icon: 'chatbubble-ellipses-outline' },
     ],
-    // Sẵn sàng lấy hàng
+    // Ready for pickup
     READY_FOR_PICKUP: [
         { label: 'Đã nhận hàng', type: 'primary', action: 'received', icon: 'package-variant-closed-check' },
     ],
-    // Đã vận chuyển
+    // Shipped
     SHIPPED: [
         { label: 'Theo dõi', type: 'primary', action: 'track', icon: 'truck-fast' },
     ],
-    // Đang giao
+    // Out for delivery
     OUT_FOR_DELIVERY: [
         { label: 'Theo dõi', type: 'secondary', action: 'track', icon: 'truck-fast' },
         { label: 'Đã nhận hàng', type: 'primary', action: 'received', icon: 'package-variant-closed-check' },
     ],
-    // Đã giao - Quan trọng nhất: Đánh giá + Mua lại + Trả hàng
+    // Delivered - Most important: Review + Rebuy + Return
     DELIVERED: [
         { label: 'Yêu cầu trả hàng', type: 'secondary', action: 'return', icon: 'package-variant-minus' },
         { label: 'Đánh giá', type: 'primary', action: 'review', icon: 'star-outline' },
     ],
-    // Hoàn thành
+    // Completed
     COMPLETED: [
         { label: 'Mua lại', type: 'primary', action: 'rebuy', icon: 'cart-plus' },
     ],
-    // Giao thất bại
+    // Delivery failed
     DELIVERY_FAILED: [
         { label: 'Liên hệ Shop', type: 'secondary', action: 'contact', icon: 'chatbubble-ellipses-outline' },
         { label: 'Mua lại', type: 'primary', action: 'rebuy', icon: 'cart-plus' },
     ],
-    // Các trạng thái hoàn hàng
+    // Return statuses
     RETURNING_TO_SENDER: [
         { label: 'Theo dõi', type: 'primary', action: 'track', icon: 'truck-delivery-outline' },
     ],
@@ -89,7 +89,7 @@ const ACTION_MATRIX: Record<OrderStatus, OrderAction[]> = {
     RETURNED: [
         { label: 'Mua lại', type: 'primary', action: 'rebuy', icon: 'cart-plus' },
     ],
-    // Đã hủy
+    // Cancelled
     CANCELLED: [
         { label: 'Mua lại', type: 'primary', action: 'rebuy', icon: 'cart-plus' },
     ],

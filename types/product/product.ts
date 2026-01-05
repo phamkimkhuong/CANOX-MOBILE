@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { createPaginatedResponseSchema } from '../responseSchema';
 
 // 1. Media Schema & Type
 export const ProductMediaRawSchema = z.object({
@@ -43,17 +44,7 @@ export const ProductResponseItemSchema = z.object({
 export type ProductResponseItem = z.infer<typeof ProductResponseItemSchema>;
 
 // Paginated Product Response (Schema dùng cho validator)
-export const PaginatedProductResponseSchema = z.object({
-    code: z.number(),
-    success: z.boolean(),
-    data: z.object({
-        content: z.array(ProductResponseItemSchema),
-        page: z.number(),
-        size: z.number(),
-        totalPages: z.number(),
-        hasNext: z.boolean(),
-    }),
-});
+export const PaginatedProductResponseSchema = createPaginatedResponseSchema(ProductResponseItemSchema);
 
 // DOMAIN MODEL (Dữ liệu rút gọn cho UI)
 export interface ProductFeedItem {

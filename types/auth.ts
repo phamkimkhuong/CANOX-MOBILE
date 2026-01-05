@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ResponseDefaultSchema } from './responseSchema';
 
 // Regex: Tối thiểu 6 ký tự, ít nhất 1 chữ hoa, 1 chữ thường, 1 số
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\w\W]{6,}$/;
@@ -21,9 +22,7 @@ export const RegisterRequestSchema = z.object({
 });
 
 // 2. Schema cho Response Login
-export const AuthResponseSchema = z.object({
-    code: z.number(),
-    success: z.boolean(),
+export const AuthResponseSchema = ResponseDefaultSchema.extend({
     message: z.string(),
     data: z.object({
         accessToken: z.string(),
@@ -44,9 +43,7 @@ export const AuthResponseSchema = z.object({
 });
 
 // Schema cho Register Response
-export const RegisterResponseSchema = z.object({
-    code: z.number(),
-    success: z.boolean(),
+export const RegisterResponseSchema = ResponseDefaultSchema.extend({
     message: z.string(),
     data: z.object({
         userId: z.string(),

@@ -22,7 +22,7 @@ import {
     ConversationListResponseSchema,
     ConversationType,
 } from '@/types/chat/conversationDTO';
-import { toConversationListUI } from '@/utils/adapter/conversationAdapter';
+import { toConversationListUI } from '@/utils/adapter/chat/conversationAdapter';
 import { logger } from '@/utils/logger';
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';

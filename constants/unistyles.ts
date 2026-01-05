@@ -32,6 +32,7 @@ const lightTheme = {
         surfaceOverlay: 'rgba(255, 255, 255, 0.8)',
         backgroundInput: 'rgba(238, 248, 255, 0.8)',
         backgroundSurface: 'rgba(0, 136, 204, 0.06)',
+        secondarySoft: 'rgba(148, 163, 184, 0.15)',
         textOnOverlay: 'rgba(255, 255, 255, 0.8)',
         infoSoft: 'rgba(14, 165, 233, 0.15)',
         infoLight: 'rgba(14, 165, 233, 0.10)',
@@ -50,7 +51,7 @@ const lightTheme = {
         xl: 32,
         xxl: 48,
     },
-    // Thêm borderRadius chuẩn E-commerce
+    // Add standard E-commerce borderRadius
     radius: {
         s: 4,
         m: 8,
@@ -80,5 +81,5 @@ StyleSheet.configure({
     },
 });
 
-export { lightTheme }; // Export ra để dùng cho React Navigation
+export { lightTheme }; // Export for React Navigation use
 

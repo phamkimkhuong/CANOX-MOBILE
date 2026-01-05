@@ -109,6 +109,7 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     'chat-bubble': { ios: 'chatbubble-outline', android: 'chatbubble-outline' },
     'chat-bubble-outline': { ios: 'chatbubble-outline', android: 'chatbubble-outline' },
     'chatbubble-ellipses-outline': { ios: 'chatbubble-ellipses-outline', android: 'chatbubble-ellipses-outline' },
+    'sentiment-satisfied': { ios: 'happy-outline', android: 'happy-outline' },
 
     // === Auth/Visibility Icons ===
     visibility: { ios: 'eye-outline', android: 'eye-outline' },
@@ -130,6 +131,7 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     image: { ios: 'image-outline', android: 'image-outline' },
     verified: { ios: 'checkmark-circle', android: 'checkmark-circle' },
     'camera-outline': { ios: 'camera-outline', android: 'camera-outline' },
+    'photo-camera': { ios: 'camera-outline', android: 'camera-outline' },
 
     // === Notification Icons (Extended) ===
     'notifications-none': { ios: 'notifications-outline', android: 'notifications-outline' },

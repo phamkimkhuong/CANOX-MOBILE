@@ -15,14 +15,14 @@ import { OrderStats } from '@/types/profile/profile';
  * - pendingPayment: awaitingPayment
  * - processing: processing (CREATED + FULFILLING from API)
  * - shipping: shipping
- * - review: delivered (chưa đánh giá - cần check từ API khác)
+ * - review: delivered (not reviewed - need check from other API)
  */
 export const transformOrderCount = (apiData: OrderCountApiResponse): OrderStats => {
     return {
         pendingPayment: apiData.awaitingPayment,
         processing: apiData.processing,
         shipping: apiData.shipping,
-        // Review = delivered orders (assumption: chưa đánh giá)
+        // Review = delivered orders (assumption: not reviewed)
         review: apiData.delivered,
     };
 };

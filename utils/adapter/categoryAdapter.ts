@@ -4,32 +4,32 @@ import { toSizedImageUrl } from '@/utils/url';
 
 /**
  * Category Icon Mapping
- * Nếu category trả về icon thì không cần map -> xoá function này đi
+ * If category returns icon, no need to map -> delete this function
  */
 const CATEGORY_SLUG_MAP: Record<string, IconSymbolName> = {
-    // === Công nghệ & Điện tử ===
+    // === Tech & Electronics ===
     'may-tinh': 'laptop-outline',
     'dien-thoai-phu-kien': 'smartphone',
     'thiet-bi-gia-dung': 'tv-outline',
 
-    // === Thời trang & Làm đẹp ===
+    // === Fashion & Beauty ===
     'thoi-trang-nam': 'checkroom',
     'thoi-trang-nu': 'checkroom',
     'sac-dep': 'sparkles-outline',
 
-    // === Đời sống ===
+    // === Lifestyle ===
     'thuc-pham': 'restaurant-outline',
     'bach-hoa': 'cart-outline',
     'suc-khoe': 'shield',
     'me-be': 'heart-outline',
     'thu-cung': 'paw-outline',
 
-    // === Nhà cửa & Xe ===
+    // === Home & Vehicles ===
     'nha-cua-noi-that': 'home',
     'noi-that': 'home',
     'oto-xe-may': 'car-outline',
 
-    // === Văn phòng & Khác ===
+    // === Office & Others ===
     'van-phong-pham': 'document-outline',
     'thu-cong-my-nghe': 'brush-outline',
 
@@ -38,63 +38,63 @@ const CATEGORY_SLUG_MAP: Record<string, IconSymbolName> = {
 };
 
 /**
- * Helper function: Lấy icon từ slug -> nếu api trả về icon thì ko cần dùng hàm này nữa
- * @param slug - Slug của category từ API
- * @returns IconSymbolName hợp lệ cho Ionicons
+ * Helper function: Get icon from slug -> if api returns icon then no need to use this function anymore
+ * @param slug - Category slug from API
+ * @returns Valid IconSymbolName for Ionicons
  */
 const mapSlugToIcon = (slug: string): IconSymbolName => {
-    // 1. Tìm chính xác trong map
+    // 1. Exact match in map
     if (CATEGORY_SLUG_MAP[slug]) {
         return CATEGORY_SLUG_MAP[slug];
     }
 
-    // 2. Fuzzy matching cho các slug có pattern chung
+    // 2. Fuzzy matching for slugs with common pattern
     if (slug.includes('thoi-trang')) return 'checkroom';
     if (slug.includes('dien-thoai')) return 'smartphone';
     if (slug.includes('noi-that')) return 'home';
 
-    // 3. Trả về icon mặc định an toàn
+    // 3. Return safe default icon
     return CATEGORY_SLUG_MAP['default'];
 };
 
 /**
- * Helper: Tạo object CategoryItem từ CategoryNode
+ * Helper: Create CategoryItem object from CategoryNode
  */
 const mapNodeToItem = (node: CategoryNode): CategoryItem => ({
     id: node.id,
     name: node.name,
-    // Ưu tiên lấy ảnh thumb
+    // Prioritize thumb image
     image: toSizedImageUrl(node.imageBasePath, node.imageExtension, '_thumb'),
 });
 
 /**
- * Biến đổi API Tree -> Sidebar Data (ParentCategory[])
+ * Transform API Tree -> Sidebar Data (ParentCategory[])
  */
 export const transformToSidebarData = (nodes: CategoryNode[]): ParentCategory[] => {
     return nodes.map((node) => ({
         id: node.id,
         name: node.name,
         icon: mapSlugToIcon(node.slug),
-        // icon: undefined, // API hiện tại chưa có icon
+        // icon: undefined, // API currently has no icon
         children: node.children ? transformContentData(node.children) : [],
     }));
 };
 
 /**
- * Biến đổi Children của 1 Node -> Content Data (SubCategory[])
+ * Transform Children of a Node -> Content Data (SubCategory[])
  * Logic mapping:
- * - Level 2 (Con trực tiếp): Sẽ là Section Header (Ví dụ: Nội thất)
- * - Level 3 (Cháu): Sẽ là Grid Item (Ví dụ: Sofa, Bàn)
+ * - Level 2 (Direct Child): Will be Section Header (Example: Furniture)
+ * - Level 3 (Grandchild): Will be Grid Item (Example: Sofa, Table)
  */
 export const transformContentData = (nodes: CategoryNode[]): SubCategory[] => {
     return nodes.map((node) => {
         let items: CategoryItem[] = [];
         if (node.children && node.children.length > 0) {
-            // Case 1: Có con (Ví dụ: Nội thất -> Bàn, Ghế)
+            // Case 1: Has children (Example: Furniture -> Table, Chair)
             items = node.children.map(child => mapNodeToItem(child));
         } else {
-            // Case 2: Không có con (Ví dụ: sub menu 1 -> null)
-            // Biến chính nó thành item để user có cái để bấm vào
+            // Case 2: No children (Example: sub menu 1 -> null)
+            // Make itself an item so user has something to click
             items = [mapNodeToItem(node)];
         }
         return {

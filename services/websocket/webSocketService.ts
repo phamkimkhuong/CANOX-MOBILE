@@ -1,6 +1,6 @@
 /**
  * WebSocket Service for React Native
- * Sử dụng @stomp/stompjs để kết nối với Spring Boot STOMP WebSocket
+ * Use @stomp/stompjs to connect with Spring Boot STOMP WebSocket
  * 
  * Features:
  * - Singleton pattern
@@ -14,10 +14,10 @@ import { logger } from '@/utils/logger';
 import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
 import * as SecureStore from 'expo-secure-store';
 
-// Token key trong SecureStore
+// Token key in SecureStore
 const AUTH_TOKEN_KEY = 'auth_token';
 
-// Enum trạng thái kết nối
+// Connection state enum
 export enum WebSocketState {
     DISCONNECTED = 'DISCONNECTED',
     CONNECTING = 'CONNECTING',
@@ -26,10 +26,10 @@ export enum WebSocketState {
     ERROR = 'ERROR',
 }
 
-// Type cho callback
+// Callback type
 export type MessageCallback = (message: unknown) => void;
 
-// Interface cho parsed message
+// Interface for parsed message
 export interface WebSocketEventData<T = unknown> {
     type: string;
     data: T;
@@ -40,7 +40,7 @@ export interface WebSocketEventData<T = unknown> {
 
 /**
  * WebSocket Service Class
- * Singleton pattern để đảm bảo chỉ có 1 connection
+ * Singleton pattern to ensure only 1 connection
  */
 export class WebSocketService {
     // Singleton instance
@@ -66,7 +66,7 @@ export class WebSocketService {
     private onErrorCallbacks: Set<(error: string) => void> = new Set();
 
     /**
-     * Private constructor để enforce singleton
+     * Private constructor to enforce singleton
      */
     private constructor() {
         logger.ws.info('Instance created');
@@ -83,8 +83,8 @@ export class WebSocketService {
     }
 
     /**
-     * Kết nối WebSocket
-     * @param token - JWT token để authentication (optional, sẽ lấy từ SecureStore nếu không truyền)
+     * Connect WebSocket
+     * @param token - JWT token for authentication (optional, will get from SecureStore if not provided)
      */
     async connect(token?: string): Promise<void> {
         return new Promise(async (resolve, reject) => {
@@ -105,13 +105,13 @@ export class WebSocketService {
                 this.state = WebSocketState.CONNECTING;
                 logger.ws.info('Connecting...');
 
-                // Lấy token từ SecureStore nếu không được truyền vào
+                // Get token from SecureStore if not provided
                 let authToken = token;
                 if (!authToken) {
                     authToken = await SecureStore.getItemAsync(AUTH_TOKEN_KEY) || undefined;
                 }
 
-                // Tạo WebSocket URL với token (nếu có)
+                // Create WebSocket URL with token (if any)
                 const wsUrl = authToken
                     ? `${WEBSOCKET_CONFIG.endpoint}?token=${encodeURIComponent(authToken)}`
                     : WEBSOCKET_CONFIG.endpoint;
@@ -120,7 +120,7 @@ export class WebSocketService {
                 this.stompClient = new Client({
                     brokerURL: wsUrl,
 
-                    // Debug (chỉ enable trong development)
+                    // Debug (only enable in development)
                     debug: __DEV__ ? (str) => logger.ws.debug(str) : () => { },
 
                     // Heartbeat settings
@@ -253,7 +253,7 @@ export class WebSocketService {
     }
 
     /**
-     * Ngắt kết nối WebSocket
+     * Disconnect WebSocket
      */
     disconnect(): void {
         logger.ws.info('Disconnecting...');
@@ -294,7 +294,7 @@ export class WebSocketService {
     /**
      * Subscribe to a topic
      * @param topic - STOMP topic (e.g., /user/queue/notifications)
-     * @param callback - Callback function khi nhận được message
+     * @param callback - Callback function when receiving message
      * @returns Unsubscribe function
      */
     subscribe(topic: string, callback: MessageCallback): () => void {

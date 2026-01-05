@@ -146,7 +146,7 @@ export default function CartScreen() {
         toggleItemSelection,
     } = useCartStore();
 
-    // Chỉ hiện thanh cập nhật giá khi người dùng đã thực hiện ít nhất 1 thao tác
+    // Only show sync bar when user has performed at least 1 action
     const [userInteracted, setUserInteracted] = useState(false);
 
     // ========================================
@@ -348,7 +348,7 @@ export default function CartScreen() {
                         style={{ flex: 1 }}
                     >
                         {/* 
-                          * Thanh cập nhật giá (Sync Bar)
+                          * Price Sync Bar
                         */}
                         {(isFetching && userInteracted || isUpdating || isRemoving) && (
                             <View style={styles.syncBar}>

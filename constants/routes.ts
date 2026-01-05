@@ -3,14 +3,14 @@ import type { Href } from 'expo-router';
 // ============================================
 // ROUTE DEFINITIONS - Type-Safe Navigation
 // ============================================
-// Centralized route management để tránh:
-// 1. Silent fails khi đổi path
-// 2. Hardcoded strings rải rác
-// 3. Typo không được IDE phát hiện
+// Centralized route management to avoid:
+// 1. Silent fails when changing path
+// 2. Scattered hardcoded strings
+// 3. Typos not detected by IDE
 // ============================================
 
 /**
- * Static routes (không có params)
+ * Static routes (no params)
  */
 export const ROUTES = {
     // ============ TABS ============
@@ -97,7 +97,7 @@ export const ROUTES = {
 } as const;
 
 /**
- * Type cho tất cả static routes
+ * Type for all static routes
  */
 export type StaticRoute =
     | (typeof ROUTES.TABS)[keyof typeof ROUTES.TABS]
@@ -114,11 +114,11 @@ export type StaticRoute =
 // ============================================
 // DYNAMIC ROUTE BUILDERS
 // ============================================
-// Các route có params, trả về Href để type-safe
+// Routes with params, returning Href for type safety
 // ============================================
 
 /**
- * Product routes với dynamic ID
+ * Product routes with dynamic ID
  */
 export const productRoutes = {
     detail: (id: string): Href => ({
@@ -128,17 +128,20 @@ export const productRoutes = {
 } as const;
 
 /**
- * Chat routes - Disabled until /chat/[id] is implemented
+ * Chat routes
  */
 export const chatRoutes = {
-    conversation: (conversationId: string): Href => ({
-        pathname: '/chat/[id]',
-        params: { id: conversationId },
-    } as unknown as Href),
+    /**
+     * Chat detail/message screen
+     */
+    detail: (conversationId: string, otherParams?: Record<string, any>): Href => ({
+        pathname: '/chat/[conversationId]',
+        params: { conversationId, ...otherParams },
+    }),
 } as const;
 
 /**
- * Order routes với dynamic ID
+ * Order routes with dynamic ID
  */
 export const orderRoutes = {
     detail: (orderId: string): Href => ({
@@ -148,7 +151,7 @@ export const orderRoutes = {
 } as const;
 
 /**
- * Shop routes với dynamic ID
+ * Shop routes with dynamic ID
  */
 export const shopRoutes = {
     detail: (shopId: string): Href => ({
@@ -158,7 +161,7 @@ export const shopRoutes = {
 } as const;
 
 /**
- * Address routes với dynamic ID
+ * Address routes with dynamic ID
  */
 export const addressRoutes = {
     detail: (addressId: string): Href => ({
@@ -172,7 +175,7 @@ export const addressRoutes = {
 } as const;
 
 /**
- * Auth verify OTP với params
+ * Auth verify OTP with params
  */
 export const authRoutes = {
     verifyOtp: (params: { phone: string; type: 'register' | 'forgot-password' }): Href => ({
@@ -187,12 +190,12 @@ export const authRoutes = {
 
 /**
  * Convert static route string to Href type
- * Giúp IDE check được route có hợp lệ không
+ * Helps IDE check if route is valid
  */
 export const href = <T extends StaticRoute>(route: T): Href => route as Href;
 
 /**
- * Type guard để kiểm tra route có tồn tại
+ * Type guard to check if route exists
  */
 export const isValidRoute = (route: string): route is StaticRoute => {
     const allRoutes = [
@@ -213,7 +216,7 @@ export const isValidRoute = (route: string): route is StaticRoute => {
 // ============================================
 // ROUTE MAPPING FOR CONFIGS
 // ============================================
-// Dùng trong các config files để map key -> route
+// Used in config files to map key -> route
 // ============================================
 
 /**
@@ -260,6 +263,7 @@ export const SETTINGS_MENU_ROUTES = {
 export type AppRoutes = typeof ROUTES;
 export type DynamicRouteBuilders = {
     product: typeof productRoutes;
+    chat: typeof chatRoutes;
     order: typeof orderRoutes;
     shop: typeof shopRoutes;
     address: typeof addressRoutes;

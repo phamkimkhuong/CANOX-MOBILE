@@ -6,15 +6,8 @@
  * @see conversationDTO.ts - API DTO types (input)
  * @see utils/adapter/conversationAdapter.ts - DTO → UI transform
  */
-export const MessageType = {
-    TEXT: 'TEXT',
-    IMAGE: 'IMAGE',
-    PRODUCT: 'PRODUCT',
-    ORDER: 'ORDER',
-    FILE: 'FILE',
-} as const;
 
-export type MessageType = (typeof MessageType)[keyof typeof MessageType];
+import { MessageType } from "./message";
 
 /**
  * Chat filter types for UI tabs

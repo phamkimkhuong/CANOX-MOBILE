@@ -1,16 +1,16 @@
 /**
  * WebSocketProvider - Context Provider for WebSocket connection
  *
- * Cung cấp WebSocket connection state và methods cho toàn bộ app.
- * Auto-connect khi user authenticated, auto-disconnect khi logout.
+ * Provides WebSocket connection state and methods for the entire app.
+ * Auto-connect when authenticated, auto-disconnect when logged out.
  *
  * @example
- * // Wrap app trong _layout.tsx
+ * // Wrap app in _layout.tsx
  * <WebSocketProvider>
  *   <App />
  * </WebSocketProvider>
  *
- * // Sử dụng trong component
+ * // Use in component
  * const { connected, subscribeToNotifications } = useWebSocket();
  */
 
@@ -34,19 +34,19 @@ import React, {
 // ==================== TYPES ====================
 
 interface WebSocketContextType {
-    /** Trạng thái kết nối */
+    /** Connection state */
     connected: boolean;
-    /** Trạng thái chi tiết */
+    /** Detailed state */
     state: WebSocketState;
-    /** Lỗi kết nối (nếu có) */
+    /** Connection error (if any) */
     error: string | null;
-    /** Kết nối WebSocket */
+    /** Connect WebSocket */
     connect: () => Promise<void>;
-    /** Ngắt kết nối */
+    /** Disconnect */
     disconnect: () => void;
     /** Subscribe to topic */
     subscribe: (topic: string, callback: MessageCallback) => () => void;
-    /** Gửi message */
+    /** Send message */
     sendMessage: (destination: string, data: unknown) => void;
     /** Force reconnect */
     reconnect: () => Promise<void>;
@@ -62,7 +62,7 @@ const WebSocketContext = createContext<WebSocketContextType | null>(null);
 
 interface WebSocketProviderProps {
     children: ReactNode;
-    /** Tự động kết nối khi user authenticated */
+    /** Auto connect when user authenticated */
     autoConnect?: boolean;
 }
 
@@ -216,8 +216,8 @@ export function WebSocketProvider({
 // ==================== HOOK ====================
 
 /**
- * Hook để sử dụng WebSocket context
- * @throws Error nếu sử dụng ngoài WebSocketProvider
+ * Hook to use WebSocket context
+ * @throws Error if used outside WebSocketProvider
  */
 export function useWebSocketContext(): WebSocketContextType {
     const context = React.useContext(WebSocketContext);
@@ -232,7 +232,7 @@ export function useWebSocketContext(): WebSocketContextType {
 // ==================== CONVENIENCE HOOKS ====================
 
 /**
- * Hook đơn giản để check connection status
+ * Simple hook to check connection status
  */
 export function useWebSocketStatus() {
     const { connected, state, error } = useWebSocketContext();
@@ -240,7 +240,7 @@ export function useWebSocketStatus() {
 }
 
 /**
- * Hook để subscribe notifications với auto-cleanup
+ * Hook to subscribe notifications with auto-cleanup
  */
 export function useNotificationSocket(
     onNotification: MessageCallback,

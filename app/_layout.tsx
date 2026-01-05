@@ -81,18 +81,18 @@ export default function RootLayout() {
         <WebSocketProvider autoConnect={false}>
           <ScrollToTopProvider>
             <SafeAreaProvider>
-              {/* 3. Inject Theme vào Navigation */}
+              {/* 3. Inject Theme into Navigation */}
 
               <ThemeProvider value={NavigationTheme}>
                 <Stack screenOptions={{ headerShown: false }}>
-                  {/* Tab Navigator - Có Tab Bar */}
+                  {/* Tab Navigator - Has Tab Bar */}
                   <Stack.Screen name="(tabs)" />
 
-                  {/* Auth Flow - Không có Tab Bar */}
+                  {/* Auth Flow - No Tab Bar */}
                   <Stack.Screen name="(auth)" />
 
-                  {/* Main Stack - Tất cả pushed screens (không có Tab Bar) */}
-                  {/* Header được quản lý bởi (main)/_layout.tsx */}
+                  {/* Main Stack - All pushed screens (No Tab Bar) */}
+                  {/* Header managed by (main)/_layout.tsx */}
                   <Stack.Screen name="(main)" />
 
                   {/* Global Modal */}
@@ -105,7 +105,7 @@ export default function RootLayout() {
                   />
                 </Stack>
                 <Toast config={toastConfig} />
-                {/* 4. StatusBar luôn là Dark Content (chữ đen) vì nền sáng */}
+                {/* 4. StatusBar always Dark Content (black text) because of light background */}
                 <StatusBar style="dark" />
               </ThemeProvider>
             </SafeAreaProvider>

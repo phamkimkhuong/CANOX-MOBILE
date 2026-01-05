@@ -17,7 +17,7 @@ const LOW_STOCK_THRESHOLD = 5;
 // ============================================
 
 /**
- * Xác định inventory status từ stock
+ * Determine inventory status from stock
  */
 const getInventoryStatus = (stock: number): InventoryStatus => {
     if (stock === 0) return 'out_of_stock';
@@ -26,8 +26,8 @@ const getInventoryStatus = (stock: number): InventoryStatus => {
 };
 
 /**
- * Tạo summary string từ selected options
- * Ví dụ: "Size L, Màu Đen"
+ * Create summary string from selected options
+ * Example: "Size L, Color Black"
  */
 const createSelectionSummary = (selectedOptions: SelectedOptions): string => {
     const values = Object.entries(selectedOptions)
@@ -38,8 +38,8 @@ const createSelectionSummary = (selectedOptions: SelectedOptions): string => {
 };
 
 /**
- * Normalize string để so sánh (lowercase, trim, single space)
- * Phải match với logic trong productDetailAdapter.ts
+ * Normalize string for comparison (lowercase, trim, single space)
+ * Must match logic in productDetailAdapter.ts
  */
 const normalizeString = (str: string): string => {
     return str.trim().replace(/\s+/g, ' ').toLowerCase();
@@ -48,24 +48,24 @@ const normalizeString = (str: string): string => {
 /**
  * Parse variant matrix key từ JSON format
  * Key format: '{"optionname1":"valuename1","optionname2":"valuename2"}'
- * @returns Record<optionName, valueName> đã normalized
+ * @returns Record<optionName, valueName> normalized
  */
 const parseVariantMatrixKey = (key: string): Record<string, string> => {
     try {
         return JSON.parse(key) as Record<string, string>;
     } catch {
-        // Fallback nếu parse lỗi
+        // Fallback if parse error
         return {};
     }
 };
 
 /**
- * Kiểm tra value có available không dựa trên current selection
- * Dùng để disable các option không khả dụng
+ * Check if value is available based on current selection
+ * Used to disable unavailable options
  * 
  * Logic:
- * 1. Nếu chưa chọn đủ options → check xem có ít nhất 1 variant chứa value này còn hàng
- * 2. Nếu đã chọn đủ → check variant cụ thể
+ * 1. If options not fully selected -> check if at least 1 variant containing this value is in stock
+ * 2. If fully selected -> check specific variant
  */
 const isValueAvailable = (
     optionName: string,
@@ -73,32 +73,32 @@ const isValueAvailable = (
     currentSelection: SelectedOptions,
     product: ProductDetailUI
 ): boolean => {
-    // Normalize để so sánh chính xác
+    // Normalize for exact comparison
     const normalizedOptionName = normalizeString(optionName);
     const normalizedValueName = normalizeString(valueName);
 
-    // Tạo selection giả với value này
+    // Create fake selection with this value
     const testSelection = {
         ...currentSelection,
         [optionName]: valueName,
     };
 
-    // Đếm số options đã chọn (không tính empty string)
+    // Count selected options (excluding empty string)
     const selectedCount = Object.values(testSelection).filter(v => v !== '').length;
 
-    // Nếu chưa chọn đủ các option khác
+    // If other options not fully selected
     if (selectedCount < product.options.length) {
-        // Kiểm tra xem có ít nhất 1 variant match không
+        // Check if at least 1 variant matches
         for (const [key, variantValue] of product.variantMatrix) {
-            // Parse key từ JSON format
+            // Parse key from JSON format
             const parsedKey = parseVariantMatrixKey(key);
 
-            // Check xem variant này có chứa option value đang test không
+            // Check if this variant contains the testing option value
             const hasMatchingValue = parsedKey[normalizedOptionName] === normalizedValueName;
 
             if (!hasMatchingValue) continue;
 
-            // Check xem variant có match với các options đã chọn khác không
+            // Check if variant matches other selected options
             let matchesOtherSelections = true;
             for (const [selOptName, selOptValue] of Object.entries(testSelection)) {
                 if (selOptValue === '') continue; // Skip empty selections
@@ -112,7 +112,7 @@ const isValueAvailable = (
                 }
             }
 
-            // Nếu variant match và còn hàng → available
+            // If variant matches and in stock -> available
             if (matchesOtherSelections && variantValue.isAvailable) {
                 return true;
             }
@@ -120,7 +120,7 @@ const isValueAvailable = (
         return false;
     }
 
-    // Đã chọn đủ → check variant cụ thể
+    // Fully selected -> check specific variant
     const key = createKeyFromSelection(testSelection);
     const variant = product.variantMatrix.get(key);
     return variant?.isAvailable ?? false;
@@ -164,14 +164,14 @@ interface ProductOptionWithAvailability extends ProductOptionUI {
 }
 
 /**
- * Hook quản lý logic chọn variant sản phẩm
+ * Hook managing product variant selection logic
  * 
  * Features:
- * - Quản lý state selected options
- * - Tính toán variant hiện tại từ selection
- * - Xác định giá hiển thị (range hoặc cụ thể)
+ * - Manage selected options state
+ * - Calculate current variant from selection
+ * - Determine display price (range or specific)
  * - Check inventory status
- * - Disable options không khả dụng
+ * - Disable unavailable options
  */
 export const useProductVariant = (
     product: ProductDetailUI | undefined,
@@ -300,7 +300,7 @@ export const useProductVariant = (
             return getInventoryStatus(currentVariant.stock);
         }
 
-        // Chưa chọn đủ -> check tổng stock
+        // Not fully selected -> check total stock
         if (!product) return 'out_of_stock';
 
         let totalStock = 0;
@@ -329,11 +329,11 @@ export const useProductVariant = (
     // ===== DERIVED: Can Add To Cart =====
     const canAddToCart = useMemo(() => {
         if (!product?.hasVariants) {
-            // Sản phẩm không có variant -> check isAvailable
+            // Product has no variants -> check isAvailable
             return product?.isAvailable ?? false;
         }
 
-        // Có variant -> phải chọn đủ và còn hàng
+        // Has variants -> must be fully selected and in stock
         return isFullySelected && currentVariant !== null && currentVariant.stock > 0;
     }, [product, isFullySelected, currentVariant]);
 

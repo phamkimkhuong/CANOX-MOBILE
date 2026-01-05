@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ResponseDefaultSchema } from './responseSchema';
 
 // ============================================
 // ZOD SCHEMAS (API Validation)
@@ -89,9 +90,7 @@ export const CartResponseSchema = z.object({
 });
 
 // Full API Response Wrapper
-export const CartApiResponseSchema = z.object({
-    code: z.number(),
-    success: z.boolean(),
+export const CartApiResponseSchema = ResponseDefaultSchema.extend({
     message: z.string(),
     data: CartResponseSchema,
 });

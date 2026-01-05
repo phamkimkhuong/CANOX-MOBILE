@@ -1,5 +1,6 @@
 import type { IconSymbolName } from '@/components/ui/Icon';
 import z from 'zod';
+import { ResponseDefaultSchema } from './responseSchema';
 
 /**
  * Category Domain Types
@@ -114,9 +115,7 @@ export type CategoryNode = {
     children: CategoryNode[] | null;
 };
 
-export const CategoryTreeResponseSchema = z.object({
-    code: z.number(),
-    success: z.boolean(),
+export const CategoryTreeResponseSchema = ResponseDefaultSchema.extend({
     message: z.string(),
     data: z.array(CategoryNodeSchema),
 });

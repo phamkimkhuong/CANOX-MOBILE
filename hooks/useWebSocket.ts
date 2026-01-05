@@ -1,11 +1,11 @@
 /**
  * WebSocket Hooks
  *
- * Re-export các hooks từ WebSocketProvider để sử dụng trong components.
- * Đây là entry point chính cho việc sử dụng WebSocket trong app.
+ * Re-export hooks from WebSocketProvider for use in components.
+ * This is the main entry point for using WebSocket in the app.
  *
  * @example
- * // Sử dụng cơ bản
+ * // Basic usage
  * const { connected, subscribeToNotifications } = useWebSocket();
  *
  * // Subscribe notifications
@@ -26,20 +26,20 @@ import { useCallback, useEffect, useRef } from 'react';
 // ==================== RE-EXPORTS ====================
 
 /**
- * Hook chính để truy cập WebSocket context
- * Cung cấp đầy đủ các methods: connect, disconnect, subscribe, sendMessage
+ * Main hook to access WebSocket context
+ * Provides full methods: connect, disconnect, subscribe, sendMessage
  */
 export { useWebSocketContext as useWebSocket } from '@/components/WebSocketProvider';
 
 /**
- * Hook đơn giản để check connection status
+ * Simple hook to check connection status
  * @returns { connected, state, error }
  */
 export { useWebSocketStatus } from '@/components/WebSocketProvider';
 
 /**
- * Hook để subscribe notifications với auto-cleanup
- * @param onNotification - Callback khi nhận notification
+ * Hook to subscribe notifications with auto-cleanup
+ * @param onNotification - Callback when receiving notification
  * @param enabled - Enable/disable subscription
  */
 export { useNotificationSocket } from '@/components/WebSocketProvider';
@@ -47,12 +47,12 @@ export { useNotificationSocket } from '@/components/WebSocketProvider';
 // ==================== SPECIALIZED HOOKS ====================
 
 /**
- * Hook để subscribe notifications và tự động invalidate notification queries
- * Kết hợp WebSocket với TanStack Query
+ * Hook to subscribe notifications and automatically invalidate notification queries
+ * Combine WebSocket with TanStack Query
  *
- * @param options - Tùy chọn
- * @param options.onNotification - Callback khi nhận notification mới
- * @param options.showToast - Hiển thị toast khi có notification mới
+ * @param options - Options
+ * @param options.onNotification - Callback when receiving new notification
+ * @param options.showToast - Show toast when new notification arrives
  * @param options.enabled - Enable/disable subscription
  *
  * @example
@@ -71,7 +71,7 @@ export function useNotificationSubscription(options: {
     const queryClient = useQueryClient();
     const { connected, subscribeToNotifications } = useWebSocketContext();
 
-    // Ref để tránh stale closure
+    // Ref to avoid stale closure
     const onNotificationRef = useRef(onNotification);
     onNotificationRef.current = onNotification;
 
@@ -79,19 +79,19 @@ export function useNotificationSubscription(options: {
         (message: unknown) => {
             logger.ws.info(' New notification:', message);
 
-            // Invalidate notification queries để refetch
+            // Invalidate notification queries to refetch
             queryClient.invalidateQueries({ queryKey: ['notifications'] });
 
-            // Có thể invalidate unread count nếu có
+            // Can invalidate unread count if exists
             queryClient.invalidateQueries({ queryKey: ['unreadNotificationCount'] });
 
-            // Show toast nếu được enable
+            // Show toast if enabled
             if (showToast) {
-                // Toast sẽ được implement sau
+                // Toast will be implemented later
                 // Toast.show({ text1: 'Bạn có thông báo mới!' });
             }
 
-            // Callback tùy chỉnh
+            // Custom callback
             if (onNotificationRef.current) {
                 onNotificationRef.current(message);
             }
@@ -110,8 +110,8 @@ export function useNotificationSubscription(options: {
 }
 
 /**
- * Hook để lấy số lượng notifications chưa đọc realtime
- * Kết hợp với TanStack Query
+ * Hook to get realtime unread notification count
+ * Combine with TanStack Query
  *
  * @example
  * const { unreadCount } = useUnreadNotificationCount();
@@ -120,19 +120,19 @@ export function useNotificationSubscription(options: {
 export function useUnreadNotificationCount() {
     const { connected } = useWebSocketStatus();
 
-    // Có thể mở rộng để track unread count từ WebSocket
-    // Hiện tại chỉ return connection status
+    // Can extend to track unread count from WebSocket
+    // Currently only returns connection status
     return {
         connected,
-        // unreadCount sẽ được quản lý bởi TanStack Query
+        // unreadCount will be managed by TanStack Query
     };
 }
 
 // ==================== UTILITY HOOKS ====================
 
 /**
- * Hook để debug WebSocket connection
- * Chỉ hoạt động trong development mode
+ * Hook to debug WebSocket connection
+ * Only active in development mode
  */
 export function useWebSocketDebug() {
     const { connected, state, error } = useWebSocketStatus();
@@ -149,13 +149,13 @@ export function useWebSocketDebug() {
 }
 
 /**
- * Hook để manual control WebSocket connection
- * Useful cho testing hoặc các trường hợp đặc biệt
+ * Hook for manual control of WebSocket connection
+ * Useful for testing or special cases
  *
  * @example
  * const { connect, disconnect, reconnect, isConnected } = useWebSocketControl();
  *
- * // Manual connect sau khi disable autoConnect
+ * // Manual connect after disabling autoConnect
  * await connect();
  */
 export function useWebSocketControl() {

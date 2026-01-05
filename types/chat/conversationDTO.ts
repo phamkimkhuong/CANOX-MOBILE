@@ -1,10 +1,5 @@
-/**
- * Conversation API DTO Types
- * Raw types matching exactly the API response from:
- * GET /api/v1/chat/conversations
- */
-
 import { z } from 'zod';
+import { ResponseDefaultSchema } from '../responseSchema';
 
 // ============================================
 // ENUMS - API Values
@@ -245,9 +240,7 @@ const ConversationPageDTOSchema = z.object({
 /**
  * Schema to validate full API response
  */
-export const ConversationListResponseSchema = z.object({
-    code: z.number(),
-    success: z.boolean(),
+export const ConversationListResponseSchema = ResponseDefaultSchema.extend({
     message: z.string(),
     data: ConversationPageDTOSchema,
 });
@@ -284,9 +277,40 @@ export interface ConversationActionResponse {
 /**
  * Schema for single conversation action response
  */
-export const ConversationActionResponseSchema = z.object({
-    code: z.number(),
-    success: z.boolean(),
+export const ConversationActionResponseSchema = ResponseDefaultSchema.extend({
+    message: z.string(),
+    data: ConversationDTOSchema,
+});
+
+// ============================================
+// CREATE CONVERSATION TYPES
+// ============================================
+
+/**
+ * Request body for POST /api/v1/chat/conversations
+ * Create new conversation or get existing one
+ */
+export interface CreateConversationRequest {
+    conversationType: ConversationType;
+    participantIds: string[];
+    name: string;
+    avatarUrl?: string | null;
+}
+
+/**
+ * Response for create conversation
+ */
+export interface CreateConversationResponse {
+    code: number;
+    success: boolean;
+    message: string;
+    data: ConversationDTO;
+}
+
+/**
+ * Schema for create conversation response
+ */
+export const CreateConversationResponseSchema = ResponseDefaultSchema.extend({
     message: z.string(),
     data: ConversationDTOSchema,
 });

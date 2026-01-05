@@ -5,10 +5,10 @@ import { PaginatedResponse } from '@/types/responseSchema';
 import { transformProduct } from '@/utils/adapter/productAdapter';
 import { useInfiniteQuery } from '@tanstack/react-query';
 
-// Type cho các loại Feed
+// Types for Feeds
 export type FeedType = 'new' | 'sale' | 'featured' | 'promoted';
 
-// 1. Helper lấy URL theo Tab
+// 1. Helper to get URL by Tab
 const getApiUrl = (type: FeedType) => {
     switch (type) {
         case 'sale': return API_ROUTES.PUBLIC_PRODUCTS.SALE;
@@ -18,7 +18,7 @@ const getApiUrl = (type: FeedType) => {
     }
 };
 
-// 2. Hook chính
+// 2. Main Hook
 export const useProductFeed = (type: FeedType) => {
     return useInfiniteQuery({
         queryKey: ['products', type],
@@ -37,8 +37,8 @@ export const useProductFeed = (type: FeedType) => {
                 PaginatedProductResponseSchema
             );
 
-            // TRANSFORM DỮ LIỆU NGAY TẠI ĐÂY
-            // Giúp Cache của React Query nhẹ hơn
+            // TRANSFORM DATA RIGHT HERE
+            // Helps React Query Cache be lighter
             const items: ProductFeedItem[] = response.data.content.map(transformProduct);
 
             return {
@@ -47,7 +47,7 @@ export const useProductFeed = (type: FeedType) => {
             };
         },
         getNextPageParam: (lastPage) => lastPage.nextPage,
-        placeholderData: (previousData) => previousData, // Giữ data cũ khi refetch để tránh nháy do loading
-        staleTime: 1000 * 60 * 5, // Cache 5 phút
+        placeholderData: (previousData) => previousData, // Keep old data while refetching to avoid flicker due to loading
+        staleTime: 1000 * 60 * 5, // Cache 5 minutes
     });
 };

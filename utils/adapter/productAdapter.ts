@@ -5,14 +5,14 @@ import { toPublicUrl } from '@/utils/url';
  * Transform Raw API Data -> Lightweight UI Model
  */
 export const transformProduct = (raw: ProductResponseItem): ProductFeedItem => {
-    // 1. Logic lấy ảnh đại diện (Ưu tiên isPrimary, nếu không lấy ảnh đầu tiên)
+    // 1. Primary image logic (Prioritize isPrimary, else take first image)
     const primaryMedia = raw.media.find(m => m.isPrimary) || raw.media[0];
 
-    // 2. Logic tính giá hiển thị
-    // Ưu tiên hiển thị giá sau voucher (thực tế user phải trả)
+    // 2. Display price logic
+    // Prioritize price after voucher (actual amount user pays)
     const displayPrice = raw.priceAfterBestVoucher > 0 ? raw.priceAfterBestVoucher : raw.priceMin;
 
-    // 3. Tính % giảm giá
+    // 3. Calculate % discount
     let discount = 0;
     if (raw.basePrice > displayPrice) {
         discount = Math.round(((raw.basePrice - displayPrice) / raw.basePrice) * 100);

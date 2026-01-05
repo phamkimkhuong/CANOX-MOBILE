@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ResponseDefaultSchema } from '../responseSchema';
 
 // COMMON SCHEMAS (Reusable)
 
@@ -35,9 +36,9 @@ export type ProductMedia = z.infer<typeof ProductMediaSchema>;
 // ============================================
 
 /**
- * Option Value - Dùng chung cho VariantOption và ProductOption
- * API trả về optionValues dạng flat: { id, name, displayOrder }
- * VD: "A", "200x200x5", "Đỏ", "Size L"
+ * Option Value - Shared for VariantOption and ProductOption
+ * API returns optionValues as flat: { id, name, displayOrder }
+ * Ex: "A", "200x200x5", "Red", "Size L"
  */
 export const OptionValueSchema = z.object({
     id: z.string(),
@@ -72,7 +73,7 @@ export type VariantInventory = z.infer<typeof VariantInventorySchema>;
 export const ProductVariantSchema = z.object({
     id: z.string(),
     sku: z.string().optional(),
-    // Image fields (variant có thể có ảnh riêng)
+    // Image fields (variant can have own image)
     imageBasePath: z.string().nullable().optional(),
     imageExtension: z.string().nullable().optional(),
     imageAssetId: z.string().nullable().optional(),
@@ -98,7 +99,7 @@ export const ProductVariantSchema = z.object({
 export type ProductVariant = z.infer<typeof ProductVariantSchema>;
 
 // ============================================
-// PRODUCT OPTION SCHEMAS (Group các option để UI render)
+// PRODUCT OPTION SCHEMAS (Group options for UI render)
 // ============================================
 
 export const ProductOptionSchema = z.object({
@@ -161,7 +162,7 @@ export const ShopSchema = z.object({
     verifyDate: z.string().nullable().optional(),
     userId: z.string().optional(),
     username: z.string(),
-    // Extended fields (có thể BE bổ sung sau)
+    // Extended fields (BE might add later)
     isVerified: z.boolean().optional(),
     rating: z.number().optional(),
     responseRate: z.number().optional(),
@@ -303,7 +304,7 @@ export const ProductDetailResponseSchema = z.object({
     bestPlatformVoucher: VoucherSchema.nullable().optional(),
     shopVouchers: z.array(VoucherSchema).optional(),
 
-    // Optional features (BE có thể bổ sung)
+    // Optional features (BE might add later)
     flashSale: FlashSaleInfoSchema.optional(),
     shipping: ShippingInfoSchema.optional(),
     specifications: z.array(ProductSpecSchema).optional(),
@@ -317,20 +318,18 @@ export type ProductDetailResponse = z.infer<typeof ProductDetailResponseSchema>;
 // API RESPONSE WRAPPER
 // ============================================
 
-export const ProductDetailAPIResponseSchema = z.object({
-    code: z.number(),
-    success: z.boolean(),
+export const ProductDetailAPIResponseSchema = ResponseDefaultSchema.extend({
     message: z.string().optional(),
     data: ProductDetailResponseSchema,
 });
 export type ProductDetailAPIResponse = z.infer<typeof ProductDetailAPIResponseSchema>;
 
 // ============================================
-// DOMAIN MODELS (Dữ liệu đã transform cho UI)
+// DOMAIN MODELS (Transformed data for UI)
 // ============================================
 
 /**
- * Media item đã chuẩn hóa cho Gallery
+ * Media item normalized for Gallery
  */
 export interface GalleryItem {
     id: string;
@@ -341,14 +340,14 @@ export interface GalleryItem {
 }
 
 /**
- * Variant Matrix Key: Dùng để tra cứu nhanh variant
+ * Variant Matrix Key: Use for quick lookup of variant
  * Format: "OptionName1:ValueName1|OptionName2:ValueName2"
- * Ví dụ: "SIZE:200x200x5|Loại A:A"
+ * Example: "SIZE:200x200x5|Type A:A"
  */
 export type VariantMatrixKey = string;
 
 /**
- * Variant Matrix Value: Thông tin variant để hiển thị
+ * Variant Matrix Value: Variant info for display
  */
 export interface VariantMatrixValue {
     id: string;
@@ -361,7 +360,7 @@ export interface VariantMatrixValue {
 }
 
 /**
- * Variant Matrix: Map tra cứu O(1)
+ * Variant Matrix: O(1) Lookup Map
  */
 export type VariantMatrix = Map<VariantMatrixKey, VariantMatrixValue>;
 
@@ -393,9 +392,11 @@ export interface PriceDisplay {
  */
 export interface ShopUI {
     id: string;
+    userId: string;
     shopName: string;
     username: string;
     avatar?: string | null;
+    logoUrl?: string | null;
     description?: string | null;
     isVerified: boolean;
     rating?: number;
@@ -452,7 +453,7 @@ export interface ReviewStatistics {
 }
 
 /**
- * Product Detail đã transform cho UI
+ * Product Detail transformed for UI
  */
 export interface ProductDetailUI {
     // Basic Info
@@ -523,8 +524,8 @@ export interface VariantSelectionResult {
 // ============================================
 
 /**
- * Normalized Option Value cho variant matching
- * Dùng để map từ variant.optionValues sang option names
+ * Normalized Option Value for variant matching
+ * Used to map from variant.optionValues to option names
  */
 export interface NormalizedOptionValue {
     optionId: string;

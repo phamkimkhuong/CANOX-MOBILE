@@ -3,22 +3,30 @@
  * UNREAD MESSAGES HOOK
  * ==============================================
  * Hook for fetching unread message count for badge display
- * 
+ *
  * API: GET /api/v1/chat/conversations/unread/messages/count
- * Response: { code: number, success: boolean, message: string, data: number }
  */
 
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { apiClient } from '@/services/api/client';
 import { useAuthStore } from '@/store/useAuthStore';
+import { ResponseDefaultSchema } from '@/types/responseSchema';
 import { useQuery } from '@tanstack/react-query';
+import { z } from 'zod';
 
-interface UnreadMessageCountResponse {
-    code: number;
-    success: boolean;
-    message: string;
-    data: number;
-}
+// ============================================
+// SCHEMA
+// ============================================
+
+/**
+ * Response schema for unread message count
+ * Extends ResponseDefaultSchema with number data
+ */
+const UnreadMessageCountResponseSchema = ResponseDefaultSchema.extend({
+    data: z.number(),
+});
+
+type UnreadMessageCountResponse = z.infer<typeof UnreadMessageCountResponseSchema>;
 
 // ============================================
 // QUERY KEYS
@@ -35,11 +43,11 @@ export const CHAT_QUERY_KEYS = {
 
 /**
  * Hook to fetch total unread message count across all conversations
- * 
+ *
  * Used for:
  * - TabBar badge on Chat tab
  * - Header badge in other screens
- * 
+ *
  * Features:
  * - Lightweight polling every 2 minutes
  * - Only enabled when user is authenticated
@@ -55,8 +63,11 @@ export const useUnreadMessageCount = () => {
                 API_ROUTES.CHAT.UNREAD_COUNT
             );
 
-            if (response.data.success) {
-                return response.data.data;
+            // Validate with Zod schema
+            const validated = UnreadMessageCountResponseSchema.parse(response.data);
+
+            if (validated.success) {
+                return validated.data;
             }
             return 0;
         },

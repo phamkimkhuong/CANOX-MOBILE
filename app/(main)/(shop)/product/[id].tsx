@@ -18,6 +18,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import { ROUTES, chatRoutes, shopRoutes } from '@/constants/routes';
 import { useAddToCart } from '@/hooks/api/cart';
+import { buildChatWithShopRequest, getCachedConversationId, useCreateConversation } from '@/hooks/api/chat/useCreateConversation';
 import { useProductDetail } from '@/hooks/api/product/useProductDetail';
 import { useProductVariant } from '@/hooks/useProductVariant';
 import { findGalleryIndexByVariant } from '@/utils/adapter/productDetailAdapter';
@@ -30,6 +31,7 @@ import Animated, {
     useSharedValue,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 const log = createLogger('ProductDetail');
@@ -90,8 +92,14 @@ export default function ProductDetailScreen() {
     const selectedVariantId = selectionResult.selectedVariant?.id;
     const selectedVariantMedia = selectionResult.selectedVariant?.media;
     const productId = product?.id;
-    const shopId = product?.shop.id;
+    const shopId = product?.shop?.id;
+    const shopUserId = product?.shop?.userId;
+    const shopName = product?.shop?.shopName;
+    const shopLogoUrl = product?.shop?.logoUrl;
     const productGallery = product?.gallery;
+
+    // === Create Conversation Mutation ===
+    const { mutate: createConversation, isPending: isCreatingConversation } = useCreateConversation();
 
     /**
      * Memoize current image for bottom sheet
@@ -176,11 +184,50 @@ export default function ProductDetailScreen() {
         }
     }, [variantSheetMode, canAddToCart, selectedVariantId, quantity, addToCart, selectedVariantMedia, productGallery]);
 
+    /**
+     * Handle Chat with Shop
+     * - Check cache first for existing conversationId
+     * - If not cached, call API to create/get conversation
+     * - Then navigates to chat detail with real conversationId
+     */
     const handleChatPress = useCallback(() => {
-        if (shopId) {
-            router.push(chatRoutes.conversation(shopId));
+        if (!shopUserId || !shopName) {
+            log.warn('Cannot start chat: missing shop info');
+            return;
         }
-    }, [shopId]);
+
+        // Check cache first to avoid redundant API call
+        const cachedConversationId = getCachedConversationId(shopUserId);
+        if (cachedConversationId) {
+            router.push(chatRoutes.detail(cachedConversationId, {
+                partnerName: shopName,
+                partnerAvatar: shopLogoUrl,
+            }));
+            return;
+        }
+
+        // No cache, call API
+        const request = buildChatWithShopRequest(shopUserId, shopName, shopLogoUrl);
+
+        createConversation(request, {
+            onSuccess: (response) => {
+                const conversationId = response.data.id;
+                log.info('Navigating to chat', { conversationId });
+                router.push(chatRoutes.detail(conversationId, {
+                    partnerName: shopName,
+                    partnerAvatar: shopLogoUrl,
+                }));
+            },
+            onError: (error) => {
+                log.error('Failed to start chat with shop', { error });
+                Toast.show({
+                    type: 'error',
+                    text1: 'Lỗi khi bắt đầu cuộc trò chuyện',
+                    text2: 'Vui lòng thử lại sau',
+                });
+            },
+        });
+    }, [shopUserId, shopName, shopLogoUrl, createConversation]);
 
     const handleShopPress = useCallback(() => {
         if (shopId) {

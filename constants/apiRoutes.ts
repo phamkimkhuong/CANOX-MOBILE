@@ -48,6 +48,9 @@ export const API_ROUTES = {
     CHAT: {
         CONVERSATIONS: `${API_PREFIX}/chat/conversations`,
         MESSAGES: (conversationId: string) => `${API_PREFIX}/chat/conversations/${conversationId}/messages`,
+        CONVERSATION_MESSAGES: (conversationId: string) => `${API_PREFIX}/chat/messages/conversation/${conversationId}`,
+        SEND_MESSAGE: `${API_PREFIX}/chat/messages`,
+        MARK_AS_READ: (conversationId: string) => `${API_PREFIX}/chat/messages/conversation/${conversationId}/read`,
         PIN: (conversationId: string) => `${API_PREFIX}/chat/conversations/${conversationId}/pin`,
         MUTE: (conversationId: string) => `${API_PREFIX}/chat/conversations/${conversationId}/mute`,
         UNREAD_COUNT: `${API_PREFIX}/chat/conversations/unread/messages/count`,
@@ -81,4 +84,4 @@ export const API_ROUTES = {
     BUYERS_INFORMATION: {
         UPDATE: (buyerId: string) => `${API_PREFIX}/buyers/${buyerId}`,
     },
-} as const;  // <--- as const để TS hiểu đây là readonly values
+} as const;  // <--- as const for TS to understand these are readonly values
