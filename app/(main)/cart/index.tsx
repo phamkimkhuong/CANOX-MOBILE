@@ -40,8 +40,9 @@ import { getShopCheckboxState } from '@/utils/adapter/cartAdapter';
 import { logger } from '@/utils/logger';
 import { FlashList } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -126,8 +127,8 @@ export default function CartScreen() {
     const { data: cartData, isLoading, isFetching, error, refetch } = useCart();
 
     // API Mutations
-    const { mutate: updateQuantity } = useUpdateCartItemQuantity();
-    const { mutate: removeItem } = useRemoveCartItem();
+    const { mutate: updateQuantity, isPending: isUpdating } = useUpdateCartItemQuantity();
+    const { mutate: removeItem, isPending: isRemoving } = useRemoveCartItem();
 
     // ========================================
     // CLIENT STATE (Zustand)
@@ -145,20 +146,23 @@ export default function CartScreen() {
         toggleItemSelection,
     } = useCartStore();
 
-    // ========================================
-    // EFFECTS
-    // ========================================
+    // Chỉ hiện thanh cập nhật giá khi người dùng đã thực hiện ít nhất 1 thao tác
+    const [userInteracted, setUserInteracted] = useState(false);
 
-    // Auto-select all items when cart data loads
+    // ========================================
+    // DEFERRED RENDERING (UX OPTIMIZATION)
+    // ========================================
+    const [isReady, setIsReady] = useState(false);
+
     useEffect(() => {
-        if (cartData && cartData.shops.length > 0) {
-            const allSelectableIds = cartData.shops
-                .flatMap((shop) => shop.items)
-                .filter((item) => !item.isOutOfStock)
-                .map((item) => item.id);
-            setSelectedItemIds(new Set(allSelectableIds));
-        }
-    }, [cartData, setSelectedItemIds]); // Dependency on cartData object
+        const idleHandle = requestIdleCallback(() => {
+            setIsReady(true);
+        });
+
+        return () => {
+            cancelIdleCallback(idleHandle);
+        };
+    }, []);
 
     // ========================================
     // CALCULATIONS (Client-side selection)
@@ -185,20 +189,24 @@ export default function CartScreen() {
     // ========================================
 
     const handleToggleItem = useCallback((itemId: string) => {
+        setUserInteracted(true);
         toggleItem(itemId);
     }, [toggleItem]);
 
     const handleToggleShop = useCallback((shopId: string) => {
+        setUserInteracted(true);
         toggleShop(shopId);
     }, [toggleShop]);
 
     const handleToggleSelectAll = useCallback(() => {
+        setUserInteracted(true);
         toggleSelectAll();
     }, [toggleSelectAll]);
 
     // API mutation: Update quantity
     const handleQuantityChange = useCallback(
         (itemId: string, quantity: number) => {
+            setUserInteracted(true);
             updateQuantity({ itemId, quantity });
         },
         [updateQuantity]
@@ -207,6 +215,7 @@ export default function CartScreen() {
     // API mutation: Remove item
     const handleDeleteItem = useCallback(
         (itemId: string) => {
+            setUserInteracted(true);
             logger.cart.info('Delete item', { itemId });
 
             // Remove from client selection
@@ -305,21 +314,14 @@ export default function CartScreen() {
         ? cartData?.platformVouchers.find((v) => v.id === appliedPlatformVoucherId) ?? null
         : null;
 
-    // Loading state
-    if (isLoading) {
-        return (
-            <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-                <CartHeader onEditPress={() => { }} isEditMode={false} />
-                <CartSkeleton />
-            </View>
-        );
-    }
+    // ========================================
+    // FINAL RENDER
+    // ========================================
 
-    // Error state
-    if (error) {
-        return (
-            <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-                <CartHeader onEditPress={() => { }} isEditMode={false} />
+    const renderContent = () => {
+        // 1. Error state (High priority)
+        if (error) {
+            return (
                 <View style={styles.emptyContainer}>
                     <IconSymbol name="error-outline" size={64} color={theme.colors.error} />
                     <Text style={styles.emptyTitle}>Không thể tải giỏ hàng</Text>
@@ -331,60 +333,79 @@ export default function CartScreen() {
                         <Text style={styles.shopNowText}>Thử lại</Text>
                     </Pressable>
                 </View>
-            </View>
-        );
-    }
+            );
+        }
 
-    // Empty cart
-    if (!cartData || shops.length === 0) {
+        //  Empty cart
+        if (!isLoading && isReady && (!cartData || shops.length === 0)) {
+            return <EmptyCart />;
+        }
         return (
-            <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-                <CartHeader onEditPress={() => { }} isEditMode={false} />
-                <EmptyCart />
+            <View style={{ flex: 1 }}>
+                {cartData && shops.length > 0 && (
+                    <Animated.View
+                        entering={FadeIn.duration(400)}
+                        style={{ flex: 1 }}
+                    >
+                        {/* 
+                          * Thanh cập nhật giá (Sync Bar)
+                        */}
+                        {(isFetching && userInteracted || isUpdating || isRemoving) && (
+                            <View style={styles.syncBar}>
+                                <ActivityIndicator size="small" color={theme.colors.primary} />
+                                <Text style={styles.syncText}>Đang cập nhật giá mới nhất...</Text>
+                            </View>
+                        )}
+
+                        <FlashList
+                            data={shops}
+                            renderItem={renderShopGroup}
+                            keyExtractor={(shop) => shop.shopId}
+                            contentContainerStyle={{
+                                paddingHorizontal: theme.margins.smd,
+                                paddingTop: theme.margins.smd,
+                                paddingBottom: 120 + insets.bottom,
+                            }}
+                            showsVerticalScrollIndicator={false}
+                            style={{ opacity: isFetching ? 0.7 : 1 }}
+                        />
+
+                        <CartFooter
+                            selectAllState={selectAllState}
+                            calculation={{
+                                ...calculation,
+                                isCalculating: isFetching,
+                            }}
+                            onToggleSelectAll={handleToggleSelectAll}
+                            onCheckout={handleCheckout}
+                            onVoucherPress={handlePlatformVoucherPress}
+                            appliedPlatformVoucher={appliedPlatformVoucher}
+                            tabBarHeight={0}
+                        />
+                    </Animated.View>
+                )}
+                {(isLoading || !isReady) && (
+                    <Animated.View
+                        exiting={FadeOut.duration(400)}
+                        style={[StyleSheet.absoluteFill, { backgroundColor: theme.colors.surface }]}
+                    >
+                        <CartSkeleton />
+                    </Animated.View>
+                )}
             </View>
         );
-    }
+    };
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <View style={[
+            styles.container,
+            { backgroundColor: isReady ? theme.colors.background : theme.colors.surface }
+        ]}>
             <CartHeader
                 onEditPress={() => setEditMode(!isEditMode)}
                 isEditMode={isEditMode}
             />
-
-            {/* Show when background revalidation is happening */}
-            {isFetching && cartData && (
-                <View style={styles.syncBar}>
-                    <ActivityIndicator size="small" color={theme.colors.primary} />
-                    <Text style={styles.syncText}>Đang cập nhật giá mới nhất...</Text>
-                </View>
-            )}
-
-            <FlashList
-                data={shops}
-                renderItem={renderShopGroup}
-                keyExtractor={(shop) => shop.shopId}
-                contentContainerStyle={{
-                    padding: theme.margins.smd,
-                    paddingBottom: footerHeight + theme.margins.md,
-                }}
-                showsVerticalScrollIndicator={false}
-                // Apply opacity when syncing for "honest" visual feedback
-                style={{ opacity: isFetching ? 0.7 : 1 }}
-            />
-
-            <CartFooter
-                selectAllState={selectAllState}
-                calculation={{
-                    ...calculation,
-                    isCalculating: isFetching, // Disable checkout & show loader when syncing
-                }}
-                onToggleSelectAll={handleToggleSelectAll}
-                onCheckout={handleCheckout}
-                onVoucherPress={handlePlatformVoucherPress}
-                appliedPlatformVoucher={appliedPlatformVoucher}
-                tabBarHeight={0}
-            />
+            {renderContent()}
         </View>
     );
 }
@@ -392,6 +413,7 @@ export default function CartScreen() {
 const styles = StyleSheet.create((theme) => ({
     container: {
         flex: 1,
+        backgroundColor: theme.colors.background,
     },
     header: {
         backgroundColor: theme.colors.surface,

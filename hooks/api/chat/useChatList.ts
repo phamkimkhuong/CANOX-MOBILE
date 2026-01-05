@@ -97,7 +97,6 @@ const fetchConversations = async (
 
     // Validate with Zod
     const validatedResponse = ConversationListResponseSchema.parse(response.data);
-
     if (!validatedResponse.success) {
         throw new Error(validatedResponse.message || 'Failed to fetch conversations');
     }
@@ -137,15 +136,18 @@ export const useChatList = (
     searchQuery?: string
 ) => {
     // Get current user ID for participant matching
+    const userId = useAuthStore((state) => state.userId);
     const buyerId = useAuthStore((state) => state.buyerId);
 
     const query = useInfiniteQuery({
         queryKey: [CONVERSATIONS_QUERY_KEY, filter],
         queryFn: ({ pageParam = 0 }) => {
-            if (!buyerId) {
+            if (!userId) {
                 throw new Error('User not authenticated');
             }
-            return fetchConversations(pageParam, filter, buyerId);
+            // API might still need buyerId passed via currentUserId param to filter conversations,
+            // but for Adapter matching, need the Identity userId.
+            return fetchConversations(pageParam, filter, userId);
         },
         initialPageParam: 0,
         getNextPageParam: (lastPage) =>
@@ -214,13 +216,13 @@ export const useConversationActions = () => {
 
     /**
      * Pin/Unpin a conversation.
-     * PUT /api/v1/chat/conversations/{id}/pin?isPinned=true/false
+     * POST /api/v1/chat/conversations/{id}/pin?isPinned=true/false
      */
     const pinConversation = useMutation({
         mutationFn: async ({ conversationId, isPinned }: { conversationId: string; isPinned: boolean }) => {
             logger.chat.info('Pin conversation:', { conversationId, isPinned });
 
-            const response = await apiClient.put<ConversationActionResponse>(
+            const response = await apiClient.post<ConversationActionResponse>(
                 API_ROUTES.CHAT.PIN(conversationId),
                 null,
                 { params: { isPinned } }
@@ -245,13 +247,13 @@ export const useConversationActions = () => {
 
     /**
      * Mute/Unmute a conversation.
-     * PUT /api/v1/chat/conversations/{id}/mute?isMuted=true/false
+     * POST /api/v1/chat/conversations/{id}/mute?isMuted=true/false
      */
     const muteConversation = useMutation({
         mutationFn: async ({ conversationId, isMuted }: { conversationId: string; isMuted: boolean }) => {
             logger.chat.info('Mute conversation:', { conversationId, isMuted });
 
-            const response = await apiClient.put<ConversationActionResponse>(
+            const response = await apiClient.post<ConversationActionResponse>(
                 API_ROUTES.CHAT.MUTE(conversationId),
                 null,
                 { params: { isMuted } }
@@ -263,9 +265,30 @@ export const useConversationActions = () => {
                 throw new Error(validated.message || 'Failed to mute conversation');
             }
 
-            return validated.data;
+            return { conversationId, isMuted, updatedDto: validated.data };
         },
-        onSuccess: () => {
+        onSuccess: ({ conversationId, isMuted }) => {
+            // Optimistically update the cache for all chat list queries
+            queryClient.setQueriesData<{ pages: any[]; pageParams: any[] }>(
+                { queryKey: [CONVERSATIONS_QUERY_KEY] },
+                (oldData) => {
+                    if (!oldData) return oldData;
+
+                    return {
+                        ...oldData,
+                        pages: oldData.pages.map(page => ({
+                            ...page,
+                            conversations: page.conversations.map((conv: Conversation) =>
+                                conv.id === conversationId
+                                    ? { ...conv, isMuted }
+                                    : conv
+                            )
+                        }))
+                    };
+                }
+            );
+
+            // Also invalidate to sync with server in background
             queryClient.invalidateQueries({ queryKey: [CONVERSATIONS_QUERY_KEY] });
         },
         onError: (error) => {

@@ -92,17 +92,8 @@ export const CartSkeleton: React.FC = () => {
     const styles = stylesheet;
 
     return (
-        <View style={styles.container}>
-            {/* Address Bar skeleton */}
-            <View style={styles.addressBarSkeleton}>
-                <SkeletonCircle size={32} />
-                <View style={{ flex: 1, gap: 4 }}>
-                    <SkeletonText width="40%" height={14} />
-                    <SkeletonText width="80%" height={12} />
-                </View>
-            </View>
-
-            {/* Shop Groups skeletons */}
+        <View style={[styles.container, { paddingTop: theme.margins.smd }]}>
+            {/* Shop Groups skeletons - Start immediately after header */}
             <View style={styles.listContent}>
                 <SkeletonShopGroup />
                 <SkeletonShopGroup />
@@ -127,12 +118,12 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     listContent: {
         paddingHorizontal: theme.margins.smd,
-        gap: theme.margins.smd,
     },
     shopContainer: {
         backgroundColor: theme.colors.surface,
         borderRadius: theme.radius.l,
         overflow: 'hidden',
+        marginBottom: theme.margins.smd,
     },
     shopHeader: {
         flexDirection: 'row',

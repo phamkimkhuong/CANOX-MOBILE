@@ -24,11 +24,14 @@ import { create } from 'zustand';
 import { useCartStore } from './useCartStore';
 
 const BUYER_ID_KEY = 'user_buyer_id';
+const USER_ID_KEY = 'user_id';
 
 interface AuthState {
     /** Current access token (in-memory) */
     token: string | null;
-    /** Buyer ID from backend */
+    /** UserId from identity system (UUID) */
+    userId: string | null;
+    /** Buyer ID from backend (Profile ID) */
     buyerId: string | null;
     /** Authentication status */
     isAuthenticated: boolean;
@@ -37,7 +40,7 @@ interface AuthState {
 
     // Actions
     hydrate: () => Promise<void>;
-    login: (accessToken: string, refreshToken: string, buyerId: string | null) => Promise<void>;
+    login: (accessToken: string, refreshToken: string, userId: string | null, buyerId: string | null) => Promise<void>;
     logout: () => Promise<void>;
 }
 
@@ -47,6 +50,7 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>((set, get) => ({
     token: null,
+    userId: null,
     buyerId: null,
     isAuthenticated: false,
     hydrated: false,
@@ -57,14 +61,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
      */
     hydrate: async () => {
         try {
-            const [storedToken, storedBuyerId] = await Promise.all([
+            const [storedToken, storedUserId, storedBuyerId] = await Promise.all([
                 getAccessToken(),
+                SecureStore.getItemAsync(USER_ID_KEY),
                 SecureStore.getItemAsync(BUYER_ID_KEY),
             ]);
 
             if (storedToken) {
                 set({
                     token: storedToken,
+                    userId: storedUserId,
                     buyerId: storedBuyerId,
                     isAuthenticated: true,
                     hydrated: true,
@@ -86,10 +92,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 return;
             }
 
-            set({ token: null, buyerId: null, isAuthenticated: false, hydrated: true });
+            set({ token: null, userId: null, buyerId: null, isAuthenticated: false, hydrated: true });
         } catch (error) {
             logger.auth.error('Error hydrating auth state:', error);
-            set({ token: null, buyerId: null, isAuthenticated: false, hydrated: true });
+            set({ token: null, userId: null, buyerId: null, isAuthenticated: false, hydrated: true });
         }
     },
 
@@ -97,20 +103,25 @@ export const useAuthStore = create<AuthState>((set, get) => ({
      * Login - Save tokens and update state
      * TokenManager handles proactive refresh scheduling (Layer 2)
      */
-    login: async (accessToken: string, refreshToken: string, buyerId: string | null) => {
+    login: async (accessToken: string, refreshToken: string, userId: string | null, buyerId: string | null) => {
         try {
             // Save tokens using TokenManager (handles expiry tracking & proactive refresh)
             await saveTokens(accessToken, refreshToken);
 
-            // Save buyerId separately
-            if (buyerId) {
-                await SecureStore.setItemAsync(BUYER_ID_KEY, buyerId);
+            // Save IDs separately
+            const storagePromises: Promise<any>[] = [];
+            if (userId) storagePromises.push(SecureStore.setItemAsync(USER_ID_KEY, userId));
+            if (buyerId) storagePromises.push(SecureStore.setItemAsync(BUYER_ID_KEY, buyerId));
+
+            if (storagePromises.length > 0) {
+                await Promise.all(storagePromises);
             }
 
             logger.auth.info('Login Success - Tokens stored, proactive refresh scheduled');
 
             set({
                 token: accessToken,
+                userId,
                 buyerId,
                 isAuthenticated: true,
                 hydrated: true,
@@ -126,9 +137,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
      */
     logout: async () => {
         try {
-            // 1. Clear tokens using TokenManager
-            await clearTokens();
-            await SecureStore.deleteItemAsync(BUYER_ID_KEY);
+            // 1. Clear tokens and IDs
+            await Promise.all([
+                clearTokens(),
+                SecureStore.deleteItemAsync(USER_ID_KEY),
+                SecureStore.deleteItemAsync(BUYER_ID_KEY),
+            ]);
 
             // 2. Clear cart store
             useCartStore.getState().clear();
@@ -139,18 +153,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             queryClient.removeQueries({ queryKey: ['profile'] });
             queryClient.removeQueries({ queryKey: ['notifications'] });
             queryClient.removeQueries({ queryKey: ['orders'] });
+            queryClient.removeQueries({ queryKey: ['conversations'] });
 
             logger.auth.info('Logout complete - User data cleared');
 
             // 4. Reset auth state
-            set({ token: null, buyerId: null, isAuthenticated: false, hydrated: true });
+            set({ token: null, userId: null, buyerId: null, isAuthenticated: false, hydrated: true });
 
             // 5. Navigate to login
             router.replace(ROUTES.AUTH.LOGIN);
         } catch (error) {
             logger.auth.error('Error during logout:', error);
             // Force reset state even if cleanup fails
-            set({ token: null, buyerId: null, isAuthenticated: false, hydrated: true });
+            set({ token: null, userId: null, buyerId: null, isAuthenticated: false, hydrated: true });
         }
     },
 }));
@@ -166,6 +181,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 export const useIsAuthenticated = () => useAuthStore((state) => state.isAuthenticated);
 
 /**
- * Get current buyer ID
+ * Get current userId (Identity ID)
+ */
+export const useUserId = () => useAuthStore((state) => state.userId);
+
+/**
+ * Get current buyer ID (Profile ID)
  */
 export const useBuyerId = () => useAuthStore((state) => state.buyerId);

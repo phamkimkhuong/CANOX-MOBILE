@@ -66,7 +66,11 @@ export const findCurrentUserParticipant = (
     participants: ParticipantDTO[],
     currentUserId: string
 ): ParticipantDTO | null => {
-    const currentUser = participants.find((p) => p.user.userId === currentUserId);
+    if (!participants || participants.length === 0 || !currentUserId) return null;
+    const currentUser = participants.find((p) =>
+        p.user.userId === currentUserId ||
+        p.user.userId.toLowerCase() === currentUserId.toLowerCase()
+    );
     return currentUser ?? null;
 };
 
@@ -199,10 +203,10 @@ export const toConversationUI = (
     const currentUserParticipant = findCurrentUserParticipant(dto.participants, currentUserId);
 
     // Get user-specific settings from their participant record
-    const unreadCount = currentUserParticipant?.unreadCount ?? 0;
-    const isPinned = currentUserParticipant?.isPinned ?? false;
-    const isMuted = currentUserParticipant?.isMuted ?? false;
-
+    // Rationale: API returns null for settings at root level, individual settings are stored per participant
+    const unreadCount = currentUserParticipant?.unreadCount ?? dto.unreadCount ?? 0;
+    const isPinned = currentUserParticipant?.isPinned ?? dto.isPinned ?? false;
+    const isMuted = currentUserParticipant?.isMuted ?? dto.isMuted ?? false;
     // Build last message with read state
     const lastMessage = toLastMessage(dto, currentUserId);
 

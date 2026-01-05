@@ -25,6 +25,7 @@ export const useLogin = () => {
         onSuccess: async (response) => {
             const { accessToken, refreshToken, emailVerified, email, user } = response.data;
             const buyerId = user.buyerId ?? null;
+            const userId = user.userId ?? null;
 
             // Kiểm tra email verified
             if (emailVerified === false) {
@@ -36,8 +37,8 @@ export const useLogin = () => {
                 router.push(authRoutes.verifyOtp({ phone: email || '', type: 'register' }));
                 return;
             }
-            // Email đã verify -> Lưu token và buyerId vào store
-            await loginStore(accessToken, refreshToken, buyerId);
+            // Email đã verify -> Lưu token, userId và buyerId vào store
+            await loginStore(accessToken, refreshToken, userId, buyerId);
             Toast.show({
                 type: 'success',
                 text1: 'Đăng nhập thành công',

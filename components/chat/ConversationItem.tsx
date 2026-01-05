@@ -6,12 +6,13 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
-    runOnJS,
+    Extrapolation,
+    interpolate,
     useAnimatedReaction,
     useAnimatedStyle,
     useSharedValue,
     withSpring,
-    withTiming,
+    withTiming
 } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { OnlineStatusBadge } from './OnlineStatusBadge';
@@ -20,9 +21,11 @@ import { OnlineStatusBadge } from './OnlineStatusBadge';
 const CURRENT_USER_ID = 'user_001';
 
 // Swipe thresholds
-const SWIPE_THRESHOLD = 80;
-const MAX_SWIPE_LEFT = 160; // Delete + Mute
-const MAX_SWIPE_RIGHT = 80; // Pin
+const SWIPE_THRESHOLD_LEFT = 80; // Ngưỡng mở Mute/Delete
+const SWIPE_THRESHOLD_RIGHT = 40; // Ngưỡng mở Pin
+const MAX_SWIPE_LEFT = 160;
+const MAX_SWIPE_RIGHT = 80;
+const HAPTIC_THRESHOLD = 50; // Ngưỡng rung nhẹ khi kéo
 
 interface ConversationItemProps {
     item: Conversation;
@@ -37,6 +40,7 @@ interface ConversationItemProps {
 }
 
 import { formatTime } from '@/utils/date';
+import { runOnJS } from 'react-native-worklets';
 
 /**
  * Get message preview with icon based on type
@@ -141,6 +145,8 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
 
     // Pan gesture for swipe actions
     const panGesture = Gesture.Pan()
+        .activeOffsetX([-10, 10])
+        .failOffsetY([-5, 5])
         .onStart(() => {
             contextX.current = translateX.value;
             hasTriggeredHaptic.current = false;
@@ -150,60 +156,81 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
             // Clamp between -MAX_SWIPE_LEFT and MAX_SWIPE_RIGHT
             translateX.value = Math.max(-MAX_SWIPE_LEFT, Math.min(MAX_SWIPE_RIGHT, newValue));
 
-            // Trigger haptic feedback when crossing threshold
-            if (!hasTriggeredHaptic.current &&
-                (Math.abs(newValue) > SWIPE_THRESHOLD)) {
+            // Trigger haptic feedback khi vượt ngưỡng rung
+            if (!hasTriggeredHaptic.current && Math.abs(newValue) > HAPTIC_THRESHOLD) {
                 hasTriggeredHaptic.current = true;
                 runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Light);
             }
         })
         .onEnd((event) => {
             const velocity = event.velocityX;
-            const shouldSnapLeft = translateX.value < -SWIPE_THRESHOLD || velocity < -500;
-            const shouldSnapRight = translateX.value > SWIPE_THRESHOLD || velocity > 500;
+            const currentX = translateX.value;
 
-            // Swipe left (negative) - show delete/mute
-            if (shouldSnapLeft && translateX.value < 0) {
-                translateX.value = withSpring(-MAX_SWIPE_LEFT, { damping: 20 });
-                runOnJS(notifySwipeOpen)(true);
-            }
-            // Swipe right (positive) - show pin
-            else if (shouldSnapRight && translateX.value > 0) {
-                translateX.value = withSpring(MAX_SWIPE_RIGHT, { damping: 20 });
-                runOnJS(notifySwipeOpen)(true);
-            }
-            // Reset
-            else {
-                translateX.value = withSpring(0, { damping: 20 });
+            // Tính toán điểm dừng
+            const isSwipeLeft = currentX < 0;
+            const isSwipeRight = currentX > 0;
+
+            if (isSwipeLeft) {
+                // Kéo trái: Cần vượt ngưỡng 80px hoặc vận tốc nhanh
+                const shouldOpen = currentX < -SWIPE_THRESHOLD_LEFT || velocity < -500;
+                translateX.value = withSpring(shouldOpen ? -MAX_SWIPE_LEFT : 0, {
+                    damping: 25,
+                    stiffness: 150,
+                    overshootClamping: true
+                });
+                runOnJS(notifySwipeOpen)(shouldOpen);
+            } else if (isSwipeRight) {
+                // Kéo phải (Pin): Chỉ cần vượt ngưỡng 40px là "dính"
+                const shouldOpen = currentX > SWIPE_THRESHOLD_RIGHT || velocity > 500;
+                translateX.value = withSpring(shouldOpen ? MAX_SWIPE_RIGHT : 0, {
+                    damping: 25,
+                    stiffness: 150,
+                    overshootClamping: true
+                });
+                runOnJS(notifySwipeOpen)(shouldOpen);
+            } else {
+                translateX.value = withSpring(0, { damping: 25 });
                 runOnJS(notifySwipeOpen)(false);
             }
         });
 
     // Tap gesture for press
-    const tapGesture = Gesture.Tap().onEnd(() => {
-        if (translateX.value === 0) {
-            runOnJS(handlePress)();
-        } else {
-            translateX.value = withSpring(0);
-            runOnJS(notifySwipeOpen)(false);
-        }
-    });
+    const tapGesture = Gesture.Tap()
+        .maxDuration(250)
+        .onEnd(() => {
+            if (translateX.value === 0) {
+                runOnJS(handlePress)();
+            } else {
+                translateX.value = withSpring(0, { damping: 25 });
+                runOnJS(notifySwipeOpen)(false);
+            }
+        });
 
-    // Combine gestures
-    const composedGesture = Gesture.Simultaneous(panGesture, tapGesture);
+    // Combine gestures - Use Exclusive to ensure they don't fight each other
+    const composedGesture = Gesture.Exclusive(panGesture, tapGesture);
 
     const animatedStyle = useAnimatedStyle(() => ({
         transform: [{ translateX: translateX.value }],
     }));
 
-    // Right actions (visible on swipe left)
+    // Right actions (visible on swipe left) 
     const rightActionsStyle = useAnimatedStyle(() => ({
-        opacity: translateX.value < -20 ? withTiming(1) : withTiming(0),
+        opacity: interpolate(
+            translateX.value,
+            [-40, -20],
+            [1, 0],
+            Extrapolation.CLAMP
+        ),
     }));
 
     // Left actions (visible on swipe right)
     const leftActionsStyle = useAnimatedStyle(() => ({
-        opacity: translateX.value > 20 ? withTiming(1) : withTiming(0),
+        opacity: interpolate(
+            translateX.value,
+            [20, 40],
+            [0, 1],
+            Extrapolation.CLAMP
+        ),
     }));
 
     /**
@@ -310,6 +337,14 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
                                         size={12}
                                         color={theme.colors.secondary}
                                         style={styles.pinnedIcon}
+                                    />
+                                )}
+                                {item.isMuted && (
+                                    <IconSymbol
+                                        name="notifications-off"
+                                        size={12}
+                                        color={theme.colors.secondary}
+                                        style={styles.mutedIcon}
                                     />
                                 )}
                             </View>
@@ -435,6 +470,9 @@ const stylesheet = StyleSheet.create((theme) => ({
     pinnedIcon: {
         marginLeft: 4,
         transform: [{ rotate: '45deg' }],
+    },
+    mutedIcon: {
+        marginLeft: 4,
     },
     time: {
         fontSize: 11,
