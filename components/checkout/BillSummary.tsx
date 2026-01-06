@@ -77,7 +77,7 @@ export const BillSummary: React.FC<BillSummaryProps> = ({ calculation }) => {
                 {/* Platform Voucher Discount (if any) */}
                 {calculation.platformVoucherDiscount > 0 && (
                     <View style={styles.row}>
-                        <Text style={styles.label}>Voucher </Text>
+                        <Text style={styles.label}>Voucher giảm giá </Text>
                         <Text style={styles.discountValue}>
                             -{formatCurrency(calculation.platformVoucherDiscount)}
                         </Text>
@@ -104,32 +104,6 @@ export const BillSummary: React.FC<BillSummaryProps> = ({ calculation }) => {
                     </View>
                 )}
 
-                {/* Divider */}
-                <View style={styles.divider} />
-
-                {/* Total */}
-                <View style={styles.totalRow}>
-                    <Text style={styles.totalLabel}>Tổng thanh toán</Text>
-                    <Text style={styles.totalValue}>
-                        {formatCurrency(calculation.totalAmount)}
-                    </Text>
-                </View>
-
-                {/* Savings (if any) */}
-                {calculation.totalSavings > 0 && (
-                    <View style={styles.savingsRow}>
-                        <View style={styles.savingsBadge}>
-                            <IconSymbol
-                                name="check-circle"
-                                size={14}
-                                color={theme.colors.success}
-                            />
-                            <Text style={styles.savingsText}>
-                                Tiết kiệm {formatCurrency(calculation.totalSavings)}
-                            </Text>
-                        </View>
-                    </View>
-                )}
             </View>
         </View>
     );

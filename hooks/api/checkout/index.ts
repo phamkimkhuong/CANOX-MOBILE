@@ -7,4 +7,6 @@
 
 export { CHECKOUT_PREVIEW_KEY, useCheckoutPreview } from './useCheckoutPreview';
 export type { UseCheckoutPreviewResult } from './useCheckoutPreview';
+export { useRecommendPlatformVouchers } from './useRecommendPlatformVouchers';
+export { useRecommendShopVouchers } from './useRecommendShopVouchers';
 

@@ -15,4 +15,7 @@ export * from '../checkout';
 
 // Checkout Preview API types (DTO - for adapter/hooks)
 export * from './checkoutPreview';
+export * from './order';
+export * from './platformVoucherRecommendation';
+export * from './shopVoucherRecommendation';
 

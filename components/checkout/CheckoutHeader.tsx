@@ -68,8 +68,6 @@ export const CheckoutHeader: React.FC<CheckoutHeaderProps> = ({
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
         backgroundColor: theme.colors.surface,
-        borderBottomWidth: 1,
-        borderBottomColor: theme.colors.border,
     },
 
     content: {

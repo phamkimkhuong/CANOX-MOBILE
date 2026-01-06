@@ -4,6 +4,7 @@ const API_PREFIX_V2 = '/api/v2';
 export const API_ROUTES = {
     VOUCHERS: {
         RECOMMEND_PLATFORM: `${API_PREFIX_V2}/vouchers/recommend/by-platform`,
+        RECOMMEND_SHOP: `${API_PREFIX_V2}/vouchers/recommend/by-shop`,
     },
     AUTH: {
         LOGIN: `${API_PREFIX}/auth/login/buyer/mobile`,

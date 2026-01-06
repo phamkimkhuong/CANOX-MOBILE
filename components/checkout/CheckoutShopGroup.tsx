@@ -17,7 +17,7 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { formatCurrency } from '@/utils/format';
 import { useRouter } from 'expo-router';
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -26,6 +26,7 @@ import { CheckoutVoucherRow } from './CheckoutVoucherRow';
 import { ShippingSelector } from './ShippingSelector';
 import { ShopNoteInput } from './ShopNoteInput';
 
+import { useRecommendShopVouchers } from '@/hooks/api/checkout/useRecommendShopVouchers';
 import {
     useCheckoutStore,
     useSelectedShopVoucher,
@@ -33,6 +34,7 @@ import {
     useShopShipping,
 } from '@/store/useCheckoutStore';
 import type { CheckoutShopUI } from '@/types/checkout';
+import type { RecommendShopVoucherRequest } from '@/types/checkout/shopVoucherRecommendation';
 
 interface CheckoutShopGroupProps {
     shop: CheckoutShopUI;
@@ -58,6 +60,34 @@ export const CheckoutShopGroup: React.FC<CheckoutShopGroupProps> = ({ shop }) =>
     const shopSubtotal = previewData?.calculation.shopSubtotals.find(
         (s) => s.shopId === shop.shopId
     );
+
+    // Build recommendation request body
+    const recommendRequest = useMemo((): RecommendShopVoucherRequest | null => {
+        if (!shopSubtotal) return null;
+        return {
+            shopId: shop.shopId,
+            totalAmount: shopSubtotal.itemsTotal,
+            shippingFee: shopSubtotal.shippingFee,
+            shopIds: [shop.shopId],
+            productIds: shop.items.map(i => i.productId),
+            failedVoucherCodes: [],
+            preferences: {
+                scopes: ['SHOP_ORDER', 'SHIPPING'],
+                limit: 10,
+            }
+        };
+    }, [shop.shopId, shop.items, shopSubtotal]);
+
+    // Fetch recommended vouchers for this shop
+    const { data: recommendedVouchers } = useRecommendShopVouchers(
+        shop.shopId,
+        recommendRequest,
+        { enabled: !!recommendRequest }
+    );
+    const shopVouchersFromPreview = useMemo(() => {
+        return shop.availableVouchers.filter(v => v.title === 'SHOP');
+    }, [shop.availableVouchers]);
+    const availableVouchers = recommendedVouchers || shopVouchersFromPreview;
 
     // Handlers
     const handleShippingSelect = useCallback(
@@ -115,10 +145,10 @@ export const CheckoutShopGroup: React.FC<CheckoutShopGroupProps> = ({ shop }) =>
             </Pressable>
 
             {/* Divider */}
-            <View style={styles.divider} />
+            {/* <View style={styles.divider} /> */}
 
             {/* Items List */}
-            <View style={styles.itemsContainer}>
+            <View>
                 {shop.items.map((item) => (
                     <CheckoutItem key={item.id} item={item} />
                 ))}
@@ -129,7 +159,7 @@ export const CheckoutShopGroup: React.FC<CheckoutShopGroupProps> = ({ shop }) =>
 
             {/* Shop Voucher */}
             <CheckoutVoucherRow
-                availableVouchers={shop.availableVouchers}
+                availableVouchers={availableVouchers}
                 selectedVoucherId={selectedVoucherId}
                 discountAmount={shopSubtotal?.shopVoucherDiscount ?? 0}
                 onSelect={handleVoucherSelect}
@@ -212,10 +242,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         marginHorizontal: theme.margins.md,
     },
 
-    itemsContainer: {
-        paddingVertical: theme.margins.sm,
-    },
-
     subtotalRow: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -229,6 +255,7 @@ const stylesheet = StyleSheet.create((theme) => ({
 
     subtotalLabel: {
         fontSize: 14,
+        fontWeight: '600',
         color: theme.colors.typographySecondary,
         marginRight: theme.margins.sm,
     },

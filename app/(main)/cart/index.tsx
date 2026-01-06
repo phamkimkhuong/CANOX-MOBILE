@@ -256,7 +256,17 @@ export default function CartScreen() {
 
         if (!cartData) return;
 
-        useCheckoutStore.getState().initSession(selectedItemIds);
+        // Group selected items by shop
+        const selectedShops = cartData.shops
+            .map((shop) => ({
+                shopId: shop.shopId,
+                itemIds: shop.items
+                    .filter((item) => selectedItemIds.has(item.id))
+                    .map((item) => item.id),
+            }))
+            .filter((shop) => shop.itemIds.length > 0);
+
+        useCheckoutStore.getState().initSession([...selectedItemIds], selectedShops);
 
         router.push(ROUTES.CHECKOUT.INDEX);
     }, [calculation.selectedCount, cartData, selectedItemIds, router]);

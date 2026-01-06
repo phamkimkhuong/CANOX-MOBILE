@@ -19,6 +19,8 @@ interface CheckoutFooterProps {
     totalAmount: number;
     /** Number of items */
     itemCount: number;
+    /** Total savings amount */
+    totalSavings?: number;
     /** Whether order can be placed */
     canPlaceOrder: boolean;
     /** Reasons why order cannot be placed */
@@ -32,6 +34,7 @@ interface CheckoutFooterProps {
 export const CheckoutFooter: React.FC<CheckoutFooterProps> = ({
     totalAmount,
     itemCount,
+    totalSavings = 0,
     canPlaceOrder,
     blockReasons,
     isSubmitting,
@@ -67,6 +70,18 @@ export const CheckoutFooter: React.FC<CheckoutFooterProps> = ({
                     <Text style={styles.totalAmount}>
                         {formatCurrency(totalAmount)}
                     </Text>
+                    {totalSavings > 0 && (
+                        <View style={styles.savingsRow}>
+                            <IconSymbol
+                                name="check-circle"
+                                size={14}
+                                color={theme.colors.success}
+                            />
+                            <Text style={styles.savingsText}>
+                                Tiết kiệm {formatCurrency(totalSavings)}
+                            </Text>
+                        </View>
+                    )}
                 </View>
 
                 {/* Place Order Button */}
@@ -134,8 +149,9 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
 
     totalLabel: {
-        fontSize: 13,
-        color: theme.colors.typographySecondary,
+        fontWeight: '600',
+        fontSize: 14,
+        color: theme.colors.typography,
     },
 
     totalAmount: {
@@ -143,6 +159,19 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontWeight: '700',
         color: theme.colors.error,
         marginTop: 2,
+    },
+
+    savingsRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        marginTop: 2,
+    },
+
+    savingsText: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: '#10B981',
     },
 
     orderButton: {

@@ -22,7 +22,9 @@ import type {
     CheckoutShippingOptionDTO,
     CheckoutShopSummaryDTO,
     CheckoutVoucherDetailDTO,
+    CheckoutVoucherResultDTO,
 } from '@/types/checkout/checkoutPreview';
+import type { RecommendedVoucherDetailDTO } from '@/types/checkout/platformVoucherRecommendation';
 import { formatCurrency } from '../format';
 import { toSizedImageUrl } from '../url';
 
@@ -106,15 +108,54 @@ export const toShopShippingOptions = (
  * Used to show applied/invalid vouchers in UI.
  */
 export const toVoucherUI = (dto: CheckoutVoucherDetailDTO): VoucherUI => ({
-    id: dto.voucherCode,
-    code: dto.voucherCode,
-    title: dto.voucherType,
+    id: dto.voucherCode ?? '',
+    code: dto.voucherCode ?? '',
+    title: dto.voucherType ?? '',  // "SHOP" or "PLATFORM"
     description: dto.reason ?? '',
-    discountDisplay: formatDiscountDisplay(dto.discountAmount, dto.discountMethod),
+    discountDisplay: formatDiscountDisplay(dto.discountAmount ?? 0, dto.discountMethod ?? 'FIXED_AMOUNT'),
     minOrderDisplay: '', // Not available in DTO
-    isApplicable: dto.valid,
+    isApplicable: dto.valid ?? false,
     expiresAt: null,
+    // Map discountTarget to category for UI filtering
+    category: dto.discountTarget === 'SHIP' ? 'SHIPPING' : 'DISCOUNT',
 });
+
+/**
+ * Transform Recommendation Voucher DTO to UI type.
+ * Handles RecommendedVoucherDetailDTO from API v2.
+ */
+export const transformVoucherDTOToUI = (
+    voucher: RecommendedVoucherDetailDTO,
+    applicable: boolean,
+    reason?: string | null,
+    category?: 'SHIPPING' | 'DISCOUNT'
+): VoucherUI => {
+    const discountValue = voucher.discountValue ?? 0;
+    const discountDisplay =
+        voucher.discountType === 'PERCENTAGE'
+            ? `Giảm\u00A0${Math.round(discountValue)}%`
+            : `Giảm\u00A0${formatCurrency(discountValue)}`;
+
+    const minOrderDisplay = voucher.minOrderAmount
+        ? `Đơn tối thiểu ${formatCurrency(voucher.minOrderAmount)}`
+        : 'Mọi đơn hàng';
+
+    // Determine category from voucherScope or parameter
+    const voucherCategory = category ??
+        (voucher.voucherScope?.toLowerCase().includes('ship') ? 'SHIPPING' : 'DISCOUNT');
+
+    return {
+        id: voucher.code ?? '',
+        code: voucher.code ?? '',
+        title: voucher.name ?? '',
+        description: reason || voucher.description || '',
+        discountDisplay,
+        minOrderDisplay,
+        isApplicable: applicable,
+        expiresAt: voucher.endDate ?? null,
+        category: voucherCategory,
+    };
+};
 
 /**
  * Format discount amount for display.
@@ -122,9 +163,9 @@ export const toVoucherUI = (dto: CheckoutVoucherDetailDTO): VoucherUI => ({
 const formatDiscountDisplay = (amount: number, method: string): string => {
     if (method === 'percentage') {
         const roundedPercent = Math.round(amount);
-        return `Giảm ${roundedPercent}%`;
+        return `Giảm\u00A0${roundedPercent}%`;
     }
-    return `Giảm ${formatCurrency(amount)}`;
+    return `Giảm\u00A0${formatCurrency(amount)}`;
 };
 
 // ============================================
@@ -141,6 +182,15 @@ export const toCheckoutShopUI = (dto: CheckoutPreviewShopDTO): CheckoutShopUI =>
         shopId: dto.shopId,
     }));
 
+    // Transform all vouchers from discountDetails (with null safety)
+    const discountDetails = dto.voucherResult?.discountDetails ?? [];
+    const allVouchers = discountDetails.map(toVoucherUI);
+
+    // Find first SHOP voucher code for appliedVoucherId
+    const firstShopVoucher = discountDetails.find(
+        v => v.voucherType === 'SHOP' && v.valid
+    );
+
     return {
         shopId: dto.shopId,
         shopName: dto.shopName,
@@ -150,8 +200,8 @@ export const toCheckoutShopUI = (dto: CheckoutPreviewShopDTO): CheckoutShopUI =>
             dto.availableShippingOptions,
             dto.selectedShippingMethod
         ),
-        appliedVoucherId: dto.voucherResult.validVouchers[0] ?? null,
-        availableVouchers: dto.voucherResult.discountDetails.map(toVoucherUI),
+        appliedVoucherId: firstShopVoucher?.voucherCode ?? null,
+        availableVouchers: allVouchers,  // Contains both SHOP and PLATFORM for UI to filter
         note: '', // Not in API response, managed client-side
     };
 };
@@ -161,16 +211,29 @@ export const toCheckoutShopUI = (dto: CheckoutPreviewShopDTO): CheckoutShopUI =>
 // ============================================
 
 /**
+ * Calculate shop voucher discount from voucherResult.discountDetails.
+ * Only sum SHOP type vouchers, not PLATFORM.
+ */
+const calculateShopVoucherDiscount = (voucherResult?: CheckoutVoucherResultDTO): number => {
+    if (!voucherResult?.discountDetails) return 0;
+    return voucherResult.discountDetails
+        .filter(v => v.voucherType === 'SHOP' && v.valid)
+        .reduce((sum, v) => sum + (v.discountAmount || 0), 0);
+};
+
+/**
  * Transform shop summary DTO to ShopSubtotal.
  */
 export const toShopSubtotal = (
     shopId: string,
-    dto: CheckoutShopSummaryDTO
+    dto: CheckoutShopSummaryDTO,
+    voucherResult?: CheckoutVoucherResultDTO
 ): ShopSubtotal => ({
     shopId,
     itemsTotal: dto.subtotal,
     shippingFee: dto.shippingFee,
-    shopVoucherDiscount: dto.productDiscount,
+    // Use calculated shop voucher discount from voucherResult instead of productDiscount
+    shopVoucherDiscount: calculateShopVoucherDiscount(voucherResult),
     shopTotal: dto.shopTotal,
     itemCount: dto.itemCount,
 });
@@ -183,20 +246,29 @@ export const toCheckoutCalculation = (
     dto: CheckoutOrderSummaryDTO,
     shops: CheckoutPreviewShopDTO[],
     isValid: boolean
-): CheckoutCalculationResult => ({
-    subtotal: dto.subtotal,
-    totalShippingFee: dto.totalShippingFee,
-    totalShopVoucherDiscount: dto.productDiscount,
-    platformVoucherDiscount: dto.totalDiscount - dto.productDiscount - dto.shippingDiscount,
-    shippingDiscount: dto.shippingDiscount,
-    totalAmount: dto.grandTotal,
-    taxAmount: dto.totalTaxAmount,
-    totalSavings: dto.totalDiscount,
-    totalItemCount: dto.totalItems,
-    shopSubtotals: shops.map((shop) => toShopSubtotal(shop.shopId, shop.summary)),
-    isCalculatingShipping: false,
-    platformVoucherValidation: null, // Will be set from validation errors if needed
-});
+): CheckoutCalculationResult => {
+    // Calculate total shop voucher discount from each shop's voucherResult
+    const totalShopVoucherDiscount = shops.reduce(
+        (sum, shop) => sum + calculateShopVoucherDiscount(shop.voucherResult),
+        0
+    );
+    const platformVoucherDiscount = Math.max(0, dto.totalDiscount - totalShopVoucherDiscount - dto.shippingDiscount);
+
+    return {
+        subtotal: dto.subtotal,
+        totalShippingFee: dto.totalShippingFee,
+        totalShopVoucherDiscount,
+        platformVoucherDiscount,
+        shippingDiscount: dto.shippingDiscount,
+        totalAmount: dto.grandTotal,
+        taxAmount: dto.totalTaxAmount,
+        totalSavings: dto.totalDiscount,
+        totalItemCount: dto.totalItems,
+        shopSubtotals: shops.map((shop) => toShopSubtotal(shop.shopId, shop.summary, shop.voucherResult)),
+        isCalculatingShipping: false,
+        platformVoucherValidation: null,
+    };
+};
 
 // ============================================
 // FULL RESPONSE TRANSFORM
@@ -207,10 +279,13 @@ export const toCheckoutCalculation = (
  * Contains all transformed data ready for components.
  */
 export interface CheckoutPreviewUI {
+    previewId?: string;
+    previewChecksum?: string;
     cartId: string;
     currency: string;
     previewAt: string;
     addressId: string;
+    addressType: number | null;
     shops: CheckoutShopUI[];
     calculation: CheckoutCalculationResult;
     isValid: boolean;
@@ -223,10 +298,13 @@ export interface CheckoutPreviewUI {
  * This is the main entry point for the adapter.
  */
 export const toCheckoutPreviewUI = (dto: CheckoutPreviewDataDTO): CheckoutPreviewUI => ({
+    previewId: dto.previewId ?? '',
+    previewChecksum: dto.previewChecksum ?? '',
     cartId: dto.cartId,
     currency: dto.currency,
     previewAt: dto.previewAt,
     addressId: dto.buyerAddressData.addressId,
+    addressType: dto.buyerAddressData.addressType,
     shops: dto.shops.map(toCheckoutShopUI),
     calculation: toCheckoutCalculation(dto.summary, dto.shops, dto.isValid),
     isValid: dto.isValid,

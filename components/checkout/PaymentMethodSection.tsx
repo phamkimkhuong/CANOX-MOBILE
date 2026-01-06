@@ -39,20 +39,20 @@ const PAYMENT_METHODS: Array<{
             icon: 'account-balance',
             iconColor: '#3B82F6',
         },
-        {
-            id: 'e_wallet',
-            name: 'Ví điện tử',
-            description: 'MoMo, ZaloPay, VNPay...',
-            icon: 'account-balance-wallet',
-            iconColor: '#A855F7',
-        },
-        {
-            id: 'credit_card',
-            name: 'Thẻ tín dụng / Ghi nợ',
-            description: 'Visa, Mastercard, JCB',
-            icon: 'card',
-            iconColor: '#F59E0B',
-        },
+        // {
+        //     id: 'e_wallet',
+        //     name: 'Ví điện tử',
+        //     description: 'MoMo, ZaloPay, VNPay...',
+        //     icon: 'account-balance-wallet',
+        //     iconColor: '#A855F7',
+        // },
+        // {
+        //     id: 'credit_card',
+        //     name: 'Thẻ tín dụng / Ghi nợ',
+        //     description: 'Visa, Mastercard, JCB',
+        //     icon: 'card',
+        //     iconColor: '#F59E0B',
+        // },
     ];
 
 export const PaymentMethodSection: React.FC<PaymentMethodSectionProps> = ({

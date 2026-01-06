@@ -142,7 +142,6 @@ export const ShopNoteInput: React.FC<ShopNoteInputProps> = ({
                                             placeholderTextColor={theme.colors.secondary}
                                             multiline
                                             maxLength={maxLength}
-                                            autoFocus
                                             textAlignVertical="top"
                                         />
                                         <Text style={styles.charCount}>

@@ -16,7 +16,7 @@ import { z } from 'zod';
 export interface CheckoutPreviewShopRequest {
     shopId: string;
     itemIds: string[];
-    vouchers: string[];
+    vouchers?: string[];
     serviceCode?: number;
     shippingMethodCode?: string;
     shippingFee?: number;
@@ -159,6 +159,8 @@ export interface CheckoutBuyerAddressDTO {
 
 /** Main data từ API response */
 export interface CheckoutPreviewDataDTO {
+    previewId?: string;
+    previewChecksum?: string;
     cartId: string;
     currency: string;
     previewAt: string;
@@ -187,119 +189,131 @@ const CheckoutPreviewItemSchema = z.object({
     productId: z.string(),
     variantId: z.string(),
     productName: z.string(),
-    sku: z.string(),
-    basePath: z.string().nullable(),
-    extension: z.string().nullable(),
-    variantAttributes: z.string().nullable(),
-    unitPrice: z.number(),
-    quantity: z.number().int().positive(),
-    discountAmount: z.number(),
-    lineTotal: z.number(),
-    isAvailable: z.boolean(),
-    availabilityMessage: z.string().nullable(),
-    lengthCm: z.number(),
-    widthCm: z.number(),
-    heightCm: z.number(),
-    weightGrams: z.number(),
+    sku: z.string().nullable().optional(),
+    basePath: z.string().nullable().optional(),
+    extension: z.string().nullable().optional(),
+    variantAttributes: z.string().nullable().optional(),
+    unitPrice: z.number().nullable().optional().default(0),
+    quantity: z.number().int().positive().nullable().optional().default(1),
+    discountAmount: z.number().nullable().optional().default(0),
+    lineTotal: z.number().nullable().optional().default(0),
+    isAvailable: z.boolean().nullable().optional().default(true),
+    availabilityMessage: z.string().nullable().optional(),
+    lengthCm: z.number().nullable().optional(),
+    widthCm: z.number().nullable().optional(),
+    heightCm: z.number().nullable().optional(),
+    weightGrams: z.number().nullable().optional(),
 });
 
 const CheckoutShippingOptionSchema = z.object({
-    serviceCode: z.number(),
-    serviceType: z.string(),
-    displayName: z.string(),
-    fee: z.number(),
-    estimatedDeliveryTime: z.string(),
+    serviceCode: z.number().nullable().optional(),
+    serviceType: z.string().nullable().optional(),
+    displayName: z.string().nullable().optional(),
+    fee: z.number().nullable().optional(),
+    estimatedDeliveryTime: z.string().nullable().optional(),
 });
 
 const CheckoutVoucherDetailSchema = z.object({
-    voucherCode: z.string(),
-    voucherType: z.string(),
-    discountAmount: z.number(),
-    discountMethod: z.string(),
-    discountTarget: z.string(),
-    reason: z.string().nullable(),
-    valid: z.boolean(),
+    voucherCode: z.string().nullable().optional(),
+    voucherType: z.string().nullable().optional(),
+    discountAmount: z.number().nullable().optional(),
+    discountMethod: z.string().nullable().optional(),
+    discountTarget: z.string().nullable().optional(),
+    reason: z.string().nullable().optional(),
+    valid: z.boolean().nullable().optional(),
 });
 
 const CheckoutVoucherResultSchema = z.object({
-    shopId: z.string(),
-    validVouchers: z.array(z.string()),
-    invalidVouchers: z.array(z.string()),
-    totalDiscount: z.number(),
-    discountDetails: z.array(CheckoutVoucherDetailSchema),
-    hasValidVouchers: z.boolean(),
+    shopId: z.string().nullable().optional(),
+    validVouchers: z.array(z.string()).nullable().optional().default([]),
+    invalidVouchers: z.array(z.string()).nullable().optional().default([]),
+    totalDiscount: z.number().nullable().optional(),
+    discountDetails: z.array(CheckoutVoucherDetailSchema).nullable().optional().default([]),
+    hasValidVouchers: z.boolean().nullable().optional(),
 });
 
 const CheckoutLoyaltyInfoSchema = z.object({
-    availablePoints: z.number(),
-    pointsToRedeem: z.number(),
-    discountAmount: z.number(),
-    maxPointsAllowed: z.number(),
-    maxDiscountPercent: z.number(),
-    expectedPointsEarned: z.number(),
-    canRedeem: z.boolean(),
-    message: z.string(),
+    availablePoints: z.number().nullable().optional(),
+    pointsToRedeem: z.number().nullable().optional(),
+    discountAmount: z.number().nullable().optional(),
+    maxPointsAllowed: z.number().nullable().optional(),
+    maxDiscountPercent: z.number().nullable().optional(),
+    expectedPointsEarned: z.number().nullable().optional(),
+    canRedeem: z.boolean().nullable().optional(),
+    message: z.string().nullable().optional(),
 });
 
 const CheckoutShopSummarySchema = z.object({
-    itemCount: z.number().int(),
-    totalQuantity: z.number().int(),
-    subtotal: z.number(),
-    productDiscount: z.number(),
-    shippingDiscount: z.number(),
-    totalDiscount: z.number(),
-    shippingFee: z.number(),
-    taxAmount: z.number(),
-    shopTotal: z.number(),
+    itemCount: z.number().int().nullable().optional().default(0),
+    totalQuantity: z.number().int().nullable().optional().default(0),
+    subtotal: z.number().nullable().optional().default(0),
+    productDiscount: z.number().nullable().optional().default(0),
+    shippingDiscount: z.number().nullable().optional().default(0),
+    totalDiscount: z.number().nullable().optional().default(0),
+    shippingFee: z.number().nullable().optional().default(0),
+    taxAmount: z.number().nullable().optional().default(0),
+    shopTotal: z.number().nullable().optional().default(0),
 });
 
 const CheckoutPreviewShopSchema = z.object({
-    shopId: z.string(),
-    shopName: z.string(),
-    items: z.array(CheckoutPreviewItemSchema),
+    shopId: z.string().optional(),
+    shopName: z.string().optional(),
+    items: z.array(CheckoutPreviewItemSchema).optional().default([]),
     summary: CheckoutShopSummarySchema,
     selectedShippingMethod: z.string().nullable(),  // Có thể null/empty khi shipping chưa tính
-    availableShippingOptions: z.array(CheckoutShippingOptionSchema).nullable().default([]),
-    validationErrors: z.array(z.string()).nullable(),
-    warnings: z.array(z.string()).nullable(),
-    loyaltyInfo: CheckoutLoyaltyInfoSchema.nullable(),
-    voucherResult: CheckoutVoucherResultSchema,
+    availableShippingOptions: z.array(CheckoutShippingOptionSchema).nullable().optional().default([]),
+    validationErrors: z.array(z.string()).nullable().optional().default([]),
+    warnings: z.array(z.string()).nullable().optional().default([]),
+    loyaltyInfo: CheckoutLoyaltyInfoSchema.nullable().optional(),
+    voucherResult: CheckoutVoucherResultSchema.optional(),
 });
 
 const CheckoutOrderSummarySchema = z.object({
-    totalItems: z.number().int(),
-    totalQuantity: z.number().int(),
-    subtotal: z.number(),
-    totalDiscount: z.number(),
-    shippingDiscount: z.number(),
-    productDiscount: z.number(),
-    totalShippingFee: z.number(),
-    totalTaxAmount: z.number(),
-    grandTotal: z.number(),
+    totalItems: z.number().int().nullable().optional().default(0),
+    totalQuantity: z.number().int().nullable().optional().default(0),
+    subtotal: z.number().nullable().optional().default(0),
+    totalDiscount: z.number().nullable().optional().default(0),
+    shippingDiscount: z.number().nullable().optional().default(0),
+    productDiscount: z.number().nullable().optional().default(0),
+    totalShippingFee: z.number().nullable().optional().default(0),
+    totalTaxAmount: z.number().nullable().optional().default(0),
+    grandTotal: z.number().nullable().optional().default(0),
 });
 
 const CheckoutBuyerAddressSchema = z.object({
-    addressId: z.string(),
-    addressType: z.number().nullable(),
-    taxAddress: z.string().nullable(),
+    addressId: z.string().optional(),
+    addressType: z.number().nullable().optional(),
+    taxAddress: z.string().nullable().optional(),
 });
 
 const CheckoutPreviewDataSchema = z.object({
-    cartId: z.string(),
-    currency: z.string(),
-    previewAt: z.string(),
-    buyerAddressData: CheckoutBuyerAddressSchema,
-    shops: z.array(CheckoutPreviewShopSchema),
-    summary: CheckoutOrderSummarySchema,
-    isValid: z.boolean(),
-    validationErrors: z.array(z.string()),
-    warnings: z.array(z.string()),
+    previewId: z.string().optional(),
+    previewChecksum: z.string().optional(),
+    cartId: z.string().optional().default(''),
+    currency: z.string().optional().default('VND'),
+    previewAt: z.string().optional().default(new Date().toISOString()),
+    buyerAddressData: CheckoutBuyerAddressSchema.optional(),
+    shops: z.array(CheckoutPreviewShopSchema).optional().default([]),
+    summary: CheckoutOrderSummarySchema.optional().default({
+        totalItems: 0,
+        totalQuantity: 0,
+        subtotal: 0,
+        totalDiscount: 0,
+        shippingDiscount: 0,
+        productDiscount: 0,
+        totalShippingFee: 0,
+        totalTaxAmount: 0,
+        grandTotal: 0,
+    }),
+    isValid: z.boolean().optional().default(true),
+    validationErrors: z.array(z.string()).optional().default([]),
+    warnings: z.array(z.string()).optional().default([]),
 });
 
 /** Schema để validate full API response */
 export const CheckoutPreviewResponseSchema = z.object({
-    code: z.number(),
-    success: z.boolean(),
-    message: z.string(),
-    data: CheckoutPreviewDataSchema,
+    code: z.number().optional().default(200),
+    success: z.boolean().optional().default(true),
+    message: z.string().optional().nullable(),
+    data: CheckoutPreviewDataSchema.optional(),
 });

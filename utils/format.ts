@@ -12,8 +12,9 @@
  * @recommended - Use this for most cases
  */
 export const formatCurrency = (amount: number): string => {
+    // Làm tròn số và format theo chuẩn vi-VN, không hiển thị số lẻ
     const roundedAmount = Math.round(amount);
-    return `${roundedAmount.toLocaleString('vi-VN')} đ`;
+    return `${roundedAmount.toLocaleString('vi-VN')}\u00A0đ`;
 };
 
 /**

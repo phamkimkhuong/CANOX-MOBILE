@@ -120,8 +120,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         paddingHorizontal: theme.margins.md,
         paddingVertical: theme.margins.sm,
         backgroundColor: theme.colors.primaryMuted,
-        borderBottomWidth: 1,
-        borderBottomColor: theme.colors.primarySubtle,
         gap: theme.margins.smd,
     },
 

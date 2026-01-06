@@ -176,6 +176,7 @@ export interface VoucherUI {
     minOrderDisplay: string; // "Đơn từ 200k"
     isApplicable: boolean;
     expiresAt: string | null;
+    category?: 'SHIPPING' | 'DISCOUNT';
 }
 
 /**

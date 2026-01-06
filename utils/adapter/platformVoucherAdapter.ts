@@ -18,16 +18,17 @@ export const toPlatformVoucherUI = (dto: RecommendedPlatformVoucherDTO): Voucher
     const { voucher, applicable, reason } = dto;
 
     return {
-        id: voucher.code,
-        code: voucher.code,
-        title: voucher.name,
-        description: reason || voucher.description || '',
-        discountDisplay: formatDiscountDisplay(voucher.discountValue, voucher.discountType),
-        minOrderDisplay: voucher.minOrderAmount
+        id: voucher?.code ?? '',
+        code: voucher?.code ?? '',
+        title: voucher?.name ?? '',
+        description: reason || voucher?.description || '',
+        discountDisplay: formatDiscountDisplay(voucher?.discountValue ?? 0, (voucher?.discountType as any) || 'FIXED_AMOUNT'),
+        minOrderDisplay: voucher?.minOrderAmount
             ? `Đơn tối thiểu ${formatCurrency(voucher.minOrderAmount)}`
             : 'Mọi đơn hàng',
-        isApplicable: applicable,
-        expiresAt: voucher.endDate,
+        isApplicable: applicable ?? false,
+        expiresAt: voucher?.endDate ?? null,
+        category: voucher?.voucherScope === 'SHIPPING' ? 'SHIPPING' : 'DISCOUNT',
     };
 };
 
@@ -37,9 +38,9 @@ export const toPlatformVoucherUI = (dto: RecommendedPlatformVoucherDTO): Voucher
 const formatDiscountDisplay = (value: number, type: 'PERCENTAGE' | 'FIXED_AMOUNT'): string => {
     if (type === 'PERCENTAGE') {
         const roundedValue = Math.round(value);
-        return `Giảm ${roundedValue}%`;
+        return `Giảm\u00A0${roundedValue}%`;
     }
-    return `Giảm ${formatCurrency(value)}`;
+    return `Giảm\u00A0${formatCurrency(value)}`;
 };
 
 /**

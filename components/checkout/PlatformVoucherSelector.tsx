@@ -15,47 +15,92 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 interface PlatformVoucherSelectorProps {
     /** Available platform vouchers */
     availableVouchers: VoucherUI[];
-    /** Currently selected voucher ID */
-    selectedVoucherId: string | null;
+    /** Currently selected discount voucher ID */
+    selectedDiscountVoucherId: string | null;
+    /** Currently selected shipping voucher ID */
+    selectedShippingVoucherId: string | null;
     /** Discount amount from this voucher */
     discountAmount: number;
     /** Whether the voucher is invalid (doesn't meet conditions) */
     isInvalid?: boolean;
     /** Warning message for invalid voucher */
     warningMessage?: string | null;
-    /** Callback when voucher is selected/deselected */
-    onSelect: (voucherId: string | null) => void;
+    /** Callback when user clicks Done */
+    onApply: (discountId: string | null, shippingId: string | null) => void;
     /** Whether vouchers are being fetched */
     isLoading?: boolean;
 }
 
 export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = ({
     availableVouchers,
-    selectedVoucherId,
+    selectedDiscountVoucherId,
+    selectedShippingVoucherId,
     discountAmount,
     isInvalid = false,
     warningMessage = null,
-    onSelect,
+    onApply,
     isLoading = false,
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const [isModalVisible, setIsModalVisible] = useState(false);
 
-    const selectedVoucher = availableVouchers.find((v) => v.id === selectedVoucherId);
+    // Local state for modal interaction - only commit on "Xong"
+    const [tempDiscountId, setTempDiscountId] = useState<string | null>(null);
+    const [tempShippingId, setTempShippingId] = useState<string | null>(null);
+
+    const selectedDiscountVoucher = availableVouchers.find((v) => v.id === selectedDiscountVoucherId);
+    const selectedShippingVoucher = availableVouchers.find((v) => v.id === selectedShippingVoucherId);
+
+    // Filter vouchers by category
+    const shippingVouchers = availableVouchers.filter(v => v.category === 'SHIPPING');
+    const discountVouchers = availableVouchers.filter(v => v.category !== 'SHIPPING');
+
+    const handleOpenModal = useCallback(() => {
+        setTempDiscountId(selectedDiscountVoucherId);
+        setTempShippingId(selectedShippingVoucherId);
+        setIsModalVisible(true);
+    }, [selectedDiscountVoucherId, selectedShippingVoucherId]);
 
     const handleSelect = useCallback(
-        (voucherId: string | null) => {
-            onSelect(voucherId);
-            setIsModalVisible(false);
+        (voucherId: string | null, category: 'SHIPPING' | 'DISCOUNT') => {
+            if (category === 'SHIPPING') {
+                setTempShippingId(voucherId);
+            } else {
+                setTempDiscountId(voucherId);
+            }
         },
-        [onSelect]
+        []
     );
+
+    const handleApply = useCallback(() => {
+        onApply(tempDiscountId, tempShippingId);
+        setIsModalVisible(false);
+    }, [onApply, tempDiscountId, tempShippingId]);
+
+    const getSelectedSummary = () => {
+        const parts = [];
+        if (selectedShippingVoucher) parts.push(selectedShippingVoucher.discountDisplay);
+        if (selectedDiscountVoucher) parts.push(selectedDiscountVoucher.discountDisplay);
+
+        if (parts.length === 0) return null;
+        return parts.join(' & ');
+    };
+
+    const hasAnySelection = !!selectedDiscountVoucher || !!selectedShippingVoucher;
 
     return (
         <>
-            {/* Section Container */}
-            <View style={styles.container}>
+            {/* Whole container is pressable for better UX */}
+            <Pressable
+                style={({ pressed }) => [
+                    styles.container,
+                    pressed && styles.containerPressed,
+                ]}
+                onPress={handleOpenModal}
+                accessibilityRole="button"
+                accessibilityLabel="Chọn voucher Ebay"
+            >
                 {/* Title Row */}
                 <View style={styles.titleRow}>
                     <View style={styles.titleIcon}>
@@ -68,21 +113,13 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
                     <Text style={styles.title}>Voucher Ebay</Text>
                 </View>
 
-                {/* Selector */}
-                <Pressable
-                    style={({ pressed }) => [
-                        styles.selectorRow,
-                        pressed && styles.selectorRowPressed,
-                    ]}
-                    onPress={() => setIsModalVisible(true)}
-                    accessibilityRole="button"
-                    accessibilityLabel="Chọn voucher Ebay"
-                >
-                    {selectedVoucher ? (
+                {/* Selector Row */}
+                <View style={styles.selectorRow}>
+                    {hasAnySelection ? (
                         <View style={styles.selectedContent}>
                             <View style={styles.voucherBadge}>
                                 <Text style={styles.voucherBadgeText}>
-                                    {selectedVoucher.discountDisplay}
+                                    {getSelectedSummary()}
                                 </Text>
                             </View>
                             <Text
@@ -92,7 +129,9 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
                                 ]}
                                 numberOfLines={1}
                             >
-                                {selectedVoucher.code}
+                                {selectedShippingVoucher?.code}
+                                {selectedShippingVoucher && selectedDiscountVoucher ? ', ' : ''}
+                                {selectedDiscountVoucher?.code}
                             </Text>
                             {discountAmount > 0 && !isInvalid && (
                                 <Text style={styles.discountText}>
@@ -114,20 +153,20 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
                         size={20}
                         color={theme.colors.typographySecondary}
                     />
-                </Pressable>
+                </View>
+            </Pressable>
 
-                {/* Warning Message */}
-                {isInvalid && warningMessage && (
-                    <View style={styles.warningRow}>
-                        <IconSymbol
-                            name="alert-circle-outline"
-                            size={16}
-                            color={theme.colors.warning}
-                        />
-                        <Text style={styles.warningText}>{warningMessage}</Text>
-                    </View>
-                )}
-            </View>
+            {/* Warning Message - Only show if invalid and outside pressable to not trigger press */}
+            {isInvalid && warningMessage && (
+                <View style={styles.warningRow}>
+                    <IconSymbol
+                        name="alert-circle-outline"
+                        size={16}
+                        color={theme.colors.warning}
+                    />
+                    <Text style={styles.warningText}>{warningMessage}</Text>
+                </View>
+            )}
 
             {/* Selection Modal */}
             <Modal
@@ -156,123 +195,55 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
                                         </Text>
                                     </View>
                                     <Pressable
-                                        onPress={() => setIsModalVisible(false)}
+                                        onPress={handleApply}
                                         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                                     >
-                                        <IconSymbol
-                                            name="close"
-                                            size={22}
-                                            color={theme.colors.typographySecondary}
-                                        />
+                                        <View style={styles.doneButton}>
+                                            <Text style={styles.doneButtonText}>Xong</Text>
+                                        </View>
                                     </Pressable>
                                 </View>
 
                                 {/* Voucher List */}
                                 <ScrollView style={styles.voucherList}>
-                                    {/* Option: No voucher */}
-                                    <Pressable
-                                        style={({ pressed }) => [
-                                            styles.voucherItem,
-                                            !selectedVoucherId && styles.voucherItemSelected,
-                                            pressed && styles.voucherItemPressed,
-                                        ]}
-                                        onPress={() => handleSelect(null)}
-                                    >
-                                        <View style={styles.radioContainer}>
-                                            <View
-                                                style={[
-                                                    styles.radioOuter,
-                                                    !selectedVoucherId && styles.radioOuterSelected,
-                                                ]}
-                                            >
-                                                {!selectedVoucherId && (
-                                                    <View style={styles.radioInner} />
-                                                )}
-                                            </View>
-                                        </View>
-                                        <Text style={styles.noVoucherText}>
-                                            Không sử dụng voucher
-                                        </Text>
-                                    </Pressable>
+                                    {/* SECTION 1: SHIPPING VOUCHERS */}
+                                    <View style={styles.sectionHeader}>
+                                        <Text style={styles.sectionTitle}>Voucher vận chuyển</Text>
+                                    </View>
 
-                                    {/* Voucher options */}
-                                    {availableVouchers.map((voucher) => {
-                                        const isSelected = voucher.id === selectedVoucherId;
-                                        const isShipping = voucher.code.toLowerCase().includes('freeship');
-
+                                    {shippingVouchers.map((voucher) => {
+                                        const isSelected = voucher.id === tempShippingId;
                                         return (
-                                            <Pressable
+                                            <VoucherItem
                                                 key={voucher.id}
-                                                style={({ pressed }) => [
-                                                    styles.voucherItem,
-                                                    isSelected && styles.voucherItemSelected,
-                                                    pressed && styles.voucherItemPressed,
-                                                ]}
-                                                onPress={() => handleSelect(voucher.id)}
-                                            >
-                                                <View style={styles.radioContainer}>
-                                                    <View
-                                                        style={[
-                                                            styles.radioOuter,
-                                                            isSelected && styles.radioOuterSelected,
-                                                        ]}
-                                                    >
-                                                        {isSelected && (
-                                                            <View style={styles.radioInner} />
-                                                        )}
-                                                    </View>
-                                                </View>
-
-                                                {/* Voucher card */}
-                                                <View style={styles.voucherCard}>
-                                                    {/* Left badge */}
-                                                    <View
-                                                        style={[
-                                                            styles.voucherLeftBadge,
-                                                            isShipping && styles.voucherLeftBadgeShipping,
-                                                        ]}
-                                                    >
-                                                        <IconSymbol
-                                                            name={isShipping ? 'shipping' : 'percent'}
-                                                            size={16}
-                                                            color="#FFFFFF"
-                                                        />
-                                                        <Text style={styles.voucherLeftBadgeText}>
-                                                            {voucher.discountDisplay}
-                                                        </Text>
-                                                    </View>
-
-                                                    {/* Info */}
-                                                    <View style={styles.voucherCardInfo}>
-                                                        <Text style={styles.voucherCardCode}>
-                                                            {voucher.code}
-                                                        </Text>
-                                                        <Text style={styles.voucherCardCondition}>
-                                                            {voucher.minOrderDisplay}
-                                                        </Text>
-                                                        {voucher.expiresAt && (
-                                                            <Text style={styles.voucherCardExpiry}>
-                                                                HSD: {new Date(voucher.expiresAt).toLocaleDateString('vi-VN')}
-                                                            </Text>
-                                                        )}
-                                                    </View>
-                                                </View>
-                                            </Pressable>
+                                                voucher={voucher}
+                                                isSelected={isSelected}
+                                                onPress={() => handleSelect(isSelected ? null : voucher.id, 'SHIPPING')}
+                                            />
                                         );
                                     })}
+                                    {shippingVouchers.length === 0 && (
+                                        <Text style={styles.emptyCategoryText}>Không có mã vận chuyển</Text>
+                                    )}
 
-                                    {/* Empty state */}
-                                    {availableVouchers.length === 0 && (
-                                        <View style={styles.emptyState}>
-                                            <IconSymbol
-                                                name="percent"
-                                                size={48}
-                                                color={theme.colors.border}
+                                    {/* SECTION 2: DISCOUNT VOUCHERS */}
+                                    <View style={styles.sectionHeader}>
+                                        <Text style={styles.sectionTitle}>Voucher mã giảm giá</Text>
+                                    </View>
+
+                                    {discountVouchers.map((voucher) => {
+                                        const isSelected = voucher.id === tempDiscountId;
+                                        return (
+                                            <VoucherItem
+                                                key={voucher.id}
+                                                voucher={voucher}
+                                                isSelected={isSelected}
+                                                onPress={() => handleSelect(isSelected ? null : voucher.id, 'DISCOUNT')}
                                             />
-                                            <Text style={styles.emptyText}>
-                                                Không có voucher khả dụng
-                                            </Text>
-                                        </View>
+                                        );
+                                    })}
+                                    {discountVouchers.length === 0 && (
+                                        <Text style={styles.emptyCategoryText}>Không có mã giảm giá</Text>
                                     )}
                                 </ScrollView>
 
@@ -287,17 +258,92 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
     );
 };
 
+interface VoucherItemProps {
+    voucher: VoucherUI;
+    isSelected: boolean;
+    onPress: () => void;
+}
+
+const VoucherItem: React.FC<VoucherItemProps> = ({ voucher, isSelected, onPress }) => {
+    const { theme } = useUnistyles();
+    const styles = stylesheet;
+    const isShipping = voucher.category === 'SHIPPING';
+
+    return (
+        <Pressable
+            style={({ pressed }) => [
+                styles.voucherItem,
+                isSelected && styles.voucherItemSelected,
+                pressed && styles.voucherItemPressed,
+            ]}
+            onPress={onPress}
+        >
+            <View style={styles.radioContainer}>
+                <View
+                    style={[
+                        styles.radioOuter,
+                        isSelected && styles.radioOuterSelected,
+                    ]}
+                >
+                    {isSelected && (
+                        <View style={styles.radioInner} />
+                    )}
+                </View>
+            </View>
+
+            {/* Voucher card */}
+            <View style={styles.voucherCard}>
+                {/* Left badge */}
+                <View
+                    style={[
+                        styles.voucherLeftBadge,
+                        isShipping && styles.voucherLeftBadgeShipping,
+                    ]}
+                >
+                    <IconSymbol
+                        name={isShipping ? 'shipping' : 'percent'}
+                        size={16}
+                        color="#FFFFFF"
+                    />
+                    <Text style={styles.voucherLeftBadgeText}>
+                        {voucher.discountDisplay}
+                    </Text>
+                </View>
+
+                {/* Info */}
+                <View style={styles.voucherCardInfo}>
+                    <Text style={styles.voucherCardCode}>
+                        {voucher.code}
+                    </Text>
+                    <Text style={styles.voucherCardCondition}>
+                        {voucher.minOrderDisplay}
+                    </Text>
+                    {voucher.expiresAt && (
+                        <Text style={styles.voucherCardExpiry}>
+                            HSD: {new Date(voucher.expiresAt).toLocaleDateString('vi-VN')}
+                        </Text>
+                    )}
+                </View>
+            </View>
+        </Pressable>
+    );
+};
+
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
         backgroundColor: theme.colors.surface,
         marginBottom: theme.margins.sm,
+        paddingVertical: theme.margins.sm,
+    },
+
+    containerPressed: {
+        backgroundColor: theme.colors.background,
     },
 
     titleRow: {
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: theme.margins.md,
-        paddingTop: theme.margins.sm,
         paddingBottom: theme.margins.sm,
         gap: theme.margins.sm,
     },
@@ -321,11 +367,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: theme.margins.md,
-        paddingBottom: theme.margins.sm,
-    },
-
-    selectorRowPressed: {
-        backgroundColor: theme.colors.background,
+        paddingLeft: theme.margins.md + 32 + theme.margins.sm, // Align with title text
     },
 
     selectedContent: {
@@ -383,6 +425,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         marginHorizontal: theme.margins.md,
         borderRadius: 8,
         paddingVertical: theme.margins.sm,
+        marginBottom: theme.margins.sm,
     },
 
     warningText: {
@@ -424,6 +467,19 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderBottomColor: theme.colors.border,
     },
 
+    doneButton: {
+        paddingHorizontal: theme.margins.md,
+        paddingVertical: theme.margins.sm,
+        backgroundColor: `${theme.colors.primary}12`,
+        borderRadius: 8,
+    },
+
+    doneButtonText: {
+        color: theme.colors.primary,
+        fontWeight: '700',
+        fontSize: 14,
+    },
+
     modalHeaderLeft: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -437,7 +493,28 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
 
     voucherList: {
-        maxHeight: 400,
+        maxHeight: 500,
+    },
+
+    sectionHeader: {
+        paddingHorizontal: theme.margins.lg,
+        paddingTop: theme.margins.lg,
+        paddingBottom: theme.margins.sm,
+        backgroundColor: theme.colors.surface,
+    },
+
+    sectionTitle: {
+        fontSize: 15,
+        fontWeight: '700',
+        color: theme.colors.typography,
+    },
+
+    emptyCategoryText: {
+        paddingHorizontal: theme.margins.lg,
+        paddingVertical: theme.margins.md,
+        fontSize: 13,
+        color: theme.colors.typographySecondary,
+        fontStyle: 'italic',
     },
 
     voucherItem: {
@@ -494,11 +571,12 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
 
     voucherLeftBadge: {
-        width: 70,
+        width: 85,
         backgroundColor: theme.colors.error,
         justifyContent: 'center',
         alignItems: 'center',
         paddingVertical: theme.margins.smd,
+        paddingHorizontal: 4,
     },
 
     voucherLeftBadgeShipping: {
@@ -510,6 +588,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontWeight: '700',
         color: '#FFFFFF',
         marginTop: 4,
+        textAlign: 'center',
     },
 
     voucherCardInfo: {

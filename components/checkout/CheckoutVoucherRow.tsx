@@ -52,7 +52,7 @@ export const CheckoutVoucherRow: React.FC<CheckoutVoucherRowProps> = ({
 
     return (
         <>
-            {/* Row Display */}
+            {/* Whole section is pressable for better UX */}
             <Pressable
                 style={({ pressed }) => [
                     styles.container,
@@ -64,45 +64,52 @@ export const CheckoutVoucherRow: React.FC<CheckoutVoucherRowProps> = ({
                 accessibilityRole="button"
                 accessibilityLabel="Chọn voucher Shop"
             >
-                <View style={styles.iconWrapper}>
-                    <IconSymbol
-                        name="percent"
-                        size={18}
-                        color={theme.colors.error}
-                    />
+                {/* Section Title */}
+                <View style={styles.titleRow}>
+                    <View style={styles.titleIcon}>
+                        <IconSymbol
+                            name="percent"
+                            size={18}
+                            color={theme.colors.error}
+                        />
+                    </View>
+                    <Text style={styles.title}>Voucher của Shop</Text>
                 </View>
 
-                <View style={styles.content}>
-                    {selectedVoucher ? (
-                        <View style={styles.selectedRow}>
-                            <Text style={styles.voucherCode}>
-                                {selectedVoucher.code}
-                            </Text>
-                            {discountAmount > 0 && (
-                                <Text style={styles.discountText}>
-                                    -{formatCurrency(discountAmount)}
+                {/* Content Row */}
+                <View style={styles.selectorRow}>
+                    <View style={styles.content}>
+                        {selectedVoucher ? (
+                            <View style={styles.selectedRow}>
+                                <Text style={styles.voucherCode}>
+                                    {selectedVoucher.code}
                                 </Text>
-                            )}
-                        </View>
-                    ) : (
-                        <Text style={[
-                            styles.placeholderText,
-                            availableVouchers.length === 0 && { color: theme.colors.typographySecondary }
-                        ]}>
-                            {availableVouchers.length > 0
-                                ? `Chọn Voucher Shop (${availableVouchers.length} khả dụng)`
-                                : 'Không có voucher khả dụng'}
-                        </Text>
+                                {discountAmount > 0 && (
+                                    <Text style={styles.discountText}>
+                                        -{formatCurrency(discountAmount)}
+                                    </Text>
+                                )}
+                            </View>
+                        ) : (
+                            <Text style={[
+                                styles.placeholderText,
+                                availableVouchers.length === 0 && { color: theme.colors.typographySecondary }
+                            ]}>
+                                {availableVouchers.length > 0
+                                    ? `Chọn hoặc nhập mã`
+                                    : 'Không có voucher khả dụng'}
+                            </Text>
+                        )}
+                    </View>
+
+                    {availableVouchers.length > 0 && (
+                        <IconSymbol
+                            name="chevron-right"
+                            size={18}
+                            color={theme.colors.typographySecondary}
+                        />
                     )}
                 </View>
-
-                {availableVouchers.length > 0 && (
-                    <IconSymbol
-                        name="chevron-right"
-                        size={18}
-                        color={theme.colors.typographySecondary}
-                    />
-                )}
             </Pressable>
 
             {/* Voucher Selection Modal */}
@@ -209,7 +216,7 @@ export const CheckoutVoucherRow: React.FC<CheckoutVoucherRowProps> = ({
                                                         </Text>
                                                     </View>
                                                     <Text style={styles.voucherCondition}>
-                                                        Đơn tối thiểu {voucher.minOrderDisplay}
+                                                        {voucher.minOrderDisplay}
                                                     </Text>
                                                     {voucher.expiresAt && (
                                                         <Text style={styles.voucherExpiry}>
@@ -235,11 +242,7 @@ export const CheckoutVoucherRow: React.FC<CheckoutVoucherRowProps> = ({
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
-        flexDirection: 'row',
-        alignItems: 'center',
         paddingVertical: theme.margins.sm,
-        paddingHorizontal: theme.margins.md,
-        gap: theme.margins.sm,
     },
 
     containerPressed: {
@@ -250,13 +253,34 @@ const stylesheet = StyleSheet.create((theme) => ({
         opacity: 0.5,
     },
 
-    iconWrapper: {
-        width: 36,
-        height: 36,
+    titleRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: theme.margins.md,
+        paddingBottom: 4,
+        gap: theme.margins.sm,
+    },
+
+    selectorRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: theme.margins.md,
+        paddingLeft: theme.margins.md + 32 + theme.margins.sm, // Align with title text
+    },
+
+    titleIcon: {
+        width: 32,
+        height: 32,
         borderRadius: 10,
-        backgroundColor: `${theme.colors.error}10`,
+        backgroundColor: `${theme.colors.error}12`,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+
+    title: {
+        fontSize: 15,
+        fontWeight: '600',
+        color: theme.colors.typography,
     },
 
     content: {

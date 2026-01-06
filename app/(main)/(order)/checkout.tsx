@@ -25,8 +25,8 @@ import {
 } from '@/components/checkout';
 
 // Store & Hooks
-import { useCart } from '@/hooks/api/cart/useCart';
 import { useCheckoutPreview } from '@/hooks/api/checkout/useCheckoutPreview';
+import { useCreateOrder } from '@/hooks/api/checkout/useCreateOrder';
 import { useRecommendPlatformVouchers } from '@/hooks/api/checkout/useRecommendPlatformVouchers';
 import { useUserAddresses } from '@/hooks/api/useUserAddresses';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -41,8 +41,8 @@ import {
 import { useUserAddressStore } from '@/store/useUserAddressStore';
 import type { PaymentMethodType } from '@/types/checkout';
 import type { CheckoutPreviewRequest } from '@/types/checkout/checkoutPreview';
+import type { CreateOrderRequest } from '@/types/checkout/order';
 import type { RecommendPlatformVoucherRequest } from '@/types/checkout/platformVoucherRecommendation';
-import { formatCurrency } from '@/utils/format';
 import { logger } from '@/utils/logger';
 
 // ============================================
@@ -58,7 +58,7 @@ export default function CheckoutScreen() {
     // API Hooks
     // ========================================
     const { mutate: callPreview } = useCheckoutPreview();
-    const { data: cartData } = useCart();
+    const { mutateAsync: placeOrder } = useCreateOrder();
     const { data: userAddresses } = useUserAddresses();
 
     // ========================================
@@ -70,8 +70,10 @@ export default function CheckoutScreen() {
     const isSubmitting = useCheckoutStore((s) => s.isSubmitting);
     const selectedShipping = useCheckoutStore((s) => s.selectedShipping);
     const selectedShopVouchers = useCheckoutStore((s) => s.selectedShopVouchers);
-    const selectedPlatformVoucher = useCheckoutStore((s) => s.selectedPlatformVoucher);
+    const selectedPlatformDiscountVoucher = useCheckoutStore((s) => s.selectedPlatformDiscountVoucher);
+    const selectedPlatformShippingVoucher = useCheckoutStore((s) => s.selectedPlatformShippingVoucher);
     const selectedItemIds = useCheckoutStore((s) => s.selectedItemIds);
+    const checkoutShops = useCheckoutStore((s) => s.checkoutShops);
     const isLoadingPreview = useCheckoutStore((s) => s.isLoadingPreview);
 
     // Computed selectors from store
@@ -118,6 +120,7 @@ export default function CheckoutScreen() {
     // Store actions
     const resetSession = useCheckoutStore((s) => s.resetSession);
     const applyPlatformVoucher = useCheckoutStore((s) => s.applyPlatformVoucher);
+    const applyBulkPlatformVouchers = useCheckoutStore((s) => s.applyBulkPlatformVouchers);
     const setPaymentMethod = useCheckoutStore((s) => s.setPaymentMethod);
     const setSubmitting = useCheckoutStore((s) => s.setSubmitting);
     const setPreviewData = useCheckoutStore((s) => s.setPreviewData);
@@ -127,59 +130,49 @@ export default function CheckoutScreen() {
     // BUILD PREVIEW REQUEST
     // ========================================
     const buildPreviewRequest = useCallback((): CheckoutPreviewRequest | null => {
-        // Cần cart data để lấy shop info
-        if (!cartData?.shops?.length) return null;
-
         // Cần selected items từ store
-        if (selectedItemIds.size === 0) return null;
+        if (selectedItemIds.length === 0) return null;
+        if (checkoutShops.length === 0) return null;
+
         const currentAddressId = selectedAddressId;
 
-        // Filter shops có items được chọn
-        const shopsWithSelection = cartData.shops
-            .map((shop) => ({
-                ...shop,
-                items: shop.items.filter((item) => selectedItemIds.has(item.id)),
-            }))
-            .filter((shop) => shop.items.length > 0);
-
-        if (shopsWithSelection.length === 0) return null;
+        const globalVouchersArray: string[] = [];
+        if (selectedPlatformDiscountVoucher) globalVouchersArray.push(selectedPlatformDiscountVoucher);
+        if (selectedPlatformShippingVoucher) globalVouchersArray.push(selectedPlatformShippingVoucher);
 
         const request: CheckoutPreviewRequest = {
-            addressId: currentAddressId || undefined,
-            globalVouchers: [],
-            shops: shopsWithSelection.map((shop) => {
+            shippingAddress: currentAddressId ? {
+                addressId: currentAddressId,
+                addressChanged: false, // Default
+            } : undefined,
+            globalVouchers: globalVouchersArray.length > 0 ? globalVouchersArray : undefined,
+            shops: checkoutShops.map((shop) => {
                 const voucherCode = selectedShopVouchers.get(shop.shopId);
                 const userShippingCode = selectedShipping.get(shop.shopId);
 
-                let shippingFee = 0;
-                if (userShippingCode) {
-                    const shopUI = shops.find((s) => s.shopId === shop.shopId);
-                    const method = shopUI?.shippingOptions.methods.find(m => m.id === userShippingCode);
-                    shippingFee = method?.fee || 0;
-                }
-
                 return {
                     shopId: shop.shopId,
-                    itemIds: shop.items.map((item) => item.id),
-                    vouchers: voucherCode ? [voucherCode] : [],
-                    globalVouchers: selectedPlatformVoucher ? [selectedPlatformVoucher] : [],
-                    shippingMethodCode: userShippingCode || undefined,
-                    shippingFee: shippingFee,
+                    itemIds: shop.itemIds,
+                    vouchers: voucherCode ? [voucherCode] : undefined,
+                    globalVouchers: globalVouchersArray.length > 0 ? globalVouchersArray : undefined,
+                    serviceCode: userShippingCode ? Number(userShippingCode) : undefined,
+                    shippingFee: undefined, // Let server calculate unless we have a reason to override
                 };
             }),
             allSelectedItemIds: [...selectedItemIds],
+            previewAllSelected: true,
+            paymentMethod: paymentMethod === 'cod' ? 'COD' : 'ONLINE', // Aligning with common API values
         };
 
         return request;
     }, [
-        cartData,
+        checkoutShops,
         selectedItemIds,
         selectedShipping,
         selectedShopVouchers,
-        selectedPlatformVoucher,
+        selectedPlatformDiscountVoucher,
+        selectedPlatformShippingVoucher,
         selectedAddressId,
-        previewData?.addressId,
-        shops,
         paymentMethod,
     ]);
 
@@ -225,8 +218,17 @@ export default function CheckoutScreen() {
     useEffect(() => {
         if (!debouncedRequest) return;
 
-        // Serialize request để compare - SKIP nếu giống hệt
-        const requestKey = JSON.stringify(debouncedRequest);
+        const triggeringRequest = {
+            ...debouncedRequest,
+            paymentMethod: undefined,
+            shops: debouncedRequest.shops.map(s => ({
+                ...s,
+                serviceCode: undefined,
+                shippingFee: undefined,
+            }))
+        };
+
+        const requestKey = JSON.stringify(triggeringRequest);
         if (lastRequestKey.current === requestKey) {
             return;
         }
@@ -256,11 +258,11 @@ export default function CheckoutScreen() {
         router.push(`${ROUTES.ADDRESS.LIST}?${params.toString()}` as never);
     }, [router, deliveryAddress?.id]);
 
-    const handlePlatformVoucherSelect = useCallback(
-        (voucherId: string | null) => {
-            applyPlatformVoucher(voucherId);
+    const handlePlatformVoucherApply = useCallback(
+        (discountId: string | null, shippingId: string | null) => {
+            applyBulkPlatformVouchers(discountId, shippingId);
         },
-        [applyPlatformVoucher]
+        [applyBulkPlatformVouchers]
     );
 
     const handlePaymentMethodSelect = useCallback(
@@ -271,33 +273,75 @@ export default function CheckoutScreen() {
     );
 
     const handlePlaceOrder = useCallback(async () => {
-        if (!canPlaceOrder) return;
+        if (!canPlaceOrder || !previewData) return;
 
         setSubmitting(true);
 
         try {
-            // TODO: Call actual create order API
-            await new Promise((resolve) => setTimeout(resolve, 2000));
+            const store = useCheckoutStore.getState();
+            const globalVouchersArray: string[] = [];
+            if (selectedPlatformDiscountVoucher) globalVouchersArray.push(selectedPlatformDiscountVoucher);
+            if (selectedPlatformShippingVoucher) globalVouchersArray.push(selectedPlatformShippingVoucher);
+
+            const request: CreateOrderRequest = {
+                shops: previewData.shops.map(shop => ({
+                    shopId: shop.shopId,
+                    itemIds: shop.items.map(i => i.id),
+                    vouchers: shop.appliedVoucherId ? [shop.appliedVoucherId] : undefined,
+                    serviceCode: Number(shop.shippingOptions.selectedMethodId),
+                    shippingFee: shop.shippingOptions.methods.find(m => m.id === shop.shippingOptions.selectedMethodId)?.fee || 0,
+                    globalVouchers: globalVouchersArray.length > 0 ? globalVouchersArray : undefined,
+                    loyaltyPoints: 0, // Placeholder
+                })),
+                buyerAddressData: {
+                    addressId: previewData.addressId,
+                    addressType: previewData.addressType ?? 1,
+                    taxAddress: null,
+                },
+                loyaltyPoints: 0,
+                paymentMethod: paymentMethod === 'cod' ? 'COD' : 'BANK_TRANSFER',
+                previewId: previewData.previewId ?? '',
+                previewAt: previewData.previewAt,
+                previewChecksum: previewData.previewChecksum ?? '',
+                customerNote: Array.from(store.shopNotes.values()).filter(Boolean).join('; ') || '',
+                confirmAllSelected: true,
+                allSelectedItemIds: [...selectedItemIds],
+            };
+
+            const response = await placeOrder(request);
 
             Alert.alert(
                 'Đặt hàng thành công!',
-                `Đơn hàng của bạn đang được xử lý.\nTổng thanh toán: ${formatCurrency(calculation.totalAmount)}`,
+                `Đơn hàng của bạn đã được tạo thành công.\nMã đơn hàng: ${response.data.orders[0]?.orderNumber}`,
                 [
                     {
                         text: 'Xem đơn hàng',
                         onPress: () => {
                             resetSession();
-                            router.back();
+                            // Redirect to orders tab or list
+                            router.replace(ROUTES.ORDERS.LIST as any);
                         },
                     },
                 ]
             );
-        } catch (error) {
-            Alert.alert('Lỗi', 'Đặt hàng thất bại. Vui lòng thử lại.');
+        } catch (error: any) {
+            logger.checkout.error('Place order failed', { error: error.message });
+            Alert.alert('Lỗi', error.message || 'Đặt hàng thất bại. Vui lòng thử lại.');
         } finally {
             setSubmitting(false);
         }
-    }, [canPlaceOrder, calculation.totalAmount, resetSession, router, setSubmitting]);
+    }, [
+        canPlaceOrder,
+        previewData,
+        paymentMethod,
+        selectedPlatformDiscountVoucher,
+        selectedPlatformShippingVoucher,
+        selectedItemIds,
+        placeOrder,
+        resetSession,
+        router,
+        setSubmitting
+    ]);
 
     const handleBack = useCallback(() => {
         Alert.alert('Hủy thanh toán?', 'Thông tin thanh toán sẽ không được lưu.', [
@@ -312,10 +356,6 @@ export default function CheckoutScreen() {
             },
         ]);
     }, [resetSession, router]);
-
-    // ========================================
-    // DERIVED STATE
-    // ========================================
 
     // ========================================
     // PLATFORM VOUCHER RECOMMENDATIONS
@@ -398,11 +438,12 @@ export default function CheckoutScreen() {
                 {/* Platform Voucher */}
                 <PlatformVoucherSelector
                     availableVouchers={availablePlatformVouchers}
-                    selectedVoucherId={selectedPlatformVoucher}
+                    selectedDiscountVoucherId={selectedPlatformDiscountVoucher}
+                    selectedShippingVoucherId={selectedPlatformShippingVoucher}
                     discountAmount={calculation.platformVoucherDiscount}
                     isInvalid={!isPlatformVoucherValid}
                     warningMessage={platformVoucherWarning}
-                    onSelect={handlePlatformVoucherSelect}
+                    onApply={handlePlatformVoucherApply}
                     isLoading={isLoadingRecommendations}
                 />
 
@@ -423,6 +464,7 @@ export default function CheckoutScreen() {
             <CheckoutFooter
                 totalAmount={calculation.totalAmount}
                 itemCount={calculation.totalItemCount}
+                totalSavings={calculation.totalSavings}
                 canPlaceOrder={canPlaceOrder}
                 blockReasons={orderBlockReasons}
                 isSubmitting={isSubmitting}
