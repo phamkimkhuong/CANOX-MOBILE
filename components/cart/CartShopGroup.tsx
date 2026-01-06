@@ -130,6 +130,7 @@ export const CartShopGroup: React.FC<CartShopGroupProps> = memo(({
             {/* Shop Header */}
             <ShopHeader
                 shopName={shopName}
+                shopLogoUrl={shop.shopLogoUrl}
                 checkboxState={shopCheckboxState}
                 onToggleSelect={onToggleShop}
                 onNavigateToShop={onNavigateToShop}

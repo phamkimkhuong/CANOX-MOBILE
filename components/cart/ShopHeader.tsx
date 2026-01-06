@@ -18,6 +18,7 @@
  */
 
 import type { CheckboxState } from '@/types/cart';
+import { Image } from 'expo-image';
 import React, { memo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -25,8 +26,8 @@ import { IconSymbol } from '../ui/Icon';
 import { CartCheckbox } from './CartCheckbox';
 
 interface ShopHeaderProps {
-    /** Shop display name */
     shopName: string;
+    shopLogoUrl?: string | null;
     /** Checkbox state (3-state support) */
     checkboxState: CheckboxState;
     /** Is this a Mall shop? */
@@ -46,6 +47,7 @@ interface ShopHeaderProps {
 
 export const ShopHeader: React.FC<ShopHeaderProps> = memo(({
     shopName,
+    shopLogoUrl,
     checkboxState,
     isMall = false,
     onToggleSelect,
@@ -70,11 +72,20 @@ export const ShopHeader: React.FC<ShopHeaderProps> = memo(({
                 accessibilityLabel={`Xem shop ${shopName}`}
                 accessibilityRole="button"
             >
-                <IconSymbol
-                    name="storefront"
-                    size={20}
-                    color={theme.colors.typography}
-                />
+                {shopLogoUrl ? (
+                    <Image
+                        source={{ uri: shopLogoUrl }}
+                        style={styles.shopLogo}
+                        contentFit="cover"
+                        transition={200}
+                    />
+                ) : (
+                    <IconSymbol
+                        name="storefront"
+                        size={20}
+                        color={theme.colors.typography}
+                    />
+                )}
                 <Text style={styles.shopName} numberOfLines={1}>
                     {shopName}
                 </Text>
@@ -131,6 +142,12 @@ const styles = StyleSheet.create((theme) => ({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
+    },
+    shopLogo: {
+        width: 24,
+        height: 24,
+        borderRadius: 12,
+        backgroundColor: theme.colors.background,
     },
     shopName: {
         fontSize: 14,

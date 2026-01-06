@@ -42,6 +42,7 @@ import { useUserAddressStore } from '@/store/useUserAddressStore';
 import type { PaymentMethodType } from '@/types/checkout';
 import type { CheckoutPreviewRequest } from '@/types/checkout/checkoutPreview';
 import type { RecommendPlatformVoucherRequest } from '@/types/checkout/platformVoucherRecommendation';
+import { formatCurrency } from '@/utils/format';
 import { logger } from '@/utils/logger';
 
 // ============================================
@@ -280,10 +281,7 @@ export default function CheckoutScreen() {
 
             Alert.alert(
                 'Đặt hàng thành công!',
-                `Đơn hàng của bạn đang được xử lý.\nTổng thanh toán: ${new Intl.NumberFormat('vi-VN', {
-                    style: 'currency',
-                    currency: 'VND',
-                }).format(calculation.totalAmount)}`,
+                `Đơn hàng của bạn đang được xử lý.\nTổng thanh toán: ${formatCurrency(calculation.totalAmount)}`,
                 [
                     {
                         text: 'Xem đơn hàng',

@@ -36,7 +36,16 @@ export const toSizedImageUrl = (
 ): string | undefined => {
     if (!basePath || !extension) return undefined;
 
+    // If basePath is already a full URL, return it as is
+    if (basePath.startsWith('http://') || basePath.startsWith('https://')) {
+        return basePath;
+    }
+
     const base = (CDN_BASE_URL || '').replace(/\/$/, '');
+
+    // If no CDN_BASE_URL, cannot build URL from relative path
+    if (!base) return undefined;
+
     const cleanPath = basePath.replace(/^\/+/, '');
     const cleanExt = extension.startsWith('.') ? extension : `.${extension}`;
     // console.log("Xem đường dẫn có đúng không", `${base}/${cleanPath}${size}${cleanExt}`);

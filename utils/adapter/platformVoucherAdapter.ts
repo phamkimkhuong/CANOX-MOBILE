@@ -36,13 +36,10 @@ export const toPlatformVoucherUI = (dto: RecommendedPlatformVoucherDTO): Voucher
  */
 const formatDiscountDisplay = (value: number, type: 'PERCENTAGE' | 'FIXED_AMOUNT'): string => {
     if (type === 'PERCENTAGE') {
-        return `Giảm ${value}%`;
+        const roundedValue = Math.round(value);
+        return `Giảm ${roundedValue}%`;
     }
-    // For fixed amount, common Vietnamese e-commerce pattern: 15000 -> 15k
-    if (value >= 1000) {
-        return `Giảm ${Math.round(value / 1000)}k`;
-    }
-    return `Giảm ${value}đ`;
+    return `Giảm ${formatCurrency(value)}`;
 };
 
 /**

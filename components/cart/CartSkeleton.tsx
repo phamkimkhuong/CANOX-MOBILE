@@ -62,7 +62,7 @@ const SkeletonShopGroup: React.FC = () => {
             {/* Shop Header skeleton */}
             <View style={styles.shopHeader}>
                 <SkeletonBox width={20} height={20} borderRadius={4} />
-                <SkeletonCircle size={20} />
+                <SkeletonCircle size={24} />
                 <SkeletonText width={120} height={16} />
             </View>
 

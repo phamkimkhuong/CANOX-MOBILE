@@ -23,6 +23,7 @@ import type {
     CheckoutShopSummaryDTO,
     CheckoutVoucherDetailDTO,
 } from '@/types/checkout/checkoutPreview';
+import { formatCurrency } from '../format';
 import { toSizedImageUrl } from '../url';
 
 const DEFAULT_IMAGE = 'https://via.placeholder.com/96';
@@ -120,12 +121,10 @@ export const toVoucherUI = (dto: CheckoutVoucherDetailDTO): VoucherUI => ({
  */
 const formatDiscountDisplay = (amount: number, method: string): string => {
     if (method === 'percentage') {
-        return `Giảm ${amount}%`;
+        const roundedPercent = Math.round(amount);
+        return `Giảm ${roundedPercent}%`;
     }
-    if (amount >= 1000) {
-        return `Giảm ${Math.round(amount / 1000)}k`;
-    }
-    return `Giảm ${amount}đ`;
+    return `Giảm ${formatCurrency(amount)}`;
 };
 
 // ============================================

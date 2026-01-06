@@ -12,7 +12,8 @@
  * @recommended - Use this for most cases
  */
 export const formatCurrency = (amount: number): string => {
-    return `${amount.toLocaleString('vi-VN')} đ`;
+    const roundedAmount = Math.round(amount);
+    return `${roundedAmount.toLocaleString('vi-VN')} đ`;
 };
 
 /**

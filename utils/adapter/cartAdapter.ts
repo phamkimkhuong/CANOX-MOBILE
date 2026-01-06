@@ -28,7 +28,7 @@ export const buildImageUrl = (
     basePath: string | null | undefined,
     extension: string | null | undefined
 ): string => {
-    return toSizedImageUrl(basePath, extension) ?? DEFAULT_IMAGE;
+    return toSizedImageUrl(basePath, extension, '_thumb') ?? DEFAULT_IMAGE;
 };
 
 // ============================================
