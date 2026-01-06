@@ -2,9 +2,13 @@ import { MarketingHeader } from '@/components/home/MarketingHeader';
 import { ProductTabs } from '@/components/home/ProductTabs';
 import { HomeHeader } from '@/components/home/SearchHomeHeader';
 import { ProductCard } from '@/components/ui/ProductCard';
+import { ProductCardSkeleton } from '@/components/ui/ProductCardSkeleton';
+import { productRoutes } from '@/constants/routes';
 import { useScrollToTopHandler } from '@/contexts/ScrollToTopContext';
+import { usePrefetchProductDetail } from '@/hooks/api/product/useProductDetail';
 import { FeedType, useProductFeed } from '@/hooks/api/useHomeProducts';
 import type { ProductFeedItem } from '@/types/product/product';
+import { Navigator } from '@/utils/navigation';
 import { FlashList, FlashListRef, ListRenderItemInfo } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
 import React, { memo, useCallback, useMemo, useRef, useState } from 'react';
@@ -39,7 +43,12 @@ interface ProductItem {
   data: ProductFeedItem;
 }
 
-type ListItem = HeaderItem | TabsItem | ProductItem;
+interface SkeletonItem {
+  type: 'skeleton';
+  id: string;
+}
+
+type ListItem = HeaderItem | TabsItem | ProductItem | SkeletonItem;
 
 /**
  * TabsRowItem
@@ -66,6 +75,12 @@ const ProductRowItem = memo(({
   item: ProductFeedItem;
   onPress: (id: string) => void;
 }) => {
+  const prefetchProduct = usePrefetchProductDetail();
+
+  const handlePrefetch = useCallback(() => {
+    prefetchProduct(item.id);
+  }, [item.id, prefetchProduct]);
+
   return (
     <ProductCard
       title={item.title}
@@ -79,6 +94,8 @@ const ProductRowItem = memo(({
       discount={item.discountPercentage}
       isMall={item.isMall}
       onPress={() => onPress(item.id)}
+      onPressIn={handlePrefetch}
+      route={productRoutes.detail(item.id)}
     />
   );
 });
@@ -156,15 +173,21 @@ export default function HomeScreen() {
     const headerItem: HeaderItem = { type: 'header', id: 'marketing_header' };
     const tabsItem: TabsItem = { type: 'tabs', id: 'inline-tabs' };
 
-    return [
-      headerItem,
-      tabsItem,
-      ...products.map((product): ProductItem => ({
+    const items: ListItem[] = [headerItem, tabsItem];
+
+    if (isLoading && products.length === 0) {
+      for (let i = 0; i < 6; i++) {
+        items.push({ type: 'skeleton', id: `skeleton-${i}` });
+      }
+    } else {
+      items.push(...products.map((product): ProductItem => ({
         type: 'product',
         data: product,
-      })),
-    ];
-  }, [data]);
+      })));
+    }
+
+    return items;
+  }, [data, isLoading]);
 
   /**
    * Đo chiều cao HomeHeader (search bar) để định vị sticky overlay
@@ -238,8 +261,8 @@ export default function HomeScreen() {
    * Navigate tới Product Detail
    */
   const handleProductPress = useCallback((productId: string) => {
-    router.push(`/product/${productId}`);
-  }, [router]);
+    Navigator.push(productRoutes.detail(productId));
+  }, []);
 
   /**
    * Infinite scroll - load more khi gần cuối list
@@ -261,6 +284,10 @@ export default function HomeScreen() {
         return item.id;
       case 'product':
         return `${activeTab}_${item.data.id}_${index}`;
+      case 'skeleton':
+        return item.id;
+      default:
+        return `item-${index}`;
     }
   }, [activeTab]);
 
@@ -286,6 +313,8 @@ export default function HomeScreen() {
             onPress={handleProductPress}
           />
         );
+      case 'skeleton':
+        return <ProductCardSkeleton />;
     }
   }, [activeTab, handleTabChange, handleProductPress, handleMarketingHeaderLayout]);
 

@@ -155,13 +155,11 @@ export default function CartScreen() {
     const [isReady, setIsReady] = useState(false);
 
     useEffect(() => {
-        const idleHandle = requestIdleCallback(() => {
+        const handle = requestIdleCallback(() => {
             setIsReady(true);
-        });
+        }, { timeout: 500 });
 
-        return () => {
-            cancelIdleCallback(idleHandle);
-        };
+        return () => cancelIdleCallback(handle);
     }, []);
 
     // ========================================

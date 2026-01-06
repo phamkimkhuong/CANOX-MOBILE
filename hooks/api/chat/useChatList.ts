@@ -25,7 +25,7 @@ import {
 import { toConversationListUI } from '@/utils/adapter/chat/conversationAdapter';
 import { logger } from '@/utils/logger';
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 
 const PAGE_SIZE = 20;
 
@@ -65,7 +65,7 @@ const mapFilterToConversationType = (filter: ChatFilter): ConversationType | und
  * @param currentUserId - Current user's ID for transform
  * @returns Transformed conversation list with pagination info
  */
-const fetchConversations = async (
+export const fetchConversations = async (
     page: number,
     filter: ChatFilter,
     currentUserId: string
@@ -200,6 +200,31 @@ export const useChatList = (
         conversations,
         totalUnread,
     };
+};
+
+/**
+ * Hook prefetch chat list
+ */
+export const usePrefetchChat = () => {
+    const queryClient = useQueryClient();
+    const userId = useAuthStore((state) => state.userId);
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+    const prefetch = useCallback(() => {
+        if (isAuthenticated && userId) {
+            queryClient.prefetchInfiniteQuery({
+                queryKey: [CONVERSATIONS_QUERY_KEY, ChatFilter.ALL],
+                queryFn: ({ pageParam = 0 }) =>
+                    fetchConversations(pageParam as number, ChatFilter.ALL, userId),
+                initialPageParam: 0,
+                getNextPageParam: (lastPage) => (lastPage.hasNext ? lastPage.page + 1 : undefined),
+                pages: 1, // Chỉ prefetch trang đầu tiên để tối ưu
+                staleTime: 60 * 1000, // Cache 1 phút
+            });
+        }
+    }, [isAuthenticated, userId, queryClient]);
+
+    return prefetch;
 };
 
 // ============================================

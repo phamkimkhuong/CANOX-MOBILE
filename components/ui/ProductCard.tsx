@@ -1,9 +1,14 @@
 import { formatCurrency, formatSoldCount } from '@/utils/format';
+import { createLogger } from '@/utils/logger';
 import { Image } from 'expo-image';
+import { Href } from 'expo-router';
 import React from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { IconSymbol } from './Icon';
+import { SmartNavButton } from './SmartNavButton';
+
+const log = createLogger('ProductCard');
 
 interface ProductCardProps {
     title: string;
@@ -17,6 +22,8 @@ interface ProductCardProps {
     discount?: number;
     isMall?: boolean;
     onPress: () => void;
+    onPressIn?: () => void;
+    route: Href | string;
 }
 
 export const ProductCard = ({
@@ -31,78 +38,93 @@ export const ProductCard = ({
     discount,
     isMall,
     onPress,
+    onPressIn,
+    route,
 }: ProductCardProps) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
 
     return (
-        <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={styles.container}>
-            <View style={styles.surface}>
-                {/* Image Container */}
-                <View style={styles.imageWrapper}>
-                    <Image source={{ uri: image }} style={styles.image} contentFit="cover" />
+        <SmartNavButton
+            route={route}
+            onPress={onPress}
+            onPressIn={onPressIn}
+            style={styles.container}
+        >
+            {({ pressed }) => (
+                <View style={[styles.surface, { opacity: pressed ? 0.9 : 1 }]}>
+                    {/* Image Container */}
+                    <View style={styles.imageWrapper}>
+                        <Image source={{ uri: image }} style={styles.image} contentFit="cover" />
 
-                    {/* Discount Badge */}
-                    {discount != null && discount > 0 && (
-                        <View style={styles.discountBadge}>
-                            <Text style={styles.discountText}>-{discount}%</Text>
+                        {/* Discount Badge */}
+                        {discount != null && discount > 0 && (
+                            <View style={styles.discountBadge}>
+                                <Text style={styles.discountText}>-{discount}%</Text>
+                            </View>
+                        )}
+
+                        {/* Mall Badge */}
+                        {isMall && (
+                            <View style={styles.mallBadge}>
+                                <Text style={styles.mallText}>Mall</Text>
+                            </View>
+                        )}
+
+                        {/* Favorite Button */}
+                        <Pressable
+                            style={styles.favoriteBtn}
+                            onPress={(e) => {
+                                e.stopPropagation();
+                                log.info('Toggle favorite');
+                            }}
+                        >
+                            <IconSymbol name="favorite-border" size={18} color={theme.colors.secondary} />
+                        </Pressable>
+                    </View>
+
+                    {/* Content */}
+                    <View style={styles.content}>
+                        <Text numberOfLines={2} style={styles.title}>
+                            {title}
+                        </Text>
+
+                        {/* Rating */}
+                        <View style={styles.ratingRow}>
+                            {[1, 2, 3, 4, 5].map((star) => (
+                                <IconSymbol
+                                    key={star}
+                                    name={star <= Math.floor(rating) ? 'star' : 'star-border'}
+                                    size={12}
+                                    color="#facc15"
+                                />
+                            ))}
+                            {reviews > 0 && (
+                                <Text style={styles.reviewsText}>
+                                    ({reviews >= 1000 ? `${(reviews / 1000).toFixed(1)}k` : reviews})
+                                </Text>
+                            )}
                         </View>
-                    )}
 
-                    {/* Mall Badge */}
-                    {isMall && (
-                        <View style={styles.mallBadge}>
-                            <Text style={styles.mallText}>Mall</Text>
+                        {/* Price Row */}
+                        <View style={styles.priceRow}>
+                            <Text style={styles.price}>{formatCurrency(price)}</Text>
+                            {originalPrice != null && originalPrice > price && (
+                                <Text style={styles.originalPrice}>{formatCurrency(originalPrice)}</Text>
+                            )}
                         </View>
-                    )}
 
-                    {/* Favorite Button */}
-                    <TouchableOpacity style={styles.favoriteBtn} activeOpacity={0.8}>
-                        <IconSymbol name="favorite-border" size={18} color={theme.colors.secondary} />
-                    </TouchableOpacity>
-                </View>
-
-                {/* Content */}
-                <View style={styles.content}>
-                    <Text numberOfLines={2} style={styles.title}>
-                        {title}
-                    </Text>
-
-                    {/* Rating */}
-                    <View style={styles.ratingRow}>
-                        {[1, 2, 3, 4, 5].map((star) => (
-                            <IconSymbol
-                                key={star}
-                                name={star <= Math.floor(rating) ? 'star' : 'star-border'}
-                                size={12}
-                                color="#facc15"
-                            />
-                        ))}
-                        {reviews > 0 && (
-                            <Text style={styles.reviewsText}>
-                                ({reviews >= 1000 ? `${(reviews / 1000).toFixed(1)}k` : reviews})
-                            </Text>
-                        )}
-                    </View>
-
-                    {/* Price Row */}
-                    <View style={styles.priceRow}>
-                        <Text style={styles.price}>{formatCurrency(price)}</Text>
-                        {originalPrice != null && originalPrice > price && (
-                            <Text style={styles.originalPrice}>{formatCurrency(originalPrice)}</Text>
-                        )}
-                    </View>
-
-                    {/* Sold & Location Row */}
-                    <View style={styles.metaRow}>
-                        {sold > 0 && (
-                            <Text style={styles.soldText}>Đã bán {formatSoldCount(sold)}</Text>
-                        )}
-                        {location && <Text style={styles.location}>{location}</Text>}
+                        {/* Sold & Location Row */}
+                        <View style={styles.metaRow}>
+                            {sold > 0 && (
+                                <Text style={styles.soldText}>Đã bán {formatSoldCount(sold)}</Text>
+                            )}
+                            {location && <Text style={styles.location}>{location}</Text>}
+                        </View>
                     </View>
                 </View>
-            </View>
-        </TouchableOpacity>
+            )}
+        </SmartNavButton>
     );
 };
 

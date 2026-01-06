@@ -47,7 +47,6 @@ export const useProductFeed = (type: FeedType) => {
             };
         },
         getNextPageParam: (lastPage) => lastPage.nextPage,
-        placeholderData: (previousData) => previousData, // Keep old data while refetching to avoid flicker due to loading
         staleTime: 1000 * 60 * 5, // Cache 5 minutes
     });
 };
