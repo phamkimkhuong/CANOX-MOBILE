@@ -18,7 +18,9 @@ import {
     QuickReplyList,
     SafetyBanner,
 } from '@/components/chat/detail';
+import { CHAT_STRINGS } from '@/constants/i18n/vi/chat';
 import { CONVERSATIONS_QUERY_KEY, useChatMessages, useMarkMessagesAsRead, useSendMessage } from '@/hooks/api/chat';
+import { buildChatWithShopRequest, useCreateConversation } from '@/hooks/api/chat/useCreateConversation';
 import { useAuthStore } from '@/store/useAuthStore';
 import {
     ContextType,
@@ -121,11 +123,6 @@ const calculateShowTime = (
 // ============================================
 
 export default function ChatDetailScreen() {
-    const { theme } = useUnistyles();
-    const styles = stylesheet;
-    const flashListRef = useRef<FlashListRef<MessageListItem>>(null);
-
-    // Route params
     const params = useLocalSearchParams<{
         conversationId: string;
         // Context params (optional - passed from product/order page)
@@ -141,10 +138,49 @@ export default function ChatDetailScreen() {
         partnerAvatar?: string;
         partnerIsOnline?: string;
         partnerIsVerified?: string;
+        shopUserId?: string;
     }>();
 
-    const conversationId = params.conversationId;
+    const { theme } = useUnistyles();
+    const styles = stylesheet;
+    const flashListRef = useRef<FlashListRef<MessageListItem>>(null);
+
+    // State management for conversationId
+    const [currentConvId, setCurrentConvId] = useState<string>(params.conversationId);
+    const isGhostMode = currentConvId.startsWith('ghost_');
     const userId = useAuthStore((s) => s.userId);
+
+    // Flag to delay rendering of message list until the end of screen transition
+    const [isReady, setIsReady] = useState(false);
+
+    // ============================================
+    // HOOKS (Main data)
+    // ============================================
+
+    const {
+        messages,
+        isLoading,
+        isFetchingNextPage,
+        hasNextPage,
+        fetchNextPage,
+        error,
+    } = useChatMessages(isGhostMode ? '' : currentConvId);
+
+    // ============================================
+    // EFFECTS & LOGIC
+    // ============================================
+
+    useEffect(() => {
+        // Only delay rendering of message list if data is not yet available (loading)
+        // If there is cache, we turn on isReady earlier
+        const timeout = (messages?.length ?? 0) > 0 ? 50 : 150;
+
+        const timer = setTimeout(() => {
+            setIsReady(true);
+        }, timeout);
+
+        return () => clearTimeout(timer);
+    }, [messages?.length]);
 
     // ============================================
     // STATE
@@ -188,14 +224,25 @@ export default function ChatDetailScreen() {
     // HOOKS
     // ============================================
 
-    const {
-        messages,
-        isLoading,
-        isFetchingNextPage,
-        hasNextPage,
-        fetchNextPage,
-        error,
-    } = useChatMessages(conversationId);
+    // If ghost mode, automatically resolve to real ID
+    const { mutate: createConv } = useCreateConversation();
+
+    useEffect(() => {
+        if (isGhostMode && params.shopUserId && params.partnerName) {
+            const request = buildChatWithShopRequest(
+                params.shopUserId,
+                params.partnerName,
+                params.partnerAvatar
+            );
+
+            createConv(request, {
+                onSuccess: (res) => {
+                    setCurrentConvId(res.data.id);
+                    logger.chat.info('Ghost mode resolved to real ID', { id: res.data.id });
+                }
+            });
+        }
+    }, [isGhostMode, params.shopUserId, params.partnerName, params.partnerAvatar, createConv]);
 
     // Partner info from params or fallback to messages
     const partner: ConversationPartner | null = useMemo(() => {
@@ -227,8 +274,8 @@ export default function ChatDetailScreen() {
         return null;
     }, [params, messages, userId]);
 
-    const sendMessageMutation = useSendMessage(conversationId);
-    const markAsReadMutation = useMarkMessagesAsRead(conversationId);
+    const sendMessageMutation = useSendMessage(currentConvId);
+    const markAsReadMutation = useMarkMessagesAsRead(currentConvId);
     const queryClient = useQueryClient();
     const hasMarkedAsRead = useRef(false);
 
@@ -244,7 +291,7 @@ export default function ChatDetailScreen() {
         for (const [, data] of conversationsCache) {
             if (data?.pages) {
                 for (const page of data.pages) {
-                    const conversation = page.conversations?.find((c) => c.id === conversationId);
+                    const conversation = page.conversations?.find((c) => c.id === currentConvId);
                     if (conversation) {
                         unreadCount = conversation.unreadCount || 0;
                         break;
@@ -255,12 +302,12 @@ export default function ChatDetailScreen() {
         }
 
         // If there's something to mark as read, do it in the background
-        if (unreadCount > 0) {
+        if (unreadCount > 0 && !isGhostMode) {
             hasMarkedAsRead.current = true;
             markAsReadMutation.mutate({
             });
         }
-    }, [conversationId, queryClient, markAsReadMutation]);
+    }, [currentConvId, queryClient, markAsReadMutation, isGhostMode]);
 
     // Quick replies based on context
     const quickReplies = useMemo(
@@ -349,7 +396,7 @@ export default function ChatDetailScreen() {
 
     const handleSendMessage = useCallback(
         (text: string) => {
-            if (!text.trim()) return;
+            if (!text.trim() || isGhostMode) return;
 
             logger.chat.info('Sending message', { text: text.substring(0, 50) });
 
@@ -456,19 +503,19 @@ export default function ChatDetailScreen() {
     }, []);
 
     const renderEmptyComponent = useCallback(() => {
-        if (isLoading) {
+        if (isLoading || !isReady) {
             return <ChatDetailSkeleton count={8} />;
         }
 
         return (
             <View style={styles.emptyContainer}>
-                <Text style={styles.emptyText}>Bắt đầu cuộc trò chuyện</Text>
+                <Text style={styles.emptyText}>{CHAT_STRINGS.detail.emptyMessages}</Text>
                 <Text style={styles.emptySubtext}>
-                    Gửi tin nhắn để bắt đầu chat với shop
+                    {CHAT_STRINGS.detail.emptySubtext}
                 </Text>
             </View>
         );
-    }, [isLoading, styles]);
+    }, [isLoading, isReady, styles]);
 
     // ============================================
     // ERROR STATE
@@ -479,7 +526,7 @@ export default function ChatDetailScreen() {
             <SafeAreaView style={styles.safeArea}>
                 <ChatDetailHeader partner={partner} />
                 <View style={styles.errorContainer}>
-                    <Text style={styles.errorText}>Không thể tải tin nhắn</Text>
+                    <Text style={styles.errorText}>{CHAT_STRINGS.detail.cannotLoadMessages}</Text>
                     <Text style={styles.errorSubtext}>{error.message}</Text>
                 </View>
             </SafeAreaView>
@@ -490,11 +537,24 @@ export default function ChatDetailScreen() {
     // MAIN RENDER
     // ============================================
 
+    // If there are messages in cache (from prefetch), render immediately without waiting for animation
+    const messagesReady = !isLoading && messages.length > 0;
+    const shouldShowList = isReady || messagesReady;
+
     return (
         <KeyboardProvider>
             <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
                 {/* Header */}
-                <ChatDetailHeader partner={partner} />
+                <ChatDetailHeader
+                    partner={partner || {
+                        id: params.shopUserId || '',
+                        name: params.partnerName || CHAT_STRINGS.detail.ghostHeader,
+                        avatar: params.partnerAvatar || undefined,
+                        type: 'SHOP',
+                        isOnline: params.partnerIsOnline === 'true',
+                        isVerified: params.partnerIsVerified === 'true',
+                    }}
+                />
 
                 {/* Safety Banner */}
                 <SafetyBanner />
@@ -515,24 +575,25 @@ export default function ChatDetailScreen() {
                     keyboardVerticalOffset={0}
                 >
                     {/* Messages List - Standard Order with auto-scroll to end */}
-                    <FlashList
-                        {...({
-                            ref: flashListRef,
-                            data: flatListData,
-                            renderItem: renderItem,
-                            keyExtractor: (item: MessageListItem) => item.id,
-                            estimatedItemSize: 100,
-                            onScroll: handleScroll,
-                            scrollEventThrottle: 100,
-                            ListHeaderComponent: renderListHeader,
-                            ListFooterComponent: renderListFooter,
-                            ListEmptyComponent: renderEmptyComponent,
-                            onEndReached: handleLoadMore,
-                            onEndReachedThreshold: 0.3,
-                            contentContainerStyle: styles.listContent,
-                            showsVerticalScrollIndicator: false,
-                        } as any)}
-                    />
+                    {shouldShowList ? (
+                        <FlashList
+                            ref={flashListRef}
+                            data={flatListData}
+                            renderItem={renderItem}
+                            keyExtractor={(item: MessageListItem) => item.id}
+                            onScroll={handleScroll}
+                            scrollEventThrottle={100}
+                            ListHeaderComponent={renderListHeader}
+                            ListFooterComponent={renderListFooter}
+                            ListEmptyComponent={renderEmptyComponent}
+                            onEndReached={handleLoadMore}
+                            onEndReachedThreshold={0.3}
+                            contentContainerStyle={styles.listContent}
+                            showsVerticalScrollIndicator={false}
+                        />
+                    ) : (
+                        <ChatDetailSkeleton count={10} />
+                    )}
 
                     {/* Quick Replies - Now pinned to bottom above input */}
                     {quickReplies.length > 0 && (

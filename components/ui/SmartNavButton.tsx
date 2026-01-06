@@ -9,7 +9,7 @@ import { createLogger } from '@/utils/logger';
 const log = createLogger('ProductCard');
 
 interface SmartButtonProps extends PressableProps {
-    route: Href | string;
+    route?: Href | string;
     prefetchAction?: () => Promise<any> | void;
     style?: StyleProp<ViewStyle>;
 }
@@ -27,16 +27,25 @@ export const SmartNavButton: React.FC<SmartButtonProps> = ({
     const queryClient = useQueryClient();
     const touchStartTime = useRef(0);
 
-    const handlePressIn = useCallback(() => {
+    const handlePressIn = useCallback((event: any) => {
         touchStartTime.current = Date.now();
         if (prefetchAction) {
             prefetchAction();
         }
-    }, [prefetchAction]);
+        if (props.onPressIn) {
+            props.onPressIn(event);
+        }
+    }, [prefetchAction, props.onPressIn]);
 
-    const handlePress = useCallback(() => {
-        Navigator.push(route);
-    }, [route]);
+    const handlePress = useCallback((event: any) => {
+        if (props.onPress) {
+            props.onPress(event);
+            return;
+        }
+        if (route) {
+            Navigator.push(route);
+        }
+    }, [route, props.onPress]);
 
     return (
         <Pressable

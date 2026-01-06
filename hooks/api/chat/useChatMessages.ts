@@ -41,7 +41,7 @@ import { CHAT_QUERY_KEYS } from './useUnreadMessages';
 // INTERNAL TYPES
 // ============================================
 
-interface MessagePage {
+export interface MessagePage {
     messages: Message[];
     page: number;
     hasNext: boolean;
@@ -74,7 +74,7 @@ export const chatMessagesQueryKeys = {
  * Fetch messages for a conversation
  * API returns newest first (descending by sentAt)
  */
-const fetchMessages = async (
+export const fetchMessages = async (
     conversationId: string,
     page: number,
     currentUserId: string
