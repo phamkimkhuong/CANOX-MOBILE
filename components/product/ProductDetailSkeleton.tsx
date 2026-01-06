@@ -1,12 +1,5 @@
 import React from 'react';
 import { useWindowDimensions, View } from 'react-native';
-import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withRepeat,
-    withSequence,
-    withTiming,
-} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -27,25 +20,9 @@ const SkeletonBox: React.FC<SkeletonBoxProps> = ({
     style,
 }) => {
     const { theme } = useUnistyles();
-    const opacity = useSharedValue(0.5);
-
-    React.useEffect(() => {
-        opacity.value = withRepeat(
-            withSequence(
-                withTiming(1, { duration: 800 }),
-                withTiming(0.5, { duration: 800 })
-            ),
-            -1,
-            false
-        );
-    }, [opacity]);
-
-    const animatedStyle = useAnimatedStyle(() => ({
-        opacity: opacity.value,
-    }));
 
     return (
-        <Animated.View
+        <View
             style={[
                 {
                     width: typeof width === 'number' ? width : width,
@@ -53,7 +30,6 @@ const SkeletonBox: React.FC<SkeletonBoxProps> = ({
                     borderRadius,
                     backgroundColor: theme.colors.secondaryLight,
                 },
-                animatedStyle,
                 style,
             ]}
         />

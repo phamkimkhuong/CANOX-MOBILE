@@ -1,48 +1,41 @@
 import { Href, router } from 'expo-router';
 
 /**
- * Navigation Utility to prevent double taps and race conditions
+ * Navigator - High Performance Navigation Utility
+ * Optimized for React Native 0.81 Fabric Architecture
  */
 
-let isNavigating = false;
-let lastPushTime = 0;
-const PUSH_TIMEOUT = 800; // Reduced from 800ms for faster navigation
+let lastClickTimestamp = 0;
+const CLICK_THRESHOLD = 1000; // 1s
 
 export const Navigator = {
-    /**
-     * Safe navigation, prevents double taps
-     */
     push: (route: Href | string) => {
         const now = Date.now();
+        console.log(`[NAV] Attempting to push: ${route} at ${now}. Last: ${lastClickTimestamp}`);
 
-        // If navigating or tapped too fast (< 800ms)
-        if (isNavigating || (now - lastPushTime < PUSH_TIMEOUT)) {
+        // Block double tap if click too fast
+        if (now - lastClickTimestamp < CLICK_THRESHOLD) {
+            console.log('--- Double tap blocked ---');
             return;
         }
 
-        isNavigating = true;
-        lastPushTime = now;
+        lastClickTimestamp = now;
 
+        // Sync navigation
         router.push(route as Href);
-
-        // Reset lock after a duration
-        setTimeout(() => {
-            isNavigating = false;
-        }, PUSH_TIMEOUT);
     },
 
-    /**
-     * Use navigate instead of push for singleton/tab screens
-     * Navigate is smarter in handling stack
-     */
-    navigate: (route: Href | string) => {
-        router.navigate(route as Href);
+    replace: (route: Href | string) => {
+        const now = Date.now();
+        if (now - lastClickTimestamp < CLICK_THRESHOLD) return;
+        lastClickTimestamp = now;
+        router.replace(route as Href);
     },
 
-    /**
-     * Go back to previous screen
-     */
     back: () => {
+        const now = Date.now();
+        if (now - lastClickTimestamp < CLICK_THRESHOLD) return;
+        lastClickTimestamp = now;
         router.back();
     }
 };

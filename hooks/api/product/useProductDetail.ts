@@ -7,7 +7,8 @@ import {
 } from '@/types/product/productDetail';
 import { transformProduct } from '@/utils/adapter/productAdapter';
 import { transformProductDetail } from '@/utils/adapter/productDetailAdapter';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCallback } from 'react';
 
 // ============================================
 // QUERY KEYS
@@ -26,7 +27,7 @@ export const PRODUCT_DETAIL_QUERY_KEYS = {
 /**
  * Fetch product detail from API
  */
-const fetchProductDetail = async (productId: string): Promise<ProductDetailUI> => {
+export const fetchProductDetail = async (productId: string): Promise<ProductDetailUI> => {
     const response = await request(
         {
             url: API_ROUTES.PRODUCTS.DETAIL(productId),
@@ -102,11 +103,22 @@ export const useRelatedProducts = (productId: string) => {
 };
 
 /**
- * Hook để prefetch product detail (dùng cho optimization)
+ * Hook để prefetch product detail
  */
 export const usePrefetchProductDetail = () => {
-    // This would need QueryClient access
-    // Implementation depends on your setup
+    const queryClient = useQueryClient();
+
+    const prefetch = useCallback((productId: string) => {
+        if (!productId) return;
+
+        queryClient.prefetchQuery({
+            queryKey: PRODUCT_DETAIL_QUERY_KEYS.detail(productId),
+            queryFn: () => fetchProductDetail(productId),
+            staleTime: 5 * 60 * 1000,
+        });
+    }, [queryClient]);
+
+    return prefetch;
 };
 
 // ============================================

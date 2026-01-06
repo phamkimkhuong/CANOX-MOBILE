@@ -23,7 +23,8 @@ import { useProductDetail } from '@/hooks/api/product/useProductDetail';
 import { useProductVariant } from '@/hooks/useProductVariant';
 import { findGalleryIndexByVariant } from '@/utils/adapter/productDetailAdapter';
 import { createLogger } from '@/utils/logger';
-import { router, useLocalSearchParams } from 'expo-router';
+import { Navigator } from '@/utils/navigation';
+import { useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Pressable, RefreshControl, Text, View } from 'react-native';
 import Animated, {
@@ -45,6 +46,9 @@ export default function ProductDetailScreen() {
     /** Tracks how the variant sheet was opened - determines button text and action */
     const [variantSheetMode, setVariantSheetMode] = useState<VariantSheetMode>('select');
     const [quantity, setQuantity] = useState(1);
+
+    // Flag để hoãn render UI nặng cho đến khi kết thúc animation chuyển màn hình
+    const [isTransitionFinished, setIsTransitionFinished] = useState(false);
 
     // === Data Fetching ===
     const {
@@ -79,6 +83,18 @@ export default function ProductDetailScreen() {
 
     // === Gallery Ref for scrolling to variant image ===
     const galleryRef = useRef<ProductGalleryRef>(null);
+
+    // ============================================
+    // ANIMATION & TRANSITION HANDLING
+    // ============================================
+
+    React.useEffect(() => {
+        const handle = requestIdleCallback(() => {
+            setIsTransitionFinished(true);
+        }, { timeout: 500 });
+
+        return () => cancelIdleCallback(handle);
+    }, []);
 
     // ============================================
     // MEMOIZED VALUES - Tránh tính toán lại mỗi render
@@ -156,7 +172,7 @@ export default function ProductDetailScreen() {
             setVariantSheetVisible(false);
             setVariantSheetMode('select');
             setQuantity(1);
-            router.push(ROUTES.CHECKOUT.INDEX);
+            Navigator.push(ROUTES.CHECKOUT.INDEX);
 
             /* Commented out until API integration is finalized
             addToCart(
@@ -199,7 +215,7 @@ export default function ProductDetailScreen() {
         // Check cache first to avoid redundant API call
         const cachedConversationId = getCachedConversationId(shopUserId);
         if (cachedConversationId) {
-            router.push(chatRoutes.detail(cachedConversationId, {
+            Navigator.push(chatRoutes.detail(cachedConversationId, {
                 partnerName: shopName,
                 partnerAvatar: shopLogoUrl,
             }));
@@ -213,7 +229,7 @@ export default function ProductDetailScreen() {
             onSuccess: (response) => {
                 const conversationId = response.data.id;
                 log.info('Navigating to chat', { conversationId });
-                router.push(chatRoutes.detail(conversationId, {
+                Navigator.push(chatRoutes.detail(conversationId, {
                     partnerName: shopName,
                     partnerAvatar: shopLogoUrl,
                 }));
@@ -231,7 +247,7 @@ export default function ProductDetailScreen() {
 
     const handleShopPress = useCallback(() => {
         if (shopId) {
-            router.push(shopRoutes.detail(shopId));
+            Navigator.push(shopRoutes.detail(shopId));
         }
     }, [shopId]);
 
@@ -291,7 +307,7 @@ export default function ProductDetailScreen() {
 
         // Temporary: Navigate directly and cleanup UI
         setQuantity(1);
-        router.push(ROUTES.CHECKOUT.INDEX);
+        Navigator.push(ROUTES.CHECKOUT.INDEX);
 
         /* Commented out until API integration is finalized
         addToCart(
@@ -307,7 +323,7 @@ export default function ProductDetailScreen() {
     }, [canAddToCart, selectedVariantId, quantity, handleOpenVariantSheet, addToCart]);
 
     const handleCartPress = useCallback(() => {
-        router.push(ROUTES.CART.INDEX);
+        Navigator.push(ROUTES.CART.INDEX);
     }, []);
 
     const handleSharePress = useCallback(() => {
@@ -375,7 +391,7 @@ export default function ProductDetailScreen() {
                                 </Pressable>
                                 <Pressable
                                     style={[styles.retryButton, styles.homeButton]}
-                                    onPress={() => router.replace(ROUTES.TABS.HOME)}
+                                    onPress={() => Navigator.replace(ROUTES.TABS.HOME)}
                                 >
                                     <Text style={styles.homeButtonText}>{PRODUCT_STRINGS.error.home}</Text>
                                 </Pressable>
@@ -401,77 +417,83 @@ export default function ProductDetailScreen() {
                 onSharePress={handleSharePress}
             />
 
-            {/* Main Scroll Content */}
-            <Animated.ScrollView
-                style={styles.scrollView}
-                onScroll={scrollHandler}
-                scrollEventThrottle={16}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: 100 + insets.bottom }}
-                refreshControl={
-                    <RefreshControl
-                        refreshing={isRefetching}
-                        onRefresh={handleRefresh}
-                        tintColor={theme.colors.primary}
+            {/* Main Content Area */}
+            {!isTransitionFinished ? (
+
+                <ProductDetailSkeleton />
+            ) : (
+
+                <Animated.ScrollView
+                    style={styles.scrollView}
+                    onScroll={scrollHandler}
+                    scrollEventThrottle={16}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ paddingBottom: 100 + insets.bottom }}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={isRefetching}
+                            onRefresh={handleRefresh}
+                            tintColor={theme.colors.primary}
+                        />
+                    }
+                >
+                    {/* Gallery */}
+                    <ProductGallery
+                        ref={galleryRef}
+                        gallery={product.gallery}
+                        onImagePress={handleImagePress}
                     />
-                }
-            >
-                {/* Gallery - with forwardRef */}
-                <ProductGallery
-                    ref={galleryRef}
-                    gallery={product.gallery}
-                    onImagePress={handleImagePress}
-                />
 
-                {/* Product Info */}
-                <ProductInfoSection
-                    name={product.name}
-                    priceDisplay={selectionResult.displayPrice}
-                    rating={product.rating}
-                    totalReviews={product.totalReviews}
-                    totalSold={product.totalSold}
-                    flashSale={product.flashSale}
-                />
-
-                {/* Variant Selector */}
-                {product.hasVariants && (
-                    <VariantSelectorRow
-                        options={product.options}
-                        selectedOptions={selectedOptions}
-                        selectionSummary={selectionResult.selectionSummary}
-                        onPress={() => handleOpenVariantSheet('select')}
+                    {/* Product Info */}
+                    <ProductInfoSection
+                        name={product.name}
+                        priceDisplay={selectionResult.displayPrice}
+                        rating={product.rating}
+                        totalReviews={product.totalReviews}
+                        totalSold={product.totalSold}
+                        flashSale={product.flashSale}
                     />
-                )}
 
-                {/* Product Reviews */}
-                <ProductReviews
-                    reviewStatistics={product.reviewStatistics}
-                    rating={product.rating}
-                    totalReviews={product.totalReviews}
-                    onViewAllPress={handleViewAllReviews}
-                    onAskQuestionPress={handleAskQuestion}
-                />
+                    {/* Variant Selector */}
+                    {product.hasVariants && (
+                        <VariantSelectorRow
+                            options={product.options}
+                            selectedOptions={selectedOptions}
+                            selectionSummary={selectionResult.selectionSummary}
+                            onPress={() => handleOpenVariantSheet('select')}
+                        />
+                    )}
 
-                {/* Shop Info */}
-                <ShopInfoCard
-                    shop={product.shop}
-                    onChatPress={handleChatPress}
-                    onViewShopPress={handleShopPress}
-                />
+                    {/* Product Reviews */}
+                    <ProductReviews
+                        reviewStatistics={product.reviewStatistics}
+                        rating={product.rating}
+                        totalReviews={product.totalReviews}
+                        onViewAllPress={handleViewAllReviews}
+                        onAskQuestionPress={handleAskQuestion}
+                    />
 
-                {/* Specifications */}
-                {product.specifications.length > 0 && (
-                    <ProductSpecs specifications={product.specifications} />
-                )}
+                    {/* Shop Info */}
+                    <ShopInfoCard
+                        shop={product.shop}
+                        onChatPress={handleChatPress}
+                        onViewShopPress={handleShopPress}
+                    />
 
-                {/* Description */}
-                <ProductDescription description={product.description} />
+                    {/* Specifications */}
+                    {product.specifications.length > 0 && (
+                        <ProductSpecs specifications={product.specifications} />
+                    )}
 
-                {/* Related Products */}
-                <RelatedProducts productId={id ?? ''} />
-            </Animated.ScrollView>
+                    {/* Description */}
+                    <ProductDescription description={product.description} />
 
-            {/* Sticky Bottom Bar */}
+                    {/* Related Products */}
+                    <RelatedProducts productId={id ?? ''} />
+                </Animated.ScrollView>
+            )}
+
+            {/* Sticky Bottom Bar - Luôn render để user thấy nút Mua Ngay */}
             <StickyBottomBar
                 isFullySelected={selectionResult.isFullySelected}
                 inventoryStatus={selectionResult.inventoryStatus}

@@ -6,12 +6,23 @@ import { CartApiResponseSchema, CartUI } from '@/types/cart';
 import { transformCart } from '@/utils/adapter/cartAdapter';
 import { logger } from '@/utils/logger';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import 'react-native-get-random-values';
 import Toast from 'react-native-toast-message';
 import { v4 as uuidv4 } from 'uuid';
 
-const CART_QUERY_KEY = ['cart'];
+export const CART_QUERY_KEY = ['cart'];
+
+/**
+ * Fetch cart data from API and transform it for UI
+ */
+export const fetchCart = async (): Promise<CartUI> => {
+    const response = await request(
+        { url: API_ROUTES.CART.GET, method: 'GET' },
+        CartApiResponseSchema
+    );
+    return transformCart(response.data);
+};
 
 /**
  * Hook to fetch cart data
@@ -23,13 +34,7 @@ export const useCart = () => {
 
     const query = useQuery({
         queryKey: CART_QUERY_KEY,
-        queryFn: async (): Promise<CartUI> => {
-            const response = await request(
-                { url: API_ROUTES.CART.GET, method: 'GET' },
-                CartApiResponseSchema
-            );
-            return transformCart(response.data);
-        },
+        queryFn: fetchCart,
         enabled: isAuthenticated,
         staleTime: 1000 * 10,
         gcTime: 1000 * 60 * 10,
@@ -49,6 +54,26 @@ export const useCart = () => {
     }, [query.data, setTotalQuantity]);
 
     return query;
+};
+
+/**
+ * Hook cung cấp hàm prefetch cho giỏ hàng.
+ */
+export const usePrefetchCart = () => {
+    const queryClient = useQueryClient();
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+    const prefetch = useCallback(() => {
+        if (isAuthenticated) {
+            queryClient.prefetchQuery({
+                queryKey: CART_QUERY_KEY,
+                queryFn: fetchCart,
+                staleTime: 1000 * 10,
+            });
+        }
+    }, [isAuthenticated, queryClient]);
+
+    return prefetch;
 };
 
 // ==============================================

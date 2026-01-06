@@ -12,7 +12,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { ChatFilter, Conversation } from '@/types/chat';
 import { FlashList } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, RefreshControl, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -33,6 +33,17 @@ export default function ChatScreen() {
 
     // Track which row is currently swiped open (mutual exclusion)
     const [openedRowId, setOpenedRowId] = useState<string | null>(null);
+
+    // Flag to stop render UI nặng cho đến khi kết thúc chuyển màn hình
+    const [isReady, setIsReady] = useState(false);
+
+    useEffect(() => {
+        const handle = requestIdleCallback(() => {
+            setIsReady(true);
+        }, { timeout: 500 });
+
+        return () => cancelIdleCallback(handle);
+    }, []);
 
     const {
         conversations,
@@ -141,8 +152,8 @@ export default function ChatScreen() {
 
     const renderEmpty = useCallback(() => <ChatEmptyState />, []);
 
-    // Show skeleton on initial load
-    if (isLoading) {
+    // Show skeleton on initial load or during transition
+    if (isLoading || !isReady) {
         return (
             <View style={styles.container}>
                 <ChatHeader

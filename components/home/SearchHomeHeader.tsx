@@ -1,10 +1,12 @@
 import { IconSymbol } from '@/components/ui/Icon';
+import { SmartNavButton } from '@/components/ui/SmartNavButton';
 import { ROUTES } from '@/constants/routes';
 import '@/constants/unistyles';
+import { usePrefetchCart } from '@/hooks/api/cart/useCart';
+import { usePrefetchChat } from '@/hooks/api/chat/useChatList';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useCartStore } from '@/store/useCartStore';
-import { Navigator } from '@/utils/navigation';
-import React, { useCallback } from 'react';
+import React from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 
@@ -15,24 +17,13 @@ import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyl
 export const HomeHeader = () => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+    const userId = useAuthStore((state) => state.userId);
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     const cartItemCount = useCartStore((state) => state.totalQuantity);
 
-    const handleCartPress = useCallback(() => {
-        if (isAuthenticated) {
-            Navigator.push(ROUTES.CART.INDEX);
-        } else {
-            Navigator.push(ROUTES.AUTH.LOGIN);
-        }
-    }, [isAuthenticated]);
-
-    const handleChatPress = useCallback(() => {
-        if (isAuthenticated) {
-            Navigator.push(ROUTES.TABS.CHAT);
-        } else {
-            Navigator.push(ROUTES.AUTH.LOGIN);
-        }
-    }, [isAuthenticated]);
+    // Abstracted Prefetch Actions (Architecture compliant)
+    const prefetchCart = usePrefetchCart();
+    const prefetchChat = usePrefetchChat();
 
     return (
         <View style={styles.headerContainer}>
@@ -53,21 +44,37 @@ export const HomeHeader = () => {
 
             {/* 2. Các nút chức năng */}
             <View style={styles.actions}>
-                <TouchableOpacity style={styles.iconBtn} onPress={handleCartPress}>
-                    <IconSymbol name="cart" size={26} color={theme.colors.typographySecondary} />
-                    {cartItemCount > 0 && (
-                        <View style={styles.badge}>
-                            <Text style={styles.badgeText}>
-                                {cartItemCount > 99 ? '99+' : cartItemCount}
-                            </Text>
+                <SmartNavButton
+                    route={isAuthenticated ? ROUTES.CART.INDEX : ROUTES.AUTH.LOGIN}
+                    style={styles.iconBtn}
+                    onPressIn={prefetchCart}
+                >
+                    {({ pressed }) => (
+                        <View style={{ opacity: pressed ? 0.9 : 1 }}>
+                            <IconSymbol name="cart" size={26} color={theme.colors.typographySecondary} />
+                            {cartItemCount > 0 && (
+                                <View style={styles.badge}>
+                                    <Text style={styles.badgeText}>
+                                        {cartItemCount > 99 ? '99+' : cartItemCount}
+                                    </Text>
+                                </View>
+                            )}
                         </View>
                     )}
-                </TouchableOpacity>
+                </SmartNavButton>
 
                 {/* {Router to chat.tsx} */}
-                <TouchableOpacity style={styles.iconBtn} onPress={handleChatPress}>
-                    <IconSymbol name="chatbubble-ellipses-outline" size={26} color={theme.colors.typographySecondary} />
-                </TouchableOpacity>
+                <SmartNavButton
+                    route={isAuthenticated ? ROUTES.TABS.CHAT : ROUTES.AUTH.LOGIN}
+                    style={styles.iconBtn}
+                    onPressIn={prefetchChat}
+                >
+                    {({ pressed }) => (
+                        <View style={{ opacity: pressed ? 0.9 : 1 }}>
+                            <IconSymbol name="chatbubble-ellipses-outline" size={26} color={theme.colors.typographySecondary} />
+                        </View>
+                    )}
+                </SmartNavButton>
             </View>
         </View>
     );
