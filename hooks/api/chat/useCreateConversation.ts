@@ -7,6 +7,7 @@
 
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { apiClient } from '@/services/api/client';
+import { useAuthStore } from '@/store/useAuthStore';
 import {
     ConversationType,
     CreateConversationRequest,
@@ -15,7 +16,9 @@ import {
 } from '@/types/chat/conversationDTO';
 import { logger } from '@/utils/logger';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useCallback } from 'react';
 import { CONVERSATIONS_QUERY_KEY } from './useChatList';
+import { chatMessagesQueryKeys, fetchMessages, MessagePage } from './useChatMessages';
 
 // ============================================
 // IN-MEMORY CACHE
@@ -23,6 +26,8 @@ import { CONVERSATIONS_QUERY_KEY } from './useChatList';
 
 // Cache conversationId by shopUserId to avoid redundant API calls
 const conversationCache = new Map<string, string>();
+// Track ongoing promises to prevent duplicate requests globally
+const processingRequests = new Map<string, Promise<CreateConversationResponse>>();
 
 /**
  * Get cached conversationId for a shop user
@@ -42,28 +47,64 @@ export const getCachedConversationId = (shopUserId: string): string | undefined 
 const createConversation = async (
     request: CreateConversationRequest
 ): Promise<CreateConversationResponse> => {
-    logger.chat.info('Creating/getting conversation', {
-        type: request.conversationType,
-        participantCount: request.participantIds.length,
-    });
+    const shopUserId = request.participantIds[0];
 
-    const response = await apiClient.post<CreateConversationResponse>(
-        API_ROUTES.CHAT.CONVERSATIONS,
-        request
-    );
-    const validated = CreateConversationResponseSchema.parse(response.data);
-
-    // Cache the conversationId for this shop user
-    if (request.participantIds[0]) {
-        conversationCache.set(request.participantIds[0], validated.data.id);
+    // Check cache first
+    if (shopUserId) {
+        const cachedId = conversationCache.get(shopUserId);
+        if (cachedId) {
+            return {
+                data: { id: cachedId, name: request.name || '', type: request.conversationType, participants: [] },
+                success: true,
+                message: 'Lấy từ cache',
+            } as any;
+        }
     }
 
-    logger.chat.info('Conversation created/retrieved', {
-        conversationId: validated.data.id,
-        isNew: validated.message.includes('Tạo'),
-    });
+    // Check if there's an ongoing request for the same shopUserId
+    if (shopUserId && processingRequests.has(shopUserId)) {
+        logger.chat.info('Waiting for existing createConversation promise', { shopUserId });
+        return processingRequests.get(shopUserId)!;
+    }
 
-    return validated;
+    // Perform new request and save promise to Map
+    const apiPromise = (async () => {
+        try {
+            logger.chat.info('Creating/getting conversation', {
+                type: request.conversationType,
+                participantCount: request.participantIds.length,
+            });
+
+            const response = await apiClient.post<CreateConversationResponse>(
+                API_ROUTES.CHAT.CONVERSATIONS,
+                request
+            );
+            const validated = CreateConversationResponseSchema.parse(response.data);
+
+            // Cache response
+            if (shopUserId) {
+                conversationCache.set(shopUserId, validated.data.id);
+            }
+
+            logger.chat.info('Conversation created/retrieved', {
+                conversationId: validated.data.id,
+                isNew: validated.message.includes('Tạo'),
+            });
+
+            return validated;
+        } finally {
+            // Delete promise Map when done (success or error)
+            if (shopUserId) {
+                processingRequests.delete(shopUserId);
+            }
+        }
+    })();
+
+    if (shopUserId) {
+        processingRequests.set(shopUserId, apiPromise);
+    }
+
+    return apiPromise;
 };
 
 /**
@@ -82,6 +123,38 @@ export const useCreateConversation = () => {
             logger.chat.error('Failed to create conversation', { error });
         },
     });
+};
+
+/**
+ * Hook prefetch cho tính năng Chat với Shop.
+ */
+export const usePrefetchShopChat = () => {
+    const queryClient = useQueryClient();
+    const userId = useAuthStore((state) => state.userId);
+    const { mutate: createConv } = useCreateConversation();
+
+    const prefetch = useCallback((shopUserId: string, shopName: string, shopLogoUrl?: string | null) => {
+        if (!shopUserId || !userId) return;
+
+        const cachedId = getCachedConversationId(shopUserId);
+
+        if (cachedId) {
+            // If already have ID in cache, prefetch messages of that conversation
+            queryClient.prefetchInfiniteQuery({
+                queryKey: chatMessagesQueryKeys.conversation(cachedId),
+                queryFn: ({ pageParam = 0 }) => fetchMessages(cachedId, pageParam as number, userId),
+                initialPageParam: 0,
+                getNextPageParam: (lastPage: MessagePage) => (lastPage.hasNext ? lastPage.page + 1 : undefined),
+                staleTime: 30 * 1000,
+            });
+        } else {
+            // Nếu chưa có ID, âm thầm gọi mutation để lấy ID sớm (Ghost Loading)
+            const request = buildChatWithShopRequest(shopUserId, shopName, shopLogoUrl);
+            createConv(request);
+        }
+    }, [userId, queryClient, createConv]);
+
+    return prefetch;
 };
 
 // ============================================

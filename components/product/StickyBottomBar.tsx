@@ -5,11 +5,13 @@ import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { IconSymbol } from '../ui/Icon';
+import { SmartNavButton } from '../ui/SmartNavButton';
 
 interface StickyBottomBarProps {
     isFullySelected: boolean;
     inventoryStatus: InventoryStatus;
     onChatPress?: () => void;
+    onPrefetchChat?: () => void;
     onShopPress?: () => void;
     onAddToCartPress?: () => void;
     onBuyNowPress?: () => void;
@@ -21,6 +23,7 @@ export const StickyBottomBar = memo<StickyBottomBarProps>(({
     isFullySelected,
     inventoryStatus,
     onChatPress,
+    onPrefetchChat,
     onShopPress,
     onAddToCartPress,
     onBuyNowPress,
@@ -54,25 +57,37 @@ export const StickyBottomBar = memo<StickyBottomBarProps>(({
         <View style={containerStyle}>
             {/* Left Actions */}
             <View style={styles.leftActions}>
-                <Pressable style={styles.iconButton} onPress={onChatPress}>
-                    <IconSymbol
-                        name="chat"
-                        size={22}
-                        color={theme.colors.typography}
-                    />
-                    <Text style={styles.iconLabel}>{PRODUCT_STRINGS.bottomBar.chat}</Text>
-                </Pressable>
+                <SmartNavButton
+                    onPress={onChatPress}
+                    prefetchAction={onPrefetchChat}
+                    style={styles.iconButton}
+                >
+                    {({ pressed }) => (
+                        <View style={{ alignItems: 'center', opacity: pressed ? 0.6 : 1 }}>
+                            <IconSymbol
+                                name="chat"
+                                size={22}
+                                color={theme.colors.typography}
+                            />
+                            <Text style={styles.iconLabel}>{PRODUCT_STRINGS.bottomBar.chat}</Text>
+                        </View>
+                    )}
+                </SmartNavButton>
 
                 <View style={styles.divider} />
 
-                <Pressable style={styles.iconButton} onPress={onShopPress}>
-                    <IconSymbol
-                        name="storefront-outline"
-                        size={22}
-                        color={theme.colors.typography}
-                    />
-                    <Text style={styles.iconLabel}>{PRODUCT_STRINGS.bottomBar.shop}</Text>
-                </Pressable>
+                <SmartNavButton onPress={onShopPress} style={styles.iconButton}>
+                    {({ pressed }) => (
+                        <View style={{ alignItems: 'center', opacity: pressed ? 0.6 : 1 }}>
+                            <IconSymbol
+                                name="storefront-outline"
+                                size={22}
+                                color={theme.colors.typography}
+                            />
+                            <Text style={styles.iconLabel}>{PRODUCT_STRINGS.bottomBar.shop}</Text>
+                        </View>
+                    )}
+                </SmartNavButton>
             </View>
 
             {/* Right Actions */}

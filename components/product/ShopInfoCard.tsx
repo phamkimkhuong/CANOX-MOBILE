@@ -7,12 +7,14 @@ import React, { memo, useCallback, useMemo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { IconSymbol } from '../ui/Icon';
+import { SmartNavButton } from '../ui/SmartNavButton';
 
 const IMAGE_PLACEHOLDER = 'L6PZfSi_.AyE_3t7t7R**0o#DgR4';
 
 interface ShopInfoCardProps {
     shop: ShopUI;
     onChatPress?: () => void;
+    onPrefetchChat?: () => void;
     onViewShopPress?: () => void;
 }
 
@@ -42,6 +44,7 @@ const formatCount = (count?: number): string => {
 export const ShopInfoCard = memo<ShopInfoCardProps>(({
     shop,
     onChatPress,
+    onPrefetchChat,
     onViewShopPress,
 }) => {
     const { theme } = useUnistyles();
@@ -135,23 +138,40 @@ export const ShopInfoCard = memo<ShopInfoCardProps>(({
 
                 {/* Action Buttons */}
                 <View style={styles.actions}>
-                    <Pressable style={styles.chatButton} onPress={onChatPress}>
-                        <IconSymbol
-                            name="chat"
-                            size={18}
-                            color={theme.colors.primary}
-                        />
-                        <Text style={styles.chatButtonText}>{PRODUCT_STRINGS.bottomBar.chat}</Text>
-                    </Pressable>
+                    <SmartNavButton
+                        route={onChatPress ? undefined : '/(tabs)/chat'}
+                        onPress={onChatPress}
+                        prefetchAction={onPrefetchChat}
+                        style={styles.chatButton}
+                    >
+                        {({ pressed }) => (
+                            <View style={[styles.chatButtonInner, { opacity: pressed ? 0.7 : 1 }]}>
+                                <IconSymbol
+                                    name="chat"
+                                    size={18}
+                                    color={theme.colors.primary}
+                                />
+                                <Text style={styles.chatButtonText}>{PRODUCT_STRINGS.bottomBar.chat}</Text>
+                            </View>
+                        )}
+                    </SmartNavButton>
 
-                    <Pressable style={styles.viewShopButton} onPress={handleViewShop}>
-                        <IconSymbol
-                            name="storefront-outline"
-                            size={18}
-                            color={theme.colors.primary}
-                        />
-                        <Text style={styles.viewShopText}>{PRODUCT_STRINGS.shop.viewShop}</Text>
-                    </Pressable>
+                    <SmartNavButton
+                        route={onViewShopPress ? undefined : shopRoutes.detail(shop.id)}
+                        onPress={handleViewShop}
+                        style={styles.viewShopButton}
+                    >
+                        {({ pressed }) => (
+                            <View style={[styles.chatButtonInner, { opacity: pressed ? 0.7 : 1 }]}>
+                                <IconSymbol
+                                    name="storefront-outline"
+                                    size={18}
+                                    color={theme.colors.primary}
+                                />
+                                <Text style={styles.viewShopText}>{PRODUCT_STRINGS.shop.viewShop}</Text>
+                            </View>
+                        )}
+                    </SmartNavButton>
                 </View>
             </View>
 
@@ -255,14 +275,17 @@ const styles = StyleSheet.create((theme) => ({
         marginLeft: theme.margins.sm,
     },
     chatButton: {
+        borderRadius: theme.radius.m,
+        borderWidth: 1,
+        borderColor: theme.colors.primary,
+        overflow: 'hidden',
+    },
+    chatButtonInner: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 4,
         paddingHorizontal: 12,
         paddingVertical: 8,
-        borderRadius: theme.radius.m,
-        borderWidth: 1,
-        borderColor: theme.colors.primary,
     },
     chatButtonText: {
         fontSize: 13,
@@ -300,14 +323,10 @@ const styles = StyleSheet.create((theme) => ({
         backgroundColor: theme.colors.border,
     },
     viewShopButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        paddingHorizontal: 12,
-        paddingVertical: 8,
         borderRadius: theme.radius.m,
         borderWidth: 1,
         borderColor: theme.colors.primary,
+        overflow: 'hidden',
     },
     viewShopText: {
         fontSize: 13,

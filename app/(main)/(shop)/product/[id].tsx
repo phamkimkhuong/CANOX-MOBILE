@@ -15,10 +15,11 @@ import {
 } from '@/components/product';
 import type { ProductGalleryRef } from '@/components/product/ProductGallery';
 import { IconSymbol } from '@/components/ui/Icon';
+import { CHAT_STRINGS } from '@/constants/i18n/vi/chat';
 import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import { ROUTES, chatRoutes, shopRoutes } from '@/constants/routes';
 import { useAddToCart } from '@/hooks/api/cart';
-import { buildChatWithShopRequest, getCachedConversationId, useCreateConversation } from '@/hooks/api/chat/useCreateConversation';
+import { getCachedConversationId, useCreateConversation, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
 import { useProductDetail } from '@/hooks/api/product/useProductDetail';
 import { useProductVariant } from '@/hooks/useProductVariant';
 import { findGalleryIndexByVariant } from '@/utils/adapter/productDetailAdapter';
@@ -32,7 +33,6 @@ import Animated, {
     useSharedValue,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 const log = createLogger('ProductDetail');
@@ -116,6 +116,7 @@ export default function ProductDetailScreen() {
 
     // === Create Conversation Mutation ===
     const { mutate: createConversation, isPending: isCreatingConversation } = useCreateConversation();
+    const prefetchShopChat = usePrefetchShopChat();
 
     /**
      * Memoize current image for bottom sheet
@@ -201,49 +202,38 @@ export default function ProductDetailScreen() {
     }, [variantSheetMode, canAddToCart, selectedVariantId, quantity, addToCart, selectedVariantMedia, productGallery]);
 
     /**
-     * Handle Chat with Shop
-     * - Check cache first for existing conversationId
-     * - If not cached, call API to create/get conversation
-     * - Then navigates to chat detail with real conversationId
+     * Ghost Loading/Prefetch cho Chat
+     */
+    const handlePrefetchChat = useCallback(() => {
+        if (shopUserId && shopName) {
+            prefetchShopChat(shopUserId, shopName, shopLogoUrl);
+        }
+    }, [shopUserId, shopName, shopLogoUrl, prefetchShopChat]);
+
+    /**
+     * Handle Chat with Shop - Pure 0ms Navigation
+     * All heavy logic is pushed to handlePrefetchChat (onPressIn)
      */
     const handleChatPress = useCallback(() => {
         if (!shopUserId || !shopName) {
-            log.warn('Cannot start chat: missing shop info');
+            log.warn(CHAT_STRINGS.error.missingShopInfo);
             return;
         }
 
-        // Check cache first to avoid redundant API call
-        const cachedConversationId = getCachedConversationId(shopUserId);
-        if (cachedConversationId) {
-            Navigator.push(chatRoutes.detail(cachedConversationId, {
-                partnerName: shopName,
-                partnerAvatar: shopLogoUrl,
-            }));
-            return;
-        }
+        // Use Cache (if done), otherwise use Ghost ID (instant, no await)
+        const cachedId = getCachedConversationId(shopUserId);
 
-        // No cache, call API
-        const request = buildChatWithShopRequest(shopUserId, shopName, shopLogoUrl);
+        Navigator.push(chatRoutes.detail(cachedId || `ghost_${shopUserId}`, {
+            partnerName: shopName,
+            partnerAvatar: shopLogoUrl,
+            shopUserId: shopUserId,
+        }));
 
-        createConversation(request, {
-            onSuccess: (response) => {
-                const conversationId = response.data.id;
-                log.info('Navigating to chat', { conversationId });
-                Navigator.push(chatRoutes.detail(conversationId, {
-                    partnerName: shopName,
-                    partnerAvatar: shopLogoUrl,
-                }));
-            },
-            onError: (error) => {
-                log.error('Failed to start chat with shop', { error });
-                Toast.show({
-                    type: 'error',
-                    text1: 'Lỗi khi bắt đầu cuộc trò chuyện',
-                    text2: 'Vui lòng thử lại sau',
-                });
-            },
+        // Log after to prevent Push delay
+        requestAnimationFrame(() => {
+            log.info('Instant navigation triggered');
         });
-    }, [shopUserId, shopName, shopLogoUrl, createConversation]);
+    }, [shopUserId, shopName, shopLogoUrl]);
 
     const handleShopPress = useCallback(() => {
         if (shopId) {
@@ -477,6 +467,7 @@ export default function ProductDetailScreen() {
                     <ShopInfoCard
                         shop={product.shop}
                         onChatPress={handleChatPress}
+                        onPrefetchChat={handlePrefetchChat}
                         onViewShopPress={handleShopPress}
                     />
 
@@ -498,6 +489,7 @@ export default function ProductDetailScreen() {
                 isFullySelected={selectionResult.isFullySelected}
                 inventoryStatus={selectionResult.inventoryStatus}
                 onChatPress={handleChatPress}
+                onPrefetchChat={handlePrefetchChat}
                 onShopPress={handleShopPress}
                 onAddToCartPress={handleAddToCart}
                 onBuyNowPress={handleBuyNow}
