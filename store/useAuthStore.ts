@@ -22,6 +22,7 @@ import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { create } from 'zustand';
 import { useCartStore } from './useCartStore';
+import { useUserAddressStore } from './useUserAddressStore';
 
 const BUYER_ID_KEY = 'user_buyer_id';
 const USER_ID_KEY = 'user_id';
@@ -144,8 +145,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 SecureStore.deleteItemAsync(BUYER_ID_KEY),
             ]);
 
-            // 2. Clear cart store
+            // 2. Clear stores
             useCartStore.getState().clear();
+            useUserAddressStore.getState().clear();
 
             // 3. Clear user-specific query caches
             queryClient.removeQueries({ queryKey: ['cart'] });

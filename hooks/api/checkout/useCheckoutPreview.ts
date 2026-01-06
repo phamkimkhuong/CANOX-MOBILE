@@ -41,10 +41,10 @@ export const useCheckoutPreview = () => {
         mutationFn: async (requestBody: CheckoutPreviewRequest): Promise<CheckoutPreviewUI> => {
             logger.checkout.info('Calling checkout preview API', {
                 shopCount: requestBody.shops.length,
-                hasAddress: !!requestBody.shippingAddress,
+                hasAddress: !!requestBody.addressId,
             });
             const idempotencyKey = uuidv4();
-
+            console.log("Checkout Preview Request Body:", JSON.stringify(requestBody, null, 2));
             const response = await request(
                 {
                     url: API_ROUTES.CART.CHECKOUT_PREVIEW,

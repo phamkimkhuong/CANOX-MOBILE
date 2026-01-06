@@ -15,6 +15,7 @@ import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { toastConfig } from '@/components/ui/CustomToast';
+import { UserSyncProvider } from '@/components/UserSyncProvider';
 import { WebSocketProvider } from '@/components/WebSocketProvider';
 import { ScrollToTopProvider } from '@/contexts/ScrollToTopContext';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
@@ -84,26 +85,28 @@ export default function RootLayout() {
               {/* 3. Inject Theme into Navigation */}
 
               <ThemeProvider value={NavigationTheme}>
-                <Stack screenOptions={{ headerShown: false }}>
-                  {/* Tab Navigator - Has Tab Bar */}
-                  <Stack.Screen name="(tabs)" />
+                <UserSyncProvider>
+                  <Stack screenOptions={{ headerShown: false }}>
+                    {/* Tab Navigator - Has Tab Bar */}
+                    <Stack.Screen name="(tabs)" />
 
-                  {/* Auth Flow - No Tab Bar */}
-                  <Stack.Screen name="(auth)" />
+                    {/* Auth Flow - No Tab Bar */}
+                    <Stack.Screen name="(auth)" />
 
-                  {/* Main Stack - All pushed screens (No Tab Bar) */}
-                  {/* Header managed by (main)/_layout.tsx */}
-                  <Stack.Screen name="(main)" />
+                    {/* Main Stack - All pushed screens (No Tab Bar) */}
+                    {/* Header managed by (main)/_layout.tsx */}
+                    <Stack.Screen name="(main)" />
 
-                  {/* Global Modal */}
-                  <Stack.Screen
-                    name="modal"
-                    options={{
-                      presentation: 'modal',
-                      headerShown: true,
-                    }}
-                  />
-                </Stack>
+                    {/* Global Modal */}
+                    <Stack.Screen
+                      name="modal"
+                      options={{
+                        presentation: 'modal',
+                        headerShown: true,
+                      }}
+                    />
+                  </Stack>
+                </UserSyncProvider>
                 <Toast config={toastConfig} />
                 {/* 4. StatusBar always Dark Content (black text) because of light background */}
                 <StatusBar style="dark" />

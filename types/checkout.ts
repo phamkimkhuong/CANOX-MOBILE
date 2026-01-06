@@ -21,7 +21,7 @@ import type { CartItemUI, VoucherUI } from './cart';
 /**
  * ShippingMethodType - Các loại hình vận chuyển
  */
-export type ShippingMethodType = 'standard' | 'fast' | 'express';
+export type ShippingMethodType = 'standard' | 'fast' | 'express' | 'supper_ship';
 
 /**
  * ShippingMethod - Thông tin một phương thức vận chuyển
@@ -38,6 +38,64 @@ export interface ShippingMethod {
     /** Phí ship gốc trước khi giảm */
     originalFee?: number;
 }
+
+/**
+ * Cấu hình hiển thị cho phương thức vận chuyển
+ */
+export interface ShippingMethodConfig {
+    icon: string;
+    color: string;
+    label: string;
+}
+
+/**
+ * Map cấu hình mặc định theo type
+ */
+export const SHIPPING_CONFIG: Record<ShippingMethodType, ShippingMethodConfig> = {
+    standard: {
+        icon: 'cube-outline',
+        color: '#3b82f6', // theme.colors.primary (mặc định blue)
+        label: 'Tiết kiệm',
+    },
+    fast: {
+        icon: 'bicycle-outline',
+        color: '#10B981', // emerald
+        label: 'Nhanh',
+    },
+    supper_ship: {
+        icon: 'shipping',
+        color: '#3b82f6',
+        label: 'Tiêu chuẩn',
+    },
+    express: {
+        icon: 'bolt',
+        color: '#F59E0B', // amber
+        label: 'Hỏa tốc',
+    },
+};
+
+/**
+ * Helper để lấy cấu hình hiển thị cho một phương thức vận chuyển
+ */
+export const getShippingMethodConfig = (method?: ShippingMethod | null): ShippingMethodConfig => {
+    if (!method) {
+        return SHIPPING_CONFIG.standard;
+    }
+
+    const name = method.name.toLowerCase();
+
+    // Ưu tiên check theo tên cho các đơn vị vận chuyển VN phổ biến
+    if (method.type === 'express' || name.includes('hỏa tốc')) {
+        return SHIPPING_CONFIG.express;
+    }
+    if (method.type === 'fast' || name.includes('nhanh')) {
+        return SHIPPING_CONFIG.fast;
+    }
+    if (method.type === 'supper_ship' || name.includes('tiêu chuẩn')) {
+        return SHIPPING_CONFIG.supper_ship;
+    }
+    return SHIPPING_CONFIG.standard;
+};
 
 /**
  * ShopShippingOptions - Danh sách shipping options cho 1 shop
@@ -102,12 +160,14 @@ export const formatFullAddress = (address: ShippingAddress): string => {
  */
 export interface CheckoutItemUI {
     id: string;
+    productId: string;
     variantId: string;
     productName: string;
     variantAttributes: string;
     imageUrl: string;
     unitPrice: number;
     quantity: number;
+    lineTotal: number;
     shopId: string;
 }
 
@@ -134,12 +194,14 @@ export interface CheckoutShopUI {
  */
 export const toCheckoutItem = (cartItem: CartItemUI): CheckoutItemUI => ({
     id: cartItem.id,
+    productId: '', // CartItemUI missing productId, should be populated from API if possible
     variantId: cartItem.variantId,
     productName: cartItem.productName,
     variantAttributes: cartItem.variantAttributes,
     imageUrl: cartItem.imageUrl,
     unitPrice: cartItem.unitPrice,
     quantity: cartItem.quantity,
+    lineTotal: cartItem.totalPrice,
     shopId: cartItem.shopId,
 });
 
@@ -204,6 +266,8 @@ export interface CheckoutCalculationResult {
     shippingDiscount: number;
     /** Tổng tiền phải trả */
     totalAmount: number;
+    /** Tổng thuế */
+    taxAmount: number;
     /** Tổng tiền tiết kiệm */
     totalSavings: number;
     /** Tổng số item */

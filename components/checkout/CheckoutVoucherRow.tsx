@@ -50,22 +50,17 @@ export const CheckoutVoucherRow: React.FC<CheckoutVoucherRowProps> = ({
         setIsModalVisible(false);
     }, [onSelect]);
 
-    // No vouchers available
-    if (availableVouchers.length === 0) {
-        return null;
-    }
-
     return (
         <>
             {/* Row Display */}
             <Pressable
                 style={({ pressed }) => [
                     styles.container,
-                    pressed && !disabled && styles.containerPressed,
-                    disabled && styles.containerDisabled,
+                    pressed && !disabled && availableVouchers.length > 0 && styles.containerPressed,
+                    (disabled || availableVouchers.length === 0) && styles.containerDisabled,
                 ]}
                 onPress={handleOpenModal}
-                disabled={disabled}
+                disabled={disabled || availableVouchers.length === 0}
                 accessibilityRole="button"
                 accessibilityLabel="Chọn voucher Shop"
             >
@@ -90,17 +85,24 @@ export const CheckoutVoucherRow: React.FC<CheckoutVoucherRowProps> = ({
                             )}
                         </View>
                     ) : (
-                        <Text style={styles.placeholderText}>
-                            Chọn Voucher Shop ({availableVouchers.length} khả dụng)
+                        <Text style={[
+                            styles.placeholderText,
+                            availableVouchers.length === 0 && { color: theme.colors.typographySecondary }
+                        ]}>
+                            {availableVouchers.length > 0
+                                ? `Chọn Voucher Shop (${availableVouchers.length} khả dụng)`
+                                : 'Không có voucher khả dụng'}
                         </Text>
                     )}
                 </View>
 
-                <IconSymbol
-                    name="chevron-right"
-                    size={18}
-                    color={theme.colors.typographySecondary}
-                />
+                {availableVouchers.length > 0 && (
+                    <IconSymbol
+                        name="chevron-right"
+                        size={18}
+                        color={theme.colors.typographySecondary}
+                    />
+                )}
             </Pressable>
 
             {/* Voucher Selection Modal */}

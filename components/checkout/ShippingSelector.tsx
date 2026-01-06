@@ -10,7 +10,7 @@
  */
 
 import { IconSymbol } from '@/components/ui/Icon';
-import type { ShippingMethod } from '@/types/checkout';
+import { ShippingMethod, getShippingMethodConfig } from '@/types/checkout';
 import { formatCurrency } from '@/utils/format';
 import React, { useCallback, useState } from 'react';
 import { Modal, Pressable, Text, TouchableWithoutFeedback, View } from 'react-native';
@@ -92,12 +92,15 @@ export const ShippingSelector: React.FC<ShippingSelectorProps> = ({
                 accessibilityLabel="Chọn phương thức vận chuyển"
             >
                 <View style={styles.mainRow}>
-                    {/* Modern icon with colored background */}
-                    <View style={styles.iconWrapper}>
+                    {/* Dynamic icon from domain types */}
+                    <View style={[
+                        styles.iconWrapper,
+                        { backgroundColor: `${getShippingMethodConfig(selectedMethod).color}12` }
+                    ]}>
                         <IconSymbol
-                            name="shipping"
+                            name={getShippingMethodConfig(selectedMethod).icon as any}
                             size={20}
-                            color={theme.colors.primary}
+                            color={getShippingMethodConfig(selectedMethod).color}
                         />
                     </View>
 
@@ -148,11 +151,6 @@ export const ShippingSelector: React.FC<ShippingSelectorProps> = ({
                                 {/* Header */}
                                 <View style={styles.modalHeader}>
                                     <View style={styles.modalHeaderLeft}>
-                                        <IconSymbol
-                                            name="shipping"
-                                            size={22}
-                                            color={theme.colors.primary}
-                                        />
                                         <Text style={styles.modalTitle}>
                                             Phương thức vận chuyển
                                         </Text>
@@ -182,12 +180,15 @@ export const ShippingSelector: React.FC<ShippingSelectorProps> = ({
                                             ]}
                                             onPress={() => handleSelect(method.id)}
                                         >
-                                            {/* Icon */}
-                                            <View style={styles.optionIcon}>
+                                            {/* Dynamic icon from domain types */}
+                                            <View style={[
+                                                styles.optionIcon,
+                                                { backgroundColor: `${getShippingMethodConfig(method).color}10` }
+                                            ]}>
                                                 <IconSymbol
-                                                    name={method.type === 'express' ? 'shipping-fast' : 'shipping'}
+                                                    name={getShippingMethodConfig(method).icon as any}
                                                     size={22}
-                                                    color={method.type === 'express' ? '#F59E0B' : theme.colors.primary}
+                                                    color={getShippingMethodConfig(method).color}
                                                 />
                                             </View>
 

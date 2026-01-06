@@ -37,12 +37,14 @@ const DEFAULT_IMAGE = 'https://via.placeholder.com/96';
  */
 export const toCheckoutItemUI = (dto: CheckoutPreviewItemDTO): CheckoutItemUI => ({
     id: dto.itemId,
+    productId: dto.productId,
     variantId: dto.variantId,
     productName: dto.productName,
     variantAttributes: dto.variantAttributes || '',
     imageUrl: toSizedImageUrl(dto.basePath, dto.extension) ?? DEFAULT_IMAGE,
     unitPrice: dto.unitPrice,
     quantity: dto.quantity,
+    lineTotal: dto.lineTotal,
     shopId: '', // Will be set by parent
 });
 
@@ -106,7 +108,7 @@ export const toVoucherUI = (dto: CheckoutVoucherDetailDTO): VoucherUI => ({
     id: dto.voucherCode,
     code: dto.voucherCode,
     title: dto.voucherType,
-    description: dto.reason,
+    description: dto.reason ?? '',
     discountDisplay: formatDiscountDisplay(dto.discountAmount, dto.discountMethod),
     minOrderDisplay: '', // Not available in DTO
     isApplicable: dto.valid,
@@ -189,6 +191,7 @@ export const toCheckoutCalculation = (
     platformVoucherDiscount: dto.totalDiscount - dto.productDiscount - dto.shippingDiscount,
     shippingDiscount: dto.shippingDiscount,
     totalAmount: dto.grandTotal,
+    taxAmount: dto.totalTaxAmount,
     totalSavings: dto.totalDiscount,
     totalItemCount: dto.totalItems,
     shopSubtotals: shops.map((shop) => toShopSubtotal(shop.shopId, shop.summary)),

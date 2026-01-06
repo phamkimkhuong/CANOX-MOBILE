@@ -5,6 +5,7 @@
 import { createBuyerAddress, deleteBuyerAddress, getBuyerAddresses, getCountry, updateBuyerAddress } from '@/services/api/addressApi';
 import { isSessionExpiredError } from '@/services/api/client';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useUserAddressStore } from '@/store/useUserAddressStore';
 import type {
     AddressFormData,
     CreateBuyerAddressRequest,
@@ -13,6 +14,7 @@ import type {
 import { MAX_ADDRESSES } from '@/types/address';
 import { toBuyerAddressListUI, toBuyerAddressUI } from '@/utils/adapter/addressAdapter';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import Toast from 'react-native-toast-message';
 
 // ============================================
@@ -35,8 +37,9 @@ const DEFAULT_COUNTRY_NAME = 'Việt Nam';
 export const useUserAddresses = () => {
     const buyerId = useAuthStore((state) => state.buyerId);
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+    const setAddresses = useUserAddressStore((s) => s.setAddresses);
 
-    return useQuery({
+    const query = useQuery({
         queryKey: USER_ADDRESS_KEYS.all,
         queryFn: async (): Promise<ShippingAddress[]> => {
             if (!buyerId) {
@@ -54,6 +57,15 @@ export const useUserAddresses = () => {
         enabled: isAuthenticated && !!buyerId,
         staleTime: 1000 * 60 * 5,
     });
+
+    // Auto-sync to zustand store
+    useEffect(() => {
+        if (query.data) {
+            setAddresses(query.data);
+        }
+    }, [query.data, setAddresses]);
+
+    return query;
 };
 
 /**

@@ -2,7 +2,7 @@
  * useCheckoutStore - Zustand store for Checkout Session
  */
 
-import type { CheckoutShopUI, PaymentMethodType, ShippingAddress } from '@/types/checkout';
+import type { CheckoutShopUI, PaymentMethodType } from '@/types/checkout';
 import type { CheckoutPreviewUI } from '@/utils/adapter/checkoutPreviewAdapter';
 import { create } from 'zustand';
 
@@ -24,12 +24,10 @@ interface CheckoutState {
     selectedPlatformVoucher: string | null;
     shopNotes: Map<string, string>;
     paymentMethod: PaymentMethodType;
-    /** Selected delivery address */
-    deliveryAddress: ShippingAddress | null;
     /** Submitting order */
     isSubmitting: boolean;
 
-    initSession: (selectedItemIds: Set<string>, address: ShippingAddress | null) => void;
+    initSession: (selectedItemIds: Set<string>) => void;
     /** Reset session when leaving checkout */
     resetSession: () => void;
     setPreviewData: (data: CheckoutPreviewUI | null) => void;
@@ -44,7 +42,6 @@ interface CheckoutState {
     applyPlatformVoucher: (voucherCode: string | null) => void;
     setShopNote: (shopId: string, note: string) => void;
     setPaymentMethod: (method: PaymentMethodType) => void;
-    setDeliveryAddress: (address: ShippingAddress) => void;
 
     // ========================================
     // Actions - UI State
@@ -74,7 +71,6 @@ const initialState = {
     selectedPlatformVoucher: null as string | null,
     shopNotes: new Map<string, string>(),
     paymentMethod: 'cod' as PaymentMethodType,
-    deliveryAddress: null as ShippingAddress | null,
 
     // UI State
     isSubmitting: false,
@@ -95,11 +91,10 @@ export const useCheckoutStore = create<CheckoutState>((set, get) => ({
      * Initialize checkout session with selected items from Cart.
      * Cart calls this BEFORE navigating, data is ready immediately.
      */
-    initSession: (selectedItemIds, address) => {
+    initSession: (selectedItemIds) => {
         set({
             isInitialized: true,
             selectedItemIds: new Set(selectedItemIds),
-            deliveryAddress: address,
             // Reset selections
             selectedShipping: new Map(),
             selectedShopVouchers: new Map(),
@@ -162,10 +157,6 @@ export const useCheckoutStore = create<CheckoutState>((set, get) => ({
 
     setPaymentMethod: (method) => {
         set({ paymentMethod: method });
-    },
-
-    setDeliveryAddress: (address) => {
-        set({ deliveryAddress: address });
     },
 
     // ========================================

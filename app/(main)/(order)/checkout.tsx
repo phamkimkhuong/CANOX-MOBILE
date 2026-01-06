@@ -27,6 +27,7 @@ import {
 // Store & Hooks
 import { useCart } from '@/hooks/api/cart/useCart';
 import { useCheckoutPreview } from '@/hooks/api/checkout/useCheckoutPreview';
+import { useRecommendPlatformVouchers } from '@/hooks/api/checkout/useRecommendPlatformVouchers';
 import { useUserAddresses } from '@/hooks/api/useUserAddresses';
 import { useDebounce } from '@/hooks/useDebounce';
 import {
@@ -37,9 +38,10 @@ import {
     useOrderBlockReasons,
     usePreviewWarnings,
 } from '@/store/useCheckoutStore';
-import type { VoucherUI } from '@/types/cart';
+import { useUserAddressStore } from '@/store/useUserAddressStore';
 import type { PaymentMethodType } from '@/types/checkout';
 import type { CheckoutPreviewRequest } from '@/types/checkout/checkoutPreview';
+import type { RecommendPlatformVoucherRequest } from '@/types/checkout/platformVoucherRecommendation';
 import { logger } from '@/utils/logger';
 
 // ============================================
@@ -70,7 +72,6 @@ export default function CheckoutScreen() {
     const selectedPlatformVoucher = useCheckoutStore((s) => s.selectedPlatformVoucher);
     const selectedItemIds = useCheckoutStore((s) => s.selectedItemIds);
     const isLoadingPreview = useCheckoutStore((s) => s.isLoadingPreview);
-    const storeDeliveryAddress = useCheckoutStore((s) => s.deliveryAddress);
 
     // Computed selectors from store
     const shops = useCheckoutShops();
@@ -87,6 +88,7 @@ export default function CheckoutScreen() {
         platformVoucherDiscount: 0,
         shippingDiscount: 0,
         totalAmount: 0,
+        taxAmount: 0,
         totalSavings: 0,
         totalItemCount: 0,
         shopSubtotals: [],
@@ -103,16 +105,14 @@ export default function CheckoutScreen() {
     }, [warnings]);
     const isPlatformVoucherValid = platformVoucherWarning === null;
 
-    // Delivery address - Optimistic display:
+    // Address from Global Store
+    const selectedAddressId = useUserAddressStore((s) => s.selectedAddressId);
+    const allAddresses = useUserAddressStore((s) => s.addresses);
+
+    // Delivery address for UI display
     const deliveryAddress = useMemo(() => {
-        // Ưu tiên 1: Address từ store (user vừa chọn - optimistic)
-        if (storeDeliveryAddress) {
-            return storeDeliveryAddress;
-        }
-        // Ưu tiên 2: Address từ server response
-        if (!previewData?.addressId || !userAddresses) return null;
-        return userAddresses.find((addr) => addr.id === previewData.addressId) ?? null;
-    }, [storeDeliveryAddress, previewData?.addressId, userAddresses]);
+        return allAddresses.find((addr) => addr.id === selectedAddressId) || null;
+    }, [allAddresses, selectedAddressId]);
 
     // Store actions
     const resetSession = useCheckoutStore((s) => s.resetSession);
@@ -131,6 +131,7 @@ export default function CheckoutScreen() {
 
         // Cần selected items từ store
         if (selectedItemIds.size === 0) return null;
+        const currentAddressId = selectedAddressId;
 
         // Filter shops có items được chọn
         const shopsWithSelection = cartData.shops
@@ -143,37 +144,30 @@ export default function CheckoutScreen() {
         if (shopsWithSelection.length === 0) return null;
 
         const request: CheckoutPreviewRequest = {
+            addressId: currentAddressId || undefined,
+            globalVouchers: [],
             shops: shopsWithSelection.map((shop) => {
                 const voucherCode = selectedShopVouchers.get(shop.shopId);
-                const shippingCode = selectedShipping.get(shop.shopId);
+                const userShippingCode = selectedShipping.get(shop.shopId);
+
+                let shippingFee = 0;
+                if (userShippingCode) {
+                    const shopUI = shops.find((s) => s.shopId === shop.shopId);
+                    const method = shopUI?.shippingOptions.methods.find(m => m.id === userShippingCode);
+                    shippingFee = method?.fee || 0;
+                }
 
                 return {
                     shopId: shop.shopId,
                     itemIds: shop.items.map((item) => item.id),
                     vouchers: voucherCode ? [voucherCode] : [],
-                    serviceCode: shippingCode ? parseInt(shippingCode, 10) : undefined,
+                    globalVouchers: selectedPlatformVoucher ? [selectedPlatformVoucher] : [],
+                    shippingMethodCode: userShippingCode || undefined,
+                    shippingFee: shippingFee,
                 };
             }),
             allSelectedItemIds: [...selectedItemIds],
         };
-
-        // Add address if user selected one
-        if (storeDeliveryAddress?.id) {
-            request.shippingAddress = {
-                addressId: storeDeliveryAddress.id,
-            };
-            request.usingSavedAddress = true;
-        }
-
-        // Add payment method
-        if (paymentMethod) {
-            request.paymentMethod = paymentMethod;
-        }
-
-        // Add platform voucher
-        if (selectedPlatformVoucher) {
-            request.allDiscountCodes = [selectedPlatformVoucher];
-        }
 
         return request;
     }, [
@@ -182,7 +176,9 @@ export default function CheckoutScreen() {
         selectedShipping,
         selectedShopVouchers,
         selectedPlatformVoucher,
-        storeDeliveryAddress,
+        selectedAddressId,
+        previewData?.addressId,
+        shops,
         paymentMethod,
     ]);
 
@@ -200,15 +196,10 @@ export default function CheckoutScreen() {
     const doFetchPreview = useCallback(
         (request: CheckoutPreviewRequest) => {
             setLoadingPreview(true);
-
             callPreviewRef.current(request, {
                 onSuccess: (data) => {
                     setPreviewData(data);
                     setLoadingPreview(false);
-                    logger.checkout.info('Preview updated', {
-                        grandTotal: data.calculation.totalAmount,
-                        isValid: data.isValid,
-                    });
                 },
                 onError: (error) => {
                     setLoadingPreview(false);
@@ -328,10 +319,43 @@ export default function CheckoutScreen() {
     // DERIVED STATE
     // ========================================
 
-    // Platform vouchers - TODO: get from API or previewData
-    const availablePlatformVouchers = useMemo<VoucherUI[]>(() => {
-        return [];
-    }, []);
+    // ========================================
+    // PLATFORM VOUCHER RECOMMENDATIONS
+    // ========================================
+    const recommendationsRequest = useMemo<RecommendPlatformVoucherRequest | null>(() => {
+        if (!isInitialized || !previewData) return null;
+        const firstShop = previewData.shops[0];
+        const currentShippingCode = selectedShipping.get(firstShop?.shopId) || firstShop?.shippingOptions.selectedMethodId;
+
+        return {
+            totalAmount: previewData.calculation.subtotal,
+            shippingFee: previewData.calculation.totalShippingFee,
+            shippingMethod: currentShippingCode || undefined,
+            shippingProvince: deliveryAddress?.provinceCode,
+            shippingWard: deliveryAddress?.wardCode,
+            shopIds: previewData.shops.map((s) => s.shopId),
+            productIds: previewData.shops.flatMap((s) => s.items.map((i) => i.productId)),
+            items: previewData.shops.flatMap((s) =>
+                s.items.map((i) => ({
+                    productId: i.productId,
+                    shopId: s.shopId,
+                    unitPrice: i.unitPrice,
+                    quantity: i.quantity,
+                    lineTotal: i.lineTotal,
+                }))
+            ),
+            failedVoucherCodes: [],
+            preferences: {
+                scopes: ['SHOP_ORDER', 'SHIPPING'],
+                limit: 10,
+            },
+        };
+    }, [isInitialized, previewData, selectedShipping, deliveryAddress]);
+
+    const { data: availablePlatformVouchers = [], isLoading: isLoadingRecommendations } = useRecommendPlatformVouchers(
+        recommendationsRequest,
+        { enabled: !!recommendationsRequest }
+    );
 
     // ========================================
     // RENDER
@@ -381,6 +405,7 @@ export default function CheckoutScreen() {
                     isInvalid={!isPlatformVoucherValid}
                     warningMessage={platformVoucherWarning}
                     onSelect={handlePlatformVoucherSelect}
+                    isLoading={isLoadingRecommendations}
                 />
 
                 {/* Payment Method */}

@@ -94,6 +94,16 @@ export const BillSummary: React.FC<BillSummaryProps> = ({ calculation }) => {
                     </View>
                 )}
 
+                {/* Tax (if any) */}
+                {calculation.taxAmount > 0 && (
+                    <View style={styles.row}>
+                        <Text style={styles.label}>Thuế (VAT)</Text>
+                        <Text style={styles.value}>
+                            {formatCurrency(calculation.taxAmount)}
+                        </Text>
+                    </View>
+                )}
+
                 {/* Divider */}
                 <View style={styles.divider} />
 

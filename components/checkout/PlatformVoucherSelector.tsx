@@ -25,6 +25,8 @@ interface PlatformVoucherSelectorProps {
     warningMessage?: string | null;
     /** Callback when voucher is selected/deselected */
     onSelect: (voucherId: string | null) => void;
+    /** Whether vouchers are being fetched */
+    isLoading?: boolean;
 }
 
 export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = ({
@@ -34,6 +36,7 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
     isInvalid = false,
     warningMessage = null,
     onSelect,
+    isLoading = false,
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
@@ -99,9 +102,11 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
                         </View>
                     ) : (
                         <Text style={styles.placeholderText}>
-                            {availableVouchers.length > 0
-                                ? `Chọn hoặc nhập mã (${availableVouchers.length} khả dụng)`
-                                : 'Không có voucher khả dụng'}
+                            {isLoading
+                                ? 'Đang tìm voucher tốt nhất...'
+                                : availableVouchers.length > 0
+                                    ? `Chọn hoặc nhập mã (${availableVouchers.length} khả dụng)`
+                                    : 'Không có voucher khả dụng'}
                         </Text>
                     )}
                     <IconSymbol
@@ -243,7 +248,7 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
                                                             {voucher.code}
                                                         </Text>
                                                         <Text style={styles.voucherCardCondition}>
-                                                            Đơn tối thiểu {voucher.minOrderDisplay}
+                                                            {voucher.minOrderDisplay}
                                                         </Text>
                                                         {voucher.expiresAt && (
                                                             <Text style={styles.voucherCardExpiry}>

@@ -258,7 +258,7 @@ export default function CartScreen() {
 
         if (!cartData) return;
 
-        useCheckoutStore.getState().initSession(selectedItemIds, null);
+        useCheckoutStore.getState().initSession(selectedItemIds);
 
         router.push(ROUTES.CHECKOUT.INDEX);
     }, [calculation.selectedCount, cartData, selectedItemIds, router]);

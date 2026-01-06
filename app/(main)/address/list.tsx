@@ -13,7 +13,7 @@ import {
     useCanAddAddress,
     useUserAddresses,
 } from '@/hooks/api/useUserAddresses';
-import { useCheckoutStore } from '@/store/useCheckoutStore';
+import { useUserAddressStore } from '@/store/useUserAddressStore';
 import type { AddressListMode, ShippingAddress } from '@/types/address';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo } from 'react';
@@ -38,8 +38,9 @@ export default function AddressListScreen() {
     const { data: addresses, isLoading, isRefetching, refetch } = useUserAddresses();
     const { currentCount, maxCount } = useCanAddAddress();
 
-    // Checkout store for selection mode
-    const setDeliveryAddress = useCheckoutStore((s) => s.setDeliveryAddress);
+    // Global address store
+    const setSelectedAddressId = useUserAddressStore((s) => s.setSelectedAddressId);
+    const globalSelectedId = useUserAddressStore((s) => s.selectedAddressId);
 
     // Sort addresses: default first
     const sortedAddresses = useMemo(() => {
@@ -55,19 +56,19 @@ export default function AddressListScreen() {
      * Determine which address should be visually selected (radio button)
      */
     const effectiveSelectedId = useMemo(() => {
-        // Priority 1: Use selectedId from URL params (the address currently in checkout)
-        if (selectedIdParam) {
-            return selectedIdParam;
+        // Priority 1: Use globalSelectedId (consistent state)
+        if (globalSelectedId) {
+            return globalSelectedId;
         }
 
-        // Priority 2: In selection mode, default to the default address
+        // Priority 2: In selection mode, fallback to default
         if (mode === 'selection' && addresses) {
             const defaultAddr = addresses.find((addr) => addr.isDefault);
             return defaultAddr?.id ?? null;
         }
 
         return null;
-    }, [selectedIdParam, mode, addresses]);
+    }, [globalSelectedId, mode, addresses]);
 
     /**
      * Handle address selection in selection mode
@@ -76,12 +77,12 @@ export default function AddressListScreen() {
     const handleSelect = useCallback(
         (address: ShippingAddress) => {
             if (mode === 'selection') {
-                // Save selected address to checkout store
-                setDeliveryAddress(address);
+                // Save selected address ID to global address store
+                setSelectedAddressId(address.id);
                 router.back();
             }
         },
-        [mode, setDeliveryAddress]
+        [mode, setSelectedAddressId]
     );
 
     // Handle edit - navigate to edit form

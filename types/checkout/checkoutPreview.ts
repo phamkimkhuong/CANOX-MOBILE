@@ -18,6 +18,7 @@ export interface CheckoutPreviewShopRequest {
     itemIds: string[];
     vouchers: string[];
     serviceCode?: number;
+    shippingMethodCode?: string;
     shippingFee?: number;
     globalVouchers?: string[];
     loyaltyPoints?: number;
@@ -31,6 +32,8 @@ export interface CheckoutPreviewRequest {
         country?: string;
         taxFee?: string;
     };
+    addressId?: string;
+    globalVouchers?: string[];
     loyaltyPoints?: number;
     paymentMethod?: string;
     usingSavedAddress?: boolean;
@@ -81,7 +84,7 @@ export interface CheckoutVoucherDetailDTO {
     discountAmount: number;
     discountMethod: string;
     discountTarget: string;
-    reason: string;
+    reason: string | null;
     valid: boolean;
 }
 
@@ -214,7 +217,7 @@ const CheckoutVoucherDetailSchema = z.object({
     discountAmount: z.number(),
     discountMethod: z.string(),
     discountTarget: z.string(),
-    reason: z.string(),
+    reason: z.string().nullable(),
     valid: z.boolean(),
 });
 
