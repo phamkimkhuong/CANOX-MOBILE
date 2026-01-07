@@ -16,7 +16,7 @@ import type {
     Voucher,
     VoucherUI,
 } from '@/types/product/productDetail';
-import { getNextFlashSaleSlot } from '../date';
+import { getNextFlashSaleSlot } from '@/utils/date';
 
 
 const IMAGE_BASE_URL = process.env.EXPO_PUBLIC_IMAGE_BASE_URL ?? 'https://pub-5341c10461574a539df355b9fbe87197.r2.dev/';

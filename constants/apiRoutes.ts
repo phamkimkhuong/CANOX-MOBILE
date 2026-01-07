@@ -86,6 +86,9 @@ export const API_ROUTES = {
         CANCEL: (orderId: string) => `${API_PREFIX}/buyer/orders/${orderId}/cancel`,
         CONFIRM_RECEIVED: (orderId: string) => `${API_PREFIX}/buyer/orders/${orderId}/confirm-received`,
     },
+    REVIEWS: {
+        LIST: (type: string, id: string | number) => `${API_PREFIX}/reviews/${type}/${id}`,
+    },
     BUYERS_INFORMATION: {
         UPDATE: (buyerId: string) => `${API_PREFIX}/buyers/${buyerId}`,
     },

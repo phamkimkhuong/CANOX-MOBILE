@@ -6,10 +6,11 @@
  */
 
 import { ROUTES } from '@/constants/routes';
+import { Alert } from '@/utils/AlertHelper';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import { Alert, ScrollView, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 // Components
@@ -39,10 +40,11 @@ import {
     usePreviewWarnings,
 } from '@/store/useCheckoutStore';
 import { useUserAddressStore } from '@/store/useUserAddressStore';
-import type { PaymentMethodType } from '@/types/checkout';
-import type { CheckoutPreviewRequest } from '@/types/checkout/checkoutPreview';
+import type { CheckoutShopUI, PaymentMethodType } from '@/types/checkout';
+import type { CheckoutPreviewRequest, CheckoutPreviewShopRequest } from '@/types/checkout/checkoutPreview';
 import type { CreateOrderRequest } from '@/types/checkout/order';
 import type { RecommendPlatformVoucherRequest } from '@/types/checkout/platformVoucherRecommendation';
+import { CheckoutPreviewUI } from '@/utils/adapter/checkoutPreviewAdapter';
 import { logger } from '@/utils/logger';
 
 // ============================================
@@ -176,6 +178,42 @@ export default function CheckoutScreen() {
         paymentMethod,
     ]);
 
+    /**
+     * Check if the current request exactly matches what the server already calculated.
+     * This prevents the "double call" when the store syncs vouchers from the first response.
+     */
+    const isRequestMatchingPreview = useCallback((req: CheckoutPreviewRequest, preview: CheckoutPreviewUI) => {
+        // Check Address
+        if (req.shippingAddress?.addressId !== preview.addressId) return false;
+
+        // Check Global Vouchers
+        const reqGlobals = req.globalVouchers || [];
+        const previewGlobals: string[] = [];
+        if (preview.calculation.appliedPlatformVoucherId) previewGlobals.push(preview.calculation.appliedPlatformVoucherId);
+        if (preview.calculation.appliedShippingVoucherId) previewGlobals.push(preview.calculation.appliedShippingVoucherId);
+
+        if (reqGlobals.length !== previewGlobals.length) return false;
+        if (!reqGlobals.every(v => previewGlobals.includes(v))) return false;
+
+        //  Check Shop Vouchers & Items
+        for (const reqShop of req.shops) {
+            const previewShop = preview.shops.find((s: CheckoutShopUI) => s.shopId === reqShop.shopId);
+            if (!previewShop) return false;
+
+            // Check applied voucher
+            const reqVoucher = reqShop.vouchers?.[0] || null;
+            const previewVoucher = previewShop.appliedVoucherId;
+            if (reqVoucher !== previewVoucher) return false;
+
+            // Check custom shipping selection
+            const reqShipping = reqShop.serviceCode;
+            const previewShipping = Number(previewShop.shippingOptions.selectedMethodId);
+            if (reqShipping && reqShipping !== previewShipping) return false;
+        }
+
+        return true;
+    }, []);
+
     // ========================================
     // CALL PREVIEW API
     // ========================================
@@ -221,7 +259,7 @@ export default function CheckoutScreen() {
         const triggeringRequest = {
             ...debouncedRequest,
             paymentMethod: undefined,
-            shops: debouncedRequest.shops.map(s => ({
+            shops: debouncedRequest.shops.map((s: CheckoutPreviewShopRequest) => ({
                 ...s,
                 serviceCode: undefined,
                 shippingFee: undefined,
@@ -232,10 +270,16 @@ export default function CheckoutScreen() {
         if (lastRequestKey.current === requestKey) {
             return;
         }
+        if (previewData && isRequestMatchingPreview(debouncedRequest, previewData)) {
+            logger.checkout.debug('Skipping redundant preview call - request matches current data');
+            lastRequestKey.current = requestKey;
+            return;
+        }
+
         lastRequestKey.current = requestKey;
 
         doFetchPreview(debouncedRequest);
-    }, [debouncedRequest, doFetchPreview]);
+    }, [debouncedRequest, doFetchPreview, previewData, isRequestMatchingPreview]);
 
     // Cleanup on unmount
     useFocusEffect(
@@ -284,19 +328,24 @@ export default function CheckoutScreen() {
             if (selectedPlatformShippingVoucher) globalVouchersArray.push(selectedPlatformShippingVoucher);
 
             const request: CreateOrderRequest = {
-                shops: previewData.shops.map(shop => ({
-                    shopId: shop.shopId,
-                    itemIds: shop.items.map(i => i.id),
-                    vouchers: shop.appliedVoucherId ? [shop.appliedVoucherId] : undefined,
-                    serviceCode: Number(shop.shippingOptions.selectedMethodId),
-                    shippingFee: shop.shippingOptions.methods.find(m => m.id === shop.shippingOptions.selectedMethodId)?.fee || 0,
-                    globalVouchers: globalVouchersArray.length > 0 ? globalVouchersArray : undefined,
-                    loyaltyPoints: 0, // Placeholder
-                })),
+                shops: previewData.shops.map(shop => {
+                    const shopVouchers: string[] = [];
+                    if (shop.appliedVoucherId) shopVouchers.push(shop.appliedVoucherId);
+
+                    return {
+                        shopId: shop.shopId,
+                        itemIds: shop.items.map(i => i.id),
+                        vouchers: shopVouchers,
+                        serviceCode: Number(shop.shippingOptions.selectedMethodId) || 0,
+                        shippingFee: shop.shippingOptions.methods.find(m => m.id === shop.shippingOptions.selectedMethodId)?.fee || 0,
+                        globalVouchers: globalVouchersArray,
+                        loyaltyPoints: 0,
+                    };
+                }),
                 buyerAddressData: {
                     addressId: previewData.addressId,
                     addressType: previewData.addressType ?? 1,
-                    taxAddress: null,
+                    taxAddress: '', // Avoid null for string field
                 },
                 loyaltyPoints: 0,
                 paymentMethod: paymentMethod === 'cod' ? 'COD' : 'BANK_TRANSFER',
@@ -310,23 +359,19 @@ export default function CheckoutScreen() {
 
             const response = await placeOrder(request);
 
-            Alert.alert(
-                'Đặt hàng thành công!',
-                `Đơn hàng của bạn đã được tạo thành công.\nMã đơn hàng: ${response.data.orders[0]?.orderNumber}`,
-                [
-                    {
-                        text: 'Xem đơn hàng',
-                        onPress: () => {
-                            resetSession();
-                            // Redirect to orders tab or list
-                            router.replace(ROUTES.ORDERS.LIST as any);
-                        },
-                    },
-                ]
-            );
+            Alert.show({
+                title: 'Đặt hàng thành công!',
+                message: `Đơn hàng của bạn đã được tạo thành công.\nMã đơn hàng: ${response.data.orders[0]?.orderNumber}`,
+                type: 'success',
+                confirmText: 'Xem đơn hàng',
+                onConfirm: () => {
+                    resetSession();
+                    router.replace(ROUTES.ORDERS.LIST as any);
+                }
+            });
         } catch (error: any) {
             logger.checkout.error('Place order failed', { error: error.message });
-            Alert.alert('Lỗi', error.message || 'Đặt hàng thất bại. Vui lòng thử lại.');
+            Alert.error(error.message || 'Đặt hàng thất bại. Vui lòng thử lại.');
         } finally {
             setSubmitting(false);
         }
@@ -344,17 +389,18 @@ export default function CheckoutScreen() {
     ]);
 
     const handleBack = useCallback(() => {
-        Alert.alert('Hủy thanh toán?', 'Thông tin thanh toán sẽ không được lưu.', [
-            { text: 'Ở lại', style: 'cancel' },
-            {
-                text: 'Hủy',
-                style: 'destructive',
-                onPress: () => {
-                    resetSession();
-                    router.back();
-                },
-            },
-        ]);
+        Alert.show({
+            title: 'Hủy thanh toán?',
+            message: 'Thông tin thanh toán sẽ không được lưu.',
+            type: 'warning',
+            showCancel: true,
+            cancelText: 'Ở lại',
+            confirmText: 'Hủy',
+            onConfirm: () => {
+                resetSession(); // Retaining resetSession as it was in the original logic
+                router.back();
+            }
+        });
     }, [resetSession, router]);
 
     // ========================================

@@ -55,9 +55,6 @@ export const useRecommendPlatformVouchers = (
                 logger.api.error('Failed to fetch platform vouchers:', response.message);
                 return [];
             }
-
-            // console.log('Recommendation API Response Data:', JSON.stringify(response.data, null, 2));
-
             return toPlatformVoucherUIList(response.data);
         },
 

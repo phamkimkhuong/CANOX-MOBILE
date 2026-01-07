@@ -14,12 +14,14 @@ import { View } from 'react-native';
 import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import CustomAlert from '@/components/ui/CustomAlert';
 import { toastConfig } from '@/components/ui/CustomToast';
 import { UserSyncProvider } from '@/components/UserSyncProvider';
 import { WebSocketProvider } from '@/components/WebSocketProvider';
 import { ScrollToTopProvider } from '@/contexts/ScrollToTopContext';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { useTokenRefreshOnForeground } from '@/hooks/useTokenRefresh';
+import { alertRef } from '@/utils/AlertHelper';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Toast from 'react-native-toast-message';
 
@@ -107,6 +109,7 @@ export default function RootLayout() {
                     />
                   </Stack>
                 </UserSyncProvider>
+                <CustomAlert ref={alertRef} />
                 <Toast config={toastConfig} />
                 {/* 4. StatusBar always Dark Content (black text) because of light background */}
                 <StatusBar style="dark" />

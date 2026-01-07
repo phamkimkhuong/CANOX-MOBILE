@@ -57,6 +57,29 @@ const lightTheme = {
         m: 8,
         l: 16,
         full: 999
+    },
+    shadows: {
+        small: {
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 2,
+        },
+        medium: {
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 5 },
+            shadowOpacity: 0.15,
+            shadowRadius: 10,
+            elevation: 5,
+        },
+        large: {
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 10 },
+            shadowOpacity: 0.1,
+            shadowRadius: 20,
+            elevation: 10,
+        }
     }
 } as const;
 

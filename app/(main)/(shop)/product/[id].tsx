@@ -22,7 +22,7 @@ import { useAddToCart } from '@/hooks/api/cart';
 import { getCachedConversationId, useCreateConversation, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
 import { useProductDetail } from '@/hooks/api/product/useProductDetail';
 import { useProductVariant } from '@/hooks/useProductVariant';
-import { findGalleryIndexByVariant } from '@/utils/adapter/productDetailAdapter';
+import { findGalleryIndexByVariant } from '@/utils/adapter/product/productDetailAdapter';
 import { createLogger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
 import { useLocalSearchParams } from 'expo-router';
@@ -456,6 +456,7 @@ export default function ProductDetailScreen() {
 
                     {/* Product Reviews */}
                     <ProductReviews
+                        productId={product.id}
                         reviewStatistics={product.reviewStatistics}
                         rating={product.rating}
                         totalReviews={product.totalReviews}

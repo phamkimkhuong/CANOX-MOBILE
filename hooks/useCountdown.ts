@@ -102,19 +102,6 @@ const formatDuration = (d: CountdownDuration): string => {
  * - Automatically handles AppState (background/foreground)
  * - Returns calculated hours, minutes, seconds
  * - No drift after many seconds
- * 
- * @example
- * ```tsx
- * // Use with targetDate (Flash Sale)
- * const { duration, isExpired } = useCountdown({
- *   targetDate: '2025-12-30T00:00:00Z',
- *   autoStart: true,
- *   onComplete: () => console.log('Flash Sale ended!'),
- * });
- * 
- * // Render
- * <CountdownDigits duration={duration} />
- * ```
  */
 export const useCountdown = ({
     targetDate,
@@ -259,3 +246,4 @@ export const useCountdown = ({
 
 // Export types for consumers
 export type { CountdownDuration, UseCountdownOptions, UseCountdownReturn };
+

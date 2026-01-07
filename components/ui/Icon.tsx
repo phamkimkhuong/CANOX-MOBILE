@@ -119,6 +119,7 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     // === Toast/Status Icons ===
     'check-circle': { ios: 'checkmark-circle', android: 'checkmark-circle' },
     error: { ios: 'close-circle', android: 'close-circle' },
+    warning: { ios: 'warning', android: 'warning' },
     info: { ios: 'information-circle', android: 'information-circle' },
 
     // === Action Icons (Extended) ===

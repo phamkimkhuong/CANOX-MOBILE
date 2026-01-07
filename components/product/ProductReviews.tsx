@@ -1,6 +1,9 @@
 import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
+import { useProductReviews } from '@/hooks/api/product/useProductReviews';
 import type { ReviewStatistics } from '@/types/product/productDetail';
+import { formatTime } from '@/utils/date';
 import { createLogger } from '@/utils/logger';
+import { Image } from 'expo-image';
 import React, { memo, useCallback, useMemo } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -9,6 +12,8 @@ import { IconSymbol } from '../ui/Icon';
 const log = createLogger('ProductReviews');
 
 interface ProductReviewsProps {
+    /** ID của sản phẩm để gọi reviews */
+    productId: string;
     /** Review statistics từ product data */
     reviewStatistics: ReviewStatistics;
     /** Rating trung bình */
@@ -33,8 +38,6 @@ interface RatingBarProps {
     percentage: number;
     count: number;
 }
-
-const PLACEHOLDER_AVATAR = 'L6PZfSi_.AyE_3t7t7R**0o#DgR4';
 
 // ============================================
 // HELPER FUNCTIONS
@@ -98,7 +101,7 @@ const chipStyles = StyleSheet.create((theme) => ({
 }));
 
 /**
- * Rating Bar Component - Hiển thị thanh progress cho mỗi mức sao
+ * Rating Bar Component
  */
 const RatingBar = memo<RatingBarProps>(({ star, percentage, count }) => {
     const { theme } = useUnistyles();
@@ -160,6 +163,7 @@ const barStyles = StyleSheet.create((theme) => ({
 // ============================================
 
 export const ProductReviews = memo<ProductReviewsProps>(({
+    productId,
     reviewStatistics,
     rating,
     totalReviews,
@@ -167,6 +171,12 @@ export const ProductReviews = memo<ProductReviewsProps>(({
     onAskQuestionPress,
 }) => {
     const { theme } = useUnistyles();
+
+    // Fetch reviews preview (size 2)
+    const { data: previewReviews, isLoading: isLoadingReviews } = useProductReviews(productId, {
+        size: 2,
+        enabled: totalReviews > 0
+    });
 
     // Memoize rating distribution data
     const ratingBars = useMemo(() => {
@@ -187,13 +197,11 @@ export const ProductReviews = memo<ProductReviewsProps>(({
         { id: 'media', label: PRODUCT_STRINGS.reviews.filterWithMedia, count: reviewStatistics.mediaReviewCount ?? 0, isActive: false },
     ], [totalReviews, reviewStatistics.ratingDistribution, reviewStatistics.mediaReviewCount]);
 
-    // Callbacks
     const handleFilterPress = useCallback((filterId: string) => {
-        // TODO: Implement filter logic
         log.info('Filter selected:', filterId);
     }, []);
 
-    // Empty state khi chưa có đánh giá
+    // 1. Empty state
     if (totalReviews === 0) {
         return (
             <View style={styles.container}>
@@ -229,6 +237,7 @@ export const ProductReviews = memo<ProductReviewsProps>(({
         );
     }
 
+    // 2. Normal state
     return (
         <View style={styles.container}>
             {/* Header */}
@@ -253,7 +262,6 @@ export const ProductReviews = memo<ProductReviewsProps>(({
 
             {/* Rating Overview */}
             <View style={styles.overviewContainer}>
-                {/* Left: Average Rating */}
                 <View style={styles.ratingLeft}>
                     <Text style={styles.ratingValue}>{rating.toFixed(1)}</Text>
                     <View style={styles.starsRow}>
@@ -271,7 +279,6 @@ export const ProductReviews = memo<ProductReviewsProps>(({
                     </Text>
                 </View>
 
-                {/* Right: Rating Distribution */}
                 <View style={styles.ratingRight}>
                     {ratingBars.map((bar) => (
                         <RatingBar
@@ -302,38 +309,80 @@ export const ProductReviews = memo<ProductReviewsProps>(({
                 ))}
             </ScrollView>
 
-            {/* Review Preview - Placeholder */}
+            {/* Review Preview */}
             <View style={styles.reviewPreview}>
-                <View style={styles.reviewItem}>
-                    <View style={styles.reviewHeader}>
-                        <View style={styles.reviewerInfo}>
-                            <View style={styles.avatarPlaceholder}>
-                                <IconSymbol
-                                    name="person"
-                                    size={20}
-                                    color={theme.colors.secondary}
-                                />
-                            </View>
-                            <View>
-                                <Text style={styles.reviewerName}>Người dùng</Text>
-                                <View style={styles.reviewStars}>
-                                    {[1, 2, 3, 4, 5].map((star) => (
-                                        <IconSymbol
-                                            key={star}
-                                            name="star"
-                                            size={12}
-                                            color={theme.colors.warning}
-                                        />
-                                    ))}
-                                </View>
-                            </View>
-                        </View>
-                        <Text style={styles.reviewDate}>{PRODUCT_STRINGS.reviews.newest}</Text>
+                {isLoadingReviews ? (
+                    <View style={styles.reviewItem}>
+                        <Text style={styles.reviewPlaceholder}>Đang tải đánh giá...</Text>
                     </View>
-                    <Text style={styles.reviewPlaceholder}>
-                        {PRODUCT_STRINGS.reviews.viewAllReviews}
-                    </Text>
-                </View>
+                ) : previewReviews && previewReviews.length > 0 ? (
+                    <View style={styles.reviewList}>
+                        {previewReviews.map((review) => (
+                            <View key={review.id} style={styles.reviewItem}>
+                                <View style={styles.reviewHeader}>
+                                    <View style={styles.reviewerInfo}>
+                                        {review.userAvatar ? (
+                                            <Image
+                                                source={{ uri: review.userAvatar }}
+                                                style={styles.avatar}
+                                            />
+                                        ) : (
+                                            <View style={styles.avatarPlaceholder}>
+                                                <IconSymbol
+                                                    name="person"
+                                                    size={20}
+                                                    color={theme.colors.secondary}
+                                                />
+                                            </View>
+                                        )}
+                                        <View>
+                                            <Text style={styles.reviewerName}>{review.username}</Text>
+                                            <View style={styles.reviewStars}>
+                                                {[1, 2, 3, 4, 5].map((s) => (
+                                                    <IconSymbol
+                                                        key={s}
+                                                        name="star"
+                                                        size={12}
+                                                        color={s <= review.rating ? theme.colors.warning : theme.colors.border}
+                                                    />
+                                                ))}
+                                            </View>
+                                        </View>
+                                    </View>
+                                    <Text style={styles.reviewDate}>
+                                        {formatTime(review.createdAt)}
+                                    </Text>
+                                </View>
+                                <Text style={styles.reviewText} numberOfLines={3}>
+                                    {review.comment}
+                                </Text>
+
+                                {review.media.length > 0 && (
+                                    <View style={styles.mediaPreview}>
+                                        {review.media.slice(0, 3).map((m) => (
+                                            <Image
+                                                key={m.id}
+                                                source={{ uri: m.url }}
+                                                style={styles.mediaThumb}
+                                            />
+                                        ))}
+                                        {review.media.length > 3 && (
+                                            <View style={styles.moreMedia}>
+                                                <Text style={styles.moreMediaText}>+{review.media.length - 3}</Text>
+                                            </View>
+                                        )}
+                                    </View>
+                                )}
+                            </View>
+                        ))}
+                    </View>
+                ) : (
+                    <View style={styles.reviewItem}>
+                        <Text style={styles.reviewPlaceholder}>
+                            {PRODUCT_STRINGS.reviews.viewAllReviews}
+                        </Text>
+                    </View>
+                )}
             </View>
 
             {/* Q&A Section */}
@@ -358,7 +407,6 @@ export const ProductReviews = memo<ProductReviewsProps>(({
 });
 
 ProductReviews.displayName = 'ProductReviews';
-
 
 const styles = StyleSheet.create((theme) => ({
     container: {
@@ -407,8 +455,6 @@ const styles = StyleSheet.create((theme) => ({
         color: theme.colors.primary,
         fontWeight: '500',
     },
-
-    // Rating Overview
     overviewContainer: {
         flexDirection: 'row',
         paddingHorizontal: theme.margins.md,
@@ -441,8 +487,6 @@ const styles = StyleSheet.create((theme) => ({
         gap: 4,
         justifyContent: 'center',
     },
-
-    // Filters
     filtersContainer: {
         marginBottom: theme.margins.md,
     },
@@ -450,11 +494,12 @@ const styles = StyleSheet.create((theme) => ({
         paddingHorizontal: theme.margins.md,
         gap: 8,
     },
-
-    // Review Preview
     reviewPreview: {
         paddingHorizontal: theme.margins.md,
         marginBottom: theme.margins.md,
+    },
+    reviewList: {
+        gap: theme.margins.sm,
     },
     reviewItem: {
         backgroundColor: theme.colors.background,
@@ -471,6 +516,11 @@ const styles = StyleSheet.create((theme) => ({
         flexDirection: 'row',
         alignItems: 'center',
         gap: theme.margins.sm,
+    },
+    avatar: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
     },
     avatarPlaceholder: {
         width: 32,
@@ -494,13 +544,41 @@ const styles = StyleSheet.create((theme) => ({
         fontSize: 11,
         color: theme.colors.secondary,
     },
+    reviewText: {
+        fontSize: 13,
+        color: theme.colors.typography,
+        lineHeight: 18,
+    },
     reviewPlaceholder: {
         fontSize: 13,
         color: theme.colors.typographySecondary,
-        lineHeight: 18,
+        textAlign: 'center',
     },
-
-    // Q&A Section
+    mediaPreview: {
+        flexDirection: 'row',
+        gap: 8,
+        marginTop: theme.margins.sm,
+    },
+    mediaThumb: {
+        width: 60,
+        height: 60,
+        borderRadius: 4,
+    },
+    moreMedia: {
+        width: 60,
+        height: 60,
+        borderRadius: 4,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'absolute',
+        right: 0,
+    },
+    moreMediaText: {
+        color: 'white',
+        fontWeight: '700',
+        fontSize: 14,
+    },
     qaSection: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -534,8 +612,6 @@ const styles = StyleSheet.create((theme) => ({
         color: theme.colors.primary,
         fontWeight: '500',
     },
-
-    // Empty State
     emptyContainer: {
         alignItems: 'center',
         paddingVertical: theme.margins.sm,
@@ -555,4 +631,3 @@ const styles = StyleSheet.create((theme) => ({
 }));
 
 export default ProductReviews;
-

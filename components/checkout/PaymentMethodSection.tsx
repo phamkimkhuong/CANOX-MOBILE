@@ -75,8 +75,16 @@ export const PaymentMethodSection: React.FC<PaymentMethodSectionProps> = ({
 
     return (
         <>
-            {/* Section Container */}
-            <View style={styles.container}>
+            {/* Section Container*/}
+            <Pressable
+                style={({ pressed }) => [
+                    styles.container,
+                    pressed && styles.containerPressed
+                ]}
+                onPress={() => setIsModalVisible(true)}
+                accessibilityRole="button"
+                accessibilityLabel="Chọn phương thức thanh toán"
+            >
                 {/* Section Title */}
                 <View style={styles.titleRow}>
                     <View style={styles.titleIcon}>
@@ -90,15 +98,7 @@ export const PaymentMethodSection: React.FC<PaymentMethodSectionProps> = ({
                 </View>
 
                 {/* Selected Method */}
-                <Pressable
-                    style={({ pressed }) => [
-                        styles.selectedRow,
-                        pressed && styles.selectedRowPressed,
-                    ]}
-                    onPress={() => setIsModalVisible(true)}
-                    accessibilityRole="button"
-                    accessibilityLabel="Chọn phương thức thanh toán"
-                >
+                <View style={styles.selectedRow}>
                     {selectedConfig && (
                         <>
                             <View style={[styles.selectedMethodIcon, { backgroundColor: `${selectedConfig.iconColor}12` }]}>
@@ -120,8 +120,8 @@ export const PaymentMethodSection: React.FC<PaymentMethodSectionProps> = ({
                             />
                         </>
                     )}
-                </Pressable>
-            </View>
+                </View>
+            </Pressable>
 
             {/* Selection Modal */}
             <Modal
@@ -266,8 +266,9 @@ const stylesheet = StyleSheet.create((theme) => ({
         gap: theme.margins.sm,
     },
 
-    selectedRowPressed: {
+    containerPressed: {
         backgroundColor: theme.colors.background,
+        opacity: 0.9,
     },
 
     selectedMethodIcon: {

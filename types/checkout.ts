@@ -33,7 +33,6 @@ export interface ShippingMethod {
     description: string; // "Nhận hàng vào 25 Th10"
     estimatedDays: number; // Số ngày dự kiến
     fee: number; // Phí ship
-    /** Có được free ship không (do voucher) */
     isFreeShip?: boolean;
     /** Phí ship gốc trước khi giảm */
     originalFee?: number;
@@ -132,7 +131,7 @@ export interface PaymentMethod {
 }
 
 // ============================================
-// ADDRESS TYPES (Re-export from address.ts for consistency)
+// ADDRESS TYPES
 // ============================================
 
 // Use ShippingAddress as the unified address type
@@ -264,6 +263,10 @@ export interface CheckoutCalculationResult {
     platformVoucherDiscount: number;
     /** Giảm giá phí vận chuyển (từ free ship voucher) */
     shippingDiscount: number;
+    /** Voucher platform đang áp dụng (Discount) */
+    appliedPlatformVoucherId?: string | null;
+    /** Voucher platform đang áp dụng (Shipping) */
+    appliedShippingVoucherId?: string | null;
     /** Tổng tiền phải trả */
     totalAmount: number;
     /** Tổng thuế */

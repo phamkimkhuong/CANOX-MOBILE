@@ -260,6 +260,10 @@ export const toCheckoutCalculation = (
         totalShopVoucherDiscount,
         platformVoucherDiscount,
         shippingDiscount: dto.shippingDiscount,
+        appliedPlatformVoucherId: shops.flatMap(s => s.voucherResult?.discountDetails || [])
+            .find(v => v.voucherType === 'PLATFORM' && v.discountTarget !== 'SHIP' && v.valid)?.voucherCode ?? null,
+        appliedShippingVoucherId: shops.flatMap(s => s.voucherResult?.discountDetails || [])
+            .find(v => v.voucherType === 'PLATFORM' && v.discountTarget === 'SHIP' && v.valid)?.voucherCode ?? null,
         totalAmount: dto.grandTotal,
         taxAmount: dto.totalTaxAmount,
         totalSavings: dto.totalDiscount,
@@ -297,20 +301,30 @@ export interface CheckoutPreviewUI {
  * Transform full checkout preview response to UI-ready data.
  * This is the main entry point for the adapter.
  */
-export const toCheckoutPreviewUI = (dto: CheckoutPreviewDataDTO): CheckoutPreviewUI => ({
-    previewId: dto.previewId ?? '',
-    previewChecksum: dto.previewChecksum ?? '',
-    cartId: dto.cartId,
-    currency: dto.currency,
-    previewAt: dto.previewAt,
-    addressId: dto.buyerAddressData.addressId,
-    addressType: dto.buyerAddressData.addressType,
-    shops: dto.shops.map(toCheckoutShopUI),
-    calculation: toCheckoutCalculation(dto.summary, dto.shops, dto.isValid),
-    isValid: dto.isValid,
-    validationErrors: dto.validationErrors,
-    warnings: dto.warnings,
-});
+export const toCheckoutPreviewUI = (dto: CheckoutPreviewDataDTO): CheckoutPreviewUI => {
+    let cleanPreviewAt = dto.previewAt;
+    if (cleanPreviewAt && cleanPreviewAt.includes('.')) {
+        const parts = cleanPreviewAt.split('.');
+        const timePart = parts[0];
+        const fractionPart = parts[1].replace('Z', '').substring(0, 3);
+        cleanPreviewAt = `${timePart}.${fractionPart}Z`;
+    }
+
+    return {
+        previewId: dto.previewId || (dto as any).id || '',
+        previewChecksum: dto.previewChecksum || (dto as any).checksum || '',
+        cartId: dto.cartId,
+        currency: dto.currency,
+        previewAt: cleanPreviewAt,
+        addressId: dto.buyerAddressData.addressId,
+        addressType: dto.buyerAddressData.addressType,
+        shops: dto.shops.map(toCheckoutShopUI),
+        calculation: toCheckoutCalculation(dto.summary, dto.shops, dto.isValid),
+        isValid: dto.isValid,
+        validationErrors: dto.validationErrors,
+        warnings: dto.warnings,
+    };
+};
 
 // ============================================
 // HELPER: Build Request from Cart

@@ -1,6 +1,7 @@
 import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import type { GalleryItem } from '@/types/product/productDetail';
 import { Image } from 'expo-image';
+import { StatusBar } from 'expo-status-bar';
 import React, {
     forwardRef,
     memo,
@@ -11,11 +12,13 @@ import React, {
     useRef,
     useState,
 } from 'react';
-import { Pressable, Text, useWindowDimensions, View, ViewToken } from 'react-native';
+import { Modal, Pressable, Text, useWindowDimensions, View, ViewToken } from 'react-native';
+import Gallery, { RenderItemInfo } from 'react-native-awesome-gallery';
 import Animated, {
     SharedValue,
     useAnimatedScrollHandler,
 } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { IconSymbol } from '../ui/Icon';
 
@@ -88,9 +91,7 @@ const GalleryItemView = memo<GalleryItemViewProps>(({
                     placeholder={IMAGE_PLACEHOLDER}
                     cachePolicy="memory-disk"
                     recyclingKey={item.id}
-                />
-                {/* Video Play Overlay */}
-                <View style={itemStyles.videoOverlay}>
+                /><View style={itemStyles.videoOverlay}>
                     <View style={itemStyles.playButton}>
                         <IconSymbol
                             name="play"
@@ -226,6 +227,7 @@ export const ProductGallery = memo(forwardRef<ProductGalleryRef, ProductGalleryP
     initialIndex = 0,
 }, ref) => {
     const { theme } = useUnistyles();
+    const insets = useSafeAreaInsets();
 
     const { width: screenWidth } = useWindowDimensions();
     const galleryHeight = screenWidth; // Square aspect ratio
@@ -233,6 +235,29 @@ export const ProductGallery = memo(forwardRef<ProductGalleryRef, ProductGalleryP
     const flatListRef = useRef<Animated.FlatList<GalleryItem>>(null);
     const thumbnailScrollRef = useRef<Animated.ScrollView>(null);
     const [activeIndex, setActiveIndex] = useState(initialIndex);
+
+    // Full screen image viewer state
+    const [isViewerVisible, setIsViewerVisible] = useState(false);
+    const [viewerIndex, setViewerIndex] = useState(0);
+
+    // Filter only images for full-screen viewer
+    const galleryImages = useMemo(() =>
+        gallery
+            .filter(item => item.type === 'IMAGE')
+            .map(item => ({ uri: item.url, id: item.id }))
+        , [gallery]);
+
+    const handleImagePress = useCallback((index: number) => {
+        const item = gallery[index];
+        if (item.type === 'IMAGE') {
+            // Find index in filtered images array
+            const imgIndex = galleryImages.findIndex(img => img.uri === item.url);
+            setViewerIndex(imgIndex >= 0 ? imgIndex : 0);
+            setIsViewerVisible(true);
+        }
+        // Also call parent callback if exists
+        onImagePress?.(index);
+    }, [gallery, galleryImages, onImagePress]);
 
     useImperativeHandle(ref, () => ({
         scrollToIndex: (index: number) => {
@@ -290,7 +315,7 @@ export const ProductGallery = memo(forwardRef<ProductGalleryRef, ProductGalleryP
                 index={index}
                 width={screenWidth}
                 height={galleryHeight}
-                onPress={() => onImagePress?.(index)}
+                onPress={() => handleImagePress(index)}
             />
         ),
         [onImagePress, screenWidth, galleryHeight]
@@ -392,6 +417,49 @@ export const ProductGallery = memo(forwardRef<ProductGalleryRef, ProductGalleryP
                     {thumbnailElements}
                 </Animated.ScrollView>
             )}
+
+            {/* Full Screen Image Viewer */}
+            <Modal
+                visible={isViewerVisible}
+                transparent={true}
+                onRequestClose={() => setIsViewerVisible(false)}
+                animationType="fade"
+            >
+                <View style={viewerStyles.container}>
+                    <Gallery
+                        data={galleryImages}
+                        keyExtractor={(item) => item.id}
+                        initialIndex={viewerIndex}
+                        onIndexChange={setViewerIndex}
+                        onSwipeToClose={() => setIsViewerVisible(false)}
+                        renderItem={({ item, setImageDimensions }: RenderItemInfo<{ uri: string; id: string }>) => (
+                            <Image
+                                source={{ uri: item.uri }}
+                                style={viewerStyles.image}
+                                contentFit="contain"
+                                onLoad={(e) => {
+                                    const { width, height } = e.source;
+                                    setImageDimensions({ width, height });
+                                }}
+                            />
+                        )}
+                    />
+                    {/* Viewer Header with Close Button */}
+                    <View style={[viewerStyles.header, { top: insets.top }]}>
+                        <Pressable
+                            style={viewerStyles.closeButton}
+                            onPress={() => setIsViewerVisible(false)}
+                        >
+                            <IconSymbol name="close" size={24} color="#FFF" />
+                        </Pressable>
+                        <Text style={viewerStyles.headerText}>
+                            {viewerIndex + 1} / {galleryImages.length}
+                        </Text>
+                        <View style={{ width: 44 }} />
+                    </View>
+                </View>
+                <StatusBar style="light" hidden />
+            </Modal>
         </View>
     );
 }));
@@ -436,6 +504,52 @@ const styles = StyleSheet.create((theme) => ({
         flexDirection: 'row',
         gap: THUMBNAIL_GAP,
         paddingRight: theme.margins.md,
+    },
+}));
+
+const viewerStyles = StyleSheet.create((theme) => ({
+    container: {
+        flex: 1,
+        backgroundColor: '#000',
+    },
+    image: {
+        flex: 1,
+    },
+    header: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 60,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: theme.margins.md,
+        backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    },
+    closeButton: {
+        width: 44,
+        height: 44,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 22,
+        backgroundColor: 'rgba(0, 0, 0, 0.2)',
+    },
+    headerText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: '600',
+    },
+    footer: {
+        height: 60,
+        backgroundColor: 'rgba(0, 0, 0, 0.4)',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    footerText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: '600',
     },
 }));
 

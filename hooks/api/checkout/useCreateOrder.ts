@@ -29,30 +29,37 @@ export const useCreateOrder = () => {
                 shopCount: requestBody.shops.length,
                 paymentMethod: requestBody.paymentMethod,
             });
+            console.log("Create Order Request Body:", JSON.stringify(requestBody, null, 2));
+
             const idempotencyKey = uuidv4();
 
-            const response = await request<CreateOrderResponse>(
-                {
-                    url: API_ROUTES.ORDERS.LIST, // POST /api/v1/buyer/orders
-                    method: 'POST',
-                    data: requestBody,
-                    headers: {
-                        'Idempotency-Key': idempotencyKey,
+            try {
+                const response = await request<CreateOrderResponse>(
+                    {
+                        url: API_ROUTES.ORDERS.LIST, // POST /api/v1/buyer/orders
+                        method: 'POST',
+                        data: requestBody,
+                        headers: {
+                            'Idempotency-Key': idempotencyKey,
+                        },
                     },
-                },
-                CreateOrderResponseSchema
-            );
+                    CreateOrderResponseSchema
+                );
 
-            // Check API success flag
-            if (!response.success) {
-                throw new Error(response.message || 'Đặt hàng thất bại');
+                // Check API success flag
+                if (!response.success) {
+                    throw new Error(response.message || 'Đặt hàng thất bại');
+                }
+
+                logger.checkout.info('Order creation success', {
+                    orderCount: response.data.orders.length,
+                });
+
+                return response;
+            } catch (error: any) {
+                console.log("Create Order API Error Detail:", error.response?.data || error.message);
+                throw error;
             }
-
-            logger.checkout.info('Order creation success', {
-                orderCount: response.data.orders.length,
-            });
-
-            return response;
         },
     });
 };

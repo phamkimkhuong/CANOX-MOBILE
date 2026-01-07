@@ -5,8 +5,8 @@ import {
     ProductDetailAPIResponseSchema,
     type ProductDetailUI,
 } from '@/types/product/productDetail';
-import { transformProduct } from '@/utils/adapter/productAdapter';
-import { transformProductDetail } from '@/utils/adapter/productDetailAdapter';
+import { transformProduct } from '@/utils/adapter/product/productAdapter';
+import { transformProductDetail } from '@/utils/adapter/product/productDetailAdapter';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
@@ -35,8 +35,6 @@ export const fetchProductDetail = async (productId: string): Promise<ProductDeta
         },
         ProductDetailAPIResponseSchema
     );
-
-    // Transform API response to UI model
     return transformProductDetail(response.data);
 };
 
