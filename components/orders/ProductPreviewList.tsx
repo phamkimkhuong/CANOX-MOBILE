@@ -9,16 +9,15 @@
  */
 
 import { IconSymbol } from '@/components/ui/Icon';
-import { OrderItem } from '@/types/order/order';
+import { OrderItemUI } from '@/types/order/order';
 import { formatCurrency } from '@/utils/format';
-import { toSizedImageUrl } from '@/utils/url';
 import { Image } from 'expo-image';
 import React from 'react';
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface ProductPreviewListProps {
-    items: OrderItem[];
+    items: OrderItemUI[];
     maxDisplay?: number;
 }
 
@@ -27,15 +26,11 @@ const PLACEHOLDER_IMAGE = 'https://via.placeholder.com/80x80?text=No+Image';
 /**
  * Single Product Item Row
  */
-const ProductItemRow: React.FC<{ item: OrderItem }> = ({ item }) => {
+const ProductItemRow: React.FC<{ item: OrderItemUI }> = ({ item }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
 
-    const imageUrl = toSizedImageUrl(
-        item.imageBasePath,
-        item.imageExtension,
-        '_thumb'
-    ) ?? PLACEHOLDER_IMAGE;
+    const imageUrl = item.imageUrl || PLACEHOLDER_IMAGE;
 
     return (
         <View style={styles.productRow}>
@@ -106,11 +101,7 @@ export const ProductPreviewList: React.FC<ProductPreviewListProps> = ({
                     {/* Stack ảnh nhỏ */}
                     <View style={styles.imageStack}>
                         {items.slice(maxDisplay, maxDisplay + 3).map((item, index) => {
-                            const imgUrl = toSizedImageUrl(
-                                item.imageBasePath,
-                                item.imageExtension,
-                                '_thumb'
-                            ) ?? PLACEHOLDER_IMAGE;
+                            const imgUrl = item.imageUrl || PLACEHOLDER_IMAGE;
                             return (
                                 <Image
                                     key={item.itemId}

@@ -70,7 +70,7 @@ export const ProductFlashSaleBar = memo<ProductFlashSaleBarProps>(({
             {/* Header Row */}
             <View style={styles.header}>
                 <View style={styles.titleRow}>
-                    <IconSymbol name="bolt" size={18} color="#FFD700" />
+                    <IconSymbol name="flash" size={18} color="#FFD700" />
                     <Text style={styles.title}>{PRODUCT_STRINGS.flashSale.title}</Text>
                     {flashSale.discountPercentage && flashSale.discountPercentage > 0 && (
                         <View style={styles.discountBadge}>
@@ -109,7 +109,7 @@ export const ProductFlashSaleBar = memo<ProductFlashSaleBarProps>(({
                         {/* Fire icon for urgency */}
                         {isAlmostSoldOut && (
                             <View style={styles.fireIcon}>
-                                <IconSymbol name="local-fire-department" size={12} color="#FFF" />
+                                <IconSymbol name="flame" size={12} color="#FFF" />
                             </View>
                         )}
                     </View>

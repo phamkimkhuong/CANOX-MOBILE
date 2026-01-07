@@ -55,7 +55,7 @@ export const FeaturedVoucher = memo<FeaturedVoucherProps>(({
                     {/* Header */}
                     <View style={styles.header}>
                         <IconSymbol
-                            name="auto-awesome"
+                            name="sparkles"
                             size={18}
                             color="#8b5cf6"
                         />

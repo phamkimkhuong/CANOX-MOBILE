@@ -29,8 +29,8 @@ interface AddressCardProps {
 }
 
 const LABEL_CONFIG: Record<AddressLabel, { text: string; icon: string }> = {
-    home: { text: 'Nhà riêng', icon: 'home-pin' },
-    work: { text: 'Văn phòng', icon: 'work-outline' },
+    home: { text: 'Nhà riêng', icon: 'home' },
+    work: { text: 'Văn phòng', icon: 'work' },
     other: { text: 'Khác', icon: 'location-outline' },
 };
 
@@ -149,7 +149,7 @@ export const AddressCard: React.FC<AddressCardProps> = memo(({
                     accessibilityLabel="Sửa địa chỉ"
                 >
                     <IconSymbol
-                        name="edit-square"
+                        name="edit"
                         size={20}
                         color={theme.colors.primary}
                     />

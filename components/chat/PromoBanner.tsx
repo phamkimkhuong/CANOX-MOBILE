@@ -18,7 +18,7 @@ interface PromoBannerProps {
 export const PromoBanner: React.FC<PromoBannerProps> = ({
     title,
     subtitle,
-    icon = 'local-shipping',
+    icon = 'shipping',
     onPress,
 }) => {
     const { theme } = useUnistyles();

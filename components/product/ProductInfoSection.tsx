@@ -152,13 +152,13 @@ export const ProductInfoSection = memo<ProductInfoSectionProps>(({
             )}
             {isInternational && (
                 <View style={[styles.badge, styles.internationalBadge]}>
-                    <IconSymbol name="public" size={12} color={theme.colors.primary} />
+                    <IconSymbol name="globe" size={12} color={theme.colors.primary} />
                     <Text style={styles.internationalText}>{PRODUCT_STRINGS.badges.international}</Text>
                 </View>
             )}
             {priceDisplay.voucherDiscount && (
                 <View style={[styles.badge, styles.voucherBadge]}>
-                    <IconSymbol name="confirmation-number" size={12} color={theme.colors.success} />
+                    <IconSymbol name="ticket" size={12} color={theme.colors.success} />
                     <Text style={styles.voucherText}>
                         {PRODUCT_STRINGS.info.discount} {formatCurrency(priceDisplay.voucherDiscount)}
                     </Text>

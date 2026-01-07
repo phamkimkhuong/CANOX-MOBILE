@@ -57,12 +57,12 @@ const getMessagePreview = (
     switch (lastMessage.type) {
         case MessageType.IMAGE:
             return { icon: 'image', text: `${prefix}Đã gửi một ảnh` };
-        case MessageType.PRODUCT:
-            return { icon: 'shopping-bag', text: `${prefix}Sản phẩm: ${lastMessage.content}` };
-        case MessageType.ORDER:
-            return { icon: 'local-shipping', text: lastMessage.content };
+        case MessageType.PRODUCT_CARD:
+            return { icon: 'bag', text: `${prefix}Sản phẩm: ${lastMessage.content}` };
+        case MessageType.ORDER_CARD:
+            return { icon: 'shipping', text: lastMessage.content };
         case MessageType.FILE:
-            return { icon: 'attach-file', text: lastMessage.content };
+            return { icon: 'attach', text: lastMessage.content };
         default:
             return { text: `${prefix}${lastMessage.content}` };
     }
@@ -276,7 +276,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
                     activeOpacity={0.8}
                 >
                     <IconSymbol
-                        name="push-pin"
+                        name="pin"
                         size={22}
                         color="#fff"
                     />
@@ -333,7 +333,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
                                 )}
                                 {item.isPinned && (
                                     <IconSymbol
-                                        name="push-pin"
+                                        name="pin"
                                         size={12}
                                         color={theme.colors.secondary}
                                         style={styles.pinnedIcon}
@@ -392,7 +392,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
                         {item.partner.responseRate && item.partner.responseRate >= 90 && (
                             <View style={styles.responseRow}>
                                 <IconSymbol
-                                    name="schedule"
+                                    name="time"
                                     size={12}
                                     color={theme.colors.primary}
                                 />

@@ -7,8 +7,10 @@
  * Sử dụng FlashList để render danh sách với performance cao
  */
 
-import { flattenOrders, useOrderList } from '@/hooks/api/useOrders';
-import { Order, OrderAction, OrderTabStatus } from '@/types/order/order';
+import { chatRoutes } from '@/constants/routes';
+import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
+import { flattenOrders, useOrderList } from '@/hooks/api/order/useOrders';
+import { OrderAction, OrderTabStatus, OrderUI } from '@/types/order/order';
 import { logger } from '@/utils/logger';
 import { FlashList, ListRenderItem } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
@@ -23,10 +25,12 @@ interface OrderListTabProps {
     status: OrderTabStatus;
 }
 
+
 export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const router = useRouter();
+    const prefetchChat = usePrefetchShopChat();
 
     // Fetch orders với useInfiniteQuery
     const {
@@ -58,7 +62,9 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
         });
     }, [router]);
 
-    const handleAction = useCallback((action: OrderAction['action'], orderId: string) => {
+    const handleAction = useCallback((action: OrderAction['action'], order: OrderUI) => {
+        const orderId = order.orderId;
+
         switch (action) {
             case 'cancel':
                 // TODO: Show confirmation modal then call cancel API
@@ -87,10 +93,30 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
                 // TODO: Add items to cart
                 logger.orders.info('Rebuy order:', orderId);
                 break;
-            case 'contact':
-                // TODO: Open chat with shop
+            case 'contact': {
+                const shopUserId = order._raw.shopInfo.userId;
+                const shopName = order.shopName;
+                const shopLogoUrl = order.shopLogoUrl;
+
+                if (!shopUserId || !shopName) {
+                    logger.orders.warn('Missing shop info for chat');
+                    return;
+                }
+
+                // Prefetch logic (on press)
+                prefetchChat(shopUserId, shopName, shopLogoUrl);
+
+                // Instant Navigation Logic (Ghost ID)
+                const cachedId = getCachedConversationId(shopUserId);
+                router.push(chatRoutes.detail(cachedId || `ghost_${shopUserId}`, {
+                    partnerName: shopName,
+                    partnerAvatar: shopLogoUrl,
+                    shopUserId: shopUserId,
+                }));
+
                 logger.orders.info('Contact shop for order:', orderId);
                 break;
+            }
             case 'pay':
                 // TODO: Navigate to payment
                 logger.orders.info('Pay for order:', orderId);
@@ -98,7 +124,7 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
             default:
                 break;
         }
-    }, [router]);
+    }, [router, prefetchChat]);
 
     const handleTrackingPress = useCallback((orderId: string) => {
         router.push({
@@ -119,7 +145,7 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
     }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
     // Render item
-    const renderItem: ListRenderItem<Order> = useCallback(({ item }) => (
+    const renderItem: ListRenderItem<OrderUI> = useCallback(({ item }) => (
         <OrderCard
             order={item}
             onPress={handleOrderPress}
@@ -130,7 +156,7 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
     ), [handleOrderPress, handleShopPress, handleAction, handleTrackingPress]);
 
     // Key extractor
-    const keyExtractor = useCallback((item: Order) => item.orderId, []);
+    const keyExtractor = useCallback((item: OrderUI) => item.orderId, []);
 
     // Loading state
     if (isLoading) {
@@ -149,7 +175,7 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
 
     return (
         <View style={styles.container}>
-            <FlashList<Order>
+            <FlashList<OrderUI>
                 data={orders}
                 renderItem={renderItem}
                 keyExtractor={keyExtractor}

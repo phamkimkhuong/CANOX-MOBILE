@@ -8,20 +8,13 @@
  * - Quantity stepper
  * - Out of stock state
  * - Optimized with React.memo
- * 
- * @example
- * <CartItem 
- *   item={cartItem} 
- *   isSelected={true} 
- *   onToggleSelect={() => toggleItem(id)}
- *   onQuantityChange={(qty) => updateQty(id, qty)}
- * />
  */
 
 import { useCartStore } from '@/store/useCartStore';
 import type { CartItemUI } from '@/types/cart';
 import { formatCurrency } from '@/utils/format';
 import { Image } from 'expo-image';
+import { useRouter } from 'expo-router';
 import React, { memo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -57,7 +50,12 @@ export const CartItem: React.FC<CartItemProps> = memo(({
     onDelete,
 }) => {
     const { theme } = useUnistyles();
+    const router = useRouter();
     const isSelected = useCartStore(state => state.selectedItemIds.has(item.id));
+
+    // const handleProductPress = useCallback(() => {
+    //     router.push(productRoutes.detail(item.productId));
+    // }, [router, item.productId]);
 
     const {
         productName,
@@ -84,7 +82,13 @@ export const CartItem: React.FC<CartItemProps> = memo(({
             {/* Product Content */}
             <View style={styles.contentRow}>
                 {/* Image */}
-                <View style={styles.imageContainer}>
+                <Pressable
+                    // onPress={handleProductPress}
+                    style={({ pressed }) => [
+                        styles.imageContainer,
+                        pressed && styles.imagePressed
+                    ]}
+                >
                     <Image
                         source={{ uri: imageUrl }}
                         style={[styles.image, isOutOfStock && styles.outOfStockImage]}
@@ -106,14 +110,21 @@ export const CartItem: React.FC<CartItemProps> = memo(({
                             <Text style={styles.outOfStockText}>Hết hàng</Text>
                         </View>
                     )}
-                </View>
+                </Pressable>
 
                 {/* Info Column */}
                 <View style={[styles.infoColumn, isOutOfStock && styles.outOfStockInfo]}>
                     {/* Product Name */}
-                    <Text style={styles.productName} numberOfLines={2}>
-                        {productName}
-                    </Text>
+                    <Pressable
+                        // onPress={handleProductPress}
+                        style={({ pressed }) => [
+                            pressed && styles.textPressed
+                        ]}
+                    >
+                        <Text style={styles.productName} numberOfLines={2}>
+                            {productName}
+                        </Text>
+                    </Pressable>
 
                     {/* Variant Selector */}
                     {variantAttributes && (
@@ -128,7 +139,7 @@ export const CartItem: React.FC<CartItemProps> = memo(({
                                 {variantAttributes}
                             </Text>
                             <IconSymbol
-                                name="keyboard-arrow-down"
+                                name="chevron-down"
                                 size={14}
                                 color={theme.colors.secondary}
                             />
@@ -255,6 +266,13 @@ const styles = StyleSheet.create((theme) => ({
         fontWeight: '500',
         lineHeight: 20,
         color: theme.colors.typography,
+    },
+    imagePressed: {
+        opacity: 0.8,
+        transform: [{ scale: 0.98 }],
+    },
+    textPressed: {
+        opacity: 0.7,
     },
     variantSelector: {
         flexDirection: 'row',

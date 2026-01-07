@@ -55,7 +55,7 @@ export const VOUCHER_TYPE_CONFIG: Record<VoucherType, VoucherTypeConfig> = {
         type: 'shipping',
         bgColor: '#26aa99',
         textColor: '#ffffff',
-        icon: 'local-shipping',
+        icon: 'shipping',
         label: 'FREESHIP',
     },
     discount: {
@@ -69,14 +69,14 @@ export const VOUCHER_TYPE_CONFIG: Record<VoucherType, VoucherTypeConfig> = {
         type: 'cashback',
         bgColor: '#eab308',
         textColor: '#ffffff',
-        icon: 'monetization-on',
+        icon: 'cash',
         label: 'Hoàn Xu',
     },
     international: {
         type: 'international',
         bgColor: '#8b5cf6',
         textColor: '#ffffff',
-        icon: 'flight-takeoff',
+        icon: 'airplane',
         label: 'Quốc tế',
     },
     live: {
@@ -90,7 +90,7 @@ export const VOUCHER_TYPE_CONFIG: Record<VoucherType, VoucherTypeConfig> = {
         type: 'shop',
         bgColor: '#3b82f6',
         textColor: '#ffffff',
-        icon: 'storefront',
+        icon: 'store',
         label: 'Shop',
     },
 };

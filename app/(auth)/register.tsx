@@ -113,7 +113,7 @@ export default function RegisterScreen() {
 					{/* Welcome Section */}
 					<View style={styles.welcomeSection}>
 						<View style={styles.iconCircle}>
-							<IconSymbol name="shopping-bag" size={32} color={theme.colors.primary} />
+							<IconSymbol name="bag" size={32} color={theme.colors.primary} />
 						</View>
 						<Text style={styles.welcomeTitle}>Tạo tài khoản mới</Text>
 						<Text style={styles.welcomeSubtitle}>

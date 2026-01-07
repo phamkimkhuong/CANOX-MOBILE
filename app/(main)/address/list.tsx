@@ -120,7 +120,7 @@ export default function AddressListScreen() {
                 onSelect={handleSelect}
                 onEdit={handleEdit}
                 contentContainerStyle={{
-                    paddingBottom: 80 + insets.bottom,
+                    paddingBottom: theme.margins.md,
                 }}
             />
 
@@ -152,10 +152,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         backgroundColor: theme.colors.background,
     },
     footerContainer: {
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
         padding: theme.margins.md,
         backgroundColor: theme.colors.surface,
         borderTopWidth: 1,

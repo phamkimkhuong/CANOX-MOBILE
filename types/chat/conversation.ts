@@ -89,12 +89,12 @@ export interface PartnerTypeConfig {
 
 export const PARTNER_TYPE_CONFIG: Record<PartnerType, PartnerTypeConfig> = {
     SHOP: {
-        icon: 'storefront',
+        icon: 'store',
         backgroundColor: '#dbeafe',
         iconColor: '#2563eb',
     },
     SYSTEM: {
-        icon: 'local-mall',
+        icon: 'bag',
         backgroundColor: '#ffedd5',
         iconColor: '#ea580c',
     },
@@ -104,7 +104,7 @@ export const PARTNER_TYPE_CONFIG: Record<PartnerType, PartnerTypeConfig> = {
         iconColor: '#2563eb',
     },
     PROMO: {
-        icon: 'campaign',
+        icon: 'megaphone',
         backgroundColor: '#fce7f3',
         iconColor: '#db2777',
     },

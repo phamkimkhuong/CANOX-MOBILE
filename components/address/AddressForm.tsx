@@ -89,8 +89,8 @@ interface LabelOption {
 // ============================================
 
 const LABEL_OPTIONS: LabelOption[] = [
-    { value: 'home', label: 'Nhà riêng', icon: 'home-pin' },
-    { value: 'work', label: 'Văn phòng', icon: 'work-outline' },
+    { value: 'home', label: 'Nhà riêng', icon: 'home' },
+    { value: 'work', label: 'Văn phòng', icon: 'work' },
     { value: 'other', label: 'Khác', icon: 'location-outline' },
 ];
 

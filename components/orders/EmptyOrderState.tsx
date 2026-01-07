@@ -15,30 +15,35 @@ interface EmptyOrderStateProps {
 }
 
 const STATUS_MESSAGES: Record<string, { title: string; description: string; icon: IconSymbolName }> = {
+    AWAITING_PAYMENT: {
+        title: 'Chưa có đơn hàng chờ thanh toán',
+        description: 'Các đơn hàng cần thanh toán sẽ hiển thị ở đây',
+        icon: 'card',
+    },
     CREATED: {
         title: 'Chưa có đơn hàng chờ xác nhận',
         description: 'Các đơn hàng mới đặt sẽ hiển thị ở đây',
-        icon: 'clock-outline',
+        icon: 'time',
     },
     FULFILLING: {
         title: 'Không có đơn hàng đang giao',
         description: 'Đơn hàng đang được xử lý sẽ hiển thị ở đây',
-        icon: 'truck-fast-outline',
+        icon: 'truck-step',
     },
     DELIVERED: {
         title: 'Chưa có đơn hàng đã giao',
         description: 'Đơn hàng đã giao thành công sẽ hiển thị ở đây',
-        icon: 'package-variant-closed-check',
+        icon: 'cube',
     },
     COMPLETED: {
         title: 'Chưa có đơn hàng hoàn thành',
         description: 'Đơn hàng đã hoàn tất sẽ hiển thị ở đây',
-        icon: 'check-all',
+        icon: 'checkmark-done',
     },
     CANCELLED: {
         title: 'Không có đơn hàng đã hủy',
         description: 'Đơn hàng bị hủy sẽ hiển thị ở đây',
-        icon: 'close-circle-outline',
+        icon: 'close-circle',
     },
 };
 
@@ -72,7 +77,7 @@ export const EmptyOrderState: React.FC<EmptyOrderStateProps> = ({
                     onPress={onShopNow}
                 >
                     <IconSymbol
-                        name="shopping-outline"
+                        name="bag"
                         size={18}
                         color={theme.colors.onPrimary}
                     />

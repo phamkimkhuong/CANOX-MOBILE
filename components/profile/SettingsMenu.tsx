@@ -1,5 +1,5 @@
+import { IconSymbol } from '@/components/ui/Icon';
 import { SETTINGS_MENU_CONFIG, SettingsMenuItem } from '@/types/profile/profile';
-import { MaterialIcons } from '@expo/vector-icons';
 import React, { memo, useCallback } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -33,14 +33,14 @@ const MenuItem: React.FC<MenuItemProps> = memo(({ item, isFirst, isLast, onPress
             activeOpacity={0.7}
         >
             <View style={[styles.iconWrapper, { backgroundColor: item.backgroundColor }]}>
-                <MaterialIcons
-                    name={item.icon as keyof typeof MaterialIcons.glyphMap}
+                <IconSymbol
+                    name={item.icon as any}
                     size={18}
                     color={item.iconColor}
                 />
             </View>
             <Text style={styles.menuLabel}>{item.label}</Text>
-            <MaterialIcons name="chevron-right" size={18} color={theme.colors.typographySecondary} />
+            <IconSymbol name="chevron-right" size={18} color={theme.colors.typographySecondary} />
         </TouchableOpacity>
     );
 });

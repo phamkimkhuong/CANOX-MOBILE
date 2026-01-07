@@ -7,15 +7,15 @@
  */
 
 import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
-import { Order, OrderAction } from '@/types/order/order';
+import { OrderAction, OrderUI } from '@/types/order/order';
 import { getOrderActions } from '@/utils/adapter/order/orderActions';
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface OrderActionButtonsProps {
-    order: Order;
-    onAction: (action: OrderAction['action'], orderId: string) => void;
+    order: OrderUI;
+    onAction: (action: OrderAction['action'], order: OrderUI) => void;
 }
 
 export const OrderActionButtons: React.FC<OrderActionButtonsProps> = ({
@@ -71,7 +71,7 @@ export const OrderActionButtons: React.FC<OrderActionButtonsProps> = ({
                         getButtonStyle(action.type),
                         pressed && styles.pressed,
                     ]}
-                    onPress={() => onAction(action.action, order.orderId)}
+                    onPress={() => onAction(action.action, order)}
                 >
                     {action.icon && (
                         <IconSymbol

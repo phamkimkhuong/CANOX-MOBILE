@@ -20,7 +20,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ filterLabel }) => {
         <View style={styles.container}>
             <View style={styles.iconContainer}>
                 <IconSymbol
-                    name="notifications-none"
+                    name="notifications"
                     size={64}
                     color={theme.colors.secondary}
                 />

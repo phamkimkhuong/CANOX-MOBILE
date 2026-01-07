@@ -1,7 +1,7 @@
+import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
 import { MEMBER_LEVEL_CONFIG, QUICK_STATS_CONFIG, UserProfile } from '@/types/profile/profile';
 import { Navigator } from '@/utils/navigation';
-import { MaterialIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import React, { memo, useCallback } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
@@ -74,8 +74,8 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
                     />
                     {/* Level badge */}
                     <View style={[styles.levelBadge, { backgroundColor: levelConfig.color }]}>
-                        <MaterialIcons
-                            name={levelConfig.icon as keyof typeof MaterialIcons.glyphMap}
+                        <IconSymbol
+                            name={levelConfig.icon as any}
                             size={10}
                             color="#fff"
                         />
@@ -92,12 +92,12 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
                     <View style={styles.badgesRow}>
                         {profile.isVerified ? (
                             <View style={[styles.statusBadge, styles.verifiedBadge]}>
-                                <MaterialIcons name="verified" size={12} color={theme.colors.primary} />
+                                <IconSymbol name="checkmark-circle" size={12} color={theme.colors.primary} />
                                 <Text style={[styles.statusText, styles.verifiedText]}>Đã xác thực</Text>
                             </View>
                         ) : (
                             <View style={[styles.statusBadge, styles.unverifiedBadge]}>
-                                <MaterialIcons name="error-outline" size={12} color="#f59e0b" />
+                                <IconSymbol name="error" size={12} color="#f59e0b" />
                                 <Text style={[styles.statusText, styles.unverifiedText]}>Chưa xác thực</Text>
                             </View>
                         )}
@@ -108,7 +108,7 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
                             activeOpacity={0.7}
                         >
                             <Text style={styles.editBtnText}>Sửa hồ sơ</Text>
-                            <MaterialIcons name="chevron-right" size={14} color={theme.colors.secondary} />
+                            <IconSymbol name="chevron-right" size={14} color={theme.colors.secondary} />
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -125,17 +125,18 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
                     >
                         {/* Background icon */}
                         <View style={styles.statBgIcon}>
-                            <MaterialIcons
-                                name={stat.icon as keyof typeof MaterialIcons.glyphMap}
+                            <IconSymbol
+                                name={stat.icon as any}
                                 size={50}
                                 color={stat.iconColor}
+                                style={{ opacity: 0.1 }}
                             />
                         </View>
 
                         {/* Icon */}
                         <View style={[styles.statIconContainer, { backgroundColor: theme.colors.surface }]}>
-                            <MaterialIcons
-                                name={stat.icon as keyof typeof MaterialIcons.glyphMap}
+                            <IconSymbol
+                                name={stat.icon as any}
                                 size={20}
                                 color={stat.iconColor}
                             />

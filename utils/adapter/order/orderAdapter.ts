@@ -6,6 +6,7 @@
  */
 
 import { Carrier, Order, OrderItem, OrderItemUI, OrderUI, OrdersApiResponse, OrdersPageResponse, PaymentMethod } from '@/types/order/order';
+import { formatDate } from '@/utils/date';
 import { toPublicUrl, toSizedImageUrl } from '@/utils/url';
 import { getStatusDisplay } from './orderStatusMapper';
 
@@ -44,16 +45,6 @@ export const transformOrderItem = (item: OrderItem): OrderItemUI => {
     };
 };
 
-/**
- * Format date string to Vietnamese format
- */
-const formatDate = (isoString: string): string => {
-    const date = new Date(isoString);
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-};
 
 /**
  * Format time from ISO string
@@ -85,13 +76,14 @@ const buildFullAddress = (order: Order): string => {
  */
 export const transformOrder = (order: Order): OrderUI => {
     const statusDisplay = getStatusDisplay(order.status);
-    const shopLogoUrl = order.shopInfo.logoUrl ? toPublicUrl(order.shopInfo.logoUrl) : null;
+    const shopLogoUrl = order.shopInfo?.logoUrl ? toPublicUrl(order.shopInfo.logoUrl) : null;
 
     return {
         orderId: order.orderId,
         orderNumber: order.orderNumber,
         shopId: order.shopId,
-        shopName: order.shopInfo.shopName,
+        shopUserId: order.shopInfo?.userId || '',
+        shopName: order.shopInfo?.shopName || 'Cửa hàng',
         shopLogoUrl,
         status: order.status,
         statusDisplay,
@@ -128,6 +120,7 @@ export const transformOrder = (order: Order): OrderUI => {
         // Notes
         customerNote: order.customerNote,
         cancellationReason: order.cancellationReason,
+        expiresAt: order.expiresAt,
 
         // Raw data
         _raw: order,

@@ -75,7 +75,7 @@ export const AvatarEditView: React.FC<AvatarEditViewProps> = ({
                         ]}
                     >
                         <IconSymbol
-                            name="camera-alt"
+                            name="camera"
                             size={cameraIconSize * 0.55}
                             color={theme.colors.surface}
                         />

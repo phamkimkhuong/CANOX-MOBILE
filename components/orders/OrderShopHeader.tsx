@@ -27,6 +27,8 @@ export const OrderShopHeader: React.FC<OrderShopHeaderProps> = ({
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+
+    if (!shopInfo) return null;
     const statusDisplay = getStatusDisplay(status);
 
     return (
@@ -95,6 +97,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         alignItems: 'center',
         flex: 1,
         marginRight: theme.margins.sm,
+        gap: 4,
     },
     logoWrapper: {
         width: 28,
@@ -114,7 +117,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontWeight: '600',
         color: theme.colors.typography,
         marginLeft: theme.margins.sm,
-        flex: 1,
         maxWidth: 150,
     },
     statusBadge: {

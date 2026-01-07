@@ -6,13 +6,13 @@
  */
 
 import { IconSymbol } from '@/components/ui/Icon';
-import { Order } from '@/types/order/order';
+import { OrderUI } from '@/types/order/order';
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface TrackingInfoSnippetProps {
-    order: Order;
+    order: OrderUI;
     onPress?: () => void;
 }
 
@@ -26,14 +26,6 @@ export const TrackingInfoSnippet: React.FC<TrackingInfoSnippetProps> = ({
     // Chỉ hiển thị nếu có tracking number
     if (!order.trackingNumber) return null;
 
-    // Map carrier sang tên hiển thị
-    const carrierName: Record<string, string> = {
-        GHN: 'Giao Hàng Nhanh',
-        SUPERSHIP: 'SuperShip',
-        GHTK: 'Giao Hàng Tiết Kiệm',
-        VIETTEL_POST: 'Viettel Post',
-    };
-
     return (
         <Pressable style={styles.container} onPress={onPress}>
             <View style={styles.iconWrapper}>
@@ -45,7 +37,7 @@ export const TrackingInfoSnippet: React.FC<TrackingInfoSnippetProps> = ({
             </View>
             <View style={styles.infoWrapper}>
                 <Text style={styles.statusText}>
-                    Đang vận chuyển bởi {order.carrier ? carrierName[order.carrier] || order.carrier : 'Đơn vị vận chuyển'}
+                    Đang vận chuyển bởi {order.carrierName || 'Đơn vị vận chuyển'}
                 </Text>
                 <Text style={styles.trackingText}>
                     Mã vận đơn: {order.trackingNumber}

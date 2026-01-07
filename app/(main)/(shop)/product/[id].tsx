@@ -418,7 +418,7 @@ export default function ProductDetailScreen() {
                     onScroll={scrollHandler}
                     scrollEventThrottle={16}
                     showsVerticalScrollIndicator={false}
-                    contentContainerStyle={{ paddingBottom: 100 + insets.bottom }}
+                    contentContainerStyle={{ paddingBottom: theme.margins.lg }}
                     refreshControl={
                         <RefreshControl
                             refreshing={isRefetching}

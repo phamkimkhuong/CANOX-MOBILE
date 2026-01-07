@@ -6,7 +6,7 @@
  * Use Strategy Pattern to avoid nested if-else in View
  */
 
-import { Order, OrderAction, OrderStatus } from '@/types/order/order';
+import { OrderAction, OrderStatus, OrderUI } from '@/types/order/order';
 
 /**
  * Status - Button Matrix
@@ -20,29 +20,29 @@ import { Order, OrderAction, OrderStatus } from '@/types/order/order';
 const ACTION_MATRIX: Record<OrderStatus, OrderAction[]> = {
     // Created - Can cancel
     CREATED: [
-        { label: 'Liên hệ Shop', type: 'secondary', action: 'contact', icon: 'chatbubble-ellipses-outline' },
-        { label: 'Hủy đơn', type: 'danger', action: 'cancel', icon: 'close-circle-outline' },
+        { label: 'Liên hệ Shop', type: 'secondary', action: 'contact', icon: 'chat-dots' },
+        { label: 'Hủy đơn', type: 'danger', action: 'cancel', icon: 'close-circle' },
     ],
     // Awaiting Payment
     AWAITING_PAYMENT: [
-        { label: 'Thanh toán ngay', type: 'primary', action: 'pay', icon: 'credit-card-outline' },
-        { label: 'Hủy đơn', type: 'danger', action: 'cancel', icon: 'close-circle-outline' },
+        { label: 'Thanh toán ngay', type: 'primary', action: 'pay', icon: 'card' },
+        { label: 'Hủy đơn', type: 'danger', action: 'cancel', icon: 'close-circle' },
     ],
     // Paid
     PAID: [
-        { label: 'Liên hệ Shop', type: 'secondary', action: 'contact', icon: 'chatbubble-ellipses-outline' },
+        { label: 'Liên hệ Shop', type: 'secondary', action: 'contact', icon: 'chat-dots' },
     ],
     // Rejected
     REJECTED: [
-        { label: 'Mua lại', type: 'primary', action: 'rebuy', icon: 'cart-plus' },
+        { label: 'Mua lại', type: 'primary', action: 'rebuy', icon: 'cart' },
     ],
     // Processing/Packing
     FULFILLING: [
-        { label: 'Liên hệ Shop', type: 'secondary', action: 'contact', icon: 'chatbubble-ellipses-outline' },
+        { label: 'Liên hệ Shop', type: 'secondary', action: 'contact', icon: 'chat-dots' },
     ],
     // Ready for pickup
     READY_FOR_PICKUP: [
-        { label: 'Đã nhận hàng', type: 'primary', action: 'received', icon: 'package-variant-closed-check' },
+        { label: 'Đã nhận hàng', type: 'primary', action: 'received', icon: 'cube' },
     ],
     // Shipped
     SHIPPED: [
@@ -51,47 +51,48 @@ const ACTION_MATRIX: Record<OrderStatus, OrderAction[]> = {
     // Out for delivery
     OUT_FOR_DELIVERY: [
         { label: 'Theo dõi', type: 'secondary', action: 'track', icon: 'truck-fast' },
-        { label: 'Đã nhận hàng', type: 'primary', action: 'received', icon: 'package-variant-closed-check' },
+        { label: 'Đã nhận hàng', type: 'primary', action: 'received', icon: 'cube' },
     ],
-    // Delivered - Most important: Review + Rebuy + Return
+    // Delivered - Physics delivered, but user needs to confirm or request return
     DELIVERED: [
-        { label: 'Yêu cầu trả hàng', type: 'secondary', action: 'return', icon: 'package-variant-minus' },
-        { label: 'Đánh giá', type: 'primary', action: 'review', icon: 'star-outline' },
+        { label: 'Trả hàng/Hoàn tiền', type: 'secondary', action: 'return', icon: 'cube' },
+        { label: 'Đã nhận hàng', type: 'primary', action: 'received', icon: 'cube' },
     ],
-    // Completed
+    // Completed - Transaction final
     COMPLETED: [
-        { label: 'Mua lại', type: 'primary', action: 'rebuy', icon: 'cart-plus' },
+        { label: 'Mua lại', type: 'secondary', action: 'rebuy', icon: 'cart' },
+        { label: 'Đánh giá', type: 'primary', action: 'review', icon: 'star-outline' },
     ],
     // Delivery failed
     DELIVERY_FAILED: [
-        { label: 'Liên hệ Shop', type: 'secondary', action: 'contact', icon: 'chatbubble-ellipses-outline' },
-        { label: 'Mua lại', type: 'primary', action: 'rebuy', icon: 'cart-plus' },
+        { label: 'Liên hệ Shop', type: 'secondary', action: 'contact', icon: 'chat-dots' },
+        { label: 'Mua lại', type: 'primary', action: 'rebuy', icon: 'cart' },
     ],
     // Return statuses
     RETURNING_TO_SENDER: [
-        { label: 'Theo dõi', type: 'primary', action: 'track', icon: 'truck-delivery-outline' },
+        { label: 'Theo dõi', type: 'primary', action: 'track', icon: 'truck-step' },
     ],
     RETURNED_TO_SENDER: [
-        { label: 'Mua lại', type: 'primary', action: 'rebuy', icon: 'cart-plus' },
+        { label: 'Mua lại', type: 'primary', action: 'rebuy', icon: 'cart' },
     ],
     RETURN_REQUESTED: [
-        { label: 'Liên hệ Shop', type: 'secondary', action: 'contact', icon: 'chatbubble-ellipses-outline' },
+        { label: 'Liên hệ Shop', type: 'secondary', action: 'contact', icon: 'chat-dots' },
     ],
     RETURN_APPROVED: [
-        { label: 'Theo dõi', type: 'primary', action: 'track', icon: 'truck-delivery-outline' },
+        { label: 'Theo dõi', type: 'primary', action: 'track', icon: 'truck-step' },
     ],
     RETURN_REJECTED: [
-        { label: 'Liên hệ Shop', type: 'secondary', action: 'contact', icon: 'chatbubble-ellipses-outline' },
+        { label: 'Liên hệ Shop', type: 'secondary', action: 'contact', icon: 'chat-dots' },
     ],
     RETURNING: [
-        { label: 'Theo dõi', type: 'primary', action: 'track', icon: 'truck-delivery-outline' },
+        { label: 'Theo dõi', type: 'primary', action: 'track', icon: 'truck-step' },
     ],
     RETURNED: [
-        { label: 'Mua lại', type: 'primary', action: 'rebuy', icon: 'cart-plus' },
+        { label: 'Mua lại', type: 'primary', action: 'rebuy', icon: 'cart' },
     ],
     // Cancelled
     CANCELLED: [
-        { label: 'Mua lại', type: 'primary', action: 'rebuy', icon: 'cart-plus' },
+        { label: 'Mua lại', type: 'primary', action: 'rebuy', icon: 'cart' },
     ],
 };
 
@@ -99,16 +100,18 @@ const ACTION_MATRIX: Record<OrderStatus, OrderAction[]> = {
  * Get order actions based on status
  * Consider special conditions (e.g., whether reviewed, etc.)
  */
-export const getOrderActions = (order: Order): OrderAction[] => {
-    const baseActions = ACTION_MATRIX[order.status] || [];
+export const getOrderActions = (orderOrStatus: OrderUI | OrderStatus): OrderAction[] => {
+    const isStatusString = typeof orderOrStatus === 'string';
+    const status = isStatusString ? orderOrStatus : orderOrStatus.status;
+    const baseActions = ACTION_MATRIX[status] || [];
 
-    // If delivered, check if all items are reviewed to possibly remove 'review' action
-    if (order.status === 'DELIVERED') {
-        const allReviewed = order.items.every((item) => item.reviewed);
+    // If we have the UI object and it's COMPLETED, check if all items are reviewed
+    if (!isStatusString && status === 'COMPLETED') {
+        const allReviewed = orderOrStatus.items.every((item) => item.reviewed);
         if (allReviewed) {
+            // If all reviewed, remove review button and make Rebuy primary
             return [
-                ...baseActions.filter((a) => a.action !== 'review'),
-                { label: 'Mua lại', type: 'primary', action: 'rebuy', icon: 'cart-plus' },
+                { label: 'Mua lại', type: 'primary', action: 'rebuy', icon: 'cart' },
             ];
         }
     }
@@ -134,6 +137,6 @@ export const canRequestReturn = (status: OrderStatus): boolean => {
 /**
  * Check if order has tracking info
  */
-export const hasTracking = (order: Order): boolean => {
+export const hasTracking = (order: OrderUI): boolean => {
     return Boolean(order.trackingNumber && order.carrier);
 };

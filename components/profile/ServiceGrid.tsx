@@ -1,6 +1,6 @@
+import { IconSymbol } from '@/components/ui/Icon';
 import { ProfileMenuItem, SERVICE_MENU_CONFIG } from '@/types/profile/profile';
 import { formatCurrency } from '@/utils/format';
-import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { memo, useCallback } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
@@ -88,8 +88,8 @@ export const ServiceGrid: React.FC<ServiceGridProps> = memo(({
                             activeOpacity={0.7}
                         >
                             <View style={[styles.iconWrapper, { backgroundColor: item.iconBgColor }]}>
-                                <MaterialIcons
-                                    name={item.icon as keyof typeof MaterialIcons.glyphMap}
+                                <IconSymbol
+                                    name={item.icon as any}
                                     size={20}
                                     color={item.iconColor}
                                 />
@@ -106,7 +106,7 @@ export const ServiceGrid: React.FC<ServiceGridProps> = memo(({
                                     {value}
                                 </Text>
                             </View>
-                            <MaterialIcons
+                            <IconSymbol
                                 name="chevron-right"
                                 size={18}
                                 color={theme.colors.typographySecondary}

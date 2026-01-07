@@ -19,28 +19,17 @@ export type IconSymbolName = keyof typeof ICON_MAP | keyof typeof Ionicons.glyph
 // Định nghĩa map icon với platform-specific variants
 const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: keyof typeof Ionicons.glyphMap }> = {
     // === Navigation Icons ===
-    share: {
-        ios: 'share-outline',           // Square with arrow (iOS native)
-        android: 'share-social-outline' // 3 connected dots (Android pattern)
-    },
-    more: {
-        ios: 'ellipsis-horizontal',     // Horizontal dots (iOS native)
-        android: 'ellipsis-vertical'    // Vertical dots (Android pattern)
-    },
-    back: {
-        ios: 'chevron-back',            // Chevron (iOS native)
-        android: 'arrow-back'           // Arrow (Android pattern)
-    },
-    forward: {
-        ios: 'chevron-forward',
-        android: 'arrow-forward'
-    },
+    share: { ios: 'share-outline', android: 'share-social-outline' },
+    more: { ios: 'ellipsis-horizontal', android: 'ellipsis-vertical' },
+    back: { ios: 'chevron-back', android: 'arrow-back' },
+    forward: { ios: 'chevron-forward', android: 'arrow-forward' },
 
     // === Tab Bar Icons ===
     home: { ios: 'home-outline', android: 'home-outline' },
     'home-filled': { ios: 'home', android: 'home' },
     cart: { ios: 'cart-outline', android: 'cart-outline' },
     'cart-filled': { ios: 'cart', android: 'cart' },
+    bag: { ios: 'bag-outline', android: 'bag-outline' },
     category: { ios: 'grid-outline', android: 'grid-outline' },
     notifications: { ios: 'notifications-outline', android: 'notifications-outline' },
     'notifications-filled': { ios: 'notifications', android: 'notifications' },
@@ -53,166 +42,140 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     add: { ios: 'add', android: 'add' },
     remove: { ios: 'remove', android: 'remove' },
     check: { ios: 'checkmark', android: 'checkmark' },
+    copy: { ios: 'copy-outline', android: 'copy-outline' },
+    headset: { ios: 'headset-outline', android: 'headset-outline' },
+    'verified-user': { ios: 'shield-checkmark-outline', android: 'shield-checkmark-outline' },
+    'checkmark-done': { ios: 'checkmark-done', android: 'checkmark-done' },
+    'checkmark-done-outline': { ios: 'checkmark-done-outline', android: 'checkmark-done-outline' },
 
     // === E-commerce Icons ===
-    'favorite-border': { ios: 'heart-outline', android: 'heart-outline' },
     favorite: { ios: 'heart', android: 'heart' },
+    'favorite-outline': { ios: 'heart-outline', android: 'heart-outline' },
     star: { ios: 'star', android: 'star' },
-    'star-border': { ios: 'star-outline', android: 'star-outline' },
-    'shopping-cart': { ios: 'cart-outline', android: 'cart-outline' },
-    'shopping-bag': { ios: 'bag-outline', android: 'bag-outline' },
-    'cart-plus': { ios: 'cart-outline', android: 'cart-outline' }, // Alias for rebuy
-    'local-shipping': { ios: 'car-outline', android: 'car-outline' },
+    'star-outline': { ios: 'star-outline', android: 'star-outline' },
     shipping: { ios: 'car-outline', android: 'car-outline' },
-    'shipping-fast': { ios: 'car-sport-outline', android: 'car-sport-outline' },
+    'truck-fast': { ios: 'car-sport', android: 'car-sport' },
+    'truck-step': { ios: 'car-sport-outline', android: 'car-sport-outline' },
     receipt: { ios: 'receipt-outline', android: 'receipt-outline' },
     store: { ios: 'storefront-outline', android: 'storefront-outline' },
     ticket: { ios: 'ticket-outline', android: 'ticket-outline' },
     note: { ios: 'document-text-outline', android: 'document-text-outline' },
     'note-filled': { ios: 'document-text', android: 'document-text' },
     card: { ios: 'card-outline', android: 'card-outline' },
-    'credit-card-outline': { ios: 'card-outline', android: 'card-outline' }, // Alias
     wallet: { ios: 'wallet-outline', android: 'wallet-outline' },
+    cash: { ios: 'cash-outline', android: 'cash-outline' },
 
-    // === UI Icons ===
+    // === UI & Utility Icons ===
     'chevron-right': { ios: 'chevron-forward', android: 'chevron-forward' },
     'chevron-left': { ios: 'chevron-back', android: 'chevron-back' },
-    'arrow-back': { ios: 'chevron-back', android: 'arrow-back' },
-    'arrow-left': { ios: 'chevron-back', android: 'arrow-back' }, // Alias for arrow-back
-    login: { ios: 'log-in-outline', android: 'log-in-outline' },
-    'lock-reset': { ios: 'key-outline', android: 'key-outline' },
-    lock: { ios: 'lock-closed-outline', android: 'lock-closed-outline' },
-    mail: { ios: 'mail-outline', android: 'mail-outline' },
-    'info-outline': { ios: 'information-circle-outline', android: 'information-circle-outline' },
-    'verified-user': { ios: 'shield-checkmark-outline', android: 'shield-checkmark-outline' },
-
-    // === Category Icons (mapping từ MaterialIcons sang Ionicons) ===
-    bolt: { ios: 'flash-outline', android: 'flash-outline' },
-    'confirmation-number': { ios: 'ticket-outline', android: 'ticket-outline' },
-    smartphone: { ios: 'phone-portrait-outline', android: 'phone-portrait-outline' },
-    checkroom: { ios: 'shirt-outline', android: 'shirt-outline' },
-    'local-grocery-store': { ios: 'storefront-outline', android: 'storefront-outline' },
-    'monetization-on': { ios: 'cash-outline', android: 'cash-outline' },
-    public: { ios: 'globe-outline', android: 'globe-outline' },
-
-    // === Notification Icons ===
-    'local-fire-department': { ios: 'flame-outline', android: 'flame-outline' },
-    shield: { ios: 'shield-outline', android: 'shield-outline' },
-    'account-balance-wallet': { ios: 'wallet-outline', android: 'wallet-outline' },
-    'account-balance': { ios: 'business-outline', android: 'business-outline' }, // Bank icon
-    percent: { ios: 'pricetag-outline', android: 'pricetag-outline' },
-    cash: { ios: 'cash-outline', android: 'cash-outline' }, // Cash/money icon
-
-    // === Communication Icons ===
-    chat: { ios: 'chatbubble-outline', android: 'chatbubble-outline' },
-    'chat-filled': { ios: 'chatbubble', android: 'chatbubble' },
-    'chat-bubble': { ios: 'chatbubble-outline', android: 'chatbubble-outline' },
-    'chat-bubble-outline': { ios: 'chatbubble-outline', android: 'chatbubble-outline' },
-    'chatbubble-ellipses-outline': { ios: 'chatbubble-ellipses-outline', android: 'chatbubble-ellipses-outline' },
-    'sentiment-satisfied': { ios: 'happy-outline', android: 'happy-outline' },
-
-    // === Auth/Visibility Icons ===
-    visibility: { ios: 'eye-outline', android: 'eye-outline' },
-    'visibility-off': { ios: 'eye-off-outline', android: 'eye-off-outline' },
-    email: { ios: 'mail-outline', android: 'mail-outline' },
-
-    // === Toast/Status Icons ===
-    'check-circle': { ios: 'checkmark-circle', android: 'checkmark-circle' },
-    error: { ios: 'close-circle', android: 'close-circle' },
-    warning: { ios: 'warning', android: 'warning' },
-    info: { ios: 'information-circle', android: 'information-circle' },
-
-    // === Action Icons (Extended) ===
-    tune: { ios: 'options-outline', android: 'options-outline' },
-    'push-pin': { ios: 'pin-outline', android: 'pin-outline' },
-    delete: { ios: 'trash-outline', android: 'trash-outline' },
-    'done-all': { ios: 'checkmark-done', android: 'checkmark-done' },
-    schedule: { ios: 'time-outline', android: 'time-outline' },
-    'attach-file': { ios: 'attach-outline', android: 'attach-outline' },
-    image: { ios: 'image-outline', android: 'image-outline' },
-    verified: { ios: 'checkmark-circle', android: 'checkmark-circle' },
-    'camera-outline': { ios: 'camera-outline', android: 'camera-outline' },
-    'photo-camera': { ios: 'camera-outline', android: 'camera-outline' },
-
-    // === Notification Icons (Extended) ===
-    'notifications-none': { ios: 'notifications-outline', android: 'notifications-outline' },
-    'notifications-off': { ios: 'notifications-off-outline', android: 'notifications-off-outline' },
-
-    // === Partner Type Icons (Chat) ===
-    storefront: { ios: 'storefront-outline', android: 'storefront-outline' },
-    'local-mall': { ios: 'bag-handle-outline', android: 'bag-handle-outline' },
-    'smart-toy': { ios: 'game-controller-outline', android: 'game-controller-outline' },
-    campaign: { ios: 'megaphone-outline', android: 'megaphone-outline' },
-
-    // === Voucher Type Icons ===
-    'flight-takeoff': { ios: 'airplane-outline', android: 'airplane-outline' },
-    videocam: { ios: 'videocam-outline', android: 'videocam-outline' },
-
-    // === Order Status Icons ===
-    'clock-outline': { ios: 'time-outline', android: 'time-outline' },
-    'credit-card-clock-outline': { ios: 'card-outline', android: 'card-outline' },
-    'check-circle-outline': { ios: 'checkmark-circle-outline', android: 'checkmark-circle-outline' },
-    'truck-fast-outline': { ios: 'car-sport-outline', android: 'car-sport-outline' },
-    'truck-fast': { ios: 'car-sport', android: 'car-sport' },
-    'truck-check-outline': { ios: 'car-sport-outline', android: 'car-sport-outline' },
-    'truck-alert-outline': { ios: 'warning-outline', android: 'warning-outline' },
-    'truck-delivery-outline': { ios: 'car-sport-outline', android: 'car-sport-outline' },
-    'package-variant': { ios: 'cube-outline', android: 'cube-outline' },
-    'package-variant-closed-check': { ios: 'cube-outline', android: 'cube-outline' },
-    'package-variant-closed-minus': { ios: 'cube-outline', android: 'cube-outline' },
-    'package-variant-minus': { ios: 'cube-outline', android: 'cube-outline' },
-    'package-variant-closed-remove': { ios: 'cube-outline', android: 'cube-outline' },
-    'check-all': { ios: 'checkmark-done-outline', android: 'checkmark-done-outline' },
-    'close-circle-outline': { ios: 'close-circle-outline', android: 'close-circle-outline' },
-    'shopping-outline': { ios: 'bag-outline', android: 'bag-outline' },
-    'store-outline': { ios: 'storefront-outline', android: 'storefront-outline' },
-    'store-check-outline': { ios: 'storefront-outline', android: 'storefront-outline' },
-
-    // === Brand/Logo Icons ===
-    'logo-google': { ios: 'logo-google', android: 'logo-google' },
-    'logo-facebook': { ios: 'logo-facebook', android: 'logo-facebook' },
-    'logo-apple': { ios: 'logo-apple', android: 'logo-apple' },
-
-    // === Product Detail Icons ===
-    play: { ios: 'play', android: 'play' },
-    'play-circle': { ios: 'play-circle', android: 'play-circle' },
     'chevron-up': { ios: 'chevron-up', android: 'chevron-up' },
     'chevron-down': { ios: 'chevron-down', android: 'chevron-down' },
+    'arrow-back': { ios: 'chevron-back', android: 'arrow-back' },
+    'arrow-forward': { ios: 'arrow-forward', android: 'arrow-forward' },
+    login: { ios: 'log-in-outline', android: 'log-in-outline' },
+    lock: { ios: 'lock-closed-outline', android: 'lock-closed-outline' },
+    key: { ios: 'key-outline', android: 'key-outline' },
+    mail: { ios: 'mail-outline', android: 'mail-outline' },
+    phone: { ios: 'call-outline', android: 'call-outline' },
+    info: { ios: 'information-circle-outline', android: 'information-circle-outline' },
+    flash: { ios: 'flash-outline', android: 'flash-outline' },
+    smartphone: { ios: 'phone-portrait-outline', android: 'phone-portrait-outline' },
+    shirt: { ios: 'shirt-outline', android: 'shirt-outline' },
+    globe: { ios: 'globe-outline', android: 'globe-outline' },
+    flame: { ios: 'flame-outline', android: 'flame-outline' },
+    shield: { ios: 'shield-outline', android: 'shield-outline' },
+    bank: { ios: 'business-outline', android: 'business-outline' },
+    percent: { ios: 'pricetag-outline', android: 'pricetag-outline' },
+    radio: { ios: 'radio-button-on', android: 'radio-button-on' },
+    'radio-off': { ios: 'radio-button-off', android: 'radio-button-off' },
+    checkbox: { ios: 'checkbox', android: 'checkbox' },
+    'checkbox-outline': { ios: 'checkbox-outline', android: 'checkbox-outline' },
+    chat: { ios: 'chatbubble-outline', android: 'chatbubble-outline' },
+    'chat-filled': { ios: 'chatbubble', android: 'chatbubble' },
+    'chat-dots': { ios: 'chatbubble-ellipses-outline', android: 'chatbubble-ellipses-outline' },
+    happy: { ios: 'happy-outline', android: 'happy-outline' },
+    visibility: { ios: 'eye-outline', android: 'eye-outline' },
+    'visibility-off': { ios: 'eye-off-outline', android: 'eye-off-outline' },
+
+    // === Aliases for Legacy/Material Compatibility ===
+    bolt: { ios: 'flash-outline', android: 'flash-outline' },
+    'local-shipping': { ios: 'car-outline', android: 'car-outline' },
+    'confirmation-number': { ios: 'ticket-outline', android: 'ticket-outline' },
+    checkroom: { ios: 'shirt-outline', android: 'shirt-outline' },
+    'local-grocery-store': { ios: 'cart-outline', android: 'cart-outline' },
+    'monetization-on': { ios: 'cash-outline', android: 'cash-outline' },
+    public: { ios: 'globe-outline', android: 'globe-outline' },
+    'chat-bubble': { ios: 'chatbubble-outline', android: 'chatbubble-outline' },
+    'chat-bubble-outline': { ios: 'chatbubble-outline', android: 'chatbubble-outline' },
+    'favorite-border': { ios: 'heart-outline', android: 'heart-outline' },
+    'star-border': { ios: 'star-outline', android: 'star-outline' },
+    'error-outline': { ios: 'close-circle-outline', android: 'close-circle-outline' },
+    'alert-circle-outline': { ios: 'alert-circle-outline', android: 'alert-circle-outline' },
+    history: { ios: 'time-outline', android: 'time-outline' },
+    'receipt-long': { ios: 'receipt-outline', android: 'receipt-outline' },
+    'shopping-bag': { ios: 'bag-handle-outline', android: 'bag-handle-outline' },
+    'attach-file': { ios: 'attach-outline', android: 'attach-outline' },
+    'push-pin': { ios: 'pin-outline', android: 'pin-outline' },
+    'done-all': { ios: 'checkmark-done-outline', android: 'checkmark-done-outline' },
+    schedule: { ios: 'time-outline', android: 'time-outline' },
+    'local-fire-department': { ios: 'flame', android: 'flame' },
+    'local-mall': { ios: 'bag-outline', android: 'bag-outline' },
+    'smart-toy': { ios: 'construct-outline', android: 'construct-outline' },
+    campaign: { ios: 'megaphone-outline', android: 'megaphone-outline' },
+    storefront: { ios: 'storefront-outline', android: 'storefront-outline' },
+    'rate-review': { ios: 'chatbubble-ellipses-outline', android: 'chatbubble-ellipses-outline' },
+    'shopping-cart': { ios: 'cart-outline', android: 'cart-outline' },
+
+    // === Status & Error Icons ===
+    'check-circle': { ios: 'checkmark-circle', android: 'checkmark-circle' },
+    'checkmark-circle-outline': { ios: 'checkmark-circle-outline', android: 'checkmark-circle-outline' },
+    error: { ios: 'close-circle', android: 'close-circle' },
+    'close-circle': { ios: 'close-circle-outline', android: 'close-circle-outline' },
+    warning: { ios: 'warning', android: 'warning' },
+    'alert-circle': { ios: 'alert-circle-outline', android: 'alert-circle-outline' },
+
+    // === Extended Functional Icons ===
+    tune: { ios: 'options-outline', android: 'options-outline' },
+    pin: { ios: 'pin-outline', android: 'pin-outline' },
+    delete: { ios: 'trash-outline', android: 'trash-outline' },
+    time: { ios: 'time-outline', android: 'time-outline' },
+    calendar: { ios: 'calendar-outline', android: 'calendar-outline' },
+    attach: { ios: 'attach-outline', android: 'attach-outline' },
+    image: { ios: 'image-outline', android: 'image-outline' },
+    camera: { ios: 'camera-outline', android: 'camera-outline' },
+    settings: { ios: 'settings-outline', android: 'settings-outline' },
+    megaphone: { ios: 'megaphone-outline', android: 'megaphone-outline' },
+    airplane: { ios: 'airplane-outline', android: 'airplane-outline' },
+    video: { ios: 'videocam-outline', android: 'videocam-outline' },
+    cube: { ios: 'cube-outline', android: 'cube-outline' },
+    play: { ios: 'play', android: 'play' },
+    'play-circle': { ios: 'play-circle', android: 'play-circle' },
     location: { ios: 'location-sharp', android: 'location-sharp' },
     'location-outline': { ios: 'location-outline', android: 'location-outline' },
-    'storefront-outline': { ios: 'storefront-outline', android: 'storefront-outline' },
-    'image-outline': { ios: 'image-outline', android: 'image-outline' },
-    'rate-review': { ios: 'chatbox-ellipses-outline', android: 'chatbox-ellipses-outline' },
-    'auto-awesome': { ios: 'sparkles-outline', android: 'sparkles-outline' },
-    'location-on': { ios: 'location-outline', android: 'location-outline' },
-    'keyboard-arrow-down': { ios: 'chevron-down', android: 'chevron-down' },
-    'local-activity': { ios: 'ticket-outline', android: 'ticket-outline' },
-
-    // === Address Icons ===
-    'home-pin': { ios: 'home-outline', android: 'home-outline' },
-    'location-city': { ios: 'business-outline', android: 'business-outline' },
-    'work-outline': { ios: 'briefcase-outline', android: 'briefcase-outline' },
-    'edit-square': { ios: 'create-outline', android: 'create-outline' },
-    'radio-button-on': { ios: 'radio-button-on', android: 'radio-button-on' },
-    'radio-button-off': { ios: 'radio-button-off', android: 'radio-button-off' },
-    'checkbox-outline': { ios: 'checkbox-outline', android: 'checkbox-outline' },
-    'checkbox': { ios: 'checkbox', android: 'checkbox' },
-    call: { ios: 'call-outline', android: 'call-outline' },
-    'my-location': { ios: 'navigate-outline', android: 'navigate-outline' },
-
-    // === Profile/Form Icons ===
-    phone: { ios: 'call-outline', android: 'call-outline' },
-    'phone-outline': { ios: 'call-outline', android: 'call-outline' },
-    calendar: { ios: 'calendar-outline', android: 'calendar-outline' },
-    'calendar-month': { ios: 'calendar-outline', android: 'calendar-outline' },
-    'calendar-outline': { ios: 'calendar-outline', android: 'calendar-outline' },
-    camera: { ios: 'camera-outline', android: 'camera-outline' },
-    'camera-alt': { ios: 'camera-outline', android: 'camera-outline' },
+    sparkles: { ios: 'sparkles-outline', android: 'sparkles-outline' },
     edit: { ios: 'create-outline', android: 'create-outline' },
-    'edit-outline': { ios: 'create-outline', android: 'create-outline' },
-    'person-outline': { ios: 'person-outline', android: 'person-outline' },
-    'male-female': { ios: 'male-female-outline', android: 'male-female-outline' },
+    gender: { ios: 'male-female-outline', android: 'male-female-outline' },
     transgender: { ios: 'transgender-outline', android: 'transgender-outline' },
+    'location-on': { ios: 'location-outline', android: 'location-outline' },
+    'content-copy': { ios: 'copy-outline', android: 'copy-outline' },
+    'account-balance-wallet': { ios: 'wallet-outline', android: 'wallet-outline' },
+    'flight-takeoff': { ios: 'airplane-outline', android: 'airplane-outline' },
+    'flight-land': { ios: 'airplane-outline', android: 'airplane-outline' },
+    'keyboard-arrow-down': { ios: 'chevron-down-outline', android: 'chevron-down-outline' },
+    'keyboard-arrow-right': { ios: 'chevron-forward-outline', android: 'chevron-forward-outline' },
+    'account-balance': { ios: 'business-outline', android: 'business-outline' },
+    'edit-square': { ios: 'create-outline', android: 'create-outline' },
+    'home-pin': { ios: 'home-outline', android: 'home-outline' },
+    work: { ios: 'briefcase-outline', android: 'briefcase-outline' },
+    'work-outline': { ios: 'briefcase-outline', android: 'briefcase-outline' },
+    'auto-awesome': { ios: 'sparkles-outline', android: 'sparkles-outline' },
+    'sentiment-satisfied': { ios: 'happy-outline', android: 'happy-outline' },
+    'photo-camera': { ios: 'camera-outline', android: 'camera-outline' },
+    'camera-alt': { ios: 'camera-outline', android: 'camera-outline' },
+    'calendar-month': { ios: 'calendar-outline', android: 'calendar-outline' },
+    'arrow-left': { ios: 'chevron-back', android: 'arrow-back' },
+    'headset-mic': { ios: 'headset-outline', android: 'headset-outline' },
+    'notifications-none': { ios: 'notifications-outline', android: 'notifications-outline' },
 };
 
 interface IconSymbolProps {

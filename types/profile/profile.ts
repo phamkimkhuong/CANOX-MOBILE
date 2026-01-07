@@ -167,25 +167,25 @@ export interface OrderStatusItem {
 export const ORDER_STATUS_CONFIG: OrderStatusItem[] = [
     {
         key: 'pendingPayment',
-        icon: 'account-balance-wallet',
+        icon: 'card',
         label: 'Chờ thanh toán',
         route: ORDER_STATUS_ROUTES.pendingPayment,
     },
     {
         key: 'processing',
-        icon: 'inventory-2',
+        icon: 'cube',
         label: 'Chờ vận chuyển',
         route: ORDER_STATUS_ROUTES.processing,
     },
     {
         key: 'shipping',
-        icon: 'local-shipping',
+        icon: 'shipping',
         label: 'Đang giao',
         route: ORDER_STATUS_ROUTES.shipping,
     },
     {
         key: 'review',
-        icon: 'star-rate',
+        icon: 'star',
         label: 'Đánh giá',
         route: ORDER_STATUS_ROUTES.review,
     },
@@ -207,7 +207,7 @@ export interface QuickStatCard {
 export const QUICK_STATS_CONFIG: QuickStatCard[] = [
     {
         key: 'orders',
-        icon: 'receipt-long',
+        icon: 'receipt',
         label: 'Đơn hàng',
         bgColor: 'rgba(59, 130, 246, 0.08)',
         iconColor: '#3b82f6',
@@ -225,7 +225,7 @@ export const QUICK_STATS_CONFIG: QuickStatCard[] = [
     },
     {
         key: 'recent',
-        icon: 'history',
+        icon: 'time',
         label: 'Xem gần đây',
         bgColor: 'rgba(245, 158, 11, 0.08)',
         iconColor: '#f59e0b',
@@ -241,7 +241,7 @@ export const SERVICE_MENU_CONFIG: ProfileMenuItem[] = [
     {
         id: 'wallet',
         key: 'wallet',
-        icon: 'account-balance',
+        icon: 'bank',
         label: 'Ví GlobalPay',
         route: SERVICE_MENU_ROUTES.wallet,
         badge: 'new',
@@ -252,7 +252,7 @@ export const SERVICE_MENU_CONFIG: ProfileMenuItem[] = [
     {
         id: 'coins',
         key: 'coins',
-        icon: 'monetization-on',
+        icon: 'cash',
         label: 'Xu Tích Lũy',
         route: SERVICE_MENU_ROUTES.coins,
         iconBgColor: 'rgba(234, 179, 8, 0.1)',
@@ -262,7 +262,7 @@ export const SERVICE_MENU_CONFIG: ProfileMenuItem[] = [
     {
         id: 'vouchers',
         key: 'vouchers',
-        icon: 'confirmation-number',
+        icon: 'ticket',
         label: 'Kho Voucher',
         route: SERVICE_MENU_ROUTES.vouchers,
         iconBgColor: 'rgba(249, 115, 22, 0.1)',
@@ -272,7 +272,7 @@ export const SERVICE_MENU_CONFIG: ProfileMenuItem[] = [
     {
         id: 'international',
         key: 'shipping',
-        icon: 'flight-takeoff',
+        icon: 'airplane',
         label: 'Vận chuyển QT',
         route: SERVICE_MENU_ROUTES.shipping,
         iconBgColor: 'rgba(139, 92, 246, 0.1)',
@@ -293,7 +293,7 @@ export const SETTINGS_MENU_CONFIG: ProfileMenuItem[] = [
     {
         id: 'support',
         key: 'support',
-        icon: 'support-agent',
+        icon: 'headset',
         label: 'Trung tâm hỗ trợ',
         route: SETTINGS_MENU_ROUTES.support,
         iconBgColor: 'rgba(59, 130, 246, 0.1)',
@@ -304,7 +304,7 @@ export const SETTINGS_MENU_CONFIG: ProfileMenuItem[] = [
     {
         id: 'security',
         key: 'security',
-        icon: 'security',
+        icon: 'shield',
         label: 'Thiết lập tài khoản & Bảo mật',
         route: SETTINGS_MENU_ROUTES.security,
         iconBgColor: 'rgba(34, 197, 94, 0.1)',

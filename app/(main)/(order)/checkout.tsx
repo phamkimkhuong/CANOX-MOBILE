@@ -145,7 +145,7 @@ export default function CheckoutScreen() {
         const request: CheckoutPreviewRequest = {
             shippingAddress: currentAddressId ? {
                 addressId: currentAddressId,
-                addressChanged: false, // Default
+                addressChanged: false,
             } : undefined,
             globalVouchers: globalVouchersArray.length > 0 ? globalVouchersArray : undefined,
             shops: checkoutShops.map((shop) => {
@@ -158,12 +158,12 @@ export default function CheckoutScreen() {
                     vouchers: voucherCode ? [voucherCode] : undefined,
                     globalVouchers: globalVouchersArray.length > 0 ? globalVouchersArray : undefined,
                     serviceCode: userShippingCode ? Number(userShippingCode) : undefined,
-                    shippingFee: undefined, // Let server calculate unless we have a reason to override
+                    shippingFee: undefined,
                 };
             }),
             allSelectedItemIds: [...selectedItemIds],
             previewAllSelected: true,
-            paymentMethod: paymentMethod === 'cod' ? 'COD' : 'ONLINE', // Aligning with common API values
+            paymentMethod: paymentMethod === 'cod' ? 'COD' : 'BANK_TRANSFER',
         };
 
         return request;

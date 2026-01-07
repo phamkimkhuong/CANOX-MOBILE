@@ -81,11 +81,11 @@ export interface FilterTab {
 
 export const FILTER_TABS: FilterTab[] = [
     { key: NotificationFilter.ALL, label: 'Tất cả', icon: '' },
-    { key: NotificationFilter.ORDER, label: 'Đơn hàng', icon: 'local-shipping' },
+    { key: NotificationFilter.ORDER, label: 'Đơn hàng', icon: 'shipping' },
     { key: NotificationFilter.PROMO, label: 'Khuyến mãi', icon: 'percent' },
-    { key: NotificationFilter.PRODUCT, label: 'Sản phẩm', icon: 'cube-outline' },
-    { key: NotificationFilter.SHIPPING, label: 'Vận chuyển', icon: 'airplane-outline' },
-    { key: NotificationFilter.WALLET, label: 'Ví & Dịch vụ', icon: 'account-balance-wallet' },
+    { key: NotificationFilter.PRODUCT, label: 'Sản phẩm', icon: 'cube' },
+    { key: NotificationFilter.SHIPPING, label: 'Vận chuyển', icon: 'airplane' },
+    { key: NotificationFilter.WALLET, label: 'Ví & Dịch vụ', icon: 'wallet' },
 ];
 
 /**
@@ -99,22 +99,22 @@ export interface NotificationTypeConfig {
 
 export const NOTIFICATION_TYPE_CONFIG: Record<NotificationType, NotificationTypeConfig> = {
     ORDER: {
-        icon: 'local-shipping',
+        icon: 'shipping',
         backgroundColor: '#dbeafe',
         iconColor: '#2563eb',
     },
     PRODUCT: {
-        icon: 'cube-outline',
+        icon: 'cube',
         backgroundColor: '#fef3c7',
         iconColor: '#d97706',
     },
     PROMO: {
-        icon: 'local-fire-department',
+        icon: 'flame',
         backgroundColor: '#ffedd5',
         iconColor: '#ea580c',
     },
     SHIPPING: {
-        icon: 'airplane-outline',
+        icon: 'airplane',
         backgroundColor: '#e0e7ff',
         iconColor: '#4f46e5',
     },
@@ -124,7 +124,7 @@ export const NOTIFICATION_TYPE_CONFIG: Record<NotificationType, NotificationType
         iconColor: '#2563eb',
     },
     WALLET: {
-        icon: 'account-balance-wallet',
+        icon: 'wallet',
         backgroundColor: '#dcfce7',
         iconColor: '#16a34a',
     },

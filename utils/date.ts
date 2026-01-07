@@ -106,6 +106,20 @@ export const formatMessageTime = (date: string | Date): string => {
 };
 
 /**
+ * Format date for display
+ * Returns: "DD/MM/YYYY" or "DD/MM" based on format
+ */
+export const formatDate = (date: string | Date, format: string = 'DD/MM/YYYY'): string => {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+
+    if (format === 'DD/MM') return `${day}/${month}`;
+    return `${day}/${month}/${year}`;
+};
+
+/**
  * Format date for display in separators
  * Returns: "Hôm nay", "Hôm qua", "DD/MM" or "DD/MM/YYYY"
  */

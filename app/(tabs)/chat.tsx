@@ -135,7 +135,7 @@ export default function ChatScreen() {
             <PromoBanner
                 subtitle="Sự kiện 11.11 sắp tới!"
                 title="Giảm 50% phí vận chuyển quốc tế"
-                icon="local-shipping"
+                icon="shipping"
             />
         ),
         []

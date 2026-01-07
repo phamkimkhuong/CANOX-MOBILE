@@ -138,10 +138,6 @@ StickyBottomBar.displayName = 'StickyBottomBar';
 
 const styles = StyleSheet.create((theme) => ({
     container: {
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: theme.colors.surface,

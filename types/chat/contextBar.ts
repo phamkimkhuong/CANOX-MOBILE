@@ -115,10 +115,10 @@ export interface ContextActionConfig {
 export const CONTEXT_ACTION_CONFIG: Record<Exclude<ContextType, 'NONE'>, ContextActionConfig> = {
     PRODUCT: {
         label: 'Mua ngay',
-        icon: 'shopping-cart',
+        icon: 'cart',
     },
     ORDER: {
         label: 'Theo dõi',
-        icon: 'local-shipping',
+        icon: 'shipping',
     },
 };

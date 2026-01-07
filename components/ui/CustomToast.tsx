@@ -1,7 +1,7 @@
 import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import React from 'react';
-import { Text, View } from 'react-native';
-import { BaseToastProps, ToastConfig } from 'react-native-toast-message';
+import { Pressable, Text, View } from 'react-native';
+import Toast, { BaseToastProps, ToastConfig } from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 /**
@@ -31,15 +31,29 @@ const ToastAlert = ({ text1, text2, type }: CustomToastProps) => {
 
     const iconConfig = getIconConfig();
 
+    const handleClose = () => {
+        Toast.hide();
+    };
+
     return (
         <View style={[styles.container, styles[`border${type}`]]}>
             <View style={styles.iconContainer}>
                 <IconSymbol name={iconConfig.name} size={24} color={iconConfig.color} />
             </View>
             <View style={styles.contentContainer}>
-                <Text style={styles.title}>{text1}</Text>
-                {text2 && <Text style={styles.message}>{text2}</Text>}
+                <Text style={styles.title} numberOfLines={1}>{text1}</Text>
+                {text2 && <Text style={styles.message} numberOfLines={2}>{text2}</Text>}
             </View>
+            <Pressable
+                onPress={handleClose}
+                style={({ pressed }) => [
+                    styles.closeButton,
+                    pressed && styles.closeButtonPressed
+                ]}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+                <IconSymbol name="close" size={18} color={theme.colors.typographySecondary} />
+            </Pressable>
         </View>
     );
 };
@@ -53,7 +67,7 @@ export const toastConfig: ToastConfig = {
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
-        width: '90%',
+        width: '94%',
         backgroundColor: theme.colors.surface,
         borderRadius: theme.radius.m,
         flexDirection: 'row',
@@ -76,6 +90,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     contentContainer: {
         flex: 1,
+        marginRight: theme.margins.sm,
     },
     title: {
         fontSize: 15,
@@ -87,5 +102,14 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: 13,
         color: theme.colors.typographySecondary,
         lineHeight: 18,
+    },
+    closeButton: {
+        padding: 4,
+        borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    closeButtonPressed: {
+        backgroundColor: theme.colors.backgroundSurface,
     },
 }));

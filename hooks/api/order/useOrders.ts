@@ -8,7 +8,8 @@
 
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { apiClient, ApiError } from '@/services/api/client';
-import { Order, OrdersApiResponse, OrdersPageResponse, OrderTabStatus } from '@/types/order/order';
+import { OrdersApiResponse, OrdersPageResponse, OrderTabStatus, OrderUI } from '@/types/order/order';
+import { transformOrder } from '@/utils/adapter/order/orderAdapter';
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const PAGE_SIZE = 20;
@@ -52,7 +53,13 @@ const fetchOrdersByStatus = async (
 export const useOrderList = (status: OrderTabStatus, enabled: boolean = true) => {
     return useInfiniteQuery({
         queryKey: orderKeys.list(status),
-        queryFn: ({ pageParam }) => fetchOrdersByStatus(status, pageParam),
+        queryFn: async ({ pageParam }) => {
+            const data = await fetchOrdersByStatus(status, pageParam);
+            return {
+                ...data,
+                content: data.content.map(transformOrder),
+            };
+        },
         initialPageParam: 0,
         getNextPageParam: (lastPage) => {
             // Nếu còn trang tiếp theo, trả về page number
@@ -69,7 +76,7 @@ export const useOrderList = (status: OrderTabStatus, enabled: boolean = true) =>
  */
 export const flattenOrders = (
     data: ReturnType<typeof useOrderList>['data']
-): Order[] => {
+): OrderUI[] => {
     if (!data?.pages) return [];
     return data.pages.flatMap((page) => page.content);
 };

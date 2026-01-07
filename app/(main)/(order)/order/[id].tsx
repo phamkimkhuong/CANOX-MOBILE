@@ -1,41 +1,448 @@
-import { useLocalSearchParams } from 'expo-router';
-import React from 'react';
-import { Text, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+/**
+ * ==============================================
+ * ORDER DETAIL SCREEN - Chi tiết đơn hàng
+ * ==============================================
+ * Route: /order/[id]
+ * 
+ * Features:
+ * - Static Timeline (4 steps) for normal orders
+ * - Abnormal status banner (cancelled, rejected)
+ * - Copy tracking number, order number, address
+ * - Dynamic action buttons based on status
+ */
+
+import {
+    OrderAddressCard,
+    OrderDetailFooter,
+    OrderDetailHeader,
+    OrderDetailItemsList,
+    OrderDetailPriceSummary,
+    OrderDetailSkeleton,
+    OrderTracker,
+    ShippingInfoCard,
+} from '@/components/orders/detail';
+import { OrderShopHeader } from '@/components/orders/OrderShopHeader';
+import { chatRoutes, ROUTES, shopRoutes } from '@/constants/routes';
+import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
+import { useOrderDetail } from '@/hooks/api/order/useOrderDetail';
+import { OrderItemUI } from '@/types/order/order';
+import { getOrderActions } from '@/utils/adapter/order';
+import { Alert as CustomAlertHelper } from '@/utils/AlertHelper';
+import { logger } from '@/utils/logger';
+import * as Clipboard from 'expo-clipboard';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useCallback, useMemo, useState } from 'react';
+import { RefreshControl, ScrollView, Text, View } from 'react-native';
+import Toast from 'react-native-toast-message';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+
+type LoadingActionType = 'cancel' | 'confirm' | null;
 
 export default function OrderDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
+    const router = useRouter();
+    const { theme } = useUnistyles();
+    const styles = stylesheet;
+    const prefetchChat = usePrefetchShopChat();
+
+    // State
+    const [loadingAction, setLoadingAction] = useState<LoadingActionType>(null);
+    const [refreshing, setRefreshing] = useState(false);
+
+    // Fetch order detail
+    const { data, isLoading, isError, error, refetch } = useOrderDetail(id);
+
+    // Computed values
+    const order = data?.ui;
+    const rawOrder = data?.raw;
+    const actions = useMemo(
+        () => (order ? getOrderActions(order) : null),
+        [order]
+    );
+
+    // Check if any item can be reviewed
+
+    const canReview = useMemo(() => {
+        if (!order?.items || order.status !== 'COMPLETED') return false;
+        return order.items.some((item) => !item.reviewed);
+    }, [order?.items, order?.status]);
+
+    // === HANDLERS ===
+
+    const handleBack = useCallback(() => {
+        router.back();
+    }, [router]);
+
+    const handleSupport = useCallback(() => {
+        // TODO: Navigate to support chat or help center
+        Toast.show({
+            type: 'info',
+            text1: 'Hỗ trợ',
+            text2: 'Tính năng đang phát triển',
+        });
+    }, []);
+
+    const handleRefresh = useCallback(async () => {
+        setRefreshing(true);
+        await refetch();
+        setRefreshing(false);
+    }, [refetch]);
+
+    const handleShopPress = useCallback(() => {
+        if (!order?.shopId) return;
+        router.push(shopRoutes.detail(order.shopId));
+    }, [router, order?.shopId]);
+
+    // === ACTION HANDLERS ===
+
+    const handleCancel = useCallback(() => {
+        if (!rawOrder) return;
+
+        CustomAlertHelper.show({
+            title: 'Huỷ đơn hàng',
+            message: 'Bạn có chắc chắn muốn huỷ đơn hàng này?',
+            type: 'warning',
+            confirmText: 'Huỷ đơn',
+            cancelText: 'Không',
+            onConfirm: async () => {
+                setLoadingAction('cancel');
+                try {
+                    // TODO: Call cancel API
+                    // await cancelOrder(rawOrder.orderId);
+                    logger.api.info('Cancel order:', rawOrder.orderId);
+                    Toast.show({
+                        type: 'success',
+                        text1: 'Đã huỷ đơn hàng',
+                    });
+                    await refetch();
+                } catch (err) {
+                    logger.api.error('Cancel order failed:', err);
+                    Toast.show({
+                        type: 'error',
+                        text1: 'Huỷ đơn thất bại',
+                        text2: 'Vui lòng thử lại sau',
+                    });
+                } finally {
+                    setLoadingAction(null);
+                }
+            },
+        });
+    }, [rawOrder, refetch]);
+
+    const handleContactShop = useCallback(() => {
+        if (!order) return;
+
+        const shopUserId = order.shopUserId;
+        const shopName = order.shopName;
+        const shopLogoUrl = order.shopLogoUrl;
+
+        if (!shopUserId || !shopName) {
+            Toast.show({
+                type: 'error',
+                text1: 'Thiếu thông tin Shop',
+            });
+            return;
+        }
+
+        // Prefetch message
+        prefetchChat(shopUserId, shopName, shopLogoUrl);
+
+        // Instant navigation with Ghost ID
+        const cachedId = getCachedConversationId(shopUserId);
+        router.push(chatRoutes.detail(cachedId || `ghost_${shopUserId}`, {
+            partnerName: shopName,
+            partnerAvatar: shopLogoUrl,
+            shopUserId: shopUserId,
+        })
+        );
+
+        logger.api.info('Contact shop for order:', order.orderId);
+    }, [order, prefetchChat, router]);
+
+    const handleTrackOrder = useCallback(async () => {
+        if (!order?.trackingNumber) {
+            Toast.show({
+                type: 'info',
+                text1: 'Chưa có mã vận đơn',
+                text2: 'Vui lòng chờ shop giao hàng',
+            });
+            return;
+        }
+        // TODO: Open tracking URL or bottom sheet
+        await Clipboard.setStringAsync(order.trackingNumber);
+        Toast.show({
+            type: 'success',
+            text1: 'Đã sao chép mã vận đơn',
+            text2: order.trackingNumber,
+        });
+    }, [order?.trackingNumber]);
+
+    const handleConfirmReceived = useCallback(() => {
+        if (!rawOrder) return;
+
+        CustomAlertHelper.show({
+            title: 'Xác nhận đã nhận hàng',
+            message: 'Bạn đã nhận được hàng và hài lòng với đơn hàng?',
+            type: 'success',
+            confirmText: 'Đã nhận',
+            cancelText: 'Chưa',
+            onConfirm: async () => {
+                setLoadingAction('confirm');
+                try {
+                    // TODO: Call confirm received API
+                    logger.api.info('Confirm received:', rawOrder.orderId);
+                    Toast.show({
+                        type: 'success',
+                        text1: 'Đã xác nhận nhận hàng',
+                    });
+                    await refetch();
+                } catch (err) {
+                    logger.api.error('Confirm received failed:', err);
+                    Toast.show({
+                        type: 'error',
+                        text1: 'Xác nhận thất bại',
+                        text2: 'Vui lòng thử lại sau',
+                    });
+                } finally {
+                    setLoadingAction(null);
+                }
+            },
+        });
+    }, [rawOrder, refetch]);
+
+    const handleReturnOrder = useCallback(() => {
+        if (!rawOrder) return;
+        // TODO: Navigate to return request screen
+        Toast.show({
+            type: 'info',
+            text1: 'Yêu cầu trả hàng',
+            text2: 'Chức năng đang được tích hợp',
+        });
+        logger.api.info('Return order request:', rawOrder.orderId);
+    }, [rawOrder]);
+
+    const handleRebuy = useCallback(() => {
+        if (!order?.items) return;
+        // TODO: Add all items to cart
+        logger.api.info('Rebuy order items:', order.items.length);
+        Toast.show({
+            type: 'success',
+            text1: 'Đã thêm vào giỏ hàng',
+            text2: `${order.items.length} sản phẩm`,
+        });
+        router.push(ROUTES.CART.INDEX as any);
+    }, [order?.items, router]);
+
+    const handleReview = useCallback(() => {
+        if (!rawOrder) return;
+        // router.push(`/review/${rawOrder.orderId}`);
+    }, [router, rawOrder]);
+
+    const handleReviewItem = useCallback(
+        (item: OrderItemUI) => {
+            // router.push(`/review/${rawOrder?.orderId}?itemId=${item.itemId}`);
+        },
+        [router, rawOrder?.orderId]
+    );
+
+    // === RENDER STATES ===
+
+    // === RENDER ===
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Chi tiết đơn hàng</Text>
-            <Text style={styles.id}>Order ID: {id}</Text>
-            <Text style={styles.placeholder}>🚧 Đang phát triển...</Text>
+            {/* Header */}
+            <OrderDetailHeader
+                orderNumber={order?.orderNumber || (id?.slice(-8) || '...')}
+                onSupportPress={handleSupport}
+            />
+
+            {isLoading ? (
+                // Loading State
+                <View style={{ flex: 1 }}>
+                    <OrderDetailSkeleton />
+                </View>
+            ) : (isError || !order || !rawOrder) ? (
+                // Error State
+                <View style={styles.errorContainer}>
+                    <Text style={styles.errorTitle}>Không tìm thấy đơn hàng</Text>
+                    <Text style={styles.errorMessage}>
+                        {error?.message || 'Đơn hàng không tồn tại hoặc đã bị xoá'}
+                    </Text>
+                </View>
+            ) : (
+                // 4. Success State (Main Content)
+                <View style={{ flex: 1 }} key="order-detail-content">
+                    <ScrollView
+                        key={`scroll-${order.orderId}`}
+                        style={styles.scrollView}
+                        contentContainerStyle={styles.scrollContent}
+                        showsVerticalScrollIndicator={false}
+                        refreshControl={
+                            <RefreshControl
+                                refreshing={refreshing}
+                                onRefresh={handleRefresh}
+                                tintColor={theme.colors.primary}
+                                colors={[theme.colors.primary]}
+                            />
+                        }
+                    >
+                        {/* Order Tracker */}
+                        <OrderTracker
+                            status={order.status}
+                            createdAt={rawOrder?.createdAt}
+                        />
+
+                        {/* Shipping Info */}
+                        {(order.carrier || order.trackingNumber) && (
+                            <View style={styles.section}>
+                                <ShippingInfoCard
+                                    carrier={order.carrier}
+                                    trackingNumber={order.trackingNumber}
+                                    onTrackingPress={handleTrackOrder}
+                                />
+                            </View>
+                        )}
+
+                        {/* Delivery Address */}
+                        <View style={styles.section}>
+                            <OrderAddressCard
+                                recipientName={order.recipientName}
+                                phoneNumber={order.phoneNumber}
+                                fullAddress={order.fullAddress}
+                                email={rawOrder?.email}
+                            />
+                        </View>
+
+                        {/* Order Items & Shop info */}
+                        <View style={styles.section}>
+                            <OrderShopHeader
+                                shopInfo={rawOrder?.shopInfo}
+                                status={order.status}
+                                onShopPress={handleShopPress}
+                            />
+                            <OrderDetailItemsList
+                                items={order.items}
+                                showReviewStatus={order.status === 'COMPLETED'}
+                                onPressReview={handleReviewItem}
+                            />
+                        </View>
+
+                        {/* Price Summary */}
+                        <View style={styles.section}>
+                            <OrderDetailPriceSummary
+                                subtotal={order.subtotal}
+                                shopDiscount={rawOrder?.shopDiscount || 0}
+                                platformDiscount={rawOrder?.platformDiscount || 0}
+                                shippingDiscount={rawOrder?.shippingDiscount || 0}
+                                shippingFee={order.shippingFee}
+                                taxAmount={rawOrder?.taxAmount}
+                                grandTotal={order.grandTotal}
+                                paymentMethod={order.paymentMethodDisplay}
+                            />
+                        </View>
+
+                        {/* Notes */}
+                        {order.customerNote && (
+                            <View style={styles.noteSection}>
+                                <Text style={styles.noteLabel}>Ghi chú:</Text>
+                                <Text style={styles.noteText}>{order.customerNote}</Text>
+                            </View>
+                        )}
+
+                        {order.cancellationReason && (
+                            <View style={styles.cancelSection}>
+                                <Text style={styles.cancelLabel}>Lý do huỷ:</Text>
+                                <Text style={styles.cancelText}>{order.cancellationReason}</Text>
+                            </View>
+                        )}
+                    </ScrollView>
+
+                    {/* Sticky Footer */}
+                    <OrderDetailFooter
+                        key={`footer-${order.orderId}`}
+                        order={order}
+                        status={order.status}
+                        canReview={canReview}
+                        onCancel={handleCancel}
+                        onContactShop={handleContactShop}
+                        onTrackOrder={handleTrackOrder}
+                        onConfirmReceived={handleConfirmReceived}
+                        onReturn={handleReturnOrder}
+                        onRebuy={handleRebuy}
+                        onReview={handleReview}
+                        loadingAction={loadingAction}
+                    />
+                </View>
+            )}
         </View>
     );
 }
 
-const styles = StyleSheet.create((theme) => ({
+const stylesheet = StyleSheet.create((theme) => ({
     container: {
+        flex: 1,
+        backgroundColor: theme.colors.background,
+    },
+    scrollView: {
+        flex: 1,
+    },
+    scrollContent: {
+        paddingBottom: theme.margins.xl,
+    },
+    section: {
+        marginTop: theme.margins.sm,
+    },
+    noteSection: {
+        marginTop: theme.margins.sm,
+        backgroundColor: theme.colors.surface,
+        paddingHorizontal: theme.margins.md,
+        paddingVertical: theme.margins.smd,
+    },
+    noteLabel: {
+        fontSize: 12,
+        fontWeight: '500',
+        color: theme.colors.typographySecondary,
+        marginBottom: 4,
+    },
+    noteText: {
+        fontSize: 13,
+        color: theme.colors.typography,
+        lineHeight: 18,
+    },
+    cancelSection: {
+        marginTop: theme.margins.sm,
+        backgroundColor: theme.colors.errorLight,
+        paddingHorizontal: theme.margins.md,
+        paddingVertical: theme.margins.smd,
+    },
+    cancelLabel: {
+        fontSize: 12,
+        fontWeight: '500',
+        color: theme.colors.error,
+        marginBottom: 4,
+    },
+    cancelText: {
+        fontSize: 13,
+        color: theme.colors.error,
+        lineHeight: 18,
+    },
+    errorContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: theme.colors.background,
-        padding: theme.margins.lg,
+        padding: theme.margins.xl,
     },
-    title: {
-        fontSize: 24,
-        fontWeight: '700',
+    errorTitle: {
+        fontSize: 18,
+        fontWeight: '600',
         color: theme.colors.typography,
-        marginBottom: theme.margins.md,
+        marginBottom: theme.margins.sm,
     },
-    id: {
+    errorMessage: {
         fontSize: 14,
         color: theme.colors.typographySecondary,
-        marginBottom: theme.margins.lg,
-    },
-    placeholder: {
-        fontSize: 16,
-        color: theme.colors.secondary,
+        textAlign: 'center',
     },
 }));

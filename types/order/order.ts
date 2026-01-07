@@ -29,11 +29,12 @@ export type OrderStatus =
 
 // Các tab hiển thị trong UI (simplified)
 export type OrderTabStatus =
-    | 'CREATED'
-    | 'FULFILLING'
-    | 'DELIVERED'
-    | 'COMPLETED'
-    | 'CANCELLED';
+    | 'AWAITING_PAYMENT'  // Chờ thanh toán
+    | 'CREATED'           // Chờ xác nhận
+    | 'FULFILLING'        // Đang xử lý/Giao
+    | 'DELIVERED'         // Đã giao
+    | 'COMPLETED'         // Hoàn thành
+    | 'CANCELLED';        // Đã hủy
 
 export type PaymentMethod = 'COD' | 'PAYOS' | 'STRIPE' | 'BANK_TRANSFER';
 export type Carrier = 'GHN' | 'SUPERSHIP' | 'GHTK' | 'VIETTEL_POST';
@@ -45,7 +46,7 @@ export interface OrderShopInfo {
     description: string | null;
     logoUrl: string | null;
     bannerUrl: string | null;
-    status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
+    status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'PENDING' | string;
     rejectedReason: string | null;
     verifyBy: string | null;
     verifyDate: string | null;
@@ -181,8 +182,9 @@ export interface OrderUI {
     orderId: string;
     orderNumber: string;
     shopId: string;
+    shopUserId: string; // Shop owner's user ID for chat
     shopName: string;
-    shopLogoUrl: string | null; //  Pre-built URL
+    shopLogoUrl: string | null; // Pre-built URL
     status: OrderStatus;
     statusDisplay: {
         label: string;
@@ -223,6 +225,7 @@ export interface OrderUI {
     // Notes
     customerNote: string | null;
     cancellationReason: string | null;
+    expiresAt: string | null;
 
     // Raw data (for actions)
     _raw: Order; //  Keep original for detail screen

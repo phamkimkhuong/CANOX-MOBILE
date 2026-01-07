@@ -67,7 +67,7 @@ export const SHIPPING_CONFIG: Record<ShippingMethodType, ShippingMethodConfig> =
         label: 'Tiêu chuẩn',
     },
     express: {
-        icon: 'bolt',
+        icon: 'flash',
         color: '#F59E0B', // amber
         label: 'Hỏa tốc',
     },

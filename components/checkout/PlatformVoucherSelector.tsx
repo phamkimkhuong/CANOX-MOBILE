@@ -9,7 +9,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import type { VoucherUI } from '@/types/cart';
 import { formatCurrency } from '@/utils/format';
 import React, { useCallback, useState } from 'react';
-import { Modal, Pressable, ScrollView, Text, TouchableWithoutFeedback, View } from 'react-native';
+import { Modal, Pressable, ScrollView, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface PlatformVoucherSelectorProps {
@@ -48,6 +48,7 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
     // Local state for modal interaction - only commit on "Xong"
     const [tempDiscountId, setTempDiscountId] = useState<string | null>(null);
     const [tempShippingId, setTempShippingId] = useState<string | null>(null);
+    const [manualCode, setManualCode] = useState('');
 
     const selectedDiscountVoucher = availableVouchers.find((v) => v.id === selectedDiscountVoucherId);
     const selectedShippingVoucher = availableVouchers.find((v) => v.id === selectedShippingVoucherId);
@@ -76,7 +77,23 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
     const handleApply = useCallback(() => {
         onApply(tempDiscountId, tempShippingId);
         setIsModalVisible(false);
+        setManualCode('');
     }, [onApply, tempDiscountId, tempShippingId]);
+
+    const handleManualApply = useCallback(() => {
+        const code = manualCode.trim().toUpperCase();
+        if (!code) return;
+
+        // Try to find in existing vouchers to know category
+        const existing = availableVouchers.find(v => v.code === code);
+        if (existing) {
+            handleSelect(existing.id, existing.category === 'SHIPPING' ? 'SHIPPING' : 'DISCOUNT');
+        } else {
+            // Default to discount if unknown
+            setTempDiscountId(code);
+        }
+        setManualCode('');
+    }, [manualCode, availableVouchers, handleSelect]);
 
     const getSelectedSummary = () => {
         const parts = [];
@@ -201,6 +218,39 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
                                         <View style={styles.doneButton}>
                                             <Text style={styles.doneButtonText}>Xong</Text>
                                         </View>
+                                    </Pressable>
+                                </View>
+
+                                {/* Manual Input Section */}
+                                <View style={styles.manualInputSection}>
+                                    <View style={styles.inputWrapper}>
+                                        <TextInput
+                                            style={styles.manualInput}
+                                            placeholder="Nhập mã voucher Ebay"
+                                            value={manualCode}
+                                            onChangeText={setManualCode}
+                                            autoCapitalize="characters"
+                                            autoCorrect={false}
+                                            returnKeyType="done"
+                                        />
+                                        {manualCode.length > 0 && (
+                                            <Pressable
+                                                onPress={() => setManualCode('')}
+                                                style={styles.clearButton}
+                                            >
+                                                <IconSymbol name="close-circle" size={18} color={theme.colors.typographySecondary} />
+                                            </Pressable>
+                                        )}
+                                    </View>
+                                    <Pressable
+                                        style={[
+                                            styles.applyButton,
+                                            !manualCode.trim() && styles.applyButtonDisabled
+                                        ]}
+                                        onPress={handleManualApply}
+                                        disabled={!manualCode.trim()}
+                                    >
+                                        <Text style={styles.applyButtonText}>Áp dụng</Text>
                                     </Pressable>
                                 </View>
 
@@ -627,6 +677,58 @@ const stylesheet = StyleSheet.create((theme) => ({
 
     modalFooter: {
         height: 34,
+    },
+
+    manualInputSection: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: theme.margins.lg,
+        paddingVertical: theme.margins.md,
+        backgroundColor: theme.colors.surface,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors.border,
+        gap: theme.margins.sm,
+    },
+
+    inputWrapper: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: theme.colors.background,
+        borderRadius: 8,
+        paddingHorizontal: theme.margins.sm,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+    },
+
+    manualInput: {
+        flex: 1,
+        height: 40,
+        fontSize: 14,
+        color: theme.colors.typography,
+    },
+
+    clearButton: {
+        padding: 4,
+    },
+
+    applyButton: {
+        backgroundColor: theme.colors.primary,
+        paddingHorizontal: theme.margins.lg,
+        height: 40,
+        borderRadius: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+
+    applyButtonDisabled: {
+        backgroundColor: theme.colors.border,
+    },
+
+    applyButtonText: {
+        color: '#FFFFFF',
+        fontWeight: '700',
+        fontSize: 14,
     },
 }));
 

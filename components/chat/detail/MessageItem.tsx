@@ -249,7 +249,7 @@ const ProductCardContent: React.FC<{ content: string; isMe: boolean }> = ({
     // TODO: Parse product data from content/metadata
     return (
         <View style={styles.cardContainer}>
-            <IconSymbol name="shopping-cart" size={20} color="#0088cc" />
+            <IconSymbol name="cart" size={20} color="#0088cc" />
             <Text style={[styles.textContent, isMe && styles.textContentMe]}>
                 [Sản phẩm] {content}
             </Text>
@@ -264,7 +264,7 @@ const OrderCardContent: React.FC<{ content: string; isMe: boolean }> = ({
     const styles = stylesheet;
     return (
         <View style={styles.cardContainer}>
-            <IconSymbol name="local-shipping" size={20} color="#0088cc" />
+            <IconSymbol name="shipping" size={20} color="#0088cc" />
             <Text style={[styles.textContent, isMe && styles.textContentMe]}>
                 [Đơn hàng] {content}
             </Text>

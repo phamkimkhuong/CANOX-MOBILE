@@ -122,7 +122,7 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
                         disabled={disabled}
                     >
                         <IconSymbol
-                            name="sentiment-satisfied"
+                            name="happy"
                             size={22}
                             color={theme.colors.secondary}
                         />
@@ -133,7 +133,7 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
                         disabled={disabled}
                     >
                         <IconSymbol
-                            name="photo-camera"
+                            name="camera"
                             size={22}
                             color={theme.colors.secondary}
                         />

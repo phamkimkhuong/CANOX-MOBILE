@@ -39,7 +39,7 @@ export const OrderHistoryHeader: React.FC<OrderHistoryHeaderProps> = ({
                     onPress={() => router.back()}
                 >
                     <IconSymbol
-                        name="arrow-left"
+                        name="arrow-back"
                         size={24}
                         color={theme.colors.typography}
                     />

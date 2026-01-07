@@ -211,7 +211,7 @@ export const ProductReviews = memo<ProductReviewsProps>(({
 
                 <View style={styles.emptyContainer}>
                     <IconSymbol
-                        name="rate-review"
+                        name="chat-dots"
                         size={48}
                         color={theme.colors.secondary}
                     />

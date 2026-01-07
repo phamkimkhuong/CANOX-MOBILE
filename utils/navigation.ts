@@ -20,8 +20,6 @@ export const Navigator = {
         }
 
         lastClickTimestamp = now;
-
-        // Sync navigation
         router.push(route as Href);
     },
 

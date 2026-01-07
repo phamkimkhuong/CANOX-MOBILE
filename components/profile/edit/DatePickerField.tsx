@@ -79,7 +79,7 @@ export const DatePickerField: React.FC<DatePickerFieldProps> = ({
                 disabled={disabled}
             >
                 <View style={styles.iconContainer}>
-                    <IconSymbol name="calendar-month" size={20} color={theme.colors.secondary} />
+                    <IconSymbol name="calendar" size={20} color={theme.colors.secondary} />
                 </View>
 
                 <Text

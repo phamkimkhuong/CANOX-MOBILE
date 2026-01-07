@@ -110,7 +110,10 @@ export default function RootLayout() {
                   </Stack>
                 </UserSyncProvider>
                 <CustomAlert ref={alertRef} />
-                <Toast config={toastConfig} />
+                <Toast
+                  config={toastConfig}
+                  visibilityTime={2000}
+                />
                 {/* 4. StatusBar always Dark Content (black text) because of light background */}
                 <StatusBar style="dark" />
               </ThemeProvider>

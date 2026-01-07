@@ -36,14 +36,14 @@ const PAYMENT_METHODS: Array<{
             id: 'bank_transfer',
             name: 'Chuyển khoản ngân hàng',
             description: 'Chuyển khoản qua tài khoản ngân hàng',
-            icon: 'account-balance',
+            icon: 'bank',
             iconColor: '#3B82F6',
         },
         // {
         //     id: 'e_wallet',
         //     name: 'Ví điện tử',
         //     description: 'MoMo, ZaloPay, VNPay...',
-        //     icon: 'account-balance-wallet',
+        //     icon: 'wallet',
         //     iconColor: '#A855F7',
         // },
         // {
@@ -141,7 +141,7 @@ export const PaymentMethodSection: React.FC<PaymentMethodSectionProps> = ({
                                 <View style={styles.modalHeader}>
                                     <View style={styles.modalHeaderLeft}>
                                         <IconSymbol
-                                            name="account-balance-wallet"
+                                            name="wallet"
                                             size={22}
                                             color={theme.colors.primary}
                                         />

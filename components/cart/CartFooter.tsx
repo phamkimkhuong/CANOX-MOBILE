@@ -228,9 +228,6 @@ export { CHECKOUT_BAR_HEIGHT, VOUCHER_BAR_HEIGHT };
 
 const styles = StyleSheet.create((theme) => ({
     container: {
-        position: 'absolute',
-        left: 0,
-        right: 0,
         backgroundColor: theme.colors.surface,
         borderTopWidth: 1,
         borderTopColor: theme.colors.border,

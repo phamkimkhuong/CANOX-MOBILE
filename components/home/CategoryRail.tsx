@@ -26,14 +26,14 @@ interface Category {
 }
 
 const CATEGORIES: Category[] = [
-    { id: 1, name: 'Flash Sale', icon: 'bolt', color: '#f59e0b' },
-    { id: 2, name: 'Free Ship', icon: 'local-shipping', color: '#3b82f6' },
-    { id: 3, name: 'Vouchers', icon: 'confirmation-number', color: '#fb923c', route: ROUTES.PROFILE.VOUCHERS },
+    { id: 1, name: 'Flash Sale', icon: 'flash', color: '#f59e0b' },
+    { id: 2, name: 'Free Ship', icon: 'shipping', color: '#3b82f6' },
+    { id: 3, name: 'Vouchers', icon: 'ticket', color: '#fb923c', route: ROUTES.PROFILE.VOUCHERS },
     { id: 5, name: 'Top Up', icon: 'smartphone', color: '#a855f7' },
-    { id: 6, name: 'Fashion', icon: 'checkroom', color: '#f472b6' },
-    { id: 7, name: 'Mart', icon: 'local-grocery-store', color: '#22c55e' },
-    { id: 8, name: 'Coins', icon: 'monetization-on', color: '#facc15', route: ROUTES.PROFILE.COINS },
-    { id: 9, name: 'Global', icon: 'public', color: '#2dd4bf', route: ROUTES.PROFILE.INTERNATIONAL_SHIPPING },
+    { id: 6, name: 'Fashion', icon: 'shirt', color: '#f472b6' },
+    { id: 7, name: 'Mart', icon: 'store', color: '#22c55e' },
+    { id: 8, name: 'Coins', icon: 'cash', color: '#facc15', route: ROUTES.PROFILE.COINS },
+    { id: 9, name: 'Global', icon: 'globe', color: '#2dd4bf', route: ROUTES.PROFILE.INTERNATIONAL_SHIPPING },
 ];
 
 export const CategoryRail = memo(() => {

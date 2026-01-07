@@ -95,7 +95,7 @@ const EmptyCart: React.FC = () => {
 
     return (
         <View style={styles.emptyContainer}>
-            <IconSymbol name="shopping-cart" size={64} color={theme.colors.secondary} />
+            <IconSymbol name="cart" size={64} color={theme.colors.secondary} />
             <Text style={styles.emptyTitle}>Giỏ hàng trống</Text>
             <Text style={styles.emptySubtitle}>Hãy thêm sản phẩm vào giỏ hàng nhé!</Text>
             <Pressable
@@ -372,10 +372,10 @@ export default function CartScreen() {
                             contentContainerStyle={{
                                 paddingHorizontal: theme.margins.smd,
                                 paddingTop: theme.margins.smd,
-                                paddingBottom: 120 + insets.bottom,
+                                paddingBottom: theme.margins.lg,
                             }}
                             showsVerticalScrollIndicator={false}
-                            style={{ opacity: isFetching ? 0.7 : 1 }}
+                            style={{ flex: 1, opacity: isFetching ? 0.7 : 1 }}
                         />
 
                         <CartFooter

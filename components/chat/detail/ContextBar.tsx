@@ -88,7 +88,7 @@ export const ContextBar: React.FC<ContextBarProps> = ({
                     />
                 ) : (
                     <View style={[styles.thumbnail, styles.thumbnailPlaceholder]}>
-                        <IconSymbol name="local-shipping" size={24} color={theme.colors.secondary} />
+                        <IconSymbol name="shipping" size={24} color={theme.colors.secondary} />
                     </View>
                 )}
                 <View style={styles.info}>

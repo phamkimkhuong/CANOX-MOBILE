@@ -6,7 +6,7 @@
  * Kết hợp: ShopHeader + ProductPreview + PriceSummary + ActionButtons
  */
 
-import { Order, OrderAction } from '@/types/order/order';
+import { OrderAction, OrderUI } from '@/types/order/order';
 import { hasTracking } from '@/utils/adapter/order/orderActions';
 import React from 'react';
 import { Pressable } from 'react-native';
@@ -19,10 +19,10 @@ import { ProductPreviewList } from './ProductPreviewList';
 import { TrackingInfoSnippet } from './TrackingInfoSnippet';
 
 interface OrderCardProps {
-    order: Order;
+    order: OrderUI;
     onPress?: (orderId: string) => void;
     onShopPress?: (shopId: string) => void;
-    onAction?: (action: OrderAction['action'], orderId: string) => void;
+    onAction?: (action: OrderAction['action'], order: OrderUI) => void;
     onTrackingPress?: (orderId: string) => void;
 }
 
@@ -44,8 +44,8 @@ export const OrderCard: React.FC<OrderCardProps> = ({
         onShopPress?.(order.shopId);
     };
 
-    const handleAction = (action: OrderAction['action'], orderId: string) => {
-        onAction?.(action, orderId);
+    const handleAction = (action: OrderAction['action'], order: OrderUI) => {
+        onAction?.(action, order);
     };
 
     const handleTrackingPress = () => {
@@ -70,7 +70,7 @@ export const OrderCard: React.FC<OrderCardProps> = ({
         >
             {/* 1. Shop Header + Status */}
             <OrderShopHeader
-                shopInfo={order.shopInfo}
+                shopInfo={order._raw.shopInfo}
                 status={order.status}
                 onShopPress={handleShopPress}
             />

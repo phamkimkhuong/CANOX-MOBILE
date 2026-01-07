@@ -1,5 +1,5 @@
+import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
-import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { memo, useCallback } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
@@ -46,7 +46,7 @@ export const GuestState: React.FC<GuestStateProps> = memo(({ onLogin, onRegister
                 style={styles.illustrationContainer}
             >
                 <View style={styles.iconCircle}>
-                    <MaterialIcons name="person-outline" size={64} color={theme.colors.primary} />
+                    <IconSymbol name="person" size={64} color={theme.colors.primary} />
                 </View>
                 <View style={styles.decorCircle1} />
                 <View style={styles.decorCircle2} />
@@ -92,9 +92,9 @@ export const GuestState: React.FC<GuestStateProps> = memo(({ onLogin, onRegister
             >
                 <Text style={styles.benefitsTitle}>Quyền lợi thành viên</Text>
                 <View style={styles.benefitsList}>
-                    <BenefitItem icon="local-offer" text="Ưu đãi độc quyền" />
-                    <BenefitItem icon="local-shipping" text="Miễn phí vận chuyển" />
-                    <BenefitItem icon="stars" text="Tích xu mỗi đơn hàng" />
+                    <BenefitItem icon="percent" text="Ưu đãi độc quyền" />
+                    <BenefitItem icon="shipping" text="Miễn phí vận chuyển" />
+                    <BenefitItem icon="sparkles" text="Tích xu mỗi đơn hàng" />
                 </View>
             </Animated.View>
         </View>
@@ -106,7 +106,7 @@ GuestState.displayName = 'GuestState';
 /**
  * Single benefit item
  */
-const BenefitItem: React.FC<{ icon: keyof typeof MaterialIcons.glyphMap; text: string }> = memo(
+const BenefitItem: React.FC<{ icon: string; text: string }> = memo(
     ({ icon, text }) => {
         const { theme } = useUnistyles();
         const styles = stylesheet;
@@ -114,7 +114,7 @@ const BenefitItem: React.FC<{ icon: keyof typeof MaterialIcons.glyphMap; text: s
         return (
             <View style={styles.benefitItem}>
                 <View style={styles.benefitIcon}>
-                    <MaterialIcons name={icon} size={16} color={theme.colors.primary} />
+                    <IconSymbol name={icon as any} size={16} color={theme.colors.primary} />
                 </View>
                 <Text style={styles.benefitText}>{text}</Text>
             </View>

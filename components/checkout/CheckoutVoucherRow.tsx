@@ -10,7 +10,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import type { VoucherUI } from '@/types/cart';
 import { formatCurrency } from '@/utils/format';
 import React, { useCallback, useState } from 'react';
-import { Modal, Pressable, ScrollView, Text, TouchableWithoutFeedback, View } from 'react-native';
+import { Modal, Pressable, ScrollView, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface CheckoutVoucherRowProps {
@@ -36,6 +36,7 @@ export const CheckoutVoucherRow: React.FC<CheckoutVoucherRowProps> = ({
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [manualCode, setManualCode] = useState('');
 
     const selectedVoucher = availableVouchers.find((v) => v.id === selectedVoucherId);
 
@@ -48,7 +49,15 @@ export const CheckoutVoucherRow: React.FC<CheckoutVoucherRowProps> = ({
     const handleSelect = useCallback((voucherId: string | null) => {
         onSelect(voucherId);
         setIsModalVisible(false);
+        setManualCode('');
     }, [onSelect]);
+
+    const handleManualApply = useCallback(() => {
+        if (!manualCode.trim()) return;
+        onSelect(manualCode.trim().toUpperCase());
+        setIsModalVisible(false);
+        setManualCode('');
+    }, [manualCode, onSelect]);
 
     return (
         <>
@@ -147,6 +156,38 @@ export const CheckoutVoucherRow: React.FC<CheckoutVoucherRowProps> = ({
                                             size={22}
                                             color={theme.colors.typographySecondary}
                                         />
+                                    </Pressable>
+                                </View>
+                                {/* Manual Input Section */}
+                                <View style={styles.manualInputSection}>
+                                    <View style={styles.inputWrapper}>
+                                        <TextInput
+                                            style={styles.manualInput}
+                                            placeholder="Nhập mã voucher của Shop"
+                                            value={manualCode}
+                                            onChangeText={setManualCode}
+                                            autoCapitalize="characters"
+                                            autoCorrect={false}
+                                            returnKeyType="done"
+                                        />
+                                        {manualCode.length > 0 && (
+                                            <Pressable
+                                                onPress={() => setManualCode('')}
+                                                style={styles.clearButton}
+                                            >
+                                                <IconSymbol name="close-circle" size={18} color={theme.colors.typographySecondary} />
+                                            </Pressable>
+                                        )}
+                                    </View>
+                                    <Pressable
+                                        style={[
+                                            styles.applyButton,
+                                            !manualCode.trim() && styles.applyButtonDisabled
+                                        ]}
+                                        onPress={handleManualApply}
+                                        disabled={!manualCode.trim()}
+                                    >
+                                        <Text style={styles.applyButtonText}>Áp dụng</Text>
                                     </Pressable>
                                 </View>
 
@@ -443,6 +484,58 @@ const stylesheet = StyleSheet.create((theme) => ({
 
     modalFooter: {
         height: 34,
+    },
+
+    manualInputSection: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: theme.margins.lg,
+        paddingVertical: theme.margins.md,
+        backgroundColor: theme.colors.surface,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors.border,
+        gap: theme.margins.sm,
+    },
+
+    inputWrapper: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: theme.colors.background,
+        borderRadius: 8,
+        paddingHorizontal: theme.margins.sm,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+    },
+
+    manualInput: {
+        flex: 1,
+        height: 40,
+        fontSize: 14,
+        color: theme.colors.typography,
+    },
+
+    clearButton: {
+        padding: 4,
+    },
+
+    applyButton: {
+        backgroundColor: theme.colors.primary,
+        paddingHorizontal: theme.margins.lg,
+        height: 40,
+        borderRadius: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+
+    applyButtonDisabled: {
+        backgroundColor: theme.colors.border,
+    },
+
+    applyButtonText: {
+        color: '#FFFFFF',
+        fontWeight: '700',
+        fontSize: 14,
     },
 }));
 

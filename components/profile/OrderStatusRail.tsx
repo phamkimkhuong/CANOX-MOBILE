@@ -1,6 +1,6 @@
+import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
 import { ORDER_STATUS_CONFIG, OrderStats } from '@/types/profile/profile';
-import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { memo, useCallback } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
@@ -53,7 +53,7 @@ export const OrderStatusRail: React.FC<OrderStatusRailProps> = memo(({
                     <Text style={styles.title}>Đơn mua</Text>
                 </View>
                 <View style={styles.errorContainer}>
-                    <MaterialIcons name="error-outline" size={24} color={theme.colors.error} />
+                    <IconSymbol name="error" size={24} color={theme.colors.error} />
                     <Text style={styles.errorText}>Không thể tải dữ liệu</Text>
                     <TouchableOpacity style={styles.retryBtn} onPress={onRetry}>
                         <Text style={styles.retryText}>Thử lại</Text>
@@ -93,7 +93,7 @@ export const OrderStatusRail: React.FC<OrderStatusRailProps> = memo(({
                     activeOpacity={0.7}
                 >
                     <Text style={styles.viewAllText}>Xem lịch sử mua hàng</Text>
-                    <MaterialIcons name="arrow-forward" size={14} color={theme.colors.secondary} />
+                    <IconSymbol name="forward" size={14} color={theme.colors.secondary} />
                 </TouchableOpacity>
             </View>
 
@@ -111,8 +111,8 @@ export const OrderStatusRail: React.FC<OrderStatusRailProps> = memo(({
                             activeOpacity={0.7}
                         >
                             <View style={styles.iconContainer}>
-                                <MaterialIcons
-                                    name={item.icon as keyof typeof MaterialIcons.glyphMap}
+                                <IconSymbol
+                                    name={item.icon as any}
                                     size={24}
                                     color={theme.colors.secondary}
                                 />
