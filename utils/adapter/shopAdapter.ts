@@ -12,6 +12,7 @@
 import { ProductFeedItem } from '@/types/product/product';
 import { ShopDetailDTO, ShopHeaderUI, ShopProductDTO } from '@/types/shop';
 import { transformProduct } from '@/utils/adapter/product/productAdapter';
+import { formatMonthYear } from '@/utils/date';
 
 /** Default placeholder for shop logo */
 const DEFAULT_SHOP_LOGO = 'https://via.placeholder.com/100x100?text=Shop';
@@ -20,14 +21,11 @@ const DEFAULT_SHOP_LOGO = 'https://via.placeholder.com/100x100?text=Shop';
  * Transform ShopDetailDTO → ShopHeaderUI
  */
 export const toShopHeaderUI = (dto: ShopDetailDTO): ShopHeaderUI => {
-    let joinDate = '';
-    if (dto.createdAt) {
-        const date = new Date(dto.createdAt);
-        joinDate = `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
-    }
+    const joinDate = formatMonthYear(dto.createdAt);
 
     return {
         id: dto.shopId,
+        userId: dto.userId || '',  // Owner's userId for chat
         name: dto.shopName,
         description: dto.description || null,
         logoUrl: dto.logoUrl || DEFAULT_SHOP_LOGO,

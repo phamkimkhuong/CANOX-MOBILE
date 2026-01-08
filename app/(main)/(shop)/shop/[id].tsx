@@ -10,14 +10,19 @@ import {
     ShopBanner,
     ShopHeaderInfo,
     ShopHeaderSkeleton,
+    ShopNavBar,
     ShopProductSkeleton,
     ShopTabs
 } from '@/components/shop';
 import { IconSymbol } from '@/components/ui/Icon';
 import { ProductCard } from '@/components/ui/ProductCard';
+import { CHAT_STRINGS } from '@/constants/i18n/vi/chat';
 import { chatRoutes, productRoutes } from '@/constants/routes';
+import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
 import { useShopDetail, useShopProducts } from '@/hooks/api/useShop';
+import { useAuthStore } from '@/store/useAuthStore';
 import type { ShopProductFilterParams, ShopProductItemUI, ShopTabType } from '@/types/shop';
+import { Navigator } from '@/utils/navigation';
 import { FlashList, ListRenderItem } from '@shopify/flash-list';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
@@ -30,19 +35,16 @@ import {
     View,
 } from 'react-native';
 import Animated, {
-    Extrapolate,
-    interpolate,
-    interpolateColor,
+    runOnJS,
+    useAnimatedReaction,
     useAnimatedScrollHandler,
-    useAnimatedStyle,
     useSharedValue,
-    type SharedValue,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 const NUM_COLUMNS = 2;
-const GRID_GAP = 8;
 const AnimatedFlashList = Animated.createAnimatedComponent<any>(FlashList);
 
 /** 
@@ -52,114 +54,6 @@ type FlatListItem =
     | { type: 'header' }
     | { type: 'tab-spacer' }
     | { type: 'product'; data: ShopProductItemUI };
-
-interface ShopScreenHeaderProps {
-    onBackPress: () => void;
-    onSearchPress: () => void;
-    onMorePress: () => void;
-    scrollY: SharedValue<number>;
-}
-
-/**
- * Shop Screen Header - Animated Transition (Match ProductNavBar style)
- */
-const ShopScreenHeader: React.FC<ShopScreenHeaderProps> = ({
-    onBackPress,
-    onSearchPress,
-    onMorePress,
-    scrollY
-}) => {
-    const { theme } = useUnistyles();
-    const insets = useSafeAreaInsets();
-
-    const SCROLL_THRESHOLD = 120;
-
-    const animatedHeaderStyle = useAnimatedStyle(() => {
-        const backgroundColor = interpolateColor(
-            scrollY.value,
-            [0, SCROLL_THRESHOLD],
-            ['transparent', theme.colors.surface]
-        );
-        const borderBottomColor = interpolateColor(
-            scrollY.value,
-            [SCROLL_THRESHOLD - 10, SCROLL_THRESHOLD],
-            ['transparent', theme.colors.border]
-        );
-        return {
-            backgroundColor,
-            borderBottomColor,
-            borderBottomWidth: 1,
-        };
-    });
-
-    const animatedSearchStyle = useAnimatedStyle(() => {
-        const backgroundColor = interpolateColor(
-            scrollY.value,
-            [0, SCROLL_THRESHOLD],
-            ['rgba(255, 255, 255, 0.4)', theme.colors.background]
-        );
-        return { backgroundColor };
-    });
-
-    const animatedContentStyle = useAnimatedStyle(() => {
-        const color = interpolateColor(
-            scrollY.value,
-            [0, SCROLL_THRESHOLD],
-            ['#FFFFFF', theme.colors.typography]
-        );
-        return { color };
-    });
-
-    const animatedPlaceholderStyle = useAnimatedStyle(() => {
-        const color = interpolateColor(
-            scrollY.value,
-            [0, SCROLL_THRESHOLD],
-            ['rgba(255, 255, 255, 0.8)', theme.colors.typographySecondary]
-        );
-        return { color };
-    });
-
-    const animatedIconBgStyle = useAnimatedStyle(() => {
-        const opacity = interpolate(
-            scrollY.value,
-            [0, SCROLL_THRESHOLD / 2],
-            [1, 0],
-            Extrapolate.CLAMP
-        );
-        return { opacity };
-    });
-
-    return (
-        <Animated.View style={[styles.floatingHeader, { paddingTop: insets.top }, animatedHeaderStyle]}>
-            <View style={styles.headerContent}>
-                <Pressable onPress={onBackPress} style={styles.headerActionBtn}>
-                    <View style={styles.iconContainer}>
-                        <Animated.View style={[styles.headerIconBg, animatedIconBgStyle]} />
-                        <IconSymbol name="arrow-back" size={24} color="#FFF" animatedStyle={animatedContentStyle as any} />
-                    </View>
-                </Pressable>
-
-                <Pressable onPress={onSearchPress} style={{ flex: 1 }}>
-                    <Animated.View style={[styles.searchBar, animatedSearchStyle]}>
-                        <IconSymbol name="search" size={18} color="#FFF" animatedStyle={animatedPlaceholderStyle as any} />
-                        <Animated.Text style={[styles.searchText, animatedPlaceholderStyle]}>
-                            Tìm trong Shop
-                        </Animated.Text>
-                    </Animated.View>
-                </Pressable>
-
-                <View style={styles.headerRightActions}>
-                    <Pressable onPress={onMorePress} style={styles.headerActionBtn}>
-                        <View style={styles.iconContainer}>
-                            <Animated.View style={[styles.headerIconBg, animatedIconBgStyle]} />
-                            <IconSymbol name="more-vert" size={24} color="#FFF" animatedStyle={animatedContentStyle as any} />
-                        </View>
-                    </Pressable>
-                </View>
-            </View>
-        </Animated.View>
-    );
-};
 
 const ListFooterComponent: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
     const { theme } = useUnistyles();
@@ -180,9 +74,26 @@ export default function ShopDetailScreen() {
 
     const [activeTab, setActiveTab] = useState<ShopTabType>('products');
     const [filters, setFilters] = useState<ShopProductFilterParams>({ size: 20 });
+    const [statusBarStyle, setStatusBarStyle] = useState<'light-content' | 'dark-content'>('light-content');
     const scrollY = useSharedValue(0);
 
     const HEADER_HEIGHT = 56 + insets.top;
+    const STATUS_BAR_THRESHOLD = 100; // Switch at this scroll position
+
+    // Animate StatusBar style based on scroll position
+    useAnimatedReaction(
+        () => scrollY.value,
+        (currentScrollY: number, previousScrollY: number | null) => {
+            const shouldBeDark = currentScrollY > STATUS_BAR_THRESHOLD;
+            const wasDark = (previousScrollY ?? 0) > STATUS_BAR_THRESHOLD;
+
+            // Only trigger update when crossing threshold
+            if (shouldBeDark !== wasDark) {
+                runOnJS(setStatusBarStyle)(shouldBeDark ? 'dark-content' : 'light-content');
+            }
+        },
+        [STATUS_BAR_THRESHOLD]
+    );
 
     const scrollHandler = useAnimatedScrollHandler({
         onScroll: (event) => {
@@ -192,6 +103,12 @@ export default function ShopDetailScreen() {
 
     const { data: shop, isLoading: isLoadingShop, isError: isShopError, refetch: refetchShop } = useShopDetail(shopId);
     const { data: productsData, isLoading: isLoadingProducts, isRefetching: isRefetchingProducts, isFetchingNextPage, hasNextPage, fetchNextPage, refetch: refetchProducts } = useShopProducts(shopId, filters);
+
+    // Auth info for chat validation
+    const myShopId = useAuthStore((s) => s.shopId);
+
+    // Prefetch hook for ghost loading
+    const prefetchShopChat = usePrefetchShopChat();
 
     const products = useMemo(() => productsData?.pages.flatMap(page => page.items) ?? [], [productsData]);
     const totalProductCount = productsData?.pages[0]?.totalElements ?? 0;
@@ -208,7 +125,44 @@ export default function ShopDetailScreen() {
     const handleSearchPress = useCallback(() => { }, []);
     const handleMorePress = useCallback(() => { }, []);
     const handleTabChange = useCallback((tab: ShopTabType) => setActiveTab(tab), []);
-    const handleChatPress = useCallback(() => shop && router.push(chatRoutes.detail(shop.id)), [router, shop]);
+
+    /**
+     * Prefetch chat - triggered on press in (ghost loading)
+     * Reused from Product Detail pattern
+     */
+    const handlePrefetchChat = useCallback(() => {
+        if (!shop || shop.id === myShopId) return;
+        prefetchShopChat(shop.userId, shop.name, shop.logoUrl, shop.id);
+    }, [shop, myShopId, prefetchShopChat]);
+
+    /**
+     * Handle Chat with Shop - Pure 0ms Navigation
+     * Reused from Product Detail pattern
+     */
+    const handleChatPress = useCallback(() => {
+        if (!shop) return;
+
+        // Prevent chatting with own shop
+        if (shop.id === myShopId) {
+            Toast.show({
+                type: 'info',
+                text1: CHAT_STRINGS.error.chatWithSelf,
+                text2: 'Bạn đang ở trong shop của chính mình',
+            });
+            return;
+        }
+
+        // Use Cache (if done), otherwise use Ghost ID (instant, no await)
+        const cachedId = getCachedConversationId(shop.userId);
+
+        Navigator.push(chatRoutes.detail(cachedId || `ghost_${shop.userId}`, {
+            partnerName: shop.name,
+            partnerAvatar: shop.logoUrl,
+            shopUserId: shop.userId,
+            shopId: shop.id,
+        }));
+    }, [shop, myShopId]);
+
     const handleFollowPress = useCallback(() => { }, []);
     const handleProductPress = useCallback((product: ShopProductItemUI) => router.push(productRoutes.detail(product.id)), [router]);
     const handleLoadMore = useCallback(() => hasNextPage && !isFetchingNextPage && activeTab === 'products' && fetchNextPage(), [hasNextPage, isFetchingNextPage, activeTab, fetchNextPage]);
@@ -225,6 +179,7 @@ export default function ShopDetailScreen() {
                         <ShopHeaderInfo
                             shop={shop}
                             onChatPress={handleChatPress}
+                            onPrefetchChat={handlePrefetchChat}
                             onFollowPress={handleFollowPress}
                         />
                     </View>
@@ -263,7 +218,7 @@ export default function ShopDetailScreen() {
         return (
             <View style={styles.container}>
                 <Stack.Screen options={{ headerShown: false }} />
-                <ShopScreenHeader onBackPress={handleBackPress} onSearchPress={handleSearchPress} onMorePress={handleMorePress} scrollY={scrollY} />
+                <ShopNavBar scrollY={scrollY} onBackPress={handleBackPress} onSearchPress={handleSearchPress} onMorePress={handleMorePress} />
                 <View style={styles.errorContainer}>
                     <IconSymbol name="error" size={64} color={theme.colors.error} />
                     <Text style={styles.errorText}>Cửa hàng không tồn tại hoặc đã bị xóa</Text>
@@ -277,10 +232,10 @@ export default function ShopDetailScreen() {
 
     return (
         <View style={styles.container}>
-            <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
+            <StatusBar translucent backgroundColor="transparent" barStyle={statusBarStyle} />
             <Stack.Screen options={{ headerShown: false }} />
 
-            <ShopScreenHeader onBackPress={handleBackPress} onSearchPress={handleSearchPress} onMorePress={handleMorePress} scrollY={scrollY} />
+            <ShopNavBar scrollY={scrollY} onBackPress={handleBackPress} onSearchPress={handleSearchPress} onMorePress={handleMorePress} />
 
             <AnimatedFlashList
                 data={listData}
@@ -307,55 +262,6 @@ export default function ShopDetailScreen() {
 
 const styles = StyleSheet.create((theme) => ({
     container: { flex: 1, backgroundColor: theme.colors.background },
-
-    floatingHeader: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 1000,
-    },
-    headerContent: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: theme.margins.md,
-        paddingBottom: theme.margins.sm,
-        height: 56,
-        gap: theme.margins.sm
-    },
-    headerActionBtn: {
-        width: 40,
-        height: 40,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    iconContainer: {
-        width: 36,
-        height: 36,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    headerIconBg: {
-        ...StyleSheet.absoluteFillObject,
-        borderRadius: 18,
-        backgroundColor: 'rgba(0,0,0,0.3)',
-    },
-    searchBar: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        height: 38,
-        borderRadius: 20,
-        paddingHorizontal: theme.margins.smd,
-        gap: 8,
-    },
-    searchText: {
-        fontSize: 14,
-    },
-    headerRightActions: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
 
     tabsWrapper: {
         backgroundColor: theme.colors.surface,

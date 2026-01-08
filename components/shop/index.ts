@@ -14,6 +14,8 @@ export { ShopHeaderSkeleton } from './ShopHeaderSkeleton';
 // NAVIGATION COMPONENTS
 // ============================================
 
+export { ShopNavBar } from './ShopNavBar';
+export type { ShopNavBarProps } from './ShopNavBar';
 export { ShopTabs } from './ShopTabs';
 // Re-export tab types from types/shop for convenience
 export { SHOP_TABS } from '@/types/shop';

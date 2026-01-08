@@ -1,20 +1,18 @@
 /**
  * ==============================================
- * SHOP BANNER - Blurred Background Component
+ * SHOP BANNER - Premium Background Component
  * ==============================================
  * 
  * Purpose:
  * Creates visually appealing banner for shop header
  * 
  * Fallback Strategy (When bannerUrl is null):
- * Option 1: Blur shop logo as background (Instagram/Spotify style)
- * Option 2: Gradient pattern using primary color
- * Current Implementation: Option 1 (Blurred Logo)
  */
 
 import { Image } from 'expo-image';
-import React, { useMemo } from 'react';
-import { ImageBackground, Platform, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import React from 'react';
+import { View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface ShopBannerProps {
@@ -22,57 +20,57 @@ interface ShopBannerProps {
     logoUrl: string;
     height?: number;
 }
+
 const DEFAULT_BANNER_HEIGHT = 200;
-const BLUR_RADIUS = Platform.OS === 'ios' ? 25 : 15; // Android blur is stronger
+
 /**
  * ShopBanner - Display shop banner with smart fallback
- * When bannerUrl is null:
- * - Uses logoUrl as background with blur effect
- * - Creates elegant, professional look
- * - Consistent with modern e-commerce apps
+ * 
+ * When bannerUrl exists: Shows actual banner image
+ * When bannerUrl is null: Shows premium gradient (no blur = no lag)
  */
 export const ShopBanner: React.FC<ShopBannerProps> = ({
     bannerUrl,
-    logoUrl,
     height = DEFAULT_BANNER_HEIGHT,
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
 
-    // Determine which image to use
-    const imageSource = useMemo(() => {
-        // Priority: bannerUrl > logoUrl (blurred)
-        return bannerUrl || logoUrl;
-    }, [bannerUrl, logoUrl]);
-
-    // Should apply blur? Only when using logo as fallback
-    const shouldBlur = !bannerUrl;
+    const gradientColors: [string, string, string, string] = [
+        '#005f8c',
+        '#0077aa',
+        '#89b4c8',
+        theme.colors.background,
+    ];
 
     return (
         <View style={[styles.container, { height }]}>
-            {shouldBlur ? (
-                // Fallback: Blurred logo background
-                <ImageBackground
-                    source={{ uri: imageSource }}
-                    style={styles.backgroundImage}
-                    blurRadius={BLUR_RADIUS}
-                    resizeMode="cover"
-                >
-                    {/* Gradient overlay for better contrast */}
-                    <View style={styles.gradientOverlay} />
-                </ImageBackground>
-            ) : (
-                // Primary: Actual banner
+            {bannerUrl ? (
                 <Image
-                    source={{ uri: imageSource }}
+                    source={{ uri: bannerUrl }}
                     style={styles.backgroundImage}
                     contentFit="cover"
                     transition={300}
                 />
+            ) : (
+                <LinearGradient
+                    colors={gradientColors}
+                    locations={[0, 0.3, 0.7, 1]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 0.5, y: 1 }}
+                    style={styles.backgroundImage}
+                >
+                    {/* Soft diagonal shine effect */}
+                    <View style={styles.shineOverlay} />
+                </LinearGradient>
             )}
 
-            {/* Bottom fade for smooth transition to content */}
-            <View style={styles.bottomFade} />
+            {/* Smooth bottom transition - blend into ShopHeaderInfo */}
+            <LinearGradient
+                colors={['transparent', 'rgba(255,255,255,0.5)', theme.colors.surface]}
+                locations={[0, 0.6, 1]}
+                style={styles.bottomFade}
+            />
         </View>
     );
 };
@@ -88,18 +86,16 @@ const stylesheet = StyleSheet.create((theme) => ({
         width: '100%',
         height: '100%',
     },
-    gradientOverlay: {
+    shineOverlay: {
         ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(0, 136, 204, 0.15)',
+        backgroundColor: 'rgba(255, 255, 255, 0.08)',
     },
     bottomFade: {
         position: 'absolute',
         left: 0,
         right: 0,
         bottom: 0,
-        height: 40,
-        backgroundColor: 'transparent',
-        borderTopWidth: 0,
+        height: 50,
     },
 }));
 

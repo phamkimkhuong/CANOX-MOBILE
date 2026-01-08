@@ -15,6 +15,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 interface ShopHeaderInfoProps {
     shop: ShopHeaderUI;
     onChatPress?: () => void;
+    onPrefetchChat?: () => void;
     onFollowPress?: () => void;
     isFollowing?: boolean;
 }
@@ -28,6 +29,7 @@ const AVATAR_BORDER_WIDTH = 2;
 export const ShopHeaderInfo: React.FC<ShopHeaderInfoProps> = ({
     shop,
     onChatPress,
+    onPrefetchChat,
     onFollowPress,
     isFollowing = false,
 }) => {
@@ -85,6 +87,7 @@ export const ShopHeaderInfo: React.FC<ShopHeaderInfoProps> = ({
                             style={({ pressed }) => [
                                 styles.btn, styles.chatBtn, pressed && styles.btnPressed
                             ]}
+                            onPressIn={onPrefetchChat}
                             onPress={handleChat}
                         >
                             <IconSymbol name="chat-bubble-outline" size={14} color={theme.colors.primary} />
@@ -137,7 +140,7 @@ export const ShopHeaderInfo: React.FC<ShopHeaderInfoProps> = ({
                 </View>
                 <View style={styles.vDivider} />
                 <View style={styles.statItem}>
-                    <Text style={styles.statValue}>{shop.stats.followerCount ?? '100+'}</Text>
+                    <Text style={styles.statValue}>{shop.stats.followerCount ?? 0}</Text>
                     <Text style={styles.statLabel}>Người theo dõi</Text>
                 </View>
             </View>

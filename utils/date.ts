@@ -1,9 +1,52 @@
 import { FlashSaleSlot } from '@/types/home';
 
+// ============================================
+// SAFE DATE PARSING - Cross-Platform Compatible
+// ============================================
+
 /**
- * Calculate next Flash Sale slot (Simulate 3-hour block)
- * Example: 00:00, 03:00, 06:00, 09:00, 12:00, 15:00, 18:00, 21:00
+ * Safe Date Parse - Cross-platform compatible
+ * Problem: new Date("2025-11-26 05:37:55") crashes on iOS Safari/JSC
+ * Solution: Normalize to ISO 8601 format before parsing
+ * 
+ * Handles:
+ * - "2025-11-26T05:37:55.123456"    → OK
+ * - "2025-11-26T05:37:55"           → OK  
+ * - "2025-11-26 05:37:55"           → Normalize to T
+ * - "2025-11-26"                    → OK
+ * - null/undefined                  → returns null
  */
+export const safeParseDate = (dateString: string | null | undefined): Date | null => {
+    if (!dateString) return null;
+    try {
+        let normalized = dateString.replace(' ', 'T');
+        const timestamp = Date.parse(normalized);
+        if (isNaN(timestamp)) return null;
+        return new Date(timestamp);
+    } catch {
+        return null;
+    }
+};
+
+/**
+ * Format date to "MM/YYYY" (for join date, etc.)
+ * Safe wrapper using safeParseDate
+ * 
+ * @param dateString - Raw date string from API
+ * @returns Formatted string "MM/YYYY" or empty string on failure
+ */
+export const formatMonthYear = (dateString: string | null | undefined): string => {
+    const date = safeParseDate(dateString);
+    if (!date) return '';
+
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${month}/${year}`;
+};
+
+// ============================================
+// FLASH SALE UTILITIES
+// ============================================
 export const getNextFlashSaleSlot = (): FlashSaleSlot => {
     const now = new Date();
     const hours = now.getHours();
@@ -31,9 +74,13 @@ export const getNextFlashSaleSlot = (): FlashSaleSlot => {
 
 /**
  * Format remaining time (ms) -> { hours, minutes, seconds }
+ * Uses safeParseDate for cross-platform safety
  */
 export const formatTimeLeft = (targetDate: string) => {
-    const total = Date.parse(targetDate) - Date.now();
+    const parsed = safeParseDate(targetDate);
+    if (!parsed) return { total: 0, hours: 0, minutes: 0, seconds: 0 };
+
+    const total = parsed.getTime() - Date.now();
     const seconds = Math.floor((total / 1000) % 60);
     const minutes = Math.floor((total / 1000 / 60) % 60);
     const hours = Math.floor((total / (1000 * 60 * 60)) % 24);
@@ -48,9 +95,12 @@ export const formatTimeLeft = (targetDate: string) => {
 
 /**
  * Format timestamp to readable string (e.g., "14:30", "Yesterday", "Mon")
+ * Uses safeParseDate for cross-platform safety
  */
 export const formatTime = (timestamp: string): string => {
-    const date = new Date(timestamp);
+    const date = safeParseDate(timestamp);
+    if (!date) return '';
+
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
@@ -80,6 +130,7 @@ export const formatTime = (timestamp: string): string => {
 
 /**
  * Check if two dates are within a time threshold (default 5 mins)
+ * Uses safeParseDate for cross-platform safety
  */
 export const isWithinTimeThreshold = (
     date1: string | Date | undefined,
@@ -88,18 +139,28 @@ export const isWithinTimeThreshold = (
 ): boolean => {
     if (!date1 || !date2) return false;
 
-    const t1 = new Date(date1).getTime();
-    const t2 = new Date(date2).getTime();
-    const diff = Math.abs(t2 - t1);
+    // Handle both Date objects and strings
+    const t1 = date1 instanceof Date
+        ? date1.getTime()
+        : safeParseDate(date1)?.getTime();
+    const t2 = date2 instanceof Date
+        ? date2.getTime()
+        : safeParseDate(date2)?.getTime();
 
+    if (!t1 || !t2) return false;
+
+    const diff = Math.abs(t2 - t1);
     return diff < thresholdMinutes * 60 * 1000;
 };
 
 /**
  * Format time for display (HH:mm)
+ * Uses safeParseDate for cross-platform safety
  */
 export const formatMessageTime = (date: string | Date): string => {
-    const d = new Date(date);
+    const d = date instanceof Date ? date : safeParseDate(date);
+    if (!d) return '';
+
     const hours = String(d.getHours()).padStart(2, '0');
     const minutes = String(d.getMinutes()).padStart(2, '0');
     return `${hours}:${minutes}`;
@@ -108,9 +169,12 @@ export const formatMessageTime = (date: string | Date): string => {
 /**
  * Format date for display
  * Returns: "DD/MM/YYYY" or "DD/MM" based on format
+ * Uses safeParseDate for cross-platform safety
  */
 export const formatDate = (date: string | Date, format: string = 'DD/MM/YYYY'): string => {
-    const d = new Date(date);
+    const d = date instanceof Date ? date : safeParseDate(date);
+    if (!d) return '';
+
     const day = String(d.getDate()).padStart(2, '0');
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const year = d.getFullYear();
@@ -122,9 +186,12 @@ export const formatDate = (date: string | Date, format: string = 'DD/MM/YYYY'): 
 /**
  * Format date for display in separators
  * Returns: "Hôm nay", "Hôm qua", "DD/MM" or "DD/MM/YYYY"
+ * Uses safeParseDate for cross-platform safety
  */
 export const formatDateLabel = (date: string | Date): string => {
-    const d = new Date(date);
+    const d = date instanceof Date ? date : safeParseDate(date);
+    if (!d) return '';
+
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);

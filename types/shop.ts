@@ -30,6 +30,7 @@ export const ShopStatisticsSchema = z.object({
  */
 export const ShopDetailDTOSchema = z.object({
     shopId: z.string(),
+    userId: z.string(),
     shopName: z.string(),
     description: z.string().nullable().optional(),
     logoUrl: z.string().nullable().optional(),
@@ -152,6 +153,8 @@ export type ShopProductsResponse = z.infer<typeof ShopProductsResponseSchema>;
  */
 export interface ShopHeaderUI {
     id: string;
+    /** Owner's userId - required for chat */
+    userId: string | null;
     name: string;
     description: string | null;
     logoUrl: string;
