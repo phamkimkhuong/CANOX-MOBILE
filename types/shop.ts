@@ -30,7 +30,7 @@ export const ShopStatisticsSchema = z.object({
  */
 export const ShopDetailDTOSchema = z.object({
     shopId: z.string(),
-    userId: z.string().optional(),  // Owner's userId - optional until Backend deploys
+    userId: z.string().nullable().optional(),  // Owner's userId - optional until Backend deploys
     shopName: z.string(),
     description: z.string().nullable().optional(),
     logoUrl: z.string().nullable().optional(),
@@ -87,7 +87,7 @@ export const ShopProductVariantSchema = z.object({
     optionValues: z.array(z.object({
         id: z.string(),
         name: z.string(),
-    })).optional(),
+    })).nullable().optional(),
 });
 
 export type ShopProductVariant = z.infer<typeof ShopProductVariantSchema>;

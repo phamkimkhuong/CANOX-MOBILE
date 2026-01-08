@@ -40,10 +40,10 @@ export const NotificationSchema = z.object({
     message: z.string(),
     timestamp: z.string(), // ISO date string
     isRead: z.boolean(),
-    image: z.string().url().optional(), // Product image for ORDER type
-    actionLabel: z.string().optional(), // e.g., "Đánh giá ngay", "Dùng ngay"
-    actionUrl: z.string().optional(), // Deep link or route
-    metadata: z.record(z.string(), z.unknown()).optional(), // Extra data (orderId, voucherId, etc.)
+    image: z.string().url().nullable().optional(), // Product image for ORDER type
+    actionLabel: z.string().nullable().optional(), // e.g., "Đánh giá ngay", "Dùng ngay"
+    actionUrl: z.string().nullable().optional(), // Deep link or route
+    metadata: z.record(z.string(), z.unknown()).nullable().optional(), // Extra data (orderId, voucherId, etc.)
 });
 
 export type Notification = z.infer<typeof NotificationSchema>;

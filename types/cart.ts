@@ -63,13 +63,13 @@ export const VoucherSchema = z.object({
     id: z.string(),
     code: z.string(),
     title: z.string(),
-    description: z.string().optional(),
+    description: z.string().nullable().optional(),
     discountType: z.enum(['fixed', 'percentage']),
     discountValue: z.number(),
     minOrderAmount: z.number(),
-    maxDiscountAmount: z.number().optional(),
-    expiresAt: z.string().optional(),
-    isApplicable: z.boolean().optional(),
+    maxDiscountAmount: z.number().nullable().optional(),
+    expiresAt: z.string().nullable().optional(),
+    isApplicable: z.boolean().nullable().optional(),
 });
 
 // Schema cho toàn bộ Giỏ hàng (Root - từ API)

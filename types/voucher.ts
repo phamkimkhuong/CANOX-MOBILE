@@ -105,30 +105,30 @@ export const VOUCHER_TYPE_CONFIG: Record<VoucherType, VoucherTypeConfig> = {
 export const VoucherResponseSchema = z.object({
     id: z.string(),
     code: z.string(),
-    name: z.string().optional(),
+    name: z.string().nullable().optional(),
     description: z.string().nullable().optional(),
-    voucherScope: z.enum(['SHOP_ORDER', 'PLATFORM_ORDER', 'PRODUCT', 'CATEGORY']).optional(),
+    voucherScope: z.enum(['SHOP_ORDER', 'PLATFORM_ORDER', 'PRODUCT', 'CATEGORY']).nullable().optional(),
     discountType: z.enum(['PERCENTAGE', 'FIXED_AMOUNT', 'SHIPPING']),
     discountValue: z.number(),
     maxDiscount: z.number().nullable().optional(),
-    minOrderValue: z.number().optional(),
-    sponsorType: z.enum(['PLATFORM', 'SHOP']).optional(),
+    minOrderValue: z.number().nullable().optional(),
+    sponsorType: z.enum(['PLATFORM', 'SHOP']).nullable().optional(),
     startDate: z.string().nullable().optional(),
     endDate: z.string().nullable().optional(),
     // Usage tracking
-    totalQuantity: z.number().optional(),
-    usedQuantity: z.number().optional(),
-    remainingQuantity: z.number().optional(),
+    totalQuantity: z.number().nullable().optional(),
+    usedQuantity: z.number().nullable().optional(),
+    remainingQuantity: z.number().nullable().optional(),
     // User state
-    isCollected: z.boolean().optional(),
-    isUsed: z.boolean().optional(),
+    isCollected: z.boolean().nullable().optional(),
+    isUsed: z.boolean().nullable().optional(),
     // Brand/Shop info
     brandLogo: z.string().nullable().optional(),
     brandName: z.string().nullable().optional(),
     shopId: z.string().nullable().optional(),
     shopName: z.string().nullable().optional(),
     // Tags
-    tags: z.array(z.string()).optional(),
+    tags: z.array(z.string()).nullable().optional(),
 });
 
 export type VoucherResponse = z.infer<typeof VoucherResponseSchema>;

@@ -4,15 +4,16 @@ import { NotificationHeader } from '@/components/notifications/NotificationHeade
 import { NotificationItem } from '@/components/notifications/NotificationItem';
 import { NotificationSkeleton } from '@/components/notifications/NotificationSkeleton';
 import { SectionHeader } from '@/components/notifications/SectionHeader';
-import { useMarkAllAsRead, useMarkAsRead, useNotifications } from '@/hooks/api/useNotifications';
+import { useMarkAllAsRead, useMarkAsRead, useNotifications } from '@/hooks/api/notification/useNotifications';
+import { usePrefetchNotificationNav } from '@/hooks/api/notification/usePrefetchNotificationNav';
 import {
     FILTER_TABS,
     FlattenedNotificationItem,
     Notification,
     NotificationFilter,
 } from '@/types/notification';
+import { Navigator } from '@/utils/navigation';
 import { FlashList } from '@shopify/flash-list';
-import { router } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, RefreshControl, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -36,20 +37,34 @@ export default function NotifyScreen() {
     const markAllAsRead = useMarkAllAsRead();
     const markAsRead = useMarkAsRead();
 
+    // Prefetch hook for near-instant navigation
+    const prefetchNav = usePrefetchNotificationNav();
+
     const handleFilterChange = useCallback((filter: NotificationFilter) => {
         setActiveFilter(filter);
     }, []);
 
+    /**
+     * Handle notification press - navigate to target screen
+     * Data should already be prefetched from onPressIn
+     */
     const handleNotificationPress = useCallback((item: Notification) => {
-        // Gửi request đánh dấu đã đọc (fire-and-forget)
+        // Fire-and-forget: mark as read
         if (!item.isRead) {
             markAsRead.mutate(item.id);
         }
-        // Navigate đến trang chi tiết nếu có actionUrl
+        // Navigate using high-performance Navigator
         if (item.actionUrl) {
-            router.push(item.actionUrl as any);
+            Navigator.push(item.actionUrl as any);
         }
     }, [markAsRead]);
+
+    /**
+     * Handle notification press in - prefetch data while finger is on screen
+     */
+    const handleNotificationPressIn = useCallback((item: Notification) => {
+        prefetchNav(item.actionUrl);
+    }, [prefetchNav]);
 
     const handleLoadMore = useCallback(() => {
         if (hasNextPage && !isFetchingNextPage) {
@@ -66,10 +81,11 @@ export default function NotifyScreen() {
                 <NotificationItem
                     item={item.data}
                     onPress={handleNotificationPress}
+                    onPressIn={handleNotificationPressIn}
                 />
             );
         },
-        [handleNotificationPress]
+        [handleNotificationPress, handleNotificationPressIn]
     );
 
     const getItemType = useCallback((item: FlattenedNotificationItem) => {

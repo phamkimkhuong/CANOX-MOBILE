@@ -372,16 +372,26 @@ export default function CheckoutScreen() {
             cartStore.clearShopVouchers();
             cartStore.setPlatformVoucher(null);
 
-            Alert.show({
-                title: 'Đặt hàng thành công!',
-                message: `Đơn hàng của bạn đã được tạo thành công.\nMã đơn hàng: ${response.data?.orders?.[0]?.orderNumber || 'N/A'}`,
-                type: 'success',
-                confirmText: 'Xem đơn hàng',
-                onConfirm: () => {
-                    resetSession();
-                    router.replace(ROUTES.ORDERS.LIST as any);
-                }
-            });
+            // Reset checkout session
+            resetSession();
+
+            // Prepare order info for success screen
+            const orders = response.data?.orders || [];
+            const orderCount = orders.length;
+            const orderInfos = orders.map((order) => ({
+                orderId: order.orderId,
+                orderNumber: order.orderNumber,
+                shopName: order.shopInfo?.shopName || 'Shop',
+            }));
+
+            // Navigate to Order Success screen
+            router.replace({
+                pathname: ROUTES.ORDERS.SUCCESS,
+                params: {
+                    orderCount: String(orderCount),
+                    orders: JSON.stringify(orderInfos),
+                },
+            } as never);
         } catch (error: any) {
             logger.checkout.error('Place order failed', { error: error.message });
             Alert.error(error.message || 'Đặt hàng thất bại. Vui lòng thử lại.');

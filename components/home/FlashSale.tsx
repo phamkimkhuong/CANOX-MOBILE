@@ -88,7 +88,7 @@ export const FlashSale = memo(({ onProductPress }: FlashSaleProps = {}) => {
                     <TouchableOpacity
                         key={item.id}
                         style={styles.productCard}
-                        activeOpacity={0.8}
+                        activeOpacity={0.85}
                         onPress={() => onProductPress?.(item.id)}
                     >
                         <View style={styles.imageContainer}>

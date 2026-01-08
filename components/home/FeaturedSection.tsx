@@ -106,7 +106,7 @@ export const FeaturedSection = memo(({ onProductPress }: FeaturedSectionProps = 
             {/* Main Featured Banner */}
             <TouchableOpacity
                 style={styles.mainBanner}
-                activeOpacity={0.9}
+                activeOpacity={0.85}
                 onPress={() => onProductPress?.(mainProduct.id)}
             >
                 <Image
@@ -147,7 +147,7 @@ export const FeaturedSection = memo(({ onProductPress }: FeaturedSectionProps = 
                             <TouchableOpacity
                                 key={product.id}
                                 style={styles.smallCard}
-                                activeOpacity={0.8}
+                                activeOpacity={0.85}
                                 onPress={() => onProductPress?.(product.id)}
                             >
                                 <View style={styles.smallImageContainer}>

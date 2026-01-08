@@ -70,6 +70,7 @@ export const ROUTES = {
         PROCESSING: '/orders' as const,
         SHIPPING: '/orders' as const,
         REVIEW: '/orders' as const,
+        SUCCESS: '/(main)/(order)/order-success' as const,
     },
 
     // ============ USER CONTENT ============

@@ -3,23 +3,34 @@ import { Notification, NOTIFICATION_TYPE_CONFIG } from '@/types/notification';
 import { formatTime } from '@/utils/date';
 import { Image } from 'expo-image';
 import React, { useCallback } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface NotificationItemProps {
     item: Notification;
     onPress?: (item: Notification) => void;
+    /** Called when user starts touching - used for prefetching data */
+    onPressIn?: (item: Notification) => void;
 }
 
-
-export const NotificationItem: React.FC<NotificationItemProps> = ({ item, onPress }) => {
+export const NotificationItem: React.FC<NotificationItemProps> = ({ item, onPress, onPressIn }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const config = NOTIFICATION_TYPE_CONFIG[item.type];
 
+    /**
+     * Handle press - navigate to target screen
+     */
     const handlePress = useCallback(() => {
         onPress?.(item);
     }, [item, onPress]);
+
+    /**
+     * Handle press in - trigger prefetch while finger is still on screen
+     */
+    const handlePressIn = useCallback(() => {
+        onPressIn?.(item);
+    }, [item, onPressIn]);
 
     const renderIcon = () => {
         // If has product image, show image instead of icon
@@ -47,10 +58,14 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({ item, onPres
     };
 
     return (
-        <TouchableOpacity
-            style={[styles.container, !item.isRead && styles.containerUnread]}
+        <Pressable
+            style={({ pressed }) => [
+                styles.container,
+                !item.isRead && styles.containerUnread,
+                pressed && styles.containerPressed,
+            ]}
             onPress={handlePress}
-            activeOpacity={0.7}
+            onPressIn={handlePressIn}
         >
             {/* Unread dot indicator */}
             {!item.isRead && <View style={styles.unreadDot} />}
@@ -84,7 +99,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({ item, onPres
                 color={theme.colors.secondary}
                 style={styles.chevron}
             />
-        </TouchableOpacity>
+        </Pressable>
     );
 };
 
@@ -100,6 +115,9 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     containerUnread: {
         backgroundColor: theme.colors.primarySubtle,
+    },
+    containerPressed: {
+        opacity: 0.85,
     },
     unreadDot: {
         position: 'absolute',

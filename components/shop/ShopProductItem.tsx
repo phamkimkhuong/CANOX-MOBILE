@@ -158,7 +158,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     containerPressed: {
         transform: [{ scale: 0.98 }],
-        opacity: 0.9,
+        opacity: 0.85,
     },
     imageContainer: {
         width: '100%',

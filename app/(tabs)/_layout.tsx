@@ -4,7 +4,7 @@ import { ROUTES } from '@/constants/routes';
 import { useScrollToTopContext } from '@/contexts/ScrollToTopContext';
 import { useCart } from '@/hooks/api/cart/useCart';
 import { useUnreadMessageCount } from '@/hooks/api/chat';
-import { useUnreadNotificationCount } from '@/hooks/api/useNotifications';
+import { useUnreadNotificationCount } from '@/hooks/api/notification/useNotifications';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useCartStore } from '@/store/useCartStore';
 import { router, Tabs } from 'expo-router';
