@@ -24,6 +24,7 @@ interface ProductCardProps {
     onPress: () => void;
     onPressIn?: () => void;
     route: Href | string;
+    priceDisplay?: string;
 }
 
 export const ProductCard = ({
@@ -40,6 +41,7 @@ export const ProductCard = ({
     onPress,
     onPressIn,
     route,
+    priceDisplay,
 }: ProductCardProps) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
@@ -108,7 +110,7 @@ export const ProductCard = ({
 
                         {/* Price Row */}
                         <View style={styles.priceRow}>
-                            <Text style={styles.price}>{formatCurrency(price)}</Text>
+                            <Text style={styles.price}>{priceDisplay || formatCurrency(price)}</Text>
                             {originalPrice != null && originalPrice > price && (
                                 <Text style={styles.originalPrice}>{formatCurrency(originalPrice)}</Text>
                             )}
@@ -116,7 +118,7 @@ export const ProductCard = ({
 
                         {/* Sold & Location Row */}
                         <View style={styles.metaRow}>
-                            {sold > 0 && (
+                            {sold != null && (
                                 <Text style={styles.soldText}>Đã bán {formatSoldCount(sold)}</Text>
                             )}
                             {location && <Text style={styles.location}>{location}</Text>}

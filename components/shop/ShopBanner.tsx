@@ -9,7 +9,6 @@
  * Fallback Strategy (When bannerUrl is null):
  * Option 1: Blur shop logo as background (Instagram/Spotify style)
  * Option 2: Gradient pattern using primary color
- * 
  * Current Implementation: Option 1 (Blurred Logo)
  */
 
@@ -18,23 +17,15 @@ import React, { useMemo } from 'react';
 import { ImageBackground, Platform, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-// ============================================
-// TYPES
-// ============================================
-
 interface ShopBannerProps {
-    /** Shop banner URL (usually null from API) */
     bannerUrl: string | null;
-    /** Shop logo URL (always available) */
     logoUrl: string;
-    /** Banner height - default 180 */
     height?: number;
 }
-const DEFAULT_BANNER_HEIGHT = 180;
+const DEFAULT_BANNER_HEIGHT = 200;
 const BLUR_RADIUS = Platform.OS === 'ios' ? 25 : 15; // Android blur is stronger
 /**
  * ShopBanner - Display shop banner with smart fallback
- * 
  * When bannerUrl is null:
  * - Uses logoUrl as background with blur effect
  * - Creates elegant, professional look

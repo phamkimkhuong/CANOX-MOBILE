@@ -1,12 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Platform, StyleProp, TextStyle } from 'react-native';
+import Animated from 'react-native-reanimated';
+
+const AnimatedIonicons = Animated.createAnimatedComponent(Ionicons);
 
 /**
  * IconSymbol - Lớp trừu tượng thống nhất cho icon trên cả iOS và Android
- * 
- * Từ Expo SDK 50+: Không dùng tiền tố ios-/md- nữa (đã deprecated)
- * Sử dụng tên thống nhất: 'add', 'heart-outline', 'home', etc.
  * 
  * Mapping thông minh:
  * - iOS: Hiển thị SF Symbols-like style từ Ionicons (thanh mảnh, tinh tế)
@@ -186,12 +186,13 @@ interface IconSymbolProps {
     size?: number;
     color?: string;
     style?: StyleProp<TextStyle>;
+    animatedStyle?: any;
 }
 
 /**
  * IconSymbol Component
  */
-export const IconSymbol = ({ name, size = 24, color = '#000', style }: IconSymbolProps) => {
+export const IconSymbol = ({ name, size = 24, color = '#000', style, animatedStyle }: IconSymbolProps) => {
     const mappedIcon = ICON_MAP[name as string];
 
     let iconName: keyof typeof Ionicons.glyphMap;
@@ -202,6 +203,10 @@ export const IconSymbol = ({ name, size = 24, color = '#000', style }: IconSymbo
     } else {
         // Không có trong map -> dùng trực tiếp (phải là valid Ionicons name)
         iconName = name as keyof typeof Ionicons.glyphMap;
+    }
+
+    if (animatedStyle) {
+        return <AnimatedIonicons name={iconName} size={size} color={color} style={[style, animatedStyle]} />;
     }
 
     return <Ionicons name={iconName} size={size} color={color} style={style} />;

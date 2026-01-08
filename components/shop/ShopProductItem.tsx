@@ -5,8 +5,8 @@
  * 
  * Features:
  * - Responsive width (50% - gap)
- * - Price range display
- * - Out of stock indicator
+ * - Standardized ProductFeedItem mapping
+ * - Out of stock indicator logic (future)
  * - Add to cart button
  * - Graceful null handling
  */
@@ -14,7 +14,7 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { productRoutes } from '@/constants/routes';
 import { ShopProductItemUI } from '@/types/shop';
-import { formatSoldCount } from '@/utils/format';
+import { formatCurrency, formatSoldCount } from '@/utils/format';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import React, { useCallback } from 'react';
@@ -22,7 +22,7 @@ import { Pressable, Text, useWindowDimensions, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface ShopProductItemProps {
-    /** Product data from adapter */
+    /** Product data from adapter (ProductFeedItem) */
     product: ShopProductItemUI;
     /** Callback when add to cart pressed */
     onAddToCart?: (productId: string) => void;
@@ -32,13 +32,10 @@ interface ShopProductItemProps {
 
 const NUM_COLUMNS = 2;
 const DEFAULT_GAP = 8;
-const IMAGE_ASPECT_RATIO = 1; // Square images
+const IMAGE_ASPECT_RATIO = 1;
 
 /**
  * ShopProductItem - Product card for shop grid
- * 
- * Designed for 2-column FlashList grid
- * Width is calculated responsively: (screenWidth - padding - gaps) / 2
  */
 export const ShopProductItem: React.FC<ShopProductItemProps> = ({
     product,
@@ -49,26 +46,23 @@ export const ShopProductItem: React.FC<ShopProductItemProps> = ({
     const styles = stylesheet;
     const { width: screenWidth } = useWindowDimensions();
 
-    // Calculate item width
-    // Formula: (screenWidth - horizontalPadding*2 - gap*(numColumns-1)) / numColumns
-    const horizontalPadding = theme.margins.md;
-    const itemWidth = (screenWidth - horizontalPadding * 2 - gap * (NUM_COLUMNS - 1)) / NUM_COLUMNS;
+    // Calculate item width for 2-column grid
+    const horizontalMargin = theme.margins.md;
+    const itemWidth = (screenWidth - horizontalMargin * 2 - gap) / 2;
     const imageHeight = itemWidth * IMAGE_ASPECT_RATIO;
 
-    // Handle product press
     const handlePress = useCallback(() => {
         router.push(productRoutes.detail(product.id));
     }, [product.id]);
 
-    // Handle add to cart
     const handleAddToCart = useCallback(
-        (e: { stopPropagation: () => void }) => {
+        (e: any) => {
             e.stopPropagation();
-            if (onAddToCart && !product.isOutOfStock) {
+            if (onAddToCart) {
                 onAddToCart(product.id);
             }
         },
-        [onAddToCart, product.id, product.isOutOfStock]
+        [onAddToCart, product.id]
     );
 
     return (
@@ -80,7 +74,7 @@ export const ShopProductItem: React.FC<ShopProductItemProps> = ({
             ]}
             onPress={handlePress}
         >
-            {/* Image */}
+            {/* Image Section */}
             <View style={[styles.imageContainer, { height: imageHeight }]}>
                 <Image
                     source={{ uri: product.thumbnail }}
@@ -89,89 +83,63 @@ export const ShopProductItem: React.FC<ShopProductItemProps> = ({
                     transition={200}
                 />
 
-                {/* Out of Stock Overlay */}
-                {product.isOutOfStock && (
-                    <View style={styles.outOfStockOverlay}>
-                        <Text style={styles.outOfStockText}>Hết hàng</Text>
+                {/* Discount Badge */}
+                {product.discountPercentage && product.discountPercentage > 0 && (
+                    <View style={styles.discountBadge}>
+                        <Text style={styles.discountText}>-{product.discountPercentage}%</Text>
                     </View>
                 )}
             </View>
 
-            {/* Content */}
+            {/* Content Section */}
             <View style={styles.content}>
-                {/* Product Name */}
+                {/* Product Name (title) */}
                 <Text style={styles.productName} numberOfLines={2}>
-                    {product.name}
+                    {product.title}
                 </Text>
 
-                {/* Rating Row - Only show if available */}
-                {product.rating !== null && (
-                    <View style={styles.ratingRow}>
-                        {[1, 2, 3, 4, 5].map((star) => (
-                            <IconSymbol
-                                key={star}
-                                name={star <= Math.floor(product.rating ?? 0) ? 'star' : 'star-border'}
-                                size={12}
-                                color="#facc15"
-                            />
-                        ))}
-                        {product.reviewCount !== null && product.reviewCount > 0 && (
-                            <Text style={styles.reviewCount}>
-                                ({product.reviewCount >= 1000
-                                    ? `${(product.reviewCount / 1000).toFixed(1)}k`
-                                    : product.reviewCount})
-                            </Text>
-                        )}
+                {/* Info Row: Rating & Sold */}
+                <View style={styles.infoRow}>
+                    <View style={styles.ratingBox}>
+                        <IconSymbol name="star" size={10} color="#facc15" />
+                        <Text style={styles.ratingText}>{Number(product.rating || 0).toFixed(1)}</Text>
                     </View>
-                )}
+                    <View style={styles.divider} />
+                    <Text style={styles.soldText}>Đã bán {formatSoldCount(product.sold || 0)}</Text>
+                </View>
 
-                {/* Price Row */}
+                {/* Price Display */}
                 <View style={styles.priceRow}>
-                    <Text
-                        style={[
-                            styles.price,
-                            product.hasPriceRange && styles.priceRange,
-                        ]}
-                        numberOfLines={1}
-                    >
-                        {product.priceDisplay}
+                    <Text style={styles.priceText}>
+                        {formatCurrency(product.price)}
                     </Text>
                 </View>
 
-                {/* Original Price (Strikethrough) */}
-                {product.originalPrice !== null && (
-                    <Text style={styles.originalPrice}>
-                        {`${product.originalPrice.toLocaleString('vi-VN')}\u00A0đ`}
+                {/* Original Price Row (Handle crash by safe check) */}
+                {typeof product.originalPrice === 'number' && (
+                    <Text style={styles.originalPriceText}>
+                        {formatCurrency(product.originalPrice)}
                     </Text>
                 )}
 
-                {/* Bottom Row: Sold + Add to Cart */}
-                <View style={styles.bottomRow}>
-                    {/* Sold Count - Only show if available */}
-                    {product.soldCount !== null && product.soldCount > 0 ? (
-                        <Text style={styles.soldText}>
-                            Đã bán {formatSoldCount(product.soldCount)}
-                        </Text>
-                    ) : (
-                        // Placeholder to maintain layout
-                        <View style={styles.soldPlaceholder} />
-                    )}
+                {/* Action Row */}
+                <View style={styles.actionRow}>
+                    <View style={styles.locationContainer}>
+                        {product.isMall && (
+                            <View style={styles.mallBadge}>
+                                <Text style={styles.mallText}>Mall</Text>
+                            </View>
+                        )}
+                    </View>
 
-                    {/* Add to Cart Button */}
                     <Pressable
                         style={({ pressed }) => [
-                            styles.addToCartBtn,
-                            product.isOutOfStock && styles.addToCartBtnDisabled,
-                            pressed && !product.isOutOfStock && styles.addToCartBtnPressed,
+                            styles.cartBtn,
+                            pressed && styles.cartBtnPressed
                         ]}
                         onPress={handleAddToCart}
-                        disabled={product.isOutOfStock}
                     >
-                        <IconSymbol
-                            name="add"
-                            size={16}
-                            color={product.isOutOfStock ? theme.colors.secondary : theme.colors.onPrimary}
-                        />
+                        <IconSymbol name="cart-outline" size={16} color={theme.colors.onPrimary} />
                     </Pressable>
                 </View>
             </View>
@@ -184,17 +152,13 @@ const stylesheet = StyleSheet.create((theme) => ({
         backgroundColor: theme.colors.surface,
         borderRadius: theme.radius.m,
         overflow: 'hidden',
-        marginBottom: theme.margins.sm,
-        // Shadow
-        shadowColor: theme.colors.typography,
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 4,
-        elevation: 2,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        marginBottom: 8,
     },
     containerPressed: {
-        opacity: 0.95,
         transform: [{ scale: 0.98 }],
+        opacity: 0.9,
     },
     imageContainer: {
         width: '100%',
@@ -205,88 +169,100 @@ const stylesheet = StyleSheet.create((theme) => ({
         width: '100%',
         height: '100%',
     },
-    outOfStockOverlay: {
-        ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        justifyContent: 'center',
-        alignItems: 'center',
+    discountBadge: {
+        position: 'absolute',
+        top: 6,
+        left: 6,
+        backgroundColor: theme.colors.error,
+        paddingHorizontal: 4,
+        paddingVertical: 1,
+        borderRadius: 4,
     },
-    outOfStockText: {
-        fontSize: 14,
-        fontWeight: '600',
+    discountText: {
+        fontSize: 10,
+        fontWeight: '700',
         color: '#fff',
-        backgroundColor: 'rgba(0, 0, 0, 0.7)',
-        paddingHorizontal: theme.margins.smd,
-        paddingVertical: theme.margins.sm / 2,
-        borderRadius: theme.radius.s,
     },
     content: {
-        padding: theme.margins.sm,
+        padding: 8,
     },
     productName: {
-        fontSize: 13,
+        fontSize: 12,
         fontWeight: '500',
         color: theme.colors.typography,
-        lineHeight: 18,
-        minHeight: 36, // 2 lines minimum
+        height: 34,
+        lineHeight: 17,
     },
-    ratingRow: {
+    infoRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: theme.margins.sm / 2,
-        gap: 1,
+        marginTop: 6,
     },
-    reviewCount: {
+    ratingBox: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 2,
+    },
+    ratingText: {
         fontSize: 11,
-        color: theme.colors.typographySecondary,
-        marginLeft: 2,
+        fontWeight: '600',
+        color: theme.colors.typography,
     },
-    priceRow: {
-        flexDirection: 'row',
-        alignItems: 'baseline',
-        marginTop: theme.margins.sm / 2,
-    },
-    price: {
-        fontSize: 15,
-        fontWeight: '700',
-        color: theme.colors.error, // Red for price
-    },
-    priceRange: {
-        fontSize: 14, // Slightly smaller for "Từ xxx"
-    },
-    originalPrice: {
-        fontSize: 12,
-        color: theme.colors.secondary,
-        textDecorationLine: 'line-through',
-        marginTop: 2,
-    },
-    bottomRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginTop: theme.margins.sm,
+    divider: {
+        width: 1,
+        height: 10,
+        backgroundColor: theme.colors.border,
+        marginHorizontal: 6,
     },
     soldText: {
         fontSize: 11,
         color: theme.colors.typographySecondary,
     },
-    soldPlaceholder: {
+    priceRow: {
+        marginTop: 6,
+    },
+    priceText: {
+        fontSize: 14,
+        fontWeight: '700',
+        color: theme.colors.error,
+    },
+    originalPriceText: {
+        fontSize: 11,
+        color: theme.colors.typographySecondary,
+        textDecorationLine: 'line-through',
+        marginTop: 1,
+    },
+    actionRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginTop: 8,
+    },
+    locationContainer: {
         flex: 1,
     },
-    addToCartBtn: {
+    mallBadge: {
+        backgroundColor: theme.colors.error,
+        paddingHorizontal: 4,
+        paddingVertical: 0,
+        borderRadius: 2,
+        alignSelf: 'flex-start',
+    },
+    mallText: {
+        fontSize: 9,
+        fontWeight: 'bold',
+        color: '#fff',
+    },
+    cartBtn: {
         width: 28,
         height: 28,
         borderRadius: 14,
         backgroundColor: theme.colors.primary,
-        justifyContent: 'center',
         alignItems: 'center',
+        justifyContent: 'center',
     },
-    addToCartBtnDisabled: {
-        backgroundColor: theme.colors.secondaryLight,
-    },
-    addToCartBtnPressed: {
+    cartBtnPressed: {
         opacity: 0.8,
-        transform: [{ scale: 0.95 }],
     },
 }));
 

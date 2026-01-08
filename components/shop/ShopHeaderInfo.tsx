@@ -2,12 +2,6 @@
  * ==============================================
  * SHOP HEADER INFO - Avatar, Name, Stats, Actions
  * ==============================================
- * 
- * Features:
- * - Avatar overlapping banner (negative margin)
- * - Verification badge
- * - Action buttons (Chat, Follow)
- * - Graceful handling of missing data
  */
 
 import { IconSymbol } from '@/components/ui/Icon';
@@ -19,22 +13,17 @@ import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface ShopHeaderInfoProps {
-    /** Shop header data from adapter */
     shop: ShopHeaderUI;
-    /** Callback when Chat button pressed */
     onChatPress?: () => void;
-    /** Callback when Follow button pressed */
     onFollowPress?: () => void;
-    /** Is user following this shop */
     isFollowing?: boolean;
 }
 
-const AVATAR_SIZE = 80;
-const AVATAR_BORDER_WIDTH = 3;
-// Avatar overlaps banner by half its height
-const AVATAR_OVERLAP = AVATAR_SIZE / 2;
+const AVATAR_SIZE = 72;
+const AVATAR_BORDER_WIDTH = 2;
+
 /**
- * ShopHeaderInfo - Display shop info below banner
+ * ShopHeaderInfo - Display shop info with premium layout
  */
 export const ShopHeaderInfo: React.FC<ShopHeaderInfoProps> = ({
     shop,
@@ -45,22 +34,16 @@ export const ShopHeaderInfo: React.FC<ShopHeaderInfoProps> = ({
     const { theme } = useUnistyles();
     const styles = stylesheet;
 
-    // Handle chat navigation
     const handleChat = () => {
-        if (onChatPress) {
-            onChatPress();
-        } else {
-            // Default: Navigate to chat with shop
-            // TODO: Implement chat routing when API ready
-            router.push(`/chat/${shop.id}`);
-        }
+        if (onChatPress) onChatPress();
+        else router.push(`/chat/${shop.id}`);
     };
 
     return (
         <View style={styles.container}>
-            {/* Top Row: Avatar + Name + Badge */}
-            <View style={styles.topRow}>
-                {/* Avatar */}
+            {/* Top Section: Avatar & Basic Info & Buttons */}
+            <View style={styles.topSection}>
+                {/* Avatar with offset */}
                 <View style={styles.avatarContainer}>
                     <Image
                         source={{ uri: shop.logoUrl }}
@@ -70,303 +53,234 @@ export const ShopHeaderInfo: React.FC<ShopHeaderInfoProps> = ({
                     />
                 </View>
 
-                {/* Shop Info */}
-                <View style={styles.infoContainer}>
-                    {/* Name + Verification */}
-                    <View style={styles.nameRow}>
-                        <Text style={styles.shopName} numberOfLines={1}>
-                            {shop.name}
-                        </Text>
-                        {shop.isVerified && (
-                            <View style={styles.verifiedBadge}>
-                                <IconSymbol
-                                    name="verified"
-                                    size={16}
-                                    color={theme.colors.primary}
-                                />
+                {/* Right Content */}
+                <View style={styles.mainContent}>
+                    {/* Left: Name & Meta */}
+                    <View style={styles.textContainer}>
+                        <View style={styles.nameRow}>
+                            <Text style={styles.shopName} numberOfLines={1}>
+                                {shop.name}
+                            </Text>
+                            {shop.isVerified && (
+                                <IconSymbol name="verified" size={16} color={theme.colors.primary} />
+                            )}
+                        </View>
+
+                        {/* Meta info */}
+                        <View style={styles.metaRow}>
+                            <IconSymbol name="time-outline" size={12} color={theme.colors.typographySecondary} />
+                            <Text style={styles.metaText}>Tham gia: {shop.joinDate}</Text>
+                        </View>
+                        {shop.location && (
+                            <View style={[styles.metaRow, { marginTop: 2 }]}>
+                                <IconSymbol name="location-outline" size={12} color={theme.colors.typographySecondary} />
+                                <Text style={styles.metaText}>{shop.location}</Text>
                             </View>
                         )}
                     </View>
 
-                    {/* Location */}
-                    {shop.location && (
-                        <View style={styles.metaRow}>
-                            <IconSymbol
-                                name="location-on"
-                                size={14}
-                                color={theme.colors.secondary}
-                            />
-                            <Text style={styles.metaText}>{shop.location}</Text>
-                        </View>
-                    )}
+                    {/* Right: Stacked Buttons */}
+                    <View style={styles.buttonColumn}>
+                        <Pressable
+                            style={({ pressed }) => [
+                                styles.btn, styles.chatBtn, pressed && styles.btnPressed
+                            ]}
+                            onPress={handleChat}
+                        >
+                            <IconSymbol name="chat-bubble-outline" size={14} color={theme.colors.primary} />
+                            <Text style={styles.chatBtnText}>Chat</Text>
+                        </Pressable>
 
-                    {/* Join Date */}
-                    {shop.joinDate && (
-                        <View style={styles.metaRow}>
+                        <Pressable
+                            style={({ pressed }) => [
+                                styles.btn,
+                                isFollowing ? styles.followingBtn : styles.followBtn,
+                                pressed && styles.btnPressed
+                            ]}
+                            onPress={onFollowPress}
+                        >
                             <IconSymbol
-                                name="calendar-today"
+                                name={isFollowing ? 'check' : 'add'}
                                 size={14}
-                                color={theme.colors.secondary}
+                                color={isFollowing ? theme.colors.typographySecondary : '#FFF'}
                             />
-                            <Text style={styles.metaText}>
-                                Tham gia {shop.joinDate}
+                            <Text style={[styles.btnText, isFollowing && styles.followingBtnText]}>
+                                {isFollowing ? 'Hủy' : 'Theo dõi'}
                             </Text>
-                        </View>
-                    )}
+                        </Pressable>
+                    </View>
                 </View>
             </View>
 
-            {/* Description (Expandable - TODO) */}
-            {shop.description && shop.description.length > 0 && (
-                <Text style={styles.description} numberOfLines={2}>
-                    {shop.description}
-                </Text>
+            {/* Middle Section: Description */}
+            {shop.description && (
+                <View style={styles.descriptionRow}>
+                    <Text style={styles.description} numberOfLines={2}>
+                        {shop.description}
+                    </Text>
+                </View>
             )}
 
-            {/* Action Buttons */}
-            <View style={styles.actionsRow}>
-                {/* Chat Button */}
-                <Pressable
-                    style={({ pressed }) => [
-                        styles.actionButton,
-                        styles.chatButton,
-                        pressed && styles.buttonPressed,
-                    ]}
-                    onPress={handleChat}
-                >
-                    <IconSymbol
-                        name="chat-bubble-outline"
-                        size={18}
-                        color={theme.colors.primary}
-                    />
-                    <Text style={styles.chatButtonText}>Chat</Text>
-                </Pressable>
-
-                {/* Follow Button */}
-                <Pressable
-                    style={({ pressed }) => [
-                        styles.actionButton,
-                        isFollowing ? styles.followingButton : styles.followButton,
-                        pressed && styles.buttonPressed,
-                    ]}
-                    onPress={onFollowPress}
-                >
-                    <IconSymbol
-                        name={isFollowing ? 'check' : 'add'}
-                        size={18}
-                        color={isFollowing ? theme.colors.secondary : theme.colors.onPrimary}
-                    />
-                    <Text
-                        style={[
-                            styles.followButtonText,
-                            isFollowing && styles.followingButtonText,
-                        ]}
-                    >
-                        {isFollowing ? 'Đang theo dõi' : 'Theo dõi'}
-                    </Text>
-                </Pressable>
-            </View>
-
-            {/* Stats Row - Hidden if no data */}
-            {(shop.stats.productCount !== null ||
-                shop.stats.followerCount !== null ||
-                shop.stats.rating !== null) && (
-                    <View style={styles.statsRow}>
-                        {shop.stats.productCount !== null && (
-                            <StatItem
-                                value={shop.stats.productCount.toString()}
-                                label="Sản phẩm"
-                            />
-                        )}
-                        {shop.stats.followerCount !== null && (
-                            <StatItem
-                                value={formatFollowerCount(shop.stats.followerCount)}
-                                label="Người theo dõi"
-                            />
-                        )}
-                        {shop.stats.rating !== null && (
-                            <StatItem
-                                value={shop.stats.rating.toFixed(1)}
-                                label="Đánh giá"
-                                icon="star"
-                            />
-                        )}
-                        {shop.stats.responseRate !== null && (
-                            <StatItem
-                                value={`${shop.stats.responseRate}%`}
-                                label="Phản hồi"
-                            />
-                        )}
+            {/* Bottom Section: Stats */}
+            <View style={styles.statsRow}>
+                <View style={styles.statItem}>
+                    <Text style={styles.statValue}>{shop.stats.productCount ?? 0}</Text>
+                    <Text style={styles.statLabel}>Sản phẩm</Text>
+                </View>
+                <View style={styles.vDivider} />
+                <View style={styles.statItem}>
+                    <Text style={styles.statValue}>{shop.stats.rating?.toFixed(1) ?? '5.0'}</Text>
+                    <View style={styles.ratingBox}>
+                        <IconSymbol name="star" size={10} color="#facc15" />
+                        <Text style={styles.statLabel}>Đánh giá</Text>
                     </View>
-                )}
-        </View>
-    );
-};
-
-interface StatItemProps {
-    value: string;
-    label: string;
-    icon?: 'star';
-}
-
-const StatItem: React.FC<StatItemProps> = ({ value, label, icon }) => {
-    const { theme } = useUnistyles();
-    const styles = stylesheet;
-
-    return (
-        <View style={styles.statItem}>
-            <View style={styles.statValueRow}>
-                {icon === 'star' && (
-                    <IconSymbol name="star" size={14} color="#facc15" />
-                )}
-                <Text style={styles.statValue}>{value}</Text>
+                </View>
+                <View style={styles.vDivider} />
+                <View style={styles.statItem}>
+                    <Text style={styles.statValue}>{shop.stats.followerCount ?? '100+'}</Text>
+                    <Text style={styles.statLabel}>Người theo dõi</Text>
+                </View>
             </View>
-            <Text style={styles.statLabel}>{label}</Text>
         </View>
     );
-};
-
-// ============================================
-// HELPERS
-// ============================================
-
-const formatFollowerCount = (count: number): string => {
-    if (count >= 1000000) {
-        return `${(count / 1000000).toFixed(1)}M`;
-    }
-    if (count >= 1000) {
-        return `${(count / 1000).toFixed(1)}K`;
-    }
-    return count.toString();
 };
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
         backgroundColor: theme.colors.surface,
         paddingHorizontal: theme.margins.md,
-        paddingBottom: theme.margins.md,
-        // Negative margin to pull up and overlap banner
-        marginTop: -AVATAR_OVERLAP,
+        paddingBottom: theme.margins.sm,
+        borderBottomLeftRadius: theme.radius.l,
+        borderBottomRightRadius: theme.radius.l,
     },
-    topRow: {
+    topSection: {
         flexDirection: 'row',
-        alignItems: 'flex-start',
+        paddingTop: theme.margins.sm,
     },
     avatarContainer: {
-        // Avatar overlaps banner
-        marginTop: -AVATAR_SIZE / 4,
+        marginTop: -30, // Negative overlap with banner
     },
     avatar: {
         width: AVATAR_SIZE,
         height: AVATAR_SIZE,
         borderRadius: AVATAR_SIZE / 2,
         borderWidth: AVATAR_BORDER_WIDTH,
-        borderColor: theme.colors.surface,
+        borderColor: '#FFF',
         backgroundColor: theme.colors.background,
     },
-    infoContainer: {
+    mainContent: {
         flex: 1,
-        marginLeft: theme.margins.smd,
-        marginTop: theme.margins.sm,
+        marginLeft: theme.margins.md,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    textContainer: {
+        flex: 1,
+        marginRight: theme.margins.sm,
     },
     nameRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: theme.margins.sm / 2,
+        gap: 6,
     },
     shopName: {
-        fontSize: 18,
-        fontWeight: '700',
-        color: theme.colors.typography,
-        flexShrink: 1,
-    },
-    verifiedBadge: {
-        marginLeft: 2,
-    },
-    metaRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: theme.margins.sm / 2,
-        marginTop: theme.margins.sm / 2,
-    },
-    metaText: {
-        fontSize: 13,
-        color: theme.colors.typographySecondary,
-    },
-    description: {
-        fontSize: 14,
-        color: theme.colors.typographySecondary,
-        marginTop: theme.margins.smd,
-        lineHeight: 20,
-    },
-    actionsRow: {
-        flexDirection: 'row',
-        gap: theme.margins.smd,
-        marginTop: theme.margins.md,
-    },
-    actionButton: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: theme.margins.sm / 2,
-        paddingVertical: theme.margins.smd,
-        borderRadius: theme.radius.m,
-    },
-    buttonPressed: {
-        opacity: 0.8,
-    },
-    chatButton: {
-        backgroundColor: theme.colors.primarySoft,
-        borderWidth: 1,
-        borderColor: theme.colors.primary,
-    },
-    chatButtonText: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: theme.colors.primary,
-    },
-    followButton: {
-        backgroundColor: theme.colors.primary,
-    },
-    followingButton: {
-        backgroundColor: theme.colors.secondaryLight,
-        borderWidth: 1,
-        borderColor: theme.colors.secondary,
-    },
-    followButtonText: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: theme.colors.onPrimary,
-    },
-    followingButtonText: {
-        color: theme.colors.secondary,
-    },
-    statsRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        marginTop: theme.margins.md,
-        paddingTop: theme.margins.md,
-        borderTopWidth: 1,
-        borderTopColor: theme.colors.secondaryLight,
-    },
-    statItem: {
-        alignItems: 'center',
-    },
-    statValueRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 2,
-    },
-    statValue: {
         fontSize: 16,
         fontWeight: '700',
         color: theme.colors.typography,
     },
-    statLabel: {
+    metaRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        marginTop: 4,
+    },
+    metaText: {
+        fontSize: 11,
+        color: theme.colors.typographySecondary,
+    },
+    buttonColumn: {
+        flexDirection: 'column',
+        gap: 6,
+    },
+    btn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 4,
+        paddingVertical: 5,
+        paddingHorizontal: 8,
+        borderRadius: 6,
+        borderWidth: 1,
+        minWidth: 90,
+    },
+    chatBtn: {
+        backgroundColor: '#FFF',
+        borderColor: theme.colors.primary,
+    },
+    chatBtnText: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: theme.colors.primary,
+    },
+    followBtn: {
+        backgroundColor: theme.colors.primary,
+        borderColor: theme.colors.primary,
+    },
+    btnText: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: '#FFF',
+    },
+    followingBtn: {
+        backgroundColor: theme.colors.background,
+        borderColor: theme.colors.border,
+    },
+    followingBtnText: {
+        color: theme.colors.typographySecondary,
+    },
+    btnPressed: {
+        opacity: 0.7,
+    },
+    descriptionRow: {
+
+        // paddingTop: theme.margins.sm,
+    },
+    description: {
         fontSize: 12,
         color: theme.colors.typographySecondary,
-        marginTop: 2,
+        lineHeight: 16,
+    },
+    statsRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 6,
+        paddingTop: 3,
+        borderTopWidth: 1,
+        borderTopColor: theme.colors.border,
+    },
+    statItem: {
+        flex: 1,
+        alignItems: 'center',
+    },
+    statValue: {
+        fontSize: 15,
+        fontWeight: '700',
+        color: theme.colors.typography,
+    },
+    statLabel: {
+        fontSize: 11,
+        color: theme.colors.typographySecondary,
+    },
+    ratingBox: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 2,
+    },
+    vDivider: {
+        width: 1,
+        height: 20,
+        backgroundColor: theme.colors.border,
     },
 }));
 

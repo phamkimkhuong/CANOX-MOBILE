@@ -44,14 +44,16 @@ export const useFlashSale = () => {
                 // Lấy ảnh primary
                 const primaryMedia = product.media.find(m => m.isPrimary) || product.media[0];
 
+                const currentPrice = product.priceAfterBestVoucher || product.priceMin || product.basePrice;
+
                 return {
                     id: product.id,
                     productId: product.id,
                     name: product.name,
                     image: toPublicUrl(primaryMedia?.url),
-                    price: product.priceAfterBestVoucher || product.priceMin,
+                    price: currentPrice,
                     originalPrice: product.basePrice,
-                    discountPercentage: Math.round(((product.basePrice - (product.priceAfterBestVoucher || product.priceMin)) / product.basePrice) * 100),
+                    discountPercentage: Math.round(((product.basePrice - currentPrice) / product.basePrice) * 100),
                     soldCount,
                     totalStock,
                     progress,

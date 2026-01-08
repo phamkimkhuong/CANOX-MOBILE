@@ -1,101 +1,34 @@
 /**
  * ==============================================
- * SHOP TABS - Sticky Tab Navigation
+ * SHOP TABS - Synced with Home Screen Style
  * ==============================================
- * 
- * Features:
- * - Sticky positioning when scrolling
- * - Active/inactive states
- * - Animated indicator
- * - Badge support (for product count)
  */
 
 import { SHOP_TABS, ShopTabType } from '@/types/shop';
-import React, { useCallback, useRef } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
-import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withSpring,
-} from 'react-native-reanimated';
+import React, { memo, useCallback } from 'react';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface ShopTabsProps {
-    /** Currently active tab */
     activeTab: ShopTabType;
-    /** Callback when tab changes */
     onTabChange: (tab: ShopTabType) => void;
-    /** Product count to show in badge */
     productCount?: number | null;
 }
 
-/**
- * ShopTabs - Horizontal tab navigation for shop detail
- * 
- * Used as StickyHeader in FlashList to remain visible
- * while scrolling through products
- */
-export const ShopTabs: React.FC<ShopTabsProps> = ({
+export const ShopTabs = memo(({
     activeTab,
     onTabChange,
     productCount,
-}) => {
+}: ShopTabsProps) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
 
-    // Track tab positions for animated indicator
-    const tabWidths = useRef<Record<ShopTabType, number>>({
-        products: 0,
-        profile: 0,
-        categories: 0,
-    });
-    const tabPositions = useRef<Record<ShopTabType, number>>({
-        products: 0,
-        profile: 0,
-        categories: 0,
-    });
+    const handleTabPress = useCallback((tab: ShopTabType) => {
+        onTabChange(tab);
+    }, [onTabChange]);
 
-    // Animated indicator position
-    const indicatorX = useSharedValue(0);
-    const indicatorWidth = useSharedValue(80);
-
-    const indicatorStyle = useAnimatedStyle(() => ({
-        transform: [{ translateX: indicatorX.value }],
-        width: indicatorWidth.value,
-    }));
-
-    // Handle tab layout measurement
-    const handleTabLayout = useCallback(
-        (key: ShopTabType, x: number, width: number) => {
-            tabPositions.current[key] = x;
-            tabWidths.current[key] = width;
-
-            // Update indicator for active tab
-            if (key === activeTab) {
-                indicatorX.value = withSpring(x, { damping: 20, stiffness: 200 });
-                indicatorWidth.value = withSpring(width, { damping: 20, stiffness: 200 });
-            }
-        },
-        [activeTab, indicatorX, indicatorWidth]
-    );
-
-    // Handle tab press
-    const handleTabPress = useCallback(
-        (tab: ShopTabType) => {
-            onTabChange(tab);
-
-            // Animate indicator
-            const x = tabPositions.current[tab] || 0;
-            const width = tabWidths.current[tab] || 80;
-            indicatorX.value = withSpring(x, { damping: 20, stiffness: 200 });
-            indicatorWidth.value = withSpring(width, { damping: 20, stiffness: 200 });
-        },
-        [onTabChange, indicatorX, indicatorWidth]
-    );
-
-    // Get label with optional count
     const getTabLabel = (tab: ShopTabType, label: string): string => {
-        if (tab === 'products' && productCount !== null && productCount !== undefined) {
+        if (tab === 'products' && typeof productCount === 'number') {
             return `${label} (${productCount})`;
         }
         return label;
@@ -109,14 +42,14 @@ export const ShopTabs: React.FC<ShopTabsProps> = ({
                 contentContainerStyle={styles.scrollContent}
             >
                 {SHOP_TABS.map((tab) => (
-                    <Pressable
+                    <TouchableOpacity
                         key={tab.key}
-                        style={styles.tabButton}
+                        style={[
+                            styles.tab,
+                            activeTab === tab.key && styles.tabActive
+                        ]}
                         onPress={() => handleTabPress(tab.key)}
-                        onLayout={(e) => {
-                            const { x, width } = e.nativeEvent.layout;
-                            handleTabLayout(tab.key, x, width);
-                        }}
+                        activeOpacity={0.7}
                     >
                         <Text
                             style={[
@@ -126,48 +59,42 @@ export const ShopTabs: React.FC<ShopTabsProps> = ({
                         >
                             {getTabLabel(tab.key, tab.label)}
                         </Text>
-                    </Pressable>
+                    </TouchableOpacity>
                 ))}
-
-                {/* Animated Indicator */}
-                <Animated.View style={[styles.indicator, indicatorStyle]} />
             </ScrollView>
         </View>
     );
-};
+});
+
+ShopTabs.displayName = 'ShopTabs';
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
         backgroundColor: theme.colors.surface,
         borderBottomWidth: 1,
-        borderBottomColor: theme.colors.secondaryLight,
-        // Ensure it's on top when sticky
-        zIndex: 10,
+        borderBottomColor: theme.colors.border,
+        borderRadius: theme.radius.m,
     },
     scrollContent: {
         paddingHorizontal: theme.margins.md,
+        gap: theme.margins.lg,
     },
-    tabButton: {
-        paddingVertical: theme.margins.smd,
-        paddingHorizontal: theme.margins.md,
-        marginRight: theme.margins.sm,
+    tab: {
+        paddingVertical: 10,
+        borderBottomWidth: 2,
+        borderBottomColor: 'transparent',
+    },
+    tabActive: {
+        borderBottomColor: theme.colors.primary,
     },
     tabText: {
-        fontSize: 15,
+        fontSize: 14,
         fontWeight: '500',
-        color: theme.colors.typographySecondary,
+        color: theme.colors.secondary,
     },
     tabTextActive: {
-        fontWeight: '700',
         color: theme.colors.primary,
-    },
-    indicator: {
-        position: 'absolute',
-        bottom: 0,
-        height: 3,
-        backgroundColor: theme.colors.primary,
-        borderTopLeftRadius: 2,
-        borderTopRightRadius: 2,
+        fontWeight: '600',
     },
 }));
 

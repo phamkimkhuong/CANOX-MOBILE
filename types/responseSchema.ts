@@ -15,15 +15,15 @@ export interface PaginatedResponse<T> {
         content: T[];
         page: number;
         size: number;
-        totalElements: number;
+        totalElements?: number;
         totalPages: number;
         hasNext: boolean;
-        hasPrevious: boolean;
-        nextPage: number | null;
-        previousPage: number | null;
-        empty: boolean;
-        first: boolean;
-        last: boolean;
+        hasPrevious?: boolean;
+        nextPage?: number | null;
+        previousPage?: number | null;
+        empty?: boolean;
+        first?: boolean;
+        last?: boolean;
     };
 }
 

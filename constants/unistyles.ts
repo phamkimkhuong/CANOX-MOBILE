@@ -67,6 +67,7 @@ const lightTheme = {
         s: 4,
         m: 8,
         l: 16,
+        xl: 24,
         full: 999
     },
     shadows: {

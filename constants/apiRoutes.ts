@@ -81,8 +81,8 @@ export const API_ROUTES = {
         SET_DEFAULT: (buyerId: string, addressId: string) => `${API_PREFIX}/buyers/${buyerId}/address/${addressId}/default`,
     },
     SHOPS: {
-        DETAIL: (shopId: string) => `${API_PREFIX}/shops/${shopId}`,
-        PRODUCTS: (shopId: string) => `${API_PREFIX}/shops/${shopId}/products`,
+        DETAIL: (shopId: string) => `${API_PREFIX}/public/shops/${shopId}`,
+        PRODUCTS: (shopId: string) => `${API_PREFIX}/public/products/shop/${shopId}`,
     },
     ORDERS: {
         LIST: `${API_PREFIX}/buyer/orders`,

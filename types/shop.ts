@@ -8,53 +8,36 @@
  */
 
 import { z } from 'zod';
+import { ProductFeedItem } from './product/product';
 import { createPaginatedResponseSchema, ResponseDefaultSchema } from './responseSchema';
 /**
- * Shop Address Schema (nested in ShopDetailDTO)
+ * Shop Statistics Schema
  */
-export const ShopAddressSchema = z.object({
-    addressId: z.string(),
-    address: z.object({
-        countryCode: z.string().nullable().optional(),
-        countryName: z.string().nullable().optional(),
-        provinceCode: z.string().nullable().optional(),
-        provinceName: z.string().nullable().optional(),
-        wardCode: z.string().nullable().optional(),
-        wardName: z.string().nullable().optional(),
-        detail: z.string().nullable().optional(),
-        districtCode: z.string().nullable().optional(),
-        districtName: z.string().nullable().optional(),
-    }),
-    fullName: z.string(),
-    phone: z.string(),
-});
-
-/**
- * Shop Verification Info Schema
- */
-export const ShopVerificationSchema = z.object({
-    canSell: z.boolean(),
-    verified: z.boolean(),
-    message: z.string().nullable().optional(),
+export const ShopStatisticsSchema = z.object({
+    totalProducts: z.number(),
+    activeProducts: z.number(),
+    averageRating: z.number(),
+    totalReviews: z.number(),
+    totalOrdersCompleted: z.number(),
+    totalRevenue: z.number(),
+    ratingDistribution: z.record(z.string(), z.number()).nullable().optional(),
+    shopAge: z.number(),
 });
 
 /**
  * Shop Detail DTO Schema - Matches API Response exactly
- * Endpoint: GET /api/v1/shops/{shopId}
+ * Endpoint: GET /api/v1/public/shops/{shopId}
  */
 export const ShopDetailDTOSchema = z.object({
     shopId: z.string(),
     shopName: z.string(),
-    userId: z.string(),
-    username: z.string(),
     description: z.string().nullable().optional(),
     logoUrl: z.string().nullable().optional(),
     bannerUrl: z.string().nullable().optional(), // Usually null
     status: z.enum(['ACTIVE', 'INACTIVE', 'PENDING', 'SUSPENDED']),
-    verifyDate: z.string().nullable().optional(),
-    createdDate: z.string(),
-    address: ShopAddressSchema.nullable().optional(),
-    verificationInfo: ShopVerificationSchema.nullable().optional(),
+    onVacation: z.boolean(),
+    createdAt: z.string(),
+    statistics: ShopStatisticsSchema,
 });
 
 export type ShopDetailDTO = z.infer<typeof ShopDetailDTOSchema>;
@@ -118,8 +101,18 @@ export const ShopProductCategorySchema = z.object({
 });
 
 /**
+ * Product Review Statistics Schema
+ */
+export const ShopProductReviewStatisticsSchema = z.object({
+    reviewableId: z.string(),
+    totalReviews: z.number(),
+    averageRating: z.number(),
+    verifiedPurchaseCount: z.number().nullable().optional(),
+}).nullable().optional();
+
+/**
  * Shop Product DTO Schema - Matches API Response for shop products
- * Endpoint: GET /api/v1/shops/{shopId}/products
+ * Endpoint: GET /api/v1/public/products/shop/{shopId}
  */
 export const ShopProductDTOSchema = z.object({
     id: z.string(),
@@ -127,6 +120,9 @@ export const ShopProductDTOSchema = z.object({
     slug: z.string(),
     description: z.string().nullable().optional(),
     basePrice: z.number(),
+    priceMin: z.number().nullable().optional(),
+    priceMax: z.number().nullable().optional(),
+    priceAfterBestVoucher: z.number().nullable().optional(),
     active: z.boolean(),
     approvalStatus: z.enum(['PENDING', 'APPROVED', 'REJECTED']),
     category: ShopProductCategorySchema.nullable().optional(),
@@ -137,9 +133,8 @@ export const ShopProductDTOSchema = z.object({
     }),
     variants: z.array(ShopProductVariantSchema),
     media: z.array(ShopProductMediaSchema),
-    totalReviews: z.number().nullable().optional(),  //  Usually null
-    averageRating: z.number().nullable().optional(), //  Usually null
-    createdDate: z.string(),
+    reviewStatistics: ShopProductReviewStatisticsSchema,
+    createdDate: z.string().nullable().optional(),
 });
 
 export type ShopProductDTO = z.infer<typeof ShopProductDTOSchema>;
@@ -176,32 +171,9 @@ export interface ShopHeaderUI {
 
 /**
  * Shop Product Item UI - For product grid
- * Transformed from ShopProductDTO via adapter
+ * Unified with ProductFeedItem
  */
-export interface ShopProductItemUI {
-    id: string;
-    name: string;
-    slug: string;
-    thumbnail: string;
-    /** Display price (min price from variants or basePrice) */
-    displayPrice: number;
-    /** Original/base price (for strikethrough if different) */
-    originalPrice: number | null;
-    /** Price range text: "Từ 100.000" or "100.000" */
-    priceDisplay: string;
-    /** Has multiple prices across variants */
-    hasPriceRange: boolean;
-    /** Total stock across all variants */
-    totalStock: number;
-    /** Is product out of stock */
-    isOutOfStock: boolean;
-    /** Rating - null if not available */
-    rating: number | null;
-    /** Review count - null if not available */
-    reviewCount: number | null;
-    /** Sold count - Currently not available from API */
-    soldCount: number | null;
-}
+export type ShopProductItemUI = ProductFeedItem;
 
 // ============================================
 // SECTION 4: FILTER & SORT TYPES

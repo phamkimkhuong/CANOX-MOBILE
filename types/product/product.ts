@@ -60,3 +60,28 @@ export interface ProductFeedItem {
     shopName: string;
     isMall?: boolean;
 }
+
+/**
+ * BASE DTO interface for transformation logic
+ * Both ProductResponseItem (Home) and ShopProductDTO (Shop) satisfy this
+ */
+export interface BaseProductDTO {
+    id: string;
+    name: string;
+    basePrice: number;
+    priceMin?: number | null;
+    priceMax?: number | null;
+    priceAfterBestVoucher?: number | null;
+    media: {
+        url: string;
+        isPrimary: boolean;
+    }[];
+    reviewStatistics?: {
+        averageRating: number;
+        totalReviews: number;
+        verifiedPurchaseCount?: number | null;
+    } | null;
+    shop: {
+        shopName: string;
+    };
+}
