@@ -2,7 +2,7 @@
  * ==============================================
  * ORDER DETAIL SCREEN - Chi tiết đơn hàng
  * ==============================================
- * Route: /order/[id]
+ * Route: /orders/[id]
  * 
  * Features:
  * - Static Timeline (4 steps) for normal orders
@@ -22,9 +22,11 @@ import {
     ShippingInfoCard,
 } from '@/components/orders/detail';
 import { OrderShopHeader } from '@/components/orders/OrderShopHeader';
+import { CHAT_STRINGS } from '@/constants/i18n/vi/chat';
 import { chatRoutes, ROUTES, shopRoutes } from '@/constants/routes';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
 import { useOrderDetail } from '@/hooks/api/order/useOrderDetail';
+import { useAuthStore } from '@/store/useAuthStore';
 import { OrderItemUI } from '@/types/order/order';
 import { getOrderActions } from '@/utils/adapter/order';
 import { Alert as CustomAlertHelper } from '@/utils/AlertHelper';
@@ -41,6 +43,7 @@ type LoadingActionType = 'cancel' | 'confirm' | null;
 export default function OrderDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const router = useRouter();
+    const myShopId = useAuthStore((s) => s.shopId);
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const prefetchChat = usePrefetchShopChat();
@@ -144,8 +147,17 @@ export default function OrderDetailScreen() {
             return;
         }
 
+        if (order.shopId === myShopId) {
+            Toast.show({
+                type: 'info',
+                text1: CHAT_STRINGS.error.chatWithSelf,
+                text2: 'Bạn đang ở trong shop của chính mình',
+            });
+            return;
+        }
+
         // Prefetch message
-        prefetchChat(shopUserId, shopName, shopLogoUrl);
+        prefetchChat(shopUserId, shopName, shopLogoUrl, order.shopId);
 
         // Instant navigation with Ghost ID
         const cachedId = getCachedConversationId(shopUserId);
@@ -153,8 +165,8 @@ export default function OrderDetailScreen() {
             partnerName: shopName,
             partnerAvatar: shopLogoUrl,
             shopUserId: shopUserId,
-        })
-        );
+            shopId: order.shopId,
+        }));
 
         logger.api.info('Contact shop for order:', order.orderId);
     }, [order, prefetchChat, router]);

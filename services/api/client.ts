@@ -197,6 +197,7 @@ apiClient.interceptors.response.use(
             message: error.message,
             code: error.code,
             status: statusCode,
+            data: data,
         });
 
         // Throw custom error for consistent handling
@@ -235,7 +236,7 @@ export async function request<T>(
                 errors: parseResult.error.format(),
                 data: response.data,
             });
-            throw new ApiError('Invalid response structure from server', 500, 501);
+            throw new ApiError('Invalid response structure from server!', 500, 6006);
         }
 
         return parseResult.data;

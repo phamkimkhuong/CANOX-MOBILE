@@ -344,14 +344,14 @@ export default function CheckoutScreen() {
                 }),
                 buyerAddressData: {
                     addressId: previewData.addressId,
-                    addressType: previewData.addressType ?? 1,
-                    taxAddress: '', // Avoid null for string field
+                    buyerAddressId: previewData.addressId,
+                    addressType: previewData.addressType ?? 0,
+                    taxAddress: previewData.taxAddress,
                 },
                 loyaltyPoints: 0,
                 paymentMethod: paymentMethod === 'cod' ? 'COD' : 'BANK_TRANSFER',
                 previewId: previewData.previewId ?? '',
                 previewAt: previewData.previewAt,
-                previewChecksum: previewData.previewChecksum ?? '',
                 customerNote: Array.from(store.shopNotes.values()).filter(Boolean).join('; ') || '',
                 confirmAllSelected: true,
                 allSelectedItemIds: [...selectedItemIds],

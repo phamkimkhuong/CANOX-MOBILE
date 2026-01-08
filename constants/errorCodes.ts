@@ -7,7 +7,8 @@ const VI_MAP: Record<number, string> = {
 
     // HỆ THỐNG (6000-699)
     6001: "Lỗi máy chủ nội bộ!",
-    6005: "Đã xảy ra lỗi không xác định!",
+    6005: "Đã xảy ra lỗi. Vui lòng thử lại sau!", // 404 Bad request
+    6006: "Đã xảy ra lỗi. Vui lòng thử lại sau!", // Invalid response structure from server
 
     1000: "Không tìm thấy người dùng",
     1001: "Không tìm thấy người dùng",
@@ -37,6 +38,7 @@ const VI_MAP: Record<number, string> = {
     2513: "Mã OTP này đã được sử dụng, vui lòng yêu cầu mã mới",
     2514: "Mã OTP đã hết hạn, vui lòng yêu cầu mã mới",
     2515: "Lỗi khi xác minh OTP",
+    3001: "Bạn không thể trò chuyện với chính mình!",
 
 
 } as const;

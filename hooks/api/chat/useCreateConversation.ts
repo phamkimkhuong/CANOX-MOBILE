@@ -131,10 +131,12 @@ export const useCreateConversation = () => {
 export const usePrefetchShopChat = () => {
     const queryClient = useQueryClient();
     const userId = useAuthStore((state) => state.userId);
+    const myShopId = useAuthStore((state) => state.shopId);
     const { mutate: createConv } = useCreateConversation();
 
-    const prefetch = useCallback((shopUserId: string, shopName: string, shopLogoUrl?: string | null) => {
+    const prefetch = useCallback((shopUserId: string, shopName: string, shopLogoUrl?: string | null, shopId?: string) => {
         if (!shopUserId || !userId) return;
+        if (shopId && shopId === myShopId) return;
 
         const cachedId = getCachedConversationId(shopUserId);
 

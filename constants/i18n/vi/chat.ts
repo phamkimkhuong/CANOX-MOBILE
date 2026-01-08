@@ -11,5 +11,6 @@ export const CHAT_STRINGS = {
         startChatFailed: 'Lỗi khi bắt đầu cuộc trò chuyện',
         tryAgainLater: 'Vui lòng thử lại sau',
         missingShopInfo: 'Thiếu thông tin shop để bắt đầu chat',
+        chatWithSelf: 'Không thể chat với chính mình',
     },
 };

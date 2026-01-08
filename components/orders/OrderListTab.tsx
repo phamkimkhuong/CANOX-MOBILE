@@ -7,15 +7,18 @@
  * Sử dụng FlashList để render danh sách với performance cao
  */
 
-import { chatRoutes } from '@/constants/routes';
+import { CHAT_STRINGS } from '@/constants/i18n/vi/chat';
+import { chatRoutes, orderRoutes } from '@/constants/routes';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
 import { flattenOrders, useOrderList } from '@/hooks/api/order/useOrders';
+import { useAuthStore } from '@/store/useAuthStore';
 import { OrderAction, OrderTabStatus, OrderUI } from '@/types/order/order';
 import { logger } from '@/utils/logger';
 import { FlashList, ListRenderItem } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
 import React, { useCallback } from 'react';
 import { ActivityIndicator, RefreshControl, View } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { EmptyOrderState } from './EmptyOrderState';
 import { OrderCard } from './OrderCard';
@@ -30,6 +33,7 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const router = useRouter();
+    const myShopId = useAuthStore((s) => s.shopId);
     const prefetchChat = usePrefetchShopChat();
 
     // Fetch orders với useInfiniteQuery
@@ -48,10 +52,7 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
 
     // Handlers
     const handleOrderPress = useCallback((orderId: string) => {
-        router.push({
-            pathname: '/(main)/(order)/order/[id]',
-            params: { id: orderId },
-        });
+        router.push(orderRoutes.detail(orderId));
     }, [router]);
 
     const handleShopPress = useCallback((shopId: string) => {
@@ -72,10 +73,7 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
                 break;
             case 'track':
                 // TODO: Navigate to tracking screen
-                router.push({
-                    pathname: '/(main)/(order)/order/[id]',
-                    params: { id: orderId },
-                });
+                router.push(orderRoutes.detail(orderId));
                 break;
             case 'received':
                 // TODO: Call confirm received API
@@ -103,8 +101,17 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
                     return;
                 }
 
+                if (order.shopId === myShopId) {
+                    Toast.show({
+                        type: 'info',
+                        text1: CHAT_STRINGS.error.chatWithSelf,
+                        text2: 'Bạn đang ở trong shop của chính mình',
+                    });
+                    return;
+                }
+
                 // Prefetch logic (on press)
-                prefetchChat(shopUserId, shopName, shopLogoUrl);
+                prefetchChat(shopUserId, shopName, shopLogoUrl, order.shopId);
 
                 // Instant Navigation Logic (Ghost ID)
                 const cachedId = getCachedConversationId(shopUserId);
@@ -112,6 +119,7 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
                     partnerName: shopName,
                     partnerAvatar: shopLogoUrl,
                     shopUserId: shopUserId,
+                    shopId: order.shopId,
                 }));
 
                 logger.orders.info('Contact shop for order:', orderId);
@@ -127,10 +135,7 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
     }, [router, prefetchChat]);
 
     const handleTrackingPress = useCallback((orderId: string) => {
-        router.push({
-            pathname: '/(main)/(order)/order/[id]',
-            params: { id: orderId },
-        });
+        router.push(orderRoutes.detail(orderId));
     }, [router]);
 
     const handleShopNow = useCallback(() => {

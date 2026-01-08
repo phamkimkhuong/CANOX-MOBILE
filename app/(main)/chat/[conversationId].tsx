@@ -19,6 +19,7 @@ import {
     SafetyBanner,
 } from '@/components/chat/detail';
 import { CHAT_STRINGS } from '@/constants/i18n/vi/chat';
+import { orderRoutes, productRoutes } from '@/constants/routes';
 import { CONVERSATIONS_QUERY_KEY, useChatMessages, useMarkMessagesAsRead, useSendMessage } from '@/hooks/api/chat';
 import { buildChatWithShopRequest, useCreateConversation } from '@/hooks/api/chat/useCreateConversation';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -38,7 +39,7 @@ import {
 import { logger } from '@/utils/logger';
 import { FlashList, FlashListRef, ListRenderItem } from '@shopify/flash-list';
 import { useQueryClient } from '@tanstack/react-query';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Keyboard, Text, View } from 'react-native';
 import { KeyboardAvoidingView, KeyboardProvider } from 'react-native-keyboard-controller';
@@ -139,16 +140,19 @@ export default function ChatDetailScreen() {
         partnerIsOnline?: string;
         partnerIsVerified?: string;
         shopUserId?: string;
+        shopId?: string;
     }>();
 
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const flashListRef = useRef<FlashListRef<MessageListItem>>(null);
+    const router = useRouter();
 
     // State management for conversationId
     const [currentConvId, setCurrentConvId] = useState<string>(params.conversationId);
     const isGhostMode = currentConvId.startsWith('ghost_');
     const userId = useAuthStore((s) => s.userId);
+    const myShopId = useAuthStore((s) => s.shopId);
 
     // Flag to delay rendering of message list until the end of screen transition
     const [isReady, setIsReady] = useState(false);
@@ -229,6 +233,10 @@ export default function ChatDetailScreen() {
 
     useEffect(() => {
         if (isGhostMode && params.shopUserId && params.partnerName) {
+            if (params.shopId && params.shopId === myShopId) {
+                logger.chat.warn('Attempted to resolve ghost mode for chatting with self - aborting');
+                return;
+            }
             const request = buildChatWithShopRequest(
                 params.shopUserId,
                 params.partnerName,
@@ -438,11 +446,12 @@ export default function ChatDetailScreen() {
     const handleContextAction = useCallback(() => {
         if (contextType === 'PRODUCT' && productContext) {
             logger.chat.info('Navigate to product', { productId: productContext.productId });
+            router.push(productRoutes.detail(productContext.productId));
         } else if (contextType === 'ORDER' && orderContext) {
             logger.chat.info('Navigate to order', { orderId: orderContext.orderId });
-            // router.push(`/(main)/order/${orderContext.orderId}`)
+            router.push(orderRoutes.detail(orderContext.orderId));
         }
-    }, [contextType, productContext, orderContext]);
+    }, [contextType, productContext, orderContext, router]);
 
     // ============================================
     // RENDER FUNCTIONS

@@ -65,11 +65,11 @@ export const ROUTES = {
 
     // ============ ORDERS ============
     ORDERS: {
-        LIST: '/(main)/(order)/orders' as const,
-        PENDING_PAYMENT: '/(main)/(order)/orders' as const,
-        PROCESSING: '/(main)/(order)/orders' as const,
-        SHIPPING: '/(main)/(order)/orders' as const,
-        REVIEW: '/(main)/(order)/orders' as const,
+        LIST: '/orders' as const,
+        PENDING_PAYMENT: '/orders' as const,
+        PROCESSING: '/orders' as const,
+        SHIPPING: '/orders' as const,
+        REVIEW: '/orders' as const,
     },
 
     // ============ USER CONTENT ============
@@ -145,7 +145,7 @@ export const chatRoutes = {
  */
 export const orderRoutes = {
     detail: (orderId: string): Href => ({
-        pathname: '/order/[id]',
+        pathname: '/orders/[id]',
         params: { id: orderId },
     }),
 } as const;

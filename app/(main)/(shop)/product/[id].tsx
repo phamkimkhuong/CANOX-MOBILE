@@ -22,6 +22,7 @@ import { useAddToCart } from '@/hooks/api/cart';
 import { getCachedConversationId, useCreateConversation, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
 import { useProductDetail } from '@/hooks/api/product/useProductDetail';
 import { useProductVariant } from '@/hooks/useProductVariant';
+import { useAuthStore } from '@/store/useAuthStore';
 import { findGalleryIndexByVariant } from '@/utils/adapter/product/productDetailAdapter';
 import { createLogger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
@@ -33,6 +34,7 @@ import Animated, {
     useSharedValue,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 const log = createLogger('ProductDetail');
@@ -46,6 +48,8 @@ export default function ProductDetailScreen() {
     /** Tracks how the variant sheet was opened - determines button text and action */
     const [variantSheetMode, setVariantSheetMode] = useState<VariantSheetMode>('select');
     const [quantity, setQuantity] = useState(1);
+    const userId = useAuthStore((s) => s.userId);
+    const myShopId = useAuthStore((s) => s.shopId);
 
     // Flag để hoãn render UI nặng cho đến khi kết thúc animation chuyển màn hình
     const [isTransitionFinished, setIsTransitionFinished] = useState(false);
@@ -205,10 +209,11 @@ export default function ProductDetailScreen() {
      * Ghost Loading/Prefetch cho Chat
      */
     const handlePrefetchChat = useCallback(() => {
+        if (shopId === myShopId) return;
         if (shopUserId && shopName) {
-            prefetchShopChat(shopUserId, shopName, shopLogoUrl);
+            prefetchShopChat(shopUserId, shopName, shopLogoUrl, shopId);
         }
-    }, [shopUserId, shopName, shopLogoUrl, prefetchShopChat]);
+    }, [shopUserId, shopName, shopLogoUrl, prefetchShopChat, shopId, myShopId]);
 
     /**
      * Handle Chat with Shop - Pure 0ms Navigation
@@ -220,6 +225,15 @@ export default function ProductDetailScreen() {
             return;
         }
 
+        if (shopId === myShopId) {
+            Toast.show({
+                type: 'info',
+                text1: CHAT_STRINGS.error.chatWithSelf,
+                text2: 'Bạn đang ở trong shop của chính mình',
+            });
+            return;
+        }
+
         // Use Cache (if done), otherwise use Ghost ID (instant, no await)
         const cachedId = getCachedConversationId(shopUserId);
 
@@ -227,13 +241,14 @@ export default function ProductDetailScreen() {
             partnerName: shopName,
             partnerAvatar: shopLogoUrl,
             shopUserId: shopUserId,
+            shopId: shopId,
         }));
 
         // Log after to prevent Push delay
         requestAnimationFrame(() => {
             log.info('Instant navigation triggered');
         });
-    }, [shopUserId, shopName, shopLogoUrl]);
+    }, [shopUserId, shopName, shopLogoUrl, userId]);
 
     const handleShopPress = useCallback(() => {
         if (shopId) {

@@ -52,119 +52,118 @@ export interface CheckoutPreviewItemDTO {
     productId: string;
     variantId: string;
     productName: string;
-    sku: string;
-    basePath: string | null;
-    extension: string | null;
-    variantAttributes: string | null;
-    unitPrice: number;
-    quantity: number;
-    discountAmount: number;
-    lineTotal: number;
-    isAvailable: boolean;
-    availabilityMessage: string | null;
-    lengthCm: number;
-    widthCm: number;
-    heightCm: number;
-    weightGrams: number;
+    sku?: string | null;
+    basePath?: string | null;
+    extension?: string | null;
+    variantAttributes?: string | null;
+    unitPrice?: number | null;
+    quantity?: number | null;
+    discountAmount?: number | null;
+    lineTotal?: number | null;
+    isAvailable?: boolean | null;
+    availabilityMessage?: string | null;
+    lengthCm?: number | null;
+    widthCm?: number | null;
+    heightCm?: number | null;
+    weightGrams?: number | null;
 }
 
 /** Shipping option từ API - sẽ được transform sang ShippingMethod */
 export interface CheckoutShippingOptionDTO {
-    serviceCode: number;
-    serviceType: string;
-    displayName: string;
-    fee: number;
-    estimatedDeliveryTime: string;
+    serviceCode?: number | null;
+    serviceType?: string | null;
+    displayName?: string | null;
+    fee?: number | null;
+    estimatedDeliveryTime?: string | null;
 }
 
 /** Voucher detail từ API */
 export interface CheckoutVoucherDetailDTO {
-    voucherCode: string;
-    voucherType: string;
-    discountAmount: number;
-    discountMethod: string;
-    discountTarget: string;
-    reason: string | null;
-    valid: boolean;
+    voucherCode?: string | null;
+    voucherType?: string | null;
+    discountAmount?: number | null;
+    discountMethod?: string | null;
+    discountTarget?: string | null;
+    reason?: string | null;
+    valid?: boolean | null;
 }
 
 /** Voucher result từ API */
 export interface CheckoutVoucherResultDTO {
-    shopId: string;
-    validVouchers: string[];
-    invalidVouchers: string[];
-    totalDiscount: number;
-    discountDetails: CheckoutVoucherDetailDTO[];
-    hasValidVouchers: boolean;
+    shopId?: string | null;
+    validVouchers?: string[] | null;
+    invalidVouchers?: string[] | null;
+    totalDiscount?: number | null;
+    discountDetails?: CheckoutVoucherDetailDTO[] | null;
+    hasValidVouchers?: boolean | null;
 }
 
 /** Loyalty info từ API */
 export interface CheckoutLoyaltyInfoDTO {
-    availablePoints: number;
-    pointsToRedeem: number;
-    discountAmount: number;
-    maxPointsAllowed: number;
-    maxDiscountPercent: number;
-    expectedPointsEarned: number;
-    canRedeem: boolean;
-    message: string;
+    availablePoints?: number | null;
+    pointsToRedeem?: number | null;
+    discountAmount?: number | null;
+    maxPointsAllowed?: number | null;
+    maxDiscountPercent?: number | null;
+    expectedPointsEarned?: number | null;
+    canRedeem?: boolean | null;
+    message?: string | null;
 }
 
 /** Shop summary từ API - sẽ được transform sang ShopSubtotal */
 export interface CheckoutShopSummaryDTO {
-    itemCount: number;
-    totalQuantity: number;
-    subtotal: number;
-    productDiscount: number;
-    shippingDiscount: number;
-    totalDiscount: number;
-    shippingFee: number;
-    taxAmount: number;
-    shopTotal: number;
+    itemCount?: number | null;
+    totalQuantity?: number | null;
+    subtotal?: number | null;
+    productDiscount?: number | null;
+    shippingDiscount?: number | null;
+    totalDiscount?: number | null;
+    shippingFee?: number | null;
+    taxAmount?: number | null;
+    shopTotal?: number | null;
 }
 
 /** Shop từ API - sẽ được transform sang CheckoutShopUI */
 export interface CheckoutPreviewShopDTO {
-    shopId: string;
-    shopName: string;
-    items: CheckoutPreviewItemDTO[];
+    shopId?: string;
+    shopName?: string;
+    items?: CheckoutPreviewItemDTO[];
     summary: CheckoutShopSummaryDTO;
     selectedShippingMethod: string | null;  // Có thể null khi shipping chưa tính
     availableShippingOptions: CheckoutShippingOptionDTO[] | null;  // Có thể null
-    validationErrors: string[] | null;
-    warnings: string[] | null;
-    loyaltyInfo: CheckoutLoyaltyInfoDTO | null;
-    voucherResult: CheckoutVoucherResultDTO;
+    validationErrors?: string[] | null;
+    warnings?: string[] | null;
+    loyaltyInfo?: CheckoutLoyaltyInfoDTO | null;
+    voucherResult?: CheckoutVoucherResultDTO;
 }
 
 /** Order summary từ API - sẽ được transform sang CheckoutCalculationResult */
 export interface CheckoutOrderSummaryDTO {
-    totalItems: number;
-    totalQuantity: number;
-    subtotal: number;
-    totalDiscount: number;
-    shippingDiscount: number;
-    productDiscount: number;
-    totalShippingFee: number;
-    totalTaxAmount: number;
-    grandTotal: number;
+    totalItems?: number | null;
+    totalQuantity?: number | null;
+    subtotal?: number | null;
+    totalDiscount?: number | null;
+    shippingDiscount?: number | null;
+    productDiscount?: number | null;
+    totalShippingFee?: number | null;
+    totalTaxAmount?: number | null;
+    grandTotal?: number | null;
 }
 
 /** Buyer address từ API */
 export interface CheckoutBuyerAddressDTO {
-    addressId: string;
-    addressType: number | null;
-    taxAddress: string | null;
+    addressId?: string;
+    addressType?: number | null;
+    taxAddress?: string | null;
 }
 
 /** Main data từ API response */
 export interface CheckoutPreviewDataDTO {
     previewId?: string;
-    previewChecksum?: string;
     cartId: string;
     currency: string;
     previewAt: string;
-    buyerAddressData: CheckoutBuyerAddressDTO;
+    buyerAddressData?: CheckoutBuyerAddressDTO;
     shops: CheckoutPreviewShopDTO[];
     summary: CheckoutOrderSummaryDTO;
     isValid: boolean;
@@ -287,8 +286,6 @@ const CheckoutBuyerAddressSchema = z.object({
 });
 
 const CheckoutPreviewDataSchema = z.object({
-    previewId: z.string().optional(),
-    previewChecksum: z.string().optional(),
     cartId: z.string().optional().default(''),
     currency: z.string().optional().default('VND'),
     previewAt: z.string().optional().default(new Date().toISOString()),
@@ -315,5 +312,5 @@ export const CheckoutPreviewResponseSchema = z.object({
     code: z.number().optional().default(200),
     success: z.boolean().optional().default(true),
     message: z.string().optional().nullable(),
-    data: CheckoutPreviewDataSchema.optional(),
+    data: CheckoutPreviewDataSchema,
 });

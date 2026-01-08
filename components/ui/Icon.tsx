@@ -173,9 +173,12 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     'photo-camera': { ios: 'camera-outline', android: 'camera-outline' },
     'camera-alt': { ios: 'camera-outline', android: 'camera-outline' },
     'calendar-month': { ios: 'calendar-outline', android: 'calendar-outline' },
+    'calendar-today': { ios: 'calendar-outline', android: 'calendar-outline' },
     'arrow-left': { ios: 'chevron-back', android: 'arrow-back' },
     'headset-mic': { ios: 'headset-outline', android: 'headset-outline' },
     'notifications-none': { ios: 'notifications-outline', android: 'notifications-outline' },
+    'more-vert': { ios: 'ellipsis-vertical', android: 'ellipsis-vertical' },
+    'verified': { ios: 'checkmark-circle', android: 'checkmark-circle' },
 };
 
 interface IconSymbolProps {

@@ -26,6 +26,7 @@ import { useUserAddressStore } from './useUserAddressStore';
 
 const BUYER_ID_KEY = 'user_buyer_id';
 const USER_ID_KEY = 'user_id';
+const SHOP_ID_KEY = 'user_shop_id';
 
 interface AuthState {
     /** Current access token (in-memory) */
@@ -34,6 +35,8 @@ interface AuthState {
     userId: string | null;
     /** Buyer ID from backend (Profile ID) */
     buyerId: string | null;
+    /** Shop ID from backend (if user is a seller) */
+    shopId: string | null;
     /** Authentication status */
     isAuthenticated: boolean;
     /** Whether store has been hydrated from storage */
@@ -41,7 +44,8 @@ interface AuthState {
 
     // Actions
     hydrate: () => Promise<void>;
-    login: (accessToken: string, refreshToken: string, userId: string | null, buyerId: string | null) => Promise<void>;
+    login: (accessToken: string, refreshToken: string, userId: string | null, buyerId: string | null, shopId?: string | null) => Promise<void>;
+    setShopId: (shopId: string | null) => void;
     logout: () => Promise<void>;
 }
 
@@ -53,6 +57,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     token: null,
     userId: null,
     buyerId: null,
+    shopId: null,
     isAuthenticated: false,
     hydrated: false,
 
@@ -62,10 +67,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
      */
     hydrate: async () => {
         try {
-            const [storedToken, storedUserId, storedBuyerId] = await Promise.all([
+            const [storedToken, storedUserId, storedBuyerId, storedShopId] = await Promise.all([
                 getAccessToken(),
                 SecureStore.getItemAsync(USER_ID_KEY),
                 SecureStore.getItemAsync(BUYER_ID_KEY),
+                SecureStore.getItemAsync(SHOP_ID_KEY),
             ]);
 
             if (storedToken) {
@@ -73,6 +79,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                     token: storedToken,
                     userId: storedUserId,
                     buyerId: storedBuyerId,
+                    shopId: storedShopId,
                     isAuthenticated: true,
                     hydrated: true,
                 });
@@ -93,10 +100,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 return;
             }
 
-            set({ token: null, userId: null, buyerId: null, isAuthenticated: false, hydrated: true });
+            set({ token: null, userId: null, buyerId: null, shopId: null, isAuthenticated: false, hydrated: true });
         } catch (error) {
             logger.auth.error('Error hydrating auth state:', error);
-            set({ token: null, userId: null, buyerId: null, isAuthenticated: false, hydrated: true });
+            set({ token: null, userId: null, buyerId: null, shopId: null, isAuthenticated: false, hydrated: true });
         }
     },
 
@@ -104,7 +111,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
      * Login - Save tokens and update state
      * TokenManager handles proactive refresh scheduling (Layer 2)
      */
-    login: async (accessToken: string, refreshToken: string, userId: string | null, buyerId: string | null) => {
+    login: async (accessToken: string, refreshToken: string, userId: string | null, buyerId: string | null, shopId: string | null = null) => {
         try {
             // Save tokens using TokenManager (handles expiry tracking & proactive refresh)
             await saveTokens(accessToken, refreshToken);
@@ -113,6 +120,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             const storagePromises: Promise<any>[] = [];
             if (userId) storagePromises.push(SecureStore.setItemAsync(USER_ID_KEY, userId));
             if (buyerId) storagePromises.push(SecureStore.setItemAsync(BUYER_ID_KEY, buyerId));
+            if (shopId) storagePromises.push(SecureStore.setItemAsync(SHOP_ID_KEY, shopId));
 
             if (storagePromises.length > 0) {
                 await Promise.all(storagePromises);
@@ -124,6 +132,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 token: accessToken,
                 userId,
                 buyerId,
+                shopId,
                 isAuthenticated: true,
                 hydrated: true,
             });
@@ -131,6 +140,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             logger.auth.error('Error during login:', error);
             throw error;
         }
+    },
+
+    setShopId: (shopId: string | null) => {
+        if (shopId) {
+            SecureStore.setItemAsync(SHOP_ID_KEY, shopId);
+        } else {
+            SecureStore.deleteItemAsync(SHOP_ID_KEY);
+        }
+        set({ shopId });
     },
 
     /**
@@ -143,6 +161,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 clearTokens(),
                 SecureStore.deleteItemAsync(USER_ID_KEY),
                 SecureStore.deleteItemAsync(BUYER_ID_KEY),
+                SecureStore.deleteItemAsync(SHOP_ID_KEY),
             ]);
 
             // 2. Clear stores
@@ -160,14 +179,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             logger.auth.info('Logout complete - User data cleared');
 
             // 4. Reset auth state
-            set({ token: null, userId: null, buyerId: null, isAuthenticated: false, hydrated: true });
+            set({ token: null, userId: null, buyerId: null, shopId: null, isAuthenticated: false, hydrated: true });
 
             // 5. Navigate to login
             router.replace(ROUTES.AUTH.LOGIN);
         } catch (error) {
             logger.auth.error('Error during logout:', error);
             // Force reset state even if cleanup fails
-            set({ token: null, userId: null, buyerId: null, isAuthenticated: false, hydrated: true });
+            set({ token: null, userId: null, buyerId: null, shopId: null, isAuthenticated: false, hydrated: true });
         }
     },
 }));
@@ -191,3 +210,8 @@ export const useUserId = () => useAuthStore((state) => state.userId);
  * Get current buyer ID (Profile ID)
  */
 export const useBuyerId = () => useAuthStore((state) => state.buyerId);
+
+/**
+ * Get current shop ID (Seller ID)
+ */
+export const useShopId = () => useAuthStore((state) => state.shopId);

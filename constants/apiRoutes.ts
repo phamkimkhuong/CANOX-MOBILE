@@ -80,6 +80,10 @@ export const API_ROUTES = {
         DELETE: (buyerId: string, addressId: string) => `${API_PREFIX}/buyers/${buyerId}/address/${addressId}`,
         SET_DEFAULT: (buyerId: string, addressId: string) => `${API_PREFIX}/buyers/${buyerId}/address/${addressId}/default`,
     },
+    SHOPS: {
+        DETAIL: (shopId: string) => `${API_PREFIX}/shops/${shopId}`,
+        PRODUCTS: (shopId: string) => `${API_PREFIX}/shops/${shopId}/products`,
+    },
     ORDERS: {
         LIST: `${API_PREFIX}/buyer/orders`,
         DETAIL: (orderId: string) => `${API_PREFIX}/buyer/orders/${orderId}`,

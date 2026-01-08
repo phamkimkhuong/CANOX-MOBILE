@@ -44,7 +44,7 @@ export const useCheckoutPreview = () => {
                 hasAddress: !!requestBody.addressId,
             });
             const idempotencyKey = uuidv4();
-            console.log("Checkout Preview Request Body:", JSON.stringify(requestBody, null, 2));
+            logger.checkout.debug('Checkout Preview Request Body:', requestBody);
             const response = await request(
                 {
                     url: API_ROUTES.CART.CHECKOUT_PREVIEW,
@@ -61,7 +61,7 @@ export const useCheckoutPreview = () => {
             if (!response.success) {
                 throw new Error(response.message || 'Checkout preview failed');
             }
-            console.log('Checkout preview response', response);
+            logger.checkout.debug('Checkout preview response:', response);
 
             // Transform DTO to UI types
             const uiData = toCheckoutPreviewUI(response.data);

@@ -51,6 +51,7 @@ export const profileQueryKeys = {
  */
 export const useUserProfile = () => {
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+    const setShopId = useAuthStore((state) => state.setShopId);
 
     return useQuery({
         queryKey: profileQueryKeys.user(),
@@ -63,7 +64,14 @@ export const useUserProfile = () => {
                 UserMeResponseSchema
             );
 
-            return transformUserMe(response.data);
+            const profile = transformUserMe(response.data);
+
+            // Sync shopId to store
+            if (response.data.shopId) {
+                setShopId(response.data.shopId);
+            }
+
+            return profile;
         },
         enabled: isAuthenticated,
         staleTime: 1000 * 60 * 30, // 30 minutes

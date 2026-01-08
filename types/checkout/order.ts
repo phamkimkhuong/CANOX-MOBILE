@@ -17,14 +17,14 @@ export interface CreateOrderRequest {
     shops: CreateOrderShopRequest[];
     buyerAddressData: {
         addressId: string;
-        addressType: number;
+        buyerAddressId: string;
+        addressType: number | null;
         taxAddress: string | null;
     };
     loyaltyPoints: number;
     paymentMethod: 'COD' | 'BANK_TRANSFER';
     previewId: string;
     previewAt: string;
-    previewChecksum: string;
     customerNote: string;
     confirmAllSelected: boolean;
     allSelectedItemIds: string[];
@@ -129,7 +129,7 @@ export interface CreateOrderResponse {
     message: string;
     data: {
         orders: OrderDTO[];
-        paymentInfo: PaymentInfoDTO;
+        paymentInfo: PaymentInfoDTO | null;
     };
 }
 
@@ -236,6 +236,6 @@ export const CreateOrderResponseSchema = z.object({
     message: z.string(),
     data: z.object({
         orders: z.array(OrderSchema),
-        paymentInfo: PaymentInfoSchema,
+        paymentInfo: PaymentInfoSchema.nullable(),
     }),
 });

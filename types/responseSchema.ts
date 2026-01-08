@@ -15,8 +15,15 @@ export interface PaginatedResponse<T> {
         content: T[];
         page: number;
         size: number;
+        totalElements: number;
         totalPages: number;
         hasNext: boolean;
+        hasPrevious: boolean;
+        nextPage: number | null;
+        previousPage: number | null;
+        empty: boolean;
+        first: boolean;
+        last: boolean;
     };
 }
 
@@ -32,5 +39,11 @@ export const createPaginatedResponseSchema = <T extends z.ZodTypeAny>(contentSch
             totalElements: z.number().optional(),
             totalPages: z.number(),
             hasNext: z.boolean(),
+            hasPrevious: z.boolean().optional(),
+            nextPage: z.number().nullable().optional(),
+            previousPage: z.number().nullable().optional(),
+            empty: z.boolean().optional(),
+            first: z.boolean().optional(),
+            last: z.boolean().optional(),
         }),
     });

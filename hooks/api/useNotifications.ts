@@ -90,7 +90,7 @@ const fetchNotifications = async (
     const { content, hasNext, nextPage } = response.data;
     return {
         data: content.map(mapApiNotificationToUi),
-        nextCursor: hasNext ? nextPage : null,
+        nextCursor: hasNext ? (nextPage ?? null) : null,
         hasMore: hasNext,
     };
 };
@@ -183,27 +183,37 @@ export const useMarkAllAsRead = () => {
             );
         },
         onMutate: async () => {
-            // Cancel các query đang chạy để tránh conflict
             await queryClient.cancelQueries({ queryKey: ['notifications'] });
             // Snapshot dữ liệu cũ (để rollback nếu lỗi)
             const previousData = queryClient.getQueriesData<InfiniteData<NotificationPage>>({
                 queryKey: ['notifications']
             });
             // Optimistic: Đánh dấu TẤT CẢ là đã đọc
-            queryClient.setQueriesData<InfiniteData<NotificationPage>>(
+            queryClient.setQueriesData<any>(
                 { queryKey: ['notifications'] },
-                (oldData) => {
+                (oldData: any) => {
                     if (!oldData) return oldData;
-                    return {
-                        ...oldData,
-                        pages: oldData.pages.map((page) => ({
-                            ...page,
-                            data: page.data.map((notif) => ({ ...notif, isRead: true })),
-                        })),
-                    };
+
+                    // Infinite Query data (Notification List)
+                    if (oldData.pages && Array.isArray(oldData.pages)) {
+                        return {
+                            ...oldData,
+                            pages: oldData.pages.map((page: any) => ({
+                                ...page,
+                                data: page.data.map((notif: any) => ({ ...notif, isRead: true })),
+                            })),
+                        };
+                    }
+
+                    //Simple Query data (Unread Count)
+                    if (typeof oldData === 'number') {
+                        return 0;
+                    }
+
+                    return oldData;
                 }
             );
-            return { previousData }; // Return context để dùng cho onError
+            return { previousData };
         },
         onError: (_err, _vars, context) => {
             // Rollback: Nếu lỗi thì trả lại dữ liệu cũ

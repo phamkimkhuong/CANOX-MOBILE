@@ -45,9 +45,9 @@ export const toCheckoutItemUI = (dto: CheckoutPreviewItemDTO): CheckoutItemUI =>
     productName: dto.productName,
     variantAttributes: dto.variantAttributes || '',
     imageUrl: toSizedImageUrl(dto.basePath, dto.extension) ?? DEFAULT_IMAGE,
-    unitPrice: dto.unitPrice,
-    quantity: dto.quantity,
-    lineTotal: dto.lineTotal,
+    unitPrice: dto.unitPrice ?? 0,
+    quantity: dto.quantity ?? 1,
+    lineTotal: dto.lineTotal ?? 0,
     shopId: '', // Will be set by parent
 });
 
@@ -60,12 +60,12 @@ export const toCheckoutItemUI = (dto: CheckoutPreviewItemDTO): CheckoutItemUI =>
  * Maps serviceCode to id and serviceType to type.
  */
 export const toShippingMethod = (dto: CheckoutShippingOptionDTO): ShippingMethod => ({
-    id: String(dto.serviceCode),
-    type: dto.serviceType as 'standard' | 'fast' | 'express',
-    name: dto.displayName,
-    description: dto.estimatedDeliveryTime,
-    estimatedDays: parseEstimatedDays(dto.estimatedDeliveryTime),
-    fee: dto.fee,
+    id: String(dto.serviceCode ?? ''),
+    type: (dto.serviceType ?? 'standard') as 'standard' | 'fast' | 'express',
+    name: dto.displayName ?? '',
+    description: dto.estimatedDeliveryTime ?? '',
+    estimatedDays: parseEstimatedDays(dto.estimatedDeliveryTime ?? ''),
+    fee: dto.fee ?? 0,
 });
 
 /**
@@ -177,9 +177,9 @@ const formatDiscountDisplay = (amount: number, method: string): string => {
  * Combines items, shipping, vouchers into single UI object.
  */
 export const toCheckoutShopUI = (dto: CheckoutPreviewShopDTO): CheckoutShopUI => {
-    const items = dto.items.map((item) => ({
+    const items = (dto.items ?? []).map((item) => ({
         ...toCheckoutItemUI(item),
-        shopId: dto.shopId,
+        shopId: dto.shopId ?? '',
     }));
 
     // Transform all vouchers from discountDetails (with null safety)
@@ -192,11 +192,11 @@ export const toCheckoutShopUI = (dto: CheckoutPreviewShopDTO): CheckoutShopUI =>
     );
 
     return {
-        shopId: dto.shopId,
-        shopName: dto.shopName,
+        shopId: dto.shopId ?? '',
+        shopName: dto.shopName ?? '',
         items,
         shippingOptions: toShopShippingOptions(
-            dto.shopId,
+            dto.shopId ?? '',
             dto.availableShippingOptions,
             dto.selectedShippingMethod
         ),
@@ -230,12 +230,12 @@ export const toShopSubtotal = (
     voucherResult?: CheckoutVoucherResultDTO
 ): ShopSubtotal => ({
     shopId,
-    itemsTotal: dto.subtotal,
-    shippingFee: dto.shippingFee,
+    itemsTotal: dto.subtotal ?? 0,
+    shippingFee: dto.shippingFee ?? 0,
     // Use calculated shop voucher discount from voucherResult instead of productDiscount
     shopVoucherDiscount: calculateShopVoucherDiscount(voucherResult),
-    shopTotal: dto.shopTotal,
-    itemCount: dto.itemCount,
+    shopTotal: dto.shopTotal ?? 0,
+    itemCount: dto.itemCount ?? 0,
 });
 
 /**
@@ -252,23 +252,23 @@ export const toCheckoutCalculation = (
         (sum, shop) => sum + calculateShopVoucherDiscount(shop.voucherResult),
         0
     );
-    const platformVoucherDiscount = Math.max(0, dto.totalDiscount - totalShopVoucherDiscount - dto.shippingDiscount);
+    const platformVoucherDiscount = Math.max(0, (dto.totalDiscount ?? 0) - totalShopVoucherDiscount - (dto.shippingDiscount ?? 0));
 
     return {
-        subtotal: dto.subtotal,
-        totalShippingFee: dto.totalShippingFee,
+        subtotal: dto.subtotal ?? 0,
+        totalShippingFee: dto.totalShippingFee ?? 0,
         totalShopVoucherDiscount,
         platformVoucherDiscount,
-        shippingDiscount: dto.shippingDiscount,
+        shippingDiscount: dto.shippingDiscount ?? 0,
         appliedPlatformVoucherId: shops.flatMap(s => s.voucherResult?.discountDetails || [])
             .find(v => v.voucherType === 'PLATFORM' && v.discountTarget !== 'SHIP' && v.valid)?.voucherCode ?? null,
         appliedShippingVoucherId: shops.flatMap(s => s.voucherResult?.discountDetails || [])
             .find(v => v.voucherType === 'PLATFORM' && v.discountTarget === 'SHIP' && v.valid)?.voucherCode ?? null,
-        totalAmount: dto.grandTotal,
-        taxAmount: dto.totalTaxAmount,
-        totalSavings: dto.totalDiscount,
-        totalItemCount: dto.totalItems,
-        shopSubtotals: shops.map((shop) => toShopSubtotal(shop.shopId, shop.summary, shop.voucherResult)),
+        totalAmount: dto.grandTotal ?? 0,
+        taxAmount: dto.totalTaxAmount ?? 0,
+        totalSavings: dto.totalDiscount ?? 0,
+        totalItemCount: dto.totalItems ?? 0,
+        shopSubtotals: shops.map((shop) => toShopSubtotal(shop.shopId ?? '', shop.summary, shop.voucherResult)),
         isCalculatingShipping: false,
         platformVoucherValidation: null,
     };
@@ -284,12 +284,12 @@ export const toCheckoutCalculation = (
  */
 export interface CheckoutPreviewUI {
     previewId?: string;
-    previewChecksum?: string;
     cartId: string;
     currency: string;
     previewAt: string;
     addressId: string;
     addressType: number | null;
+    taxAddress: string | null;
     shops: CheckoutShopUI[];
     calculation: CheckoutCalculationResult;
     isValid: boolean;
@@ -311,13 +311,13 @@ export const toCheckoutPreviewUI = (dto: CheckoutPreviewDataDTO): CheckoutPrevie
     }
 
     return {
-        previewId: dto.previewId || (dto as any).id || '',
-        previewChecksum: dto.previewChecksum || (dto as any).checksum || '',
+        previewId: dto.cartId,
         cartId: dto.cartId,
         currency: dto.currency,
         previewAt: cleanPreviewAt,
-        addressId: dto.buyerAddressData.addressId,
-        addressType: dto.buyerAddressData.addressType,
+        addressId: dto.buyerAddressData?.addressId ?? '',
+        addressType: dto.buyerAddressData?.addressType ?? null,
+        taxAddress: dto.buyerAddressData?.taxAddress ?? null,
         shops: dto.shops.map(toCheckoutShopUI),
         calculation: toCheckoutCalculation(dto.summary, dto.shops, dto.isValid),
         isValid: dto.isValid,
