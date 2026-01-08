@@ -378,10 +378,24 @@ export default function CheckoutScreen() {
             // Prepare order info for success screen
             const orders = response.data?.orders || [];
             const orderCount = orders.length;
+
             const orderInfos = orders.map((order) => ({
                 orderId: order.orderId,
                 orderNumber: order.orderNumber,
                 shopName: order.shopInfo?.shopName || 'Shop',
+                // Additional fields for single order display
+                grandTotal: order.grandTotal,
+                paymentMethod: order.paymentMethod,
+                createdAt: order.createdAt,
+                itemCount: order.itemCount || order.items?.length || 0,
+                // Product images for thumbnails (limit to 3)
+                productImages: order.items?.slice(0, 3).map((item) => {
+                    if (item.imageBasePath && item.imageExtension) {
+                        const cdnUrl = process.env.EXPO_PUBLIC_CDN_BASE_URL || 'https://pub-5341c10461574a539df355b9fbe87197.r2.dev/';
+                        return `${cdnUrl}${item.imageBasePath}${item.imageExtension}`;
+                    }
+                    return null;
+                }).filter(Boolean) || [],
             }));
 
             // Navigate to Order Success screen
@@ -426,9 +440,9 @@ export default function CheckoutScreen() {
         });
     }, [resetSession, router]);
 
-    // ========================================
+    // ================================
     // PLATFORM VOUCHER RECOMMENDATIONS
-    // ========================================
+    // ================================
     const recommendationsRequest = useMemo<RecommendPlatformVoucherRequest | null>(() => {
         if (!isInitialized || !previewData) return null;
         const firstShop = previewData.shops[0];

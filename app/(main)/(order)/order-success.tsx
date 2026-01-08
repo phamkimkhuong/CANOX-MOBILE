@@ -3,27 +3,75 @@
  * ORDER SUCCESS SCREEN
  * ==============================================
  * Màn hình hiển thị sau khi đặt hàng thành công.
- * Xử lý 2 trường hợp:
- * 1. Đơn lẻ (1 shop): Hiển thị mã đơn hàng cụ thể
- * 2. Đa đơn (nhiều shop): Hiển thị số lượng đơn, không hiện mã cụ thể
+ * 
+ * Sự khác biệt:
+ * - 1 đơn: Chi tiết (mã đơn, ảnh, payment, thời gian, tổng tiền)
+ * - 2+ đơn: Danh sách đơn hàng với link đến chi tiết
  */
 
 import '@/constants/unistyles';
 
 import { IconSymbol } from '@/components/ui/Icon';
 import { orderRoutes, ROUTES } from '@/constants/routes';
+import { formatCurrency } from '@/utils/format';
+import * as Clipboard from 'expo-clipboard';
+import { Image } from 'expo-image';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useCallback, useMemo } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+/**
+ * Order info structure passed from checkout
+ */
 interface OrderInfo {
     orderId: string;
     orderNumber: string;
     shopName: string;
+    grandTotal?: number;
+    paymentMethod?: string;
+    createdAt?: string;
+    itemCount?: number;
+    productImages?: string[];
 }
+
+/**
+ * Format payment method to Vietnamese display
+ */
+const formatPaymentMethod = (method?: string): string => {
+    if (!method) return 'Thanh toán khi nhận hàng';
+    switch (method.toUpperCase()) {
+        case 'COD':
+            return 'Thanh toán khi nhận hàng';
+        case 'BANK_TRANSFER':
+            return 'Chuyển khoản ngân hàng';
+        case 'CREDIT_CARD':
+            return 'Thẻ tín dụng';
+        default:
+            return method;
+    }
+};
+
+/**
+ * Format datetime string to Vietnamese format
+ */
+const formatDateTime = (dateString?: string): string => {
+    if (!dateString) return '';
+    try {
+        const date = new Date(dateString);
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        return `${day}-${month}-${year} ${hours}:${minutes}`;
+    } catch {
+        return '';
+    }
+};
 
 export default function OrderSuccessScreen() {
     const { theme } = useUnistyles();
@@ -48,28 +96,191 @@ export default function OrderSuccessScreen() {
     }, [params.orders]);
 
     const isMultipleOrders = orderCount > 1;
+    const singleOrder = !isMultipleOrders && orders.length > 0 ? orders[0] : null;
 
-    const handleViewOrders = useCallback(() => {
-        // Navigate to order history/list
+    /**
+     * Copy order number to clipboard
+     */
+    const handleCopyOrderNumber = useCallback(async (orderNumber: string) => {
+        await Clipboard.setStringAsync(orderNumber);
+        Toast.show({
+            type: 'success',
+            text1: 'Đã sao chép mã đơn hàng',
+            visibilityTime: 1500,
+        });
+    }, []);
+
+    /**
+     * Navigate to order history/list (Quay lại Trang chủ in design but we go to orders list)
+     */
+    const handleGoToOrdersList = useCallback(() => {
         router.replace(ROUTES.ORDERS.LIST as never);
     }, [router]);
 
+    /**
+     * Navigate back to home
+     */
     const handleContinueShopping = useCallback(() => {
-        // Navigate back to home
         router.replace(ROUTES.TABS.HOME as never);
     }, [router]);
 
-    const handleViewSingleOrder = useCallback((orderId: string) => {
-        // Navigate to specific order detail
+    /**
+     * Navigate to specific order detail
+     */
+    const handleViewOrderDetail = useCallback((orderId: string) => {
         router.push(orderRoutes.detail(orderId));
     }, [router]);
+
+    /**
+     * Render Single Order Card
+     * - Order code with copy button
+     * - Product thumbnails grid
+     * - Payment method, time, total
+     */
+    const renderSingleOrderCard = () => {
+        if (!singleOrder) return null;
+
+        const extraItemCount = (singleOrder.itemCount || 0) - (singleOrder.productImages?.length || 0);
+
+        return (
+            <Animated.View
+                entering={FadeInDown.delay(400).duration(400)}
+                style={styles.orderCard}
+            >
+                {/* Order Number Row */}
+                <View style={styles.orderNumberRow}>
+                    <Text style={styles.orderNumberLabel}>Mã đơn hàng</Text>
+                    <View style={styles.orderNumberValue}>
+                        <Text style={styles.orderNumberText}>
+                            {singleOrder.orderNumber}
+                        </Text>
+                        <Pressable
+                            onPress={() => handleCopyOrderNumber(singleOrder.orderNumber)}
+                            hitSlop={8}
+                        >
+                            <IconSymbol
+                                name="content-copy"
+                                size={16}
+                                color={theme.colors.secondary}
+                            />
+                        </Pressable>
+                    </View>
+                </View>
+
+                {/* Product Thumbnails */}
+                {singleOrder.productImages && singleOrder.productImages.length > 0 && (
+                    <View style={styles.thumbnailsRow}>
+                        {singleOrder.productImages.map((imageUrl, index) => (
+                            <View key={index} style={styles.thumbnailContainer}>
+                                <Image
+                                    source={{ uri: imageUrl }}
+                                    style={styles.thumbnailImage}
+                                    contentFit="cover"
+                                    transition={200}
+                                />
+                            </View>
+                        ))}
+                        {extraItemCount > 0 && (
+                            <View style={styles.thumbnailExtra}>
+                                <Text style={styles.thumbnailExtraText}>
+                                    +{extraItemCount}
+                                </Text>
+                            </View>
+                        )}
+                    </View>
+                )}
+
+                {/* Order Details */}
+                <View style={styles.detailsSection}>
+                    <View style={styles.detailRow}>
+                        <Text style={styles.detailLabel}>Phương thức thanh toán</Text>
+                        <Text style={styles.detailValue}>
+                            {formatPaymentMethod(singleOrder.paymentMethod)}
+                        </Text>
+                    </View>
+                    {singleOrder.createdAt && (
+                        <View style={styles.detailRow}>
+                            <Text style={styles.detailLabel}>Thời gian đặt</Text>
+                            <Text style={styles.detailValue}>
+                                {formatDateTime(singleOrder.createdAt)}
+                            </Text>
+                        </View>
+                    )}
+                    <View style={styles.totalRow}>
+                        <Text style={styles.detailLabel}>Tổng thanh toán</Text>
+                        <Text style={styles.totalValue}>
+                            {formatCurrency(singleOrder.grandTotal || 0)}
+                        </Text>
+                    </View>
+                </View>
+            </Animated.View>
+        );
+    };
+
+    /**
+     * Render Multiple Orders Card
+     * - List of orders with shop name and order number
+     * - Link to each order detail
+     */
+    const renderMultipleOrdersCard = () => (
+        <Animated.View
+            entering={FadeInDown.delay(400).duration(400)}
+            style={styles.orderCard}
+        >
+            {orders.length > 0 ? (
+                orders.map((order, index) => (
+                    <Pressable
+                        key={order.orderId}
+                        style={({ pressed }) => [
+                            styles.orderItem,
+                            index < orders.length - 1 && styles.orderItemBorder,
+                            pressed && styles.orderItemPressed,
+                        ]}
+                        onPress={() => handleViewOrderDetail(order.orderId)}
+                    >
+                        <View style={styles.orderItemLeft}>
+                            <View style={styles.orderBadge}>
+                                <Text style={styles.orderBadgeText}>
+                                    {index + 1}
+                                </Text>
+                            </View>
+                            <View style={styles.orderItemInfo}>
+                                <Text style={styles.shopName} numberOfLines={1}>
+                                    {order.shopName}
+                                </Text>
+                                <Text style={styles.orderItemNumber}>
+                                    {order.orderNumber}
+                                </Text>
+                            </View>
+                        </View>
+                        <IconSymbol
+                            name="chevron-right"
+                            size={20}
+                            color={theme.colors.secondary}
+                        />
+                    </Pressable>
+                ))
+            ) : (
+                <View style={styles.orderItemFallback}>
+                    <IconSymbol
+                        name="check-circle"
+                        size={24}
+                        color={theme.colors.success}
+                    />
+                    <Text style={styles.fallbackText}>
+                        {orderCount} đơn hàng đã được tạo
+                    </Text>
+                </View>
+            )}
+        </Animated.View>
+    );
 
     return (
         <View style={styles.container}>
             <Stack.Screen
                 options={{
                     headerShown: false,
-                    gestureEnabled: false, // Prevent swipe back
+                    gestureEnabled: false,
                 }}
             />
 
@@ -77,7 +288,7 @@ export default function OrderSuccessScreen() {
                 style={styles.scrollView}
                 contentContainerStyle={[
                     styles.scrollContent,
-                    { paddingBottom: insets.bottom + 100 },
+                    { paddingBottom: insets.bottom + 40 },
                 ]}
                 showsVerticalScrollIndicator={false}
             >
@@ -88,9 +299,9 @@ export default function OrderSuccessScreen() {
                 >
                     <View style={styles.successCircle}>
                         <IconSymbol
-                            name="check"
-                            size={48}
-                            color={theme.colors.surface}
+                            name="check-circle"
+                            size={64}
+                            color={theme.colors.success}
                         />
                     </View>
                 </Animated.View>
@@ -100,150 +311,80 @@ export default function OrderSuccessScreen() {
                     entering={FadeInUp.delay(200).duration(400)}
                     style={styles.title}
                 >
-                    Đặt hàng thành công!
+                    Đặt hàng Thành công!
                 </Animated.Text>
 
-                {/* Subtitle - Dynamic based on order count */}
+                {/* Subtitle */}
                 <Animated.Text
                     entering={FadeInUp.delay(300).duration(400)}
                     style={styles.subtitle}
                 >
                     {isMultipleOrders
                         ? `Bạn đã đặt thành công ${orderCount} đơn hàng\ntừ ${orderCount} shop khác nhau`
-                        : 'Đơn hàng của bạn đã được tạo thành công'}
+                        : 'Cảm ơn bạn đã mua sắm. Đơn hàng của bạn đã được\ntiếp nhận và đang trong quá trình xử lý.'}
                 </Animated.Text>
 
-                {/* Order Info Card */}
+                {/* Order Card - Different content based on order count */}
+                {isMultipleOrders ? renderMultipleOrdersCard() : renderSingleOrderCard()}
+
+                {/* Unified Buttons Section */}
                 <Animated.View
-                    entering={FadeInDown.delay(400).duration(400)}
-                    style={styles.orderCard}
+                    entering={FadeInDown.delay(500).duration(400)}
+                    style={styles.actionsSection}
                 >
-                    <View style={styles.cardHeader}>
+                    {/* View Order Detail - Outline Button */}
+                    <Pressable
+                        style={({ pressed }) => [
+                            styles.outlineButton,
+                            pressed && styles.buttonPressed,
+                        ]}
+                        onPress={() => {
+                            if (isMultipleOrders) {
+                                handleGoToOrdersList();
+                            } else if (singleOrder) {
+                                handleViewOrderDetail(singleOrder.orderId);
+                            }
+                        }}
+                    >
                         <IconSymbol
-                            name="local-shipping"
+                            name="receipt-long"
                             size={20}
                             color={theme.colors.primary}
                         />
-                        <Text style={styles.cardTitle}>
-                            Thông tin đơn hàng
+                        <Text style={styles.outlineButtonText}>
+                            {isMultipleOrders ? 'Xem lịch sử mua hàng' : 'Xem Chi tiết Đơn hàng'}
                         </Text>
-                    </View>
+                    </Pressable>
 
-                    <View style={styles.cardContent}>
-                        {orders.length > 0 ? (
-                            // Show order list
-                            orders.map((order, index) => (
-                                <Pressable
-                                    key={order.orderId}
-                                    style={[
-                                        styles.orderItem,
-                                        index < orders.length - 1 && styles.orderItemBorder,
-                                    ]}
-                                    onPress={() => handleViewSingleOrder(order.orderId)}
-                                >
-                                    <View style={styles.orderItemLeft}>
-                                        <View style={styles.orderBadge}>
-                                            <Text style={styles.orderBadgeText}>
-                                                {index + 1}
-                                            </Text>
-                                        </View>
-                                        <View style={styles.orderItemInfo}>
-                                            <Text style={styles.shopName} numberOfLines={1}>
-                                                {order.shopName}
-                                            </Text>
-                                            <Text style={styles.orderNumber}>
-                                                {order.orderNumber}
-                                            </Text>
-                                        </View>
-                                    </View>
-                                    <IconSymbol
-                                        name="chevron-right"
-                                        size={20}
-                                        color={theme.colors.secondary}
-                                    />
-                                </Pressable>
-                            ))
-                        ) : (
-                            // Fallback when no order details
-                            <View style={styles.orderItemFallback}>
-                                <IconSymbol
-                                    name="check-circle"
-                                    size={24}
-                                    color={theme.colors.success}
-                                />
-                                <Text style={styles.fallbackText}>
-                                    {isMultipleOrders
-                                        ? `${orderCount} đơn hàng đã được tạo`
-                                        : 'Đơn hàng đã được tạo'}
-                                </Text>
-                            </View>
-                        )}
-                    </View>
-
-                    {/* Shipping Notice */}
-                    <View style={styles.shippingNotice}>
+                    {/* Continue Shopping - Primary Button */}
+                    <Pressable
+                        style={({ pressed }) => [
+                            styles.primaryButton,
+                            pressed && styles.buttonPressed,
+                        ]}
+                        onPress={handleContinueShopping}
+                    >
                         <IconSymbol
-                            name="info"
-                            size={16}
-                            color={theme.colors.info}
+                            name="shopping-bag"
+                            size={20}
+                            color={theme.colors.surface}
                         />
-                        <Text style={styles.shippingNoticeText}>
-                            Đơn hàng sẽ được xử lý và giao đến bạn sớm nhất
+                        <Text style={styles.primaryButtonText}>
+                            Tiếp tục Mua sắm
                         </Text>
-                    </View>
-                </Animated.View>
+                    </Pressable>
 
-                {/* Payment Method Reminder (for COD) */}
-                <Animated.View
-                    entering={FadeInDown.delay(500).duration(400)}
-                    style={styles.reminderCard}
-                >
-                    <IconSymbol
-                        name="wallet"
-                        size={20}
-                        color={theme.colors.warning}
-                    />
-                    <Text style={styles.reminderText}>
-                        Vui lòng chuẩn bị tiền mặt khi nhận hàng
-                    </Text>
+                    {/* Back to Home - Link */}
+                    <Pressable
+                        style={styles.linkButton}
+                        onPress={handleGoToOrdersList}
+                    >
+                        <Text style={styles.linkButtonText}>
+                            Quay lại Trang chủ
+                        </Text>
+                    </Pressable>
                 </Animated.View>
             </ScrollView>
-
-            {/* Bottom Actions */}
-            <Animated.View
-                entering={FadeInUp.delay(600).duration(400)}
-                style={[styles.bottomActions, { paddingBottom: insets.bottom + theme.margins.md }]}
-            >
-                {/* Primary Button */}
-                <Pressable
-                    style={styles.primaryButton}
-                    onPress={handleViewOrders}
-                >
-                    <IconSymbol
-                        name="receipt-long"
-                        size={20}
-                        color={theme.colors.surface}
-                    />
-                    <Text style={styles.primaryButtonText}>
-                        {isMultipleOrders ? 'Xem lịch sử mua hàng' : 'Xem đơn hàng'}
-                    </Text>
-                </Pressable>
-
-                {/* Secondary Button */}
-                <Pressable
-                    style={styles.secondaryButton}
-                    onPress={handleContinueShopping}
-                >
-                    <IconSymbol
-                        name="shopping-bag"
-                        size={20}
-                        color={theme.colors.primary}
-                    />
-                    <Text style={styles.secondaryButtonText}>
-                        Tiếp tục mua sắm
-                    </Text>
-                </Pressable>
-            </Animated.View>
         </View>
     );
 }
@@ -263,23 +404,20 @@ const stylesheet = StyleSheet.create((theme) => ({
         paddingTop: 80,
     },
 
-    // Success Icon
     iconContainer: {
         alignItems: 'center',
         marginBottom: theme.margins.lg,
     },
 
     successCircle: {
-        width: 96,
-        height: 96,
-        borderRadius: 48,
-        backgroundColor: theme.colors.success,
+        width: 112,
+        height: 112,
+        borderRadius: 56,
+        backgroundColor: theme.colors.surface,
         alignItems: 'center',
         justifyContent: 'center',
         ...theme.shadows.medium,
     },
-
-    // Typography
     title: {
         fontSize: 24,
         fontWeight: '700',
@@ -289,43 +427,124 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
 
     subtitle: {
-        fontSize: 15,
+        fontSize: 14,
         color: theme.colors.typographySecondary,
         textAlign: 'center',
         lineHeight: 22,
         marginBottom: theme.margins.xl,
+        paddingHorizontal: theme.margins.md,
     },
-
-    // Order Card
     orderCard: {
         backgroundColor: theme.colors.surface,
-        borderRadius: theme.radius.l,
-        padding: theme.margins.md,
-        marginBottom: theme.margins.md,
+        borderRadius: theme.radius.xl,
+        padding: theme.margins.lg,
+        marginBottom: theme.margins.lg,
         ...theme.shadows.small,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+    },
+    orderNumberRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingBottom: theme.margins.md,
+        marginBottom: theme.margins.md,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors.border,
+        borderStyle: 'dashed',
     },
 
-    cardHeader: {
+    orderNumberLabel: {
+        fontSize: 14,
+        color: theme.colors.typographySecondary,
+    },
+
+    orderNumberValue: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: theme.margins.sm,
-        marginBottom: theme.margins.md,
-        paddingBottom: theme.margins.sm,
-        borderBottomWidth: 1,
-        borderBottomColor: theme.colors.border,
     },
 
-    cardTitle: {
+    orderNumberText: {
         fontSize: 16,
-        fontWeight: '600',
+        fontWeight: '700',
         color: theme.colors.typography,
     },
 
-    cardContent: {
-        gap: 0,
+    // ============================================
+    // SINGLE ORDER - THUMBNAILS
+    // ============================================
+    thumbnailsRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: theme.margins.smd,
+        marginBottom: theme.margins.md,
     },
 
-    // Order Item
+    thumbnailContainer: {
+        width: 48,
+        height: 48,
+        borderRadius: theme.radius.m,
+        backgroundColor: theme.colors.background,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        overflow: 'hidden',
+    },
+
+    thumbnailImage: {
+        width: '100%',
+        height: '100%',
+    },
+
+    thumbnailExtra: {
+        width: 48,
+        height: 48,
+        borderRadius: theme.radius.m,
+        backgroundColor: theme.colors.background,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+
+    thumbnailExtraText: {
+        fontSize: 12,
+        fontWeight: '700',
+        color: theme.colors.typographySecondary,
+    },
+    detailsSection: {
+        gap: theme.margins.sm,
+    },
+
+    detailRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+
+    detailLabel: {
+        fontSize: 14,
+        color: theme.colors.typographySecondary,
+    },
+
+    detailValue: {
+        fontSize: 14,
+        fontWeight: '500',
+        color: theme.colors.typography,
+    },
+
+    totalRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-end',
+        paddingTop: theme.margins.sm,
+    },
+
+    totalValue: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: theme.colors.primary,
+    },
     orderItem: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -338,6 +557,10 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderBottomColor: theme.colors.border,
     },
 
+    orderItemPressed: {
+        opacity: 0.7,
+    },
+
     orderItemLeft: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -346,16 +569,16 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
 
     orderBadge: {
-        width: 24,
-        height: 24,
-        borderRadius: 12,
+        width: 28,
+        height: 28,
+        borderRadius: 14,
         backgroundColor: theme.colors.primarySoft,
         alignItems: 'center',
         justifyContent: 'center',
     },
 
     orderBadgeText: {
-        fontSize: 12,
+        fontSize: 13,
         fontWeight: '600',
         color: theme.colors.primary,
     },
@@ -365,18 +588,17 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
 
     shopName: {
-        fontSize: 14,
+        fontSize: 15,
         fontWeight: '500',
         color: theme.colors.typography,
         marginBottom: 2,
     },
 
-    orderNumber: {
+    orderItemNumber: {
         fontSize: 13,
         color: theme.colors.typographySecondary,
     },
 
-    // Fallback
     orderItemFallback: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -388,49 +610,27 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: 14,
         color: theme.colors.typography,
     },
-
-    // Shipping Notice
-    shippingNotice: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: theme.margins.sm,
-        marginTop: theme.margins.md,
-        paddingTop: theme.margins.sm,
-        borderTopWidth: 1,
-        borderTopColor: theme.colors.border,
-    },
-
-    shippingNoticeText: {
-        fontSize: 13,
-        color: theme.colors.info,
-        flex: 1,
-    },
-
-    // Reminder Card
-    reminderCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: theme.margins.sm,
-        backgroundColor: theme.colors.warningSoft,
-        borderRadius: theme.radius.m,
-        padding: theme.margins.md,
-        marginBottom: theme.margins.md,
-    },
-
-    reminderText: {
-        fontSize: 13,
-        color: theme.colors.warning,
-        flex: 1,
-    },
-
-    // Bottom Actions
-    bottomActions: {
-        paddingHorizontal: theme.margins.lg,
-        paddingTop: theme.margins.md,
-        backgroundColor: theme.colors.surface,
-        borderTopWidth: 1,
-        borderTopColor: theme.colors.border,
+    actionsSection: {
         gap: theme.margins.smd,
+    },
+
+    outlineButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: theme.margins.sm,
+        backgroundColor: theme.colors.surface,
+        paddingVertical: theme.margins.md,
+        borderRadius: theme.radius.xl,
+        borderWidth: 1,
+        borderColor: theme.colors.primaryLight,
+        ...theme.shadows.small,
+    },
+
+    outlineButtonText: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: theme.colors.primary,
     },
 
     primaryButton: {
@@ -440,7 +640,8 @@ const stylesheet = StyleSheet.create((theme) => ({
         gap: theme.margins.sm,
         backgroundColor: theme.colors.primary,
         paddingVertical: theme.margins.md,
-        borderRadius: theme.radius.m,
+        borderRadius: theme.radius.xl,
+        ...theme.shadows.medium,
     },
 
     primaryButtonText: {
@@ -449,19 +650,19 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.surface,
     },
 
-    secondaryButton: {
-        flexDirection: 'row',
+    linkButton: {
         alignItems: 'center',
-        justifyContent: 'center',
-        gap: theme.margins.sm,
-        backgroundColor: theme.colors.primarySoft,
-        paddingVertical: theme.margins.md,
-        borderRadius: theme.radius.m,
+        paddingVertical: theme.margins.sm,
     },
 
-    secondaryButtonText: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: theme.colors.primary,
+    linkButtonText: {
+        fontSize: 14,
+        fontWeight: '500',
+        color: theme.colors.typographySecondary,
+    },
+
+    buttonPressed: {
+        opacity: 0.85,
+        transform: [{ scale: 0.98 }],
     },
 }));
