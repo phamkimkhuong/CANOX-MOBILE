@@ -10,4 +10,5 @@ export { ShopVoucherSelector } from './ShopVoucherSelector';
 export { CartFooter, CHECKOUT_BAR_HEIGHT, VOUCHER_BAR_HEIGHT } from './CartFooter';
 export { CartShopGroup } from './CartShopGroup';
 export { CartSkeleton } from './CartSkeleton';
+export { RecommendedProducts } from './RecommendedProducts';
 

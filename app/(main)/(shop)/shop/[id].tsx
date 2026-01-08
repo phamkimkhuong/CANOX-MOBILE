@@ -131,7 +131,7 @@ export default function ShopDetailScreen() {
      * Reused from Product Detail pattern
      */
     const handlePrefetchChat = useCallback(() => {
-        if (!shop || shop.id === myShopId) return;
+        if (!shop || !shop.userId || shop.userId === myShopId) return;
         prefetchShopChat(shop.userId, shop.name, shop.logoUrl, shop.id);
     }, [shop, myShopId, prefetchShopChat]);
 
@@ -140,7 +140,7 @@ export default function ShopDetailScreen() {
      * Reused from Product Detail pattern
      */
     const handleChatPress = useCallback(() => {
-        if (!shop) return;
+        if (!shop || !shop.userId) return;
 
         // Prevent chatting with own shop
         if (shop.id === myShopId) {

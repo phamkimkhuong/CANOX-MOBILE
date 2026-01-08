@@ -52,7 +52,7 @@ export const useCreateOrder = () => {
             }
 
             logger.checkout.info('Order creation success', {
-                orderCount: response.data.orders.length,
+                orderCount: response.data?.orders?.length || 0,
             });
 
             return response;

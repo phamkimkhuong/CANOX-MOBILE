@@ -59,9 +59,11 @@ export const useRecommendShopVouchers = (
                 logger.api.error('Failed to fetch shop vouchers:', response.message);
                 return [];
             }
-            return response.data.map((item: RecommendedShopVoucherDTO): VoucherUI => {
-                return transformVoucherDTOToUI(item.voucher, item.applicable, item.reason);
-            });
+            return response.data
+                .filter((item): item is RecommendedShopVoucherDTO & { voucher: NonNullable<RecommendedShopVoucherDTO['voucher']> } => !!item.voucher)
+                .map((item): VoucherUI => {
+                    return transformVoucherDTOToUI(item.voucher, item.applicable, item.reason);
+                });
         },
 
         enabled: options.enabled && !!shopId && !!requestBody,

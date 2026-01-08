@@ -25,7 +25,7 @@ export const toShopHeaderUI = (dto: ShopDetailDTO): ShopHeaderUI => {
 
     return {
         id: dto.shopId,
-        userId: dto.userId || '',  // Owner's userId for chat
+        userId: dto.userId ?? null,  // Owner's userId for chat
         name: dto.shopName,
         description: dto.description || null,
         logoUrl: dto.logoUrl || DEFAULT_SHOP_LOGO,

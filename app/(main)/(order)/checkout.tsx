@@ -8,6 +8,7 @@
 import { ROUTES } from '@/constants/routes';
 import { Alert } from '@/utils/AlertHelper';
 import { useFocusEffect } from '@react-navigation/native';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { ScrollView, View } from 'react-native';
@@ -26,11 +27,13 @@ import {
 } from '@/components/checkout';
 
 // Store & Hooks
+import { CART_QUERY_KEY } from '@/hooks/api/cart/useCart';
 import { useCheckoutPreview } from '@/hooks/api/checkout/useCheckoutPreview';
 import { useCreateOrder } from '@/hooks/api/checkout/useCreateOrder';
 import { useRecommendPlatformVouchers } from '@/hooks/api/checkout/useRecommendPlatformVouchers';
 import { useUserAddresses } from '@/hooks/api/useUserAddresses';
 import { useDebounce } from '@/hooks/useDebounce';
+import { useCartStore } from '@/store/useCartStore';
 import {
     useCanPlaceOrder,
     useCheckoutCalculation,
@@ -59,6 +62,7 @@ export default function CheckoutScreen() {
     // ========================================
     // API Hooks
     // ========================================
+    const queryClient = useQueryClient();
     const { mutate: callPreview } = useCheckoutPreview();
     const { mutateAsync: placeOrder } = useCreateOrder();
     const { data: userAddresses } = useUserAddresses();
@@ -359,9 +363,18 @@ export default function CheckoutScreen() {
 
             const response = await placeOrder(request);
 
+            // Background Cart Refresh
+            // Invalidate cart query to trigger background refetch
+            queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
+            // Clear client-side selection and vouchers (Clean up session)
+            const cartStore = useCartStore.getState();
+            cartStore.clearSelection();
+            cartStore.clearShopVouchers();
+            cartStore.setPlatformVoucher(null);
+
             Alert.show({
                 title: 'Đặt hàng thành công!',
-                message: `Đơn hàng của bạn đã được tạo thành công.\nMã đơn hàng: ${response.data.orders[0]?.orderNumber}`,
+                message: `Đơn hàng của bạn đã được tạo thành công.\nMã đơn hàng: ${response.data?.orders?.[0]?.orderNumber || 'N/A'}`,
                 type: 'success',
                 confirmText: 'Xem đơn hàng',
                 onConfirm: () => {

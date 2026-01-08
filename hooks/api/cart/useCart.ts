@@ -168,7 +168,8 @@ export const useAddToCart = () => {
                 Toast.show({
                     type: 'success',
                     text1: 'Đã thêm vào giỏ hàng',
-                    position: 'top'
+                    position: 'top',
+                    visibilityTime: 1500,
                 });
             } else {
                 queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });

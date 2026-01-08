@@ -34,7 +34,6 @@ export const transformUserMe = (apiData: UserMeData): UserProfile => {
         isVerified: apiData.status === 'ACTIVE',
         // Stats will be filled by other queries
         totalOrders: 0,
-        favoriteCount: 0,
         recentViewCount: 0,
         followingShops: 0,
     };

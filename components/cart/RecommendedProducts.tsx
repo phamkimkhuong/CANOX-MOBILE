@@ -1,37 +1,43 @@
 import { ProductCard } from '@/components/ui/ProductCard';
+import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import { productRoutes } from '@/constants/routes';
-import { useRelatedProducts } from '@/hooks/api/product/useProductDetail';
-import { router } from 'expo-router';
-import React, { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Text, View } from 'react-native';
+import { useProductFeed } from '@/hooks/api/useHomeProducts';
+import { useRouter } from 'expo-router';
+import React from 'react';
+import { ActivityIndicator, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-interface RelatedProductsProps {
-    productId: string;
-}
-
-export const RelatedProducts = ({ productId }: RelatedProductsProps) => {
-    const { t } = useTranslation('product');
-    const { data, isLoading } = useRelatedProducts(productId);
+export const RecommendedProducts = () => {
     const { theme } = useUnistyles();
+    const router = useRouter();
+    const { data, isLoading } = useProductFeed('new');
 
-    const products = useMemo(() => data?.content ?? [], [data]);
+    const products = data?.pages.flatMap((page) => page.items) ?? [];
 
     if (isLoading && products.length === 0) {
-        return null; // Or show skeleton
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="small" color={theme.colors.primary} />
+            </View>
+        );
     }
-    if (!isLoading && products.length === 0) {
+
+    if (products.length === 0) {
         return null;
     }
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <Text style={styles.title}>{t('related.title')}</Text>
+                <View style={styles.titleWrapper}>
+                    <View style={styles.titleLine} />
+                    <Text style={styles.title}>{PRODUCT_STRINGS.related.title.toUpperCase()}</Text>
+                    <View style={styles.titleLine} />
+                </View>
             </View>
 
             <View style={styles.grid}>
-                {products.map((item) => (
+                {products.slice(0, 10).map((item) => (
                     <View key={item.id} style={styles.cardWrapper}>
                         <ProductCard
                             title={item.title}
@@ -41,6 +47,7 @@ export const RelatedProducts = ({ productId }: RelatedProductsProps) => {
                             rating={item.rating}
                             reviews={item.reviews}
                             sold={item.sold}
+                            location={item.shopName}
                             discount={item.discountPercentage}
                             isMall={item.isMall}
                             onPress={() => {
@@ -57,18 +64,29 @@ export const RelatedProducts = ({ productId }: RelatedProductsProps) => {
 
 const styles = StyleSheet.create((theme) => ({
     container: {
+        marginTop: theme.margins.xl,
         paddingBottom: theme.margins.xl,
-        backgroundColor: theme.colors.background,
     },
     header: {
         paddingHorizontal: theme.margins.lg,
         paddingVertical: theme.margins.md,
+        alignItems: 'center',
+    },
+    titleWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: theme.margins.md,
+    },
+    titleLine: {
+        height: 1,
+        flex: 1,
+        backgroundColor: theme.colors.border,
     },
     title: {
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: '700',
-        color: theme.colors.typography,
-        textTransform: 'uppercase',
+        color: theme.colors.primary,
+        letterSpacing: 0.5,
     },
     grid: {
         flexDirection: 'row',
@@ -77,6 +95,10 @@ const styles = StyleSheet.create((theme) => ({
     },
     cardWrapper: {
         width: '50%',
-        paddingBottom: theme.margins.sm,
+        padding: theme.margins.sm,
+    },
+    loadingContainer: {
+        padding: theme.margins.xl,
+        alignItems: 'center',
     },
 }));

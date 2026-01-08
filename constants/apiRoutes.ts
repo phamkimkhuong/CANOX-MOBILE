@@ -96,4 +96,9 @@ export const API_ROUTES = {
     BUYERS_INFORMATION: {
         UPDATE: (buyerId: string) => `${API_PREFIX}/buyers/${buyerId}`,
     },
+    WISHLISTS: {
+        LIST: `${API_PREFIX}/wishlists`,
+        DETAIL: (wishlistId: string) => `${API_PREFIX}/wishlists/${wishlistId}`,
+        ITEMS: (wishlistId: string) => `${API_PREFIX}/wishlists/${wishlistId}/items`,
+    },
 } as const;  // <--- as const for TS to understand these are readonly values

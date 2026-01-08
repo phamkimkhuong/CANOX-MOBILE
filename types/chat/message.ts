@@ -54,10 +54,10 @@ export type MessageStatus = (typeof MessageStatus)[keyof typeof MessageStatus];
  */
 export interface MessageUserDTO {
     userId: string;
-    username: string;
-    email: string;
+    username?: string | null;
+    email?: string | null;
     image?: string | null;
-    roles: string[];
+    roles?: string[] | null;
     fullNameBuyer?: string | null;
     fullNameEmployee?: string | null;
     shopId?: string | null;
@@ -70,8 +70,8 @@ export interface MessageUserDTO {
  */
 export interface AttachmentDTO {
     id: string;
-    type: 'IMAGE' | 'VIDEO' | 'FILE' | 'AUDIO';
-    url: string;
+    type?: string | null;
+    url?: string | null;
     thumbnailUrl?: string | null;
     fileName?: string | null;
     fileSize?: number | null;
@@ -240,10 +240,10 @@ export interface MessageDateGroup {
 
 const MessageUserDTOSchema = z.object({
     userId: z.string(),
-    username: z.string(),
-    email: z.string(),
+    username: z.string().optional().nullable(),
+    email: z.string().optional().nullable(),
     image: z.string().nullable().optional(),
-    roles: z.array(z.string()),
+    roles: z.array(z.string()).optional().nullable().default([]),
     fullNameBuyer: z.string().nullable().optional(),
     fullNameEmployee: z.string().nullable().optional(),
     shopId: z.string().nullable().optional(),
@@ -253,8 +253,8 @@ const MessageUserDTOSchema = z.object({
 
 const AttachmentDTOSchema = z.object({
     id: z.string(),
-    type: z.enum(['IMAGE', 'VIDEO', 'FILE', 'AUDIO']),
-    url: z.string(),
+    type: z.string().optional().nullable().default('IMAGE'),
+    url: z.string().optional().nullable().default(''),
     thumbnailUrl: z.string().nullable().optional(),
     fileName: z.string().nullable().optional(),
     fileSize: z.number().nullable().optional(),
@@ -272,45 +272,39 @@ const ReactionDTOSchema = z.object({
 
 const ReplyToMessageDTOSchema = z.object({
     id: z.string(),
-    type: z.enum([
-        'TEXT', 'IMAGE', 'VIDEO', 'FILE', 'AUDIO', 'STICKER',
-        'PRODUCT_CARD', 'ORDER_CARD', 'VOUCHER_CARD', 'LOCATION', 'SYSTEM',
-    ]),
-    content: z.string(),
-    user: MessageUserDTOSchema,
+    type: z.string().optional().nullable().default('TEXT'),
+    content: z.string().optional().nullable().default(''),
+    user: MessageUserDTOSchema.optional().nullable(),
 });
 
 const MessageDTOSchema = z.object({
     id: z.string(),
     conversationId: z.string(),
-    user: MessageUserDTOSchema,
-    type: z.enum([
-        'TEXT', 'IMAGE', 'VIDEO', 'FILE', 'AUDIO', 'STICKER',
-        'PRODUCT_CARD', 'ORDER_CARD', 'VOUCHER_CARD', 'LOCATION', 'SYSTEM',
-    ]),
-    content: z.string(),
-    status: z.enum(['PENDING', 'SENT', 'DELIVERED', 'READ', 'FAILED']),
+    user: MessageUserDTOSchema.optional().nullable(),
+    type: z.string().optional().nullable().default('TEXT'),
+    content: z.string().optional().nullable().default(''),
+    status: z.string().optional().nullable().default('SENT'),
     replyToMessageId: z.string().nullable().optional(),
     replyToMessage: ReplyToMessageDTOSchema.nullable().optional(),
-    attachments: z.array(AttachmentDTOSchema),
-    reactions: z.array(ReactionDTOSchema),
+    attachments: z.array(AttachmentDTOSchema).optional().nullable().default([]),
+    reactions: z.array(ReactionDTOSchema).optional().nullable().default([]),
     reactionsSummary: z.record(z.string(), z.number()).nullable().optional(),
     metadata: z.string().nullable().optional(),
     isDeleted: z.boolean().nullable().optional(),
     deletedType: z.string().nullable().optional(),
     deletedBy: z.string().nullable().optional(),
     deletedAt: z.string().nullable().optional(),
-    isEdited: z.boolean(),
-    sentAt: z.string(),
+    isEdited: z.boolean().optional().nullable().default(false),
+    sentAt: z.string().optional().nullable().default(new Date().toISOString()),
     deliveredAt: z.string().nullable().optional(),
     readAt: z.string().nullable().optional(),
     editedAt: z.string().nullable().optional(),
-    createdBy: z.string(),
-    createdDate: z.string(),
-    lastModifiedBy: z.string(),
-    lastModifiedDate: z.string(),
-    deleted: z.boolean(),
-    version: z.number(),
+    createdBy: z.string().optional().nullable(),
+    createdDate: z.string().optional().nullable(),
+    lastModifiedBy: z.string().optional().nullable(),
+    lastModifiedDate: z.string().optional().nullable(),
+    deleted: z.boolean().optional().nullable().default(false),
+    version: z.number().optional().nullable().default(1),
 });
 
 const MessagePageDTOSchema = z.object({

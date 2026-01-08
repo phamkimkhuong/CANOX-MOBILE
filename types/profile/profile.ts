@@ -112,7 +112,6 @@ export const UserProfileSchema = z.object({
     isVerified: z.boolean().default(false),
     // Stats for quick cards
     totalOrders: z.number().default(0),
-    favoriteCount: z.number().default(0),
     recentViewCount: z.number().default(0),
     // Following
     followingShops: z.number().default(0),

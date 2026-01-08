@@ -1,9 +1,10 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
+import { useWishlists } from '@/hooks/api/profile/useWishlists';
 import { MEMBER_LEVEL_CONFIG, QUICK_STATS_CONFIG, UserProfile } from '@/types/profile/profile';
 import { Navigator } from '@/utils/navigation';
 import { Image } from 'expo-image';
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -22,9 +23,29 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
     const { theme } = useUnistyles();
     const styles = stylesheet;
 
+    // Fetch wishlist data for favorites count
+    const { data: wishlistData, isLoading: isLoadingWishlists } = useWishlists();
+
     const levelConfig = profile?.memberLevel
         ? MEMBER_LEVEL_CONFIG[profile.memberLevel]
         : MEMBER_LEVEL_CONFIG.BRONZE;
+
+    // Memoized stats values with wishlist data
+    const statsWithWishlist = useMemo(() => {
+        if (!profile) return {};
+
+        // Total items across all wishlists (default 0 if API fails/loading)
+        const wishlistItemCount = wishlistData?.items?.reduce(
+            (sum, wishlist) => sum + wishlist.itemCount,
+            0
+        ) ?? 0;
+
+        return {
+            totalOrders: profile.totalOrders,
+            favoriteCount: wishlistItemCount,
+            recentViewCount: profile.recentViewCount,
+        };
+    }, [profile, wishlistData]);
 
     const handleEditProfile = useCallback(() => {
         Navigator.push(ROUTES.USER.EDIT_PROFILE);
@@ -144,7 +165,7 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
 
                         {/* Value & Label */}
                         <Text style={styles.statValue}>
-                            {profile[stat.valueKey] ?? 0}
+                            {statsWithWishlist[stat.valueKey] ?? 0}
                         </Text>
                         <Text style={styles.statLabel}>{stat.label}</Text>
                     </TouchableOpacity>

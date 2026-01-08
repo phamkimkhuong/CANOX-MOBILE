@@ -21,7 +21,10 @@ export const PRODUCT_STRINGS: ProductTranslation = {
         label: 'Variation',
         placeholder: 'Select variation',
         confirm: 'Confirm',
+        addToCart: 'Add to Cart',
+        buyNow: 'Buy Now',
         stock: 'Stock',
+        quantity: 'Quantity',
     },
 
     // === Sticky Bottom Bar ===

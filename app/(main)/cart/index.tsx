@@ -23,6 +23,7 @@ import {
     CartShopGroup,
     CartSkeleton,
     CHECKOUT_BAR_HEIGHT,
+    RecommendedProducts,
     VOUCHER_BAR_HEIGHT,
 } from '@/components/cart';
 import { IconSymbol } from '@/components/ui/Icon';
@@ -41,7 +42,7 @@ import { logger } from '@/utils/logger';
 import { FlashList } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, RefreshControl, Text, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -89,24 +90,49 @@ const CartHeader: React.FC<CartHeaderProps> = ({ onEditPress, isEditMode }) => {
     );
 };
 
-const EmptyCart: React.FC = () => {
+interface EmptyCartProps {
+    onRefresh: () => void;
+    refreshing: boolean;
+}
+
+const EmptyCart: React.FC<EmptyCartProps> = ({ onRefresh, refreshing }) => {
     const { theme } = useUnistyles();
     const router = useRouter();
 
     return (
-        <View style={styles.emptyContainer}>
-            <IconSymbol name="cart" size={64} color={theme.colors.secondary} />
-            <Text style={styles.emptyTitle}>Giỏ hàng trống</Text>
-            <Text style={styles.emptySubtitle}>Hãy thêm sản phẩm vào giỏ hàng nhé!</Text>
-            <Pressable
-                onPress={() => router.push('/')}
-                style={styles.shopNowButton}
-                accessibilityLabel="Mua sắm ngay"
-                accessibilityRole="button"
-            >
-                <Text style={styles.shopNowText}>Mua sắm ngay</Text>
-            </Pressable>
-        </View>
+        <Animated.ScrollView
+            entering={FadeIn.duration(400)}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.emptyScrollContent}
+            refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
+                    tintColor={theme.colors.primary}
+                    colors={[theme.colors.primary]}
+                />
+            }
+        >
+            <View style={styles.emptyContainer}>
+                <View style={styles.emptyIconCircle}>
+                    <IconSymbol name="cart" size={48} color={theme.colors.primary} />
+                </View>
+                <Text style={styles.emptyTitle}>Giỏ hàng trống</Text>
+                <Text style={styles.emptySubtitle}>Hãy thêm sản phẩm vào giỏ hàng nhé!</Text>
+
+                <Pressable
+                    onPress={() => router.push('/')}
+                    style={styles.shopNowButton}
+                    accessibilityLabel="Mua sắm ngay"
+                    accessibilityRole="button"
+                >
+                    <Text style={styles.shopNowText}>MUA SẮM NGAY</Text>
+                </Pressable>
+            </View>
+
+            {/* Recommended Products Section */}
+            <RecommendedProducts />
+        </Animated.ScrollView>
     );
 };
 
@@ -346,7 +372,12 @@ export default function CartScreen() {
 
         //  Empty cart
         if (!isLoading && isReady && (!cartData || shops.length === 0)) {
-            return <EmptyCart />;
+            return (
+                <EmptyCart
+                    onRefresh={refetch}
+                    refreshing={isFetching && !isLoading}
+                />
+            );
         }
         return (
             <View style={{ flex: 1 }}>
@@ -376,6 +407,14 @@ export default function CartScreen() {
                             }}
                             showsVerticalScrollIndicator={false}
                             style={{ flex: 1, opacity: isFetching ? 0.7 : 1 }}
+                            refreshControl={
+                                <RefreshControl
+                                    refreshing={isFetching && !isLoading}
+                                    onRefresh={refetch}
+                                    tintColor={theme.colors.primary}
+                                    colors={[theme.colors.primary]}
+                                />
+                            }
                         />
 
                         <CartFooter
@@ -444,34 +483,54 @@ const styles = StyleSheet.create((theme) => ({
         fontSize: 14,
         fontWeight: '600',
     },
+    emptyScrollContent: {
+        flexGrow: 1,
+        backgroundColor: theme.colors.background,
+    },
     emptyContainer: {
-        flex: 1,
+        paddingTop: theme.margins.xl * 2,
+        paddingBottom: theme.margins.lg,
         justifyContent: 'center',
         alignItems: 'center',
         paddingHorizontal: theme.margins.xl,
-        gap: theme.margins.md,
+        gap: theme.margins.sm,
+    },
+    emptyIconCircle: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        backgroundColor: theme.colors.primaryMuted,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: theme.margins.md,
     },
     emptyTitle: {
         fontSize: 18,
-        fontWeight: '600',
+        fontWeight: '700',
         color: theme.colors.typography,
     },
     emptySubtitle: {
         fontSize: 14,
         color: theme.colors.typographySecondary,
         textAlign: 'center',
+        marginBottom: theme.margins.md,
     },
     shopNowButton: {
         backgroundColor: theme.colors.primary,
-        paddingHorizontal: theme.margins.lg,
-        paddingVertical: theme.margins.smd,
+        paddingHorizontal: theme.margins.xl,
+        paddingVertical: theme.margins.md,
         borderRadius: theme.radius.m,
-        marginTop: theme.margins.md,
+        shadowColor: theme.colors.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 4,
     },
     shopNowText: {
         fontSize: 14,
-        fontWeight: '700',
+        fontWeight: '800',
         color: theme.colors.onPrimary,
+        letterSpacing: 1,
     },
     syncBar: {
         flexDirection: 'row',
