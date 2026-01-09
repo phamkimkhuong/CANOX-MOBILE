@@ -21,6 +21,7 @@ import { TrackingInfoSnippet } from './TrackingInfoSnippet';
 interface OrderCardProps {
     order: OrderUI;
     onPress?: (orderId: string) => void;
+    onPressIn?: (orderId: string) => void;
     onShopPress?: (shopId: string) => void;
     onAction?: (action: OrderAction['action'], order: OrderUI) => void;
     onTrackingPress?: (orderId: string) => void;
@@ -29,6 +30,7 @@ interface OrderCardProps {
 export const OrderCard: React.FC<OrderCardProps> = ({
     order,
     onPress,
+    onPressIn,
     onShopPress,
     onAction,
     onTrackingPress,
@@ -38,6 +40,10 @@ export const OrderCard: React.FC<OrderCardProps> = ({
 
     const handlePress = () => {
         onPress?.(order.orderId);
+    };
+
+    const handlePressIn = () => {
+        onPressIn?.(order.orderId);
     };
 
     const handleShopPress = () => {
@@ -67,6 +73,10 @@ export const OrderCard: React.FC<OrderCardProps> = ({
                 pressed && styles.pressed,
             ]}
             onPress={handlePress}
+            onPressIn={handlePressIn}
+            delayLongPress={200}
+            pressRetentionOffset={{ top: 20, left: 20, right: 20, bottom: 20 }}
+            unstable_pressDelay={0}
         >
             {/* 1. Shop Header + Status */}
             <OrderShopHeader

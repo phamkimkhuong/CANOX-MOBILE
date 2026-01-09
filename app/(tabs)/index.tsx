@@ -10,7 +10,6 @@ import { FeedType, useProductFeed } from '@/hooks/api/useHomeProducts';
 import type { ProductFeedItem } from '@/types/product/product';
 import { Navigator } from '@/utils/navigation';
 import { FlashList, FlashListRef, ListRenderItemInfo } from '@shopify/flash-list';
-import { useRouter } from 'expo-router';
 import React, { memo, useCallback, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, LayoutChangeEvent, NativeScrollEvent, NativeSyntheticEvent, Text, useWindowDimensions, View } from 'react-native';
 import Animated, {
@@ -117,7 +116,6 @@ ProductRowItem.displayName = 'ProductRowItem';
 export default function HomeScreen() {
   const { theme } = useUnistyles();
   const styles = stylesheet;
-  const router = useRouter();
 
   const { height: screenHeight } = useWindowDimensions();
 

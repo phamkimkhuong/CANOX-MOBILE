@@ -1,7 +1,7 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
 import { ORDER_STATUS_CONFIG, OrderStats } from '@/types/profile/profile';
-import { useRouter } from 'expo-router';
+import { Navigator } from '@/utils/navigation';
 import React, { memo, useCallback } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -32,18 +32,17 @@ export const OrderStatusRail: React.FC<OrderStatusRailProps> = memo(({
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const router = useRouter();
 
     const handlePress = useCallback((statusKey: string) => {
-        router.push({
+        Navigator.push({
             pathname: ROUTES.ORDERS.LIST,
             params: { tab: statusKey },
         });
-    }, [router]);
+    }, []);
 
     const handleViewHistory = useCallback(() => {
-        router.push(ROUTES.ORDERS.LIST);
-    }, [router]);
+        Navigator.push(ROUTES.ORDERS.LIST);
+    }, []);
 
     // Error state
     if (isError) {

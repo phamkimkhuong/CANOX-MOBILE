@@ -24,7 +24,8 @@ import type { CancelReasonCode } from '@/types/order/cancel';
 import { CANCEL_REASONS, MIN_OTHER_REASON_LENGTH } from '@/types/order/cancelReasons';
 import { Alert as CustomAlertHelper } from '@/utils/AlertHelper';
 import { logger } from '@/utils/logger';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Navigator } from '@/utils/navigation';
+import { useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
 import {
     ActivityIndicator,
@@ -41,7 +42,6 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 export default function CancelOrderScreen() {
     const { id: orderId } = useLocalSearchParams<{ id: string }>();
-    const router = useRouter();
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const { bottom } = useSafeAreaInsets();
@@ -59,7 +59,7 @@ export default function CancelOrderScreen() {
     // === MUTATION ===
     const { mutate: cancelOrder, isPending: isCancelling } = useCancelOrder({
         onSuccess: () => {
-            router.back();
+            Navigator.back();
         },
     });
 
@@ -116,8 +116,8 @@ export default function CancelOrderScreen() {
 
     // === HANDLERS ===
     const handleBack = useCallback(() => {
-        router.back();
-    }, [router]);
+        Navigator.back();
+    }, []);
 
     const handleReasonChange = useCallback((code: CancelReasonCode) => {
         setSelectedReason(code);

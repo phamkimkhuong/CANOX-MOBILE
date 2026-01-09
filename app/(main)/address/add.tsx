@@ -15,7 +15,8 @@ import {
     useUserAddresses,
 } from '@/hooks/api/useUserAddresses';
 import type { AddressFormData } from '@/types/address';
-import { router, useLocalSearchParams } from 'expo-router';
+import { Navigator } from '@/utils/navigation';
+import { useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo } from 'react';
 import { Alert, View } from 'react-native';
 import Toast from 'react-native-toast-message';
@@ -51,7 +52,7 @@ export default function AddAddressScreen() {
                         text1: 'Thành công',
                         text2: 'Đã cập nhật địa chỉ',
                     });
-                    router.back();
+                    Navigator.back();
                 } else {
                     await addAddress.mutateAsync(data);
                     Toast.show({
@@ -59,7 +60,7 @@ export default function AddAddressScreen() {
                         text1: 'Thành công',
                         text2: 'Đã thêm địa chỉ mới',
                     });
-                    router.back();
+                    Navigator.back();
                 }
             } catch {
                 Toast.show({
@@ -103,7 +104,7 @@ export default function AddAddressScreen() {
                     onPress: async () => {
                         try {
                             await deleteAddress.mutateAsync(id);
-                            router.back();
+                            Navigator.back();
                         } catch {
                             Alert.alert('Lỗi', 'Không thể xóa địa chỉ. Vui lòng thử lại.');
                         }

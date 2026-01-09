@@ -1,6 +1,6 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
-import { useRouter } from 'expo-router';
+import { Navigator } from '@/utils/navigation';
 import React, { memo, useCallback } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import Animated, {
@@ -20,23 +20,22 @@ interface GuestStateProps {
 export const GuestState: React.FC<GuestStateProps> = memo(({ onLogin, onRegister }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const router = useRouter();
 
     const handleLogin = useCallback(() => {
         if (onLogin) {
             onLogin();
         } else {
-            router.push(ROUTES.AUTH.LOGIN);
+            Navigator.push(ROUTES.AUTH.LOGIN);
         }
-    }, [onLogin, router]);
+    }, [onLogin]);
 
     const handleRegister = useCallback(() => {
         if (onRegister) {
             onRegister();
         } else {
-            router.push(ROUTES.AUTH.REGISTER);
+            Navigator.push(ROUTES.AUTH.REGISTER);
         }
-    }, [onRegister, router]);
+    }, [onRegister]);
 
     return (
         <View style={styles.container}>

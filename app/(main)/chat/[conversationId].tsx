@@ -37,9 +37,10 @@ import {
     groupMessagesByDate,
 } from '@/utils/adapter/chat/messageAdapter';
 import { logger } from '@/utils/logger';
+import { Navigator } from '@/utils/navigation';
 import { FlashList, FlashListRef, ListRenderItem } from '@shopify/flash-list';
 import { useQueryClient } from '@tanstack/react-query';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Keyboard, Text, View } from 'react-native';
 import { KeyboardAvoidingView, KeyboardProvider } from 'react-native-keyboard-controller';
@@ -146,7 +147,6 @@ export default function ChatDetailScreen() {
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const flashListRef = useRef<FlashListRef<MessageListItem>>(null);
-    const router = useRouter();
 
     // State management for conversationId
     const [currentConvId, setCurrentConvId] = useState<string>(params.conversationId);
@@ -445,13 +445,12 @@ export default function ChatDetailScreen() {
     }, []);
     const handleContextAction = useCallback(() => {
         if (contextType === 'PRODUCT' && productContext) {
-            logger.chat.info('Navigate to product', { productId: productContext.productId });
-            router.push(productRoutes.detail(productContext.productId));
+            Navigator.push(productRoutes.detail(productContext.productId));
         } else if (contextType === 'ORDER' && orderContext) {
             logger.chat.info('Navigate to order', { orderId: orderContext.orderId });
-            router.push(orderRoutes.detail(orderContext.orderId));
+            Navigator.push(orderRoutes.detail(orderContext.orderId));
         }
-    }, [contextType, productContext, orderContext, router]);
+    }, [contextType, productContext, orderContext]);
 
     // ============================================
     // RENDER FUNCTIONS

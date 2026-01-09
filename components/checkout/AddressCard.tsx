@@ -14,7 +14,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES, href } from '@/constants/routes';
 import type { ShippingAddress } from '@/types/address';
 import { formatShippingAddress } from '@/utils/adapter/addressAdapter';
-import { useRouter } from 'expo-router';
+import { Navigator } from '@/utils/navigation';
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -33,7 +33,7 @@ interface AddressCardProps {
 export const AddressCard: React.FC<AddressCardProps> = ({ address, onPress }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const router = useRouter();
+
 
     /**
      * Handle card press - navigate to address selection or call custom handler
@@ -42,7 +42,7 @@ export const AddressCard: React.FC<AddressCardProps> = ({ address, onPress }) =>
         if (onPress) {
             onPress();
         } else {
-            router.push(href(ROUTES.ADDRESS.LIST));
+            Navigator.push(href(ROUTES.ADDRESS.LIST));
         }
     };
 

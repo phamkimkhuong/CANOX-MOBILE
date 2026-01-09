@@ -22,7 +22,8 @@ import {
 } from '@/components/orders';
 import { useCartStore } from '@/store/useCartStore';
 import { OrderTabStatus } from '@/types/order/order';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Navigator } from '@/utils/navigation';
+import { useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -51,7 +52,6 @@ const mapProfileTabToOrderTab = (profileTab: string | undefined): OrderTabStatus
 export default function OrderHistoryScreen() {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const router = useRouter();
 
     // Get tab param from URL for deep linking
     const { tab } = useLocalSearchParams<{ tab?: string }>();
@@ -71,8 +71,8 @@ export default function OrderHistoryScreen() {
     }, []);
 
     const handleCartPress = useCallback(() => {
-        router.push('/(main)/cart');
-    }, [router]);
+        Navigator.push('/(main)/cart');
+    }, []);
 
     return (
         <View style={styles.container}>

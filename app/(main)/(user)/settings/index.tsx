@@ -1,5 +1,4 @@
-import type { Href } from 'expo-router';
-import { useRouter } from 'expo-router';
+import { Navigator } from '@/utils/navigation';
 import React, { useCallback, useMemo } from 'react';
 import { ActivityIndicator, Alert, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -26,7 +25,6 @@ import type { SettingsItem as SettingsItemType } from '@/types/settings';
 export default function SettingsScreen() {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const router = useRouter();
     const insets = useSafeAreaInsets();
 
     // App Store - Global settings
@@ -54,9 +52,9 @@ export default function SettingsScreen() {
     const { logout, isLoggingOut } = useLogout();
 
     // Handle navigation for link items
-    const handleNavigation = useCallback((route: Href | string) => {
-        router.push(route as Href);
-    }, [router]);
+    const handleNavigation = useCallback((route: any) => {
+        Navigator.push(route);
+    }, []);
 
     // Handle biometrics toggle
     const handleBiometricsToggle = useCallback(async () => {
@@ -100,12 +98,12 @@ export default function SettingsScreen() {
                     text: 'Tiếp tục',
                     style: 'destructive',
                     onPress: () => {
-                        router.push(ROUTES.SETTINGS.DELETE_ACCOUNT as never);
+                        Navigator.push(ROUTES.SETTINGS.DELETE_ACCOUNT as never);
                     },
                 },
             ]
         );
-    }, [router]);
+    }, []);
 
     // Get dynamic values for settings items
     const getDynamicValue = useCallback((item: SettingsItemType): string | boolean | undefined => {

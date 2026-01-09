@@ -9,8 +9,8 @@
  */
 
 import { IconSymbol } from '@/components/ui/Icon';
+import { Navigator } from '@/utils/navigation';
 import * as Clipboard from 'expo-clipboard';
-import { useRouter } from 'expo-router';
 import React, { useCallback } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -28,11 +28,10 @@ export const OrderDetailHeader: React.FC<OrderDetailHeaderProps> = ({
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const router = useRouter();
     const insets = useSafeAreaInsets();
     const handleBack = useCallback(() => {
-        router.back();
-    }, [router]);
+        Navigator.back();
+    }, []);
 
     const handleCopyOrderNumber = useCallback(async () => {
         await Clipboard.setStringAsync(orderNumber);

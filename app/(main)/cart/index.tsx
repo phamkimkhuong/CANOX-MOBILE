@@ -39,8 +39,8 @@ import { useCheckoutStore } from '@/store/useCheckoutStore';
 import type { CartShopUI } from '@/types/cart';
 import { getShopCheckboxState } from '@/utils/adapter/cartAdapter';
 import { logger } from '@/utils/logger';
+import { Navigator } from '@/utils/navigation';
 import { FlashList } from '@shopify/flash-list';
-import { useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, RefreshControl, Text, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
@@ -59,14 +59,13 @@ interface CartHeaderProps {
 const CartHeader: React.FC<CartHeaderProps> = ({ onEditPress, isEditMode }) => {
     const { theme } = useUnistyles();
     const insets = useSafeAreaInsets();
-    const router = useRouter();
     const totalQuantity = useCartStore((state) => state.totalQuantity);
 
     return (
         <View style={[styles.header, { paddingTop: insets.top }]}>
             <View style={styles.headerContent}>
                 <Pressable
-                    onPress={() => router.back()}
+                    onPress={() => Navigator.back()}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                     accessibilityLabel="Quay lại"
                     accessibilityRole="button"
@@ -97,7 +96,6 @@ interface EmptyCartProps {
 
 const EmptyCart: React.FC<EmptyCartProps> = ({ onRefresh, refreshing }) => {
     const { theme } = useUnistyles();
-    const router = useRouter();
 
     return (
         <Animated.ScrollView
@@ -121,7 +119,7 @@ const EmptyCart: React.FC<EmptyCartProps> = ({ onRefresh, refreshing }) => {
                 <Text style={styles.emptySubtitle}>Hãy thêm sản phẩm vào giỏ hàng nhé!</Text>
 
                 <Pressable
-                    onPress={() => router.push('/')}
+                    onPress={() => Navigator.push('/')}
                     style={styles.shopNowButton}
                     accessibilityLabel="Mua sắm ngay"
                     accessibilityRole="button"
@@ -143,7 +141,6 @@ const EmptyCart: React.FC<EmptyCartProps> = ({ onRefresh, refreshing }) => {
 export default function CartScreen() {
     const { theme } = useUnistyles();
     const insets = useSafeAreaInsets();
-    const router = useRouter();
 
     // ========================================
     // API HOOKS
@@ -294,8 +291,8 @@ export default function CartScreen() {
 
         useCheckoutStore.getState().initSession([...selectedItemIds], selectedShops);
 
-        router.push(ROUTES.CHECKOUT.INDEX);
-    }, [calculation.selectedCount, cartData, selectedItemIds, router]);
+        Navigator.push(ROUTES.CHECKOUT.INDEX);
+    }, [calculation.selectedCount, cartData, selectedItemIds]);
 
     // ========================================
     // RENDER HELPERS

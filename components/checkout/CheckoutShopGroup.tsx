@@ -16,7 +16,7 @@
 
 import { IconSymbol } from '@/components/ui/Icon';
 import { formatCurrency } from '@/utils/format';
-import { useRouter } from 'expo-router';
+import { Navigator } from '@/utils/navigation';
 import React, { useCallback, useMemo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -43,7 +43,7 @@ interface CheckoutShopGroupProps {
 export const CheckoutShopGroup: React.FC<CheckoutShopGroupProps> = ({ shop }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const router = useRouter();
+
 
     // Store actions
     const selectShippingMethod = useCheckoutStore((s) => s.selectShippingMethod);
@@ -112,8 +112,8 @@ export const CheckoutShopGroup: React.FC<CheckoutShopGroupProps> = ({ shop }) =>
     );
 
     const handleShopPress = useCallback(() => {
-        router.push(`/shop/${shop.shopId}` as never);
-    }, [router, shop.shopId]);
+        Navigator.push(`/shop/${shop.shopId}`);
+    }, [shop.shopId]);
 
     return (
         <View style={styles.container}>

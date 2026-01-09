@@ -15,7 +15,8 @@ import {
 } from '@/hooks/api/useUserAddresses';
 import { useUserAddressStore } from '@/store/useUserAddressStore';
 import type { AddressListMode, ShippingAddress } from '@/types/address';
-import { router, useLocalSearchParams } from 'expo-router';
+import { Navigator } from '@/utils/navigation';
+import { useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -79,7 +80,7 @@ export default function AddressListScreen() {
             if (mode === 'selection') {
                 // Save selected address ID to global address store
                 setSelectedAddressId(address.id);
-                router.back();
+                Navigator.back();
             }
         },
         [mode, setSelectedAddressId]
@@ -87,10 +88,10 @@ export default function AddressListScreen() {
 
     // Handle edit - navigate to edit form
     const handleEdit = useCallback((address: ShippingAddress) => {
-        router.push({
+        Navigator.push({
             pathname: ROUTES.ADDRESS.ADD,
             params: { id: address.id },
-        } as never);
+        } as any);
     }, []);
 
     /**
@@ -99,7 +100,7 @@ export default function AddressListScreen() {
      */
     const handleAddNew = useCallback(() => {
         if (checkAddressLimitAndShowToast(currentCount, maxCount)) {
-            router.push(ROUTES.ADDRESS.ADD as never);
+            Navigator.push(ROUTES.ADDRESS.ADD);
         }
     }, [currentCount, maxCount]);
 

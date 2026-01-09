@@ -1,5 +1,6 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
+import { Navigator } from '@/utils/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import React from 'react';
@@ -37,7 +38,7 @@ export default function ForgotPasswordScreen() {
             Alert.alert(
                 'Đã gửi yêu cầu',
                 'Vui lòng kiểm tra email hoặc tin nhắn để đặt lại mật khẩu.',
-                [{ text: 'OK', onPress: () => router.replace(ROUTES.AUTH.LOGIN) }]
+                [{ text: 'OK', onPress: () => Navigator.replace(ROUTES.AUTH.LOGIN) }]
             );
         } catch {
             Alert.alert('Lỗi', 'Gửi yêu cầu thất bại. Vui lòng thử lại.');
@@ -55,7 +56,7 @@ export default function ForgotPasswordScreen() {
                     <View style={styles.header}>
                         <TouchableOpacity
                             style={styles.backBtn}
-                            onPress={() => router.canGoBack() ? router.back() : router.replace(ROUTES.AUTH.LOGIN)}
+                            onPress={() => router.canGoBack() ? Navigator.back() : Navigator.replace(ROUTES.AUTH.LOGIN)}
                         >
                             <IconSymbol name="arrow-back" size={24} color={theme.colors.typography} />
                         </TouchableOpacity>
@@ -108,7 +109,7 @@ export default function ForgotPasswordScreen() {
                     {/* Footer */}
                     <View style={styles.footer}>
                         <Text style={styles.footerText}>Đã nhớ mật khẩu? </Text>
-                        <TouchableOpacity onPress={() => router.replace(ROUTES.AUTH.LOGIN)}>
+                        <TouchableOpacity onPress={() => Navigator.replace(ROUTES.AUTH.LOGIN)}>
                             <Text style={styles.footerLink}>Đăng nhập</Text>
                         </TouchableOpacity>
                     </View>

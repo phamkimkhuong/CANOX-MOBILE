@@ -15,8 +15,8 @@ import { IconSymbol } from '@/components/ui/Icon';
 import { productRoutes } from '@/constants/routes';
 import { ShopProductItemUI } from '@/types/shop';
 import { formatCurrency, formatSoldCount } from '@/utils/format';
+import { Navigator } from '@/utils/navigation';
 import { Image } from 'expo-image';
-import { router } from 'expo-router';
 import React, { useCallback } from 'react';
 import { Pressable, Text, useWindowDimensions, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -52,7 +52,7 @@ export const ShopProductItem: React.FC<ShopProductItemProps> = ({
     const imageHeight = itemWidth * IMAGE_ASPECT_RATIO;
 
     const handlePress = useCallback(() => {
-        router.push(productRoutes.detail(product.id));
+        Navigator.push(productRoutes.detail(product.id));
     }, [product.id]);
 
     const handleAddToCart = useCallback(

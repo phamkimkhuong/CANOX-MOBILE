@@ -2,6 +2,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import { ROUTES } from '@/constants/routes';
 import { useCartStore } from '@/store/useCartStore';
+import { Navigator } from '@/utils/navigation';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React from 'react';
@@ -124,9 +125,9 @@ export const ProductNavBar: React.FC<ProductNavBarProps> = ({
 
     const handleGoBack = () => {
         if (router.canGoBack()) {
-            router.back();
+            Navigator.back();
         } else {
-            router.replace(ROUTES.TABS.HOME);
+            Navigator.replace(ROUTES.TABS.HOME);
         }
     };
 

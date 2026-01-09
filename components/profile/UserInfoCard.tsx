@@ -1,7 +1,7 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
 import { useWishlists } from '@/hooks/api/profile/useWishlists';
-import { MEMBER_LEVEL_CONFIG, QUICK_STATS_CONFIG, UserProfile } from '@/types/profile/profile';
+import { MEMBER_LEVEL_CONFIG, OrderStats, QUICK_STATS_CONFIG, UserProfile } from '@/types/profile/profile';
 import { Navigator } from '@/utils/navigation';
 import { Image } from 'expo-image';
 import React, { memo, useCallback, useMemo } from 'react';
@@ -10,6 +10,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface UserInfoCardProps {
     profile: UserProfile | undefined;
+    stats: OrderStats | undefined;
     isLoading?: boolean;
 }
 
@@ -18,6 +19,7 @@ interface UserInfoCardProps {
  */
 export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
     profile,
+    stats,
     isLoading = false,
 }) => {
     const { theme } = useUnistyles();
@@ -41,11 +43,11 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
         ) ?? 0;
 
         return {
-            totalOrders: profile.totalOrders,
+            totalOrders: stats?.total ?? 0,
             favoriteCount: wishlistItemCount,
             recentViewCount: profile.recentViewCount,
         };
-    }, [profile, wishlistData]);
+    }, [profile, stats, wishlistData]);
 
     const handleEditProfile = useCallback(() => {
         Navigator.push(ROUTES.USER.EDIT_PROFILE);

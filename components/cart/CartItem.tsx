@@ -14,7 +14,6 @@ import { useCartStore } from '@/store/useCartStore';
 import type { CartItemUI } from '@/types/cart';
 import { formatCurrency } from '@/utils/format';
 import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
 import React, { memo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -50,7 +49,6 @@ export const CartItem: React.FC<CartItemProps> = memo(({
     onDelete,
 }) => {
     const { theme } = useUnistyles();
-    const router = useRouter();
     const isSelected = useCartStore(state => state.selectedItemIds.has(item.id));
 
     // const handleProductPress = useCallback(() => {

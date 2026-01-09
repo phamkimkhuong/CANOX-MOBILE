@@ -17,9 +17,9 @@ import {
 import { VOUCHER_STRINGS } from '@/constants/i18n/vi/voucher';
 import { useVoucherList } from '@/hooks/api/useVoucherList';
 import { createLogger } from '@/utils/logger';
+import { Navigator } from '@/utils/navigation';
 import { MaterialIcons } from '@expo/vector-icons';
 import { FlashList } from '@shopify/flash-list';
-import { router } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
 import {
     ActivityIndicator,
@@ -86,7 +86,7 @@ export default function VoucherScreen() {
 
     // Handlers
     const handleBack = useCallback(() => {
-        router.back();
+        Navigator.back();
     }, []);
 
     const handleMyVouchers = useCallback(() => {

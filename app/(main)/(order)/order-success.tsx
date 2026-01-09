@@ -14,9 +14,10 @@ import '@/constants/unistyles';
 import { IconSymbol } from '@/components/ui/Icon';
 import { orderRoutes, ROUTES } from '@/constants/routes';
 import { formatCurrency } from '@/utils/format';
+import { Navigator } from '@/utils/navigation';
 import * as Clipboard from 'expo-clipboard';
 import { Image } from 'expo-image';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown, FadeInUp } from 'react-native-reanimated';
@@ -76,7 +77,6 @@ const formatDateTime = (dateString?: string): string => {
 export default function OrderSuccessScreen() {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const router = useRouter();
     const insets = useSafeAreaInsets();
 
     // Get params from navigation
@@ -114,22 +114,22 @@ export default function OrderSuccessScreen() {
      * Navigate to order history/list (Quay lại Trang chủ in design but we go to orders list)
      */
     const handleGoToOrdersList = useCallback(() => {
-        router.replace(ROUTES.ORDERS.LIST as never);
-    }, [router]);
+        Navigator.replace(ROUTES.ORDERS.LIST as never);
+    }, []);
 
     /**
      * Navigate back to home
      */
     const handleContinueShopping = useCallback(() => {
-        router.replace(ROUTES.TABS.HOME as never);
-    }, [router]);
+        Navigator.replace(ROUTES.TABS.HOME as never);
+    }, []);
 
     /**
      * Navigate to specific order detail
      */
     const handleViewOrderDetail = useCallback((orderId: string) => {
-        router.push(orderRoutes.detail(orderId));
-    }, [router]);
+        Navigator.push(orderRoutes.detail(orderId));
+    }, []);
 
     /**
      * Render Single Order Card

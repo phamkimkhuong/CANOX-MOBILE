@@ -11,8 +11,8 @@ import { IconSymbol } from '@/components/ui/Icon';
 import { productRoutes } from '@/constants/routes';
 import { OrderItemUI } from '@/types/order/order';
 import { formatCurrency } from '@/utils/format';
+import { Navigator } from '@/utils/navigation';
 import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
 import React, { useCallback } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -30,15 +30,14 @@ const OrderItemRow: React.FC<OrderItemRowProps> = ({
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const router = useRouter();
 
     const hasVariants = item.variantAttributes && item.variantAttributes.length > 0;
     const canReview = showReviewStatus && !item.reviewed;
 
     const handleProductPress = useCallback(() => {
         if (!item.productId) return;
-        router.push(productRoutes.detail(item.productId));
-    }, [router, item.productId]);
+        Navigator.push(productRoutes.detail(item.productId));
+    }, [item.productId]);
 
     return (
         <View style={styles.itemContainer}>

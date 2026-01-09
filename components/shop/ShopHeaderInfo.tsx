@@ -6,8 +6,8 @@
 
 import { IconSymbol } from '@/components/ui/Icon';
 import { ShopHeaderUI } from '@/types/shop';
+import { Navigator } from '@/utils/navigation';
 import { Image } from 'expo-image';
-import { router } from 'expo-router';
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -38,7 +38,7 @@ export const ShopHeaderInfo: React.FC<ShopHeaderInfoProps> = ({
 
     const handleChat = () => {
         if (onChatPress) onChatPress();
-        else router.push(`/chat/${shop.id}`);
+        else Navigator.push(`/chat/${shop.id}`);
     };
 
     return (

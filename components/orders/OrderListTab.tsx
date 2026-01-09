@@ -10,12 +10,13 @@
 import { CHAT_STRINGS } from '@/constants/i18n/vi/chat';
 import { chatRoutes, orderRoutes } from '@/constants/routes';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
+import { usePrefetchOrderDetail } from '@/hooks/api/order/useOrderDetail';
 import { flattenOrders, useOrderList, useRefreshOrderList } from '@/hooks/api/order/useOrders';
 import { useAuthStore } from '@/store/useAuthStore';
 import { OrderAction, OrderTabStatus, OrderUI } from '@/types/order/order';
 import { logger } from '@/utils/logger';
+import { Navigator } from '@/utils/navigation';
 import { FlashList, ListRenderItem } from '@shopify/flash-list';
-import { useRouter } from 'expo-router';
 import React, { useCallback } from 'react';
 import { ActivityIndicator, RefreshControl, View } from 'react-native';
 import Toast from 'react-native-toast-message';
@@ -32,9 +33,9 @@ interface OrderListTabProps {
 export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const router = useRouter();
     const myShopId = useAuthStore((s) => s.shopId);
     const prefetchChat = usePrefetchShopChat();
+    const prefetchOrderDetail = usePrefetchOrderDetail();
 
     // Fetch orders với useInfiniteQuery
     const {
@@ -54,26 +55,30 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
 
     // Handlers
     const handleOrderPress = useCallback((orderId: string) => {
-        router.push(orderRoutes.detail(orderId));
-    }, [router]);
+        Navigator.push(orderRoutes.detail(orderId));
+    }, []);
+
+    // 0ms navigation: Prefetch order detail when user touches the card
+    const handleOrderPressIn = useCallback((orderId: string) => {
+        prefetchOrderDetail(orderId);
+    }, [prefetchOrderDetail]);
 
     const handleShopPress = useCallback((shopId: string) => {
-        // Navigate to shop page
-        router.push({
+        Navigator.push({
             pathname: '/(main)/(shop)/shop/[id]',
             params: { id: shopId },
         });
-    }, [router]);
+    }, []);
 
     const handleAction = useCallback((action: OrderAction['action'], order: OrderUI) => {
         const orderId = order.orderId;
 
         switch (action) {
             case 'cancel':
-                router.push(orderRoutes.cancel(orderId));
+                Navigator.push(orderRoutes.cancel(orderId));
                 break;
             case 'track':
-                router.push(orderRoutes.detail(orderId));
+                Navigator.push(orderRoutes.detail(orderId));
                 break;
             case 'received':
                 logger.orders.info('Confirm received:', orderId);
@@ -114,7 +119,7 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
 
                 // Instant Navigation Logic (Ghost ID)
                 const cachedId = getCachedConversationId(shopUserId);
-                router.push(chatRoutes.detail(cachedId || `ghost_${shopUserId}`, {
+                Navigator.push(chatRoutes.detail(cachedId || `ghost_${shopUserId}`, {
                     partnerName: shopName,
                     partnerAvatar: shopLogoUrl,
                     shopUserId: shopUserId,
@@ -131,15 +136,15 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
             default:
                 break;
         }
-    }, [router, prefetchChat]);
+    }, [myShopId, prefetchChat]);
 
     const handleTrackingPress = useCallback((orderId: string) => {
-        router.push(orderRoutes.detail(orderId));
-    }, [router]);
+        Navigator.push(orderRoutes.detail(orderId));
+    }, []);
 
     const handleShopNow = useCallback(() => {
-        router.push('/(tabs)');
-    }, [router]);
+        Navigator.push('/(tabs)');
+    }, []);
 
     // Load more khi scroll đến cuối
     const handleEndReached = useCallback(() => {
@@ -153,11 +158,12 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
         <OrderCard
             order={item}
             onPress={handleOrderPress}
+            onPressIn={handleOrderPressIn}
             onShopPress={handleShopPress}
             onAction={handleAction}
             onTrackingPress={handleTrackingPress}
         />
-    ), [handleOrderPress, handleShopPress, handleAction, handleTrackingPress]);
+    ), [handleOrderPress, handleOrderPressIn, handleShopPress, handleAction, handleTrackingPress]);
 
     // Key extractor
     const keyExtractor = useCallback((item: OrderUI) => item.orderId, []);

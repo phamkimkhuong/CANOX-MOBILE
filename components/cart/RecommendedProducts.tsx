@@ -2,14 +2,14 @@ import { ProductCard } from '@/components/ui/ProductCard';
 import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import { productRoutes } from '@/constants/routes';
 import { useProductFeed } from '@/hooks/api/useHomeProducts';
-import { useRouter } from 'expo-router';
+import { Navigator } from '@/utils/navigation';
 import React from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 export const RecommendedProducts = () => {
     const { theme } = useUnistyles();
-    const router = useRouter();
+
     const { data, isLoading } = useProductFeed('new');
 
     const products = data?.pages.flatMap((page) => page.items) ?? [];
@@ -51,7 +51,7 @@ export const RecommendedProducts = () => {
                             discount={item.discountPercentage}
                             isMall={item.isMall}
                             onPress={() => {
-                                router.push(productRoutes.detail(item.id));
+                                Navigator.push(productRoutes.detail(item.id));
                             }}
                             route={productRoutes.detail(item.id)}
                         />

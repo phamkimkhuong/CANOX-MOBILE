@@ -5,6 +5,7 @@
 
 import { IconSymbol } from '@/components/ui/Icon';
 import { ConversationPartner } from '@/types/chat';
+import { Navigator } from '@/utils/navigation';
 import { toPublicUrl } from '@/utils/url';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
@@ -37,9 +38,9 @@ export const ChatDetailHeader: React.FC<ChatDetailHeaderProps> = ({
 
     const handleBack = () => {
         if (router.canGoBack()) {
-            router.back();
+            Navigator.back();
         } else {
-            router.replace('/(tabs)/chat');
+            Navigator.replace('/(tabs)/chat');
         }
     };
 

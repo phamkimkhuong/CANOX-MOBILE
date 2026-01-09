@@ -5,7 +5,7 @@ import {
 } from '@/components/categories';
 import { ROUTES } from '@/constants/routes';
 import { useCategoryContent, useParentCategories } from '@/hooks/api/useCategories';
-import { router } from 'expo-router';
+import { Navigator } from '@/utils/navigation';
 import React, { useCallback, useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
@@ -55,7 +55,7 @@ export default function CategoryScreen() {
 
     // Handler: Cart press
     const handleCartPress = useCallback(() => {
-        router.push(ROUTES.CART.INDEX);
+        Navigator.push(ROUTES.CART.INDEX);
     }, []);
 
     return (

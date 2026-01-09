@@ -7,9 +7,9 @@
 
 import { ROUTES } from '@/constants/routes';
 import { Alert } from '@/utils/AlertHelper';
+import { Navigator } from '@/utils/navigation';
 import { useFocusEffect } from '@react-navigation/native';
 import { useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { ScrollView, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -57,7 +57,6 @@ import { logger } from '@/utils/logger';
 export default function CheckoutScreen() {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const router = useRouter();
 
     // ========================================
     // API Hooks
@@ -303,8 +302,8 @@ export default function CheckoutScreen() {
         if (deliveryAddress?.id) {
             params.append('selectedId', deliveryAddress.id);
         }
-        router.push(`${ROUTES.ADDRESS.LIST}?${params.toString()}` as never);
-    }, [router, deliveryAddress?.id]);
+        Navigator.push(`${ROUTES.ADDRESS.LIST}?${params.toString()}` as never);
+    }, [deliveryAddress?.id]);
 
     const handlePlatformVoucherApply = useCallback(
         (discountId: string | null, shippingId: string | null) => {
@@ -399,7 +398,7 @@ export default function CheckoutScreen() {
             }));
 
             // Navigate to Order Success screen
-            router.replace({
+            Navigator.replace({
                 pathname: ROUTES.ORDERS.SUCCESS,
                 params: {
                     orderCount: String(orderCount),
@@ -421,7 +420,6 @@ export default function CheckoutScreen() {
         selectedItemIds,
         placeOrder,
         resetSession,
-        router,
         setSubmitting
     ]);
 
@@ -435,10 +433,10 @@ export default function CheckoutScreen() {
             confirmText: 'Hủy',
             onConfirm: () => {
                 resetSession(); // Retaining resetSession as it was in the original logic
-                router.back();
+                Navigator.back();
             }
         });
-    }, [resetSession, router]);
+    }, [resetSession]);
 
     // ================================
     // PLATFORM VOUCHER RECOMMENDATIONS

@@ -1,6 +1,7 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
 import { logger } from '@/utils/logger';
+import { Navigator } from '@/utils/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import React from 'react';
@@ -50,7 +51,7 @@ export default function LoginScreen() {
                     <View style={styles.header}>
                         <TouchableOpacity
                             style={styles.backBtn}
-                            onPress={() => router.canGoBack() ? router.back() : router.replace(ROUTES.TABS.HOME)}
+                            onPress={() => router.canGoBack() ? Navigator.back() : Navigator.replace(ROUTES.TABS.HOME)}
                         >
                             <IconSymbol name="arrow-back" size={24} color={theme.colors.typography} />
                         </TouchableOpacity>
@@ -91,7 +92,7 @@ export default function LoginScreen() {
 
                         <TouchableOpacity
                             style={styles.forgotPassBtn}
-                            onPress={() => router.push(ROUTES.AUTH.FORGOT_PASSWORD)}
+                            onPress={() => Navigator.push(ROUTES.AUTH.FORGOT_PASSWORD)}
                         >
                             <Text style={styles.forgotPassText}>Quên mật khẩu?</Text>
                         </TouchableOpacity>
@@ -121,7 +122,7 @@ export default function LoginScreen() {
                     {/* Footer */}
                     <View style={styles.footer}>
                         <Text style={styles.footerText}>Bạn chưa có tài khoản? </Text>
-                        <TouchableOpacity onPress={() => router.push(ROUTES.AUTH.REGISTER)}>
+                        <TouchableOpacity onPress={() => Navigator.push(ROUTES.AUTH.REGISTER)}>
                             <Text style={styles.registerLink}>Đăng ký ngay</Text>
                         </TouchableOpacity>
                     </View>

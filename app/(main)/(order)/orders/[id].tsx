@@ -31,8 +31,9 @@ import { OrderItemUI } from '@/types/order/order';
 import { getOrderActions } from '@/utils/adapter/order';
 import { Alert as CustomAlertHelper } from '@/utils/AlertHelper';
 import { logger } from '@/utils/logger';
+import { Navigator } from '@/utils/navigation';
 import * as Clipboard from 'expo-clipboard';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
 import { RefreshControl, ScrollView, Text, View } from 'react-native';
 import Toast from 'react-native-toast-message';
@@ -42,7 +43,6 @@ type LoadingActionType = 'cancel' | 'confirm' | null;
 
 export default function OrderDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
-    const router = useRouter();
     const myShopId = useAuthStore((s) => s.shopId);
     const { theme } = useUnistyles();
     const styles = stylesheet;
@@ -73,8 +73,8 @@ export default function OrderDetailScreen() {
     // === HANDLERS ===
 
     const handleBack = useCallback(() => {
-        router.back();
-    }, [router]);
+        Navigator.back();
+    }, []);
 
     const handleSupport = useCallback(() => {
         // TODO: Navigate to support chat or help center
@@ -93,15 +93,15 @@ export default function OrderDetailScreen() {
 
     const handleShopPress = useCallback(() => {
         if (!order?.shopId) return;
-        router.push(shopRoutes.detail(order.shopId));
-    }, [router, order?.shopId]);
+        Navigator.push(shopRoutes.detail(order.shopId));
+    }, [order?.shopId]);
 
     // === ACTION HANDLERS ===
 
     const handleCancel = useCallback(() => {
         if (!rawOrder) return;
-        router.push(orderRoutes.cancel(rawOrder.orderId));
-    }, [rawOrder, router]);
+        Navigator.push(orderRoutes.cancel(rawOrder.orderId));
+    }, [rawOrder]);
 
     const handleContactShop = useCallback(() => {
         if (!order) return;
@@ -132,7 +132,7 @@ export default function OrderDetailScreen() {
 
         // Instant navigation with Ghost ID
         const cachedId = getCachedConversationId(shopUserId);
-        router.push(chatRoutes.detail(cachedId || `ghost_${shopUserId}`, {
+        Navigator.push(chatRoutes.detail(cachedId || `ghost_${shopUserId}`, {
             partnerName: shopName,
             partnerAvatar: shopLogoUrl,
             shopUserId: shopUserId,
@@ -140,7 +140,7 @@ export default function OrderDetailScreen() {
         }));
 
         logger.api.info('Contact shop for order:', order.orderId);
-    }, [order, prefetchChat, router]);
+    }, [order, prefetchChat, myShopId]);
 
     const handleTrackOrder = useCallback(async () => {
         if (!order?.trackingNumber) {
@@ -213,19 +213,19 @@ export default function OrderDetailScreen() {
             text1: 'Đã thêm vào giỏ hàng',
             text2: `${order.items.length} sản phẩm`,
         });
-        router.push(ROUTES.CART.INDEX as any);
-    }, [order?.items, router]);
+        Navigator.push(ROUTES.CART.INDEX as any);
+    }, [order?.items]);
 
     const handleReview = useCallback(() => {
         if (!rawOrder) return;
-        // router.push(`/review/${rawOrder.orderId}`);
-    }, [router, rawOrder]);
+        // Navigator.push(`/review/${rawOrder.orderId}`);
+    }, [rawOrder]);
 
     const handleReviewItem = useCallback(
         (item: OrderItemUI) => {
-            // router.push(`/review/${rawOrder?.orderId}?itemId=${item.itemId}`);
+            // Navigator.push(`/review/${rawOrder?.orderId}?itemId=${item.itemId}`);
         },
-        [router, rawOrder?.orderId]
+        [rawOrder?.orderId]
     );
 
     // === RENDER STATES ===

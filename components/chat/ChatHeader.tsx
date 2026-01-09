@@ -1,6 +1,6 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { CHAT_FILTER_TABS, ChatFilter } from '@/types/chat';
-import { useRouter } from 'expo-router';
+import { Navigator } from '@/utils/navigation';
 import React from 'react';
 import { ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -30,7 +30,6 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
-    const router = useRouter();
 
     return (
         <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -38,7 +37,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
             <View style={styles.titleRow}>
                 {/* Nút Back - UX: Tăng hitSlop để dễ bấm */}
                 <TouchableOpacity
-                    onPress={() => router.back()}
+                    onPress={() => Navigator.back()}
                     style={styles.backBtn}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >

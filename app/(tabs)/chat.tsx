@@ -10,8 +10,8 @@ import { useChatList, useConversationActions, useRefreshChatList } from '@/hooks
 import { useChatSocket } from '@/hooks/api/useChatSocket';
 import { useDebounce } from '@/hooks/useDebounce';
 import { ChatFilter, Conversation } from '@/types/chat';
+import { Navigator } from '@/utils/navigation';
 import { FlashList } from '@shopify/flash-list';
-import { useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, RefreshControl, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -23,7 +23,6 @@ const SEARCH_DEBOUNCE_MS = 300;
 export default function ChatScreen() {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const router = useRouter();
 
     const [activeFilter, setActiveFilter] = useState<ChatFilter>(ChatFilter.ALL);
     const [searchQuery, setSearchQuery] = useState('');
@@ -70,13 +69,13 @@ export default function ChatScreen() {
     const handleConversationPress = useCallback((item: Conversation) => {
         // Close any open swipe on press
         setOpenedRowId(null);
-        router.push(chatRoutes.detail(item.id, {
+        Navigator.push(chatRoutes.detail(item.id, {
             partnerName: item.partner.name,
             partnerAvatar: item.partner.avatar,
             partnerIsOnline: item.partner.isOnline ? 'true' : 'false',
             partnerIsVerified: item.partner.isVerified ? 'true' : 'false',
         }));
-    }, [router]);
+    }, []);
 
     const handleSwipeOpen = useCallback((id: string | null) => {
         setOpenedRowId(id);

@@ -3,6 +3,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
 import { useResendOtp, useVerifyOtp } from '@/hooks/api/useAuth';
 import { useCountdown } from '@/hooks/useCountdown';
+import { Navigator } from '@/utils/navigation';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -80,7 +81,7 @@ export default function VerifyOtpScreen() {
                             text1: 'Xác thực thành công',
                             text2: 'Chào mừng bạn đến với eBay!',
                         });
-                        router.replace(ROUTES.AUTH.LOGIN);
+                        Navigator.replace(ROUTES.AUTH.LOGIN);
                     },
                     onError: (error) => {
                         setHasError(true);
@@ -129,16 +130,16 @@ export default function VerifyOtpScreen() {
                 text1: 'Thiếu thông tin',
                 text2: 'Vui lòng đăng ký lại.',
             });
-            router.replace(ROUTES.AUTH.REGISTER);
+            Navigator.replace(ROUTES.AUTH.REGISTER);
         }
     }, [email]);
 
     // Handle back navigation
     const handleBack = useCallback(() => {
         if (router.canGoBack()) {
-            router.back();
+            Navigator.back();
         } else {
-            router.replace(ROUTES.AUTH.REGISTER);
+            Navigator.replace(ROUTES.AUTH.REGISTER);
         }
     }, []);
 

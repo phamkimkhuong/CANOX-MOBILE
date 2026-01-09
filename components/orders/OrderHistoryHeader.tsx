@@ -7,7 +7,7 @@
  */
 
 import { IconSymbol } from '@/components/ui/Icon';
-import { useRouter } from 'expo-router';
+import { Navigator } from '@/utils/navigation';
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -25,7 +25,6 @@ export const OrderHistoryHeader: React.FC<OrderHistoryHeaderProps> = ({
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
-    const router = useRouter();
 
     return (
         <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -36,7 +35,7 @@ export const OrderHistoryHeader: React.FC<OrderHistoryHeaderProps> = ({
                         styles.iconButton,
                         pressed && styles.pressed,
                     ]}
-                    onPress={() => router.back()}
+                    onPress={() => Navigator.back()}
                 >
                     <IconSymbol
                         name="arrow-back"
@@ -54,7 +53,7 @@ export const OrderHistoryHeader: React.FC<OrderHistoryHeaderProps> = ({
                         styles.iconButton,
                         pressed && styles.pressed,
                     ]}
-                    onPress={onCartPress ?? (() => router.push('/(main)/cart'))}
+                    onPress={onCartPress ?? (() => Navigator.push('/(main)/cart'))}
                 >
                     <IconSymbol
                         name="cart"

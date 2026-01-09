@@ -1,8 +1,8 @@
 import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import { shopRoutes } from '@/constants/routes';
 import type { ShopUI } from '@/types/product/productDetail';
+import { Navigator } from '@/utils/navigation';
 import { Image } from 'expo-image';
-import { router } from 'expo-router';
 import React, { memo, useCallback, useMemo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -54,7 +54,7 @@ export const ShopInfoCard = memo<ShopInfoCardProps>(({
         if (onViewShopPress) {
             onViewShopPress();
         } else {
-            router.push(shopRoutes.detail(shop.id));
+            Navigator.push(shopRoutes.detail(shop.id));
         }
     }, [onViewShopPress, shop.id]);
 

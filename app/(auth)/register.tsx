@@ -1,5 +1,6 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { authRoutes, ROUTES } from '@/constants/routes';
+import { Navigator } from '@/utils/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
@@ -78,7 +79,7 @@ export default function RegisterScreen() {
 						text2: 'Vui lòng xác thực email của bạn.',
 					});
 					// Navigate to OTP verification with email param
-					router.push(authRoutes.verifyOtp({ phone: data.email, type: 'register' }));
+					Navigator.push(authRoutes.verifyOtp({ phone: data.email, type: 'register' }));
 				},
 			});
 		} catch {
@@ -102,7 +103,7 @@ export default function RegisterScreen() {
 					<View style={styles.header}>
 						<TouchableOpacity
 							style={styles.backBtn}
-							onPress={() => router.canGoBack() ? router.back() : router.replace(ROUTES.TABS.HOME)}
+							onPress={() => router.canGoBack() ? Navigator.back() : Navigator.replace(ROUTES.TABS.HOME)}
 						>
 							<IconSymbol name="arrow-back" size={24} color={theme.colors.typography} />
 						</TouchableOpacity>
@@ -204,7 +205,7 @@ export default function RegisterScreen() {
 					{/* Footer */}
 					<View style={styles.footer}>
 						<Text style={styles.footerText}>Bạn đã có tài khoản? </Text>
-						<TouchableOpacity onPress={() => router.replace(ROUTES.AUTH.LOGIN)}>
+						<TouchableOpacity onPress={() => Navigator.replace(ROUTES.AUTH.LOGIN)}>
 							<Text style={styles.footerLink}>Đăng nhập</Text>
 						</TouchableOpacity>
 					</View>

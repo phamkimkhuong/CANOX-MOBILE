@@ -1,7 +1,7 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { ProfileMenuItem, SERVICE_MENU_CONFIG } from '@/types/profile/profile';
 import { formatCurrency } from '@/utils/format';
-import { router } from 'expo-router';
+import { Navigator } from '@/utils/navigation';
 import React, { memo, useCallback } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -27,7 +27,7 @@ export const ServiceGrid: React.FC<ServiceGridProps> = memo(({
 
     const handlePress = useCallback((route: string) => {
         if (route) {
-            router.push(route as never);
+            Navigator.push(route as never);
         }
     }, []);
 

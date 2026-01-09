@@ -6,7 +6,7 @@
  */
 
 import { IconSymbol } from '@/components/ui/Icon';
-import { useRouter } from 'expo-router';
+import { Navigator } from '@/utils/navigation';
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
@@ -22,13 +22,13 @@ export const CheckoutHeader: React.FC<CheckoutHeaderProps> = ({
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const router = useRouter();
+
 
     const handleBack = () => {
         if (onBack) {
             onBack();
         } else {
-            router.back();
+            Navigator.back();
         }
     };
 

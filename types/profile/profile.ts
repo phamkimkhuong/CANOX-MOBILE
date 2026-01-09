@@ -19,6 +19,7 @@ export const OrderStatsSchema = z.object({
     processing: z.number().default(0),
     shipping: z.number().default(0),
     review: z.number().default(0),
+    total: z.number().default(0),
 });
 
 export type OrderStats = z.infer<typeof OrderStatsSchema>;
@@ -110,10 +111,7 @@ export const UserProfileSchema = z.object({
     gender: z.enum(['MALE', 'FEMALE', 'OTHER']).nullable().optional(),
     memberLevel: z.nativeEnum(MemberLevel).default('BRONZE'),
     isVerified: z.boolean().default(false),
-    // Stats for quick cards
-    totalOrders: z.number().default(0),
     recentViewCount: z.number().default(0),
-    // Following
     followingShops: z.number().default(0),
 });
 

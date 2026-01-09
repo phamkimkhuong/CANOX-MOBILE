@@ -1,9 +1,10 @@
-import React, { memo } from 'react';
-import { Text, View, TouchableOpacity, StatusBar, Platform } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { useRouter } from 'expo-router';
+import { Navigator } from '@/utils/navigation';
 import { MaterialIcons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import React, { memo } from 'react';
+import { Platform, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface SettingsHeaderProps {
     title?: string;
@@ -24,14 +25,13 @@ export const SettingsHeader: React.FC<SettingsHeaderProps> = memo(({
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const router = useRouter();
     const insets = useSafeAreaInsets();
 
     const handleGoBack = () => {
         if (router.canGoBack()) {
-            router.back();
+            Navigator.back();
         } else {
-            router.replace('/(tabs)/me');
+            Navigator.replace('/(tabs)/me');
         }
     };
 

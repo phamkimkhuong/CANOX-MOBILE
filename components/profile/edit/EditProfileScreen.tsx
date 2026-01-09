@@ -6,8 +6,9 @@ import {
     useUpdateProfile,
 } from '@/hooks/api/profile/useUpdateProfile';
 import { Gender, ProfileFormSchema, ProfileFormValues, UpdateProfilePayload } from '@/types/user';
+import { Navigator } from '@/utils/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { router, Stack } from 'expo-router';
+import { Stack } from 'expo-router';
 import React, { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
@@ -100,7 +101,7 @@ export default function EditProfileScreen() {
                     text1: 'Thành công',
                     text2: 'Cập nhật hồ sơ thành công',
                 });
-                router.back();
+                Navigator.back();
             },
             onError: (error) => {
                 Toast.show({
@@ -120,11 +121,11 @@ export default function EditProfileScreen() {
                 'Bạn có những thay đổi chưa lưu. Bạn có chắc muốn thoát?',
                 [
                     { text: 'Ở lại', style: 'cancel' },
-                    { text: 'Thoát', style: 'destructive', onPress: () => router.back() },
+                    { text: 'Thoát', style: 'destructive', onPress: () => Navigator.back() },
                 ]
             );
         } else {
-            router.back();
+            Navigator.back();
         }
     };
 

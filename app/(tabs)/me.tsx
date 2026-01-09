@@ -120,6 +120,7 @@ export default function MeScreen() {
                 {/* User Info Card */}
                 <UserInfoCard
                     profile={userProfile}
+                    stats={orderStats}
                     isLoading={isLoadingProfile}
                 />
 

@@ -1,7 +1,7 @@
 import { ProductCard } from '@/components/ui/ProductCard';
 import { productRoutes } from '@/constants/routes';
 import { useRelatedProducts } from '@/hooks/api/product/useProductDetail';
-import { router } from 'expo-router';
+import { Navigator } from '@/utils/navigation';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
@@ -44,7 +44,7 @@ export const RelatedProducts = ({ productId }: RelatedProductsProps) => {
                             discount={item.discountPercentage}
                             isMall={item.isMall}
                             onPress={() => {
-                                router.push(productRoutes.detail(item.id));
+                                Navigator.push(productRoutes.detail(item.id));
                             }}
                             route={productRoutes.detail(item.id)}
                         />

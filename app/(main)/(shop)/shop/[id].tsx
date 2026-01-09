@@ -24,7 +24,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import type { ShopProductFilterParams, ShopProductItemUI, ShopTabType } from '@/types/shop';
 import { Navigator } from '@/utils/navigation';
 import { FlashList, ListRenderItem } from '@shopify/flash-list';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
 import {
     ActivityIndicator,
@@ -69,7 +69,6 @@ const ListFooterComponent: React.FC<{ isLoading: boolean }> = ({ isLoading }) =>
 export default function ShopDetailScreen() {
     const { theme } = useUnistyles();
     const insets = useSafeAreaInsets();
-    const router = useRouter();
     const { id: shopId } = useLocalSearchParams<{ id: string }>();
 
     const [activeTab, setActiveTab] = useState<ShopTabType>('products');
@@ -124,7 +123,7 @@ export default function ShopDetailScreen() {
 
     const stickyHeaderIndices = useMemo(() => [1], []);
 
-    const handleBackPress = useCallback(() => router.back(), [router]);
+    const handleBackPress = useCallback(() => Navigator.back(), []);
     const handleSearchPress = useCallback(() => { }, []);
     const handleMorePress = useCallback(() => { }, []);
     const handleTabChange = useCallback((tab: ShopTabType) => setActiveTab(tab), []);
@@ -167,7 +166,7 @@ export default function ShopDetailScreen() {
     }, [shop, myShopId]);
 
     const handleFollowPress = useCallback(() => { }, []);
-    const handleProductPress = useCallback((product: ShopProductItemUI) => router.push(productRoutes.detail(product.id)), [router]);
+    const handleProductPress = useCallback((product: ShopProductItemUI) => Navigator.push(productRoutes.detail(product.id)), []);
     const handleLoadMore = useCallback(() => hasNextPage && !isFetchingNextPage && activeTab === 'products' && fetchNextPage(), [hasNextPage, isFetchingNextPage, activeTab, fetchNextPage]);
     const handleRefresh = useCallback(() => { refetchShop(); smartRefreshProducts(); }, [refetchShop, smartRefreshProducts]);
 
@@ -225,7 +224,7 @@ export default function ShopDetailScreen() {
                 <View style={styles.errorContainer}>
                     <IconSymbol name="error" size={64} color={theme.colors.error} />
                     <Text style={styles.errorText}>Cửa hàng không tồn tại hoặc đã bị xóa</Text>
-                    <Pressable onPress={() => router.back()} style={styles.retryButton}>
+                    <Pressable onPress={() => Navigator.back()} style={styles.retryButton}>
                         <Text style={styles.retryText}>Quay lại</Text>
                     </Pressable>
                 </View>

@@ -7,7 +7,8 @@ import { useUnreadMessageCount } from '@/hooks/api/chat';
 import { useUnreadNotificationCount } from '@/hooks/api/notification/useNotifications';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useCartStore } from '@/store/useCartStore';
-import { router, Tabs, usePathname } from 'expo-router';
+import { Navigator } from '@/utils/navigation';
+import { Tabs, usePathname } from 'expo-router';
 import React, { useCallback } from 'react';
 import { useUnistyles } from 'react-native-unistyles';
 
@@ -66,7 +67,7 @@ export default function TabLayout() {
     tabPress: (e: { preventDefault: () => void }) => {
       if (!isAuthenticated) {
         e.preventDefault();
-        router.push(ROUTES.AUTH.LOGIN);
+        Navigator.push(ROUTES.AUTH.LOGIN);
       }
     },
   }), [isAuthenticated]);

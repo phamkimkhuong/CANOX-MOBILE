@@ -1,6 +1,6 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
-import { useRouter } from 'expo-router';
+import { Navigator } from '@/utils/navigation';
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -31,7 +31,6 @@ export const StateView: React.FC<StateViewProps> = ({
     primaryActionLabel,
 }) => {
     const { theme } = useUnistyles();
-    const router = useRouter();
 
     // Configuration Factory based on Type
     const config = {
@@ -40,14 +39,14 @@ export const StateView: React.FC<StateViewProps> = ({
             defaultTitle: 'Không tìm thấy kết quả',
             defaultMessage: 'Dữ liệu này không tồn tại hoặc đã bị xóa khỏi hệ thống.',
             buttonLabel: 'Quay lại',
-            action: onBack || (() => router.back()),
+            action: onBack || (() => Navigator.back()),
         },
         'forbidden': {
             icon: 'lock-outline',
             defaultTitle: 'Truy cập bị từ chối',
             defaultMessage: 'Bạn không có quyền xem thông tin này.',
             buttonLabel: 'Về trang chủ',
-            action: onBack || (() => router.replace(ROUTES.TABS.HOME)),
+            action: onBack || (() => Navigator.replace(ROUTES.TABS.HOME)),
         },
         'offline': {
             icon: 'wifi-off',

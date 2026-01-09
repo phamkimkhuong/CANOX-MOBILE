@@ -5,6 +5,7 @@
  */
 
 import { IconSymbol } from '@/components/ui/Icon';
+import { Navigator } from '@/utils/navigation';
 import { router } from 'expo-router';
 import React, { memo, useCallback } from 'react';
 import { Pressable, Text, View } from 'react-native';
@@ -34,7 +35,7 @@ export const AddressHeader: React.FC<AddressHeaderProps> = memo(({
         if (onBack) {
             onBack();
         } else if (router.canGoBack()) {
-            router.back();
+            Navigator.back();
         }
     }, [onBack]);
 
