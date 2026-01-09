@@ -177,16 +177,23 @@ apiClient.interceptors.response.use(
             ? getErrorMessageByCode(errorCode, 'vi')
             : ((data?.message as string) || error.message);
 
-        // Handle 401 Unauthorized - Token expired
+        // Handle 401 Unauthorized - Token expired or invalid access
         if (statusCode === 401 && !isPublicEndpoint(error.config?.url)) {
-            logger.auth.warn('Received 401 - Attempting token refresh...');
+            logger.api.error('Received 401 Error from Backend:', {
+                url: error.config?.url,
+                method: error.config?.method?.toUpperCase(),
+                data: data, // This contains the BE message
+                timestamp: new Date().toISOString(),
+            });
+
+            logger.auth.warn('Attempting token refresh due to 401...');
 
             try {
                 // Use TokenManager to handle 401 with refresh logic
                 return await handle401Error(error, async (config) => {
                     return apiClient.request(config);
                 });
-            } catch {
+            } catch (refreshError) {
                 logger.auth.error('Token refresh failed - throwing SessionExpiredError');
                 throw new SessionExpiredError();
             }

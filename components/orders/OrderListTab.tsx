@@ -10,7 +10,7 @@
 import { CHAT_STRINGS } from '@/constants/i18n/vi/chat';
 import { chatRoutes, orderRoutes } from '@/constants/routes';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
-import { flattenOrders, useOrderList } from '@/hooks/api/order/useOrders';
+import { flattenOrders, useOrderList, useRefreshOrderList } from '@/hooks/api/order/useOrders';
 import { useAuthStore } from '@/store/useAuthStore';
 import { OrderAction, OrderTabStatus, OrderUI } from '@/types/order/order';
 import { logger } from '@/utils/logger';
@@ -44,8 +44,10 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
         fetchNextPage,
         hasNextPage,
         isFetchingNextPage,
-        refetch,
     } = useOrderList(status);
+
+    // Smart refresh: Reset to page 0 only (not refetch ALL loaded pages)
+    const { refresh: smartRefresh } = useRefreshOrderList(status);
 
     // Flatten pages thành array orders
     const orders = flattenOrders(data);
@@ -68,15 +70,12 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
 
         switch (action) {
             case 'cancel':
-                // TODO: Show confirmation modal then call cancel API
-                logger.orders.info('Cancel order:', orderId);
+                router.push(orderRoutes.cancel(orderId));
                 break;
             case 'track':
-                // TODO: Navigate to tracking screen
                 router.push(orderRoutes.detail(orderId));
                 break;
             case 'received':
-                // TODO: Call confirm received API
                 logger.orders.info('Confirm received:', orderId);
                 break;
             case 'review':
@@ -190,7 +189,7 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
                 refreshControl={
                     <RefreshControl
                         refreshing={isRefetching && !isFetchingNextPage}
-                        onRefresh={refetch}
+                        onRefresh={smartRefresh}
                         colors={[theme.colors.primary]}
                         tintColor={theme.colors.primary}
                     />

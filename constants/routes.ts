@@ -149,6 +149,10 @@ export const orderRoutes = {
         pathname: '/orders/[id]',
         params: { id: orderId },
     }),
+    cancel: (orderId: string): Href => ({
+        pathname: '/cancel/[id]',
+        params: { id: orderId },
+    }),
 } as const;
 
 /**

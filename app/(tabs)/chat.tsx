@@ -6,7 +6,7 @@ import {
     PromoBanner,
 } from '@/components/chat';
 import { chatRoutes } from '@/constants/routes';
-import { useChatList, useConversationActions } from '@/hooks/api/chat/useChatList';
+import { useChatList, useConversationActions, useRefreshChatList } from '@/hooks/api/chat/useChatList';
 import { useChatSocket } from '@/hooks/api/useChatSocket';
 import { useDebounce } from '@/hooks/useDebounce';
 import { ChatFilter, Conversation } from '@/types/chat';
@@ -52,8 +52,10 @@ export default function ChatScreen() {
         isFetchingNextPage,
         hasNextPage,
         fetchNextPage,
-        refetch,
     } = useChatList(activeFilter, debouncedSearchQuery);
+
+    // Smart refresh: only fetch page 0 instead of all loaded pages
+    const { refresh: smartRefresh } = useRefreshChatList(activeFilter);
     // Initialize socket connection for realtime updates
     useChatSocket();
 
@@ -189,7 +191,7 @@ export default function ChatScreen() {
                 refreshControl={
                     <RefreshControl
                         refreshing={isRefetching && !isLoading}
-                        onRefresh={refetch}
+                        onRefresh={smartRefresh}
                         tintColor={theme.colors.primary}
                         colors={[theme.colors.primary]}
                     />

@@ -4,7 +4,7 @@ import { NotificationHeader } from '@/components/notifications/NotificationHeade
 import { NotificationItem } from '@/components/notifications/NotificationItem';
 import { NotificationSkeleton } from '@/components/notifications/NotificationSkeleton';
 import { SectionHeader } from '@/components/notifications/SectionHeader';
-import { useMarkAllAsRead, useMarkAsRead, useNotifications } from '@/hooks/api/notification/useNotifications';
+import { useMarkAllAsRead, useMarkAsRead, useNotifications, useRefreshNotifications } from '@/hooks/api/notification/useNotifications';
 import { usePrefetchNotificationNav } from '@/hooks/api/notification/usePrefetchNotificationNav';
 import {
     FILTER_TABS,
@@ -31,8 +31,10 @@ export default function NotifyScreen() {
         isFetchingNextPage,
         hasNextPage,
         fetchNextPage,
-        refetch,
     } = useNotifications(activeFilter);
+
+    // Smart refresh: only fetch page 0 instead of all loaded pages
+    const { refresh: smartRefresh } = useRefreshNotifications(activeFilter);
 
     const markAllAsRead = useMarkAllAsRead();
     const markAsRead = useMarkAsRead();
@@ -140,7 +142,7 @@ export default function NotifyScreen() {
                 refreshControl={
                     <RefreshControl
                         refreshing={isRefetching && !isLoading}
-                        onRefresh={refetch}
+                        onRefresh={smartRefresh}
                         tintColor={theme.colors.primary}
                         colors={[theme.colors.primary]}
                     />

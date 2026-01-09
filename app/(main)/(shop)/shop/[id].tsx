@@ -19,7 +19,7 @@ import { ProductCard } from '@/components/ui/ProductCard';
 import { CHAT_STRINGS } from '@/constants/i18n/vi/chat';
 import { chatRoutes, productRoutes } from '@/constants/routes';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
-import { useShopDetail, useShopProducts } from '@/hooks/api/useShop';
+import { useRefreshShopProducts, useShopDetail, useShopProducts } from '@/hooks/api/useShop';
 import { useAuthStore } from '@/store/useAuthStore';
 import type { ShopProductFilterParams, ShopProductItemUI, ShopTabType } from '@/types/shop';
 import { Navigator } from '@/utils/navigation';
@@ -102,7 +102,10 @@ export default function ShopDetailScreen() {
     });
 
     const { data: shop, isLoading: isLoadingShop, isError: isShopError, refetch: refetchShop } = useShopDetail(shopId);
-    const { data: productsData, isLoading: isLoadingProducts, isRefetching: isRefetchingProducts, isFetchingNextPage, hasNextPage, fetchNextPage, refetch: refetchProducts } = useShopProducts(shopId, filters);
+    const { data: productsData, isLoading: isLoadingProducts, isRefetching: isRefetchingProducts, isFetchingNextPage, hasNextPage, fetchNextPage } = useShopProducts(shopId, filters);
+
+    // Smart refresh for products infinite query
+    const { refresh: smartRefreshProducts } = useRefreshShopProducts(shopId, filters);
 
     // Auth info for chat validation
     const myShopId = useAuthStore((s) => s.shopId);
@@ -166,7 +169,7 @@ export default function ShopDetailScreen() {
     const handleFollowPress = useCallback(() => { }, []);
     const handleProductPress = useCallback((product: ShopProductItemUI) => router.push(productRoutes.detail(product.id)), [router]);
     const handleLoadMore = useCallback(() => hasNextPage && !isFetchingNextPage && activeTab === 'products' && fetchNextPage(), [hasNextPage, isFetchingNextPage, activeTab, fetchNextPage]);
-    const handleRefresh = useCallback(() => { refetchShop(); refetchProducts(); }, [refetchShop, refetchProducts]);
+    const handleRefresh = useCallback(() => { refetchShop(); smartRefreshProducts(); }, [refetchShop, smartRefreshProducts]);
 
     const renderItem: ListRenderItem<FlatListItem> = useCallback(({ item, index }) => {
         switch (item.type) {

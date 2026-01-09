@@ -7,7 +7,7 @@ import { useUnreadMessageCount } from '@/hooks/api/chat';
 import { useUnreadNotificationCount } from '@/hooks/api/notification/useNotifications';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useCartStore } from '@/store/useCartStore';
-import { router, Tabs } from 'expo-router';
+import { router, Tabs, usePathname } from 'expo-router';
 import React, { useCallback } from 'react';
 import { useUnistyles } from 'react-native-unistyles';
 
@@ -33,6 +33,9 @@ export default function TabLayout() {
   useCart();
   const cartItemCount = useCartStore((state) => state.totalQuantity);
 
+  // Current pathname to detect if already on home tab
+  const pathname = usePathname();
+
   // Fetch unread notification count for badge
   const { data: unreadNotificationCount } = useUnreadNotificationCount();
 
@@ -43,13 +46,16 @@ export default function TabLayout() {
   const { triggerScrollToTop } = useScrollToTopContext();
 
   /**
-   * Handler: When user presses Home tab while already on Home tab
+   * Handler: When user presses Home tab while ALREADY on Home tab
    * => Scroll to top
    */
   const handleHomeTabPress = useCallback(() => {
-    // Trigger scroll to top cho màn hình index
-    triggerScrollToTop('index');
-  }, [triggerScrollToTop]);
+    // Only trigger scroll-to-top if already on home tab
+    const isAlreadyOnHome = pathname === '/' || pathname === '/index' || pathname === '';
+    if (isAlreadyOnHome) {
+      triggerScrollToTop('index');
+    }
+  }, [pathname, triggerScrollToTop]);
 
   /**
    * Create protected tab press handler

@@ -23,7 +23,7 @@ import {
 } from '@/components/orders/detail';
 import { OrderShopHeader } from '@/components/orders/OrderShopHeader';
 import { CHAT_STRINGS } from '@/constants/i18n/vi/chat';
-import { chatRoutes, ROUTES, shopRoutes } from '@/constants/routes';
+import { chatRoutes, orderRoutes, ROUTES, shopRoutes } from '@/constants/routes';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
 import { useOrderDetail } from '@/hooks/api/order/useOrderDetail';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -100,37 +100,8 @@ export default function OrderDetailScreen() {
 
     const handleCancel = useCallback(() => {
         if (!rawOrder) return;
-
-        CustomAlertHelper.show({
-            title: 'Huỷ đơn hàng',
-            message: 'Bạn có chắc chắn muốn huỷ đơn hàng này?',
-            type: 'warning',
-            confirmText: 'Huỷ đơn',
-            cancelText: 'Không',
-            onConfirm: async () => {
-                setLoadingAction('cancel');
-                try {
-                    // TODO: Call cancel API
-                    // await cancelOrder(rawOrder.orderId);
-                    logger.api.info('Cancel order:', rawOrder.orderId);
-                    Toast.show({
-                        type: 'success',
-                        text1: 'Đã huỷ đơn hàng',
-                    });
-                    await refetch();
-                } catch (err) {
-                    logger.api.error('Cancel order failed:', err);
-                    Toast.show({
-                        type: 'error',
-                        text1: 'Huỷ đơn thất bại',
-                        text2: 'Vui lòng thử lại sau',
-                    });
-                } finally {
-                    setLoadingAction(null);
-                }
-            },
-        });
-    }, [rawOrder, refetch]);
+        router.push(orderRoutes.cancel(rawOrder.orderId));
+    }, [rawOrder, router]);
 
     const handleContactShop = useCallback(() => {
         if (!order) return;

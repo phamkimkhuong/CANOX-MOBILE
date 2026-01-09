@@ -12,6 +12,7 @@
  */
 
 import { API_ROUTES } from '@/constants/apiRoutes';
+import { useSmartRefresh } from '@/hooks/useSmartRefresh';
 import { apiClient } from '@/services/api/client';
 import { useAuthStore } from '@/store/useAuthStore';
 import { ChatFilter, Conversation } from '@/types/chat';
@@ -200,6 +201,17 @@ export const useChatList = (
         conversations,
         totalUnread,
     };
+};
+
+/**
+ * useRefreshChatList - Smart refresh for chat list infinite query
+ * Only fetches page 0 instead of all loaded pages.
+ * 
+ * @param filter - Current chat filter
+ * @returns refresh function
+ */
+export const useRefreshChatList = (filter: ChatFilter = ChatFilter.ALL) => {
+    return useSmartRefresh([CONVERSATIONS_QUERY_KEY, filter]);
 };
 
 /**

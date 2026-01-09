@@ -1,4 +1,5 @@
 import { API_ROUTES } from '@/constants/apiRoutes';
+import { useSmartRefresh } from '@/hooks/useSmartRefresh';
 import { apiClient, isSessionExpiredError, request } from '@/services/api/client';
 import { useAuthStore } from '@/store/useAuthStore';
 import {
@@ -139,6 +140,17 @@ export const useNotifications = (filter: NotificationFilter = NotificationFilter
         stickyHeaderIndices,
         unreadCount,
     };
+};
+
+/**
+ * useRefreshNotifications - Smart refresh for notifications infinite query
+ * Only fetches page 0 instead of all loaded pages.
+ * 
+ * @param filter - Current notification filter
+ * @returns refresh function
+ */
+export const useRefreshNotifications = (filter: NotificationFilter = NotificationFilter.ALL) => {
+    return useSmartRefresh(['notifications', filter]);
 };
 
 /**

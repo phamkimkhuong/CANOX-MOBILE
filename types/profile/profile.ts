@@ -173,7 +173,7 @@ export const ORDER_STATUS_CONFIG: OrderStatusItem[] = [
     {
         key: 'processing',
         icon: 'cube',
-        label: 'Chờ vận chuyển',
+        label: 'Chờ xác nhận',
         route: ORDER_STATUS_ROUTES.processing,
     },
     {

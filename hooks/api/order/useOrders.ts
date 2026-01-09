@@ -7,6 +7,7 @@
  */
 
 import { API_ROUTES } from '@/constants/apiRoutes';
+import { useSmartRefresh } from '@/hooks/useSmartRefresh';
 import { apiClient, ApiError } from '@/services/api/client';
 import { OrdersApiResponse, OrdersPageResponse, OrderTabStatus, OrderUI } from '@/types/order/order';
 import { transformOrder } from '@/utils/adapter/order/orderAdapter';
@@ -69,6 +70,17 @@ export const useOrderList = (status: OrderTabStatus, enabled: boolean = true) =>
         staleTime: 2 * 60 * 1000, // 2 phút - orders có thể thay đổi nhanh
         gcTime: 10 * 60 * 1000, // 10 phút cache
     });
+};
+
+/**
+ * useRefreshOrderList - Smart refresh for order infinite query
+ * Uses the generic useSmartRefresh hook under the hood.
+ * 
+ * @param status - Order status to refresh
+ * @returns refresh function
+ */
+export const useRefreshOrderList = (status: OrderTabStatus) => {
+    return useSmartRefresh(orderKeys.list(status));
 };
 
 /**

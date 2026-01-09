@@ -9,6 +9,7 @@
  */
 
 import { API_ROUTES } from '@/constants/apiRoutes';
+import { useSmartRefresh } from '@/hooks/useSmartRefresh';
 import { request } from '@/services/api/client';
 import {
     ShopDetailResponse,
@@ -131,6 +132,21 @@ export const useShopProducts = (
         staleTime: 1000 * 60 * 2, // 2 minutes - products may change more often
         gcTime: 1000 * 60 * 10,   // Keep in cache 10 minutes
     });
+};
+
+/**
+ * useRefreshShopProducts - Smart refresh for shop products infinite query
+ * Only fetches page 0 instead of all loaded pages.
+ * 
+ * @param shopId - Shop UUID
+ * @param filters - Optional filter/sort params
+ * @returns refresh function
+ */
+export const useRefreshShopProducts = (
+    shopId: string | undefined,
+    filters?: ShopProductFilterParams
+) => {
+    return useSmartRefresh(shopKeys.products(shopId ?? '', filters));
 };
 
 // ============================================
