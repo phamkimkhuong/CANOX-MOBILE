@@ -9,6 +9,14 @@
  * - Abnormal status banner (cancelled, rejected)
  * - Copy tracking number, order number, address
  * - Dynamic action buttons based on status
+ * 
+ * HYBRID SKELETON PATTERN:
+ * - instantNav=true (quick tap < 150ms): Show skeleton with minimum duration
+ * - instantNav=false (slow tap >= 150ms): Show skeleton only if data not cached
+ * 
+ * This prevents:
+ * UI "flash" when skeleton appears for < 300ms
+ * Perceived lag when user taps quickly
  */
 
 import {
@@ -26,6 +34,7 @@ import { CHAT_STRINGS } from '@/constants/i18n/vi/chat';
 import { chatRoutes, orderRoutes, ROUTES, shopRoutes } from '@/constants/routes';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
 import { useOrderDetail } from '@/hooks/api/order/useOrderDetail';
+import { MINIMUM_SKELETON_DURATION_MS } from '@/hooks/usePrefetchTiming';
 import { useAuthStore } from '@/store/useAuthStore';
 import { OrderItemUI } from '@/types/order/order';
 import { getOrderActions } from '@/utils/adapter/order';
@@ -42,18 +51,41 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 type LoadingActionType = 'cancel' | 'confirm' | null;
 
 export default function OrderDetailScreen() {
-    const { id } = useLocalSearchParams<{ id: string }>();
+    // Route params - id is required, instantNav is optional (for hybrid pattern)
+    const { id, instantNav } = useLocalSearchParams<{
+        id: string;
+        instantNav?: 'true';  // Set when user tapped quickly (< 150ms)
+    }>();
+
     const myShopId = useAuthStore((s) => s.shopId);
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const prefetchChat = usePrefetchShopChat();
 
-    // State
+    // ============================================
+    // STATE
+    // ============================================
     const [loadingAction, setLoadingAction] = useState<LoadingActionType>(null);
     const [refreshing, setRefreshing] = useState(false);
 
+    // HYBRID PATTERN: Track if minimum skeleton duration has passed
+    // Only relevant when instantNav=true
+    const [minimumDurationPassed, setMinimumDurationPassed] = useState(
+        instantNav !== 'true'  // If not instant tap, duration is already "passed"
+    );
+
     // Fetch order detail
     const { data, isLoading, isError, error, refetch } = useOrderDetail(id);
+
+    // ============================================
+    // HYBRID SKELETON LOGIC
+    // ============================================
+    const shouldShowSkeleton = isLoading || (instantNav === 'true' && !minimumDurationPassed);
+
+    // Callback when skeleton's minimum duration has passed  
+    const handleMinimumDurationReached = useCallback(() => {
+        setMinimumDurationPassed(true);
+    }, []);
 
     // Computed values
     const order = data?.ui;
@@ -240,10 +272,13 @@ export default function OrderDetailScreen() {
                 onSupportPress={handleSupport}
             />
 
-            {isLoading ? (
-                // Loading State
+            {shouldShowSkeleton ? (
+                // Loading State - with minimum duration for instant taps
                 <View style={{ flex: 1 }}>
-                    <OrderDetailSkeleton />
+                    <OrderDetailSkeleton
+                        minimumDuration={instantNav === 'true' ? MINIMUM_SKELETON_DURATION_MS : 0}
+                        onMinimumReached={handleMinimumDurationReached}
+                    />
                 </View>
             ) : (isError || !order || !rawOrder) ? (
                 // Error State

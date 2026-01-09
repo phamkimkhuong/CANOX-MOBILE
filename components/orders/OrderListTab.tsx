@@ -12,12 +12,13 @@ import { chatRoutes, orderRoutes } from '@/constants/routes';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
 import { usePrefetchOrderDetail } from '@/hooks/api/order/useOrderDetail';
 import { flattenOrders, useOrderList, useRefreshOrderList } from '@/hooks/api/order/useOrders';
+import { PREFETCH_GRACE_PERIOD_MS } from '@/hooks/usePrefetchTiming';
 import { useAuthStore } from '@/store/useAuthStore';
 import { OrderAction, OrderTabStatus, OrderUI } from '@/types/order/order';
 import { logger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
 import { FlashList, ListRenderItem } from '@shopify/flash-list';
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { ActivityIndicator, RefreshControl, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -37,6 +38,8 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
     const prefetchChat = usePrefetchShopChat();
     const prefetchOrderDetail = usePrefetchOrderDetail();
 
+    const pressTimingMap = useRef<Map<string, number>>(new Map());
+
     // Fetch orders với useInfiniteQuery
     const {
         data,
@@ -53,15 +56,32 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
     // Flatten pages thành array orders
     const orders = flattenOrders(data);
 
-    // Handlers
-    const handleOrderPress = useCallback((orderId: string) => {
-        Navigator.push(orderRoutes.detail(orderId));
-    }, []);
-
-    // 0ms navigation: Prefetch order detail when user touches the card
+    /**
+     * HYBRID PATTERN: PressIn Handler
+     */
     const handleOrderPressIn = useCallback((orderId: string) => {
+        // Record timestamp
+        pressTimingMap.current.set(orderId, Date.now());
+
+        // Start prefetch immediately
         prefetchOrderDetail(orderId);
     }, [prefetchOrderDetail]);
+
+    /**
+     * HYBRID PATTERN: Press Handler
+     */
+    const handleOrderPress = useCallback((orderId: string) => {
+        const pressInTime = pressTimingMap.current.get(orderId) || 0;
+        const elapsed = pressInTime ? Date.now() - pressInTime : 0;
+        pressTimingMap.current.delete(orderId);
+        const isInstantTap = elapsed > 0 && elapsed < PREFETCH_GRACE_PERIOD_MS;
+        Navigator.push(orderRoutes.detail(orderId, { instantNav: isInstantTap }));
+        if (__DEV__) {
+            setTimeout(() => {
+                logger.orders.info(`[Hybrid Nav] elapsed=${elapsed}ms, instant=${isInstantTap}`);
+            }, 0);
+        }
+    }, []);
 
     const handleShopPress = useCallback((shopId: string) => {
         Navigator.push({

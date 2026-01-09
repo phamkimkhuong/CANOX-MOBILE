@@ -187,9 +187,32 @@ const FooterSkeleton: React.FC = () => {
 
 /**
  * OrderDetailSkeleton - Full page loading skeleton
+ * 
+ * @param minimumDuration - Minimum time (ms) to display skeleton, even if data is ready.
+ *                          Prevents jarring "flash" effect for fast API responses.
+ *                          Defaults to 0 (no minimum), set to 350ms for instant taps.
+ * @param onMinimumReached - Callback fired when minimum duration has passed
  */
-export const OrderDetailSkeleton: React.FC = () => {
+interface OrderDetailSkeletonProps {
+    minimumDuration?: number;
+    onMinimumReached?: () => void;
+}
+
+export const OrderDetailSkeleton: React.FC<OrderDetailSkeletonProps> = ({
+    minimumDuration = 0,
+    onMinimumReached,
+}) => {
     const styles = stylesheet;
+
+    // Effect to handle minimum duration timer
+    React.useEffect(() => {
+        if (minimumDuration > 0 && onMinimumReached) {
+            const timer = setTimeout(() => {
+                onMinimumReached();
+            }, minimumDuration);
+            return () => clearTimeout(timer);
+        }
+    }, [minimumDuration, onMinimumReached]);
 
     return (
         <ScrollView

@@ -8,14 +8,18 @@ import { Href, router } from 'expo-router';
 let lastClickTimestamp = 0;
 const CLICK_THRESHOLD = 1000; // 1s
 
+// DEV-only logging that doesn't block navigation
+const logNav = __DEV__
+    ? (msg: string) => setTimeout(() => console.log(msg), 0)
+    : () => { };
+
 export const Navigator = {
     push: (route: Href | string) => {
         const now = Date.now();
-        console.log(`[NAV] Attempting to push: ${route} at ${now}. Last: ${lastClickTimestamp}`);
 
         // Block double tap if click too fast
         if (now - lastClickTimestamp < CLICK_THRESHOLD) {
-            console.log('--- Double tap blocked ---');
+            logNav(`[NAV] Blocked: ${now - lastClickTimestamp}ms since last`);
             return;
         }
 
@@ -37,3 +41,4 @@ export const Navigator = {
         router.back();
     }
 };
+

@@ -6,8 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "ebay",
-    // "userInterfaceStyle": "automatic", // Enable dark mode support
-    "userInterfaceStyle": "light", // Disable dark mode support
+    "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/images/splash-icon.png",
@@ -36,6 +35,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "03816dba-37ae-4afa-8018-ac44237ae740"
+      }
     }
   }
 }

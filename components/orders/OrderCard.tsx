@@ -8,7 +8,7 @@
 
 import { OrderAction, OrderUI } from '@/types/order/order';
 import { hasTracking } from '@/utils/adapter/order/orderActions';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Pressable } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -38,25 +38,25 @@ export const OrderCard: React.FC<OrderCardProps> = ({
     const { theme } = useUnistyles();
     const styles = stylesheet;
 
-    const handlePress = () => {
+    const handlePress = useCallback(() => {
         onPress?.(order.orderId);
-    };
+    }, [onPress, order.orderId]);
 
-    const handlePressIn = () => {
+    const handlePressIn = useCallback(() => {
         onPressIn?.(order.orderId);
-    };
+    }, [onPressIn, order.orderId]);
 
-    const handleShopPress = () => {
+    const handleShopPress = useCallback(() => {
         onShopPress?.(order.shopId);
-    };
+    }, [onShopPress, order.shopId]);
 
-    const handleAction = (action: OrderAction['action'], order: OrderUI) => {
+    const handleAction = useCallback((action: OrderAction['action'], order: OrderUI) => {
         onAction?.(action, order);
-    };
+    }, [onAction]);
 
-    const handleTrackingPress = () => {
+    const handleTrackingPress = useCallback(() => {
         onTrackingPress?.(order.orderId);
-    };
+    }, [onTrackingPress, order.orderId]);
 
     // Hiển thị tracking cho các status đang vận chuyển
     const showTracking = hasTracking(order) && [
@@ -129,7 +129,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         overflow: 'hidden',
     },
     pressed: {
-        opacity: 0.95,
-        transform: [{ scale: 0.995 }],
+        opacity: 0.92,
     },
 }));

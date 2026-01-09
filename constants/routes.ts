@@ -143,11 +143,19 @@ export const chatRoutes = {
 
 /**
  * Order routes with dynamic ID
+ * 
+ * @param orderId - The order ID to navigate to
+ * @param options - Navigation options
+ * @param options.instantNav - When 'true', target screen will show skeleton with minimum duration
+ *                             Use this for fast taps where prefetch hasn't completed
  */
 export const orderRoutes = {
-    detail: (orderId: string): Href => ({
+    detail: (orderId: string, options?: { instantNav?: boolean }): Href => ({
         pathname: '/orders/[id]',
-        params: { id: orderId },
+        params: {
+            id: orderId,
+            ...(options?.instantNav && { instantNav: 'true' }),
+        },
     }),
     cancel: (orderId: string): Href => ({
         pathname: '/cancel/[id]',
