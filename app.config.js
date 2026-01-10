@@ -18,7 +18,7 @@ module.exports = {
         },
         "ios": {
             "supportsTablet": true,
-            "bundleIdentifier": IS_DEV ? "com.anonymous.ebay.dev" : (IS_PREVIEW ? "com.anonymous.ebay.preview" : "com.anonymous.ebay")
+            "bundleIdentifier": IS_DEV ? "com.calatha.ebay.dev" : (IS_PREVIEW ? "com.calatha.ebay.preview" : "com.calatha.ebay")
         },
         "android": {
             "adaptiveIcon": {
@@ -30,7 +30,7 @@ module.exports = {
             "androidNavigationBar": {
                 "barStyle": "dark-content"
             },
-            "package": IS_DEV ? "com.anonymous.ebay.dev" : (IS_PREVIEW ? "com.anonymous.ebay.preview" : "com.anonymous.ebay")
+            "package": IS_DEV ? "com.calatha.ebay.dev" : (IS_PREVIEW ? "com.calatha.ebay.preview" : "com.calatha.ebay")
         },
         "web": {
             "bundler": "metro",
