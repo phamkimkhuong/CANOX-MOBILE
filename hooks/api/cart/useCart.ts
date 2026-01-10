@@ -2,6 +2,7 @@ import { API_ROUTES } from '@/constants/apiRoutes';
 import { request } from '@/services/api/client';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useCartStore } from '@/store/useCartStore';
+import { hideGlobalLoading, showGlobalLoading } from '@/store/useLoadingStore';
 import { CartApiResponseSchema, CartUI } from '@/types/cart';
 import { transformCart } from '@/utils/adapter/cartAdapter';
 import { logger } from '@/utils/logger';
@@ -83,6 +84,7 @@ export const usePrefetchCart = () => {
 export interface AddToCartInput {
     variantId: string;
     quantity: number;
+    hideToast?: boolean;
 }
 
 export interface AddToCartResult {
@@ -130,15 +132,19 @@ export const useAddToCart = () => {
             return transformCart(response.data);
         },
 
-        // Optimistic update for instant UI feedback
+        // Show loading overlay immediately when mutation starts
         onMutate: async ({ quantity }) => {
+            showGlobalLoading();
+
             await queryClient.cancelQueries({ queryKey: CART_QUERY_KEY });
             // Optimistically increment badge count by quantity
             incrementCart(quantity);
         },
 
-        // On error: Rollback and show error message
+        // On error: Rollback, hide loading, and show error message
         onError: (error) => {
+            hideGlobalLoading();
+
             logger.cart.warn('Add to cart failed', { error });
             // Invalidate to refetch correct data from server
             queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
@@ -153,8 +159,10 @@ export const useAddToCart = () => {
             });
         },
 
-        // On success: Update cache with transformed data and show success message
-        onSuccess: (cartUI) => {
+        // On success: Hide loading, update cache, and show success message
+        onSuccess: (cartUI, variables) => {
+            hideGlobalLoading();
+
             logger.cart.info('Added to cart successfully');
 
             if (cartUI) {
@@ -165,12 +173,14 @@ export const useAddToCart = () => {
                 setTotalQuantity(totalItems);
                 queryClient.setQueryData(CART_QUERY_KEY, cartUI);
 
-                Toast.show({
-                    type: 'success',
-                    text1: 'Đã thêm vào giỏ hàng',
-                    position: 'top',
-                    visibilityTime: 1500,
-                });
+                if (!variables.hideToast) {
+                    Toast.show({
+                        type: 'success',
+                        text1: 'Đã thêm vào giỏ hàng',
+                        position: 'top',
+                        visibilityTime: 2000,
+                    });
+                }
             } else {
                 queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
             }

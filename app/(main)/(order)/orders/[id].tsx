@@ -31,11 +31,13 @@ import {
 } from '@/components/orders/detail';
 import { OrderShopHeader } from '@/components/orders/OrderShopHeader';
 import { CHAT_STRINGS } from '@/constants/i18n/vi/chat';
-import { chatRoutes, orderRoutes, ROUTES, shopRoutes } from '@/constants/routes';
+import { cartRoutes, chatRoutes, orderRoutes, shopRoutes } from '@/constants/routes';
+import { useAddToCart } from '@/hooks/api/cart';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
 import { useOrderDetail } from '@/hooks/api/order/useOrderDetail';
 import { MINIMUM_SKELETON_DURATION_MS } from '@/hooks/usePrefetchTiming';
 import { useAuthStore } from '@/store/useAuthStore';
+import { hideGlobalLoading, showGlobalLoading } from '@/store/useLoadingStore';
 import { OrderItemUI } from '@/types/order/order';
 import { getOrderActions } from '@/utils/adapter/order';
 import { Alert as CustomAlertHelper } from '@/utils/AlertHelper';
@@ -236,17 +238,41 @@ export default function OrderDetailScreen() {
         logger.api.info('Return order request:', rawOrder.orderId);
     }, [rawOrder]);
 
-    const handleRebuy = useCallback(() => {
+    const { mutateAsync: addToCart } = useAddToCart();
+    const handleRebuy = useCallback(async () => {
         if (!order?.items) return;
-        // TODO: Add all items to cart
-        logger.api.info('Rebuy order items:', order.items.length);
-        Toast.show({
-            type: 'success',
-            text1: 'Đã thêm vào giỏ hàng',
-            text2: `${order.items.length} sản phẩm`,
-        });
-        Navigator.push(ROUTES.CART.INDEX as any);
-    }, [order?.items]);
+
+        showGlobalLoading();
+        try {
+            await Promise.all(
+                order.items.map((item) =>
+                    addToCart({
+                        variantId: item.variantId,
+                        quantity: item.quantity,
+                        hideToast: true, // Silent addition
+                    })
+                )
+            );
+
+            logger.api.info('Rebuy successful for order items:', order.items.length);
+
+            // Hide loading overlay before navigation
+            hideGlobalLoading();
+            Navigator.push(cartRoutes.index({ rebuySuccess: true }));
+        } catch (err: any) {
+            hideGlobalLoading();
+            logger.api.error('Rebuy failed:', err);
+
+            // Show friendly error message from API if available
+            const errorMessage = err?.message || 'Có lỗi xảy ra khi thêm vào giỏ hàng';
+
+            Toast.show({
+                type: 'error',
+                text1: 'Mua lại thất bại',
+                text2: errorMessage,
+            });
+        }
+    }, [order?.items, addToCart]);
 
     const handleReview = useCallback(() => {
         if (!rawOrder) return;

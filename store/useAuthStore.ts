@@ -17,11 +17,15 @@ import {
     saveTokens,
     setOnRefreshFailedCallback,
 } from '@/services/auth/tokenManager';
+import { clearAllCache } from '@/utils/cache';
 import { logger } from '@/utils/logger';
 import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { create } from 'zustand';
+import { useAppStore } from './useAppStore';
 import { useCartStore } from './useCartStore';
+import { useCheckoutStore } from './useCheckoutStore';
+import { hideGlobalLoading, showGlobalLoading } from './useLoadingStore';
 import { useUserAddressStore } from './useUserAddressStore';
 
 const BUYER_ID_KEY = 'user_buyer_id';
@@ -155,8 +159,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
      * Logout - Clear all auth data and redirect to login
      */
     logout: async () => {
+        showGlobalLoading();
         try {
-            // 1. Clear tokens and IDs
+
+            set({ token: null, userId: null, buyerId: null, shopId: null, isAuthenticated: false, hydrated: true });
+
+            // Cancel all in-flight requests to avoid 401s during cleanup
+            await queryClient.cancelQueries();
+
+            // 3. Clear tokens and IDs in SecureStore & MMKV
             await Promise.all([
                 clearTokens(),
                 SecureStore.deleteItemAsync(USER_ID_KEY),
@@ -164,29 +175,31 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 SecureStore.deleteItemAsync(SHOP_ID_KEY),
             ]);
 
-            // 2. Clear stores
+            // Clear all Zustand stores
             useCartStore.getState().clear();
             useUserAddressStore.getState().clear();
+            useCheckoutStore.getState().resetSession();
 
-            // 3. Clear user-specific query caches
-            queryClient.removeQueries({ queryKey: ['cart'] });
-            queryClient.removeQueries({ queryKey: ['user-addresses'] });
-            queryClient.removeQueries({ queryKey: ['profile'] });
-            queryClient.removeQueries({ queryKey: ['notifications'] });
-            queryClient.removeQueries({ queryKey: ['orders'] });
-            queryClient.removeQueries({ queryKey: ['conversations'] });
+            //  Reset sensitive app preferences
+            useAppStore.getState().setBiometrics(false);
 
-            logger.auth.info('Logout complete - User data cleared');
+            // Clear all TanStack Query caches (Nuclear Reset)
+            queryClient.clear();
 
-            // 4. Reset auth state
-            set({ token: null, userId: null, buyerId: null, shopId: null, isAuthenticated: false, hydrated: true });
+            // Clear Device Disk Cache (Images, Temp files)
+            await clearAllCache();
 
-            // 5. Navigate to login
+            logger.auth.info('Logout complete - Nuclear cleanup finished');
+
+            // Hide loading before navigating
+            hideGlobalLoading();
             router.replace(ROUTES.AUTH.LOGIN);
         } catch (error) {
+            hideGlobalLoading();
             logger.auth.error('Error during logout:', error);
             // Force reset state even if cleanup fails
             set({ token: null, userId: null, buyerId: null, shopId: null, isAuthenticated: false, hydrated: true });
+            router.replace(ROUTES.AUTH.LOGIN);
         }
     },
 }));

@@ -145,6 +145,18 @@ export const chatRoutes = {
 } as const;
 
 /**
+ * Cart routes
+ */
+export const cartRoutes = {
+    index: (params?: { rebuySuccess?: boolean }): Href => ({
+        pathname: '/cart',
+        params: {
+            ...(params?.rebuySuccess && { rebuySuccess: 'true' }),
+        },
+    }),
+} as const;
+
+/**
  * Order routes with dynamic ID
  * 
  * @param orderId - The order ID to navigate to
@@ -287,4 +299,5 @@ export type DynamicRouteBuilders = {
     shop: typeof shopRoutes;
     address: typeof addressRoutes;
     auth: typeof authRoutes;
+    cart: typeof cartRoutes;
 };

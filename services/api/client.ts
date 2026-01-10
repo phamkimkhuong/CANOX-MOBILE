@@ -173,10 +173,13 @@ apiClient.interceptors.response.use(
         const statusCode = error.response?.status;
         const errorCode = data?.code as number | undefined;
 
-        // Build error message
-        const finalMessage = errorCode
-            ? getErrorMessageByCode(errorCode, 'vi')
-            : ((data?.message as string) || error.message);
+        // Build error message for UI
+        // Localized message from internal mapping (errorCode)
+        // Generic human-friendly message (e.g. 6005)
+        const mappedMessage = errorCode ? getErrorMessageByCode(errorCode, 'vi') : undefined;
+        const genericFallback = getErrorMessageByCode(6005, 'vi') || 'Đã xảy ra lỗi. Vui lòng thử lại sau!';
+
+        const finalMessage = mappedMessage || genericFallback;
 
         // For PUBLIC endpoints, don't attempt token refresh - just pass the error through
         if (isPublicEndpoint(error.config?.url)) {

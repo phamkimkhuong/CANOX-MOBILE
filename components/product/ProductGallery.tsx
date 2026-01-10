@@ -245,18 +245,36 @@ export const ProductGallery = memo(forwardRef<ProductGalleryRef, ProductGalleryP
     const [isVideoPlayerVisible, setIsVideoPlayerVisible] = useState(false);
     const [currentVideoUrl, setCurrentVideoUrl] = useState<string | null>(null);
 
+    // Sort gallery items: Video First, then Image
+    const orderedGallery = useMemo(() => {
+        return [...gallery].sort((a, b) => {
+            if (a.type === 'VIDEO' && b.type === 'IMAGE') return -1;
+            if (a.type === 'IMAGE' && b.type === 'VIDEO') return 1;
+            return 0;
+        });
+    }, [gallery]);
+
+    // Correct initial index if items were moved
+    const correctedInitialIndex = useMemo(() => {
+        if (initialIndex === undefined || initialIndex === 0 || gallery.length === 0) return initialIndex;
+        const targetItem = gallery[initialIndex];
+        if (!targetItem) return initialIndex;
+        const newIndex = orderedGallery.findIndex(item => item.id === targetItem.id);
+        return newIndex >= 0 ? newIndex : initialIndex;
+    }, [gallery, orderedGallery, initialIndex]);
+
     // Filter only images for full-screen viewer
     const galleryImages = useMemo(() =>
-        gallery
+        orderedGallery
             .filter(item => item.type === 'IMAGE')
             .map(item => ({ uri: item.url, id: item.id }))
-        , [gallery]);
+        , [orderedGallery]);
 
     /**
      * Handle image press - opens fullscreen image viewer
      */
     const handleImagePress = useCallback((index: number) => {
-        const item = gallery[index];
+        const item = orderedGallery[index];
         if (item.type === 'IMAGE') {
             // Find index in filtered images array
             const imgIndex = galleryImages.findIndex(img => img.uri === item.url);
@@ -265,43 +283,44 @@ export const ProductGallery = memo(forwardRef<ProductGalleryRef, ProductGalleryP
         }
         // Also call parent callback if exists
         onImagePress?.(index);
-    }, [gallery, galleryImages, onImagePress]);
+    }, [orderedGallery, galleryImages, onImagePress]);
 
     /**
      * Handle video press - opens fullscreen video player
      */
     const handleVideoPress = useCallback((index: number) => {
-        const item = gallery[index];
+        const item = orderedGallery[index];
         if (item.type === 'VIDEO' && item.url) {
             setCurrentVideoUrl(item.url);
             setIsVideoPlayerVisible(true);
         }
         // Also call parent callback if exists
         onImagePress?.(index);
-    }, [gallery, onImagePress]);
+    }, [orderedGallery, onImagePress]);
 
     /**
      * Handle gallery item press - routes to image or video handler
      */
     const handleGalleryItemPress = useCallback((index: number) => {
-        const item = gallery[index];
+        const item = orderedGallery[index];
         if (item.type === 'VIDEO') {
             handleVideoPress(index);
         } else {
             handleImagePress(index);
         }
-    }, [gallery, handleImagePress, handleVideoPress]);
+    }, [orderedGallery, handleImagePress, handleVideoPress]);
 
     useImperativeHandle(ref, () => ({
         scrollToIndex: (index: number) => {
-            if (flatListRef.current && index >= 0 && index < gallery.length) {
+            if (flatListRef.current && index >= 0 && index < orderedGallery.length) {
                 flatListRef.current.scrollToOffset({
                     offset: index * screenWidth,
                     animated: true,
                 });
+                setActiveIndex(index);
             }
         },
-    }), [screenWidth, gallery.length]);
+    }), [screenWidth, orderedGallery.length]);
 
     // === Viewability Config (stable refs) ===
     const viewabilityConfig = useRef({
@@ -369,7 +388,7 @@ export const ProductGallery = memo(forwardRef<ProductGalleryRef, ProductGalleryP
 
     // === Memoize thumbnails to avoid re-render on activeIndex change only ===
     const thumbnailElements = useMemo(() => {
-        return gallery.map((item, index) => (
+        return orderedGallery.map((item, index) => (
             <ThumbnailItem
                 key={item.id}
                 item={item}
@@ -378,7 +397,7 @@ export const ProductGallery = memo(forwardRef<ProductGalleryRef, ProductGalleryP
                 onPress={() => scrollToIndex(index)}
             />
         ));
-    }, [gallery, activeIndex, scrollToIndex]);
+    }, [orderedGallery, activeIndex, scrollToIndex]);
 
     // === Dynamic styles ===
     const emptyContainerStyle = useMemo(() => ({
@@ -391,7 +410,7 @@ export const ProductGallery = memo(forwardRef<ProductGalleryRef, ProductGalleryP
     }), [screenWidth, galleryHeight, theme.colors.background, theme.margins.sm]);
 
     // === Empty State ===
-    if (gallery.length === 0) {
+    if (orderedGallery.length === 0) {
         return (
             <View style={emptyContainerStyle}>
                 <IconSymbol
@@ -409,7 +428,7 @@ export const ProductGallery = memo(forwardRef<ProductGalleryRef, ProductGalleryP
             {/* Main Gallery */}
             <Animated.FlatList<GalleryItem>
                 ref={flatListRef}
-                data={gallery}
+                data={orderedGallery}
                 renderItem={renderItem}
                 keyExtractor={keyExtractor}
                 horizontal
@@ -420,7 +439,7 @@ export const ProductGallery = memo(forwardRef<ProductGalleryRef, ProductGalleryP
                 viewabilityConfig={viewabilityConfig.current}
                 onViewableItemsChanged={onViewableItemsChanged.current}
                 getItemLayout={getItemLayout}
-                initialScrollIndex={initialIndex}
+                initialScrollIndex={correctedInitialIndex}
                 decelerationRate="fast"
                 bounces={false}
                 removeClippedSubviews
@@ -432,13 +451,13 @@ export const ProductGallery = memo(forwardRef<ProductGalleryRef, ProductGalleryP
             <View style={styles.paginationContainer}>
                 <View style={styles.pagination}>
                     <Text style={styles.paginationText}>
-                        {activeIndex + 1}/{gallery.length}
+                        {activeIndex + 1}/{orderedGallery.length}
                     </Text>
                 </View>
             </View>
 
             {/* Thumbnails (if > 1 item) */}
-            {gallery.length > 1 && (
+            {orderedGallery.length > 1 && (
                 <Animated.ScrollView
                     ref={thumbnailScrollRef}
                     horizontal
@@ -510,10 +529,6 @@ export const ProductGallery = memo(forwardRef<ProductGalleryRef, ProductGalleryP
 }));
 
 ProductGallery.displayName = 'ProductGallery';
-
-// ============================================
-// STYLES
-// ============================================
 
 const styles = StyleSheet.create((theme) => ({
     container: {

@@ -189,14 +189,14 @@ export default function ProductDetailScreen() {
 
         // Action based on mode
         if (variantSheetMode === 'add-to-cart') {
-            // Add to cart from sheet
+            setVariantSheetVisible(false);
+            setVariantSheetMode('select');
+
             log.info('Add to cart from sheet:', { variantId: selectedVariantId, quantity });
             addToCart(
                 { variantId: selectedVariantId, quantity },
                 {
                     onSuccess: () => {
-                        setVariantSheetVisible(false);
-                        setVariantSheetMode('select');
                         setQuantity(1);
                     },
                 }

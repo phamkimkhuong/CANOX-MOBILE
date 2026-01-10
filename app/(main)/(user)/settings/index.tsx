@@ -1,6 +1,6 @@
 import { Navigator } from '@/utils/navigation';
 import React, { useCallback, useMemo } from 'react';
-import { ActivityIndicator, Alert, ScrollView, View } from 'react-native';
+import { Alert, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -49,7 +49,7 @@ export default function SettingsScreen() {
         clearCache,
     } = useCache();
 
-    const { logout, isLoggingOut } = useLogout();
+    const { logout } = useLogout();
 
     // Handle navigation for link items
     const handleNavigation = useCallback((route: any) => {
@@ -250,11 +250,6 @@ export default function SettingsScreen() {
                         }}
                         onPress={logout}
                     />
-                    {isLoggingOut && (
-                        <View style={styles.loadingOverlay}>
-                            <ActivityIndicator color={theme.colors.primary} />
-                        </View>
-                    )}
                 </View>
 
                 {/* Footer */}
@@ -286,11 +281,5 @@ const stylesheet = StyleSheet.create((theme) => ({
         backgroundColor: theme.colors.surface,
         borderWidth: 1,
         borderColor: theme.colors.border,
-    },
-    loadingOverlay: {
-        ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(255, 255, 255, 0.7)',
-        alignItems: 'center',
-        justifyContent: 'center',
     },
 }));

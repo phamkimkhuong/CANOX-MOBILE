@@ -5,13 +5,13 @@
  * Contains:
  * - Total price display
  * - "Đặt hàng" button
- * - Loading/disabled states
+ * - Disabled state when order cannot be placed
  */
 
 import { IconSymbol } from '@/components/ui/Icon';
 import { formatCurrency } from '@/utils/format';
 import React from 'react';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 
 interface CheckoutFooterProps {
@@ -25,8 +25,6 @@ interface CheckoutFooterProps {
     canPlaceOrder: boolean;
     /** Reasons why order cannot be placed */
     blockReasons: string[];
-    /** Whether order is being submitted */
-    isSubmitting: boolean;
     /** Callback when place order button is pressed */
     onPlaceOrder: () => void;
 }
@@ -37,13 +35,12 @@ export const CheckoutFooter: React.FC<CheckoutFooterProps> = ({
     totalSavings = 0,
     canPlaceOrder,
     blockReasons,
-    isSubmitting,
     onPlaceOrder,
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
 
-    const isDisabled = !canPlaceOrder || isSubmitting;
+    const isDisabled = !canPlaceOrder;
     const firstBlockReason = blockReasons[0];
 
     return (
@@ -97,13 +94,9 @@ export const CheckoutFooter: React.FC<CheckoutFooterProps> = ({
                     accessibilityLabel={`Đặt hàng, tổng ${formatCurrency(totalAmount)}`}
                     accessibilityState={{ disabled: isDisabled }}
                 >
-                    {isSubmitting ? (
-                        <ActivityIndicator size="small" color="#FFFFFF" />
-                    ) : (
-                        <Text style={styles.orderButtonText}>
-                            Đặt hàng ({itemCount})
-                        </Text>
-                    )}
+                    <Text style={styles.orderButtonText}>
+                        Đặt hàng ({itemCount})
+                    </Text>
                 </Pressable>
             </View>
 

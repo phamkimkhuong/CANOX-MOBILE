@@ -110,6 +110,8 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     'favorite-border': { ios: 'heart-outline', android: 'heart-outline' },
     'star-border': { ios: 'star-outline', android: 'star-outline' },
     'error-outline': { ios: 'close-circle-outline', android: 'close-circle-outline' },
+    'info-outline': { ios: 'information-circle-outline', android: 'information-circle-outline' },
+    'lock-reset': { ios: 'key-outline', android: 'key-outline' },
     'alert-circle-outline': { ios: 'alert-circle-outline', android: 'alert-circle-outline' },
     history: { ios: 'time-outline', android: 'time-outline' },
     'receipt-long': { ios: 'receipt-outline', android: 'receipt-outline' },

@@ -2,6 +2,7 @@ import { API_ROUTES } from '@/constants/apiRoutes';
 import { authRoutes, ROUTES } from '@/constants/routes';
 import { ApiError, isSessionExpiredError, request } from '@/services/api/client';
 import { useAuthStore } from '@/store/useAuthStore';
+import { hideGlobalLoading, showGlobalLoading } from '@/store/useLoadingStore';
 import { AuthResponseSchema, LoginPayload, RegisterPayload, RegisterResponseSchema, VerifyOtpPayload } from '@/types/auth';
 import { ResponseDefaultSchema } from '@/types/responseSchema';
 import { useMutation } from '@tanstack/react-query';
@@ -29,6 +30,7 @@ export const useLogin = () => {
 
             // Kiểm tra email verified
             if (emailVerified === false) {
+                hideGlobalLoading();
                 Toast.show({
                     type: 'warning',
                     text1: 'Tài khoản chưa kích hoạt',
@@ -39,6 +41,8 @@ export const useLogin = () => {
             }
             // Email đã verify -> Lưu token, userId và buyerId vào store
             await loginStore(accessToken, refreshToken, userId, buyerId);
+
+            hideGlobalLoading();
             Toast.show({
                 type: 'success',
                 text1: 'Đăng nhập thành công',
@@ -46,6 +50,7 @@ export const useLogin = () => {
             router.replace(ROUTES.TABS.HOME);
         },
         onError: (error: ApiError) => {
+            hideGlobalLoading();
             Toast.show({
                 type: 'error',
                 text1: 'Đăng nhập thất bại',
@@ -94,12 +99,16 @@ export const useLogout = () => {
                 AuthResponseSchema
             );
         },
+        onMutate: () => {
+            showGlobalLoading();
+        },
         onSuccess: async () => {
-            // 1. Xoá token khỏi SecureStore & Zustand
+            // logoutStore already handles GlobalLoadingOverlay and navigation
             await logoutStore();
-            router.replace(ROUTES.AUTH.LOGIN);
+            hideGlobalLoading();
         },
         onError: (error: ApiError) => {
+            hideGlobalLoading();
             const message = error.message;
             if (isSessionExpiredError(error)) return;
             Toast.show({

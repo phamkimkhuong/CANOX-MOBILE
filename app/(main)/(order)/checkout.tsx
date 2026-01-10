@@ -12,6 +12,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { ScrollView, View } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 // Components
@@ -42,6 +43,7 @@ import {
     useOrderBlockReasons,
     usePreviewWarnings,
 } from '@/store/useCheckoutStore';
+import { hideGlobalLoading, showGlobalLoading } from '@/store/useLoadingStore';
 import { useUserAddressStore } from '@/store/useUserAddressStore';
 import type { CheckoutShopUI, PaymentMethodType } from '@/types/checkout';
 import type { CheckoutPreviewRequest, CheckoutPreviewShopRequest } from '@/types/checkout/checkoutPreview';
@@ -72,7 +74,6 @@ export default function CheckoutScreen() {
     const isInitialized = useCheckoutStore((s) => s.isInitialized);
     const previewData = useCheckoutStore((s) => s.previewData);
     const paymentMethod = useCheckoutStore((s) => s.paymentMethod);
-    const isSubmitting = useCheckoutStore((s) => s.isSubmitting);
     const selectedShipping = useCheckoutStore((s) => s.selectedShipping);
     const selectedShopVouchers = useCheckoutStore((s) => s.selectedShopVouchers);
     const selectedPlatformDiscountVoucher = useCheckoutStore((s) => s.selectedPlatformDiscountVoucher);
@@ -127,7 +128,6 @@ export default function CheckoutScreen() {
     const applyPlatformVoucher = useCheckoutStore((s) => s.applyPlatformVoucher);
     const applyBulkPlatformVouchers = useCheckoutStore((s) => s.applyBulkPlatformVouchers);
     const setPaymentMethod = useCheckoutStore((s) => s.setPaymentMethod);
-    const setSubmitting = useCheckoutStore((s) => s.setSubmitting);
     const setPreviewData = useCheckoutStore((s) => s.setPreviewData);
     const setLoadingPreview = useCheckoutStore((s) => s.setLoadingPreview);
 
@@ -284,6 +284,40 @@ export default function CheckoutScreen() {
         doFetchPreview(debouncedRequest);
     }, [debouncedRequest, doFetchPreview, previewData, isRequestMatchingPreview]);
 
+    // ========================================
+    // NOTIFICATIONS
+    // ========================================
+    const hasShownVoucherToast = useRef(false);
+
+    useEffect(() => {
+        // Condition: Render finished && preview data ready && can place order
+        const isReady = isInitialized && previewData && !isLoadingPreview;
+
+        if (isReady && canPlaceOrder && !hasShownVoucherToast.current) {
+            // Check if any voucher actually applied (shop or platform)
+            const hasVoucher =
+                calculation.platformVoucherDiscount > 0 ||
+                calculation.shippingDiscount > 0 ||
+                calculation.totalShopVoucherDiscount > 0;
+
+            if (hasVoucher) {
+                // Delay a bit to ensure UI has settled and user is focused
+                const timer = setTimeout(() => {
+                    Toast.show({
+                        type: 'success',
+                        text1: 'Đã áp dụng voucher tốt nhất',
+                        text2: 'Hệ thống đã tự động chọn ưu đãi tối ưu cho đơn hàng của bạn.',
+                        position: 'bottom',
+                        visibilityTime: 4000,
+                    });
+                }, 500);
+
+                hasShownVoucherToast.current = true;
+                return () => clearTimeout(timer);
+            }
+        }
+    }, [isInitialized, previewData, isLoadingPreview, canPlaceOrder, calculation]);
+
     // Cleanup on unmount
     useFocusEffect(
         useCallback(() => {
@@ -322,7 +356,7 @@ export default function CheckoutScreen() {
     const handlePlaceOrder = useCallback(async () => {
         if (!canPlaceOrder || !previewData) return;
 
-        setSubmitting(true);
+        showGlobalLoading();
 
         try {
             const store = useCheckoutStore.getState();
@@ -401,6 +435,9 @@ export default function CheckoutScreen() {
                 }).filter(Boolean) || [],
             }));
 
+            // Hide loading overlay before navigating
+            hideGlobalLoading();
+
             // Navigate to Order Success screen
             Navigator.replace({
                 pathname: ROUTES.ORDERS.SUCCESS,
@@ -410,10 +447,9 @@ export default function CheckoutScreen() {
                 },
             } as never);
         } catch (error: any) {
+            hideGlobalLoading();
             logger.checkout.error('Place order failed', { error: error.message });
             Alert.error(error.message || 'Đặt hàng thất bại. Vui lòng thử lại.');
-        } finally {
-            setSubmitting(false);
         }
     }, [
         canPlaceOrder,
@@ -424,7 +460,6 @@ export default function CheckoutScreen() {
         selectedItemIds,
         placeOrder,
         resetSession,
-        setSubmitting
     ]);
 
     const handleBack = useCallback(() => {
@@ -552,7 +587,6 @@ export default function CheckoutScreen() {
                 totalSavings={calculation.totalSavings}
                 canPlaceOrder={canPlaceOrder}
                 blockReasons={orderBlockReasons}
-                isSubmitting={isSubmitting}
                 onPlaceOrder={handlePlaceOrder}
             />
         </View>

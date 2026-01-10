@@ -16,6 +16,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import CustomAlert from '@/components/ui/feedback/CustomAlert';
 import { toastConfig } from '@/components/ui/feedback/CustomToast';
+import GlobalLoadingOverlay from '@/components/ui/feedback/GlobalLoadingOverlay';
 import { NavigationBarBackground } from '@/components/ui/navigation/NavigationBarBackground';
 import { UserSyncProvider } from '@/components/UserSyncProvider';
 import { WebSocketProvider } from '@/components/WebSocketProvider';
@@ -112,6 +113,8 @@ export default function RootLayout() {
                   config={toastConfig}
                   visibilityTime={3000}
                 />
+                {/* Global Loading Overlay - Blocks all interactions during critical operations */}
+                <GlobalLoadingOverlay />
                 <StatusBar style="dark" />
                 {/* Navigation Bar Background - Dark background for device navigation bar area */}
                 <NavigationBarBackground />

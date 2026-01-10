@@ -40,13 +40,15 @@ const VI_MAP: Record<number, string> = {
     2515: "Lỗi khi xác minh OTP",
     3001: "Không thể xác minh phí vận chuyển.Vui lòng thử lại sau!",
 
-
+    // GIỎ HÀNG & KHO (9400-9499)
+    9402: "Sản phẩm đã hết hàng hoặc không đủ số lượng yêu cầu!",
 } as const;
-export const getErrorMessageByCode = (code: number, lang: 'vi' | 'en' = 'vi'): string => {
+
+export const getErrorMessageByCode = (code: number, lang: 'vi' | 'en' = 'vi'): string | undefined => {
     const errorMaps = {
         vi: VI_MAP,
         en: EN_MAP
     };
-    return errorMaps[lang][code] || errorMaps[lang][6005];
+    return errorMaps[lang][code];
 };
 

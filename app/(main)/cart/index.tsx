@@ -43,10 +43,12 @@ import { getShopCheckboxState } from '@/utils/adapter/cartAdapter';
 import { logger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
 import { FlashList } from '@shopify/flash-list';
+import { useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, RefreshControl, Text, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface CartHeaderProps {
@@ -143,6 +145,7 @@ const EmptyCart: React.FC<EmptyCartProps> = ({ onRefresh, refreshing }) => {
 export default function CartScreen() {
     const { theme } = useUnistyles();
     const insets = useSafeAreaInsets();
+    const { rebuySuccess } = useLocalSearchParams<{ rebuySuccess?: string }>();
 
     // ========================================
     // API HOOKS
@@ -190,6 +193,17 @@ export default function CartScreen() {
 
         return () => cancelIdleCallback(handle);
     }, []);
+
+    useEffect(() => {
+        if (isReady && !isLoading && rebuySuccess === 'true') {
+            Toast.show({
+                type: 'success',
+                text1: 'Mua lại thành công',
+                text2: 'Sản phẩm đã được thêm vào giỏ hàng của bạn',
+                visibilityTime: 3000,
+            });
+        }
+    }, [isReady, isLoading, rebuySuccess]);
 
     // ========================================
     // CALCULATIONS (Client-side selection)

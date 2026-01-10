@@ -1,6 +1,5 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
-import { logger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
@@ -13,6 +12,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { AuthInput } from '@/components/auth/AuthInput';
 import { SocialLoginButtons } from '@/components/auth/SocialLoginButtons';
 import { useLogin } from '@/hooks/api/useAuth';
+import { showGlobalLoading } from '@/store/useLoadingStore';
 import { LoginPayload, LoginRequestSchema } from '@/types/auth';
 
 export default function LoginScreen() {
@@ -27,16 +27,11 @@ export default function LoginScreen() {
             password: '',
         },
     });
-    const { mutate: login, isPending } = useLogin();
-    // 3. Handle Submit Logic
+    const { mutate: login } = useLogin();
+
     const onSubmit = async (data: LoginPayload) => {
-        login(data, {
-            onError: (error: any) => {
-            },
-            onSuccess: () => {
-                logger.auth.info('Login successful');
-            }
-        });
+        showGlobalLoading();
+        login(data);
     };
 
     return (
@@ -99,13 +94,11 @@ export default function LoginScreen() {
 
                         {/* Submit Button */}
                         <TouchableOpacity
-                            style={[styles.loginBtn, isSubmitting || isPending ? styles.loginBtnDisabled : null]}
-                            disabled={isSubmitting || isPending}
+                            style={styles.loginBtn}
+                            disabled={isSubmitting}
                             onPress={handleSubmit(onSubmit)}
                         >
-                            <Text style={styles.loginBtnText}>
-                                {isSubmitting || isPending ? 'Đang xử lý...' : 'Đăng nhập'}
-                            </Text>
+                            <Text style={styles.loginBtnText}>Đăng nhập</Text>
                         </TouchableOpacity>
 
                         {/* Divider */}
