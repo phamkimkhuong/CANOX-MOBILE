@@ -76,11 +76,6 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
         pressTimingMap.current.delete(orderId);
         const isInstantTap = elapsed > 0 && elapsed < PREFETCH_GRACE_PERIOD_MS;
         Navigator.push(orderRoutes.detail(orderId, { instantNav: isInstantTap }));
-        if (__DEV__) {
-            setTimeout(() => {
-                logger.orders.info(`[Hybrid Nav] elapsed=${elapsed}ms, instant=${isInstantTap}`);
-            }, 0);
-        }
     }, []);
 
     const handleShopPress = useCallback((shopId: string) => {

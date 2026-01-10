@@ -20,6 +20,7 @@ import { CHAT_STRINGS } from '@/constants/i18n/vi/chat';
 import { chatRoutes, productRoutes } from '@/constants/routes';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
 import { useRefreshShopProducts, useShopDetail, useShopProducts } from '@/hooks/api/useShop';
+import { MINIMUM_SKELETON_DURATION_MS } from '@/hooks/usePrefetchTiming';
 import { useAuthStore } from '@/store/useAuthStore';
 import type { ShopProductFilterParams, ShopProductItemUI, ShopTabType } from '@/types/shop';
 import { Navigator } from '@/utils/navigation';
@@ -69,7 +70,10 @@ const ListFooterComponent: React.FC<{ isLoading: boolean }> = ({ isLoading }) =>
 export default function ShopDetailScreen() {
     const { theme } = useUnistyles();
     const insets = useSafeAreaInsets();
-    const { id: shopId } = useLocalSearchParams<{ id: string }>();
+    const { id: shopId, instantNav } = useLocalSearchParams<{ id: string; instantNav?: string }>();
+
+    // Instant Nav: If true, enforce minimum skeleton duration to avoid flash
+    const isInstantNav = instantNav === 'true';
 
     const [activeTab, setActiveTab] = useState<ShopTabType>('products');
     const [filters, setFilters] = useState<ShopProductFilterParams>({ size: 20 });
@@ -102,6 +106,22 @@ export default function ShopDetailScreen() {
 
     const { data: shop, isLoading: isLoadingShop, isError: isShopError, refetch: refetchShop } = useShopDetail(shopId);
     const { data: productsData, isLoading: isLoadingProducts, isRefetching: isRefetchingProducts, isFetchingNextPage, hasNextPage, fetchNextPage } = useShopProducts(shopId, filters);
+
+    // Minimum skeleton duration for instant nav (prevents flash)
+    const [minSkeletonComplete, setMinSkeletonComplete] = useState(!isInstantNav);
+
+    React.useEffect(() => {
+        if (!isInstantNav) {
+            setMinSkeletonComplete(true);
+            return;
+        }
+        // Minimum skeleton duration for instant tap navigation (prevents flash)
+        const timer = setTimeout(() => setMinSkeletonComplete(true), MINIMUM_SKELETON_DURATION_MS);
+        return () => clearTimeout(timer);
+    }, [isInstantNav]);
+
+    // Show skeleton if: loading OR (instant nav AND minimum duration not complete)
+    const shouldShowSkeleton = isLoadingShop || (isInstantNav && !minSkeletonComplete);
 
     // Smart refresh for products infinite query
     const { refresh: smartRefreshProducts } = useRefreshShopProducts(shopId, filters);
@@ -173,7 +193,7 @@ export default function ShopDetailScreen() {
     const renderItem: ListRenderItem<FlatListItem> = useCallback(({ item, index }) => {
         switch (item.type) {
             case 'header':
-                if (isLoadingShop) return <ShopHeaderSkeleton />;
+                if (shouldShowSkeleton) return <ShopHeaderSkeleton />;
                 if (!shop) return null;
                 return (
                     <View>
@@ -214,7 +234,7 @@ export default function ShopDetailScreen() {
                 );
             default: return null;
         }
-    }, [isLoadingShop, shop, activeTab, totalProductCount, handleChatPress, handleFollowPress, handleTabChange, theme, HEADER_HEIGHT]);
+    }, [shouldShowSkeleton, shop, activeTab, totalProductCount, handleChatPress, handleFollowPress, handleTabChange, theme, HEADER_HEIGHT]);
 
     if (isShopError) {
         return (

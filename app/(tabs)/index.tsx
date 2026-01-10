@@ -7,6 +7,7 @@ import { productRoutes } from '@/constants/routes';
 import { useScrollToTopHandler } from '@/contexts/ScrollToTopContext';
 import { usePrefetchProductDetail } from '@/hooks/api/product/useProductDetail';
 import { FeedType, useProductFeed } from '@/hooks/api/useHomeProducts';
+import { PREFETCH_GRACE_PERIOD_MS } from '@/hooks/usePrefetchTiming';
 import type { ProductFeedItem } from '@/types/product/product';
 import { Navigator } from '@/utils/navigation';
 import { FlashList, FlashListRef, ListRenderItemInfo } from '@shopify/flash-list';
@@ -64,20 +65,29 @@ const TabsRowItem = memo(({
 TabsRowItem.displayName = 'TabsRowItem';
 
 /**
- * ProductRowItem 
+ * ProductRowItem - Hybrid Pattern Navigation
+ * - PressIn: Start prefetch + record timing
+ * - Press: Navigate with instant flag based on elapsed time
  */
 const ProductRowItem = memo(({
   item,
-  onPress,
 }: {
   item: ProductFeedItem;
-  onPress: (id: string) => void;
 }) => {
   const prefetchProduct = usePrefetchProductDetail();
+  const pressInTimeRef = useRef(0);
 
-  const handlePrefetch = useCallback(() => {
+  const handlePressIn = useCallback(() => {
+    pressInTimeRef.current = Date.now();
     prefetchProduct(item.id);
   }, [item.id, prefetchProduct]);
+
+  const handlePress = useCallback(() => {
+    const elapsed = pressInTimeRef.current ? Date.now() - pressInTimeRef.current : 0;
+    pressInTimeRef.current = 0;
+    const isInstantTap = elapsed > 0 && elapsed < PREFETCH_GRACE_PERIOD_MS;
+    Navigator.push(productRoutes.detail(item.id, { instantNav: isInstantTap }));
+  }, [item.id]);
 
   return (
     <ProductCard
@@ -91,8 +101,8 @@ const ProductRowItem = memo(({
       location={item.shopName}
       discount={item.discountPercentage}
       isMall={item.isMall}
-      onPress={() => onPress(item.id)}
-      onPressIn={handlePrefetch}
+      onPress={handlePress}
+      onPressIn={handlePressIn}
       route={productRoutes.detail(item.id)}
     />
   );
@@ -149,11 +159,15 @@ export default function HomeScreen() {
    * Scroll to Top Handler - Register with context to handle when user returns to Home tab
    */
   const scrollToTop = useCallback(() => {
+    const currentOffset = scrollYRef.current;
+    const threshold = screenHeight * 2;
+    const shouldAnimate = currentOffset < threshold;
+
     listRef.current?.scrollToOffset({
       offset: 0,
-      animated: true,
+      animated: shouldAnimate,
     });
-  }, []);
+  }, [screenHeight]);
 
   // Đăng ký handler với context (tự cleanup khi unmount)
   useScrollToTopHandler('index', scrollToTop);
@@ -307,7 +321,6 @@ export default function HomeScreen() {
         return (
           <ProductRowItem
             item={item.data}
-            onPress={handleProductPress}
           />
         );
       case 'skeleton':

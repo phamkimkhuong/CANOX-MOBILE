@@ -132,7 +132,7 @@ export default function OrderDetailScreen() {
 
     const handleCancel = useCallback(() => {
         if (!rawOrder) return;
-        Navigator.push(orderRoutes.cancel(rawOrder.orderId));
+        Navigator.push(orderRoutes.cancel(rawOrder.orderId, { fromDetail: 'true' }));
     }, [rawOrder]);
 
     const handleContactShop = useCallback(() => {

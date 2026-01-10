@@ -39,6 +39,7 @@ const PUBLIC_ENDPOINTS = [
     '/users/buyer',
     '/public/**',
     '/categories/tree',
+    '/reviews/PRODUCT/**',
 ];
 
 /**
@@ -177,12 +178,19 @@ apiClient.interceptors.response.use(
             ? getErrorMessageByCode(errorCode, 'vi')
             : ((data?.message as string) || error.message);
 
-        // Handle 401 Unauthorized - Token expired or invalid access
-        if (statusCode === 401 && !isPublicEndpoint(error.config?.url)) {
+        // For PUBLIC endpoints, don't attempt token refresh - just pass the error through
+        if (isPublicEndpoint(error.config?.url)) {
+            logger.api.warn(`Public endpoint returned ${statusCode}:`, error.config?.url);
+            const customError = new ApiError(finalMessage, statusCode, errorCode);
+            return Promise.reject(customError);
+        }
+
+        // Handle 401 Unauthorized - Token expired or invalid access (AUTH endpoints only)
+        if (statusCode === 401) {
             logger.api.error('Received 401 Error from Backend:', {
                 url: error.config?.url,
                 method: error.config?.method?.toUpperCase(),
-                data: data, // This contains the BE message
+                data: data,
                 timestamp: new Date().toISOString(),
             });
 

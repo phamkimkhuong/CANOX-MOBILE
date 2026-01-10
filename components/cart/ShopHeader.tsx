@@ -34,7 +34,10 @@ interface ShopHeaderProps {
     isMall?: boolean;
     /** Toggle shop selection */
     onToggleSelect: () => void;
+    /** Navigate to shop detail */
     onNavigateToShop?: () => void;
+    /** Prefetch shop data on press in (Hybrid Pattern) */
+    onShopPressIn?: () => void;
     /** Edit button pressed */
     onEditPress?: () => void;
     /** Is currently in edit mode */
@@ -52,6 +55,7 @@ export const ShopHeader: React.FC<ShopHeaderProps> = memo(({
     isMall = false,
     onToggleSelect,
     onNavigateToShop,
+    onShopPressIn,
     onEditPress,
     isEditMode = false,
 }) => {
@@ -68,6 +72,7 @@ export const ShopHeader: React.FC<ShopHeaderProps> = memo(({
             {/* Shop Info */}
             <Pressable
                 onPress={onNavigateToShop}
+                onPressIn={onShopPressIn}
                 style={styles.shopInfo}
                 accessibilityLabel={`Xem shop ${shopName}`}
                 accessibilityRole="button"

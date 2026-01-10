@@ -18,6 +18,7 @@ import {
     RefundPolicyCard,
 } from '@/components/orders/cancel';
 import { IconSymbol } from '@/components/ui/Icon';
+import { ROUTES } from '@/constants/routes';
 import { useCancelOrder } from '@/hooks/api/order/useCancelOrder';
 import { useOrderDetail } from '@/hooks/api/order/useOrderDetail';
 import type { CancelReasonCode } from '@/types/order/cancel';
@@ -41,7 +42,10 @@ import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 export default function CancelOrderScreen() {
-    const { id: orderId } = useLocalSearchParams<{ id: string }>();
+    const { id: orderId, fromDetail } = useLocalSearchParams<{
+        id: string;
+        fromDetail?: string;
+    }>();
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const { bottom } = useSafeAreaInsets();
@@ -59,7 +63,11 @@ export default function CancelOrderScreen() {
     // === MUTATION ===
     const { mutate: cancelOrder, isPending: isCancelling } = useCancelOrder({
         onSuccess: () => {
-            Navigator.back();
+            if (fromDetail === 'true') {
+                Navigator.replace(`${ROUTES.ORDERS.LIST}?tab=cancelled`);
+            } else {
+                Navigator.back();
+            }
         },
     });
 

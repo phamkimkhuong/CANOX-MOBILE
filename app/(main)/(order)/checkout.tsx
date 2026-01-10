@@ -365,6 +365,10 @@ export default function CheckoutScreen() {
             // Background Cart Refresh
             // Invalidate cart query to trigger background refetch
             queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
+
+            // Invalidate notification count (badge in Tab Bar)
+            queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] });
+
             // Clear client-side selection and vouchers (Clean up session)
             const cartStore = useCartStore.getState();
             cartStore.clearSelection();

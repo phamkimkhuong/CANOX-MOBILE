@@ -27,13 +27,15 @@ import {
     VOUCHER_BAR_HEIGHT,
 } from '@/components/cart';
 import { IconSymbol } from '@/components/ui/Icon';
-import { ROUTES } from '@/constants/routes';
+import { ROUTES, shopRoutes } from '@/constants/routes';
 import {
     useCart,
     useCartCalculations,
     useRemoveCartItem,
     useUpdateCartItemQuantity,
 } from '@/hooks/api/cart';
+import { usePrefetchShopDetail } from '@/hooks/api/useShop';
+import { PREFETCH_GRACE_PERIOD_MS } from '@/hooks/usePrefetchTiming';
 import { useCartStore } from '@/store/useCartStore';
 import { useCheckoutStore } from '@/store/useCheckoutStore';
 import type { CartShopUI } from '@/types/cart';
@@ -41,7 +43,7 @@ import { getShopCheckboxState } from '@/utils/adapter/cartAdapter';
 import { logger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
 import { FlashList } from '@shopify/flash-list';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, RefreshControl, Text, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -153,6 +155,10 @@ export default function CartScreen() {
     const { mutate: updateQuantity, isPending: isUpdating } = useUpdateCartItemQuantity();
     const { mutate: removeItem, isPending: isRemoving } = useRemoveCartItem();
 
+    // Prefetch hook for shop navigation (Hybrid Pattern)
+    const prefetchShopDetail = usePrefetchShopDetail();
+    const shopPressTimingMap = useRef<Map<string, number>>(new Map());
+
     // ========================================
     // CLIENT STATE (Zustand)
     // ========================================
@@ -250,10 +256,29 @@ export default function CartScreen() {
         [removeItem, selectedItemIds, toggleItemSelection]
     );
 
+    /**
+     * HYBRID PATTERN: Shop Navigation with Prefetch
+     * - PressIn: Start prefetch and record timing
+     * - Press: Navigate with instant flag if tap was quick enough
+     */
+    const handleShopPressIn = useCallback(
+        (shopId: string) => {
+            // Record timestamp for calculating elapsed time
+            shopPressTimingMap.current.set(shopId, Date.now());
+            // Start prefetch immediately
+            prefetchShopDetail(shopId);
+        },
+        [prefetchShopDetail]
+    );
+
     const handleNavigateToShop = useCallback(
         (shopId: string) => {
-            logger.cart.info('Navigate to shop', { shopId });
-            // TODO: Implement shop page navigation
+            const pressInTime = shopPressTimingMap.current.get(shopId) || 0;
+            const elapsed = pressInTime ? Date.now() - pressInTime : 0;
+            shopPressTimingMap.current.delete(shopId);
+
+            const isInstantTap = elapsed > 0 && elapsed < PREFETCH_GRACE_PERIOD_MS;
+            Navigator.push(shopRoutes.detail(shopId, { instantNav: isInstantTap }));
         },
         []
     );
@@ -312,6 +337,7 @@ export default function CartScreen() {
                     onQuantityChange={handleQuantityChange}
                     onDeleteItem={handleDeleteItem}
                     onNavigateToShop={() => handleNavigateToShop(shop.shopId)}
+                    onShopPressIn={() => handleShopPressIn(shop.shopId)}
                     onVoucherPress={() => handleVoucherPress(shop.shopId)}
                     isEditMode={isEditMode}
                     onEditModeToggle={() => setEditMode(!isEditMode)}
@@ -325,6 +351,7 @@ export default function CartScreen() {
             handleQuantityChange,
             handleDeleteItem,
             handleNavigateToShop,
+            handleShopPressIn,
             handleVoucherPress,
             isEditMode,
             setEditMode,

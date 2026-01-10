@@ -18,7 +18,7 @@ import { useCallback, useRef } from 'react';
  * - Below threshold: Consider as instant tap → Always show skeleton with minimum duration
  * - Above threshold: Prefetch has completed → Only show skeleton if needed
  */
-export const PREFETCH_GRACE_PERIOD_MS = 150;
+export const PREFETCH_GRACE_PERIOD_MS = 200;
 
 /**
  * Minimum duration to display skeleton to avoid "flash" effect

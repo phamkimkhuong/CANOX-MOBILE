@@ -1,9 +1,9 @@
 import { useAppStore } from '@/store/useAppStore';
 import { useAuthStore } from '@/store/useAuthStore';
+import { Alert as CustomAlert } from '@/utils/AlertHelper';
 import { clearAllCache } from '@/utils/cache';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
-import { Alert } from 'react-native';
 
 interface UseLogoutReturn {
     /** Whether logout is in progress */
@@ -57,26 +57,19 @@ export function useLogout(): UseLogoutReturn {
      * Logout with confirmation dialog
      */
     const logout = useCallback(() => {
-        Alert.alert(
-            'Đăng xuất',
-            'Bạn có chắc chắn muốn đăng xuất khỏi tài khoản?',
-            [
-                {
-                    text: 'Hủy',
-                    style: 'cancel',
-                },
-                {
-                    text: 'Đăng xuất',
-                    style: 'destructive',
-                    onPress: () => {
-                        logoutImmediate().catch(() => {
-                            // Error already set in logoutImmediate
-                        });
-                    },
-                },
-            ],
-            { cancelable: true }
-        );
+        CustomAlert.show({
+            title: 'Đăng xuất',
+            message: 'Bạn có chắc chắn muốn đăng xuất khỏi tài khoản?',
+            type: 'warning',
+            confirmText: 'Đăng xuất',
+            cancelText: 'Huỷ',
+            showCancel: true,
+            onConfirm: () => {
+                logoutImmediate().catch(() => {
+                    // Error already set in logoutImmediate
+                });
+            },
+        });
     }, [logoutImmediate]);
 
     return {

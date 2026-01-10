@@ -12,6 +12,7 @@ import {
     Notification,
     NotificationFilter,
 } from '@/types/notification';
+import { Alert as CustomAlert } from '@/utils/AlertHelper';
 import { Navigator } from '@/utils/navigation';
 import { FlashList } from '@shopify/flash-list';
 import React, { useCallback, useState } from 'react';
@@ -45,6 +46,20 @@ export default function NotifyScreen() {
     const handleFilterChange = useCallback((filter: NotificationFilter) => {
         setActiveFilter(filter);
     }, []);
+
+    const handleMarkAllRead = useCallback(() => {
+        CustomAlert.show({
+            title: 'Đánh dấu đã đọc',
+            message: 'Bạn có muốn đánh dấu tất cả thông báo là đã đọc không?',
+            type: 'info',
+            confirmText: 'Đồng ý',
+            cancelText: 'Huỷ',
+            showCancel: true,
+            onConfirm: () => {
+                markAllAsRead.mutate();
+            },
+        });
+    }, [markAllAsRead]);
 
     /**
      * Handle notification press - navigate to target screen
@@ -113,7 +128,7 @@ export default function NotifyScreen() {
         return (
             <View style={styles.container}>
                 <NotificationHeader
-                    onMarkAllRead={() => markAllAsRead.mutate()}
+                    onMarkAllRead={handleMarkAllRead}
                     isMarkingAll={markAllAsRead.isPending}
                 />
                 <FilterBar activeFilter={activeFilter} onFilterChange={handleFilterChange} />
@@ -125,7 +140,7 @@ export default function NotifyScreen() {
     return (
         <View style={styles.container}>
             <NotificationHeader
-                onMarkAllRead={() => markAllAsRead.mutate()}
+                onMarkAllRead={handleMarkAllRead}
                 isMarkingAll={markAllAsRead.isPending}
             />
             <FilterBar activeFilter={activeFilter} onFilterChange={handleFilterChange} />

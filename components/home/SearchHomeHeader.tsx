@@ -3,6 +3,7 @@ import { SmartNavButton } from '@/components/ui/SmartNavButton';
 import { ROUTES } from '@/constants/routes';
 import '@/constants/unistyles';
 import { usePrefetchCart } from '@/hooks/api/cart/useCart';
+import { useUnreadMessageCount } from '@/hooks/api/chat';
 import { usePrefetchChat } from '@/hooks/api/chat/useChatList';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useCartStore } from '@/store/useCartStore';
@@ -24,6 +25,9 @@ export const HomeHeader = () => {
     // Abstracted Prefetch Actions (Architecture compliant)
     const prefetchCart = usePrefetchCart();
     const prefetchChat = usePrefetchChat();
+
+    // Fetch unread message count for chat badge
+    const { data: unreadMessageCount } = useUnreadMessageCount();
 
     return (
         <View style={styles.headerContainer}>
@@ -72,6 +76,13 @@ export const HomeHeader = () => {
                     {({ pressed }) => (
                         <View style={{ opacity: pressed ? 0.9 : 1 }}>
                             <IconSymbol name="chatbubble-ellipses-outline" size={26} color={theme.colors.typographySecondary} />
+                            {isAuthenticated && unreadMessageCount !== undefined && unreadMessageCount > 0 && (
+                                <View style={styles.badge}>
+                                    <Text style={styles.badgeText}>
+                                        {unreadMessageCount > 99 ? '99+' : unreadMessageCount}
+                                    </Text>
+                                </View>
+                            )}
                         </View>
                     )}
                 </SmartNavButton>

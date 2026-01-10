@@ -38,7 +38,10 @@ interface CartShopGroupProps {
     onToggleItem: (itemId: string) => void;
     onQuantityChange: (itemId: string, quantity: number) => void;
     onDeleteItem: (itemId: string) => void;
+    /** Navigate to shop detail */
     onNavigateToShop?: () => void;
+    /** Prefetch shop data on press in (Hybrid Pattern) */
+    onShopPressIn?: () => void;
     /** Open variant selector for item */
     onVariantPress?: (itemId: string) => void;
     /** Find similar product */
@@ -64,6 +67,7 @@ export const CartShopGroup: React.FC<CartShopGroupProps> = memo(({
     onQuantityChange,
     onDeleteItem,
     onNavigateToShop,
+    onShopPressIn,
     onVariantPress,
     onFindSimilar,
     onVoucherPress,
@@ -134,6 +138,7 @@ export const CartShopGroup: React.FC<CartShopGroupProps> = memo(({
                 checkboxState={shopCheckboxState}
                 onToggleSelect={onToggleShop}
                 onNavigateToShop={onNavigateToShop}
+                onShopPressIn={onShopPressIn}
                 onEditPress={onEditModeToggle}
                 isEditMode={isEditMode}
             />

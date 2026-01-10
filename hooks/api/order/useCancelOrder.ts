@@ -81,12 +81,20 @@ export const useCancelOrder = (options: UseCancelOrderOptions = {}) => {
                 queryKey: orderKeys.lists(),
             });
 
-            // Invalidate order counts (badges in Profile/Tabs)
+            // Invalidate the specific order detail so it's fresh if user somehow lands back there
+            queryClient.invalidateQueries({
+                queryKey: orderKeys.detail(variables.orderId),
+            });
+
             queryClient.invalidateQueries({
                 queryKey: profileQueryKeys.orderStats(),
             });
 
-            // Call custom onSuccess
+            queryClient.invalidateQueries({
+                queryKey: ['notifications', 'unread-count'],
+            });
+
+            options.onSuccess?.();
             options.onSuccess?.();
         },
 

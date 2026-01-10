@@ -21,7 +21,8 @@ import {
     ShopProductsResponseSchema,
 } from '@/types/shop';
 import { toShopHeaderUI, toShopProductsUI } from '@/utils/adapter/shopAdapter';
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCallback } from 'react';
 
 /**
  * Query key factory for shop-related queries
@@ -65,6 +66,33 @@ export const useShopDetail = (shopId: string | undefined) => {
         staleTime: 1000 * 60 * 5, // 5 minutes - shop info rarely changes
         gcTime: 1000 * 60 * 30,   // Keep in cache 30 minutes
     });
+};
+
+/**
+ * Prefetch shop detail for optimized navigation
+ * Call this on PressIn to start loading before user releases touch
+ */
+export const usePrefetchShopDetail = () => {
+    const queryClient = useQueryClient();
+
+    return useCallback((shopId: string) => {
+        if (!shopId) return;
+
+        queryClient.prefetchQuery({
+            queryKey: shopKeys.detail(shopId),
+            queryFn: async (): Promise<ShopHeaderUI> => {
+                const response = await request<ShopDetailResponse>(
+                    {
+                        url: API_ROUTES.SHOPS.DETAIL(shopId),
+                        method: 'GET',
+                    },
+                    ShopDetailResponseSchema
+                );
+                return toShopHeaderUI(response.data);
+            },
+            staleTime: 1000 * 60 * 5,
+        });
+    }, [queryClient]);
 };
 
 // ============================================

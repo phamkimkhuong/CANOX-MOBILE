@@ -38,8 +38,12 @@ const mapProfileTabToOrderTab = (profileTab: string | undefined): OrderTabStatus
             return 'CREATED';
         case 'shipping':
             return 'FULFILLING';
+        case 'delivered':
+            return 'DELIVERED';
         case 'review':
             return 'COMPLETED';
+        case 'cancelled':
+            return 'CANCELLED';
         default:
             // Log invalid param for debugging (only in dev)
             if (__DEV__ && profileTab) {
@@ -61,6 +65,12 @@ export default function OrderHistoryScreen() {
 
     // State for active tab - initialized from URL param
     const [activeTab, setActiveTab] = useState<OrderTabStatus>(initialTab);
+
+    const [prevInitialTab, setPrevInitialTab] = useState(initialTab);
+    if (initialTab !== prevInitialTab) {
+        setPrevInitialTab(initialTab);
+        setActiveTab(initialTab);
+    }
 
     // Cart badge from store
     const cartItemCount = useCartStore((state) => state.totalQuantity);

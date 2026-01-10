@@ -122,9 +122,12 @@ export type StaticRoute =
  * Product routes with dynamic ID
  */
 export const productRoutes = {
-    detail: (id: string): Href => ({
+    detail: (id: string, params?: { instantNav?: boolean }): Href => ({
         pathname: '/product/[id]',
-        params: { id },
+        params: {
+            id,
+            ...(params?.instantNav && { instantNav: 'true' }),
+        },
     }),
 } as const;
 
@@ -157,9 +160,9 @@ export const orderRoutes = {
             ...(options?.instantNav && { instantNav: 'true' }),
         },
     }),
-    cancel: (orderId: string): Href => ({
+    cancel: (orderId: string, params?: Record<string, any>): Href => ({
         pathname: '/cancel/[id]',
-        params: { id: orderId },
+        params: { id: orderId, ...params },
     }),
 } as const;
 
@@ -167,9 +170,12 @@ export const orderRoutes = {
  * Shop routes with dynamic ID
  */
 export const shopRoutes = {
-    detail: (shopId: string): Href => ({
+    detail: (shopId: string, params?: { instantNav?: boolean }): Href => ({
         pathname: '/shop/[id]',
-        params: { id: shopId },
+        params: {
+            id: shopId,
+            ...(params?.instantNav && { instantNav: 'true' }),
+        },
     }),
 } as const;
 

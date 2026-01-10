@@ -9,6 +9,8 @@
     "android": "expo run:android",
     "a": "cross-env APP_VARIANT=development expo run:android --device",
     "a-prod": "expo run:android --device",
+    "build-preview": "eas build --profile preview --platform android",
+    "build-prod": "eas build --profile production --platform android",
     "ios": "expo run:ios",
     "web": "expo start --web"
   },

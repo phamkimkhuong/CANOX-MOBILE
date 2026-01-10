@@ -89,20 +89,28 @@ export const OrderTabsBar: React.FC<OrderTabsBarProps> = ({
         }
     }, [activeTab, indicatorLeft, indicatorWidth, isLayoutReady]);
 
+    const isFirstPositioning = useRef(true);
+
     // ==============================================
     // EFFECT: Update indicator when activeTab changes
     // ==============================================
     useEffect(() => {
         const position = tabPositions.current[activeTab];
         if (position && isLayoutReady) {
-            indicatorLeft.value = withTiming(position.x, {
-                duration: 250,
-                easing: Easing.out(Easing.cubic),
-            });
-            indicatorWidth.value = withTiming(position.width, {
-                duration: 250,
-                easing: Easing.out(Easing.cubic),
-            });
+            if (isFirstPositioning.current) {
+                indicatorLeft.value = position.x;
+                indicatorWidth.value = position.width;
+                isFirstPositioning.current = false;
+            } else {
+                indicatorLeft.value = withTiming(position.x, {
+                    duration: 250,
+                    easing: Easing.out(Easing.cubic),
+                });
+                indicatorWidth.value = withTiming(position.width, {
+                    duration: 250,
+                    easing: Easing.out(Easing.cubic),
+                });
+            }
         }
     }, [activeTab, isLayoutReady, indicatorLeft, indicatorWidth]);
 

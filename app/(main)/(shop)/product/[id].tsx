@@ -21,6 +21,7 @@ import { ROUTES, chatRoutes, shopRoutes } from '@/constants/routes';
 import { useAddToCart } from '@/hooks/api/cart';
 import { getCachedConversationId, useCreateConversation, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
 import { useProductDetail } from '@/hooks/api/product/useProductDetail';
+import { MINIMUM_SKELETON_DURATION_MS } from '@/hooks/usePrefetchTiming';
 import { useProductVariant } from '@/hooks/useProductVariant';
 import { useAuthStore } from '@/store/useAuthStore';
 import { findGalleryIndexByVariant } from '@/utils/adapter/product/productDetailAdapter';
@@ -41,7 +42,7 @@ const log = createLogger('ProductDetail');
 
 
 export default function ProductDetailScreen() {
-    const { id } = useLocalSearchParams<{ id: string }>();
+    const { id, instantNav } = useLocalSearchParams<{ id: string; instantNav?: string }>();
     const insets = useSafeAreaInsets();
     const { theme } = useUnistyles();
     const [variantSheetVisible, setVariantSheetVisible] = useState(false);
@@ -50,6 +51,10 @@ export default function ProductDetailScreen() {
     const [quantity, setQuantity] = useState(1);
     const userId = useAuthStore((s) => s.userId);
     const myShopId = useAuthStore((s) => s.shopId);
+    const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+
+    // Instant Nav: If true, enforce minimum skeleton duration to avoid flash
+    const isInstantNav = instantNav === 'true';
 
     // Flag để hoãn render UI nặng cho đến khi kết thúc animation chuyển màn hình
     const [isTransitionFinished, setIsTransitionFinished] = useState(false);
@@ -99,6 +104,22 @@ export default function ProductDetailScreen() {
 
         return () => cancelIdleCallback(handle);
     }, []);
+
+    // Minimum skeleton duration for instant nav (prevents flash)
+    const [minSkeletonComplete, setMinSkeletonComplete] = React.useState(!isInstantNav);
+
+    React.useEffect(() => {
+        if (!isInstantNav) {
+            setMinSkeletonComplete(true);
+            return;
+        }
+        // Minimum skeleton duration for instant tap navigation (prevents flash)
+        const timer = setTimeout(() => setMinSkeletonComplete(true), MINIMUM_SKELETON_DURATION_MS);
+        return () => clearTimeout(timer);
+    }, [isInstantNav]);
+
+    // Show skeleton if: loading OR (instant nav AND minimum duration not complete)
+    const shouldShowSkeleton = isLoading || (isInstantNav && !minSkeletonComplete);
 
     // ============================================
     // MEMOIZED VALUES - Tránh tính toán lại mỗi render
@@ -151,6 +172,17 @@ export default function ProductDetailScreen() {
      * - 'buy-now': Add to cart then navigate to checkout
      */
     const handleConfirmVariant = useCallback(() => {
+        if (!isAuthenticated && (variantSheetMode === 'add-to-cart' || variantSheetMode === 'buy-now')) {
+            setVariantSheetVisible(false);
+            Toast.show({
+                type: 'info',
+                text1: 'Yêu cầu đăng nhập',
+                text2: 'Vui lòng đăng nhập để thực hiện hành động này',
+            });
+            Navigator.push(ROUTES.AUTH.LOGIN);
+            return;
+        }
+
         if (!canAddToCart || !selectedVariantId) {
             return;
         }
@@ -209,17 +241,23 @@ export default function ProductDetailScreen() {
      * Ghost Loading/Prefetch cho Chat
      */
     const handlePrefetchChat = useCallback(() => {
+        if (!isAuthenticated) return;
         if (shopId === myShopId) return;
         if (shopUserId && shopName) {
             prefetchShopChat(shopUserId, shopName, shopLogoUrl, shopId);
         }
-    }, [shopUserId, shopName, shopLogoUrl, prefetchShopChat, shopId, myShopId]);
+    }, [shopUserId, shopName, shopLogoUrl, prefetchShopChat, shopId, myShopId, isAuthenticated]);
 
     /**
      * Handle Chat with Shop - Pure 0ms Navigation
      * All heavy logic is pushed to handlePrefetchChat (onPressIn)
      */
     const handleChatPress = useCallback(() => {
+        if (!isAuthenticated) {
+            Navigator.push(ROUTES.AUTH.LOGIN);
+            return;
+        }
+
         if (!shopUserId || !shopName) {
             log.warn(CHAT_STRINGS.error.missingShopInfo);
             return;
@@ -248,7 +286,7 @@ export default function ProductDetailScreen() {
         requestAnimationFrame(() => {
             log.info('Instant navigation triggered');
         });
-    }, [shopUserId, shopName, shopLogoUrl, userId]);
+    }, [shopUserId, shopName, shopLogoUrl, userId, isAuthenticated]);
 
     const handleShopPress = useCallback(() => {
         if (shopId) {
@@ -271,6 +309,16 @@ export default function ProductDetailScreen() {
      * - If variant selected: call addToCart mutation directly
      */
     const handleAddToCart = useCallback(() => {
+        if (!isAuthenticated) {
+            Toast.show({
+                type: 'info',
+                text1: 'Yêu cầu đăng nhập',
+                text2: 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng',
+            });
+            Navigator.push(ROUTES.AUTH.LOGIN);
+            return;
+        }
+
         if (!canAddToCart || !selectedVariantId) {
             // Open sheet with 'add-to-cart' mode - button will say "Thêm vào giỏ"
             handleOpenVariantSheet('add-to-cart');
@@ -301,6 +349,16 @@ export default function ProductDetailScreen() {
      * - If variant selected: add to cart and navigate to checkout
      */
     const handleBuyNow = useCallback(() => {
+        if (!isAuthenticated) {
+            Toast.show({
+                type: 'info',
+                text1: 'Yêu cầu đăng nhập',
+                text2: 'Vui lòng đăng nhập để tiếp tục mua hàng',
+            });
+            Navigator.push(ROUTES.AUTH.LOGIN);
+            return;
+        }
+
         if (!canAddToCart || !selectedVariantId) {
             // Open sheet with 'buy-now' mode - button will say "Mua ngay"
             handleOpenVariantSheet('buy-now');
@@ -364,7 +422,7 @@ export default function ProductDetailScreen() {
     // EARLY RETURNS - Loading & Error States
     // ============================================
 
-    if (isLoading) {
+    if (shouldShowSkeleton) {
         return <ProductDetailSkeleton />;
     }
 
