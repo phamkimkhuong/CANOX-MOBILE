@@ -9,14 +9,14 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import * as SystemUI from 'expo-system-ui';
 import { useEffect } from 'react';
 import { View } from 'react-native';
 import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import CustomAlert from '@/components/ui/CustomAlert';
-import { toastConfig } from '@/components/ui/CustomToast';
+import CustomAlert from '@/components/ui/feedback/CustomAlert';
+import { toastConfig } from '@/components/ui/feedback/CustomToast';
+import { NavigationBarBackground } from '@/components/ui/navigation/NavigationBarBackground';
 import { UserSyncProvider } from '@/components/UserSyncProvider';
 import { WebSocketProvider } from '@/components/WebSocketProvider';
 import { ScrollToTopProvider } from '@/contexts/ScrollToTopContext';
@@ -63,15 +63,6 @@ export default function RootLayout() {
   // Layer 1: Token refresh when app returns to foreground
   useTokenRefreshOnForeground();
 
-  /**
-   * Set system UI background color to match Tab Bar
-   * Navigation bar is transparent with edge-to-edge, so it shows root view color
-   * Using same color as Tab Bar (surface) for consistency across all screens
-   */
-  useEffect(() => {
-    SystemUI.setBackgroundColorAsync(lightTheme.colors.surface);
-  }, []);
-
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
@@ -94,8 +85,6 @@ export default function RootLayout() {
         <WebSocketProvider autoConnect={false}>
           <ScrollToTopProvider>
             <SafeAreaProvider>
-              {/* 3. Inject Theme into Navigation */}
-
               <ThemeProvider value={NavigationTheme}>
                 <UserSyncProvider>
                   <Stack screenOptions={{ headerShown: false }}>
@@ -106,7 +95,6 @@ export default function RootLayout() {
                     <Stack.Screen name="(auth)" />
 
                     {/* Main Stack - All pushed screens (No Tab Bar) */}
-                    {/* Header managed by (main)/_layout.tsx */}
                     <Stack.Screen name="(main)" />
 
                     {/* Global Modal */}
@@ -124,8 +112,9 @@ export default function RootLayout() {
                   config={toastConfig}
                   visibilityTime={3000}
                 />
-                {/* 4. StatusBar always Dark Content (black text) because of light background */}
                 <StatusBar style="dark" />
+                {/* Navigation Bar Background - Dark background for device navigation bar area */}
+                <NavigationBarBackground />
               </ThemeProvider>
             </SafeAreaProvider>
           </ScrollToTopProvider>

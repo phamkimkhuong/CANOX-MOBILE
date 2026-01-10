@@ -87,7 +87,7 @@ export const determineVoucherStatus = (voucher: VoucherResponse): VoucherStatus 
     }
 
     // Check if soldout
-    if (remainingQuantity !== undefined && remainingQuantity <= 0) {
+    if (remainingQuantity !== undefined && remainingQuantity !== null && remainingQuantity <= 0) {
         return 'soldout';
     }
 
@@ -243,8 +243,8 @@ export const transformVoucher = (voucher: VoucherResponse): VoucherUI => {
         tags: voucher.tags ?? [],
         discountType: voucher.discountType,
         discountValue: voucher.discountValue,
-        maxDiscount: voucher.maxDiscount,
-        minOrderValue: voucher.minOrderValue,
+        maxDiscount: voucher.maxDiscount ?? undefined,
+        minOrderValue: voucher.minOrderValue ?? undefined,
     };
 };
 

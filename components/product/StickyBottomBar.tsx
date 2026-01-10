@@ -5,7 +5,7 @@ import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { IconSymbol } from '../ui/Icon';
-import { SmartNavButton } from '../ui/SmartNavButton';
+import { SmartNavButton } from '../ui/navigation/SmartNavButton';
 
 interface StickyBottomBarProps {
     isFullySelected: boolean;

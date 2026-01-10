@@ -7,7 +7,7 @@
  * Matches layout of ShopBanner + ShopHeaderInfo
  */
 
-import { SkeletonBox, SkeletonCircle, SkeletonText } from '@/components/ui/Skeleton';
+import { SkeletonBox, SkeletonCircle, SkeletonText } from '@/components/ui/feedback/Skeleton';
 import React from 'react';
 import { View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';

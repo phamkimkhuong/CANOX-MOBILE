@@ -1,4 +1,4 @@
-import { ProductCard } from '@/components/ui/ProductCard';
+import { ProductCard } from '@/components/ui/product/ProductCard';
 import { productRoutes } from '@/constants/routes';
 import { useProductFeed } from '@/hooks/api/product/useProducts';
 import { FlashList } from '@shopify/flash-list';

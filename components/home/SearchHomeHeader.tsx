@@ -1,5 +1,5 @@
 import { IconSymbol } from '@/components/ui/Icon';
-import { SmartNavButton } from '@/components/ui/SmartNavButton';
+import { SmartNavButton } from '@/components/ui/navigation/SmartNavButton';
 import { ROUTES } from '@/constants/routes';
 import '@/constants/unistyles';
 import { usePrefetchCart } from '@/hooks/api/cart/useCart';

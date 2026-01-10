@@ -3,7 +3,7 @@
  * Mirrors the bubble layout of MessageItem
  */
 
-import { SkeletonBox, SkeletonCircle } from '@/components/ui/Skeleton';
+import { SkeletonBox, SkeletonCircle } from '@/components/ui/feedback/Skeleton';
 import React from 'react';
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';

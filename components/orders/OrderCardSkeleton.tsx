@@ -5,7 +5,7 @@
  * Hiển thị khi đang load danh sách đơn hàng
  */
 
-import { SkeletonBox } from '@/components/ui/Skeleton';
+import { SkeletonBox } from '@/components/ui/feedback/Skeleton';
 import React from 'react';
 import { View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';

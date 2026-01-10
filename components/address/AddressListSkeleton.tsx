@@ -2,7 +2,7 @@
  * AddressListSkeleton - Loading skeleton for address list
  */
 
-import { SkeletonBox, SkeletonCircle } from '@/components/ui/Skeleton';
+import { SkeletonBox, SkeletonCircle } from '@/components/ui/feedback/Skeleton';
 import React, { memo } from 'react';
 import { View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';

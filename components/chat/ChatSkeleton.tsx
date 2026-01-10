@@ -1,4 +1,4 @@
-import { SkeletonCircle, SkeletonText } from '@/components/ui/Skeleton';
+import { SkeletonCircle, SkeletonText } from '@/components/ui/feedback/Skeleton';
 import React from 'react';
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';

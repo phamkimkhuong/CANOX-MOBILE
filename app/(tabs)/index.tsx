@@ -1,8 +1,8 @@
 import { MarketingHeader } from '@/components/home/MarketingHeader';
 import { ProductTabs } from '@/components/home/ProductTabs';
 import { HomeHeader } from '@/components/home/SearchHomeHeader';
-import { ProductCard } from '@/components/ui/ProductCard';
-import { ProductCardSkeleton } from '@/components/ui/ProductCardSkeleton';
+import { ProductCard } from '@/components/ui/product/ProductCard';
+import { ProductCardSkeleton } from '@/components/ui/product/ProductCardSkeleton';
 import { productRoutes } from '@/constants/routes';
 import { useScrollToTopHandler } from '@/contexts/ScrollToTopContext';
 import { usePrefetchProductDetail } from '@/hooks/api/product/useProductDetail';

@@ -7,7 +7,7 @@
  * Renders multiple skeleton cards in 2-column layout
  */
 
-import { SkeletonBox, SkeletonText } from '@/components/ui/Skeleton';
+import { SkeletonBox, SkeletonText } from '@/components/ui/feedback/Skeleton';
 import React from 'react';
 import { useWindowDimensions, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';

@@ -27,9 +27,6 @@ module.exports = {
             },
             "edgeToEdgeEnabled": true,
             "predictiveBackGestureEnabled": false,
-            "androidNavigationBar": {
-                "barStyle": "dark-content"
-            },
             "package": IS_DEV ? "com.calatha.ebay.dev" : (IS_PREVIEW ? "com.calatha.ebay.preview" : "com.calatha.ebay")
         },
         "web": {
@@ -38,7 +35,8 @@ module.exports = {
             "favicon": "./assets/images/favicon.png"
         },
         "plugins": [
-            "expo-router"
+            "expo-router",
+            "expo-video"
         ],
         "experiments": {
             "typedRoutes": true

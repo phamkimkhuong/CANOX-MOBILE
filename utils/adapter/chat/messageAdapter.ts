@@ -26,12 +26,21 @@ import { toPublicUrl } from '@/utils/url';
  * Transform MessageUserDTO to MessageSender (UI type)
  */
 export const transformMessageUser = (user: MessageDTO['user']): MessageSender => {
-    const isShop = user.roles.includes('SHOP') && !!user.shopId;
+    if (!user) {
+        return {
+            userId: 'unknown',
+            username: 'unknown',
+            displayName: 'Người dùng',
+            isShop: false,
+        };
+    }
+
+    const isShop = (user.roles?.includes('SHOP') ?? false) && !!user.shopId;
 
     return {
         userId: user.userId,
-        username: user.username,
-        displayName: user.fullNameBuyer || user.shopName || user.username,
+        username: user.username || 'unknown',
+        displayName: user.fullNameBuyer || user.shopName || user.username || 'Người dùng',
         avatar: toPublicUrl(user.image),
         isShop,
         shopId: user.shopId || undefined,
@@ -47,8 +56,8 @@ export const transformAttachment = (
     attachment: MessageDTO['attachments'][0]
 ): MessageAttachment => ({
     id: attachment.id,
-    type: attachment.type,
-    url: toPublicUrl(attachment.url),
+    type: (attachment.type as any) || 'IMAGE',
+    url: toPublicUrl(attachment.url) || '',
     thumbnail: toPublicUrl(attachment.thumbnailUrl),
     fileName: attachment.fileName || undefined,
     fileSize: attachment.fileSize || undefined,
@@ -83,8 +92,9 @@ export const transformMessage = (
             type: dto.replyToMessage.type,
             content: dto.replyToMessage.content,
             senderName:
-                dto.replyToMessage.user.fullNameBuyer ||
-                dto.replyToMessage.user.username,
+                dto.replyToMessage.user?.fullNameBuyer ||
+                dto.replyToMessage.user?.username ||
+                'Người dùng',
         }
         : undefined,
     reactions: dto.reactionsSummary

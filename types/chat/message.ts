@@ -97,7 +97,7 @@ export interface ReplyToMessageDTO {
     id: string;
     type: MessageType;
     content: string;
-    user: MessageUserDTO;
+    user?: MessageUserDTO | null;
 }
 
 /**
@@ -107,7 +107,7 @@ export interface ReplyToMessageDTO {
 export interface MessageDTO {
     id: string;
     conversationId: string;
-    user: MessageUserDTO;
+    user?: MessageUserDTO | null;
     type: MessageType;
     content: string;
     status: MessageStatus;
@@ -253,8 +253,8 @@ const MessageUserDTOSchema = z.object({
 
 const AttachmentDTOSchema = z.object({
     id: z.string(),
-    type: z.string().optional().nullable().default('IMAGE'),
-    url: z.string().optional().nullable().default(''),
+    type: z.string().optional().nullable().transform(v => v || 'IMAGE'),
+    url: z.string().optional().nullable().transform(v => v || ''),
     thumbnailUrl: z.string().nullable().optional(),
     fileName: z.string().nullable().optional(),
     fileSize: z.number().nullable().optional(),
@@ -270,10 +270,13 @@ const ReactionDTOSchema = z.object({
     createdAt: z.string(),
 });
 
+const MessageTypeSchema = z.string().transform(v => v || MessageType.TEXT) as z.ZodType<MessageType>;
+const MessageStatusSchema = z.string().transform(v => v || MessageStatus.SENT) as z.ZodType<MessageStatus>;
+
 const ReplyToMessageDTOSchema = z.object({
     id: z.string(),
-    type: z.string().optional().nullable().default('TEXT'),
-    content: z.string().optional().nullable().default(''),
+    type: MessageTypeSchema,
+    content: z.string().optional().nullable().transform(v => v || ''),
     user: MessageUserDTOSchema.optional().nullable(),
 });
 
@@ -281,30 +284,30 @@ const MessageDTOSchema = z.object({
     id: z.string(),
     conversationId: z.string(),
     user: MessageUserDTOSchema.optional().nullable(),
-    type: z.string().optional().nullable().default('TEXT'),
-    content: z.string().optional().nullable().default(''),
-    status: z.string().optional().nullable().default('SENT'),
+    type: MessageTypeSchema,
+    content: z.string().optional().nullable().transform(v => v || ''),
+    status: MessageStatusSchema,
     replyToMessageId: z.string().nullable().optional(),
     replyToMessage: ReplyToMessageDTOSchema.nullable().optional(),
-    attachments: z.array(AttachmentDTOSchema).optional().nullable().default([]),
-    reactions: z.array(ReactionDTOSchema).optional().nullable().default([]),
+    attachments: z.array(AttachmentDTOSchema).optional().nullable().transform(v => v || []),
+    reactions: z.array(ReactionDTOSchema).optional().nullable().transform(v => v || []),
     reactionsSummary: z.record(z.string(), z.number()).nullable().optional(),
     metadata: z.string().nullable().optional(),
-    isDeleted: z.boolean().nullable().optional(),
+    isDeleted: z.boolean().nullable().optional().transform(v => v ?? false),
     deletedType: z.string().nullable().optional(),
     deletedBy: z.string().nullable().optional(),
     deletedAt: z.string().nullable().optional(),
-    isEdited: z.boolean().optional().nullable().default(false),
-    sentAt: z.string().optional().nullable().default(new Date().toISOString()),
+    isEdited: z.boolean().optional().nullable().transform(v => v ?? false),
+    sentAt: z.string().optional().nullable().transform(v => v || new Date().toISOString()),
     deliveredAt: z.string().nullable().optional(),
     readAt: z.string().nullable().optional(),
     editedAt: z.string().nullable().optional(),
-    createdBy: z.string().optional().nullable(),
-    createdDate: z.string().optional().nullable(),
-    lastModifiedBy: z.string().optional().nullable(),
-    lastModifiedDate: z.string().optional().nullable(),
-    deleted: z.boolean().optional().nullable().default(false),
-    version: z.number().optional().nullable().default(1),
+    createdBy: z.string().optional().nullable().transform(v => v || ''),
+    createdDate: z.string().optional().nullable().transform(v => v || ''),
+    lastModifiedBy: z.string().optional().nullable().transform(v => v || ''),
+    lastModifiedDate: z.string().optional().nullable().transform(v => v || ''),
+    deleted: z.boolean().optional().nullable().transform(v => v ?? false),
+    version: z.number().optional().nullable().transform(v => v ?? 1),
 });
 
 const MessagePageDTOSchema = z.object({

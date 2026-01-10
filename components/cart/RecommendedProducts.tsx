@@ -1,4 +1,4 @@
-import { ProductCard } from '@/components/ui/ProductCard';
+import { ProductCard } from '@/components/ui/product/ProductCard';
 import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import { productRoutes } from '@/constants/routes';
 import { useProductFeed } from '@/hooks/api/useHomeProducts';

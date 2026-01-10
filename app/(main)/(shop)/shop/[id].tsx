@@ -15,7 +15,7 @@ import {
     ShopTabs
 } from '@/components/shop';
 import { IconSymbol } from '@/components/ui/Icon';
-import { ProductCard } from '@/components/ui/ProductCard';
+import { ProductCard } from '@/components/ui/product/ProductCard';
 import { CHAT_STRINGS } from '@/constants/i18n/vi/chat';
 import { chatRoutes, productRoutes } from '@/constants/routes';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';

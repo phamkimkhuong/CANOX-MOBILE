@@ -32,8 +32,6 @@ export const transformUserMe = (apiData: UserMeData): UserProfile => {
         // Default to BRONZE - can be enhanced with member level API later
         memberLevel: 'BRONZE',
         isVerified: apiData.status === 'ACTIVE',
-        // Stats will be filled by other queries
-        totalOrders: 0,
         recentViewCount: 0,
         followingShops: 0,
     };

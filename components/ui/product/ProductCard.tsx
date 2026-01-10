@@ -5,8 +5,8 @@ import { Href } from 'expo-router';
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { IconSymbol } from './Icon';
-import { SmartNavButton } from './SmartNavButton';
+import { IconSymbol } from '../Icon';
+import { SmartNavButton } from '../navigation/SmartNavButton';
 
 const log = createLogger('ProductCard');
 

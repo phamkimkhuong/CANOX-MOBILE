@@ -212,7 +212,6 @@ export const buildGallery = (
         }
     }
 
-    // 2. Add specific variant media (if has imageUrl)
     for (const variant of variants) {
         if (variant.imageUrl) {
             const variantMediaId = `variant-img-${variant.id}`;

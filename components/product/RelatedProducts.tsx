@@ -1,4 +1,4 @@
-import { ProductCard } from '@/components/ui/ProductCard';
+import { ProductCard } from '@/components/ui/product/ProductCard';
 import { productRoutes } from '@/constants/routes';
 import { useRelatedProducts } from '@/hooks/api/product/useProductDetail';
 import { Navigator } from '@/utils/navigation';

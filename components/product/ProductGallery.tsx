@@ -21,6 +21,7 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { IconSymbol } from '../ui/Icon';
+import { VideoPlayerModal } from '../ui/VideoPlayerModal';
 
 const THUMBNAIL_SIZE = 60;
 const THUMBNAIL_GAP = 8;
@@ -240,6 +241,10 @@ export const ProductGallery = memo(forwardRef<ProductGalleryRef, ProductGalleryP
     const [isViewerVisible, setIsViewerVisible] = useState(false);
     const [viewerIndex, setViewerIndex] = useState(0);
 
+    // Video player modal state
+    const [isVideoPlayerVisible, setIsVideoPlayerVisible] = useState(false);
+    const [currentVideoUrl, setCurrentVideoUrl] = useState<string | null>(null);
+
     // Filter only images for full-screen viewer
     const galleryImages = useMemo(() =>
         gallery
@@ -247,6 +252,9 @@ export const ProductGallery = memo(forwardRef<ProductGalleryRef, ProductGalleryP
             .map(item => ({ uri: item.url, id: item.id }))
         , [gallery]);
 
+    /**
+     * Handle image press - opens fullscreen image viewer
+     */
     const handleImagePress = useCallback((index: number) => {
         const item = gallery[index];
         if (item.type === 'IMAGE') {
@@ -258,6 +266,31 @@ export const ProductGallery = memo(forwardRef<ProductGalleryRef, ProductGalleryP
         // Also call parent callback if exists
         onImagePress?.(index);
     }, [gallery, galleryImages, onImagePress]);
+
+    /**
+     * Handle video press - opens fullscreen video player
+     */
+    const handleVideoPress = useCallback((index: number) => {
+        const item = gallery[index];
+        if (item.type === 'VIDEO' && item.url) {
+            setCurrentVideoUrl(item.url);
+            setIsVideoPlayerVisible(true);
+        }
+        // Also call parent callback if exists
+        onImagePress?.(index);
+    }, [gallery, onImagePress]);
+
+    /**
+     * Handle gallery item press - routes to image or video handler
+     */
+    const handleGalleryItemPress = useCallback((index: number) => {
+        const item = gallery[index];
+        if (item.type === 'VIDEO') {
+            handleVideoPress(index);
+        } else {
+            handleImagePress(index);
+        }
+    }, [gallery, handleImagePress, handleVideoPress]);
 
     useImperativeHandle(ref, () => ({
         scrollToIndex: (index: number) => {
@@ -315,10 +348,10 @@ export const ProductGallery = memo(forwardRef<ProductGalleryRef, ProductGalleryP
                 index={index}
                 width={screenWidth}
                 height={galleryHeight}
-                onPress={() => handleImagePress(index)}
+                onPress={() => handleGalleryItemPress(index)}
             />
         ),
-        [onImagePress, screenWidth, galleryHeight]
+        [screenWidth, galleryHeight, handleGalleryItemPress]
     );
 
     // === Key Extractor ===
@@ -460,6 +493,18 @@ export const ProductGallery = memo(forwardRef<ProductGalleryRef, ProductGalleryP
                 </View>
                 <StatusBar style="light" hidden />
             </Modal>
+
+            {/* Video Player Modal */}
+            {currentVideoUrl && (
+                <VideoPlayerModal
+                    visible={isVideoPlayerVisible}
+                    videoUrl={currentVideoUrl}
+                    onClose={() => {
+                        setIsVideoPlayerVisible(false);
+                        setCurrentVideoUrl(null);
+                    }}
+                />
+            )}
         </View>
     );
 }));

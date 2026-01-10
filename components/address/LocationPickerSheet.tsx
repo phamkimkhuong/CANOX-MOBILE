@@ -9,7 +9,7 @@
  */
 
 import { IconSymbol } from '@/components/ui/Icon';
-import { SkeletonBox } from '@/components/ui/Skeleton';
+import { SkeletonBox } from '@/components/ui/feedback/Skeleton';
 import { useFlattenedProvinces, useFlattenedWards } from '@/hooks/api/useAddressData';
 import type { Province, Ward } from '@/types/address';
 import { FlashList } from '@shopify/flash-list';
