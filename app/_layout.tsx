@@ -9,6 +9,7 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
+import * as SystemUI from 'expo-system-ui';
 import { useEffect } from 'react';
 import { View } from 'react-native';
 import 'react-native-reanimated';
@@ -62,6 +63,15 @@ export default function RootLayout() {
   // Layer 1: Token refresh when app returns to foreground
   useTokenRefreshOnForeground();
 
+  /**
+   * Set system UI background color to match Tab Bar
+   * Navigation bar is transparent with edge-to-edge, so it shows root view color
+   * Using same color as Tab Bar (surface) for consistency across all screens
+   */
+  useEffect(() => {
+    SystemUI.setBackgroundColorAsync(lightTheme.colors.surface);
+  }, []);
+
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
     if (error) throw error;
@@ -79,7 +89,7 @@ export default function RootLayout() {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: lightTheme.colors.surface }}>
       <QueryClientProvider client={queryClient}>
         <WebSocketProvider autoConnect={false}>
           <ScrollToTopProvider>

@@ -7,7 +7,8 @@
     "clear": "expo start --clear",
     "pre": "expo prebuild",
     "android": "expo run:android",
-    "a": "expo run:android --device",
+    "a": "cross-env APP_VARIANT=development expo run:android --device",
+    "a-prod": "expo run:android --device",
     "ios": "expo run:ios",
     "web": "expo start --web"
   },
@@ -69,6 +70,7 @@
     "@types/react": "~19.1.0",
     "@types/sockjs-client": "^1.5.4",
     "@types/uuid": "^10.0.0",
+    "cross-env": "^10.1.0",
     "react-test-renderer": "19.1.0",
     "typescript": "~5.9.2"
   },

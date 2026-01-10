@@ -17,7 +17,6 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 
@@ -365,7 +364,7 @@ export default function HomeScreen() {
   }, []);
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
+    <View style={styles.container}>
       {/* 1. Fixed HomeHeader - Search bar */}
       <View onLayout={handleHomeHeaderLayout}>
         <HomeHeader />
@@ -393,7 +392,6 @@ export default function HomeScreen() {
         ListFooterComponent={renderListFooter}
         getItemType={getItemType}
         overrideItemLayout={overrideItemLayout}
-        // Scroll handler
         onScroll={handleScroll}
         scrollEventThrottle={16}
         onEndReached={handleEndReached}
@@ -404,7 +402,7 @@ export default function HomeScreen() {
         ]}
         showsVerticalScrollIndicator={false}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -415,7 +413,7 @@ const stylesheet = StyleSheet.create((theme) => ({
   },
   listContent: {
     paddingHorizontal: theme.margins.sm,
-    paddingBottom: theme.margins.lg,
+    paddingBottom: theme.margins.sm,
   },
   stickyTabsOverlay: {
     position: 'absolute',

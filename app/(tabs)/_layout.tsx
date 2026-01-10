@@ -77,14 +77,10 @@ export default function TabLayout() {
       screenOptions={{
         tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: theme.colors.typographySecondary,
-        // default background for tab bar
         tabBarStyle: {
           backgroundColor: theme.colors.surface,
           borderTopWidth: 0,
-          elevation: 5, // Đổ bóng trên Android
-          height: 60,
-          paddingBottom: 10,
-          paddingTop: 5,
+          elevation: 5,
         },
         // Disable the static render of the header on web
         // to prevent a hydration error in React Navigation v6.
