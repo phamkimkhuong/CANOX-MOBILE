@@ -71,6 +71,7 @@ export const ROUTES = {
         SHIPPING: '/orders' as const,
         REVIEW: '/orders' as const,
         SUCCESS: '/(main)/(order)/order-success' as const,
+        PAYMENT_PAYOS: '/(main)/(order)/payment-payos' as const,
     },
 
     // ============ USER CONTENT ============
@@ -176,6 +177,10 @@ export const orderRoutes = {
         pathname: '/cancel/[id]',
         params: { id: orderId, ...params },
     }),
+    payos: (orderId: string, paymentInfo: string): Href => ({
+        pathname: '/(main)/(order)/payment-payos',
+        params: { id: orderId, paymentInfo },
+    } as unknown as Href),
 } as const;
 
 /**

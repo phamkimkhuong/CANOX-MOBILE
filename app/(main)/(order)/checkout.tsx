@@ -438,14 +438,25 @@ export default function CheckoutScreen() {
             // Hide loading overlay before navigating
             hideGlobalLoading();
 
-            // Navigate to Order Success screen
-            Navigator.replace({
-                pathname: ROUTES.ORDERS.SUCCESS,
-                params: {
-                    orderCount: String(orderCount),
-                    orders: JSON.stringify(orderInfos),
-                },
-            } as never);
+            // Redirect based on payment method
+            if (paymentMethod !== 'cod' && response.data?.paymentInfo) {
+                Navigator.replace({
+                    pathname: ROUTES.ORDERS.PAYMENT_PAYOS,
+                    params: {
+                        paymentInfo: JSON.stringify(response.data.paymentInfo),
+                        id: response.data.orders?.[0]?.orderId || '',
+                    },
+                } as never);
+            } else {
+                // Navigate to Order Success screen
+                Navigator.replace({
+                    pathname: ROUTES.ORDERS.SUCCESS,
+                    params: {
+                        orderCount: String(orderCount),
+                        orders: JSON.stringify(orderInfos),
+                    },
+                } as never);
+            }
         } catch (error: any) {
             hideGlobalLoading();
             logger.checkout.error('Place order failed', { error: error.message });
