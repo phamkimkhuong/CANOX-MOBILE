@@ -46,6 +46,7 @@ import { Navigator } from '@/utils/navigation';
 import * as Clipboard from 'expo-clipboard';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { RefreshControl, ScrollView, Text, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -61,6 +62,7 @@ export default function OrderDetailScreen() {
 
     const myShopId = useAuthStore((s) => s.shopId);
     const { theme } = useUnistyles();
+    const { t } = useTranslation(['order', 'common', 'profile', 'product']);
     const styles = stylesheet;
     const prefetchChat = usePrefetchShopChat();
 
@@ -114,10 +116,10 @@ export default function OrderDetailScreen() {
         // TODO: Navigate to support chat or help center
         Toast.show({
             type: 'info',
-            text1: 'Hỗ trợ',
-            text2: 'Tính năng đang phát triển',
+            text1: t('profile:menu.support'),
+            text2: t('common:status.loading'),
         });
-    }, []);
+    }, [t]);
 
     const handleRefresh = useCallback(async () => {
         setRefreshing(true);
@@ -264,11 +266,11 @@ export default function OrderDetailScreen() {
             logger.api.error('Rebuy failed:', err);
 
             // Show friendly error message from API if available
-            const errorMessage = err?.message || 'Có lỗi xảy ra khi thêm vào giỏ hàng';
+            const errorMessage = err?.message || t('common:status.error');
 
             Toast.show({
                 type: 'error',
-                text1: 'Mua lại thất bại',
+                text1: t('common:status.error'),
                 text2: errorMessage,
             });
         }
@@ -309,9 +311,9 @@ export default function OrderDetailScreen() {
             ) : (isError || !order || !rawOrder) ? (
                 // Error State
                 <View style={styles.errorContainer}>
-                    <Text style={styles.errorTitle}>Không tìm thấy đơn hàng</Text>
+                    <Text style={styles.errorTitle}>{t('product:error.notFound')}</Text>
                     <Text style={styles.errorMessage}>
-                        {error?.message || 'Đơn hàng không tồn tại hoặc đã bị xoá'}
+                        {error?.message || t('product:error.notFoundDetail')}
                     </Text>
                 </View>
             ) : (

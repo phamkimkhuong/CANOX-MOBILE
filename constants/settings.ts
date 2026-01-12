@@ -139,14 +139,14 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
                 route: ROUTES.SETTINGS.LANGUAGE,
                 subtitle: 'Tiếng Việt',
             },
-            {
-                id: 'dark-mode',
-                type: 'toggle',
-                label: 'Giao diện tối',
-                icon: 'dark-mode',
-                iconColor: 'slate',
-                storeKey: 'darkModeEnabled',
-            },
+            // {
+            //     id: 'dark-mode',
+            //     type: 'toggle',
+            //     label: 'Giao diện tối',
+            //     icon: 'dark-mode',
+            //     iconColor: 'slate',
+            //     storeKey: 'darkModeEnabled',
+            // },
             {
                 id: 'cache',
                 type: 'info',

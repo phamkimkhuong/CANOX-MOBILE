@@ -8,6 +8,7 @@
  * Khi API update có field timeline, chỉ cần sửa file này.
  */
 
+import i18n from '@/constants/i18n';
 import type { OrderStatus } from '@/types/order/order';
 
 /**
@@ -21,20 +22,6 @@ export interface TimelineStep {
     isCompleted: boolean;
     isActive: boolean;
 }
-
-/**
- * Standard 4-step order process
- * - Đặt hàng: Order created
- * - Đang xử lý: Shop confirmed/packing
- * - Đang giao: Shipped to carrier
- * - Hoàn thành: Delivered successfully
- */
-const STANDARD_STEPS = [
-    { key: 'CREATED', label: 'Đặt hàng', description: 'Đơn hàng đã được đặt' },
-    { key: 'PROCESSING', label: 'Đang xử lý', description: 'Shop đang chuẩn bị hàng' },
-    { key: 'SHIPPING', label: 'Đang giao', description: 'Đã giao cho đơn vị vận chuyển' },
-    { key: 'COMPLETED', label: 'Hoàn thành', description: 'Giao hàng thành công' },
-] as const;
 
 /**
  * Map OrderStatus -> Step Index
@@ -102,9 +89,6 @@ export const isAbnormalStatus = (status: OrderStatus): boolean => {
  * @param status - Current order status from API
  * @param createdAt - Order creation timestamp (optional, for first step)
  * @returns Array of TimelineStep with completed/active states
- * 
- * Note: Since API doesn't provide statusHistory, we cannot show
- * timestamps for past steps. Only current step gets the createdAt time.
  */
 export const generateTimeline = (
     status: OrderStatus,
@@ -117,10 +101,16 @@ export const generateTimeline = (
         return [];
     }
 
-    return STANDARD_STEPS.map((step, index) => ({
+    const steps = [
+        { key: 'CREATED', label: i18n.t('order:timeline.created') },
+        { key: 'PROCESSING', label: i18n.t('order:timeline.processing') },
+        { key: 'SHIPPING', label: i18n.t('order:timeline.shipping') },
+        { key: 'COMPLETED', label: i18n.t('order:timeline.completed') },
+    ];
+
+    return steps.map((step, index) => ({
         key: step.key,
         label: step.label,
-        description: step.description,
         // Only show time for first step if provided, others unknown
         time: index === 0 && createdAt ? createdAt : null,
         isCompleted: index < currentIndex,
@@ -134,11 +124,11 @@ export const generateTimeline = (
  */
 export const getAbnormalStatusMessage = (status: OrderStatus): string | null => {
     const messages: Partial<Record<OrderStatus, string>> = {
-        CANCELLED: 'Đơn hàng đã bị hủy',
-        REJECTED: 'Đơn hàng bị từ chối',
-        RETURNED_TO_SENDER: 'Hàng đã hoàn về người gửi',
-        RETURNED: 'Đơn hàng đã được trả lại',
-        DELIVERY_FAILED: 'Giao hàng thất bại',
+        CANCELLED: i18n.t('order:timeline.abnormal.cancelled'),
+        REJECTED: i18n.t('order:timeline.abnormal.rejected'),
+        RETURNED_TO_SENDER: i18n.t('order:timeline.abnormal.returnedToSender'),
+        RETURNED: i18n.t('order:timeline.abnormal.returned'),
+        DELIVERY_FAILED: i18n.t('order:timeline.abnormal.deliveryFailed'),
     };
     return messages[status] ?? null;
 };
@@ -160,5 +150,5 @@ export const getTimelineProgress = (status: OrderStatus): number => {
     if (currentIndex < 0) return 0;
 
     // 4 steps: 0=25%, 1=50%, 2=75%, 3=100%
-    return Math.min(100, ((currentIndex + 1) / STANDARD_STEPS.length) * 100);
+    return Math.min(100, ((currentIndex + 1) / 4) * 100);
 };

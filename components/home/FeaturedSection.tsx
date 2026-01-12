@@ -4,6 +4,7 @@ import type { ProductFeedItem } from '@/types/product/product';
 import { formatCurrency } from '@/utils/format';
 import { Image } from 'expo-image';
 import React, { memo, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View, ViewStyle } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { FeaturedSectionSkeleton } from './FeaturedSectionSkeleton';
@@ -60,6 +61,7 @@ interface FeaturedSectionProps {
 export const FeaturedSection = memo(({ onProductPress }: FeaturedSectionProps = {}) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+    const { t } = useTranslation(['home', 'product']);
 
     // Fetch data từ API
     // const { data, isLoading, isError } = useProductFeed('featured');
@@ -100,7 +102,10 @@ export const FeaturedSection = memo(({ onProductPress }: FeaturedSectionProps = 
     return (
         <View style={styles.container}>
             <View style={styles.headerPadding}>
-                <SectionHeader title="DÀNH RIÊNG CHO BẠN" onSeeAll={() => { }} />
+                <SectionHeader
+                    title={t('home:featured.title')}
+                    onSeeAll={() => { }}
+                />
             </View>
 
             {/* Main Featured Banner */}
@@ -130,7 +135,7 @@ export const FeaturedSection = memo(({ onProductPress }: FeaturedSectionProps = 
                             {formatCurrency(mainProduct.price)}
                         </Text>
                         <TouchableOpacity style={styles.buyNowBtn}>
-                            <Text style={styles.buyNowText}>Xem ngay</Text>
+                            <Text style={styles.buyNowText}>{t('product:variant.buyNow')}</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

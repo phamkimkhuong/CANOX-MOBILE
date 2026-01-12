@@ -1,4 +1,11 @@
-export const CHAT_STRINGS = {
+import { ChatTranslation } from '../types';
+
+export const CHAT_STRINGS: ChatTranslation = {
+    list: {
+        title: 'Chat',
+        search: 'Tìm kiếm tin nhắn...',
+        empty: 'Chưa có cuộc hội thoại nào',
+    },
     detail: {
         loadingMessages: 'Đang tải tin nhắn...',
         cannotLoadMessages: 'Không thể tải tin nhắn',

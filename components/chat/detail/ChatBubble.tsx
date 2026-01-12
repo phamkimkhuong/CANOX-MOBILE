@@ -13,41 +13,36 @@ interface ChatBubbleProps {
     position: BubblePosition;
     children: React.ReactNode;
     maxWidth?: number | string;
+    type?: string;
 }
 
 /**
  * ChatBubble - Styled wrapper for message content
- * 
- * Position affects border radius:
- * - single: All corners rounded
- * - first: Top corners rounded, bottom corner flat on same side
- * - middle: Flat corners on same side
- * - last: Bottom corners rounded, top corner flat on same side
  */
-export const ChatBubble: React.FC<ChatBubbleProps> = ({
+export const ChatBubble: React.FC<ChatBubbleProps> = React.memo(({
     isMe,
     position,
     children,
     maxWidth = '100%',
+    type,
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
 
-    const getBorderRadius = (): ViewStyle => {
-        const radius = 10;
+    const isCard = type === 'PRODUCT_CARD' || type === 'ORDER_CARD';
+
+    // Memoize border radius calculation
+    const borderRadius = React.useMemo((): ViewStyle => {
+        const radius = isCard ? 12 : 12;
         const smallRadius = 4;
 
         if (position === 'single') {
             return {
-                borderTopLeftRadius: radius,
-                borderTopRightRadius: radius,
-                borderBottomLeftRadius: radius,
-                borderBottomRightRadius: radius,
+                borderRadius: radius,
             };
         }
 
         if (isMe) {
-            // My messages: flat corner on right side
             switch (position) {
                 case 'first':
                     return {
@@ -72,7 +67,6 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
                     };
             }
         } else {
-            // Other's messages: flat corner on left side
             switch (position) {
                 case 'first':
                     return {
@@ -97,33 +91,46 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
                     };
             }
         }
-
-    };
+        return {};
+    }, [isMe, position, isCard]);
 
     return (
         <View
             style={[
                 styles.bubble,
                 isMe ? styles.bubbleMe : styles.bubbleOther,
-                getBorderRadius(),
+                isCard && styles.cardBubble,
+                borderRadius,
                 { maxWidth: maxWidth as any },
             ]}
         >
             {children}
         </View>
     );
-};
+});
 
 const stylesheet = StyleSheet.create((theme) => ({
     bubble: {
-        paddingHorizontal: 14,
-        paddingVertical: 10,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
     },
     bubbleMe: {
         backgroundColor: theme.colors.primary,
     },
     bubbleOther: {
         backgroundColor: theme.colors.surface,
+    },
+    cardBubble: {
+        paddingHorizontal: 0,
+        paddingVertical: 0,
+        backgroundColor: theme.colors.surface,
+        borderWidth: 1,
+        borderColor: theme.colors.secondaryLight,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 5,
+        elevation: 2,
     },
 }));
 

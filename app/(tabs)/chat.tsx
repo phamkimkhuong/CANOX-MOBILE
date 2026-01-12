@@ -54,7 +54,7 @@ export default function ChatScreen() {
     } = useChatList(activeFilter, debouncedSearchQuery);
 
     // Smart refresh: only fetch page 0 instead of all loaded pages
-    const { refresh: smartRefresh } = useRefreshChatList(activeFilter);
+    const { refresh: smartRefresh } = useRefreshChatList();
     // Initialize socket connection for realtime updates
     useChatSocket();
 

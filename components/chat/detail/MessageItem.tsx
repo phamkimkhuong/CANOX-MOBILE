@@ -10,12 +10,13 @@ import {
     formatFileSize,
     isMyMessage,
 } from '@/utils/adapter/chat/messageAdapter';
+import { formatMessageTime } from '@/utils/date';
+import { toPublicUrl } from '@/utils/url';
 import { Image } from 'expo-image';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import ChatBubble from './ChatBubble';
-import MessageStatusComponent from './MessageStatus';
 
 interface MessageItemProps {
     message: Message;
@@ -31,15 +32,8 @@ interface MessageItemProps {
 
 /**
  * MessageItem - Renders different message types
- * 
- * Supports:
- * - TEXT: Plain text message
- * - IMAGE: Image with optional caption
- * - FILE: File attachment with download
- * - SYSTEM: System notification (centered)
- * - And more...
  */
-export const MessageItem: React.FC<MessageItemProps> = ({
+const MessageItem: React.FC<MessageItemProps> = React.memo(({
     message,
     currentUserId,
     position,
@@ -52,26 +46,28 @@ export const MessageItem: React.FC<MessageItemProps> = ({
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-
     const isMe = isMyMessage(message, currentUserId);
     const isFailed = message.status === 'FAILED';
 
-    // System messages render differently
-    if (message.type === 'SYSTEM') {
-        return <SystemMessage content={message.content} />;
-    }
-
     const renderContent = () => {
+        if (message.isDeleted) {
+            return (
+                <Text style={[styles.textContent, styles.deletedText, isMe && styles.textContentMe]}>
+                    Tin nhắn đã được thu hồi
+                </Text>
+            );
+        }
+
         switch (message.type) {
             case 'TEXT':
-                return <TextContent content={message.content} isMe={isMe} />;
+                return <TextContent content={message.content} isMe={isMe} sentAt={message.sentAt} />;
             case 'IMAGE':
                 return (
                     <ImageContent
                         attachments={message.attachments}
-                        caption={message.content}
                         isMe={isMe}
                         onPress={onImagePress}
+                        sentAt={message.sentAt}
                     />
                 );
             case 'FILE':
@@ -79,14 +75,29 @@ export const MessageItem: React.FC<MessageItemProps> = ({
                     <FileContent
                         attachments={message.attachments}
                         isMe={isMe}
+                        sentAt={message.sentAt}
                     />
                 );
             case 'PRODUCT_CARD':
-                return <ProductCardContent content={message.content} isMe={isMe} />;
+                return (
+                    <ProductCardContent
+                        content={message.content}
+                        metadata={message.metadata}
+                        isMe={isMe}
+                        sentAt={message.sentAt}
+                    />
+                );
             case 'ORDER_CARD':
-                return <OrderCardContent content={message.content} isMe={isMe} />;
+                return (
+                    <OrderCardContent
+                        content={message.content}
+                        metadata={message.metadata}
+                        isMe={isMe}
+                        sentAt={message.sentAt}
+                    />
+                );
             default:
-                return <TextContent content={message.content} isMe={isMe} />;
+                return <TextContent content={message.content} isMe={isMe} sentAt={message.sentAt} />;
         }
     };
 
@@ -100,187 +111,371 @@ export const MessageItem: React.FC<MessageItemProps> = ({
 
     return (
         <View style={[styles.container, isMe ? styles.containerMe : styles.containerOther]}>
-            {/* Avatar placeholder for alignment */}
             {!isMe && (
                 <View style={styles.avatarContainer}>
                     {showAvatar && (
                         <Image
-                            source={{ uri: message.sender.shopLogo || message.sender.avatar }}
+                            source={{ uri: message.sender.avatar }}
                             style={styles.avatar}
-                            contentFit="cover"
                         />
                     )}
                 </View>
             )}
 
-            {/* Message bubble */}
-            <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={handlePress}
-                onLongPress={() => onLongPress?.(message)}
-                style={styles.bubbleWrapper}
-            >
-                <ChatBubble isMe={isMe} position={position}>
-                    {renderContent()}
-                </ChatBubble>
-
-                {/* Status & Time */}
-                {showTime && (
-                    <MessageStatusComponent
-                        status={message.status}
-                        sentAt={message.sentAt}
+            <View style={styles.bubbleWrapper}>
+                <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={handlePress}
+                    onLongPress={() => onLongPress?.(message)}
+                >
+                    <ChatBubble
                         isMe={isMe}
-                    />
-                )}
+                        position={position}
+                        type={message.type}
+                    >
+                        {renderContent()}
+                    </ChatBubble>
 
-                {/* Failed indicator */}
-                {isFailed && (
-                    <View style={styles.failedContainer}>
-                        <IconSymbol name="error-outline" size={14} color={theme.colors.error} />
-                        <Text style={styles.failedText}>Nhấn để thử lại</Text>
-                    </View>
-                )}
-            </TouchableOpacity>
+                    {isFailed && (
+                        <View style={styles.failedContainer}>
+                            <Text style={styles.failedText}>Gửi thất bại</Text>
+                            <IconSymbol name="error" size={12} color={theme.colors.error} />
+                        </View>
+                    )}
+                </TouchableOpacity>
+            </View>
         </View>
     );
-};
+});
 
 // ============================================
-// CONTENT COMPONENTS
+// SUB-COMPONENTS
 // ============================================
 
-const TextContent: React.FC<{ content: string; isMe: boolean }> = ({ content, isMe }) => {
+const MessageTime: React.FC<{
+    sentAt: string;
+    isMe: boolean;
+    onImage?: boolean;
+    forceDark?: boolean;
+}> = ({
+    sentAt,
+    isMe,
+    onImage,
+    forceDark = false,
+}) => {
+        const { theme } = useUnistyles();
+        const styles = stylesheet;
+        const time = formatMessageTime(sentAt);
+
+        const getTimeStyle = () => {
+            if (onImage) return styles.timeOnImage;
+            if (forceDark) return { color: theme.colors.typographySecondary };
+            return isMe ? styles.timeInsideMe : styles.timeInsideOther;
+        };
+
+        return (
+            <Text numberOfLines={1} style={[styles.timeInside, getTimeStyle()]}>
+                {time}
+            </Text>
+        );
+    };
+
+const TextContent: React.FC<{ content: string; isMe: boolean; sentAt: string }> = ({
+    content,
+    isMe,
+    sentAt,
+}) => {
     const styles = stylesheet;
+
     return (
-        <Text style={[styles.textContent, isMe && styles.textContentMe]}>
-            {content}
-        </Text>
+        <View style={styles.textContainerFixed}>
+            <Text style={[styles.textContent, isMe && styles.textContentMe]}>
+                {content}
+                <Text>{"          "}</Text>
+            </Text>
+            <View style={styles.timeOverlayText}>
+                <MessageTime sentAt={sentAt} isMe={isMe} />
+            </View>
+        </View>
     );
 };
 
 const ImageContent: React.FC<{
-    attachments: Message['attachments'];
-    caption?: string;
+    attachments: any[];
     isMe: boolean;
+    sentAt: string;
     onPress?: (url: string) => void;
-}> = ({ attachments, caption, isMe, onPress }) => {
-    const styles = stylesheet;
-    const image = attachments[0];
-    if (!image) return null;
+}> = ({
+    attachments,
+    isMe,
+    sentAt,
+    onPress,
+}) => {
+        const styles = stylesheet;
+        const image = attachments[0];
 
-    // Calculate aspect ratio from metadata if available
-    const aspectRatio =
-        image.dimensions && image.dimensions.height > 0
-            ? image.dimensions.width / image.dimensions.height
-            : 4 / 3;
+        if (!image) return null;
 
-    return (
-        <View style={styles.imageContainer}>
+        return (
             <TouchableOpacity
                 activeOpacity={0.9}
                 onPress={() => onPress?.(image.url)}
+                style={styles.imageContainer}
             >
                 <Image
-                    source={{ uri: image.thumbnail || image.url }}
-                    style={[styles.image, { aspectRatio }]}
+                    source={{ uri: image.url }}
+                    style={styles.messageImage}
                     contentFit="cover"
                 />
+                <View style={styles.timeOverlayImage}>
+                    <MessageTime sentAt={sentAt} isMe={isMe} onImage />
+                </View>
             </TouchableOpacity>
-            {caption && caption.length > 0 && (
-                <Text style={[styles.textContent, isMe && styles.textContentMe, styles.caption]}>
-                    {caption}
-                </Text>
-            )}
-        </View>
-    );
-};
+        );
+    };
 
-const FileContent: React.FC<{
-    attachments: Message['attachments'];
-    isMe: boolean;
-}> = ({ attachments, isMe }) => {
+const FileContent: React.FC<{ attachments: any[]; isMe: boolean; sentAt: string }> = ({
+    attachments,
+    isMe,
+    sentAt,
+}) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const file = attachments[0];
+
     if (!file) return null;
 
-    const getFileIcon = () => {
-        const mimeType = file.mimeType || '';
-        if (mimeType.includes('pdf')) return 'picture-as-pdf';
-        if (mimeType.includes('image')) return 'image';
-        if (mimeType.includes('video')) return 'video-file';
-        return 'attach-file';
+    return (
+        <View style={styles.fileContainerMain}>
+            <View style={styles.fileContainer}>
+                <View style={styles.fileIconContainer}>
+                    <IconSymbol
+                        name="description"
+                        size={24}
+                        color={isMe ? theme.colors.surface : theme.colors.primary}
+                    />
+                </View>
+                <View style={styles.fileInfo}>
+                    <Text
+                        style={[styles.fileName, isMe && styles.textContentMe]}
+                        numberOfLines={1}
+                    >
+                        {file.fileName || 'Untitled File'}
+                    </Text>
+                    <Text style={[styles.fileSize, isMe && styles.fileSizeMe]}>
+                        {formatFileSize(file.fileSize || 0)}
+                    </Text>
+                </View>
+            </View>
+            <View style={styles.timeOverlayFile}>
+                <MessageTime sentAt={sentAt} isMe={isMe} />
+            </View>
+        </View>
+    );
+};
+
+// Types for parsed metadata
+interface OrderMetadata {
+    orderId: string;
+    orderCode: string;
+    status: string;
+    totalAmount: number;
+    createdDate?: string;
+    items: Array<{
+        productId: string;
+        productName: string;
+        quantity: number;
+        image?: string;
+    }>;
+    buyerId: string;
+    shopId: string;
+}
+
+interface ProductMetadata {
+    productId: string;
+    productName: string;
+    price: number;
+    image?: string;
+    shopId: string;
+    shopName: string;
+    slug?: string;
+    description?: string;
+}
+
+const parseMetadata = <T,>(metadata?: string): T | null => {
+    if (!metadata) return null;
+    try {
+        return JSON.parse(metadata) as T;
+    } catch {
+        return null;
+    }
+};
+
+const formatPrice = (amount: number): string => {
+    return new Intl.NumberFormat('vi-VN').format(amount) + 'đ';
+};
+
+const ORDER_STATUS_CONFIG: Record<string, { label: string; color: string }> = {
+    CREATED: { label: 'Mới tạo', color: '#3B82F6' },
+    CONFIRMED: { label: 'Đã xác nhận', color: '#8B5CF6' },
+    PROCESSING: { label: 'Đang xử lý', color: '#F59E0B' },
+    SHIPPING: { label: 'Đang giao', color: '#10B981' },
+    DELIVERED: { label: 'Đã giao', color: '#059669' },
+    COMPLETED: { label: 'Hoàn thành', color: '#059669' },
+    CANCELLED: { label: 'Đã hủy', color: '#EF4444' },
+    RETURNED: { label: 'Hoàn trả', color: '#F97316' },
+};
+
+interface CardContentProps {
+    content: string;
+    metadata?: string;
+    isMe: boolean;
+    sentAt: string;
+}
+
+const ProductCardContent: React.FC<CardContentProps> = ({
+    content,
+    metadata,
+    isMe,
+    sentAt,
+}) => {
+    const { theme } = useUnistyles();
+    const styles = stylesheet;
+    const data = parseMetadata<ProductMetadata>(metadata);
+
+    if (!data) {
+        return (
+            <View style={styles.cardContainerMain}>
+                <View style={styles.cardContainer}>
+                    <IconSymbol name="cart" size={20} color={theme.colors.primary} />
+                    <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                        <Text style={styles.textContent}>
+                            {content}
+                        </Text>
+                        <MessageTime sentAt={sentAt} isMe={isMe} forceDark />
+                    </View>
+                </View>
+            </View>
+        );
+    }
+
+    const imageUrl = toPublicUrl(data.image);
+
+    return (
+        <View style={styles.productCard}>
+            {content && (
+                <View style={styles.cardMessageHeader}>
+                    <Text style={styles.cardMessageText}>
+                        {content}
+                    </Text>
+                </View>
+            )}
+
+            <View style={styles.productCardHeader}>
+                <Image
+                    source={{ uri: imageUrl || 'https://via.placeholder.com/150' }}
+                    style={styles.productImageLarge}
+                    contentFit="cover"
+                />
+            </View>
+            <View style={styles.productCardContent}>
+                <Text style={styles.productNameLarge} numberOfLines={2}>
+                    {data.productName}
+                </Text>
+                <View style={styles.productPriceRow}>
+                    <Text style={styles.productPriceLarge}>
+                        {formatPrice(data.price)}
+                    </Text>
+                    <MessageTime sentAt={sentAt} isMe={isMe} forceDark />
+                </View>
+            </View>
+        </View>
+    );
+};
+
+const OrderCardContent: React.FC<CardContentProps> = ({
+    content,
+    metadata,
+    isMe,
+    sentAt,
+}) => {
+    const { theme } = useUnistyles();
+    const styles = stylesheet;
+    const data = parseMetadata<OrderMetadata>(metadata);
+
+    if (!data) {
+        return (
+            <View style={styles.cardContainerMain}>
+                <View style={styles.cardContainer}>
+                    <IconSymbol name="shipping" size={20} color={theme.colors.primary} />
+                    <Text style={styles.textContent}>
+                        {content}
+                    </Text>
+                </View>
+                <View style={styles.timeOverlayCard}>
+                    <MessageTime sentAt={sentAt} isMe={isMe} forceDark />
+                </View>
+            </View>
+        );
+    }
+
+    const statusConfig = ORDER_STATUS_CONFIG[data.status] || {
+        label: data.status,
+        color: '#6B7280',
     };
 
     return (
-        <View style={styles.fileContainer}>
-            <View style={[styles.fileIcon, isMe && styles.fileIconMe]}>
-                <IconSymbol
-                    name={getFileIcon()}
-                    size={24}
-                    color={isMe ? theme.colors.surface : theme.colors.error}
-                />
+        <View style={styles.orderCard}>
+            {content && (
+                <View style={styles.cardMessageHeader}>
+                    <Text style={styles.cardMessageText}>
+                        {content}
+                    </Text>
+                </View>
+            )}
+
+            <View style={styles.orderCardHeader}>
+                <View style={styles.orderCardHeaderLeft}>
+                    <IconSymbol name="shipping" size={16} color={theme.colors.primary} />
+                    <Text style={styles.orderCardTitle}>Đơn hàng</Text>
+                </View>
+                <View style={[styles.statusBadge, { backgroundColor: statusConfig.color + '15' }]}>
+                    <Text style={[styles.statusText, { color: statusConfig.color }]}>
+                        {statusConfig.label}
+                    </Text>
+                </View>
             </View>
-            <View style={styles.fileInfo}>
-                <Text
-                    style={[styles.fileName, isMe && styles.fileNameMe]}
-                    numberOfLines={1}
-                >
-                    {file.fileName || 'File'}
-                </Text>
-                <Text style={[styles.fileSize, isMe && styles.fileSizeMe]}>
-                    {file.fileSize ? formatFileSize(file.fileSize) : 'Unknown size'}
-                </Text>
+
+            <Text style={styles.orderCodeLarge}>{data.orderCode}</Text>
+
+            <View style={styles.orderItemsList}>
+                {data.items.slice(0, 2).map((item, index) => (
+                    <View key={index} style={styles.orderItemRow}>
+                        <Image
+                            source={{ uri: toPublicUrl(item.image) || 'https://via.placeholder.com/50' }}
+                            style={styles.orderItemThumb}
+                        />
+                        <View style={styles.orderItemInfo}>
+                            <Text style={styles.orderItemNameText} numberOfLines={1}>
+                                {item.productName}
+                            </Text>
+                            <Text style={styles.orderItemQtyText}>x{item.quantity}</Text>
+                        </View>
+                    </View>
+                ))}
             </View>
-            <IconSymbol
-                name="download"
-                size={20}
-                color={isMe ? 'rgba(255,255,255,0.7)' : theme.colors.secondary}
-            />
-        </View>
-    );
-};
 
-const ProductCardContent: React.FC<{ content: string; isMe: boolean }> = ({
-    content,
-    isMe,
-}) => {
-    const styles = stylesheet;
-    // TODO: Parse product data from content/metadata
-    return (
-        <View style={styles.cardContainer}>
-            <IconSymbol name="cart" size={20} color="#0088cc" />
-            <Text style={[styles.textContent, isMe && styles.textContentMe]}>
-                [Sản phẩm] {content}
-            </Text>
-        </View>
-    );
-};
-
-const OrderCardContent: React.FC<{ content: string; isMe: boolean }> = ({
-    content,
-    isMe,
-}) => {
-    const styles = stylesheet;
-    return (
-        <View style={styles.cardContainer}>
-            <IconSymbol name="shipping" size={20} color="#0088cc" />
-            <Text style={[styles.textContent, isMe && styles.textContentMe]}>
-                [Đơn hàng] {content}
-            </Text>
-        </View>
-    );
-};
-
-const SystemMessage: React.FC<{ content: string }> = ({ content }) => {
-    const { theme } = useUnistyles();
-    const styles = stylesheet;
-
-    return (
-        <View style={styles.systemContainer}>
-            <View style={styles.systemPill}>
-                <IconSymbol name="info" size={14} color={theme.colors.info} />
-                <Text style={styles.systemText}>{content}</Text>
+            <View style={styles.orderCardFooterNew}>
+                <View>
+                    <Text style={styles.totalLabel}>Tổng thanh toán</Text>
+                    <Text style={styles.totalValue}>{formatPrice(data.totalAmount)}</Text>
+                </View>
+                <View style={styles.viewOrderBtn}>
+                    <Text style={styles.viewOrderBtnText}>Chi tiết</Text>
+                </View>
+            </View>
+            <View style={styles.timeOverlayCard}>
+                <MessageTime sentAt={sentAt} isMe={isMe} forceDark />
             </View>
         </View>
     );
@@ -293,8 +488,7 @@ const SystemMessage: React.FC<{ content: string }> = ({ content }) => {
 const stylesheet = StyleSheet.create((theme, runtime) => ({
     container: {
         flexDirection: 'row',
-        // paddingHorizontal: theme.margins.md,
-        marginBottom: 2,
+        marginBottom: theme.margins.sm,
     },
     containerMe: {
         justifyContent: 'flex-end',
@@ -304,112 +498,261 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
     },
     avatarContainer: {
         width: 32,
-        marginRight: 8,
-        alignItems: 'center',
-        justifyContent: 'flex-start',
+        marginRight: theme.margins.sm,
+        justifyContent: 'flex-end',
     },
     avatar: {
         width: 32,
         height: 32,
-        borderRadius: 16,
+        borderRadius: theme.radius.l,
         backgroundColor: theme.colors.backgroundInput,
     },
     bubbleWrapper: {
-        maxWidth: '80%',
+        maxWidth: '85%',
     },
-    // Text content
+    textContainerFixed: {
+        position: 'relative',
+        minWidth: 85,
+    },
     textContent: {
         fontSize: 15,
-        lineHeight: 20,
+        lineHeight: 22,
         color: theme.colors.typography,
     },
     textContentMe: {
         color: theme.colors.surface,
     },
-    // Image content
+    deletedText: {
+        fontStyle: 'italic',
+        opacity: 0.7,
+    },
+    timeInside: {
+        fontSize: 11,
+        fontWeight: '400',
+    },
+    timeInsideMe: {
+        color: 'rgba(255, 255, 255, 0.7)',
+    },
+    timeInsideOther: {
+        color: theme.colors.typographySecondary,
+    },
+    timeOverlayText: {
+        position: 'absolute',
+        right: 0,
+        bottom: 0,
+    },
+    timeOverlayImage: {
+        position: 'absolute',
+        right: 8,
+        bottom: 6,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 10,
+    },
+    timeOnImage: {
+        color: '#fff',
+    },
+    timeOverlayFile: {
+        alignItems: 'flex-end',
+        marginTop: 4,
+    },
+    timeOverlayCard: {
+        position: 'absolute',
+        right: 8,
+        bottom: 4,
+    },
     imageContainer: {
+        marginHorizontal: -12,
+        marginVertical: -8,
+        borderRadius: theme.radius.m,
         overflow: 'hidden',
-        marginHorizontal: -14,
-        marginVertical: -10,
+        position: 'relative',
     },
-    image: {
-        width: runtime.screen.width * 0.65,
-        maxWidth: 300,
-        maxHeight: runtime.screen.height * 0.4,
-        borderRadius: 12,
-        backgroundColor: theme.colors.backgroundInput,
+    messageImage: {
+        width: 240,
+        height: 180,
     },
-    caption: {
-        marginTop: 8,
-        paddingHorizontal: 14,
-        paddingBottom: 10,
+    fileContainerMain: {
+        width: 220,
     },
-    // File content
     fileContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
-        minWidth: 200,
+        gap: 10,
     },
-    fileIcon: {
-        width: 40,
-        height: 40,
-        borderRadius: 8,
-        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    fileIconContainer: {
+        width: 44,
+        height: 44,
+        borderRadius: theme.radius.m,
+        backgroundColor: theme.colors.primaryMuted,
         alignItems: 'center',
         justifyContent: 'center',
-    },
-    fileIconMe: {
-        backgroundColor: 'rgba(255, 255, 255, 0.2)',
     },
     fileInfo: {
         flex: 1,
     },
     fileName: {
         fontSize: 14,
-        fontWeight: '600',
+        fontWeight: '500',
         color: theme.colors.typography,
-    },
-    fileNameMe: {
-        color: theme.colors.surface,
     },
     fileSize: {
         fontSize: 12,
-        color: theme.colors.secondary,
+        color: theme.colors.typographySecondary,
         marginTop: 2,
     },
     fileSizeMe: {
-        color: 'rgba(255, 255, 255, 0.7)',
+        color: theme.colors.textOnOverlay,
     },
-    // Card content
+    cardContainerMain: {
+        minWidth: 150,
+    },
     cardContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
+        padding: theme.margins.sm,
     },
-    // System message
-    systemContainer: {
-        alignItems: 'center',
+    cardMessageHeader: {
+        paddingHorizontal: 12,
         paddingVertical: theme.margins.sm,
-        paddingHorizontal: theme.margins.md,
+        backgroundColor: theme.colors.backgroundSurface,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors.border,
     },
-    systemPill: {
+    cardMessageText: {
+        fontSize: 14,
+        lineHeight: 20,
+        color: theme.colors.typography,
+    },
+    productCard: {
+        width: 250,
+        backgroundColor: theme.colors.surface,
+        position: 'relative',
+    },
+    productCardHeader: {
+        width: '100%',
+        height: 150,
+        backgroundColor: theme.colors.backgroundInput,
+    },
+    productImageLarge: {
+        width: '100%',
+        height: '100%',
+    },
+    productCardContent: {
+        padding: 12,
+        gap: 6,
+    },
+    productNameLarge: {
+        fontSize: 14,
+        fontWeight: '500',
+        color: theme.colors.typography,
+        lineHeight: 20,
+    },
+    productPriceRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-end',
+    },
+    productPriceLarge: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: theme.colors.warning,
+    },
+    orderCard: {
+        width: 260,
+        padding: 12,
+        backgroundColor: theme.colors.surface,
+        position: 'relative',
+    },
+    orderCardHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    orderCardHeaderLeft: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 6,
-        backgroundColor: theme.colors.infoSoft,
-        paddingHorizontal: theme.margins.md,
-        paddingVertical: 8,
-        borderRadius: theme.radius.full,
-        borderWidth: 1,
-        borderColor: theme.colors.infoLight,
     },
-    systemText: {
+    orderCardTitle: {
         fontSize: 12,
-        color: theme.colors.info,
-        fontWeight: '500',
+        fontWeight: '600',
+        color: theme.colors.typographySecondary,
+        textTransform: 'uppercase',
     },
-    // Failed state
+    statusBadge: {
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: theme.radius.s,
+    },
+    statusText: {
+        fontSize: 11,
+        fontWeight: '700',
+    },
+    orderCodeLarge: {
+        fontSize: 15,
+        fontWeight: '700',
+        color: theme.colors.typography,
+        marginBottom: theme.margins.sm,
+    },
+    orderItemsList: {
+        gap: 10,
+        marginBottom: theme.margins.sm,
+    },
+    orderItemRow: {
+        flexDirection: 'row',
+        gap: 10,
+        alignItems: 'center',
+    },
+    orderItemThumb: {
+        width: 40,
+        height: 40,
+        borderRadius: theme.radius.s,
+        backgroundColor: theme.colors.backgroundInput,
+    },
+    orderItemInfo: {
+        flex: 1,
+    },
+    orderItemNameText: {
+        fontSize: 13,
+        color: theme.colors.typography,
+    },
+    orderItemQtyText: {
+        fontSize: 12,
+        color: theme.colors.typographySecondary,
+    },
+    orderCardFooterNew: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingTop: 12,
+        borderTopWidth: 1,
+        borderTopColor: theme.colors.border,
+        paddingBottom: 10, // Chừa chỗ cho giờ absolute
+    },
+    totalLabel: {
+        fontSize: 11,
+        color: theme.colors.typographySecondary,
+    },
+    totalValue: {
+        fontSize: 15,
+        fontWeight: '700',
+        color: theme.colors.warning,
+    },
+    viewOrderBtn: {
+        backgroundColor: theme.colors.primarySubtle,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: theme.radius.m,
+    },
+    viewOrderBtnText: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: theme.colors.primary,
+    },
     failedContainer: {
         flexDirection: 'row',
         alignItems: 'center',

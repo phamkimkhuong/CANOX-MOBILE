@@ -1,0 +1,146 @@
+import { IconSymbol } from '@/components/ui/Icon';
+import {
+    BottomSheetBackdrop,
+    BottomSheetModal,
+    BottomSheetView
+} from '@gorhom/bottom-sheet';
+import React, { forwardRef, useCallback } from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+
+/**
+ * ==============================================
+ * AttachmentMenu - Menu attachment for Chat
+ * ==============================================
+ * Uses BottomSheetModal with dynamic sizing to automatically
+ * calculate height based on content. Includes safe area handling
+ * to prevent content being cut off by home indicator.
+ */
+
+interface AttachmentMenuProps {
+    onSelectOption: (type: 'image' | 'camera' | 'product') => void;
+}
+
+export const AttachmentMenu = forwardRef<BottomSheetModal, AttachmentMenuProps>(
+    ({ onSelectOption }, ref) => {
+        const { theme } = useUnistyles();
+        const styles = stylesheet;
+        const insets = useSafeAreaInsets();
+
+        // Backdrop when opening menu
+        const renderBackdrop = useCallback(
+            (props: any) => (
+                <BottomSheetBackdrop
+                    {...props}
+                    appearsOnIndex={0}
+                    disappearsOnIndex={-1}
+                    opacity={0.3}
+                />
+            ),
+            []
+        );
+
+        return (
+            <BottomSheetModal
+                ref={ref}
+                enableDynamicSizing={true}
+                enablePanDownToClose
+                backdropComponent={renderBackdrop}
+                handleIndicatorStyle={styles.indicator}
+                backgroundStyle={styles.background}
+                bottomInset={insets.bottom}
+            >
+                <BottomSheetView style={[styles.content, { paddingBottom: Math.max(insets.bottom, 24) }]}>
+                    <Text style={styles.title}>Gửi nội dung</Text>
+
+                    <View style={styles.optionsGrid}>
+                        {/* Option: Hình ảnh */}
+                        <TouchableOpacity
+                            style={styles.optionItem}
+                            onPress={() => onSelectOption('image')}
+                        >
+                            <View style={[styles.iconCircle, { backgroundColor: '#E3F2FD' }]}>
+                                <IconSymbol name="image" size={24} color="#1976D2" />
+                            </View>
+                            <Text style={styles.optionLabel}>Hình ảnh</Text>
+                        </TouchableOpacity>
+
+                        {/* Option: Chụp ảnh */}
+                        <TouchableOpacity
+                            style={styles.optionItem}
+                            onPress={() => onSelectOption('camera')}
+                        >
+                            <View style={[styles.iconCircle, { backgroundColor: '#F3E5F5' }]}>
+                                <IconSymbol name="camera" size={24} color="#7B1FA2" />
+                            </View>
+                            <Text style={styles.optionLabel}>Máy ảnh</Text>
+                        </TouchableOpacity>
+
+                        {/* Option: Gửi sản phẩm */}
+                        <TouchableOpacity
+                            style={styles.optionItem}
+                            onPress={() => onSelectOption('product')}
+                        >
+                            <View style={[styles.iconCircle, { backgroundColor: '#E8F5E9' }]}>
+                                <IconSymbol name="shopping-bag" size={24} color="#388E3C" />
+                            </View>
+                            <Text style={styles.optionLabel}>Sản phẩm</Text>
+                        </TouchableOpacity>
+                    </View>
+                </BottomSheetView>
+            </BottomSheetModal>
+        );
+    }
+);
+
+const stylesheet = StyleSheet.create((theme) => ({
+    background: {
+        backgroundColor: theme.colors.surface,
+        borderTopLeftRadius: 16,
+        borderTopRightRadius: 16,
+    },
+    indicator: {
+        backgroundColor: theme.colors.border,
+        width: 40,
+    },
+    content: {
+        paddingHorizontal: theme.margins.lg,
+        paddingTop: theme.margins.sm,
+    },
+    title: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: theme.colors.typography,
+        marginBottom: theme.margins.lg,
+        textAlign: 'center',
+    },
+    optionsGrid: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        paddingBottom: theme.margins.md,
+    },
+    optionItem: {
+        alignItems: 'center',
+        gap: 10,
+    },
+    iconCircle: {
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
+    },
+    optionLabel: {
+        fontSize: 13,
+        fontWeight: '500',
+        color: theme.colors.typographySecondary,
+    },
+}));
+

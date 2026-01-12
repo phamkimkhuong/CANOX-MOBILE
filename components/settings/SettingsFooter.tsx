@@ -1,8 +1,8 @@
-import React, { memo } from 'react';
-import { Text, View, TouchableOpacity } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { MaterialIcons } from '@expo/vector-icons';
 import { APP_VERSION } from '@/constants/settings';
+import { MaterialIcons } from '@expo/vector-icons';
+import React, { memo } from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface SettingsFooterProps {
     onDeleteAccount?: () => void;
@@ -65,7 +65,7 @@ SettingsFooter.displayName = 'SettingsFooter';
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
         alignItems: 'center',
-        paddingVertical: theme.margins.xl,
+        marginTop: theme.margins.md,
         paddingHorizontal: theme.margins.lg,
     },
     deleteButton: {
@@ -74,7 +74,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         justifyContent: 'center',
         paddingVertical: theme.margins.md,
         paddingHorizontal: theme.margins.lg,
-        marginBottom: theme.margins.xl,
+        marginBottom: theme.margins.md,
         borderRadius: 12,
         borderWidth: 1.5,
         borderColor: theme.colors.error,

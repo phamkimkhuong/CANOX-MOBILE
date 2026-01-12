@@ -1,14 +1,16 @@
 /**
  * ChatDetailScreen - Chat conversation detail view
  * Features:
- * - Inverted FlashList for messages
+ * - Inverted FlatList for messages (newest at bottom)
  * - Keyboard handling with react-native-keyboard-controller
  * - Sticky context bar (product/order)
  * - Quick replies
  * - Message grouping by date
+ * - Performance optimized with React.memo and FlatList props
  */
 
 import {
+    AttachmentMenu,
     ChatDetailHeader,
     ChatDetailSkeleton,
     ChatInputArea,
@@ -21,6 +23,7 @@ import {
 import { CHAT_STRINGS } from '@/constants/i18n/vi/chat';
 import { orderRoutes, productRoutes } from '@/constants/routes';
 import { CONVERSATIONS_QUERY_KEY, useChatMessages, useMarkMessagesAsRead, useSendMessage } from '@/hooks/api/chat';
+import { useChatImagePicker } from '@/hooks/api/chat/useChatImagePicker';
 import { buildChatWithShopRequest, useCreateConversation } from '@/hooks/api/chat/useCreateConversation';
 import { useAuthStore } from '@/store/useAuthStore';
 import {
@@ -38,18 +41,14 @@ import {
 } from '@/utils/adapter/chat/messageAdapter';
 import { logger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
-import { FlashList, FlashListRef, ListRenderItem } from '@shopify/flash-list';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Keyboard, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Keyboard, ListRenderItem, Text, View } from 'react-native';
 import { KeyboardAvoidingView, KeyboardProvider } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-
-// ============================================
-// TYPES
-// ============================================
 
 interface MessageListItem {
     type: 'date-separator' | 'message';
@@ -146,7 +145,8 @@ export default function ChatDetailScreen() {
 
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const flashListRef = useRef<FlashListRef<MessageListItem>>(null);
+    const flatListRef = useRef<FlatList<MessageListItem>>(null);
+    const attachmentMenuRef = useRef<BottomSheetModal>(null);
 
     // State management for conversationId
     const [currentConvId, setCurrentConvId] = useState<string>(params.conversationId);
@@ -327,29 +327,15 @@ export default function ChatDetailScreen() {
     // COMPUTED DATA
     // ============================================
 
-    // Group messages by date and flatten (Standard order: Oldest -> Newest)
+    // Group messages by date and flatten for INVERTED list
     const flatListData: MessageListItem[] = useMemo(() => {
         if (!messages.length) return [];
 
-        //  Reverse to get [Oldest -> Newest]
-        const sortedMessages = [...messages].reverse();
-
-        //  Group by date
-        const groups = groupMessagesByDate(sortedMessages);
+        // Group by date, messages order: [newest → oldest] within each group
+        const groups = groupMessagesByDate(messages);
         const items: MessageListItem[] = [];
 
-        //  Reverse groups to get chronological order (oldest date first)
-        const chronGroups = [...groups].reverse();
-
-        for (const group of chronGroups) {
-            // Add date separator first
-            items.push({
-                type: 'date-separator',
-                data: group.label,
-                id: `date-${group.date}`,
-            });
-
-            // Add messages
+        for (const group of groups) {
             for (const msg of group.messages) {
                 items.push({
                     type: 'message',
@@ -357,27 +343,45 @@ export default function ChatDetailScreen() {
                     id: msg.id,
                 });
             }
+            // Add date separator after messages (when inverted: appears above)
+            items.push({
+                type: 'date-separator',
+                data: group.label,
+                id: `date-${group.date}`,
+            });
         }
 
         return items;
     }, [messages]);
 
-    // Track if user is near bottom of the list
+    // Track if user is near bottom (for inverted list, bottom = offset near 0)
     const [isNearBottom, setIsNearBottom] = useState(true);
-    const NEAR_BOTTOM_THRESHOLD = 150; // pixels from bottom
+    const NEAR_BOTTOM_THRESHOLD = 150;
+    // Track if user has scrolled (to prevent auto-fetch on initial render)
+    const hasUserScrolledRef = useRef(false);
+
+    useEffect(() => {
+        if (flatListData.length > 0 && !isLoading) {
+            const timer = setTimeout(() => {
+                hasUserScrolledRef.current = true;
+            }, 500);
+            return () => clearTimeout(timer);
+        }
+    }, [flatListData.length, isLoading]);
 
     const handleScroll = useCallback((event: any) => {
-        const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
-        const distanceFromBottom = contentSize.height - layoutMeasurement.height - contentOffset.y;
-        setIsNearBottom(distanceFromBottom < NEAR_BOTTOM_THRESHOLD);
+        const { contentOffset } = event.nativeEvent;
+        // For inverted list: offset 0 = bottom (newest messages)
+        setIsNearBottom(contentOffset.y < NEAR_BOTTOM_THRESHOLD);
     }, []);
 
-    // Auto scroll to bottom when keyboard opens (only if near bottom)
+    // Auto scroll to bottom (offset 0) when keyboard opens (only if near bottom)
+    // For inverted list: offset 0 = bottom (newest messages)
     useEffect(() => {
         const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
-            if (isNearBottom && flashListRef.current && flatListData.length > 0) {
+            if (isNearBottom && flatListRef.current && flatListData.length > 0) {
                 setTimeout(() => {
-                    flashListRef.current?.scrollToEnd({ animated: true });
+                    flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
                 }, 100);
             }
         });
@@ -386,17 +390,6 @@ export default function ChatDetailScreen() {
             keyboardDidShowListener.remove();
         };
     }, [flatListData.length, isNearBottom]);
-
-    // Scroll to end when messages first load
-    const [hasScrolledToEnd, setHasScrolledToEnd] = useState(false);
-    useEffect(() => {
-        if (!hasScrolledToEnd && flatListData.length > 0 && !isLoading) {
-            setTimeout(() => {
-                flashListRef.current?.scrollToEnd({ animated: false });
-                setHasScrolledToEnd(true);
-            }, 50);
-        }
-    }, [flatListData.length, isLoading, hasScrolledToEnd]);
 
     // ============================================
     // HANDLERS
@@ -415,8 +408,8 @@ export default function ChatDetailScreen() {
                 },
                 {
                     onSuccess: () => {
-                        // Scroll to bottom
-                        flashListRef.current?.scrollToOffset({
+                        // Scroll to bottom (offset 0 for inverted list)
+                        flatListRef.current?.scrollToOffset({
                             offset: 0,
                             animated: true,
                         });
@@ -435,7 +428,7 @@ export default function ChatDetailScreen() {
     );
 
     const handleLoadMore = useCallback(() => {
-        if (hasNextPage && !isFetchingNextPage) {
+        if (hasNextPage && !isFetchingNextPage && hasUserScrolledRef.current) {
             fetchNextPage();
         }
     }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
@@ -451,6 +444,47 @@ export default function ChatDetailScreen() {
             Navigator.push(orderRoutes.detail(orderContext.orderId));
         }
     }, [contextType, productContext, orderContext]);
+
+    const handleOpenAttachment = useCallback(() => {
+        Keyboard.dismiss();
+        attachmentMenuRef.current?.present();
+    }, []);
+
+    // Hook xử lý chọn ảnh/chụp ảnh
+    const { pickImage, takePhoto, isProcessing: isImageProcessing } = useChatImagePicker();
+
+    const handleSelectAttachmentOption = useCallback(async (type: 'image' | 'camera' | 'product') => {
+        attachmentMenuRef.current?.dismiss();
+        logger.chat.info('Selected attachment option', { type });
+
+        if (type === 'image') {
+            const image = await pickImage();
+            if (image) {
+                // TODO: Upload ảnh lên server và gửi message với image URL
+                logger.chat.info('Image selected for sending', {
+                    fileName: image.fileName,
+                    size: image.fileSize,
+                    dimensions: `${image.width}x${image.height}`,
+                });
+                // Placeholder: Hiển thị thông báo thành công
+                handleSendMessage(`[Ảnh đã chọn: ${image.fileName}]`);
+            }
+        } else if (type === 'camera') {
+            const photo = await takePhoto();
+            if (photo) {
+                // TODO: Upload ảnh lên server và gửi message với image URL
+                logger.chat.info('Photo captured for sending', {
+                    fileName: photo.fileName,
+                    size: photo.fileSize,
+                    dimensions: `${photo.width}x${photo.height}`,
+                });
+                // Placeholder: Hiển thị thông báo thành công
+                handleSendMessage(`[Ảnh đã chụp: ${photo.fileName}]`);
+            }
+        } else if (type === 'product' && productContext) {
+            handleSendMessage(`Sản phẩm: ${productContext.name} - ${productContext.price}đ`);
+        }
+    }, [pickImage, takePhoto, productContext, handleSendMessage]);
 
     // ============================================
     // RENDER FUNCTIONS
@@ -493,6 +527,9 @@ export default function ChatDetailScreen() {
         },
         [userId, flatListData]
     );
+
+    // Memoized keyExtractor to avoid recreating function on each render
+    const keyExtractor = useCallback((item: MessageListItem) => item.id, []);
 
     const renderListHeader = useCallback(() => {
         // Show loading indicator when fetching older messages
@@ -582,22 +619,32 @@ export default function ChatDetailScreen() {
                     behavior="padding"
                     keyboardVerticalOffset={0}
                 >
-                    {/* Messages List - Standard Order with auto-scroll to end */}
+                    {/* Messages List - INVERTED: newest at bottom, no scroll needed */}
                     {shouldShowList ? (
-                        <FlashList
-                            ref={flashListRef}
+                        <FlatList
+                            ref={flatListRef}
                             data={flatListData}
                             renderItem={renderItem}
-                            keyExtractor={(item: MessageListItem) => item.id}
+                            keyExtractor={keyExtractor}
+                            inverted
                             onScroll={handleScroll}
-                            scrollEventThrottle={100}
-                            ListHeaderComponent={renderListHeader}
-                            ListFooterComponent={renderListFooter}
+                            scrollEventThrottle={16}
+                            ListHeaderComponent={renderListFooter}
+                            ListFooterComponent={renderListHeader}
                             ListEmptyComponent={renderEmptyComponent}
                             onEndReached={handleLoadMore}
-                            onEndReachedThreshold={0.3}
+                            onEndReachedThreshold={0.5}
                             contentContainerStyle={styles.listContent}
                             showsVerticalScrollIndicator={false}
+                            maintainVisibleContentPosition={{
+                                minIndexForVisible: 0,
+                            }}
+                            // Performance optimizations for 60fps
+                            initialNumToRender={15}
+                            maxToRenderPerBatch={10}
+                            windowSize={7}
+                            updateCellsBatchingPeriod={50}
+                            removeClippedSubviews={true}
                         />
                     ) : (
                         <ChatDetailSkeleton count={10} />
@@ -614,9 +661,16 @@ export default function ChatDetailScreen() {
                     {/* Input Area */}
                     <ChatInputArea
                         onSend={handleSendMessage}
+                        onAttachment={handleOpenAttachment}
                         disabled={sendMessageMutation.isPending}
                     />
                 </KeyboardAvoidingView>
+
+                {/* Attachment Menu (Floating) */}
+                <AttachmentMenu
+                    ref={attachmentMenuRef}
+                    onSelectOption={handleSelectAttachmentOption}
+                />
             </SafeAreaView>
         </KeyboardProvider>
     );

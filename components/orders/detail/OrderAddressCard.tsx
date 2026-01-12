@@ -14,6 +14,7 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import * as Clipboard from 'expo-clipboard';
 import React, { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -32,6 +33,7 @@ export const OrderAddressCard: React.FC<OrderAddressCardProps> = ({
     email,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation(['order', 'common']);
     const styles = stylesheet;
     const [copied, setCopied] = useState(false);
 
@@ -42,7 +44,7 @@ export const OrderAddressCard: React.FC<OrderAddressCardProps> = ({
 
         Toast.show({
             type: 'success',
-            text1: 'Đã sao chép địa chỉ',
+            text1: t('common:status.success'),
         });
 
         setTimeout(() => setCopied(false), 2000);
@@ -59,7 +61,7 @@ export const OrderAddressCard: React.FC<OrderAddressCardProps> = ({
                         color={theme.colors.primary}
                     />
                 </View>
-                <Text style={styles.headerTitle}>Địa chỉ nhận hàng</Text>
+                <Text style={styles.headerTitle}>{t('order:detail.shippingAddress')}</Text>
 
                 {/* Copy button */}
                 <Pressable

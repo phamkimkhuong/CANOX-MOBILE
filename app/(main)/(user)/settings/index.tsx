@@ -1,5 +1,6 @@
 import { Navigator } from '@/utils/navigation';
 import React, { useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -26,6 +27,7 @@ export default function SettingsScreen() {
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
+    const { t } = useTranslation(['profile', 'common']);
 
     // App Store - Global settings
     const darkModeEnabled = useAppStore((state) => state.darkModeEnabled);
@@ -69,33 +71,33 @@ export default function SettingsScreen() {
     // Handle cache clear
     const handleClearCache = useCallback(() => {
         Alert.alert(
-            'Xóa bộ nhớ đệm',
-            `Bạn có chắc chắn muốn xóa ${cacheSize} bộ nhớ đệm?`,
+            t('settings.items.cache'),
+            t('settings.actions.confirmClearCache', { size: cacheSize }),
             [
-                { text: 'Hủy', style: 'cancel' },
+                { text: t('common:actions.cancel'), style: 'cancel' },
                 {
-                    text: 'Xóa',
+                    text: t('common:actions.delete'),
                     style: 'destructive',
                     onPress: async () => {
                         const success = await clearCache();
                         if (success) {
-                            Alert.alert('Thành công', 'Đã xóa bộ nhớ đệm');
+                            Alert.alert(t('common:status.success'), t('settings.actions.cacheCleared'));
                         }
                     },
                 },
             ]
         );
-    }, [cacheSize, clearCache]);
+    }, [cacheSize, clearCache, t]);
 
     // Handle delete account
     const handleDeleteAccount = useCallback(() => {
         Alert.alert(
-            'Xóa tài khoản',
-            'Việc này sẽ xóa vĩnh viễn tài khoản và tất cả dữ liệu của bạn. Hành động này không thể hoàn tác.',
+            t('settings.actions.deleteAccount'),
+            t('settings.actions.deleteAccountConfirm'),
             [
-                { text: 'Hủy', style: 'cancel' },
+                { text: t('common:actions.cancel'), style: 'cancel' },
                 {
-                    text: 'Tiếp tục',
+                    text: t('common:actions.next'),
                     style: 'destructive',
                     onPress: () => {
                         Navigator.push(ROUTES.SETTINGS.DELETE_ACCOUNT as never);
@@ -103,7 +105,7 @@ export default function SettingsScreen() {
                 },
             ]
         );
-    }, []);
+    }, [t]);
 
     // Get dynamic values for settings items
     const getDynamicValue = useCallback((item: SettingsItemType): string | boolean | undefined => {
@@ -173,8 +175,10 @@ export default function SettingsScreen() {
         if (item.id === 'biometrics' && biometricStatus.biometryType) {
             return getBiometryDisplayName(biometricStatus.biometryType);
         }
-        return item.label;
-    }, [biometricStatus.biometryType]);
+        // Try to translate label based on ID
+        const translatedLabel = t(`settings.items.${item.id}` as any);
+        return translatedLabel !== `settings.items.${item.id}` ? translatedLabel : item.label;
+    }, [biometricStatus.biometryType, t]);
 
     // Render a single settings item
     const renderItem = useCallback((item: SettingsItemType, index: number, total: number) => {
@@ -230,7 +234,10 @@ export default function SettingsScreen() {
             >
                 {/* Settings Sections */}
                 {visibleSections.map((section) => (
-                    <SettingsSection key={section.id} title={section.title}>
+                    <SettingsSection
+                        key={section.id}
+                        title={t(`settings.sections.${section.id}` as any)}
+                    >
                         {section.items.map((item, index) =>
                             renderItem(item, index, section.items.length)
                         )}
@@ -243,7 +250,7 @@ export default function SettingsScreen() {
                         item={{
                             id: 'logout',
                             type: 'action',
-                            label: 'Đăng xuất',
+                            label: t('settings.actions.logout'),
                             icon: 'logout',
                             iconColor: 'slate',
                             actionStyle: 'default',
@@ -272,10 +279,9 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     content: {
         paddingHorizontal: theme.margins.md,
-        paddingTop: theme.margins.lg,
+        paddingTop: theme.margins.sm,
     },
     logoutContainer: {
-        marginBottom: theme.margins.md,
         borderRadius: 16,
         overflow: 'hidden',
         backgroundColor: theme.colors.surface,

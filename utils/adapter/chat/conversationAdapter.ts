@@ -220,6 +220,7 @@ export const toConversationUI = (
         unreadCount,
         isPinned,
         isMuted,
+        conversationType: dto.conversationType as 'BUYER_TO_SHOP' | 'BUYER_TO_PLATFORM',
     };
 };
 

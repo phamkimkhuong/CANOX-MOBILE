@@ -83,13 +83,6 @@ export const fetchConversations = async (
         page,
         size: PAGE_SIZE,
     };
-
-    // Add conversationType filter if applicable
-    const conversationType = mapFilterToConversationType(filter);
-    if (conversationType) {
-        params.conversationType = conversationType;
-    }
-
     // Call API
     const response = await apiClient.get<ConversationListResponse>(
         API_ROUTES.CHAT.CONVERSATIONS,
@@ -127,35 +120,36 @@ export const fetchConversations = async (
 
 /**
  * Hook to fetch chat list with infinite scroll and filtering.
+ * 
+ * Strategy: Fetch ALL conversations, filter client-side
+ * - Single API call, single cache
+ * - Instant tab switching (no API delay)
+ * - Filter applied in useMemo
  *
- * @param filter - Filter type (ALL, UNREAD, SHOP, SUPPORT)
+ * @param filter - Filter type (ALL, UNREAD, SHOP, SUPPORT) - applied client-side
  * @param searchQuery - Debounced search query string (client-side filter)
- * @returns Query result with flattened conversations array
+ * @returns Query result with flattened and filtered conversations array
  */
 export const useChatList = (
     filter: ChatFilter = ChatFilter.ALL,
     searchQuery?: string
 ) => {
-    // Get current user ID for participant matching
     const userId = useAuthStore((state) => state.userId);
     const buyerId = useAuthStore((state) => state.buyerId);
-
     const query = useInfiniteQuery({
-        queryKey: [CONVERSATIONS_QUERY_KEY, filter],
+        queryKey: [CONVERSATIONS_QUERY_KEY],
         queryFn: ({ pageParam = 0 }) => {
             if (!userId) {
                 throw new Error('User not authenticated');
             }
-            // API might still need buyerId passed via currentUserId param to filter conversations,
-            // but for Adapter matching, need the Identity userId.
-            return fetchConversations(pageParam, filter, userId);
+            return fetchConversations(pageParam, ChatFilter.ALL, userId);
         },
         initialPageParam: 0,
         getNextPageParam: (lastPage) =>
             lastPage.hasNext ? lastPage.page + 1 : undefined,
         staleTime: 1000 * 60 * 2, // 2 minutes
         gcTime: 1000 * 60 * 15, // 15 minutes
-        enabled: !!buyerId, // Only fetch when authenticated
+        enabled: !!buyerId,
     });
 
     // Flatten all pages into single list
@@ -176,10 +170,14 @@ export const useChatList = (
                 conv.lastMessage.content.toLowerCase().includes(query)
             );
         }
-
-        // Apply UNREAD filter (client-side since API might not support it)
         if (filter === ChatFilter.UNREAD) {
             filtered = filtered.filter((conv) => conv.unreadCount > 0);
+        }
+        if (filter === ChatFilter.SHOP) {
+            filtered = filtered.filter((conv) => conv.conversationType === 'BUYER_TO_SHOP');
+        }
+        if (filter === ChatFilter.SUPPORT) {
+            filtered = filtered.filter((conv) => conv.conversationType === 'BUYER_TO_PLATFORM');
         }
 
         // Sort: pinned first, then by lastMessage.createdAt
@@ -207,11 +205,10 @@ export const useChatList = (
  * useRefreshChatList - Smart refresh for chat list infinite query
  * Only fetches page 0 instead of all loaded pages.
  * 
- * @param filter - Current chat filter
  * @returns refresh function
  */
-export const useRefreshChatList = (filter: ChatFilter = ChatFilter.ALL) => {
-    return useSmartRefresh([CONVERSATIONS_QUERY_KEY, filter]);
+export const useRefreshChatList = () => {
+    return useSmartRefresh([CONVERSATIONS_QUERY_KEY]);
 };
 
 /**

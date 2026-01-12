@@ -8,6 +8,7 @@ import type {
 import { FlashList } from '@shopify/flash-list';
 import { Image } from 'expo-image';
 import React, { useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -33,6 +34,7 @@ export const CategoryContent: React.FC<CategoryContentProps> = ({
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+    const { t } = useTranslation('category');
 
     /**
      * Flatten data thành list items cho FlashList
@@ -84,7 +86,7 @@ export const CategoryContent: React.FC<CategoryContentProps> = ({
                 <Text style={styles.sectionTitle}>{title}</Text>
                 {showSeeAll && (
                     <TouchableOpacity style={styles.seeAllBtn} activeOpacity={0.7}>
-                        <Text style={styles.seeAllText}>Xem tất cả</Text>
+                        <Text style={styles.seeAllText}>{t('content.seeAll')}</Text>
                         <IconSymbol
                             name="chevron-right"
                             size={14}
@@ -132,7 +134,7 @@ export const CategoryContent: React.FC<CategoryContentProps> = ({
 
             return (
                 <View style={styles.brandsSection}>
-                    <Text style={styles.sectionTitle}>Thương hiệu nổi bật</Text>
+                    <Text style={styles.sectionTitle}>{t('content.featuredBrands')}</Text>
                     <View style={styles.brandsGrid}>
                         {brands.map((brand) => (
                             <View key={brand.id} style={styles.brandItem}>
@@ -174,7 +176,7 @@ export const CategoryContent: React.FC<CategoryContentProps> = ({
         return (
             <View style={styles.emptyContainer}>
                 <IconSymbol name="category" size={48} color={theme.colors.secondary} />
-                <Text style={styles.emptyText}>Chọn danh mục để xem</Text>
+                <Text style={styles.emptyText}>{t('content.selectPrompt')}</Text>
             </View>
         );
     }

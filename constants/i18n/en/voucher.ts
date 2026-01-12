@@ -1,0 +1,90 @@
+import { VoucherTranslation } from '../types';
+
+export const VOUCHER_STRINGS: VoucherTranslation = {
+    header: {
+        title: 'Vouchers',
+        myVouchers: 'My Vouchers',
+        searchPlaceholder: 'Enter voucher code...',
+    },
+    filters: {
+        all: 'All',
+        shipping: 'Free Shipping',
+        cashback: 'Cashback',
+        international: 'International',
+        shopMall: 'Shop Mall',
+        discount: 'Discount',
+        live: 'Live Store',
+    },
+    sort: {
+        label: 'Sort by',
+        popular: 'Popular',
+        newest: 'Newest',
+        expiring: 'Ending Soon',
+    },
+    card: {
+        minOrder: 'Min. spend',
+        maxDiscount: 'Max. capped',
+        expiry: 'Expiry date',
+        expiryToday: 'Expires today',
+        expiringSoon: 'Ending soon',
+        almostGone: 'Almost gone',
+        used: 'Used',
+        conditions: 'Conditions',
+        freeShipping: 'Free Shipping',
+        discount: 'Discount',
+        discountUpTo: 'Discount up to',
+        cashback: 'Cashback',
+        coins: 'Coins',
+    },
+    actions: {
+        collect: 'Claim',
+        use: 'Use Now',
+        collected: 'Claimed',
+        expired: 'Expired',
+        soldout: 'Fully Used',
+        reminder: 'Remind Me',
+    },
+    featured: {
+        title: 'Featured Vouchers',
+        aiPick: 'Recommended for you',
+    },
+    list: {
+        title: 'Voucher List',
+        empty: 'No vouchers found',
+        emptyDescription: 'Try a different keyword or filter',
+        loadMore: 'Load more',
+        loading: 'Loading vouchers...',
+    },
+    badges: {
+        hot: 'Hot',
+        new: 'New',
+        limited: 'Limited',
+        extra: 'Extra',
+        xtra: 'Xtra',
+        exclusive: 'Exclusive',
+    },
+    progress: {
+        used: 'Used',
+    },
+    error: {
+        loadFailed: 'Could not load vouchers',
+        collectFailed: 'Failed to claim voucher',
+        retry: 'Retry',
+    },
+    success: {
+        collected: 'Voucher claimed successfully!',
+        reminderSet: 'Reminder scheduled!',
+    },
+    live: {
+        startingAt: 'Starts at',
+        liveNow: 'Live Now',
+    },
+    types: {
+        shipping: 'Free Shipping',
+        discount: 'Discount',
+        cashback: 'Cashback',
+        international: 'International',
+        live: 'Live Store',
+        shop: 'Shop Voucher',
+    },
+};

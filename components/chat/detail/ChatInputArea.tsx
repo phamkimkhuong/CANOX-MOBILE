@@ -1,42 +1,42 @@
 /**
  * ChatInputArea - Input area with dynamic buttons
- * Handles text input, send button, and attachment options
+ * Handles text input, send button, emoji picker and attachment options
  */
 
 import { IconSymbol } from '@/components/ui/Icon';
 import React, { useCallback, useRef, useState } from 'react';
 import {
+    Keyboard,
     Platform,
     Pressable,
     TextInput,
     TouchableOpacity,
     View
 } from 'react-native';
+import { useKeyboardState } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import EmojiPicker, { type EmojiType } from 'rn-emoji-keyboard';
 
 interface ChatInputAreaProps {
     onSend: (text: string) => void;
     onAttachment?: () => void;
-    onCamera?: () => void;
-    onEmoji?: () => void;
     placeholder?: string;
     disabled?: boolean;
     maxLength?: number;
 }
 
 /**
- * ChatInputArea - Smart input with dynamic send button
+ * ChatInputArea - Smart input with dynamic send button and emoji picker
  * 
- * States:
- * - Empty: Shows emoji + camera buttons
- * - Has text: Shows send button (animated transition)
+ * Features:
+ * - Emoji picker using rn-emoji-keyboard
+ * - Dynamic send button (appears when text is entered)
+ * - Attachment menu trigger
  */
 export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
     onSend,
     onAttachment,
-    onCamera,
-    onEmoji,
     placeholder = 'Nhập tin nhắn...',
     disabled = false,
     maxLength = 1000,
@@ -46,12 +46,15 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
     const insets = useSafeAreaInsets();
     const inputRef = useRef<TextInput>(null);
 
+    const { isVisible: isKeyboardVisible } = useKeyboardState();
+
     const [text, setText] = useState('');
     const [isFocused, setIsFocused] = useState(false);
+    const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
 
     const hasText = text.trim().length > 0;
+    const bottomPadding = isKeyboardVisible ? 8 : Math.max(insets.bottom, 12);
 
-    // Focus input when tapping anywhere in input container
     const handleInputContainerPress = useCallback(() => {
         inputRef.current?.focus();
     }, []);
@@ -70,93 +73,130 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
         }
     }, [maxLength]);
 
+    const handleOpenEmojiPicker = useCallback(() => {
+        Keyboard.dismiss();
+        setIsEmojiPickerOpen(true);
+    }, []);
+
+    const handleCloseEmojiPicker = useCallback(() => {
+        setIsEmojiPickerOpen(false);
+    }, []);
+
+    const handleEmojiSelected = useCallback((emoji: EmojiType) => {
+        setText(prev => prev + emoji.emoji);
+    }, []);
+
     return (
-        <View
-            style={[
-                styles.container,
-                { paddingBottom: Math.max(insets.bottom, 12) },
-            ]}
-        >
-            {/* Attachment button */}
-            <TouchableOpacity
-                style={styles.iconButton}
-                onPress={onAttachment}
-                disabled={disabled}
-            >
-                <IconSymbol
-                    name="add-circle"
-                    size={26}
-                    color={theme.colors.secondary}
-                />
-            </TouchableOpacity>
-
-            {/* Input container - Pressable to expand touch area */}
-            <Pressable
+        <>
+            <View
                 style={[
-                    styles.inputContainer,
-                    isFocused && styles.inputContainerFocused,
+                    styles.container,
+                    { paddingBottom: bottomPadding },
                 ]}
-                onPress={handleInputContainerPress}
             >
-                <TextInput
-                    ref={inputRef}
-                    style={styles.input}
-                    placeholder={placeholder}
-                    placeholderTextColor={theme.colors.secondary}
-                    value={text}
-                    onChangeText={handleChangeText}
-                    onFocus={() => setIsFocused(true)}
-                    onBlur={() => setIsFocused(false)}
-                    multiline
-                    maxLength={maxLength}
-                    editable={!disabled}
-                    returnKeyType="default"
-                    blurOnSubmit={false}
-                />
-
-                {/* Right icons: Always visible (Emoji + Camera) */}
-                <View style={styles.rightIcons}>
-                    <TouchableOpacity
-                        style={styles.inputIcon}
-                        onPress={onEmoji}
-                        disabled={disabled}
-                    >
-                        <IconSymbol
-                            name="happy"
-                            size={22}
-                            color={theme.colors.secondary}
-                        />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.inputIcon}
-                        onPress={onCamera}
-                        disabled={disabled}
-                    >
-                        <IconSymbol
-                            name="camera"
-                            size={22}
-                            color={theme.colors.secondary}
-                        />
-                    </TouchableOpacity>
-                </View>
-            </Pressable>
-
-            {/* Send button (when has text) */}
-            {hasText && (
+                {/* Attachment button */}
                 <TouchableOpacity
-                    style={styles.sendButton}
-                    onPress={handleSend}
+                    style={styles.iconButton}
+                    onPress={onAttachment}
                     disabled={disabled}
-                    activeOpacity={0.8}
                 >
                     <IconSymbol
-                        name="send"
-                        size={20}
-                        color={theme.colors.surface}
+                        name="add-circle"
+                        size={26}
+                        color={theme.colors.secondary}
                     />
                 </TouchableOpacity>
-            )}
-        </View>
+
+                {/* Input container */}
+                <Pressable
+                    style={[
+                        styles.inputContainer,
+                        isFocused && styles.inputContainerFocused,
+                    ]}
+                    onPress={handleInputContainerPress}
+                >
+                    <TextInput
+                        ref={inputRef}
+                        style={styles.input}
+                        placeholder={placeholder}
+                        placeholderTextColor={theme.colors.secondary}
+                        value={text}
+                        onChangeText={handleChangeText}
+                        onFocus={() => setIsFocused(true)}
+                        onBlur={() => setIsFocused(false)}
+                        multiline
+                        maxLength={maxLength}
+                        editable={!disabled}
+                        returnKeyType="default"
+                        blurOnSubmit={false}
+                    />
+
+                    {/* Emoji button */}
+                    <View style={styles.rightIcons}>
+                        <TouchableOpacity
+                            style={styles.inputIcon}
+                            onPress={handleOpenEmojiPicker}
+                            disabled={disabled}
+                        >
+                            <IconSymbol
+                                name="happy"
+                                size={22}
+                                color={isEmojiPickerOpen ? theme.colors.primary : theme.colors.secondary}
+                            />
+                        </TouchableOpacity>
+                    </View>
+                </Pressable>
+
+                {/* Send button (when has text) */}
+                {hasText && (
+                    <TouchableOpacity
+                        style={styles.sendButton}
+                        onPress={handleSend}
+                        disabled={disabled}
+                        activeOpacity={0.8}
+                    >
+                        <IconSymbol
+                            name="send"
+                            size={20}
+                            color={theme.colors.surface}
+                        />
+                    </TouchableOpacity>
+                )}
+            </View>
+
+            {/* Emoji Picker Modal */}
+            <EmojiPicker
+                open={isEmojiPickerOpen}
+                onClose={handleCloseEmojiPicker}
+                onEmojiSelected={handleEmojiSelected}
+                enableSearchBar
+                enableRecentlyUsed
+                categoryPosition="top"
+                enableCategoryChangeGesture
+                theme={{
+                    backdrop: 'rgba(0,0,0,0.3)',
+                    knob: theme.colors.border,
+                    container: theme.colors.surface,
+                    header: theme.colors.typography,
+                    skinTonesContainer: theme.colors.backgroundInput,
+                    category: {
+                        icon: theme.colors.secondary,
+                        iconActive: theme.colors.primary,
+                        container: theme.colors.surface,
+                        containerActive: theme.colors.primaryMuted,
+                    },
+                    search: {
+                        text: theme.colors.typography,
+                        placeholder: theme.colors.secondary,
+                        icon: theme.colors.secondary,
+                        background: theme.colors.backgroundInput,
+                    },
+                    emoji: {
+                        selected: theme.colors.primaryMuted,
+                    },
+                }}
+            />
+        </>
     );
 };
 
@@ -221,3 +261,4 @@ const stylesheet = StyleSheet.create((theme) => ({
 }));
 
 export default ChatInputArea;
+

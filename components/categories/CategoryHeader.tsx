@@ -1,6 +1,7 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { useCartStore } from '@/store/useCartStore';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 
@@ -23,6 +24,7 @@ export const CategoryHeader: React.FC<CategoryHeaderProps> = ({
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+    const { t } = useTranslation('category');
     const storeCartCount = useCartStore((state) => state.totalQuantity);
     const displayCount = cartCount ?? storeCartCount;
 
@@ -33,7 +35,7 @@ export const CategoryHeader: React.FC<CategoryHeaderProps> = ({
                 <IconSymbol name="search" size={20} color={theme.colors.secondary} />
                 <TextInput
                     style={styles.searchInput}
-                    placeholder="Tìm kiếm sản phẩm, danh mục..."
+                    placeholder={t('search.placeholder')}
                     placeholderTextColor={theme.colors.secondary}
                     onFocus={onSearchFocus}
                 />

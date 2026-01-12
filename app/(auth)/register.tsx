@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -28,6 +29,7 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function RegisterScreen() {
 	const { theme } = useUnistyles();
+	const { t } = useTranslation('auth');
 	const styles = stylesheet;
 	const [agreedTerms, setAgreedTerms] = useState(false);
 	const { mutate: register, isPending } = useRegister();
@@ -107,7 +109,7 @@ export default function RegisterScreen() {
 						>
 							<IconSymbol name="arrow-back" size={24} color={theme.colors.typography} />
 						</TouchableOpacity>
-						<Text style={styles.headerTitle}>Đăng ký</Text>
+						<Text style={styles.headerTitle}>{t('register.title')}</Text>
 						<View style={styles.headerSpacer} />
 					</View>
 
@@ -116,9 +118,9 @@ export default function RegisterScreen() {
 						<View style={styles.iconCircle}>
 							<IconSymbol name="bag" size={32} color={theme.colors.primary} />
 						</View>
-						<Text style={styles.welcomeTitle}>Tạo tài khoản mới</Text>
+						<Text style={styles.welcomeTitle}>{t('register.welcome')}</Text>
 						<Text style={styles.welcomeSubtitle}>
-							Tham gia mua sắm quốc tế, tích điểm và viết đánh giá nhận thưởng ngay hôm nay.
+							{t('register.subtitle')}
 						</Text>
 					</View>
 
@@ -127,35 +129,35 @@ export default function RegisterScreen() {
 						<AuthInput
 							control={control}
 							name="username"
-							label="Tên đăng nhập"
-							placeholder="Nhập tên đăng nhập"
+							label={t('register.usernameLabel')}
+							placeholder={t('register.usernamePlaceholder')}
 							icon="person"
 							autoCapitalize="none"
 						/>
 						<AuthInput
 							control={control}
 							name="email"
-							label="Email"
+							label={t('register.emailLabel')}
 							icon="mail"
-							placeholder="Nhập địa chỉ email của bạn"
+							placeholder={t('register.emailPlaceholder')}
 							keyboardType="email-address"
 						/>
 
 						<AuthInput
 							control={control}
 							name="password"
-							label="Mật khẩu"
+							label={t('register.passwordLabel')}
 							icon="lock"
-							placeholder="Nhập mật khẩu"
+							placeholder={t('register.passwordPlaceholder')}
 							isPassword
 						/>
 
 						<AuthInput
 							control={control}
 							name="confirmPassword"
-							label="Nhập lại mật khẩu"
+							label={t('register.confirmPasswordLabel')}
 							icon="verified-user"
-							placeholder="Nhập lại mật khẩu"
+							placeholder={t('register.confirmPasswordPlaceholder')}
 							isPassword
 						/>
 
@@ -171,10 +173,10 @@ export default function RegisterScreen() {
 								)}
 							</View>
 							<Text style={styles.termsText}>
-								Tôi đồng ý với{' '}
-								<Text style={styles.termsLink}>Điều khoản sử dụng</Text>
-								{' '}và{' '}
-								<Text style={styles.termsLink}>Chính sách bảo mật</Text>
+								{t('register.agreeTermsPrefix')}
+								<Text style={styles.termsLink}>{t('register.termsLink')}</Text>
+								{t('register.agreeTermsAnd')}
+								<Text style={styles.termsLink}>{t('register.privacyLink')}</Text>
 							</Text>
 						</TouchableOpacity>
 
@@ -187,14 +189,14 @@ export default function RegisterScreen() {
 							{isPending ? ( // Hiển thị Spinner khi đang gọi API
 								<ActivityIndicator color="white" />
 							) : (
-								<Text style={styles.submitBtnText}>Đăng ký</Text>
+								<Text style={styles.submitBtnText}>{t('register.registerButton')}</Text>
 							)}
 						</TouchableOpacity>
 
 						{/* Divider */}
 						<View style={styles.dividerContainer}>
 							<View style={styles.line} />
-							<Text style={styles.dividerText}>Hoặc tiếp tục với</Text>
+							<Text style={styles.dividerText}>{t('register.socialLogin')}</Text>
 							<View style={styles.line} />
 						</View>
 
@@ -204,9 +206,9 @@ export default function RegisterScreen() {
 
 					{/* Footer */}
 					<View style={styles.footer}>
-						<Text style={styles.footerText}>Bạn đã có tài khoản? </Text>
+						<Text style={styles.footerText}>{t('register.hasAccount')}</Text>
 						<TouchableOpacity onPress={() => Navigator.replace(ROUTES.AUTH.LOGIN)}>
-							<Text style={styles.footerLink}>Đăng nhập</Text>
+							<Text style={styles.footerLink}>{t('register.loginNow')}</Text>
 						</TouchableOpacity>
 					</View>
 				</ScrollView>

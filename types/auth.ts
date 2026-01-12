@@ -66,3 +66,35 @@ export type LoginPayload = z.infer<typeof LoginRequestSchema>;
 export type RegisterPayload = z.infer<typeof RegisterRequestSchema>;
 export type AuthResponse = z.infer<typeof AuthResponseSchema>;
 export type RegisterResponse = z.infer<typeof RegisterResponseSchema>;
+
+// ===============================
+// CHANGE PASSWORD SCHEMAS
+// ===============================
+
+/**
+ * Schema for Change Password Request
+ * Uses the same PASSWORD_REGEX as register to ensure consistency
+ */
+export const ChangePasswordRequestSchema = z.object({
+    oldPassword: z.string().min(1, 'Vui lòng nhập mật khẩu hiện tại'),
+    newPassword: z.string()
+        .min(6, 'Mật khẩu mới tối thiểu 6 ký tự')
+        .regex(PASSWORD_REGEX, 'Mật khẩu phải chứa chữ hoa, chữ thường và số'),
+    confirmPassword: z.string().min(1, 'Vui lòng xác nhận mật khẩu mới'),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+    message: 'Mật khẩu xác nhận không khớp',
+    path: ['confirmPassword'],
+}).refine((data) => data.oldPassword !== data.newPassword, {
+    message: 'Mật khẩu mới phải khác mật khẩu hiện tại',
+    path: ['newPassword'],
+});
+
+/**
+ * Schema cho Change Password Response
+ */
+export const ChangePasswordResponseSchema = ResponseDefaultSchema.extend({
+    data: z.object({}).optional(),
+});
+
+export type ChangePasswordPayload = z.infer<typeof ChangePasswordRequestSchema>;
+export type ChangePasswordResponse = z.infer<typeof ChangePasswordResponseSchema>;

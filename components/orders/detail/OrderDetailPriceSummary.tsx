@@ -12,6 +12,7 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { formatCurrency } from '@/utils/format';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -83,6 +84,7 @@ export const OrderDetailPriceSummary: React.FC<OrderDetailPriceSummaryProps> = (
     paymentMethod,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation(['order', 'common']);
     const styles = stylesheet;
 
     const totalDiscount = shopDiscount + platformDiscount + shippingDiscount;
@@ -99,16 +101,16 @@ export const OrderDetailPriceSummary: React.FC<OrderDetailPriceSummaryProps> = (
                         color={theme.colors.primary}
                     />
                 </View>
-                <Text style={styles.headerTitle}>Chi tiết thanh toán</Text>
+                <Text style={styles.headerTitle}>{t('order:detail.paymentSummary')}</Text>
             </View>
 
             {/* Price Breakdown */}
             <View style={styles.priceList}>
-                <PriceRow label="Tạm tính" value={subtotal} />
+                <PriceRow label={t('order:detail.summary.subtotal')} value={subtotal} />
 
                 {shopDiscount > 0 && (
                     <PriceRow
-                        label="Giảm giá Shop"
+                        label={t('order:detail.summary.shopDiscount')}
                         value={shopDiscount}
                         isDiscount
                     />
@@ -116,7 +118,7 @@ export const OrderDetailPriceSummary: React.FC<OrderDetailPriceSummaryProps> = (
 
                 {platformDiscount > 0 && (
                     <PriceRow
-                        label="Giảm giá sàn"
+                        label={t('order:detail.summary.platformDiscount')}
                         value={platformDiscount}
                         isDiscount
                     />
@@ -124,19 +126,19 @@ export const OrderDetailPriceSummary: React.FC<OrderDetailPriceSummaryProps> = (
 
                 {shippingDiscount > 0 && (
                     <PriceRow
-                        label="Giảm phí vận chuyển"
+                        label={t('order:detail.summary.shippingDiscount')}
                         value={shippingDiscount}
                         isDiscount
                     />
                 )}
 
                 <PriceRow
-                    label="Phí vận chuyển"
+                    label={t('order:detail.summary.shipping')}
                     value={shippingFee}
                 />
 
                 {taxAmount > 0 && (
-                    <PriceRow label="Thuế" value={taxAmount} />
+                    <PriceRow label={t('order:detail.summary.tax')} value={taxAmount} />
                 )}
             </View>
 
@@ -144,7 +146,7 @@ export const OrderDetailPriceSummary: React.FC<OrderDetailPriceSummaryProps> = (
             <View style={styles.divider} />
 
             {/* Total */}
-            <PriceRow label="Tổng thanh toán" value={grandTotal} isTotal />
+            <PriceRow label={t('order:detail.summary.total')} value={grandTotal} isTotal />
 
             {/* Savings Badge */}
             {hasDiscount && (
@@ -155,7 +157,7 @@ export const OrderDetailPriceSummary: React.FC<OrderDetailPriceSummaryProps> = (
                         color={theme.colors.success}
                     />
                     <Text style={styles.savingsText}>
-                        Tiết kiệm {formatCurrency(totalDiscount)}
+                        {t('order:detail.summary.savings', { amount: formatCurrency(totalDiscount) })}
                     </Text>
                 </View>
             )}
@@ -167,7 +169,7 @@ export const OrderDetailPriceSummary: React.FC<OrderDetailPriceSummaryProps> = (
                     size={14}
                     color={theme.colors.typographySecondary}
                 />
-                <Text style={styles.paymentLabel}>Phương thức thanh toán</Text>
+                <Text style={styles.paymentLabel}>{t('order:detail.paymentMethod')}</Text>
                 <Text style={styles.paymentValue}>{paymentMethod}</Text>
             </View>
         </View>

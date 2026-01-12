@@ -210,6 +210,8 @@ export interface Message {
     isDeleted: boolean;
     // Attachments
     attachments: MessageAttachment[];
+    // Metadata - JSON string for PRODUCT_CARD, ORDER_CARD, etc.
+    metadata?: string;
     // Reply
     replyTo?: {
         id: string;

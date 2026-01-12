@@ -4,6 +4,7 @@ import { formatTimeLeft } from '@/utils/date';
 import { formatCurrency } from '@/utils/format';
 import { Image } from 'expo-image';
 import React, { memo, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { FlashSaleSkeleton } from './FlashSaleSkeleton';
@@ -18,6 +19,7 @@ interface FlashSaleProps {
 export const FlashSale = memo(({ onProductPress }: FlashSaleProps = {}) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+    const { t } = useTranslation('home');
 
     // Fetch data từ API
     const { data: flashSaleData, isLoading, isError } = useFlashSale();
@@ -57,7 +59,7 @@ export const FlashSale = memo(({ onProductPress }: FlashSaleProps = {}) => {
             {/* Header */}
             <View style={styles.header}>
                 <View style={styles.titleRow}>
-                    <Text style={styles.title}>FLASH SALE</Text>
+                    <Text style={styles.title}>{t('flashSale.title')}</Text>
                     <View style={styles.timerRow}>
                         <View style={styles.timerBox}>
                             <Text style={styles.timerText}>{formatNumber(timeLeft.hours)}</Text>
@@ -73,7 +75,7 @@ export const FlashSale = memo(({ onProductPress }: FlashSaleProps = {}) => {
                     </View>
                 </View>
                 <TouchableOpacity style={styles.seeAllBtn}>
-                    <Text style={styles.seeAllText}>Xem tất cả</Text>
+                    <Text style={styles.seeAllText}>{t('flashSale.seeAll')}</Text>
                     <IconSymbol name="chevron-right" size={16} color={theme.colors.secondary} />
                 </TouchableOpacity>
             </View>
@@ -123,7 +125,9 @@ export const FlashSale = memo(({ onProductPress }: FlashSaleProps = {}) => {
                                 <View style={styles.progressLabelContainer}>
 
                                     <Text style={styles.progressText}>
-                                        {item.soldCount > 0 ? `Đã bán ${item.soldCount}` : 'Đang bán chạy'}
+                                        {item.soldCount > 0
+                                            ? t('flashSale.soldCount', { count: item.soldCount })
+                                            : t('flashSale.sellingFast')}
                                     </Text>
                                 </View>
                             </View>

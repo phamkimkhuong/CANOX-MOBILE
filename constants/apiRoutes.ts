@@ -17,6 +17,7 @@ export const API_ROUTES = {
     },
     USERS: {
         CREATE_ACCOUNT: `${API_PREFIX}/users/buyer`,
+        CHANGE_PASSWORD: (userId: string) => `${API_PREFIX}/users/${userId}/password`,
     },
     PROFILE: {
         USER_ME: `${API_PREFIX}/users/me`,
@@ -100,5 +101,11 @@ export const API_ROUTES = {
         LIST: `${API_PREFIX}/wishlists`,
         DETAIL: (wishlistId: string) => `${API_PREFIX}/wishlists/${wishlistId}`,
         ITEMS: (wishlistId: string) => `${API_PREFIX}/wishlists/${wishlistId}/items`,
+    },
+    STORAGE: {
+        PRESIGN_UPLOAD: `${API_PREFIX}/storage/presign-upload`,
+    },
+    BUYERS: {
+        UPDATE_AVATAR: (buyerId: string) => `${API_PREFIX}/buyers/${buyerId}/avatar`,
     },
 } as const;  // <--- as const for TS to understand these are readonly values

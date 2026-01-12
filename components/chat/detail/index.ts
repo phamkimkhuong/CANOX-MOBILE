@@ -10,6 +10,7 @@ export { default as MessageStatus } from './MessageStatus';
 export { default as SafetyBanner } from './SafetyBanner';
 
 // Molecules
+export { AttachmentMenu } from './AttachmentMenu';
 export { default as ChatInputArea } from './ChatInputArea';
 export { default as ContextBar } from './ContextBar';
 export { default as MessageItem } from './MessageItem';

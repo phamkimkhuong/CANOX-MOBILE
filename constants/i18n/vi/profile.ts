@@ -1,0 +1,56 @@
+import { ProfileTranslation } from '../types';
+
+export const PROFILE_STRINGS: ProfileTranslation = {
+    header: {
+        login: 'Đăng nhập',
+        register: 'Đăng ký',
+    },
+    stats: {
+        favorites: 'Yêu thích',
+        followed: 'Đang theo dõi',
+        recent: 'Đã xem gần đây',
+        coins: 'Xu',
+        vouchers: 'Voucher',
+    },
+    orders: {
+        title: 'Đơn hàng của tôi',
+        viewAll: 'Xem lịch sử mua hàng',
+    },
+    menu: {
+        wallet: 'Ví Calatha',
+        rewards: 'Ưu đãi thành viên',
+        affiliate: 'Tiếp thị liên kết',
+        support: 'Trung tâm hỗ trợ',
+        settings: 'Thiết lập tài khoản',
+    },
+    settings: {
+        title: 'Thiết lập tài khoản',
+        sections: {
+            account: 'Tài khoản & An ninh',
+            payment: 'Thanh toán',
+            app: 'Cài đặt ứng dụng',
+            legal: 'Pháp lý & Hỗ trợ',
+        },
+        items: {
+            profile: 'Hồ sơ & Địa chỉ',
+            'change-password': 'Đổi mật khẩu',
+            'linked-accounts': 'Tài khoản liên kết',
+            biometrics: 'Sinh trắc học (FaceID/TouchID)',
+            'bank-cards': 'Tài khoản / Thẻ ngân hàng',
+            notifications: 'Cài đặt thông báo',
+            language: 'Ngôn ngữ / Language',
+            'dark-mode': 'Giao diện tối',
+            cache: 'Xóa bộ nhớ đệm',
+            privacy: 'Chính sách bảo mật',
+            terms: 'Điều khoản dịch vụ',
+            'rate-app': 'Đánh giá ứng dụng',
+        },
+        actions: {
+            logout: 'Đăng xuất',
+            deleteAccount: 'Xóa tài khoản',
+            deleteAccountConfirm: 'Việc này sẽ xóa vĩnh viễn tài khoản và tất cả dữ liệu của bạn. Hành động này không thể hoàn tác.',
+            confirmClearCache: 'Bạn có chắc chắn muốn xóa {{size}} bộ nhớ đệm?',
+            cacheCleared: 'Đã xóa bộ nhớ đệm',
+        },
+    },
+};

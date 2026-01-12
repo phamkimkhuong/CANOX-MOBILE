@@ -12,14 +12,16 @@ interface DateSeparatorProps {
 
 /**
  * DateSeparator - Centered date pill between messages
- * 
+ *
  * Examples:
  * - "Hôm nay"
  * - "Hôm qua"
  * - "20/10"
  * - "20/10/2024"
+ *
+ * Memoized to prevent unnecessary re-renders
  */
-export const DateSeparator: React.FC<DateSeparatorProps> = ({ label }) => {
+export const DateSeparator: React.FC<DateSeparatorProps> = React.memo(({ label }) => {
     const styles = stylesheet;
 
     return (
@@ -29,7 +31,7 @@ export const DateSeparator: React.FC<DateSeparatorProps> = ({ label }) => {
             </View>
         </View>
     );
-};
+});
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {

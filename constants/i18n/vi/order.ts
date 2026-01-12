@@ -1,0 +1,57 @@
+import { OrderTranslation } from '../types';
+
+export const ORDER_STRINGS: OrderTranslation = {
+    tabs: {
+        all: 'Tất cả',
+        awaitingPayment: 'Chờ thanh toán',
+        processing: 'Đang xử lý',
+        shipping: 'Đang giao',
+        delivered: 'Đã giao',
+        completed: 'Hoàn thành',
+        cancelled: 'Đã hủy',
+        returned: 'Trả hàng/Hoàn tiền',
+    },
+    detail: {
+        title: 'Chi tiết đơn hàng',
+        orderNumber: 'Mã đơn hàng',
+        copyOrderNumber: 'Sao chép',
+        status: 'Trạng thái',
+        shippingAddress: 'Địa chỉ nhận hàng',
+        paymentMethod: 'Phương thức thanh toán',
+        paymentSummary: 'Chi tiết thanh toán',
+        tracking: 'Thông tin vận chuyển',
+        summary: {
+            subtotal: 'Tổng tiền hàng',
+            shipping: 'Phí vận chuyển',
+            shopDiscount: 'Giảm giá Shop',
+            platformDiscount: 'Giảm giá sàn',
+            shippingDiscount: 'Giảm phí vận chuyển',
+            tax: 'Thuế',
+            total: 'Thành tiền',
+            savings: 'Tiết kiệm {{amount}}',
+        },
+    },
+    timeline: {
+        created: 'Đặt hàng',
+        processing: 'Đang xử lý',
+        shipping: 'Đang giao',
+        completed: 'Hoàn thành',
+        abnormal: {
+            cancelled: 'Đơn hàng đã bị hủy',
+            rejected: 'Đơn hàng bị từ chối',
+            returnedToSender: 'Hàng đã hoàn về người gửi',
+            returned: 'Đơn hàng đã được trả lại',
+            deliveryFailed: 'Giao hàng thất bại',
+        },
+    },
+    actions: {
+        rebuy: 'Mua lại',
+        review: 'Đánh giá',
+        cancel: 'Hủy đơn',
+        contact: 'Liên hệ Shop',
+        track: 'Theo dõi',
+        received: 'Đã nhận hàng',
+        pay: 'Thanh toán ngay',
+        return: 'Trả hàng/Hoàn tiền',
+    },
+};

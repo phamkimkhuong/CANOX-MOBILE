@@ -10,6 +10,7 @@ import { useCartStore } from '@/store/useCartStore';
 import { Navigator } from '@/utils/navigation';
 import { Tabs, usePathname } from 'expo-router';
 import React, { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useUnistyles } from 'react-native-unistyles';
 
 // Helper để render Icon gọn gàng với IconSymbol
@@ -30,6 +31,7 @@ function TabBarIcon(props: {
 
 export default function TabLayout() {
   const { theme } = useUnistyles();
+  const { t } = useTranslation('common');
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   useCart();
   const cartItemCount = useCartStore((state) => state.totalQuantity);
@@ -91,7 +93,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Trang chủ',
+          title: t('bottomTab.home'),
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
           headerShown: false,
         }}
@@ -103,7 +105,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="category"
         options={{
-          title: 'Danh mục',
+          title: t('bottomTab.category'),
           tabBarIcon: ({ color }) => <TabBarIcon name="category" color={color} />,
           headerShown: false,
         }}
@@ -112,7 +114,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="notify"
         options={{
-          title: 'Thông báo',
+          title: t('bottomTab.notify'),
           tabBarIcon: ({ color }) => <TabBarIcon name="notifications" color={color} />,
           tabBarBadge: unreadNotificationCount && unreadNotificationCount > 0 ? unreadNotificationCount : undefined,
           headerShown: false,
@@ -123,7 +125,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="chat"
         options={{
-          title: 'Tin nhắn',
+          title: t('bottomTab.chat'),
           tabBarIcon: ({ color }) => <TabBarIcon name="chat-bubble" color={color} />,
           tabBarBadge: unreadMessageCount && unreadMessageCount > 0 ? unreadMessageCount : undefined,
           headerShown: false,
@@ -134,7 +136,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="me"
         options={{
-          title: 'Tôi',
+          title: t('bottomTab.me'),
           tabBarIcon: ({ color }) => <TabBarIcon name="person" color={color} />,
           headerShown: false,
         }}

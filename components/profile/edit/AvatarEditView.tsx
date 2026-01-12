@@ -1,40 +1,47 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { Image } from 'expo-image';
 import React from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface AvatarEditViewProps {
     uri: string | null;
+    previewUri?: string | null; // Preview of selected image before upload
     onPress?: () => void;
     size?: number;
     showEditButton?: boolean;
     disabled?: boolean;
+    isUploading?: boolean;
+    uploadProgress?: number;
 }
 
 const DEFAULT_AVATAR = 'https://i.pravatar.cc/300';
 
 /**
  * AvatarEditView - Display avatar with camera icon overlay
- * - Read-only display for now (no upload logic)
- * - Shows placeholder when no image
- * - Camera icon indicates edit capability (future)
+ * - Supports image preview before upload
+ * - Shows upload progress indicator
+ * - Camera icon indicates edit capability
  */
 export const AvatarEditView: React.FC<AvatarEditViewProps> = ({
     uri,
+    previewUri,
     onPress,
     size = 112,
     showEditButton = true,
     disabled = false,
+    isUploading = false,
+    uploadProgress = 0,
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
 
-    const avatarSource = uri || DEFAULT_AVATAR;
-    const cameraIconSize = size * 0.28; // Proportional camera icon
+    // Show preview if available, otherwise show current avatar
+    const avatarSource = previewUri || uri || DEFAULT_AVATAR;
+    const cameraIconSize = size * 0.28;
 
     const handlePress = () => {
-        if (!disabled && onPress) {
+        if (!disabled && !isUploading && onPress) {
             onPress();
         }
     };
@@ -44,7 +51,7 @@ export const AvatarEditView: React.FC<AvatarEditViewProps> = ({
             <TouchableOpacity
                 style={[styles.avatarContainer, { width: size, height: size }]}
                 onPress={handlePress}
-                disabled={disabled || !onPress}
+                disabled={disabled || isUploading || !onPress}
                 activeOpacity={0.8}
             >
                 {/* Avatar Image */}
@@ -57,13 +64,24 @@ export const AvatarEditView: React.FC<AvatarEditViewProps> = ({
                             height: size,
                             borderRadius: size / 2,
                         },
+                        isUploading && styles.avatarUploading,
                     ]}
                     contentFit="cover"
                     transition={200}
                 />
 
-                {/* Camera Icon Overlay */}
-                {showEditButton && (
+                {/* Upload Progress Overlay */}
+                {isUploading && (
+                    <View style={[styles.uploadOverlay, { borderRadius: size / 2 }]}>
+                        <ActivityIndicator size="small" color="#ffffff" />
+                        <Text style={styles.uploadProgressText}>
+                            {uploadProgress}%
+                        </Text>
+                    </View>
+                )}
+
+                {/* Camera Icon Overlay - hide during upload */}
+                {showEditButton && !isUploading && (
                     <View
                         style={[
                             styles.cameraButton,
@@ -84,8 +102,13 @@ export const AvatarEditView: React.FC<AvatarEditViewProps> = ({
             </TouchableOpacity>
 
             {/* Helper text */}
-            {showEditButton && (
+            {showEditButton && !isUploading && (
                 <Text style={styles.helperText}>Nhấn để thay đổi ảnh đại diện</Text>
+            )}
+
+            {/* Upload status text */}
+            {isUploading && (
+                <Text style={styles.uploadingText}>Đang tải lên...</Text>
             )}
         </View>
     );
@@ -130,6 +153,31 @@ const stylesheet = StyleSheet.create((theme) => ({
         marginTop: theme.margins.sm,
         fontSize: 13,
         color: theme.colors.secondary,
+    },
+    avatarUploading: {
+        opacity: 0.6,
+    },
+    uploadOverlay: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    uploadProgressText: {
+        marginTop: 4,
+        fontSize: 12,
+        fontWeight: '600',
+        color: '#ffffff',
+    },
+    uploadingText: {
+        marginTop: theme.margins.sm,
+        fontSize: 13,
+        color: theme.colors.primary,
+        fontWeight: '500',
     },
 }));
 

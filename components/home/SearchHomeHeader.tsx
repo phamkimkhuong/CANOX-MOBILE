@@ -8,6 +8,7 @@ import { usePrefetchChat } from '@/hooks/api/chat/useChatList';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useCartStore } from '@/store/useCartStore';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 
@@ -28,6 +29,7 @@ export const HomeHeader = () => {
 
     // Fetch unread message count for chat badge
     const { data: unreadMessageCount } = useUnreadMessageCount();
+    const { t } = useTranslation('home');
 
     return (
         <View style={styles.headerContainer}>
@@ -36,7 +38,7 @@ export const HomeHeader = () => {
                 <IconSymbol name="search" size={20} color={theme.colors.secondary} style={{ marginLeft: 10 }} />
 
                 <TextInput
-                    placeholder="Tìm kiếm sản phẩm..."
+                    placeholder={t('search.placeholder')}
                     placeholderTextColor={theme.colors.secondary}
                     style={styles.searchInput}
                 />

@@ -12,6 +12,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import { Navigator } from '@/utils/navigation';
 import * as Clipboard from 'expo-clipboard';
 import React, { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -27,6 +28,7 @@ export const OrderDetailHeader: React.FC<OrderDetailHeaderProps> = ({
     onSupportPress,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation(['order', 'common']);
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
     const handleBack = useCallback(() => {
@@ -37,10 +39,10 @@ export const OrderDetailHeader: React.FC<OrderDetailHeaderProps> = ({
         await Clipboard.setStringAsync(orderNumber);
         Toast.show({
             type: 'success',
-            text1: 'Đã sao chép mã đơn hàng',
+            text1: t('common:status.success'),
             text2: orderNumber,
         });
-    }, [orderNumber]);
+    }, [orderNumber, t]);
 
     return (
         <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -63,7 +65,7 @@ export const OrderDetailHeader: React.FC<OrderDetailHeaderProps> = ({
 
                 {/* Title + Order Number */}
                 <View style={styles.titleContainer}>
-                    <Text style={styles.title}>Chi tiết đơn hàng</Text>
+                    <Text style={styles.title}>{t('order:detail.title')}</Text>
                     <Pressable
                         onPress={handleCopyOrderNumber}
                         style={styles.orderNumberRow}

@@ -1,5 +1,6 @@
 import { FeedType } from '@/hooks/api/useHomeProducts';
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -8,19 +9,17 @@ interface ProductTabsProps {
     onTabChange: (tab: FeedType) => void;
 }
 
-const TABS: { label: string; value: FeedType }[] = [
-    // { label: 'Gợi ý', value: 'promoted' },
-    // { label: 'Bán chạy', value: 'featured' },
-    { label: 'Hàng mới', value: 'new' },
-    { label: 'Giảm giá', value: 'sale' },
-];
-
-/**
- * ProductTabs - Tab navigation cho Product Feed
- */
 export const ProductTabs = memo(({ activeTab, onTabChange }: ProductTabsProps) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+    const { t } = useTranslation('home');
+
+    const tabs = useMemo(() => [
+        { label: t('tabs.new'), value: 'new' as const },
+        { label: t('tabs.sale'), value: 'sale' as const },
+        { label: t('tabs.popular'), value: 'promoted' as const },
+        { label: t('tabs.featured'), value: 'featured' as const },
+    ], [t]);
 
     const handleTabPress = useCallback((tab: FeedType) => {
 
@@ -34,7 +33,7 @@ export const ProductTabs = memo(({ activeTab, onTabChange }: ProductTabsProps) =
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.scrollContent}
             >
-                {TABS.map((tab) => (
+                {tabs.map((tab) => (
                     <TouchableOpacity
                         key={tab.value}
                         style={[styles.tab, activeTab === tab.value && styles.tabActive]}

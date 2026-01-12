@@ -1,0 +1,57 @@
+import { OrderTranslation } from '../types';
+
+export const ORDER_STRINGS: OrderTranslation = {
+    tabs: {
+        all: 'All',
+        awaitingPayment: 'To Pay',
+        processing: 'To Ship',
+        shipping: 'To Receive',
+        delivered: 'Delivered',
+        completed: 'Completed',
+        cancelled: 'Cancelled',
+        returned: 'Return/Refund',
+    },
+    detail: {
+        title: 'Order Details',
+        orderNumber: 'Order ID',
+        copyOrderNumber: 'Copy',
+        status: 'Status',
+        shippingAddress: 'Shipping Address',
+        paymentMethod: 'Payment Method',
+        paymentSummary: 'Payment Summary',
+        tracking: 'Shipping Information',
+        summary: {
+            subtotal: 'Merchandise Subtotal',
+            shipping: 'Shipping Total',
+            shopDiscount: 'Shop Discount',
+            platformDiscount: 'Platform Discount',
+            shippingDiscount: 'Shipping Discount',
+            tax: 'Tax',
+            total: 'Order Total',
+            savings: 'Saved {{amount}}',
+        },
+    },
+    timeline: {
+        created: 'Order Placed',
+        processing: 'Processing',
+        shipping: 'Shipping',
+        completed: 'Completed',
+        abnormal: {
+            cancelled: 'Order Cancelled',
+            rejected: 'Order Rejected',
+            returnedToSender: 'Returned to Sender',
+            returned: 'Order Returned',
+            deliveryFailed: 'Delivery Failed',
+        },
+    },
+    actions: {
+        rebuy: 'Buy Again',
+        review: 'Rate',
+        cancel: 'Cancel Order',
+        contact: 'Contact Seller',
+        track: 'Track',
+        received: 'Order Received',
+        pay: 'Pay Now',
+        return: 'Return/Refund',
+    },
+};

@@ -1,4 +1,5 @@
 import { IconSymbol } from '@/components/ui/Icon';
+import { useAvatarUpload } from '@/hooks/api/profile/useAvatarUpload';
 import { useUserProfile } from '@/hooks/api/profile/useProfile';
 import {
     apiFormatToDate,
@@ -9,17 +10,18 @@ import { Gender, ProfileFormSchema, ProfileFormValues, UpdateProfilePayload } fr
 import { Navigator } from '@/utils/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Stack } from 'expo-router';
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
     ActivityIndicator,
     Alert,
+    Keyboard,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
     Text,
     TouchableOpacity,
-    View,
+    View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -45,6 +47,37 @@ export default function EditProfileScreen() {
         mutate: updateProfile,
         isPending: isUpdating,
     } = useUpdateProfile();
+
+    // Avatar upload hook
+    const {
+        isUploading: isUploadingAvatar,
+        uploadProgress,
+        pickFromGallery,
+        takePhoto,
+        uploadImage,
+        error: avatarError,
+    } = useAvatarUpload();
+
+    // Preview image URI (after picking, before upload completes)
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+
+    // Keyboard visibility - hide bottom button when keyboard is open
+    const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
+    useEffect(() => {
+        const showSub = Keyboard.addListener(
+            Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+            () => setIsKeyboardVisible(true)
+        );
+        const hideSub = Keyboard.addListener(
+            Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+            () => setIsKeyboardVisible(false)
+        );
+        return () => {
+            showSub.remove();
+            hideSub.remove();
+        };
+    }, []);
 
     // Form setup
     const {
@@ -112,6 +145,76 @@ export default function EditProfileScreen() {
             },
         });
     };
+
+    /**
+     * Handle avatar press - show action sheet to choose image source
+     */
+    const handleAvatarPress = useCallback(() => {
+        Alert.alert(
+            'Thay đổi ảnh đại diện',
+            'Chọn nguồn ảnh',
+            [
+                {
+                    text: 'Chụp ảnh',
+                    onPress: async () => {
+                        const uri = await takePhoto();
+                        if (uri) {
+                            setAvatarPreview(uri);
+                            uploadImage(uri, {
+                                onSuccess: () => {
+                                    Toast.show({
+                                        type: 'success',
+                                        text1: 'Thành công',
+                                        text2: 'Cập nhật ảnh đại diện thành công',
+                                    });
+                                    setAvatarPreview(null);
+                                },
+                                onError: (error) => {
+                                    Toast.show({
+                                        type: 'error',
+                                        text1: 'Lỗi',
+                                        text2: error.message || 'Không thể tải ảnh lên',
+                                    });
+                                    setAvatarPreview(null);
+                                },
+                            });
+                        }
+                    },
+                },
+                {
+                    text: 'Chọn từ thư viện',
+                    onPress: async () => {
+                        const uri = await pickFromGallery();
+                        if (uri) {
+                            setAvatarPreview(uri);
+                            uploadImage(uri, {
+                                onSuccess: () => {
+                                    Toast.show({
+                                        type: 'success',
+                                        text1: 'Thành công',
+                                        text2: 'Cập nhật ảnh đại diện thành công',
+                                    });
+                                    setAvatarPreview(null);
+                                },
+                                onError: (error) => {
+                                    Toast.show({
+                                        type: 'error',
+                                        text1: 'Lỗi',
+                                        text2: error.message || 'Không thể tải ảnh lên',
+                                    });
+                                    setAvatarPreview(null);
+                                },
+                            });
+                        }
+                    },
+                },
+                {
+                    text: 'Hủy',
+                    style: 'cancel',
+                },
+            ]
+        );
+    }, [pickFromGallery, takePhoto, uploadImage]);
 
     // Handle back navigation with unsaved changes warning
     const handleBack = () => {
@@ -182,8 +285,7 @@ export default function EditProfileScreen() {
                 <ScrollView
                     style={styles.scrollView}
                     contentContainerStyle={[
-                        styles.scrollContent,
-                        { paddingBottom: insets.bottom + 24 },
+                        styles.scrollContent
                     ]}
                     showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps="handled"
@@ -191,15 +293,12 @@ export default function EditProfileScreen() {
                     {/* Avatar Section */}
                     <AvatarEditView
                         uri={profile?.avatar || null}
+                        previewUri={avatarPreview}
                         showEditButton={true}
-                        disabled={true} // No upload for now
-                        onPress={() => {
-                            Toast.show({
-                                type: 'info',
-                                text1: 'Tính năng đang phát triển',
-                                text2: 'Chức năng thay đổi ảnh đại diện sẽ sớm được cập nhật',
-                            });
-                        }}
+                        disabled={false}
+                        isUploading={isUploadingAvatar}
+                        uploadProgress={uploadProgress}
+                        onPress={handleAvatarPress}
                     />
 
                     {/* Form Section */}
@@ -273,6 +372,30 @@ export default function EditProfileScreen() {
                     </View>
                 </ScrollView>
             </KeyboardAvoidingView>
+
+            {/* Fixed Save Button at Bottom */}
+            {isDirty && !isKeyboardVisible && (
+                <View style={[styles.bottomActionContainer, { paddingBottom: insets.bottom + 8 }]}>
+                    <TouchableOpacity
+                        style={[
+                            styles.saveButtonFixed,
+                            isUpdating && styles.saveButtonFixedDisabled,
+                        ]}
+                        onPress={handleSubmit(onSubmit)}
+                        disabled={isUpdating}
+                        activeOpacity={0.8}
+                    >
+                        {isUpdating ? (
+                            <ActivityIndicator size="small" color="#ffffff" />
+                        ) : (
+                            <>
+                                <IconSymbol name="checkmark" size={20} color="#ffffff" />
+                                <Text style={styles.saveButtonFixedText}>Lưu thay đổi</Text>
+                            </>
+                        )}
+                    </TouchableOpacity>
+                </View>
+            )}
         </>
     );
 }
@@ -314,15 +437,13 @@ const stylesheet = StyleSheet.create((theme) => ({
         paddingTop: theme.margins.md,
     },
     formContainer: {
-        marginTop: theme.margins.md,
+        // marginTop: theme.margins.sm,
     },
     noticeContainer: {
         flexDirection: 'row',
         alignItems: 'flex-start',
         backgroundColor: theme.colors.backgroundInput,
-        padding: theme.margins.md,
         borderRadius: theme.radius.m,
-        marginTop: theme.margins.lg,
         gap: theme.margins.sm,
     },
     noticeText: {
@@ -330,5 +451,30 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: 13,
         color: theme.colors.secondary,
         lineHeight: 18,
+    },
+    bottomActionContainer: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: theme.colors.background,
+        paddingHorizontal: theme.margins.lg,
+    },
+    saveButtonFixed: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: theme.colors.primary,
+        paddingVertical: 16,
+        borderRadius: theme.radius.m,
+        gap: 8,
+    },
+    saveButtonFixedDisabled: {
+        opacity: 0.7,
+    },
+    saveButtonFixedText: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#ffffff',
     },
 }));

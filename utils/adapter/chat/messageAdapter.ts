@@ -86,6 +86,7 @@ export const transformMessage = (
     isEdited: dto.isEdited,
     isDeleted: dto.isDeleted ?? false,
     attachments: dto.attachments.map(transformAttachment),
+    metadata: dto.metadata || undefined,
     replyTo: dto.replyToMessage
         ? {
             id: dto.replyToMessage.id,

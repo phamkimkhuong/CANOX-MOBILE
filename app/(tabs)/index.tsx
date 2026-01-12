@@ -12,6 +12,7 @@ import type { ProductFeedItem } from '@/types/product/product';
 import { Navigator } from '@/utils/navigation';
 import { FlashList, FlashListRef, ListRenderItemInfo } from '@shopify/flash-list';
 import React, { memo, useCallback, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, LayoutChangeEvent, NativeScrollEvent, NativeSyntheticEvent, Text, useWindowDimensions, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -125,6 +126,7 @@ ProductRowItem.displayName = 'ProductRowItem';
 export default function HomeScreen() {
   const { theme } = useUnistyles();
   const styles = stylesheet;
+  const { t } = useTranslation(['home', 'common']);
 
   const { height: screenHeight } = useWindowDimensions();
 
@@ -357,7 +359,7 @@ export default function HomeScreen() {
       return (
         <View style={styles.footer}>
           <ActivityIndicator size="small" color={theme.colors.primary} />
-          <Text style={styles.loadingText}>Đang tải thêm...</Text>
+          <Text style={styles.loadingText}>{t('home:feed.loadingMore')}</Text>
         </View>
       );
     }

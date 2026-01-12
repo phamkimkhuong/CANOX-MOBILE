@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import React from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { KeyboardAvoidingView, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -17,6 +18,7 @@ import { LoginPayload, LoginRequestSchema } from '@/types/auth';
 
 export default function LoginScreen() {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('auth');
     const styles = stylesheet;
 
     // 2. Setup React Hook Form
@@ -50,7 +52,7 @@ export default function LoginScreen() {
                         >
                             <IconSymbol name="arrow-back" size={24} color={theme.colors.typography} />
                         </TouchableOpacity>
-                        <Text style={styles.headerTitle}>Đăng nhập</Text>
+                        <Text style={styles.headerTitle}>{t('login.title')}</Text>
                         <View style={styles.headerSpacer} />
                     </View>
 
@@ -59,9 +61,9 @@ export default function LoginScreen() {
                         <View style={styles.iconCircle}>
                             <IconSymbol name="login" size={32} color={theme.colors.primary} />
                         </View>
-                        <Text style={styles.welcomeTitle}>Chào mừng trở lại</Text>
+                        <Text style={styles.welcomeTitle}>{t('login.welcome')}</Text>
                         <Text style={styles.welcomeSubtitle}>
-                            Đăng nhập để tiếp tục mua sắm, theo dõi đơn hàng và nhận ưu đãi độc quyền.
+                            {t('login.subtitle')}
                         </Text>
                     </View>
 
@@ -70,18 +72,18 @@ export default function LoginScreen() {
                         <AuthInput
                             control={control}
                             name="username"
-                            label="Tên đăng nhập"
+                            label={t('login.usernameLabel')}
                             icon="person"
-                            placeholder="Nhập tên đăng nhập"
+                            placeholder={t('login.usernamePlaceholder')}
                             autoCapitalize="none"
                         />
 
                         <AuthInput
                             control={control}
                             name="password"
-                            label="Mật khẩu"
+                            label={t('login.passwordLabel')}
                             icon="lock"
-                            placeholder="Nhập mật khẩu"
+                            placeholder={t('login.passwordPlaceholder')}
                             isPassword
                         />
 
@@ -89,7 +91,7 @@ export default function LoginScreen() {
                             style={styles.forgotPassBtn}
                             onPress={() => Navigator.push(ROUTES.AUTH.FORGOT_PASSWORD)}
                         >
-                            <Text style={styles.forgotPassText}>Quên mật khẩu?</Text>
+                            <Text style={styles.forgotPassText}>{t('login.forgotPassword')}</Text>
                         </TouchableOpacity>
 
                         {/* Submit Button */}
@@ -98,13 +100,13 @@ export default function LoginScreen() {
                             disabled={isSubmitting}
                             onPress={handleSubmit(onSubmit)}
                         >
-                            <Text style={styles.loginBtnText}>Đăng nhập</Text>
+                            <Text style={styles.loginBtnText}>{t('login.loginButton')}</Text>
                         </TouchableOpacity>
 
                         {/* Divider */}
                         <View style={styles.dividerContainer}>
                             <View style={styles.line} />
-                            <Text style={styles.dividerText}>Hoặc đăng nhập với</Text>
+                            <Text style={styles.dividerText}>{t('login.socialLogin')}</Text>
                             <View style={styles.line} />
                         </View>
 
@@ -114,9 +116,9 @@ export default function LoginScreen() {
 
                     {/* Footer */}
                     <View style={styles.footer}>
-                        <Text style={styles.footerText}>Bạn chưa có tài khoản? </Text>
+                        <Text style={styles.footerText}>{t('login.noAccount')}</Text>
                         <TouchableOpacity onPress={() => Navigator.push(ROUTES.AUTH.REGISTER)}>
-                            <Text style={styles.registerLink}>Đăng ký ngay</Text>
+                            <Text style={styles.registerLink}>{t('login.registerNow')}</Text>
                         </TouchableOpacity>
                     </View>
 

@@ -61,6 +61,8 @@ export interface Conversation {
     unreadCount: number;
     isPinned?: boolean;
     isMuted?: boolean;
+    /** Conversation type from API - used for client-side filtering */
+    conversationType: 'BUYER_TO_SHOP' | 'BUYER_TO_PLATFORM';
 }
 
 /**
