@@ -36,7 +36,13 @@ module.exports = {
         },
         "plugins": [
             "expo-router",
-            "expo-video"
+            "expo-video",
+            [
+                "@react-native-google-signin/google-signin",
+                {
+                    "iosUrlScheme": "com.googleusercontent.apps.945644751072-guccftdvnin8lnaafgn1euo1058malab"
+                }
+            ]
         ],
         "experiments": {
             "typedRoutes": true

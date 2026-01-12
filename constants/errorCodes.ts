@@ -39,7 +39,9 @@ const VI_MAP: Record<number, string> = {
     2513: "Mã OTP này đã được sử dụng, vui lòng yêu cầu mã mới",
     2514: "Mã OTP đã hết hạn, vui lòng yêu cầu mã mới",
     2515: "Lỗi khi xác minh OTP",
-    3001: "Không thể xác minh phí vận chuyển.Vui lòng thử lại sau!",
+    3001: "Giá trị đơn hàng quá lớn. Hãy giảm số lượng sản phẩm trong đơn đặt hàng!",
+
+
 
     // GIỎ HÀNG & KHO (9400-9499)
     9402: "Sản phẩm đã hết hàng hoặc không đủ số lượng yêu cầu!",

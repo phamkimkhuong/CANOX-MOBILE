@@ -166,7 +166,7 @@ export default function CheckoutScreen() {
             }),
             allSelectedItemIds: [...selectedItemIds],
             previewAllSelected: true,
-            paymentMethod: paymentMethod === 'cod' ? 'COD' : 'BANK_TRANSFER',
+            paymentMethod: paymentMethod === 'cod' ? 'COD' : 'PAYOS',
         };
 
         return request;
@@ -386,7 +386,7 @@ export default function CheckoutScreen() {
                     taxAddress: previewData.taxAddress,
                 },
                 loyaltyPoints: 0,
-                paymentMethod: paymentMethod === 'cod' ? 'COD' : 'BANK_TRANSFER',
+                paymentMethod: paymentMethod === 'cod' ? 'COD' : 'PAYOS',
                 previewId: previewData.previewId ?? '',
                 previewAt: previewData.previewAt,
                 customerNote: Array.from(store.shopNotes.values()).filter(Boolean).join('; ') || '',

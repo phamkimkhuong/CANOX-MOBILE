@@ -11,6 +11,14 @@ export const LoginRequestSchema = z.object({
     deviceId: z.string().optional(), // Gửi kèm Device ID để quản lý phiên
     fcmToken: z.string().optional(), // Để push notification
 });
+
+export const GoogleLoginRequestSchema = z.object({
+    code: z.string().min(1, 'Code is required'),
+    loginType: z.literal('GOOGLE'),
+    role: z.literal('BUYER'),
+    deviceId: z.string().optional(),
+    fcmToken: z.string().optional(),
+});
 export const RegisterRequestSchema = z.object({
     username: z.string()
         .min(4, 'Tên đăng nhập phải có ít nhất 4 ký tự')
@@ -63,6 +71,7 @@ export const VerifyOtpSchema = z.object({
 export type VerifyOtpPayload = z.infer<typeof VerifyOtpSchema>;
 // Type inference
 export type LoginPayload = z.infer<typeof LoginRequestSchema>;
+export type GoogleLoginPayload = z.infer<typeof GoogleLoginRequestSchema>;
 export type RegisterPayload = z.infer<typeof RegisterRequestSchema>;
 export type AuthResponse = z.infer<typeof AuthResponseSchema>;
 export type RegisterResponse = z.infer<typeof RegisterResponseSchema>;

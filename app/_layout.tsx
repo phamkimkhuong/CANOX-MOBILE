@@ -27,8 +27,15 @@ import { useAuthGuard } from '@/hooks/useAuthGuard';
 import { useTokenRefreshOnForeground } from '@/hooks/useTokenRefresh';
 import { alertRef } from '@/utils/AlertHelper';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Toast from 'react-native-toast-message';
+
+// Configure Google Sign-In
+GoogleSignin.configure({
+  webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+  offlineAccess: true,
+});
 
 const NavigationTheme = {
   ...DefaultTheme,

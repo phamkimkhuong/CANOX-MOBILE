@@ -8,6 +8,7 @@ export const API_ROUTES = {
     },
     AUTH: {
         LOGIN: `${API_PREFIX}/auth/login/buyer/mobile`,
+        GOOGLE: `${API_PREFIX}/auth/login/social/callback`,
         REGISTER: `${API_PREFIX}/auth/register`,
         REFRESH_TOKEN: `${API_PREFIX}/auth/refresh`,
         LOGOUT: `${API_PREFIX}/auth/logout`,

@@ -1,4 +1,5 @@
 import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
+import { useGoogleLogin } from '@/hooks/api/useGoogleAuth';
 import React from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -12,10 +13,11 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 export const SocialLoginButtons = () => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+    const { signIn: googleSignIn } = useGoogleLogin();
 
     return (
         <View style={styles.socialRow}>
-            <SocialButton icon="logo-google" color="#DB4437" />
+            <SocialButton icon="logo-google" color="#DB4437" onPress={googleSignIn} />
             <SocialButton icon="logo-facebook" color="#4267B2" />
             <SocialButton icon="logo-apple" color="#000000" />
         </View>
@@ -27,10 +29,14 @@ export const SocialLoginButtons = () => {
  * @param icon - Tên icon từ IconSymbolName
  * @param color - Màu của icon (brand color)
  */
-const SocialButton = ({ icon, color }: { icon: IconSymbolName; color: string }) => {
+const SocialButton = ({ icon, color, onPress }: { icon: IconSymbolName; color: string; onPress?: () => void }) => {
     const styles = stylesheet;
     return (
-        <TouchableOpacity style={styles.socialBtn} activeOpacity={0.7}>
+        <TouchableOpacity
+            style={styles.socialBtn}
+            activeOpacity={0.7}
+            onPress={onPress}
+        >
             <IconSymbol name={icon} size={24} color={color} />
         </TouchableOpacity>
     );

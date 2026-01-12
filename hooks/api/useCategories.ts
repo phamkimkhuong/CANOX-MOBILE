@@ -1,7 +1,10 @@
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { request } from '@/services/api/client';
 import { CategoryTreeResponseSchema } from '@/types/category';
-import { transformContentData, transformToSidebarData } from '@/utils/adapter/categoryAdapter';
+import {
+    transformToSidebarData,
+    transformToSmartContent
+} from '@/utils/adapter/categoryAdapter';
 import { useQuery } from '@tanstack/react-query';
 
 export const useCategoryTree = () => {
@@ -39,10 +42,10 @@ export const useCategoryContent = (parentId: string | null) => {
 
     if (!parentNode) return { data: null, isLoading: false };
 
-    // Map dữ liệu API sang UI format
+    // Map dữ liệu API sang UI format với cơ chế xử lý thông minh cho node rỗng
     const contentData = {
         parentId: parentNode.id,
-        subCategories: parentNode.children ? transformContentData(parentNode.children) : [],
+        subCategories: transformToSmartContent(parentNode),
         featuredBrands: [], // API chưa có
     };
 

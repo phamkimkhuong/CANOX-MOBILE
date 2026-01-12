@@ -22,7 +22,7 @@ export interface CreateOrderRequest {
         taxAddress: string | null;
     };
     loyaltyPoints: number;
-    paymentMethod: 'COD' | 'BANK_TRANSFER';
+    paymentMethod: 'COD' | 'BANK_TRANSFER' | 'PAYOS';
     previewId: string;
     previewAt: string;
     customerNote: string;

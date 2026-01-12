@@ -105,3 +105,31 @@ export const transformContentData = (nodes: CategoryNode[]): SubCategory[] => {
         };
     });
 };
+
+/**
+ * Smart transformation: Handle case where parent has NO children
+ * Instead of showing empty screen, use parent data as a virtual category
+ */
+export const transformToSmartContent = (parentNode: CategoryNode): SubCategory[] => {
+    // Normal - Has children from API
+    if (parentNode.children && parentNode.children.length > 0) {
+        return transformContentData(parentNode.children);
+    }
+
+    // Empty - Use smart fallback
+    // Create a single section named as the Parent, containing a "See All" style item
+    return [
+        {
+            id: `virtual-sub-${parentNode.id}`,
+            title: parentNode.name,
+            showSeeAll: false,
+            items: [
+                {
+                    id: parentNode.id,
+                    name: `Tất cả ${parentNode.name}`,
+                    image: toSizedImageUrl(parentNode.imageBasePath, parentNode.imageExtension, '_thumb'),
+                },
+            ],
+        },
+    ];
+};

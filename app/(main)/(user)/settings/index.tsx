@@ -1,7 +1,8 @@
+import { Alert as CustomAlert } from '@/utils/AlertHelper';
 import { Navigator } from '@/utils/navigation';
 import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, ScrollView, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -17,6 +18,7 @@ import { getBiometryDisplayName, useBiometrics } from '@/hooks/useBiometrics';
 import { useCache } from '@/hooks/useCache';
 import { useLogout } from '@/hooks/useLogout';
 import { useAppStore } from '@/store/useAppStore';
+import { useIsAuthenticated } from '@/store/useAuthStore';
 import type { SettingsItem as SettingsItemType } from '@/types/settings';
 
 /**
@@ -34,6 +36,7 @@ export default function SettingsScreen() {
     const setDarkMode = useAppStore((state) => state.setDarkMode);
     const biometricsEnabled = useAppStore((state) => state.biometricsEnabled);
     const setBiometrics = useAppStore((state) => state.setBiometrics);
+    const isAuthenticated = useIsAuthenticated();
 
     // Hooks
     const {
@@ -70,41 +73,35 @@ export default function SettingsScreen() {
 
     // Handle cache clear
     const handleClearCache = useCallback(() => {
-        Alert.alert(
-            t('settings.items.cache'),
-            t('settings.actions.confirmClearCache', { size: cacheSize }),
-            [
-                { text: t('common:actions.cancel'), style: 'cancel' },
-                {
-                    text: t('common:actions.delete'),
-                    style: 'destructive',
-                    onPress: async () => {
-                        const success = await clearCache();
-                        if (success) {
-                            Alert.alert(t('common:status.success'), t('settings.actions.cacheCleared'));
-                        }
-                    },
-                },
-            ]
-        );
+        CustomAlert.show({
+            title: t('settings.items.cache'),
+            message: t('settings.actions.confirmClearCache', { size: cacheSize }),
+            type: 'warning',
+            confirmText: t('common:actions.delete'),
+            cancelText: t('common:actions.cancel'),
+            showCancel: true,
+            onConfirm: async () => {
+                const success = await clearCache();
+                if (success) {
+                    CustomAlert.success(t('settings.actions.cacheCleared'));
+                }
+            },
+        });
     }, [cacheSize, clearCache, t]);
 
     // Handle delete account
     const handleDeleteAccount = useCallback(() => {
-        Alert.alert(
-            t('settings.actions.deleteAccount'),
-            t('settings.actions.deleteAccountConfirm'),
-            [
-                { text: t('common:actions.cancel'), style: 'cancel' },
-                {
-                    text: t('common:actions.next'),
-                    style: 'destructive',
-                    onPress: () => {
-                        Navigator.push(ROUTES.SETTINGS.DELETE_ACCOUNT as never);
-                    },
-                },
-            ]
-        );
+        CustomAlert.show({
+            title: t('settings.actions.deleteAccount'),
+            message: t('settings.actions.deleteAccountConfirm'),
+            type: 'error',
+            confirmText: t('common:actions.next'),
+            cancelText: t('common:actions.cancel'),
+            showCancel: true,
+            onConfirm: () => {
+                Navigator.push(ROUTES.SETTINGS.DELETE_ACCOUNT as never);
+            },
+        });
     }, [t]);
 
     // Get dynamic values for settings items
@@ -206,19 +203,28 @@ export default function SettingsScreen() {
         );
     }, [getDynamicValue, getItemHandler, getToggleHandler, isItemDisabled, getDynamicLabel]);
 
-    // Filter sections based on availability
+    // Filter sections based on availability and authentication
     const visibleSections = useMemo(() => {
-        return SETTINGS_SECTIONS.map((section) => ({
-            ...section,
-            items: section.items.filter((item) => {
-                // Hide biometrics if device doesn't support it
-                if (item.id === 'biometrics' && !biometricsSupported && !biometricsLoading) {
+        return SETTINGS_SECTIONS
+            .filter((section) => {
+                // Hide account and payment sections if not authenticated
+                if (!isAuthenticated && (section.id === 'account' || section.id === 'payment')) {
                     return false;
                 }
                 return true;
-            }),
-        })).filter((section) => section.items.length > 0);
-    }, [biometricsSupported, biometricsLoading]);
+            })
+            .map((section) => ({
+                ...section,
+                items: section.items.filter((item) => {
+                    // Hide biometrics if device doesn't support it
+                    if (item.id === 'biometrics' && !biometricsSupported && !biometricsLoading) {
+                        return false;
+                    }
+                    return true;
+                }),
+            }))
+            .filter((section) => section.items.length > 0);
+    }, [biometricsSupported, biometricsLoading, isAuthenticated]);
 
     return (
         <View style={styles.container}>
@@ -245,24 +251,26 @@ export default function SettingsScreen() {
                 ))}
 
                 {/* Logout Button */}
-                <View style={styles.logoutContainer}>
-                    <SettingsItem
-                        item={{
-                            id: 'logout',
-                            type: 'action',
-                            label: t('settings.actions.logout'),
-                            icon: 'logout',
-                            iconColor: 'slate',
-                            actionStyle: 'default',
-                        }}
-                        onPress={logout}
-                    />
-                </View>
+                {isAuthenticated && (
+                    <View style={styles.logoutContainer}>
+                        <SettingsItem
+                            item={{
+                                id: 'logout',
+                                type: 'action',
+                                label: t('settings.actions.logout'),
+                                icon: 'logout',
+                                iconColor: 'slate',
+                                actionStyle: 'default',
+                            }}
+                            onPress={logout}
+                        />
+                    </View>
+                )}
 
                 {/* Footer */}
                 <SettingsFooter
                     onDeleteAccount={handleDeleteAccount}
-                    showDeleteAccount={true}
+                    showDeleteAccount={isAuthenticated}
                 />
             </ScrollView>
         </View>
