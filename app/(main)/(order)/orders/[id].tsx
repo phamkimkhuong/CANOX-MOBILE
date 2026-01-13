@@ -47,7 +47,7 @@ import * as Clipboard from 'expo-clipboard';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { RefreshControl, ScrollView, Text, View } from 'react-native';
+import { Linking, RefreshControl, ScrollView, Text, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -281,6 +281,18 @@ export default function OrderDetailScreen() {
         // Navigator.push(`/review/${rawOrder.orderId}`);
     }, [rawOrder]);
 
+    const handlePay = useCallback(() => {
+        if (!rawOrder?.paymentUrl) {
+            Toast.show({
+                type: 'error',
+                text1: 'Không tìm thấy liên kết thanh toán',
+                text2: 'Vui lòng thử lại sau hoặc liên hệ shop',
+            });
+            return;
+        }
+        Linking.openURL(rawOrder.paymentUrl);
+    }, [rawOrder?.paymentUrl]);
+
     const handleReviewItem = useCallback(
         (item: OrderItemUI) => {
             // Navigator.push(`/review/${rawOrder?.orderId}?itemId=${item.itemId}`);
@@ -417,6 +429,7 @@ export default function OrderDetailScreen() {
                         onReturn={handleReturnOrder}
                         onRebuy={handleRebuy}
                         onReview={handleReview}
+                        onPay={handlePay}
                         loadingAction={loadingAction}
                     />
                 </View>

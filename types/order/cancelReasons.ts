@@ -46,14 +46,14 @@ export const CANCEL_REASONS: CancelReasonOption[] = [
 
 /**
  * Refund Policy Messages
- * Hiển thị dựa trên paymentMethod
+ * Hiển thị dựa trên paymentMethod và orderStatus
  */
 export const REFUND_MESSAGES = {
-    /** COD - Chưa thanh toán */
-    COD: 'Đơn hàng chưa thanh toán. Huỷ đơn sẽ không phát sinh phí.',
+    /** Đơn hàng chưa thanh toán (COD hoặc Pre-paid nhưng chưa thanh toán) */
+    NOT_PAID: 'Đơn hàng chưa thanh toán. Huỷ đơn sẽ không phát sinh phí.',
 
-    /** Đã thanh toán trước (PAYOS, STRIPE, BANK_TRANSFER) */
-    PREPAID: 'Tiền thanh toán sẽ được hoàn về Ví/Thẻ của bạn trong vòng 24h - 7 ngày làm việc tuỳ ngân hàng.',
+    /** Đơn hàng đã thanh toán (Cần hoàn tiền) */
+    REFUND: 'Tiền thanh toán sẽ được hoàn về Ví/Thẻ của bạn trong vòng 24h - 7 ngày làm việc tuỳ ngân hàng.',
 
     /** Cảnh báo về voucher */
     VOUCHER_WARNING: 'Mã giảm giá bạn đã dùng sẽ không được hoàn lại sau khi huỷ.',

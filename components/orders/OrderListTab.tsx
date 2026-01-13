@@ -19,7 +19,7 @@ import { logger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
 import { FlashList, ListRenderItem } from '@shopify/flash-list';
 import React, { useCallback, useRef } from 'react';
-import { ActivityIndicator, RefreshControl, View } from 'react-native';
+import { ActivityIndicator, Linking, RefreshControl, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { EmptyOrderState } from './EmptyOrderState';
@@ -145,8 +145,15 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
                 break;
             }
             case 'pay':
-                // TODO: Navigate to payment
-                logger.orders.info('Pay for order:', orderId);
+                if (order._raw.paymentUrl) {
+                    Linking.openURL(order._raw.paymentUrl);
+                } else {
+                    Toast.show({
+                        type: 'error',
+                        text1: 'Không tìm thấy liên kết thanh toán',
+                        text2: 'Vui lòng thử lại sau hoặc liên hệ shop',
+                    });
+                }
                 break;
             default:
                 break;

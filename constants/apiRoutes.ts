@@ -99,9 +99,34 @@ export const API_ROUTES = {
         UPDATE: (buyerId: string) => `${API_PREFIX}/buyers/${buyerId}`,
     },
     WISHLISTS: {
+        /** GET - List user's wishlists */
         LIST: `${API_PREFIX}/wishlists`,
+        /** GET - Get wishlist detail with items */
         DETAIL: (wishlistId: string) => `${API_PREFIX}/wishlists/${wishlistId}`,
+        /** GET - Get items in a wishlist */
         ITEMS: (wishlistId: string) => `${API_PREFIX}/wishlists/${wishlistId}/items`,
+        /** POST - Create new wishlist */
+        CREATE: `${API_PREFIX}/wishlists`,
+        /** PUT - Update wishlist */
+        UPDATE: (wishlistId: string) => `${API_PREFIX}/wishlists/${wishlistId}`,
+        /** DELETE - Delete wishlist */
+        DELETE: (wishlistId: string) => `${API_PREFIX}/wishlists/${wishlistId}`,
+        /** GET - Get default wishlist */
+        DEFAULT: `${API_PREFIX}/wishlists/default`,
+        /** GET - Popular public wishlists */
+        POPULAR: `${API_PREFIX}/wishlists/popular`,
+        /** GET - Latest public wishlists */
+        LATEST: `${API_PREFIX}/wishlists/latest`,
+        /** GET - Search public wishlists */
+        SEARCH: `${API_PREFIX}/wishlists/public/search`,
+        /** GET - Items that met price target */
+        PRICE_TARGET_MET: `${API_PREFIX}/wishlists/price-target-met`,
+        /** POST - Add item to wishlist */
+        ADD_ITEM: (wishlistId: string) => `${API_PREFIX}/wishlists/${wishlistId}/items`,
+        /** PUT - Update wishlist item */
+        UPDATE_ITEM: (wishlistId: string, itemId: string) => `${API_PREFIX}/wishlists/${wishlistId}/items/${itemId}`,
+        /** DELETE - Remove item from wishlist */
+        REMOVE_ITEM: (wishlistId: string, itemId: string) => `${API_PREFIX}/wishlists/${wishlistId}/items/${itemId}`,
     },
     STORAGE: {
         PRESIGN_UPLOAD: `${API_PREFIX}/storage/presign-upload`,

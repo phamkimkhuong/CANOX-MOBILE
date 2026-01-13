@@ -4,12 +4,13 @@
  * ==============================================
  * Dynamic content based on:
  * - paymentMethod: COD vs PREPAID
+ * - status: WAITING_FOR_PAYMENT for unpaid orders
  * - hasVoucher: Show voucher warning
  */
 
 import { IconSymbol } from '@/components/ui/Icon';
 import { REFUND_MESSAGES } from '@/types/order/cancelReasons';
-import type { PaymentMethod } from '@/types/order/order';
+import type { OrderStatus, PaymentMethod } from '@/types/order/order';
 import React from 'react';
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -17,22 +18,24 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 interface RefundPolicyCardProps {
     /** Payment method of the order */
     paymentMethod: PaymentMethod;
+    /** Current status of the order */
+    status: OrderStatus;
     /** Whether order used any voucher (totalDiscount > 0 or appliedVoucherCodes exists) */
     hasVoucher: boolean;
 }
 
 export const RefundPolicyCard: React.FC<RefundPolicyCardProps> = ({
     paymentMethod,
+    status,
     hasVoucher,
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+    const isActuallyPaid = paymentMethod !== 'COD' && status !== 'AWAITING_PAYMENT';
 
-    // Determine if prepaid (not COD)
-    const isPrepaid = paymentMethod !== 'COD';
-    const refundMessage = isPrepaid
-        ? REFUND_MESSAGES.PREPAID
-        : REFUND_MESSAGES.COD;
+    const refundMessage = isActuallyPaid
+        ? REFUND_MESSAGES.REFUND
+        : REFUND_MESSAGES.NOT_PAID;
 
     return (
         <View style={styles.container}>
@@ -40,20 +43,20 @@ export const RefundPolicyCard: React.FC<RefundPolicyCardProps> = ({
             <View
                 style={[
                     styles.messageCard,
-                    isPrepaid ? styles.messageCardPrepaid : styles.messageCardCod,
+                    isActuallyPaid ? styles.messageCardPrepaid : styles.messageCardCod,
                 ]}
             >
                 <View style={styles.iconWrapper}>
                     <IconSymbol
-                        name={isPrepaid ? 'credit-card' : 'info'}
+                        name={isActuallyPaid ? 'credit-card' : 'info'}
                         size={18}
-                        color={isPrepaid ? theme.colors.info : theme.colors.success}
+                        color={isActuallyPaid ? theme.colors.info : theme.colors.success}
                     />
                 </View>
                 <Text
                     style={[
                         styles.messageText,
-                        isPrepaid ? styles.messageTextPrepaid : styles.messageTextCod,
+                        isActuallyPaid ? styles.messageTextPrepaid : styles.messageTextCod,
                     ]}
                 >
                     {refundMessage}

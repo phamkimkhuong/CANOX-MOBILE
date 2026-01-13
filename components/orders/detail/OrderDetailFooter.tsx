@@ -116,6 +116,7 @@ interface OrderDetailFooterProps {
     onReturn?: () => void;
     onRebuy?: () => void;
     onReview?: () => void;
+    onPay?: () => void;
     loadingAction?: 'cancel' | 'confirm' | null;
 }
 
@@ -130,6 +131,7 @@ export const OrderDetailFooter: React.FC<OrderDetailFooterProps> = ({
     onReturn,
     onRebuy,
     onReview,
+    onPay,
     loadingAction = null,
 }) => {
     const styles = stylesheet;
@@ -169,7 +171,7 @@ export const OrderDetailFooter: React.FC<OrderDetailFooterProps> = ({
                     onPress = onReview || (() => { });
                     break;
                 case 'pay':
-                    // TODO: onPay
+                    onPress = onPay || (() => { });
                     break;
             }
 

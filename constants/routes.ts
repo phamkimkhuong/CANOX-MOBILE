@@ -82,6 +82,11 @@ export const ROUTES = {
         FOLLOWED_SHOPS: '/followed-shops' as const,
     },
 
+    // ============ WISHLIST ============
+    WISHLIST: {
+        INDEX: '/wishlist' as const,
+    },
+
     // ============ SETTINGS ============
     SETTINGS: {
         INDEX: '/settings' as const,
@@ -220,6 +225,19 @@ export const authRoutes = {
     }),
 } as const;
 
+/**
+ * Wishlist routes with dynamic ID
+ */
+export const wishlistRoutes = {
+    /** Navigate to wishlist hub */
+    index: (): Href => '/wishlist' as Href,
+    /** Navigate to wishlist detail */
+    detail: (wishlistId: string): Href => ({
+        pathname: '/(main)/(user)/wishlist/[id]',
+        params: { id: wishlistId },
+    } as unknown as Href),
+} as const;
+
 // ============================================
 // TYPE-SAFE HREF HELPERS
 // ============================================
@@ -305,4 +323,5 @@ export type DynamicRouteBuilders = {
     address: typeof addressRoutes;
     auth: typeof authRoutes;
     cart: typeof cartRoutes;
+    wishlist: typeof wishlistRoutes;
 };

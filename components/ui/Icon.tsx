@@ -181,6 +181,14 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     'notifications-none': { ios: 'notifications-outline', android: 'notifications-outline' },
     'more-vert': { ios: 'ellipsis-vertical', android: 'ellipsis-vertical' },
     'verified': { ios: 'checkmark-circle', android: 'checkmark-circle' },
+
+    // === Wishlist Icons ===
+    explore: { ios: 'compass-outline', android: 'compass-outline' },
+    celebration: { ios: 'sparkles', android: 'sparkles' },
+    fire: { ios: 'flame', android: 'flame' },
+    'add-circle-outline': { ios: 'add-circle-outline', android: 'add-circle-outline' },
+    bookmark: { ios: 'bookmark', android: 'bookmark' },
+    'bookmark-outline': { ios: 'bookmark-outline', android: 'bookmark-outline' },
 };
 
 interface IconSymbolProps {

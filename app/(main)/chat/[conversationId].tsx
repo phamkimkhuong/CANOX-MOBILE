@@ -427,6 +427,28 @@ export default function ChatDetailScreen() {
         [handleSendMessage]
     );
 
+    const handleMessagePress = useCallback((message: Message) => {
+        if (message.type === 'ORDER_CARD' && message.metadata) {
+            try {
+                const data = JSON.parse(message.metadata);
+                if (data.orderId) {
+                    Navigator.push(orderRoutes.detail(data.orderId));
+                }
+            } catch (e) {
+                logger.chat.error('Failed to parse order metadata for navigation', e);
+            }
+        } else if (message.type === 'PRODUCT_CARD' && message.metadata) {
+            try {
+                const data = JSON.parse(message.metadata);
+                if (data.productId) {
+                    Navigator.push(productRoutes.detail(data.productId));
+                }
+            } catch (e) {
+                logger.chat.error('Failed to parse product metadata for navigation', e);
+            }
+        }
+    }, []);
+
     const handleLoadMore = useCallback(() => {
         if (hasNextPage && !isFetchingNextPage && hasUserScrolledRef.current) {
             fetchNextPage();
@@ -522,6 +544,7 @@ export default function ChatDetailScreen() {
                     position={position}
                     showAvatar={showAvatar}
                     showTime={showTime}
+                    onPress={handleMessagePress}
                 />
             );
         },
@@ -638,13 +661,14 @@ export default function ChatDetailScreen() {
                             showsVerticalScrollIndicator={false}
                             maintainVisibleContentPosition={{
                                 minIndexForVisible: 0,
+                                autoscrollToTopThreshold: 50,
                             }}
-                            // Performance optimizations for 60fps
-                            initialNumToRender={15}
+                            // Performance optimizations for instant load
+                            initialNumToRender={10}
                             maxToRenderPerBatch={10}
-                            windowSize={7}
-                            updateCellsBatchingPeriod={50}
-                            removeClippedSubviews={true}
+                            windowSize={10}
+                            updateCellsBatchingPeriod={30}
+                            removeClippedSubviews={false}
                         />
                     ) : (
                         <ChatDetailSkeleton count={10} />

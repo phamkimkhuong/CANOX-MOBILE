@@ -242,6 +242,7 @@ export default function CancelOrderScreen() {
                     {/* Refund Policy Card */}
                     <RefundPolicyCard
                         paymentMethod={rawOrder.paymentMethod}
+                        status={rawOrder.status}
                         hasVoucher={hasVoucher}
                     />
                 </ScrollView>

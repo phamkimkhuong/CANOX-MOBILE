@@ -308,7 +308,7 @@ export default function CheckoutScreen() {
                         text1: 'Đã áp dụng voucher tốt nhất',
                         text2: 'Hệ thống đã tự động chọn ưu đãi tối ưu cho đơn hàng của bạn.',
                         position: 'bottom',
-                        visibilityTime: 4000,
+                        visibilityTime: 3000,
                     });
                 }, 500);
 

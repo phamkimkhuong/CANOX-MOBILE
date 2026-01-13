@@ -1,6 +1,7 @@
 import {
     ORDER_STATUS_ROUTES,
     QUICK_STATS_ROUTES,
+    ROUTES,
     SERVICE_MENU_ROUTES,
     SETTINGS_MENU_ROUTES,
 } from '@/constants/routes';
@@ -218,7 +219,7 @@ export const QUICK_STATS_CONFIG: QuickStatCard[] = [
         bgColor: 'rgba(244, 63, 94, 0.08)',
         iconColor: '#f43f5e',
         valueKey: 'favoriteCount',
-        route: QUICK_STATS_ROUTES.favorites,
+        route: ROUTES.WISHLIST.INDEX,
     },
     {
         key: 'recent',
@@ -235,17 +236,17 @@ export const QUICK_STATS_CONFIG: QuickStatCard[] = [
  * Service menu items
  */
 export const SERVICE_MENU_CONFIG: ProfileMenuItem[] = [
-    {
-        id: 'wallet',
-        key: 'wallet',
-        icon: 'bank',
-        label: 'Ví GlobalPay',
-        route: SERVICE_MENU_ROUTES.wallet,
-        badge: 'new',
-        iconBgColor: 'rgba(59, 130, 246, 0.1)',
-        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-        iconColor: '#3b82f6',
-    },
+    // {
+    //     id: 'wallet',
+    //     key: 'wallet',
+    //     icon: 'bank',
+    //     label: 'Ví GlobalPay',
+    //     route: SERVICE_MENU_ROUTES.wallet,
+    //     badge: 'new',
+    //     iconBgColor: 'rgba(59, 130, 246, 0.1)',
+    //     backgroundColor: 'rgba(59, 130, 246, 0.1)',
+    //     iconColor: '#3b82f6',
+    // },
     {
         id: 'coins',
         key: 'coins',
@@ -266,16 +267,16 @@ export const SERVICE_MENU_CONFIG: ProfileMenuItem[] = [
         backgroundColor: 'rgba(249, 115, 22, 0.1)',
         iconColor: '#f97316',
     },
-    {
-        id: 'international',
-        key: 'shipping',
-        icon: 'airplane',
-        label: 'Vận chuyển QT',
-        route: SERVICE_MENU_ROUTES.shipping,
-        iconBgColor: 'rgba(139, 92, 246, 0.1)',
-        backgroundColor: 'rgba(139, 92, 246, 0.1)',
-        iconColor: '#8b5cf6',
-    },
+    // {
+    //     id: 'international',
+    //     key: 'shipping',
+    //     icon: 'airplane',
+    //     label: 'Vận chuyển QT',
+    //     route: SERVICE_MENU_ROUTES.shipping,
+    //     iconBgColor: 'rgba(139, 92, 246, 0.1)',
+    //     backgroundColor: 'rgba(139, 92, 246, 0.1)',
+    //     iconColor: '#8b5cf6',
+    // },
 ];
 
 /**

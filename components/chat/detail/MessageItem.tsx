@@ -12,9 +12,11 @@ import {
 } from '@/utils/adapter/chat/messageAdapter';
 import { formatMessageTime } from '@/utils/date';
 import { toPublicUrl } from '@/utils/url';
+import * as Clipboard from 'expo-clipboard';
 import { Image } from 'expo-image';
-import React from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { Pressable, Text, TouchableOpacity, View } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import ChatBubble from './ChatBubble';
 
@@ -419,6 +421,21 @@ const OrderCardContent: React.FC<CardContentProps> = ({
         );
     }
 
+    const [copied, setCopied] = useState(false);
+
+    const handleCopyCode = useCallback(async () => {
+        if (!data?.orderCode) return;
+        await Clipboard.setStringAsync(data.orderCode);
+        setCopied(true);
+        Toast.show({
+            type: 'success',
+            text1: 'Đã sao chép mã đơn hàng',
+            text2: data.orderCode,
+            position: 'top',
+        });
+        setTimeout(() => setCopied(false), 2000);
+    }, [data?.orderCode]);
+
     const statusConfig = ORDER_STATUS_CONFIG[data.status] || {
         label: data.status,
         color: '#6B7280',
@@ -446,7 +463,20 @@ const OrderCardContent: React.FC<CardContentProps> = ({
                 </View>
             </View>
 
-            <Text style={styles.orderCodeLarge}>{data.orderCode}</Text>
+            <Pressable
+                onPress={handleCopyCode}
+                style={({ pressed }) => [
+                    styles.orderCodeRow,
+                    pressed && { opacity: 0.7 }
+                ]}
+            >
+                <Text style={styles.orderCodeLarge}>{data.orderCode}</Text>
+                <IconSymbol
+                    name={copied ? "check" : "content-copy"}
+                    size={14}
+                    color={copied ? theme.colors.success : theme.colors.typographySecondary}
+                />
+            </Pressable>
 
             <View style={styles.orderItemsList}>
                 {data.items.slice(0, 2).map((item, index) => (
@@ -513,6 +543,7 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
     textContainerFixed: {
         position: 'relative',
         minWidth: 85,
+        minHeight: 24,
     },
     textContent: {
         fontSize: 15,
@@ -630,6 +661,7 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
         width: 250,
         backgroundColor: theme.colors.surface,
         position: 'relative',
+        minHeight: 250,
     },
     productCardHeader: {
         width: '100%',
@@ -665,6 +697,7 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
         padding: 12,
         backgroundColor: theme.colors.surface,
         position: 'relative',
+        minHeight: 280,
     },
     orderCardHeader: {
         flexDirection: 'row',
@@ -692,11 +725,16 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
         fontSize: 11,
         fontWeight: '700',
     },
+    orderCodeRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        marginBottom: theme.margins.sm,
+    },
     orderCodeLarge: {
         fontSize: 15,
         fontWeight: '700',
         color: theme.colors.typography,
-        marginBottom: theme.margins.sm,
     },
     orderItemsList: {
         gap: 10,
@@ -734,11 +772,11 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
         paddingBottom: 10, // Chừa chỗ cho giờ absolute
     },
     totalLabel: {
-        fontSize: 11,
+        fontSize: 12,
         color: theme.colors.typographySecondary,
     },
     totalValue: {
-        fontSize: 15,
+        fontSize: 16,
         fontWeight: '700',
         color: theme.colors.warning,
     },
