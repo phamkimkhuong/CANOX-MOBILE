@@ -45,6 +45,7 @@ export const useCheckoutPreview = () => {
             });
             const idempotencyKey = uuidv4();
             logger.checkout.debug('Checkout Preview Request Body:', requestBody);
+            console.log("Checkout Preview Request Body" + JSON.stringify(requestBody));
             const response = await request(
                 {
                     url: API_ROUTES.CART.CHECKOUT_PREVIEW,

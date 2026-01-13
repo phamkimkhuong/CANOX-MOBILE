@@ -197,10 +197,6 @@ export const useAddAddress = () => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: USER_ADDRESS_KEYS.all });
-            Toast.show({
-                type: 'success',
-                text1: 'Thêm địa chỉ thành công',
-            });
         },
         onError: (error) => {
             const message = error instanceof Error ? error.message : 'Lỗi không xác định';
@@ -254,10 +250,6 @@ export const useUpdateAddress = () => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: USER_ADDRESS_KEYS.all });
-            Toast.show({
-                type: 'success',
-                text1: 'Cập nhật địa chỉ thành công',
-            });
         },
         onError: (error) => {
             const message = error instanceof Error ? error.message : 'Lỗi không xác định';
@@ -288,10 +280,6 @@ export const useDeleteAddress = () => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: USER_ADDRESS_KEYS.all });
-            Toast.show({
-                type: 'success',
-                text1: 'Xóa địa chỉ thành công',
-            });
         },
         onError: (error) => {
             const message = error instanceof Error ? error.message : 'Lỗi không xác định';

@@ -32,6 +32,7 @@ export interface WishlistItemOptionDTO {
 
 /**
  * Item in a wishlist - Dữ liệu thô từ API
+ * Using optional (?) for nullable fields to match Zod output
  */
 export interface WishlistItemDTO {
     id: string;
@@ -40,16 +41,16 @@ export interface WishlistItemDTO {
     sku: string;
     productId: string;
     productName: string;
-    imageBasePath: string | null;
-    imageExtension: string | null;
-    productImage: string | null;
+    imageBasePath?: string | null;
+    imageExtension?: string | null;
+    productImage?: string | null;
     productPrice: number;
     productDescription: string;
     quantity: number;
-    notes: string | null;
+    notes?: string | null;
     priority: WishlistItemPriority;
-    priorityText: 'Normal' | 'Important' | 'Urgent';
-    desiredPrice: number | null;
+    priorityText: string;
+    desiredPrice?: number | null;
     isPriceTargetMet: boolean;
     createdAt: string;
     updatedAt: string;
@@ -62,7 +63,7 @@ export interface WishlistItemDTO {
 export interface WishlistSummaryDTO {
     id: string;
     name: string;
-    description: string | null;
+    description?: string | null;
     isPublic: boolean;
     isDefault: boolean;
     buyerId: string;
@@ -70,8 +71,8 @@ export interface WishlistSummaryDTO {
     itemCount: number;
     createdAt: string;
     updatedAt: string;
-    imageBasePath: string | null;
-    imageExtension: string | null;
+    imageBasePath?: string | null;
+    imageExtension?: string | null;
 }
 
 /**
@@ -79,9 +80,9 @@ export interface WishlistSummaryDTO {
  */
 export interface WishlistDetailDTO extends WishlistSummaryDTO {
     items: WishlistItemDTO[];
-    shareToken: string | null;
-    shareUrl: string | null;
-    ogMetadata: unknown | null;
+    shareToken?: string | null;
+    shareUrl?: string | null;
+    ogMetadata?: unknown | null;
 }
 
 /**

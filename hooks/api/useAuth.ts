@@ -3,7 +3,7 @@ import { authRoutes, ROUTES } from '@/constants/routes';
 import { ApiError, isSessionExpiredError, request } from '@/services/api/client';
 import { useAuthStore } from '@/store/useAuthStore';
 import { hideGlobalLoading, showGlobalLoading } from '@/store/useLoadingStore';
-import { AuthResponseSchema, LoginPayload, RegisterPayload, RegisterResponseSchema, VerifyOtpPayload } from '@/types/auth';
+import { AuthResponseSchema, LoginPayload, RegisterPayload, RegisterResponseSchema, ResetPasswordPayload, VerifyOtpPayload } from '@/types/auth';
 import { ResponseDefaultSchema } from '@/types/responseSchema';
 import { useMutation } from '@tanstack/react-query';
 import { router } from 'expo-router';
@@ -36,7 +36,7 @@ export const useLogin = () => {
                     text1: 'Tài khoản chưa kích hoạt',
                     text2: 'Vui lòng xác thực email của bạn.',
                 });
-                router.push(authRoutes.verifyOtp({ phone: email || '', type: 'register' }));
+                router.push(authRoutes.verifyOtp({ email: email || '', type: 'register' }));
                 return;
             }
             // Email đã verify -> Lưu token, userId và buyerId vào store
@@ -144,6 +144,91 @@ export const useResendOtp = () => {
                 url: API_ROUTES.AUTH.RESEND_OTP,
                 method: 'POST',
                 data: { email, otpType: 'ACCOUNT_ACTIVATION' },
+            }, ResponseDefaultSchema);
+        },
+    });
+};
+
+// ===============================
+// FORGOT PASSWORD HOOKS
+// ===============================
+
+/**
+ * Check if email exists in the system
+ * GET /api/v1/users/exists/email?email=xxx
+ */
+export const useCheckEmailExists = () => {
+    return useMutation({
+        mutationFn: async (email: string) => {
+            return request({
+                url: API_ROUTES.USERS.CHECK_EMAIL_EXISTS(email),
+                method: 'GET',
+            }, ResponseDefaultSchema);
+        },
+    });
+};
+
+/**
+ * Send forgot password OTP to email
+ * POST /api/v1/auth/password/forgot
+ */
+export const useForgotPassword = () => {
+    return useMutation({
+        mutationFn: async (email: string) => {
+            return request({
+                url: API_ROUTES.AUTH.FORGOT_PASSWORD,
+                method: 'POST',
+                data: { email },
+            }, ResponseDefaultSchema);
+        },
+    });
+};
+
+/**
+ * Verify OTP for forgot password flow
+ * This returns a token/confirmation that allows password reset
+ */
+export const useVerifyForgotPasswordOtp = () => {
+    return useMutation({
+        mutationFn: async (data: { email: string; otpCode: string }) => {
+            return request({
+                url: API_ROUTES.AUTH.VERIFY_FORGOT_PASSWORD_OTP,
+                method: 'POST',
+                data,
+            }, ResponseDefaultSchema);
+        },
+    });
+};
+
+/**
+ * Resend OTP for forgot password flow
+ */
+export const useResendForgotPasswordOtp = () => {
+    return useMutation({
+        mutationFn: async (email: string) => {
+            return request({
+                url: API_ROUTES.AUTH.RESEND_OTP,
+                method: 'POST',
+                data: {
+                    email,
+                    otpType: 'PASSWORD_RESET'
+                },
+            }, ResponseDefaultSchema);
+        },
+    });
+};
+
+/**
+ * Reset password with verified OTP
+ * POST /api/v1/auth/password/reset
+ */
+export const useResetPassword = () => {
+    return useMutation({
+        mutationFn: async (data: ResetPasswordPayload) => {
+            return request({
+                url: API_ROUTES.AUTH.RESET_PASSWORD,
+                method: 'POST',
+                data,
             }, ResponseDefaultSchema);
         },
     });

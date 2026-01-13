@@ -12,7 +12,7 @@ const VI_MAP: Record<number, string> = {
     6006: "Đã xảy ra lỗi. Vui lòng thử lại sau!", // Invalid response structure from server
 
     1000: "Không tìm thấy người dùng",
-    1001: "Không tìm thấy người dùng",
+    1001: "Email này chưa được đăng ký trong hệ thống",
     1002: "Người dùng đã tồn tại",
     1003: "Thông tin đăng nhập không hợp lệ",
     1004: "Truy cập bị từ chối",

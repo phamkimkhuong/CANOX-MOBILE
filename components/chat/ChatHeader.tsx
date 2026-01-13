@@ -94,22 +94,30 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
-        backgroundColor: theme.colors.primary,
+        backgroundColor: theme.colors.surface,
         paddingHorizontal: theme.margins.md,
-        paddingBottom: theme.margins.zero,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors.border,
     },
     titleRow: {
         flexDirection: 'row',
         alignItems: 'center',
+        height: 56,
         gap: theme.margins.sm
     },
     backBtn: {
-        marginRight: 4,
+        width: 40,
+        height: 40,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 20,
+        marginLeft: -theme.margins.sm,
     },
     title: {
         fontSize: 20,
         fontWeight: '700',
-        color: theme.colors.onPrimary,
+        color: theme.colors.typography,
+        letterSpacing: -0.3,
     },
     actions: {
         flexDirection: 'row',
@@ -122,8 +130,8 @@ const stylesheet = StyleSheet.create((theme) => ({
         backgroundColor: theme.colors.background,
         borderRadius: theme.radius.m,
         paddingHorizontal: theme.margins.sm,
-        marginTop: theme.margins.sm,
         marginBottom: theme.margins.sm,
+        height: 40,
     },
     searchIcon: {
         marginRight: theme.margins.sm,
@@ -139,7 +147,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     tabsContainer: {
         gap: theme.margins.lg,
-        paddingTop: theme.margins.sm,
+        paddingBottom: theme.margins.sm,
     },
     tab: {
         paddingBottom: theme.margins.sm,
@@ -147,15 +155,15 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderBottomColor: 'transparent',
     },
     tabActive: {
-        borderBottomColor: theme.colors.onPrimary,
+        borderBottomColor: theme.colors.primary,
     },
     tabText: {
         fontSize: 14,
         fontWeight: '500',
-        color: theme.colors.textOnOverlay,
+        color: theme.colors.secondary,
     },
     tabTextActive: {
         fontWeight: '600',
-        color: theme.colors.onPrimary,
+        color: theme.colors.primary,
     },
 }));

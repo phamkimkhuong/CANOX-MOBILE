@@ -14,6 +14,7 @@ import {
     useUpdateAddress,
     useUserAddresses,
 } from '@/hooks/api/useUserAddresses';
+import { useUserAddressStore } from '@/store/useUserAddressStore';
 import type { AddressFormData } from '@/types/address';
 import { Navigator } from '@/utils/navigation';
 import { useLocalSearchParams } from 'expo-router';
@@ -25,7 +26,7 @@ import { StyleSheet } from 'react-native-unistyles';
 export default function AddAddressScreen() {
     const styles = stylesheet;
 
-    // Get id from params (for edit mode)
+    // Get id from params
     const { id } = useLocalSearchParams<{ id?: string }>();
     const isEditMode = !!id;
 
@@ -35,6 +36,9 @@ export default function AddAddressScreen() {
         () => addresses?.find((addr) => addr.id === id) ?? undefined,
         [addresses, id]
     );
+
+    // Store action for success message
+    const setPendingSuccessMessage = useUserAddressStore((s) => s.setPendingSuccessMessage);
 
     // Mutations
     const addAddress = useAddAddress();
@@ -47,21 +51,12 @@ export default function AddAddressScreen() {
             try {
                 if (isEditMode && id) {
                     await updateAddress.mutateAsync({ id, data });
-                    Toast.show({
-                        type: 'success',
-                        text1: 'Thành công',
-                        text2: 'Đã cập nhật địa chỉ',
-                    });
-                    Navigator.back();
+                    setPendingSuccessMessage('update');
                 } else {
                     await addAddress.mutateAsync(data);
-                    Toast.show({
-                        type: 'success',
-                        text1: 'Thành công',
-                        text2: 'Đã thêm địa chỉ mới',
-                    });
-                    Navigator.back();
+                    setPendingSuccessMessage('add');
                 }
+                Navigator.back();
             } catch {
                 Toast.show({
                     type: 'error',
@@ -72,7 +67,7 @@ export default function AddAddressScreen() {
                 });
             }
         },
-        [isEditMode, id, addAddress, updateAddress]
+        [isEditMode, id, addAddress, updateAddress, setPendingSuccessMessage]
     );
 
     /**
@@ -104,6 +99,7 @@ export default function AddAddressScreen() {
                     onPress: async () => {
                         try {
                             await deleteAddress.mutateAsync(id);
+                            setPendingSuccessMessage('delete');
                             Navigator.back();
                         } catch {
                             Alert.alert('Lỗi', 'Không thể xóa địa chỉ. Vui lòng thử lại.');
@@ -112,7 +108,7 @@ export default function AddAddressScreen() {
                 },
             ]
         );
-    }, [id, existingAddress, deleteAddress]);
+    }, [id, existingAddress, deleteAddress, setPendingSuccessMessage]);
 
     // Header title
     const headerTitle = isEditMode ? 'Sửa địa chỉ' : 'Thêm địa chỉ mới';

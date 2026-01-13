@@ -10,6 +10,7 @@ interface ServiceGridProps {
     walletBalance?: number;
     coinsBalance?: number;
     voucherCount?: number;
+    reviewCount?: number;
     isLoading?: boolean;
 }
 
@@ -20,6 +21,7 @@ export const ServiceGrid: React.FC<ServiceGridProps> = memo(({
     walletBalance = 0,
     coinsBalance = 0,
     voucherCount = 0,
+    reviewCount = 0,
     isLoading = false,
 }) => {
     const { theme } = useUnistyles();
@@ -42,12 +44,14 @@ export const ServiceGrid: React.FC<ServiceGridProps> = memo(({
                 return coinsBalance > 0 ? `${coinsBalance.toLocaleString('vi-VN')}` : 'Thu thập';
             case 'vouchers':
                 return voucherCount > 0 ? `${voucherCount} mã` : 'Xem ngay';
+            case 'reviews':
+                return reviewCount > 0 ? `${reviewCount} sản phẩm` : 'Đang chờ';
             case 'shipping':
                 return 'Đặt ngay';
             default:
                 return '';
         }
-    }, [walletBalance, coinsBalance, voucherCount]);
+    }, [walletBalance, coinsBalance, voucherCount, reviewCount]);
 
     // Loading skeleton
     if (isLoading) {

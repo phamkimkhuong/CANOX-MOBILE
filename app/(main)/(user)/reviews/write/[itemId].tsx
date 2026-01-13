@@ -1,0 +1,467 @@
+/**
+ * ==============================================
+ * WRITE REVIEW SCREEN - Create/Edit Review
+ * ==============================================
+ * Full review form with:
+ * - Star rating input
+ * - Quick tags / suggestion chips
+ * - Text comment
+ * - Media upload (photos + video)
+ * - Anonymous toggle (commented for future)
+ * - Gamification incentive banner
+ */
+
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useLocalSearchParams } from 'expo-router';
+import React, { useMemo, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import {
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    ScrollView,
+    Text,
+    View,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+
+import {
+    AnonymousToggle,
+    IncentiveBanner,
+    MediaUploader,
+    QuickTagChips,
+    ReviewTextInput,
+    StarRatingInput,
+} from '@/components/reviews/form';
+import { ReviewProductSnippet } from '@/components/reviews/shared';
+import { IconSymbol } from '@/components/ui/Icon';
+import {
+    useCreateReview,
+    useReviewMediaUpload,
+    useUpdateReview,
+} from '@/hooks/api/review';
+import { ReviewFormSchema, type ReviewFormValues } from '@/types/review';
+import { toCreateReviewRequest } from '@/utils/adapter/review/reviewAdapter';
+import { createLogger } from '@/utils/logger';
+import { Navigator } from '@/utils/navigation';
+import Toast from 'react-native-toast-message';
+
+const log = createLogger('WriteReview');
+
+export default function WriteReviewScreen() {
+    const { theme } = useUnistyles();
+    const styles = stylesheet;
+    const insets = useSafeAreaInsets();
+
+    // Get params from URL
+    const params = useLocalSearchParams();
+    const itemId = params.itemId as string;
+    const orderId = (params.orderId as string) || '';
+    const productId = (params.productId as string) || '';
+    const productName = (params.productName as string) || 'Sản phẩm';
+    const productImage = (params.productImage as string) || '';
+    const variantAttributes = (params.variantAttributes as string) || '';
+    const formattedPrice = (params.formattedPrice as string) || '';
+    const orderNumber = (params.orderNumber as string) || '';
+    const shopName = (params.shopName as string) || '';
+    const shopLogo = (params.shopLogo as string) || '';
+    const mode = (params.mode as string) || 'create';
+    const reviewIdParam = (params.reviewId as string) || '';
+    const existingRating = (params.existingRating as string) || '';
+    const existingComment = (params.existingComment as string) || '';
+
+    const isEditMode = mode === 'edit' && !!reviewIdParam;
+
+    // Selected tags state
+    const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
+    // Media upload hook
+    const {
+        mediaItems,
+        pickImages,
+        pickVideo,
+        removeMedia,
+        retryUpload,
+        getAssetIds,
+        allUploadsComplete,
+        hasPendingUploads,
+    } = useReviewMediaUpload();
+
+    // Count images and videos
+    const imageCount = useMemo(
+        () => mediaItems.filter((m) => m.type === 'IMAGE').length,
+        [mediaItems]
+    );
+    const videoCount = useMemo(
+        () => mediaItems.filter((m) => m.type === 'VIDEO').length,
+        [mediaItems]
+    );
+
+    // Form setup with react-hook-form + zod
+    const {
+        control,
+        handleSubmit,
+        watch,
+        setValue,
+        formState: { errors },
+    } = useForm<ReviewFormValues>({
+        resolver: zodResolver(ReviewFormSchema),
+        defaultValues: {
+            rating: existingRating ? parseInt(existingRating, 10) : 0,
+            comment: existingComment ? decodeURIComponent(existingComment) : '',
+            selectedTags: [],
+            isAnonymous: false,
+        },
+        mode: 'onChange',
+    });
+
+    const currentRating = watch('rating');
+    const currentComment = watch('comment');
+
+    // Create/Update mutations
+    const createMutation = useCreateReview();
+    const updateMutation = useUpdateReview();
+
+    const isSubmitting = createMutation.isPending || updateMutation.isPending;
+
+    // Handle quick tag toggle
+    const handleTagToggle = (tagId: string, tagLabel: string) => {
+        const isSelected = selectedTags.includes(tagId);
+        const current = currentComment || '';
+
+        if (isSelected) {
+            // Remove tag from comment and selectedTags
+            const newComment = current.replace(tagLabel, '').trim();
+            setSelectedTags((prev) => prev.filter((id) => id !== tagId));
+            setValue('comment', newComment, { shouldValidate: true });
+        } else {
+            // Add tag to comment and selectedTags
+            const newComment = current ? `${current} ${tagLabel}` : tagLabel;
+            setSelectedTags((prev) => [...prev, tagId]);
+            setValue('comment', newComment, { shouldValidate: true });
+        }
+    };
+
+    // Submit handler
+    const onSubmit = async (data: ReviewFormValues) => {
+        if (hasPendingUploads()) {
+            Alert.alert(
+                'Đang tải lên',
+                'Vui lòng chờ tải lên hoàn tất trước khi gửi đánh giá.'
+            );
+            return;
+        }
+
+        try {
+            if (isEditMode && reviewIdParam) {
+                // Update existing review
+                await updateMutation.mutateAsync({
+                    reviewId: reviewIdParam,
+                    payload: {
+                        rating: data.rating,
+                        comment: data.comment,
+                    },
+                });
+                Toast.show({
+                    type: 'success',
+                    text1: 'Cập nhật thành công',
+                    text2: 'Đánh giá của bạn đã được cập nhật.',
+                });
+            } else {
+                // Create new review
+                const payload = toCreateReviewRequest({
+                    productId: productId,
+                    orderId: orderId,
+                    rating: data.rating,
+                    comment: data.comment,
+                    mediaAssetIds: getAssetIds(),
+                });
+
+                await createMutation.mutateAsync(payload);
+                Toast.show({
+                    type: 'success',
+                    text1: 'Đánh giá thành công',
+                    text2: 'Cảm ơn bạn đã chia sẻ trải nghiệm!',
+                });
+            }
+
+            // Navigate back
+            Navigator.back();
+        } catch (error) {
+            log.error('Submit review failed:', error);
+            Toast.show({
+                type: 'error',
+                text1: 'Lỗi',
+                text2: 'Không thể gửi đánh giá. Vui lòng thử lại.',
+            });
+        }
+    };
+
+    // Check if form can be submitted
+    const canSubmit = useMemo(() => {
+        return (
+            currentRating > 0 &&
+            !isSubmitting &&
+            !hasPendingUploads() &&
+            allUploadsComplete()
+        );
+    }, [currentRating, isSubmitting, hasPendingUploads, allUploadsComplete]);
+
+    return (
+        <View style={styles.container}>
+            {/* Header - using safe area insets */}
+            <View style={[styles.header, { paddingTop: insets.top }]}>
+                <View style={styles.headerContent}>
+                    <Pressable
+                        style={styles.backButton}
+                        onPress={() => Navigator.back()}
+                        hitSlop={8}
+                    >
+                        <IconSymbol
+                            name="close"
+                            size={24}
+                            color={theme.colors.typography}
+                        />
+                    </Pressable>
+                    <Text style={styles.headerTitle}>
+                        {isEditMode ? 'Chỉnh sửa đánh giá' : 'Viết đánh giá'}
+                    </Text>
+                    <View style={styles.headerPlaceholder} />
+                </View>
+            </View>
+
+            <KeyboardAvoidingView
+                style={styles.keyboardView}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                keyboardVerticalOffset={0}
+            >
+                <ScrollView
+                    style={styles.scrollView}
+                    contentContainerStyle={styles.scrollContent}
+                    showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    {/* Product Info */}
+                    <View style={styles.section}>
+                        <ReviewProductSnippet
+                            productName={productName}
+                            imageUrl={productImage}
+                            variantAttributes={variantAttributes || null}
+                            price={formattedPrice}
+                            shopName={shopName}
+                            shopLogo={shopLogo}
+                            orderNumber={orderNumber}
+                            showOrderInfo={!!orderNumber}
+                        />
+                    </View>
+
+                    {/* Incentive Banner - only for new reviews */}
+                    {!isEditMode && (
+                        <View style={styles.section}>
+                            <IncentiveBanner
+                                photoCount={imageCount}
+                                hasVideo={videoCount > 0}
+                            />
+                        </View>
+                    )}
+
+                    {/* Star Rating */}
+                    <View style={styles.section}>
+                        <Text style={styles.sectionLabel}>
+                            Chất lượng sản phẩm
+                        </Text>
+                        <Controller
+                            control={control}
+                            name="rating"
+                            render={({ field: { value, onChange } }) => (
+                                <StarRatingInput
+                                    value={value}
+                                    onChange={onChange}
+                                    size={40}
+                                    showLabel
+                                    hasError={!!errors.rating}
+                                />
+                            )}
+                        />
+                        {errors.rating && (
+                            <Text style={styles.errorText}>
+                                {errors.rating.message}
+                            </Text>
+                        )}
+                    </View>
+
+                    {/* Quick Tags - only show when rating is selected */}
+                    {currentRating > 0 && (
+                        <View style={styles.section}>
+                            <QuickTagChips
+                                rating={currentRating}
+                                selectedTags={selectedTags}
+                                onTagToggle={handleTagToggle}
+                            />
+                        </View>
+                    )}
+
+                    {/* Comment Input */}
+                    <View style={styles.section}>
+                        <Controller
+                            control={control}
+                            name="comment"
+                            render={({ field: { value, onChange } }) => (
+                                <ReviewTextInput
+                                    value={value}
+                                    onChange={onChange}
+                                    placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm..."
+                                    maxLength={1000}
+                                />
+                            )}
+                        />
+                    </View>
+
+                    {/* Media Upload - only for new reviews */}
+                    {!isEditMode && (
+                        <View style={styles.section}>
+                            <Text style={styles.sectionLabel}>
+                                Hình ảnh & Video
+                            </Text>
+                            <MediaUploader
+                                mediaItems={mediaItems}
+                                onPickImages={pickImages}
+                                onPickVideo={pickVideo}
+                                onRemove={removeMedia}
+                                onRetry={retryUpload}
+                                imageCount={imageCount}
+                                videoCount={videoCount}
+                            />
+                        </View>
+                    )}
+
+                    {/* Anonymous Toggle (commented out - API not ready) */}
+                    <Controller
+                        control={control}
+                        name="isAnonymous"
+                        render={({ field: { value, onChange } }) => (
+                            <AnonymousToggle
+                                value={value}
+                                onChange={onChange}
+                            />
+                        )}
+                    />
+                </ScrollView>
+
+                {/* Submit Button */}
+                <View style={styles.footer}>
+                    <Pressable
+                        style={[
+                            styles.submitButton,
+                            !canSubmit && styles.submitButtonDisabled,
+                        ]}
+                        onPress={handleSubmit(onSubmit)}
+                        disabled={!canSubmit}
+                    >
+                        {isSubmitting ? (
+                            <Text style={styles.submitButtonText}>
+                                Đang gửi...
+                            </Text>
+                        ) : (
+                            <Text style={styles.submitButtonText}>
+                                {isEditMode ? 'Cập nhật đánh giá' : 'Gửi đánh giá'}
+                            </Text>
+                        )}
+                    </Pressable>
+                </View>
+            </KeyboardAvoidingView>
+        </View>
+    );
+}
+
+const stylesheet = StyleSheet.create((theme) => ({
+    container: {
+        flex: 1,
+        backgroundColor: theme.colors.background,
+    },
+    header: {
+        backgroundColor: theme.colors.surface,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors.border,
+    },
+    headerContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: theme.margins.md,
+        height: 56,
+    },
+    backButton: {
+        width: 40,
+        height: 40,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 20,
+    },
+    headerTitle: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: theme.colors.typography,
+    },
+    headerPlaceholder: {
+        width: 40,
+    },
+    keyboardView: {
+        flex: 1,
+    },
+    scrollView: {
+        flex: 1,
+    },
+    scrollContent: {
+        paddingVertical: theme.margins.md,
+        paddingHorizontal: theme.margins.md,
+        marginHorizontal: theme.margins.md,
+        marginTop: theme.margins.md,
+        marginBottom: theme.margins.md,
+        backgroundColor: theme.colors.surface,
+        borderRadius: theme.radius.l,
+        // Subtle shadow for depth
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 3,
+        elevation: 1,
+    },
+    section: {
+        marginBottom: theme.margins.md,
+    },
+    sectionLabel: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: theme.colors.typography,
+        marginBottom: theme.margins.sm,
+    },
+    errorText: {
+        fontSize: 12,
+        color: theme.colors.error,
+        marginTop: 4,
+    },
+    footer: {
+        padding: theme.margins.md,
+        backgroundColor: theme.colors.surface,
+        borderTopWidth: 1,
+        borderTopColor: theme.colors.border,
+    },
+    submitButton: {
+        backgroundColor: theme.colors.primary,
+        paddingVertical: theme.margins.smd,
+        borderRadius: theme.radius.m,
+        alignItems: 'center',
+    },
+    submitButtonDisabled: {
+        backgroundColor: theme.colors.secondary,
+        opacity: 0.5,
+    },
+    submitButtonText: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#FFFFFF',
+    },
+}));

@@ -77,7 +77,7 @@ export const ORDER_STATUS_MAP: Record<OrderStatus, StatusDisplay> = {
         icon: 'cube',
     },
     COMPLETED: {
-        label: 'Hoàn thành',
+        label: 'Đã mua',
         color: '#6b7280',
         bgColor: 'rgba(107, 114, 128, 0.1)',
         icon: 'checkmark-done',
@@ -158,7 +158,7 @@ export const ORDER_TABS: Array<{
         { key: 'CREATED', label: 'Chờ xác nhận', apiStatus: 'CREATED' },
         { key: 'FULFILLING', label: 'Đang giao', apiStatus: 'FULFILLING' },
         { key: 'DELIVERED', label: 'Đã giao', apiStatus: 'DELIVERED' },
-        { key: 'COMPLETED', label: 'Hoàn thành', apiStatus: 'COMPLETED' },
+        { key: 'COMPLETED', label: 'Đã mua', apiStatus: 'COMPLETED' },
         { key: 'CANCELLED', label: 'Đã hủy', apiStatus: 'CANCELLED' },
     ];
 

@@ -168,7 +168,7 @@ const UserDTOSchema = z.object({
 const ParticipantDTOSchema = z.object({
     id: z.string(),
     user: UserDTOSchema,
-    role: z.enum(['ADMIN', 'MEMBER']),
+    role: z.string(),
     nickname: z.string().nullable().optional(),
     unreadCount: z.number(),
     isMuted: z.boolean(),

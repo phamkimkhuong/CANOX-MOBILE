@@ -51,3 +51,13 @@ export const toSizedImageUrl = (
     // console.log("Xem đường dẫn có đúng không", `${base}/${cleanPath}${size}${cleanExt}`);
     return `${base}/${cleanPath}${size}${cleanExt}`;
 };
+/**
+ * Alias for buildImageUrl to maintain compatibility with existing code
+ */
+export const buildImageUrl = (
+    basePath: string | null | undefined,
+    extension: string | null | undefined,
+    size: string = '_thumb'
+): string => {
+    return toSizedImageUrl(basePath, extension, size) ?? 'https://via.placeholder.com/300';
+};

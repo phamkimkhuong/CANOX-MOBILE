@@ -39,6 +39,13 @@ export const Navigator = {
         if (now - lastClickTimestamp < CLICK_THRESHOLD) return;
         lastClickTimestamp = now;
         router.back();
+    },
+
+    navigate: (route: Href | string) => {
+        const now = Date.now();
+        if (now - lastClickTimestamp < CLICK_THRESHOLD) return;
+        lastClickTimestamp = now;
+        router.navigate(route as Href);
     }
 };
 

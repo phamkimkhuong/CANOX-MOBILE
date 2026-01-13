@@ -24,6 +24,7 @@ export const transformOrderCount = (apiData: OrderCountApiResponse): OrderStats 
         shipping: apiData.shipping,
         // Review = delivered orders (assumption: not reviewed)
         review: apiData.delivered,
+        completed: apiData.completed,
         total: apiData.total,
     };
 };

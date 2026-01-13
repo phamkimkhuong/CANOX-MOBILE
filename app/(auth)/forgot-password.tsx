@@ -1,20 +1,23 @@
+import { AuthInput } from '@/components/auth/AuthInput';
 import { IconSymbol } from '@/components/ui/Icon';
-import { ROUTES } from '@/constants/routes';
+import { authRoutes, ROUTES } from '@/constants/routes';
+import { useForgotPassword } from '@/hooks/api/useAuth';
 import { Navigator } from '@/utils/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { z } from 'zod';
 
-import { AuthInput } from '@/components/auth/AuthInput';
-
 // Schema Validation
 const forgotPasswordSchema = z.object({
-    emailOrPhone: z.string().min(1, 'Vui lòng nhập email hoặc số điện thoại'),
+    email: z.string()
+        .min(1, 'Vui lòng nhập email')
+        .email('Email không hợp lệ'),
 });
 
 type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
@@ -23,26 +26,59 @@ export default function ForgotPasswordScreen() {
     const { theme } = useUnistyles();
     const styles = stylesheet;
 
-    const { control, handleSubmit, formState: { isSubmitting } } = useForm<ForgotPasswordFormData>({
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const { control, handleSubmit, formState: { errors }, setError } = useForm<ForgotPasswordFormData>({
         resolver: zodResolver(forgotPasswordSchema),
         defaultValues: {
-            emailOrPhone: '',
+            email: '',
         },
     });
 
-    const onSubmit = async (_data: ForgotPasswordFormData) => {
-        try {
-            // TODO: Replace with actual API call using mutation hook
-            await new Promise(resolve => setTimeout(resolve, 1000));
+    // API Hooks
+    const { mutateAsync: sendForgotPassword } = useForgotPassword();
 
-            Alert.alert(
-                'Đã gửi yêu cầu',
-                'Vui lòng kiểm tra email hoặc tin nhắn để đặt lại mật khẩu.',
-                [{ text: 'OK', onPress: () => Navigator.replace(ROUTES.AUTH.LOGIN) }]
-            );
-        } catch {
-            Alert.alert('Lỗi', 'Gửi yêu cầu thất bại. Vui lòng thử lại.');
+    const onSubmit = async (data: ForgotPasswordFormData) => {
+        const email = data.email.trim().toLowerCase();
+        setIsSubmitting(true);
+
+        try {
+            // Send forgot password OTP directly
+            await sendForgotPassword(email);
+
+            // Success - Navigate to OTP screen
+            Toast.show({
+                type: 'success',
+                text1: 'Đã gửi mã xác thực',
+                text2: 'Vui lòng kiểm tra email của bạn',
+            });
+
+            // Navigate to verify OTP with forgot-password type
+            router.push(authRoutes.verifyOtp({
+                email,
+                type: 'forgot-password',
+            }));
+
+        } catch (error: any) {
+            if (error?.code === 1001) {
+                setError('email', {
+                    type: 'manual',
+                    message: error.message,
+                });
+            } else {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Gửi yêu cầu thất bại',
+                    text2: error?.message || 'Vui lòng thử lại sau',
+                });
+            }
+        } finally {
+            setIsSubmitting(false);
         }
+    };
+
+    const getButtonText = () => {
+        return isSubmitting ? 'Đang gửi mã...' : 'Gửi mã xác thực';
     };
 
     return (
@@ -67,11 +103,11 @@ export default function ForgotPasswordScreen() {
                     {/* Welcome Section */}
                     <View style={styles.welcomeSection}>
                         <View style={styles.iconCircle}>
-                            <IconSymbol name="lock-reset" size={32} color={theme.colors.primary} />
+                            <IconSymbol name="lock" size={32} color={theme.colors.primary} />
                         </View>
                         <Text style={styles.welcomeTitle}>Đặt lại mật khẩu</Text>
                         <Text style={styles.welcomeSubtitle}>
-                            Nhập email đã đăng ký để nhận link đặt lại mật khẩu
+                            Nhập email đã đăng ký để nhận mã xác thực đặt lại mật khẩu
                         </Text>
                     </View>
 
@@ -82,15 +118,18 @@ export default function ForgotPasswordScreen() {
                             name="email"
                             label="Email"
                             icon="mail"
-                            placeholder="Nhập email"
+                            placeholder="Nhập email đã đăng ký"
                             keyboardType="email-address"
+                            autoCapitalize="none"
+                            autoComplete="email"
+                            editable={!isSubmitting}
                         />
 
                         {/* Info Box */}
                         <View style={styles.infoBox}>
-                            <IconSymbol name="info-outline" size={20} color={theme.colors.primary} />
+                            <IconSymbol name="info" size={20} color={theme.colors.primary} />
                             <Text style={styles.infoText}>
-                                Nếu không nhận được email, vui lòng kiểm tra thư mục spam hoặc thử lại sau ít phút.
+                                Mã xác thực 6 số sẽ được gửi đến email của bạn. Nếu không nhận được, vui lòng kiểm tra thư mục Spam.
                             </Text>
                         </View>
 
@@ -100,9 +139,14 @@ export default function ForgotPasswordScreen() {
                             onPress={handleSubmit(onSubmit)}
                             disabled={isSubmitting}
                         >
-                            <Text style={styles.submitBtnText}>
-                                {isSubmitting ? 'Đang gửi...' : 'Gửi yêu cầu'}
-                            </Text>
+                            {isSubmitting ? (
+                                <View style={styles.loadingRow}>
+                                    <ActivityIndicator size="small" color={theme.colors.onPrimary} />
+                                    <Text style={styles.submitBtnText}>{getButtonText()}</Text>
+                                </View>
+                            ) : (
+                                <Text style={styles.submitBtnText}>{getButtonText()}</Text>
+                            )}
                         </TouchableOpacity>
                     </View>
 
@@ -225,6 +269,11 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.onPrimary,
         fontWeight: 'bold',
         fontSize: 16,
+    },
+    loadingRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
     },
     footer: {
         flexDirection: 'row',

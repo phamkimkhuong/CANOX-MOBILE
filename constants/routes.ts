@@ -29,6 +29,7 @@ export const ROUTES = {
         REGISTER: '/(auth)/register' as const,
         FORGOT_PASSWORD: '/(auth)/forgot-password' as const,
         VERIFY_OTP: '/(auth)/verify-otp' as const,
+        RESET_PASSWORD: '/(auth)/reset-password' as const,
     },
 
     // ============ CART ============
@@ -69,7 +70,7 @@ export const ROUTES = {
         PENDING_PAYMENT: '/orders' as const,
         PROCESSING: '/orders' as const,
         SHIPPING: '/orders' as const,
-        REVIEW: '/orders' as const,
+        REVIEW: '/(main)/(user)/reviews' as const,
         SUCCESS: '/(main)/(order)/order-success' as const,
         PAYMENT_PAYOS: '/(main)/(order)/payment-payos' as const,
     },
@@ -80,6 +81,7 @@ export const ROUTES = {
         FAVORITES: '/favorites' as const,
         RECENT: '/recent' as const,
         FOLLOWED_SHOPS: '/followed-shops' as const,
+        REVIEWS: '/(main)/(user)/reviews' as const,
     },
 
     // ============ WISHLIST ============
@@ -209,6 +211,11 @@ export const addressRoutes = {
         pathname: '/(main)/address/[id]',
         params: { id: addressId },
     } as unknown as Href),
+    /** List addresses with optional mode and success state */
+    list: (params?: { mode?: string; success?: string }): Href => ({
+        pathname: '/(main)/address/list',
+        params: params as Record<string, string>,
+    }),
     edit: (addressId: string): Href => ({
         pathname: '/(main)/address/[id]/edit',
         params: { id: addressId },
@@ -219,8 +226,12 @@ export const addressRoutes = {
  * Auth verify OTP with params
  */
 export const authRoutes = {
-    verifyOtp: (params: { phone: string; type: 'register' | 'forgot-password' }): Href => ({
+    verifyOtp: (params: { email: string; type: 'register' | 'forgot-password' }): Href => ({
         pathname: '/(auth)/verify-otp',
+        params,
+    }),
+    resetPassword: (params: { email: string; otpCode: string }): Href => ({
+        pathname: '/(auth)/reset-password',
         params,
     }),
 } as const;
@@ -235,6 +246,37 @@ export const wishlistRoutes = {
     detail: (wishlistId: string): Href => ({
         pathname: '/(main)/(user)/wishlist/[id]',
         params: { id: wishlistId },
+    } as unknown as Href),
+} as const;
+
+/**
+ * Review routes
+ */
+export const reviewRoutes = {
+    /** Navigate to reviews list (tabs) */
+    list: (): Href => '/(main)/(user)/reviews' as Href,
+    /** Navigate to pending reviews tab */
+    pending: (): Href => '/(main)/(user)/reviews/pending' as Href,
+    /** Navigate to review history tab */
+    history: (): Href => '/(main)/(user)/reviews/history' as Href,
+    /** Navigate to write review screen */
+    write: (itemId: string, params?: {
+        productId?: string;
+        productName?: string;
+        productImage?: string;
+        variantAttributes?: string;
+        formattedPrice?: string;
+        orderId?: string;
+        orderNumber?: string;
+        shopName?: string;
+        shopLogo?: string;
+        mode?: 'create' | 'edit';
+        reviewId?: string;
+        existingRating?: string;
+        existingComment?: string;
+    }): Href => ({
+        pathname: '/(main)/(user)/reviews/write/[itemId]',
+        params: { itemId, ...params },
     } as unknown as Href),
 } as const;
 
@@ -280,7 +322,7 @@ export const ORDER_STATUS_ROUTES = {
     pendingPayment: ROUTES.ORDERS.PENDING_PAYMENT,
     processing: ROUTES.ORDERS.PROCESSING,
     shipping: ROUTES.ORDERS.SHIPPING,
-    review: ROUTES.ORDERS.REVIEW,
+    completed: ROUTES.ORDERS.LIST,
 } as const;
 
 /**
@@ -324,4 +366,5 @@ export type DynamicRouteBuilders = {
     auth: typeof authRoutes;
     cart: typeof cartRoutes;
     wishlist: typeof wishlistRoutes;
+    review: typeof reviewRoutes;
 };

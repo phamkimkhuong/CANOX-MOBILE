@@ -17,9 +17,10 @@ import { useUserAddressStore } from '@/store/useUserAddressStore';
 import type { AddressListMode, ShippingAddress } from '@/types/address';
 import { Navigator } from '@/utils/navigation';
 import { useLocalSearchParams } from 'expo-router';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 export default function AddressListScreen() {
@@ -28,7 +29,10 @@ export default function AddressListScreen() {
     const insets = useSafeAreaInsets();
 
     // Get mode and selectedId from search params
-    const { mode: modeParam, selectedId: selectedIdParam } = useLocalSearchParams<{
+    const {
+        mode: modeParam,
+        selectedId: selectedIdParam,
+    } = useLocalSearchParams<{
         mode?: string;
         selectedId?: string;
     }>();
@@ -42,6 +46,50 @@ export default function AddressListScreen() {
     // Global address store
     const setSelectedAddressId = useUserAddressStore((s) => s.setSelectedAddressId);
     const globalSelectedId = useUserAddressStore((s) => s.selectedAddressId);
+    const pendingSuccessMessage = useUserAddressStore((s) => s.pendingSuccessMessage);
+    const clearPendingSuccessMessage = useUserAddressStore((s) => s.clearPendingSuccessMessage);
+
+    // ========================================
+    // DEFERRED RENDERING (UX OPTIMIZATION)
+    // ========================================
+    const [isReady, setIsReady] = useState(false);
+
+    React.useEffect(() => {
+        const handle = requestIdleCallback(() => {
+            setIsReady(true);
+        }, { timeout: 500 });
+        return () => cancelIdleCallback(handle);
+    }, []);
+
+    // Show toast after UI is ready and loading is finished
+    React.useEffect(() => {
+        if (isReady && !isLoading && pendingSuccessMessage) {
+            let message = '';
+            switch (pendingSuccessMessage) {
+                case 'add':
+                    message = 'Đã thêm địa chỉ mới';
+                    break;
+                case 'update':
+                    message = 'Đã cập nhật địa chỉ';
+                    break;
+                case 'delete':
+                    message = 'Đã xóa địa chỉ';
+                    break;
+            }
+
+            if (message) {
+                Toast.show({
+                    type: 'success',
+                    text1: 'Thành công',
+                    text2: message,
+                    visibilityTime: 3000,
+                });
+            }
+
+            // Clear the message after showing
+            clearPendingSuccessMessage();
+        }
+    }, [isReady, isLoading, pendingSuccessMessage, clearPendingSuccessMessage]);
 
     // Sort addresses: default first
     const sortedAddresses = useMemo(() => {
@@ -90,9 +138,9 @@ export default function AddressListScreen() {
     const handleEdit = useCallback((address: ShippingAddress) => {
         Navigator.push({
             pathname: ROUTES.ADDRESS.ADD,
-            params: { id: address.id },
+            params: { id: address.id, mode },
         } as any);
-    }, []);
+    }, [mode]);
 
     /**
      * Navigate to add new address
@@ -100,9 +148,12 @@ export default function AddressListScreen() {
      */
     const handleAddNew = useCallback(() => {
         if (checkAddressLimitAndShowToast(currentCount, maxCount)) {
-            Navigator.push(ROUTES.ADDRESS.ADD);
+            Navigator.push({
+                pathname: ROUTES.ADDRESS.ADD,
+                params: { mode },
+            } as any);
         }
-    }, [currentCount, maxCount]);
+    }, [currentCount, maxCount, mode]);
 
     // Header title
     const headerTitle = mode === 'selection' ? 'Chọn địa chỉ nhận hàng' : 'Quản lý địa chỉ';

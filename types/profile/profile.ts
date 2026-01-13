@@ -20,6 +20,7 @@ export const OrderStatsSchema = z.object({
     processing: z.number().default(0),
     shipping: z.number().default(0),
     review: z.number().default(0),
+    completed: z.number().default(0),
     total: z.number().default(0),
 });
 
@@ -182,10 +183,10 @@ export const ORDER_STATUS_CONFIG: OrderStatusItem[] = [
         route: ORDER_STATUS_ROUTES.shipping,
     },
     {
-        key: 'review',
-        icon: 'star',
-        label: 'Đánh giá',
-        route: ORDER_STATUS_ROUTES.review,
+        key: 'completed',
+        icon: 'bag',
+        label: 'Đã mua',
+        route: ORDER_STATUS_ROUTES.completed,
     },
 ];
 
@@ -266,6 +267,16 @@ export const SERVICE_MENU_CONFIG: ProfileMenuItem[] = [
         iconBgColor: 'rgba(249, 115, 22, 0.1)',
         backgroundColor: 'rgba(249, 115, 22, 0.1)',
         iconColor: '#f97316',
+    },
+    {
+        id: 'reviews',
+        key: 'reviews',
+        icon: 'star',
+        label: 'Đánh giá của tôi',
+        route: ROUTES.USER.REVIEWS,
+        iconBgColor: 'rgba(16, 185, 129, 0.1)',
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        iconColor: '#10b981',
     },
     // {
     //     id: 'international',

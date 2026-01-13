@@ -42,6 +42,7 @@ const mapProfileTabToOrderTab = (profileTab: string | undefined): OrderTabStatus
         case 'delivered':
             return 'DELIVERED';
         case 'review':
+        case 'completed':
             return 'COMPLETED';
         case 'cancelled':
             return 'CANCELLED';

@@ -3,7 +3,7 @@ import { ROUTES } from '@/constants/routes';
 import { ApiError, request } from '@/services/api/client';
 import { useAuthStore } from '@/store/useAuthStore';
 import { hideGlobalLoading, showGlobalLoading } from '@/store/useLoadingStore';
-import { AuthResponseSchema, GoogleLoginPayload } from '@/types/auth';
+import { GoogleLoginPayload, SocialLoginResponseSchema } from '@/types/auth';
 import { createLogger } from '@/utils/logger';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import { useMutation } from '@tanstack/react-query';
@@ -29,14 +29,26 @@ export const useGoogleLogin = () => {
                     method: 'POST',
                     data: payload,
                 },
-                AuthResponseSchema
+                SocialLoginResponseSchema
             );
         },
         onSuccess: async (response) => {
-            log.info('Backend authentication successful');
+            log.debug('Full response data:', JSON.stringify(response.data, null, 2));
+
             const { accessToken, refreshToken, user } = response.data;
             const buyerId = user.buyerId ?? null;
             const userId = user.userId ?? null;
+
+            if (!accessToken || !refreshToken) {
+                log.error('Missing tokens in social login response. Backend needs to return accessToken and refreshToken.');
+                hideGlobalLoading();
+                Toast.show({
+                    type: 'error',
+                    text1: 'Lỗi đăng nhập',
+                    text2: 'Backend chưa trả về token. Vui lòng liên hệ hỗ trợ.',
+                });
+                return;
+            }
 
             // Lưu token và thông tin user
             await loginStore(accessToken, refreshToken, userId, buyerId);

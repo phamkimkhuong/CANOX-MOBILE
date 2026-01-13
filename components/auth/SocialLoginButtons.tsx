@@ -19,7 +19,7 @@ export const SocialLoginButtons = () => {
         <View style={styles.socialRow}>
             <SocialButton icon="logo-google" color="#DB4437" onPress={googleSignIn} />
             <SocialButton icon="logo-facebook" color="#4267B2" />
-            <SocialButton icon="logo-apple" color="#000000" />
+            {/* <SocialButton icon="logo-apple" color="#000000" /> */}
         </View>
     );
 };

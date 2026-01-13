@@ -8,17 +8,20 @@
  */
 
 import { CHAT_STRINGS } from '@/constants/i18n/vi/chat';
-import { chatRoutes, orderRoutes } from '@/constants/routes';
+import { cartRoutes, chatRoutes, orderRoutes, reviewRoutes } from '@/constants/routes';
+import { useAddToCart } from '@/hooks/api/cart';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
 import { usePrefetchOrderDetail } from '@/hooks/api/order/useOrderDetail';
 import { flattenOrders, useOrderList, useRefreshOrderList } from '@/hooks/api/order/useOrders';
 import { PREFETCH_GRACE_PERIOD_MS } from '@/hooks/usePrefetchTiming';
 import { useAuthStore } from '@/store/useAuthStore';
+import { hideGlobalLoading, showGlobalLoading } from '@/store/useLoadingStore';
 import { OrderAction, OrderTabStatus, OrderUI } from '@/types/order/order';
 import { logger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
 import { FlashList, ListRenderItem } from '@shopify/flash-list';
 import React, { useCallback, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Linking, RefreshControl, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -37,6 +40,8 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
     const myShopId = useAuthStore((s) => s.shopId);
     const prefetchChat = usePrefetchShopChat();
     const prefetchOrderDetail = usePrefetchOrderDetail();
+    const { mutateAsync: addToCart } = useAddToCart();
+    const { t } = useTranslation(['order', 'common']);
 
     const pressTimingMap = useRef<Map<string, number>>(new Map());
 
@@ -85,7 +90,7 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
         });
     }, []);
 
-    const handleAction = useCallback((action: OrderAction['action'], order: OrderUI) => {
+    const handleAction = useCallback(async (action: OrderAction['action'], order: OrderUI) => {
         const orderId = order.orderId;
 
         switch (action) {
@@ -99,17 +104,43 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
                 logger.orders.info('Confirm received:', orderId);
                 break;
             case 'review':
-                // TODO: Navigate to review screen
-                logger.orders.info('Review order:', orderId);
+                Navigator.push(reviewRoutes.list());
                 break;
             case 'return':
                 // TODO: Navigate to return request screen
                 logger.orders.info('Return request:', orderId);
                 break;
-            case 'rebuy':
-                // TODO: Add items to cart
-                logger.orders.info('Rebuy order:', orderId);
+            case 'rebuy': {
+                if (!order.items || order.items.length === 0) return;
+
+                showGlobalLoading();
+                try {
+                    await Promise.all(
+                        order.items.map((item) =>
+                            addToCart({
+                                variantId: item.variantId,
+                                quantity: item.quantity,
+                                hideToast: true,
+                            })
+                        )
+                    );
+
+                    logger.orders.info('Rebuy successful for order:', orderId);
+                    hideGlobalLoading();
+                    Navigator.push(cartRoutes.index({ rebuySuccess: true }));
+                } catch (err: any) {
+                    hideGlobalLoading();
+                    logger.orders.error('Rebuy failed:', err);
+
+                    const errorMessage = err?.message || t('common:status.error');
+                    Toast.show({
+                        type: 'error',
+                        text1: t('common:status.error'),
+                        text2: errorMessage,
+                    });
+                }
                 break;
+            }
             case 'contact': {
                 const shopUserId = order._raw.shopInfo.userId;
                 const shopName = order.shopName;

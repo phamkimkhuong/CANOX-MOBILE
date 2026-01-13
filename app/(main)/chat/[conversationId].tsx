@@ -644,32 +644,37 @@ export default function ChatDetailScreen() {
                 >
                     {/* Messages List - INVERTED: newest at bottom, no scroll needed */}
                     {shouldShowList ? (
-                        <FlatList
-                            ref={flatListRef}
-                            data={flatListData}
-                            renderItem={renderItem}
-                            keyExtractor={keyExtractor}
-                            inverted
-                            onScroll={handleScroll}
-                            scrollEventThrottle={16}
-                            ListHeaderComponent={renderListFooter}
-                            ListFooterComponent={renderListHeader}
-                            ListEmptyComponent={renderEmptyComponent}
-                            onEndReached={handleLoadMore}
-                            onEndReachedThreshold={0.5}
-                            contentContainerStyle={styles.listContent}
-                            showsVerticalScrollIndicator={false}
-                            maintainVisibleContentPosition={{
-                                minIndexForVisible: 0,
-                                autoscrollToTopThreshold: 50,
-                            }}
-                            // Performance optimizations for instant load
-                            initialNumToRender={10}
-                            maxToRenderPerBatch={10}
-                            windowSize={10}
-                            updateCellsBatchingPeriod={30}
-                            removeClippedSubviews={false}
-                        />
+                        <>
+                            {messages.length > 0 ? (
+                                <FlatList
+                                    ref={flatListRef}
+                                    data={flatListData}
+                                    renderItem={renderItem}
+                                    keyExtractor={keyExtractor}
+                                    inverted
+                                    onScroll={handleScroll}
+                                    scrollEventThrottle={16}
+                                    ListHeaderComponent={renderListFooter}
+                                    ListFooterComponent={renderListHeader}
+                                    onEndReached={handleLoadMore}
+                                    onEndReachedThreshold={0.5}
+                                    contentContainerStyle={styles.listContent}
+                                    showsVerticalScrollIndicator={false}
+                                    maintainVisibleContentPosition={{
+                                        minIndexForVisible: 0,
+                                        autoscrollToTopThreshold: 50,
+                                    }}
+                                    // Performance optimizations
+                                    initialNumToRender={10}
+                                    maxToRenderPerBatch={10}
+                                    windowSize={10}
+                                    updateCellsBatchingPeriod={30}
+                                    removeClippedSubviews={false}
+                                />
+                            ) : (
+                                renderEmptyComponent()
+                            )}
+                        </>
                     ) : (
                         <ChatDetailSkeleton count={10} />
                     )}
@@ -724,7 +729,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: theme.margins.xl * 2,
+        paddingHorizontal: theme.margins.xl,
     },
     emptyText: {
         fontSize: 16,

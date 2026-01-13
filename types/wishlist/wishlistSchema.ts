@@ -7,6 +7,18 @@
 
 import { z } from 'zod';
 
+// Helper to transform nullish arrays to empty arrays
+const arrayOrEmpty = <T extends z.ZodTypeAny>(schema: T) =>
+    z.array(schema).nullish().transform((val) => val ?? []);
+
+// Helper to transform nullish numbers to default
+const numberOrDefault = (defaultValue: number) =>
+    z.number().nullish().transform((val) => val ?? defaultValue);
+
+// Helper to transform nullish booleans to default
+const booleanOrDefault = (defaultValue: boolean) =>
+    z.boolean().nullish().transform((val) => val ?? defaultValue);
+
 // ============================================
 // ITEM OPTION SCHEMA
 // ============================================
@@ -24,23 +36,23 @@ export const WishlistItemSchema = z.object({
     id: z.string(),
     wishlistId: z.string(),
     variantId: z.string(),
-    sku: z.string(),
+    sku: z.string().nullish().transform((val) => val ?? ''),
     productId: z.string(),
     productName: z.string(),
-    imageBasePath: z.string().nullable(),
-    imageExtension: z.string().nullable(),
-    productImage: z.string().nullable(),
-    productPrice: z.number(),
-    productDescription: z.string(),
-    quantity: z.number(),
-    notes: z.string().nullable(),
-    priority: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-    priorityText: z.enum(['Normal', 'Important', 'Urgent']),
-    desiredPrice: z.number().nullable(),
-    isPriceTargetMet: z.boolean(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
-    options: z.array(WishlistItemOptionSchema),
+    imageBasePath: z.string().nullish(),
+    imageExtension: z.string().nullish(),
+    productImage: z.string().nullish(),
+    productPrice: numberOrDefault(0),
+    productDescription: z.string().nullish().transform((val) => val ?? ''),
+    quantity: numberOrDefault(1),
+    notes: z.string().nullish(),
+    priority: z.union([z.literal(0), z.literal(1), z.literal(2)]).nullish().transform((val) => val ?? 0),
+    priorityText: z.string().nullish().transform((val) => val ?? 'Normal'),
+    desiredPrice: z.number().nullish(),
+    isPriceTargetMet: booleanOrDefault(false),
+    createdAt: z.string().nullish().transform((val) => val ?? new Date().toISOString()),
+    updatedAt: z.string().nullish().transform((val) => val ?? new Date().toISOString()),
+    options: arrayOrEmpty(WishlistItemOptionSchema),
 });
 
 // ============================================
@@ -50,16 +62,16 @@ export const WishlistItemSchema = z.object({
 export const WishlistSummarySchema = z.object({
     id: z.string(),
     name: z.string(),
-    description: z.string().nullable(),
-    isPublic: z.boolean(),
-    isDefault: z.boolean(),
-    buyerId: z.string(),
-    buyerName: z.string(),
-    itemCount: z.number(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
-    imageBasePath: z.string().nullable(),
-    imageExtension: z.string().nullable(),
+    description: z.string().nullish(),
+    isPublic: booleanOrDefault(false),
+    isDefault: booleanOrDefault(false),
+    buyerId: z.string().nullish().transform((val) => val ?? ''),
+    buyerName: z.string().nullish().transform((val) => val ?? ''),
+    itemCount: numberOrDefault(0),
+    createdAt: z.string().nullish().transform((val) => val ?? new Date().toISOString()),
+    updatedAt: z.string().nullish().transform((val) => val ?? new Date().toISOString()),
+    imageBasePath: z.string().nullish(),
+    imageExtension: z.string().nullish(),
 });
 
 // ============================================
@@ -67,10 +79,10 @@ export const WishlistSummarySchema = z.object({
 // ============================================
 
 export const WishlistDetailSchema = WishlistSummarySchema.extend({
-    items: z.array(WishlistItemSchema),
-    shareToken: z.string().nullable(),
-    shareUrl: z.string().nullable(),
-    ogMetadata: z.unknown().nullable(),
+    items: arrayOrEmpty(WishlistItemSchema),
+    shareToken: z.string().nullish(),
+    shareUrl: z.string().nullish(),
+    ogMetadata: z.unknown().nullish(),
 });
 
 // ============================================
@@ -78,18 +90,18 @@ export const WishlistDetailSchema = WishlistSummarySchema.extend({
 // ============================================
 
 export const WishlistPageSchema = z.object({
-    content: z.array(WishlistSummarySchema),
-    page: z.number(),
-    size: z.number(),
-    totalElements: z.number(),
-    totalPages: z.number(),
-    hasNext: z.boolean(),
-    hasPrevious: z.boolean(),
-    previousPage: z.number(),
-    nextPage: z.number(),
-    empty: z.boolean(),
-    first: z.boolean(),
-    last: z.boolean(),
+    content: arrayOrEmpty(WishlistSummarySchema),
+    page: numberOrDefault(0),
+    size: numberOrDefault(10),
+    totalElements: numberOrDefault(0),
+    totalPages: numberOrDefault(0),
+    hasNext: booleanOrDefault(false),
+    hasPrevious: booleanOrDefault(false),
+    previousPage: numberOrDefault(0),
+    nextPage: numberOrDefault(0),
+    empty: booleanOrDefault(true),
+    first: booleanOrDefault(true),
+    last: booleanOrDefault(true),
 });
 
 // ============================================
@@ -97,9 +109,9 @@ export const WishlistPageSchema = z.object({
 // ============================================
 
 export const PriceTargetMetSchema = z.object({
-    wishlists: z.array(WishlistDetailSchema),
-    totalItems: z.number(),
-    totalWishlists: z.number(),
+    wishlists: arrayOrEmpty(WishlistDetailSchema),
+    totalItems: numberOrDefault(0),
+    totalWishlists: numberOrDefault(0),
 });
 
 // ============================================

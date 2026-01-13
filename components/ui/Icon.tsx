@@ -52,7 +52,9 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     favorite: { ios: 'heart', android: 'heart' },
     'favorite-outline': { ios: 'heart-outline', android: 'heart-outline' },
     star: { ios: 'star', android: 'star' },
+    'star-filled': { ios: 'star', android: 'star' },
     'star-outline': { ios: 'star-outline', android: 'star-outline' },
+    'star-fill': { ios: 'star', android: 'star' },
     shipping: { ios: 'car-outline', android: 'car-outline' },
     'truck-fast': { ios: 'car-sport', android: 'car-sport' },
     'truck-step': { ios: 'car-sport-outline', android: 'car-sport-outline' },
@@ -189,6 +191,15 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     'add-circle-outline': { ios: 'add-circle-outline', android: 'add-circle-outline' },
     bookmark: { ios: 'bookmark', android: 'bookmark' },
     'bookmark-outline': { ios: 'bookmark-outline', android: 'bookmark-outline' },
+
+    // === SF Symbols Aliases (for cross-platform compatibility) ===
+    shippingbox: { ios: 'cube', android: 'cube' },
+    'star.fill': { ios: 'star', android: 'star' },
+    'chevron.right': { ios: 'chevron-forward', android: 'chevron-forward' },
+    'chevron.left': { ios: 'chevron-back', android: 'chevron-back' },
+    coin: { ios: 'cash-outline', android: 'cash-outline' },
+    'checkmark.circle': { ios: 'checkmark-circle', android: 'checkmark-circle' },
+    'arrow.clockwise': { ios: 'refresh', android: 'refresh' },
 };
 
 interface IconSymbolProps {

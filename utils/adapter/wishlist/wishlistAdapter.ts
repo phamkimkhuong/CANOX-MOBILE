@@ -61,11 +61,11 @@ export const adaptWishlistItem = (item: WishlistItemDTO): WishlistItemUI => {
         // Use existing currency formatter
         formattedPrice: formatCurrency(item.productPrice),
         quantity: item.quantity,
-        notes: item.notes,
+        notes: item.notes ?? null,
         priority: item.priority,
         priorityLabel: priorityConfig.label,
         priorityColor: priorityConfig.color,
-        desiredPrice: item.desiredPrice,
+        desiredPrice: item.desiredPrice ?? null,
         formattedDesiredPrice: item.desiredPrice ? formatCurrency(item.desiredPrice) : null,
         isPriceTargetMet: item.isPriceTargetMet,
         priceDifference: priceDiff,
@@ -85,7 +85,7 @@ export const adaptWishlistCard = (wishlist: WishlistSummaryDTO): WishlistCardUI 
     return {
         id: wishlist.id,
         name: wishlist.name,
-        description: wishlist.description,
+        description: wishlist.description ?? null,
         isPublic: wishlist.isPublic,
         isDefault: wishlist.isDefault,
         itemCount: wishlist.itemCount,
@@ -107,7 +107,7 @@ export const adaptWishlistDetail = (detail: WishlistDetailDTO): WishlistDetailUI
     return {
         ...adaptWishlistCard(detail),
         items: detail.items.map(adaptWishlistItem),
-        shareUrl: detail.shareUrl,
+        shareUrl: detail.shareUrl ?? null,
     };
 };
 

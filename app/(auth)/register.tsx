@@ -14,16 +14,11 @@ import { z } from 'zod';
 import { AuthInput } from '@/components/auth/AuthInput';
 import { SocialLoginButtons } from '@/components/auth/SocialLoginButtons';
 import { useRegister } from '@/hooks/api/useAuth';
-import { RegisterRequestSchema } from '@/types/auth';
+import { RegisterFormSchema } from '@/types/auth';
 import Toast from 'react-native-toast-message';
 
 // Schema Validation
-const registerSchema = RegisterRequestSchema.extend({
-	confirmPassword: z.string()
-}).refine((data) => data.password === data.confirmPassword, {
-	message: 'Mật khẩu không khớp',
-	path: ['confirmPassword'],
-});
+const registerSchema = RegisterFormSchema;
 
 type RegisterFormData = z.infer<typeof registerSchema>;
 
@@ -55,8 +50,7 @@ export default function RegisterScreen() {
 			return;
 		}
 		try {
-			const { confirmPassword, ...payload } = data;
-			register(payload, {
+			register(data, {
 				onError: (error: unknown) => {
 					const apiError = error as { code?: number };
 					if (apiError.code === 208) {
@@ -81,7 +75,7 @@ export default function RegisterScreen() {
 						text2: 'Vui lòng xác thực email của bạn.',
 					});
 					// Navigate to OTP verification with email param
-					Navigator.push(authRoutes.verifyOtp({ phone: data.email, type: 'register' }));
+					Navigator.push(authRoutes.verifyOtp({ email: data.email, type: 'register' }));
 				},
 			});
 		} catch {

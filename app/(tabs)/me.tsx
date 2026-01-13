@@ -145,6 +145,7 @@ export default function MeScreen() {
                     walletBalance={walletBalance?.balance ?? 0}
                     coinsBalance={walletBalance?.coins ?? 0}
                     voucherCount={walletBalance?.vouchers ?? 0}
+                    reviewCount={orderStats?.review ?? 0}
                     isLoading={isLoadingWallet}
                 />
 

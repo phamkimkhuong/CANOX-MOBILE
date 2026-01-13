@@ -2,7 +2,37 @@ import { z } from 'zod';
 import { ResponseDefaultSchema } from './responseSchema';
 
 // Regex: Tối thiểu 6 ký tự, ít nhất 1 chữ hoa, 1 chữ thường, 1 số
-const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\w\W]{6,}$/;
+export const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\w\W]{6,}$/;
+
+// ===============================
+// SHARED VALIDATION PIECES
+// ===============================
+
+export const EmailSchema = z.string().email('Email không hợp lệ');
+
+export const PasswordSchema = z.string()
+    .min(6, 'Mật khẩu tối thiểu 6 ký tự')
+    .regex(PASSWORD_REGEX, 'Mật khẩu phải chứa chữ hoa, chữ thường và số');
+
+export const ConfirmPasswordSchema = z.string().min(1, 'Vui lòng xác nhận mật khẩu');
+
+/**
+ * Modular schema for password and confirmation
+ */
+export const PasswordGroupSchema = z.object({
+    password: PasswordSchema,
+    confirmPassword: ConfirmPasswordSchema,
+}).refine((data) => data.password === data.confirmPassword, {
+    message: 'Mật khẩu xác nhận không khớp',
+    path: ['confirmPassword'],
+});
+
+/**
+ * Shared refinement for matching passwords
+ */
+export const passwordMatchRefine = (passwordKey: string, confirmKey: string) => {
+    return (data: any) => data[passwordKey] === data[confirmKey];
+};
 
 // 1. Schema cho Request
 export const LoginRequestSchema = z.object({
@@ -19,14 +49,26 @@ export const GoogleLoginRequestSchema = z.object({
     deviceId: z.string().optional(),
     fcmToken: z.string().optional(),
 });
+/**
+ * API REQUEST SCHEMAS (Matches Backend)
+ * ===============================
+ */
 export const RegisterRequestSchema = z.object({
     username: z.string()
         .min(4, 'Tên đăng nhập phải có ít nhất 4 ký tự')
         .regex(/^[a-zA-Z0-9_]+$/, 'Tên đăng nhập không được chứa ký tự đặc biệt'),
-    email: z.string().email('Email không hợp lệ'),
-    password: z.string()
-        .min(6, 'Mật khẩu tối thiểu 6 ký tự')
-        .regex(PASSWORD_REGEX, 'Mật khẩu phải chứa chữ hoa, chữ thường và số'),
+    email: EmailSchema,
+    password: PasswordSchema,
+    confirmPassword: ConfirmPasswordSchema,
+});
+
+/**
+ * UI FORM SCHEMAS (Includes Confirmation)
+ * ===============================
+ */
+export const RegisterFormSchema = RegisterRequestSchema.refine((data) => data.password === data.confirmPassword, {
+    message: 'Mật khẩu xác nhận không khớp',
+    path: ['confirmPassword'],
 });
 
 // 2. Schema cho Response Login
@@ -43,6 +85,32 @@ export const AuthResponseSchema = ResponseDefaultSchema.extend({
             email: z.string(),
             status: z.string(),
             roles: z.array(z.string()),
+            image: z.string().nullable().optional(),
+            buyerId: z.string().nullable().optional(),
+            buyer: z.any().nullable().optional(),
+        }),
+    }),
+});
+
+// Schema cho Response Social Login (Google, Facebook, Apple)
+export const SocialLoginResponseSchema = ResponseDefaultSchema.extend({
+    message: z.string(),
+    data: z.object({
+        accessToken: z.string().optional(),
+        refreshToken: z.string().optional(),
+        emailVerified: z.boolean(),
+        hasShopRole: z.boolean().optional(),
+        hasBuyerRole: z.boolean().optional(),
+        shopProfileExists: z.boolean().optional(),
+        requiresShopProfile: z.boolean().optional(),
+        requiresShopVerification: z.boolean().optional(),
+        loginContextRole: z.string().optional(),
+        user: z.object({
+            userId: z.string(),
+            username: z.string(),
+            email: z.string(),
+            status: z.string().optional(),
+            roles: z.array(z.string()).optional(),
             image: z.string().nullable().optional(),
             buyerId: z.string().nullable().optional(),
             buyer: z.any().nullable().optional(),
@@ -86,10 +154,8 @@ export type RegisterResponse = z.infer<typeof RegisterResponseSchema>;
  */
 export const ChangePasswordRequestSchema = z.object({
     oldPassword: z.string().min(1, 'Vui lòng nhập mật khẩu hiện tại'),
-    newPassword: z.string()
-        .min(6, 'Mật khẩu mới tối thiểu 6 ký tự')
-        .regex(PASSWORD_REGEX, 'Mật khẩu phải chứa chữ hoa, chữ thường và số'),
-    confirmPassword: z.string().min(1, 'Vui lòng xác nhận mật khẩu mới'),
+    newPassword: PasswordSchema,
+    confirmPassword: ConfirmPasswordSchema,
 }).refine((data) => data.newPassword === data.confirmPassword, {
     message: 'Mật khẩu xác nhận không khớp',
     path: ['confirmPassword'],
@@ -107,3 +173,58 @@ export const ChangePasswordResponseSchema = ResponseDefaultSchema.extend({
 
 export type ChangePasswordPayload = z.infer<typeof ChangePasswordRequestSchema>;
 export type ChangePasswordResponse = z.infer<typeof ChangePasswordResponseSchema>;
+
+// ===============================
+// FORGOT PASSWORD SCHEMAS
+// ===============================
+
+/**
+ * Schema for Check Email Exists Response
+ * GET /api/v1/users/exists/email?email=xxx
+ */
+export const CheckEmailExistsResponseSchema = ResponseDefaultSchema.extend({
+    data: z.boolean(), // true = email exists, false = not found
+});
+
+export type CheckEmailExistsResponse = z.infer<typeof CheckEmailExistsResponseSchema>;
+
+/**
+ * Schema for Forgot Password Request
+ * POST /api/v1/auth/password/forgot
+ */
+export const ForgotPasswordRequestSchema = z.object({
+    email: z.string().email('Email không hợp lệ'),
+});
+
+export type ForgotPasswordPayload = z.infer<typeof ForgotPasswordRequestSchema>;
+
+/**
+ * Schema for Verify Forgot Password OTP
+ * POST /api/v1/auth/password/verify-otp
+ */
+export const VerifyForgotPasswordOtpSchema = z.object({
+    email: z.string().email(),
+    otpCode: z.string().length(6, 'Mã xác thực phải đủ 6 số'),
+});
+
+export type VerifyForgotPasswordOtpPayload = z.infer<typeof VerifyForgotPasswordOtpSchema>;
+
+/**
+ * Schema for Reset Password Request
+ * POST /api/v1/auth/password/reset
+ */
+export const ResetPasswordRequestSchema = z.object({
+    email: EmailSchema,
+    password: PasswordSchema,
+    confirmPassword: ConfirmPasswordSchema, // Keep if backend actually wants it as user said
+});
+
+/**
+ * UI Form Schema
+ */
+export const ResetPasswordFormSchema = ResetPasswordRequestSchema.refine((data) => data.password === data.confirmPassword, {
+    message: 'Mật khẩu xác nhận không khớp',
+    path: ['confirmPassword'],
+});
+
+export type ResetPasswordPayload = z.infer<typeof ResetPasswordRequestSchema>;

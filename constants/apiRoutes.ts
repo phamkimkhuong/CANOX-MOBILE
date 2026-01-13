@@ -15,10 +15,15 @@ export const API_ROUTES = {
         ME: `${API_PREFIX}/auth/me`,
         VERIFY_OTP: `${API_PREFIX}/auth/otp/verify`,
         RESEND_OTP: `${API_PREFIX}/auth/otp/resend`,
+        // Forgot Password Flow
+        FORGOT_PASSWORD: `${API_PREFIX}/auth/password/forgot`,
+        RESET_PASSWORD: `${API_PREFIX}/auth/password/reset`,
+        VERIFY_FORGOT_PASSWORD_OTP: `${API_PREFIX}/auth/password/verify`,
     },
     USERS: {
         CREATE_ACCOUNT: `${API_PREFIX}/users/buyer`,
         CHANGE_PASSWORD: (userId: string) => `${API_PREFIX}/users/${userId}/password`,
+        CHECK_EMAIL_EXISTS: (email: string) => `${API_PREFIX}/users/exists/email?email=${encodeURIComponent(email)}`,
     },
     PROFILE: {
         USER_ME: `${API_PREFIX}/users/me`,
@@ -93,7 +98,16 @@ export const API_ROUTES = {
         CONFIRM_RECEIVED: (orderId: string) => `${API_PREFIX}/buyer/orders/${orderId}/confirm-received`,
     },
     REVIEWS: {
+        /** GET - List reviews for a specific entity */
         LIST: (type: string, id: string | number) => `${API_PREFIX}/reviews/${type}/${id}`,
+        /** POST - Create a new review */
+        CREATE: `${API_PREFIX}/reviews`,
+        /** GET - Get my reviews (history) */
+        MY_REVIEWS: `${API_PREFIX}/reviews/my-reviews`,
+        /** PUT - Update a review */
+        UPDATE: (reviewId: string) => `${API_PREFIX}/reviews/${reviewId}`,
+        /** DELETE - Delete a review */
+        DELETE: (reviewId: string) => `${API_PREFIX}/reviews/${reviewId}`,
     },
     BUYERS_INFORMATION: {
         UPDATE: (buyerId: string) => `${API_PREFIX}/buyers/${buyerId}`,
