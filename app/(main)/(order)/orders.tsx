@@ -1,31 +1,23 @@
 /**
  * ==============================================
- * ORDER HISTORY SCREEN
+ * ORDER HISTORY SCREEN - With Swipe Gesture
  * ==============================================
- * Màn hình lịch sử đơn hàng với tabs theo trạng thái
- * 
- * Chiến lược:
- * - 5 Tabs: Chờ xác nhận, Đang giao, Đã giao, Hoàn thành, Đã hủy
- * - Mỗi tab là một API call riêng (lazy fetch)
- * 
- * Deep Link Support:
- * - ?tab=pendingPayment -> CREATED
- * - ?tab=processing -> CREATED  
- * - ?tab=shipping -> FULFILLING
- * - ?tab=review -> COMPLETED
  */
 
 import {
     OrderHistoryHeader,
+    OrderListSkeleton,
     OrderListTab,
     OrderTabsBar,
 } from '@/components/orders';
 import { useCartStore } from '@/store/useCartStore';
 import { OrderTabStatus } from '@/types/order/order';
+import { ORDER_TABS } from '@/utils/adapter/order/orderStatusMapper';
 import { Navigator } from '@/utils/navigation';
 import { useLocalSearchParams } from 'expo-router';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { View } from 'react-native';
+import PagerView from 'react-native-pager-view';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 /**
@@ -47,7 +39,6 @@ const mapProfileTabToOrderTab = (profileTab: string | undefined): OrderTabStatus
         case 'cancelled':
             return 'CANCELLED';
         default:
-            // Log invalid param for debugging (only in dev)
             if (__DEV__ && profileTab) {
                 console.warn(`[Orders] Unknown tab param: "${profileTab}", using default CREATED`);
             }
@@ -55,31 +46,54 @@ const mapProfileTabToOrderTab = (profileTab: string | undefined): OrderTabStatus
     }
 };
 
+/**
+ * Lấy index của tab trong ORDER_TABS
+ */
+const getTabIndex = (tab: OrderTabStatus): number => {
+    const index = ORDER_TABS.findIndex(t => t.key === tab);
+    return index >= 0 ? index : 1;
+};
+
 export default function OrderHistoryScreen() {
     const { theme } = useUnistyles();
     const styles = stylesheet;
 
-    // Get tab param from URL for deep linking
+    const pagerRef = useRef<PagerView>(null);
+
     const { tab } = useLocalSearchParams<{ tab?: string }>();
 
-    // Map the tab param to OrderTabStatus
     const initialTab = useMemo(() => mapProfileTabToOrderTab(tab), [tab]);
+    const initialIndex = useMemo(() => getTabIndex(initialTab), [initialTab]);
 
-    // State for active tab - initialized from URL param
-    const [activeTab, setActiveTab] = useState<OrderTabStatus>(initialTab);
+    const [activeIndex, setActiveIndex] = useState(initialIndex);
+    const activeTab = ORDER_TABS[activeIndex]?.key || 'CREATED';
 
+    // Lazy loading: Track các tab đã được visit
+    const [visitedTabs, setVisitedTabs] = useState<Set<number>>(() => new Set([initialIndex]));
+
+    // Handle deep link change
     const [prevInitialTab, setPrevInitialTab] = useState(initialTab);
     if (initialTab !== prevInitialTab) {
         setPrevInitialTab(initialTab);
-        setActiveTab(initialTab);
+        const newIndex = getTabIndex(initialTab);
+        setActiveIndex(newIndex);
+        setVisitedTabs(prev => new Set([...prev, newIndex]));
+        pagerRef.current?.setPage(newIndex);
     }
 
-    // Cart badge from store
     const cartItemCount = useCartStore((state) => state.totalQuantity);
 
-    // Handlers
     const handleTabChange = useCallback((newTab: OrderTabStatus) => {
-        setActiveTab(newTab);
+        const newIndex = getTabIndex(newTab);
+        setActiveIndex(newIndex);
+        setVisitedTabs(prev => new Set([...prev, newIndex]));
+        pagerRef.current?.setPage(newIndex);
+    }, []);
+
+    const handlePageSelected = useCallback((event: any) => {
+        const position = event.nativeEvent.position;
+        setActiveIndex(position);
+        setVisitedTabs(prev => new Set([...prev, position]));
     }, []);
 
     const handleCartPress = useCallback(() => {
@@ -88,22 +102,34 @@ export default function OrderHistoryScreen() {
 
     return (
         <View style={styles.container}>
-            {/* Header */}
             <OrderHistoryHeader
                 onCartPress={handleCartPress}
                 cartBadge={cartItemCount}
             />
 
-            {/* Tab Bar */}
             <OrderTabsBar
                 activeTab={activeTab}
                 onTabChange={handleTabChange}
             />
 
-            {/* Content - Hiển thị tab đang active */}
-            <View style={styles.content}>
-                <OrderListTab status={activeTab} />
-            </View>
+            <PagerView
+                ref={pagerRef}
+                style={styles.pager}
+                initialPage={initialIndex}
+                onPageSelected={handlePageSelected}
+                overdrag={true}
+                offscreenPageLimit={1}
+            >
+                {ORDER_TABS.map((tabConfig, index) => (
+                    <View key={tabConfig.key} style={styles.page}>
+                        {visitedTabs.has(index) ? (
+                            <OrderListTab status={tabConfig.key} />
+                        ) : (
+                            <OrderListSkeleton count={3} />
+                        )}
+                    </View>
+                ))}
+            </PagerView>
         </View>
     );
 }
@@ -113,7 +139,10 @@ const stylesheet = StyleSheet.create((theme) => ({
         flex: 1,
         backgroundColor: theme.colors.background,
     },
-    content: {
+    pager: {
+        flex: 1,
+    },
+    page: {
         flex: 1,
     },
 }));

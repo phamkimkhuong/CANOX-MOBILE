@@ -12,9 +12,13 @@ export type FeedType = 'new' | 'sale' | 'featured' | 'promoted';
 const getApiUrl = (type: FeedType) => {
     switch (type) {
         case 'sale': return API_ROUTES.PUBLIC_PRODUCTS.SALE;
-        case 'new': return API_ROUTES.PUBLIC_PRODUCTS.NEW;
-        case 'featured': return API_ROUTES.PUBLIC_PRODUCTS.FEATURED;
-        default: return API_ROUTES.PUBLIC_PRODUCTS.PROMOTED;
+        // case 'new': return API_ROUTES.PUBLIC_PRODUCTS.NEW;
+        // case 'featured': return API_ROUTES.PUBLIC_PRODUCTS.FEATURED;
+        // default: return API_ROUTES.PUBLIC_PRODUCTS.PROMOTED;
+        case 'new': return API_ROUTES.PUBLIC_PRODUCTS.SALE;
+        case 'featured': return API_ROUTES.PUBLIC_PRODUCTS.SALE;
+        case 'promoted': return API_ROUTES.PUBLIC_PRODUCTS.SALE;
+        default: return API_ROUTES.PUBLIC_PRODUCTS.SALE;
     }
 };
 

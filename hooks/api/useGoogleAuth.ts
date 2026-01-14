@@ -8,10 +8,26 @@ import { createLogger } from '@/utils/logger';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import { useMutation } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import Toast from 'react-native-toast-message';
 
 const log = createLogger('GoogleAuth');
+
+// Lấy Client IDs từ biến môi trường
+const GOOGLE_WEB_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+const GOOGLE_IOS_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
+
+/**
+ * Cấu hình Google Sign-In SDK
+  */
+const configureGoogleSignIn = () => {
+    GoogleSignin.configure({
+        webClientId: GOOGLE_WEB_CLIENT_ID,
+        iosClientId: GOOGLE_IOS_CLIENT_ID,
+        offlineAccess: true,
+    });
+    log.info('Google Sign-In configured successfully');
+};
 
 /**
  * useGoogleLogin - Hook xử lý login with Google
@@ -19,6 +35,13 @@ const log = createLogger('GoogleAuth');
  */
 export const useGoogleLogin = () => {
     const loginStore = useAuthStore((state) => state.login);
+    const isConfigured = useRef(false);
+    useEffect(() => {
+        if (!isConfigured.current) {
+            configureGoogleSignIn();
+            isConfigured.current = true;
+        }
+    }, []);
 
     const loginMutation = useMutation({
         mutationFn: async (payload: GoogleLoginPayload) => {

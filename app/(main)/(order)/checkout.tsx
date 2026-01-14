@@ -264,7 +264,6 @@ export default function CheckoutScreen() {
             paymentMethod: undefined,
             shops: debouncedRequest.shops.map((s: CheckoutPreviewShopRequest) => ({
                 ...s,
-                serviceCode: undefined,
                 shippingFee: undefined,
             }))
         };

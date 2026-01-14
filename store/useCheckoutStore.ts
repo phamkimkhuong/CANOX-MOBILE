@@ -4,7 +4,6 @@
 
 import type { CheckoutShopUI, PaymentMethodType } from '@/types/checkout';
 import type { CheckoutPreviewUI } from '@/utils/adapter/checkoutPreviewAdapter';
-import { useMemo } from 'react';
 import { create } from 'zustand';
 
 interface CheckoutShopMinimal {
@@ -48,11 +47,6 @@ interface CheckoutState {
     applyBulkPlatformVouchers: (discountVoucherCode: string | null, shippingVoucherCode: string | null) => void;
     setShopNote: (shopId: string, note: string) => void;
     setPaymentMethod: (method: PaymentMethodType) => void;
-
-    // ========================================
-    // Actions - UI State
-    // ========================================
-    /** Set submitting state */
     setSubmitting: (isSubmitting: boolean) => void;
 }
 
@@ -310,50 +304,7 @@ export const useIsCheckoutLoading = () => {
 // ============================================
 
 export const useCheckoutCalculation = () => {
-    const baseCalculation = useCheckoutStore((s) => s.previewData?.calculation);
-    const selectedShipping = useCheckoutStore((s) => s.selectedShipping);
-    const shops = useCheckoutStore((s) => s.previewData?.shops);
-
-    return useMemo(() => {
-        if (!baseCalculation) return null;
-
-        // Create a copy to adjust
-        const adjustedCalc = { ...baseCalculation };
-        let totalShippingFee = 0;
-        const adjustedShopSubtotals = baseCalculation.shopSubtotals.map((shopSub) => {
-            const userSelection = selectedShipping.get(shopSub.shopId);
-            if (!userSelection) {
-                totalShippingFee += shopSub.shippingFee;
-                return shopSub;
-            }
-
-            // Find the fee for the selected method
-            const shopPreview = shops?.find((sh) => sh.shopId === shopSub.shopId);
-            const selectedMethod = shopPreview?.shippingOptions.methods.find((m) => m.id === userSelection);
-            const newFee = selectedMethod?.fee ?? shopSub.shippingFee;
-
-            totalShippingFee += newFee;
-
-            return {
-                ...shopSub,
-                shippingFee: newFee,
-                shopTotal: shopSub.itemsTotal + newFee - shopSub.shopVoucherDiscount,
-            };
-        });
-
-        adjustedCalc.shopSubtotals = adjustedShopSubtotals;
-        adjustedCalc.totalShippingFee = totalShippingFee;
-
-        // Recalculate grand total
-        // Total = subtotal + shippingFee - platformDiscount - shippingDiscount + tax
-        adjustedCalc.totalAmount =
-            adjustedCalc.subtotal +
-            totalShippingFee -
-            adjustedCalc.platformVoucherDiscount -
-            adjustedCalc.shippingDiscount +
-            adjustedCalc.taxAmount;
-        return adjustedCalc;
-    }, [baseCalculation, selectedShipping, shops]);
+    return useCheckoutStore((s) => s.previewData?.calculation ?? null);
 };
 
 /** Get shop subtotal by shopId */

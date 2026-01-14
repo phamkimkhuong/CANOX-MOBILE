@@ -191,6 +191,7 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     'add-circle-outline': { ios: 'add-circle-outline', android: 'add-circle-outline' },
     bookmark: { ios: 'bookmark', android: 'bookmark' },
     'bookmark-outline': { ios: 'bookmark-outline', android: 'bookmark-outline' },
+    trophy: { ios: 'trophy', android: 'trophy' },
 
     // === SF Symbols Aliases (for cross-platform compatibility) ===
     shippingbox: { ios: 'cube', android: 'cube' },

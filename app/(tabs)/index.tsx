@@ -115,13 +115,6 @@ ProductRowItem.displayName = 'ProductRowItem';
 
 /**
  * HomeScreen 
- * 
- * Cơ chế "Manual Absolute Overlay":
- * 1. HomeHeader: Fixed ở top, không cuộn
- * 2. MarketingHeader: Cuộn bình thường trong FlashList
- * 3. ProductTabs trong List: Cuộn bình thường (sẽ đi khuất)
- * 4. ProductTabs Absolute Overlay: Ẩn mặc định, CHỈ hiện khi scrollY >= marketingHeaderHeight
- * 5. Products: Grid 2 cột, infinite scroll
  */
 export default function HomeScreen() {
   const { theme } = useUnistyles();
@@ -140,6 +133,14 @@ export default function HomeScreen() {
   // Ref để lưu giá trị JS cho logic đổi tab
   const headerHeightRef = useRef(0);
   const scrollYRef = useRef(0);
+
+  // Lưu scroll position cho từng tab để restore khi quay lại
+  const scrollPositions = useRef<Record<FeedType, number>>({
+    new: 0,
+    sale: 0,
+    promoted: 0,
+    featured: 0,
+  });
 
   // State để quản lý chiều cao HomeHeader (search bar)
   const [homeHeaderHeight, setHomeHeaderHeight] = useState(0);
@@ -222,13 +223,15 @@ export default function HomeScreen() {
   }, [headerHeight]);
 
   /**
-   * Scroll Handler - Cập nhật scrollY để điều khiển opacity của sticky overlay
+   * Scroll Handler - Cập nhật scrollY và lưu position cho tab hiện tại
    */
   const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const y = event.nativeEvent.contentOffset.y;
     scrollY.value = y;
     scrollYRef.current = y;
-  }, [scrollY]);
+    // Lưu scroll position cho tab hiện tại
+    scrollPositions.current[activeTab] = y;
+  }, [scrollY, activeTab]);
 
   /**
    * Animated Style cho Sticky Tabs Overlay
@@ -245,30 +248,33 @@ export default function HomeScreen() {
   });
 
   /**
-   * LOGIC Xử lý đổi tab
-   * 
-   * TH1: Đang ở đỉnh (scrollY < headerHeight)
-   * - Chỉ đổi activeTab -> React re-render products
-   * - MarketingHeader được memo nên không re-render
-   * 
-   * TH2: Đã cuộn sâu (scrollY >= headerHeight) 
-   * - Đổi activeTab
-   * - Scroll về đúng vị trí headerHeight
-   * - User thấy sản phẩm đầu tiên, tabs vẫn sticky
+   * LOGIC Xử lý đổi tab - Preserve Scroll Position
    */
   const handleTabChange = useCallback((newTab: FeedType) => {
-    setActiveTab(newTab);
+    if (newTab === activeTab) return;
 
-    // TH2: Nếu đang sticky, scroll về đầu danh sách sản phẩm
-    if (scrollYRef.current > headerHeightRef.current && headerHeightRef.current > 0) {
-      setTimeout(() => {
-        listRef.current?.scrollToOffset({
-          offset: headerHeightRef.current,
-          animated: true,
-        });
-      }, 50);
+    const isTabsSticky = scrollYRef.current >= headerHeightRef.current && headerHeightRef.current > 0;
+
+    if (isTabsSticky) {
+      scrollPositions.current[activeTab] = scrollYRef.current;
+      const savedPosition = scrollPositions.current[newTab];
+
+      // Đổi tab
+      setActiveTab(newTab);
+      if (savedPosition >= headerHeightRef.current && savedPosition > 0) {
+        setTimeout(() => {
+          listRef.current?.scrollToOffset({
+            offset: savedPosition,
+            animated: false,
+          });
+          scrollYRef.current = savedPosition;
+          scrollY.value = savedPosition;
+        }, 100);
+      }
+    } else {
+      setActiveTab(newTab);
     }
-  }, []);
+  }, [activeTab, scrollY]);
 
   /**
    * Navigate tới Product Detail
