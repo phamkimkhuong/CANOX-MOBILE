@@ -57,17 +57,27 @@ const getFileExtension = (uri: string): ImageExtension => {
 };
 
 /**
- * Calculate actual MD5 hash of file content
- * Uses js-md5 library to compute real MD5 from file binary data
- * This is required because S3/R2 verifies Content-MD5 header against uploaded file
+ * Calculate MD5 hash from ArrayBuffer
  */
-const calculateFileMD5 = async (fileUri: string): Promise<string> => {
+const calculateMD5FromArrayBuffer = (arrayBuffer: ArrayBuffer): string => {
+    const hash = calculateMd5(arrayBuffer);
+    return hash;
+};
+
+/**
+ * Read file once and return all needed data
+ * This ensures MD5 is calculated from the exact same bytes that will be uploaded
+ */
+const readFileOnce = async (fileUri: string): Promise<{
+    blob: Blob;
+    arrayBuffer: ArrayBuffer;
+    size: number;
+}> => {
     try {
-        // Fetch file as blob
         const response = await fetch(fileUri);
         const blob = await response.blob();
 
-        // Convert blob to ArrayBuffer using FileReader (compatible with React Native)
+        // Convert blob to ArrayBuffer using FileReader
         const arrayBuffer = await new Promise<ArrayBuffer>((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = () => {
@@ -81,14 +91,14 @@ const calculateFileMD5 = async (fileUri: string): Promise<string> => {
             reader.readAsArrayBuffer(blob);
         });
 
-        // Calculate MD5 hash (returns 32-character hex string)
-        const hash = calculateMd5(arrayBuffer);
-
-        devLog('[useAvatarUpload] Calculated real MD5:', hash);
-        return hash;
+        return {
+            blob,
+            arrayBuffer,
+            size: blob.size,
+        };
     } catch (error) {
-        devLog('[useAvatarUpload] MD5 calculation error:', error);
-        throw new Error('Failed to calculate file MD5');
+        devLog('[useAvatarUpload] File read error:', error);
+        throw new Error('Failed to read file');
     }
 };
 
@@ -131,9 +141,6 @@ export const useAvatarUpload = () => {
             md5,
             isPrivate: false,
         };
-
-        devLog('[useAvatarUpload] Requesting presigned URL:', payload);
-
         // Generate unique idempotency key to prevent duplicate uploads
         const idempotencyKey = uuidv4();
 
@@ -153,39 +160,41 @@ export const useAvatarUpload = () => {
     };
 
     /**
-     * Step 2: Upload file to presigned URL
-     * IMPORTANT: Must use exact headers from server response
-     * Presigned URLs are signed with specific headers - any modification causes 403
+     * Step 2: Upload blob to presigned URL
      */
-    const uploadToPresignedUrl = async (
+    const uploadToPresignedUrlWithData = async (
         presignedUrl: string,
         method: string,
         headers: Record<string, string>,
-        fileUri: string
+        data: ArrayBuffer
     ): Promise<void> => {
-        devLog('[useAvatarUpload] Uploading to presigned URL:', presignedUrl);
-        devLog('[useAvatarUpload] Using headers from server:', headers);
+        const urlParams = new URLSearchParams(presignedUrl.split('?')[1] || '');
+        const signedHeadersParam = urlParams.get('X-Amz-SignedHeaders') || '';
+        const signedHeadersList = signedHeadersParam.toLowerCase().split(';');
 
-        // Read file as blob for upload
-        const response = await fetch(fileUri);
-        const blob = await response.blob();
-
-        // Create headers object, excluding 'Host' which is set automatically by fetch
+        // Skip 'host' (handled by fetch) and 'content-length' (calculated by fetch)
         const uploadHeaders: Record<string, string> = {};
+
         for (const [key, value] of Object.entries(headers)) {
-            // Skip 'Host' header - it's handled automatically and can cause issues
-            if (key.toLowerCase() !== 'host') {
+            const lowerKey = key.toLowerCase();
+
+            // Skip headers that are handled automatically or not in signed list
+            if (lowerKey === 'host') {
+                continue;
+            }
+            if (lowerKey === 'content-length') {
+                continue;
+            }
+
+            // Only include if it's in the signed headers list
+            if (signedHeadersList.includes(lowerKey)) {
                 uploadHeaders[key] = value;
             }
         }
-
-        devLog('[useAvatarUpload] Final upload headers:', uploadHeaders);
-
-        // Upload directly to presigned URL with EXACT headers from server
         const uploadResponse = await fetch(presignedUrl, {
             method: method,
             headers: uploadHeaders,
-            body: blob,
+            body: data,
         });
 
         if (!uploadResponse.ok) {
@@ -193,7 +202,7 @@ export const useAvatarUpload = () => {
             devLog('[useAvatarUpload] Upload error response:', errorText);
             throw new Error(`Upload failed with status: ${uploadResponse.status} - ${errorText}`);
         }
-
+        console.log("response", uploadResponse)
         devLog('[useAvatarUpload] Upload successful');
     };
 
@@ -208,14 +217,10 @@ export const useAvatarUpload = () => {
 
             setUploadProgress(10);
 
-            // Get file info
+            // Get file extension
             const extension = getFileExtension(imageUri);
-
-            // Fetch file to get actual size
-            const fileResponse = await fetch(imageUri);
-            const blob = await fileResponse.blob();
-            const fileSize = blob.size;
-
+            const fileData = await readFileOnce(imageUri);
+            const fileSize = fileData.size;
             setUploadProgress(20);
 
             // Validate file size BEFORE calling presign API
@@ -227,8 +232,8 @@ export const useAvatarUpload = () => {
                 );
             }
 
-            // Calculate real MD5 hash of file content
-            const fileMd5Hash = await calculateFileMD5(imageUri);
+            // Calculate MD5 from the SAME ArrayBuffer we'll upload
+            const fileMd5Hash = calculateMD5FromArrayBuffer(fileData.arrayBuffer);
 
             setUploadProgress(30);
 
@@ -237,22 +242,15 @@ export const useAvatarUpload = () => {
 
             setUploadProgress(50);
 
-            // Step 2: Upload to presigned URL
-            await uploadToPresignedUrl(
+            // Step 2: Upload to presigned URL using the SAME ArrayBuffer we calculated MD5 from
+            await uploadToPresignedUrlWithData(
                 presignResponse.data.url,
                 presignResponse.data.method,
                 presignResponse.data.headers,
-                imageUri
+                fileData.arrayBuffer
             );
-
             setUploadProgress(80);
-
-            // Step 3: Update user profile with new avatar path
-            // Note: This step depends on your API - might need separate endpoint
-            // For now, we return the asset info for the caller to handle
-
             setUploadProgress(100);
-
             return {
                 assetId: presignResponse.data.assetId,
                 path: presignResponse.data.path,
@@ -281,12 +279,6 @@ export const useAvatarUpload = () => {
 
             if (!result.canceled && result.assets[0]) {
                 const asset = result.assets[0];
-                devLog('[useAvatarUpload] Image picked:', {
-                    uri: asset.uri,
-                    width: asset.width,
-                    height: asset.height,
-                });
-
                 return asset.uri;
             }
 

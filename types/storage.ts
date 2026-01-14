@@ -5,7 +5,7 @@ import { ResponseDefaultSchema } from './responseSchema';
  * ==============================================
  * STORAGE UPLOAD TYPES
  * ==============================================
- * API POST /api/v1/storage/presign-upload 
+ * API POST /api/v1/storage/presign-upload-private
  */
 
 /**

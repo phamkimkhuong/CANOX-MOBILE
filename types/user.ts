@@ -60,6 +60,7 @@ export const UserMeDataSchema = z.object({
     buyer: BuyerInfoSchema.nullable().optional(),
     shop: ShopInfoSchema.nullable().optional(),
     employee: z.any().nullable().optional(),
+    emailVerified: z.boolean().nullable().optional(),
 });
 
 export type UserMeData = z.infer<typeof UserMeDataSchema>;

@@ -20,6 +20,20 @@ export const transformUserMe = (apiData: UserMeData): UserProfile => {
     const buyer = apiData.buyer;
     const displayName = buyer?.fullName || apiData.username;
 
+    // Determine if user is truly verified:
+    const emailVerified = apiData.emailVerified === true;
+    const hasValidFullName = Boolean(
+        buyer?.fullName &&
+        buyer.fullName.trim() !== '' &&
+        buyer.fullName !== '-'
+    );
+    const hasValidPhone = Boolean(
+        buyer?.phone &&
+        buyer.phone.trim() !== '' &&
+        buyer.phone !== '-'
+    );
+    const isVerified = emailVerified && hasValidFullName && hasValidPhone;
+
     return {
         id: apiData.userId,
         username: apiData.username,
@@ -31,7 +45,7 @@ export const transformUserMe = (apiData: UserMeData): UserProfile => {
         gender: (buyer?.gender as Gender) || null,
         // Default to BRONZE - can be enhanced with member level API later
         memberLevel: 'BRONZE',
-        isVerified: apiData.status === 'ACTIVE',
+        isVerified,
         recentViewCount: 0,
         followingShops: 0,
     };

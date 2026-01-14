@@ -15,7 +15,7 @@ interface AvatarEditViewProps {
     uploadProgress?: number;
 }
 
-const DEFAULT_AVATAR = 'https://i.pravatar.cc/300';
+const DEFAULT_AVATAR_ASSET = require('@/assets/images/icon.png');
 
 /**
  * AvatarEditView - Display avatar with camera icon overlay
@@ -37,7 +37,7 @@ export const AvatarEditView: React.FC<AvatarEditViewProps> = ({
     const styles = stylesheet;
 
     // Show preview if available, otherwise show current avatar
-    const avatarSource = previewUri || uri || DEFAULT_AVATAR;
+    const avatarUri = previewUri || uri;
     const cameraIconSize = size * 0.28;
 
     const handlePress = () => {
@@ -56,7 +56,7 @@ export const AvatarEditView: React.FC<AvatarEditViewProps> = ({
             >
                 {/* Avatar Image */}
                 <Image
-                    source={{ uri: avatarSource }}
+                    source={avatarUri ? { uri: avatarUri } : DEFAULT_AVATAR_ASSET}
                     style={[
                         styles.avatar,
                         {
@@ -67,6 +67,7 @@ export const AvatarEditView: React.FC<AvatarEditViewProps> = ({
                         isUploading && styles.avatarUploading,
                     ]}
                     contentFit="cover"
+                    placeholder={DEFAULT_AVATAR_ASSET}
                     transition={200}
                 />
 

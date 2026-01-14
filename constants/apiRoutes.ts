@@ -8,9 +8,9 @@ export const API_ROUTES = {
     },
     AUTH: {
         LOGIN: `${API_PREFIX}/auth/login/buyer/mobile`,
-        GOOGLE: `${API_PREFIX}/auth/login/social/callback`,
+        GOOGLE: `${API_PREFIX}/auth/login/social/callback/mobile`,
         REGISTER: `${API_PREFIX}/auth/register`,
-        REFRESH_TOKEN: `${API_PREFIX}/auth/refresh`,
+        REFRESH_TOKEN: `${API_PREFIX}/auth/refresh/mobile`,
         LOGOUT: `${API_PREFIX}/auth/logout`,
         ME: `${API_PREFIX}/auth/me`,
         VERIFY_OTP: `${API_PREFIX}/auth/otp/verify`,

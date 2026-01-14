@@ -21,7 +21,6 @@ export const useGoogleLogin = () => {
 
     const loginMutation = useMutation({
         mutationFn: async (payload: GoogleLoginPayload) => {
-            console.log("payload", payload);
             return request(
                 {
                     url: API_ROUTES.AUTH.GOOGLE,
@@ -32,8 +31,6 @@ export const useGoogleLogin = () => {
             );
         },
         onSuccess: async (response) => {
-            log.debug('Full response data:', JSON.stringify(response.data, null, 2));
-
             const { accessToken, refreshToken, user } = response.data;
             const buyerId = user.buyerId ?? null;
             const userId = user.userId ?? null;
