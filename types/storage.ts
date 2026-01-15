@@ -112,3 +112,65 @@ export interface AvatarUploadResult {
     path: string;
     url: string; // CDN URL for displaying
 }
+
+/**
+ * Asset status from storage status API
+ */
+export type AssetStatusType = 'PRESIGNED' | 'READY' | 'FAILED';
+
+export interface AssetStatus {
+    publicPath: string | null;
+    status: AssetStatusType;
+}
+
+/**
+ * Storage status API response
+ * GET /api/v1/storage/status?assetIds[]=<assetId>
+ */
+export const StorageStatusDataSchema = z.record(z.string(), z.object({
+    publicPath: z.string().nullable(),
+    status: z.enum(['PRESIGNED', 'READY', 'FAILED']),
+}));
+
+export const StorageStatusResponseSchema = z.object({
+    code: z.number(),
+    success: z.boolean(),
+    message: z.string(),
+    data: StorageStatusDataSchema,
+});
+
+export type StorageStatusResponse = z.infer<typeof StorageStatusResponseSchema>;
+
+/**
+ * Pre-check images API
+ * POST /api/v1/storage/pre-check-images
+ */
+export const PreCheckImagesRequestSchema = z.object({
+    assetIds: z.array(z.string()),
+});
+
+export const PreCheckImagesResponseSchema = z.object({
+    code: z.number(),
+    success: z.boolean(),
+    message: z.string(),
+});
+
+export type PreCheckImagesRequest = z.infer<typeof PreCheckImagesRequestSchema>;
+export type PreCheckImagesResponse = z.infer<typeof PreCheckImagesResponseSchema>;
+
+/**
+ * Update user avatar API
+ * PUT /api/v1/users/{userId}/client
+ */
+export const UpdateUserAvatarRequestSchema = z.object({
+    image: z.string().url(),
+});
+
+export const UpdateUserAvatarResponseSchema = z.object({
+    code: z.number(),
+    success: z.boolean(),
+    message: z.string(),
+});
+
+export type UpdateUserAvatarRequest = z.infer<typeof UpdateUserAvatarRequestSchema>;
+export type UpdateUserAvatarResponse = z.infer<typeof UpdateUserAvatarResponseSchema>;

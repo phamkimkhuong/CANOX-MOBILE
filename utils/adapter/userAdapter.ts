@@ -21,7 +21,6 @@ export const transformUserMe = (apiData: UserMeData): UserProfile => {
     const displayName = buyer?.fullName || apiData.username;
 
     // Determine if user is truly verified:
-    const emailVerified = apiData.emailVerified === true;
     const hasValidFullName = Boolean(
         buyer?.fullName &&
         buyer.fullName.trim() !== '' &&
@@ -32,7 +31,7 @@ export const transformUserMe = (apiData: UserMeData): UserProfile => {
         buyer.phone.trim() !== '' &&
         buyer.phone !== '-'
     );
-    const isVerified = emailVerified && hasValidFullName && hasValidPhone;
+    const isVerified = hasValidFullName && hasValidPhone;
 
     return {
         id: apiData.userId,

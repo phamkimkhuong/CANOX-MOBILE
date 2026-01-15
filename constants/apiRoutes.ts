@@ -24,6 +24,7 @@ export const API_ROUTES = {
         CREATE_ACCOUNT: `${API_PREFIX}/users/buyer`,
         CHANGE_PASSWORD: (userId: string) => `${API_PREFIX}/users/${userId}/password`,
         CHECK_EMAIL_EXISTS: (email: string) => `${API_PREFIX}/users/exists/email?email=${encodeURIComponent(email)}`,
+        UPDATE_CLIENT: (userId: string) => `${API_PREFIX}/users/${userId}/client`,
     },
     PROFILE: {
         USER_ME: `${API_PREFIX}/users/me`,
@@ -144,6 +145,8 @@ export const API_ROUTES = {
     },
     STORAGE: {
         PRESIGN_UPLOAD: `${API_PREFIX}/storage/presign-upload`,
+        STATUS: `${API_PREFIX}/storage/status`,
+        PRE_CHECK_IMAGES: `${API_PREFIX}/storage/pre-check-images`,
     },
     BUYERS: {
         UPDATE_AVATAR: (buyerId: string) => `${API_PREFIX}/buyers/${buyerId}/avatar`,

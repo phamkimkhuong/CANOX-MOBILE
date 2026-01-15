@@ -3,9 +3,15 @@ import { request } from '@/services/api/client';
 import { useAuthStore } from '@/store/useAuthStore';
 import {
     ImageExtension,
+    PreCheckImagesResponse,
+    PreCheckImagesResponseSchema,
     PresignUploadRequest,
     PresignUploadResponse,
-    PresignUploadResponseSchema
+    PresignUploadResponseSchema,
+    StorageStatusResponse,
+    StorageStatusResponseSchema,
+    UpdateUserAvatarResponse,
+    UpdateUserAvatarResponseSchema
 } from '@/types/storage';
 import { devLog } from '@/utils/logger';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -122,6 +128,7 @@ const getMimeType = (extension: ImageExtension): string => {
 export const useAvatarUpload = () => {
     const queryClient = useQueryClient();
     const buyerId = useAuthStore((state) => state.buyerId);
+    const userId = useAuthStore((state) => state.userId);
 
     const [isPickerOpen, setIsPickerOpen] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -202,7 +209,91 @@ export const useAvatarUpload = () => {
             devLog('[useAvatarUpload] Upload error response:', errorText);
             throw new Error(`Lỗi trong quá trình tải ảnh lên`);
         }
-        console.log("uploadResponse", uploadResponse)
+    };
+
+    /**
+     * Step 3: Pre-check images to trigger backend processing
+     * Must be called before polling status
+     */
+    const preCheckImages = async (assetId: string): Promise<void> => {
+        console.log('preCheckImages', assetId);
+        const response = await request<PreCheckImagesResponse>(
+            {
+                url: API_ROUTES.STORAGE.PRE_CHECK_IMAGES,
+                method: 'POST',
+                data: {
+                    assetIds: [assetId],
+                },
+            },
+            PreCheckImagesResponseSchema
+        );
+
+        if (!response.success) {
+            throw new Error('Pre-check validation failed');
+        }
+    };
+
+    /**
+     * Step 4: Poll storage status until READY
+     * After pre-check, poll until backend finishes processing (max 10 seconds)
+     */
+    const pollStorageStatus = async (
+        assetId: string,
+        maxAttempts: number = 10,
+        intervalMs: number = 1000
+    ): Promise<string> => {
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+            const response = await request<StorageStatusResponse>(
+                {
+                    url: `${API_ROUTES.STORAGE.STATUS}?assetIds=${assetId}`,
+                    method: 'GET',
+                },
+                StorageStatusResponseSchema
+            );
+            const assetStatus = response.data[assetId];
+            if (!assetStatus) {
+                throw new Error('Asset not found in status response');
+            }
+            if (assetStatus.status === 'FAILED') {
+                throw new Error('Asset processing failed');
+            }
+            if (assetStatus.status === 'READY' && assetStatus.publicPath) {
+                return assetStatus.publicPath;
+            }
+            if (attempt < maxAttempts) {
+                await new Promise(resolve => setTimeout(resolve, intervalMs));
+            }
+        }
+
+        throw new Error('Timeout: Avatar processing took too long');
+    };
+    const CDN_BASE_URL = process.env.EXPO_PUBLIC_CDN_BASE_URL;
+
+    /**
+     * Step 5: Update user avatar in backend
+     */
+    const updateUserAvatar = async (publicPath: string): Promise<void> => {
+        if (!userId) {
+            throw new Error('User ID not found');
+        }
+
+        const fullImageUrl = `${CDN_BASE_URL}${publicPath}`;
+
+        const response = await request<UpdateUserAvatarResponse>(
+            {
+                url: API_ROUTES.USERS.UPDATE_CLIENT(userId),
+                method: 'PUT',
+                data: {
+                    image: fullImageUrl,
+                },
+            },
+            UpdateUserAvatarResponseSchema
+        );
+
+        if (!response.success) {
+            throw new Error('Failed to update avatar');
+        }
+        devLog('[useAvatarUpload] Avatar updated successfully:', fullImageUrl);
     };
 
     /**
@@ -248,12 +339,21 @@ export const useAvatarUpload = () => {
                 presignResponse.data.headers,
                 fileData.arrayBuffer
             );
+            setUploadProgress(70);
+            // Step 3: Pre-check images to trigger backend processing
+            await preCheckImages(presignResponse.data.assetId);
             setUploadProgress(80);
+            // Step 4: Poll storage status until READY (max 10 seconds)
+            const publicPath = await pollStorageStatus(presignResponse.data.assetId);
+            setUploadProgress(90);
+            // Step 5: Update user avatar in backend
+            devLog('[useAvatarUpload] Asset ready:', publicPath);
+            await updateUserAvatar(publicPath);
             setUploadProgress(100);
-            devLog('[useAvatarUpload] Upload successful');
             return {
                 assetId: presignResponse.data.assetId,
                 path: presignResponse.data.path,
+                publicPath,
                 success: true,
             };
         },
