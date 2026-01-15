@@ -87,13 +87,6 @@ export const PaymentMethodSection: React.FC<PaymentMethodSectionProps> = ({
             >
                 {/* Section Title */}
                 <View style={styles.titleRow}>
-                    <View style={styles.titleIcon}>
-                        <IconSymbol
-                            name="receipt"
-                            size={18}
-                            color={theme.colors.primary}
-                        />
-                    </View>
                     <Text style={styles.title}>Phương thức thanh toán</Text>
                 </View>
 
@@ -241,15 +234,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         paddingTop: theme.margins.sm,
         paddingBottom: theme.margins.sm,
         gap: theme.margins.sm,
-    },
-
-    titleIcon: {
-        width: 32,
-        height: 32,
-        borderRadius: 10,
-        backgroundColor: `${theme.colors.primary}12`,
-        justifyContent: 'center',
-        alignItems: 'center',
     },
 
     title: {

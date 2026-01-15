@@ -63,7 +63,11 @@ export const CheckoutItem: React.FC<CheckoutItemProps> = ({ item }) => {
                 <View style={styles.priceRow}>
                     <Text style={styles.unitPrice}>{formattedPrice}</Text>
                     {item.quantity > 1 && (
-                        <Text style={styles.totalPrice}>= {totalPrice}</Text>
+                        <>
+                            <Text style={styles.quantityMultiplier}>x {item.quantity}</Text>
+                            <Text style={styles.equalSign}>= </Text>
+                            <Text style={styles.totalPrice}>{totalPrice}</Text>
+                        </>
                     )}
                 </View>
             </View>
@@ -136,18 +140,29 @@ const stylesheet = StyleSheet.create((theme) => ({
         flexDirection: 'row',
         alignItems: 'center',
         marginTop: 6,
-        gap: theme.margins.sm,
+        gap: 4,
     },
 
     unitPrice: {
+        fontSize: 13,
+        // fontWeight: '500',
+        // color: theme.colors.typography,
+    },
+
+    quantityMultiplier: {
         fontSize: 14,
-        fontWeight: '600',
-        color: theme.colors.error,
+        // color: theme.colors.typographySecondary,
+    },
+
+    equalSign: {
+        fontSize: 14,
+        color: theme.colors.typographySecondary,
     },
 
     totalPrice: {
-        fontSize: 12,
-        color: theme.colors.typographySecondary,
+        fontSize: 15,
+        fontWeight: '600',
+        color: theme.colors.error,
     },
 }));
 

@@ -86,7 +86,7 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     globe: { ios: 'globe-outline', android: 'globe-outline' },
     flame: { ios: 'flame-outline', android: 'flame-outline' },
     shield: { ios: 'shield-outline', android: 'shield-outline' },
-    bank: { ios: 'business-outline', android: 'business-outline' },
+    bank: { ios: 'card-outline', android: 'card-outline' },
     percent: { ios: 'pricetag-outline', android: 'pricetag-outline' },
     radio: { ios: 'radio-button-on', android: 'radio-button-on' },
     'radio-off': { ios: 'radio-button-off', android: 'radio-button-off' },

@@ -200,10 +200,9 @@ export const useAvatarUpload = () => {
         if (!uploadResponse.ok) {
             const errorText = await uploadResponse.text();
             devLog('[useAvatarUpload] Upload error response:', errorText);
-            throw new Error(`Upload failed with status: ${uploadResponse.status} - ${errorText}`);
+            throw new Error(`Lỗi trong quá trình tải ảnh lên`);
         }
-        console.log("response", uploadResponse)
-        devLog('[useAvatarUpload] Upload successful');
+        console.log("uploadResponse", uploadResponse)
     };
 
     /**
@@ -251,6 +250,7 @@ export const useAvatarUpload = () => {
             );
             setUploadProgress(80);
             setUploadProgress(100);
+            devLog('[useAvatarUpload] Upload successful');
             return {
                 assetId: presignResponse.data.assetId,
                 path: presignResponse.data.path,

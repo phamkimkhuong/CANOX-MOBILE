@@ -2,9 +2,9 @@ import z from "zod";
 
 // Schema cho Response Default
 export const ResponseDefaultSchema = z.object({
-    code: z.number(),
-    success: z.boolean(),
-    message: z.string().optional(),
+    code: z.number().nullable().optional().default(0),
+    success: z.boolean().nullable().optional().default(true),
+    message: z.string().nullable().optional().default(''),
     data: z.any()
 });
 
@@ -33,17 +33,17 @@ export interface PaginatedResponse<T> {
 export const createPaginatedResponseSchema = <T extends z.ZodTypeAny>(contentSchema: T) =>
     ResponseDefaultSchema.extend({
         data: z.object({
-            content: z.array(contentSchema),
-            page: z.number(),
-            size: z.number(),
-            totalElements: z.number().optional(),
-            totalPages: z.number(),
-            hasNext: z.boolean(),
-            hasPrevious: z.boolean().optional(),
+            content: z.array(contentSchema).default([]),
+            page: z.number().catch(0),
+            size: z.number().catch(20),
+            totalElements: z.number().optional().catch(0),
+            totalPages: z.number().catch(0),
+            hasNext: z.boolean().catch(false),
+            hasPrevious: z.boolean().optional().catch(false),
             nextPage: z.number().nullable().optional(),
             previousPage: z.number().nullable().optional(),
             empty: z.boolean().optional(),
             first: z.boolean().optional(),
             last: z.boolean().optional(),
-        }),
+        }).nullable().optional(),
     });
