@@ -160,6 +160,7 @@ export interface ShopHeaderUI {
     logoUrl: string;
     bannerUrl: string | null;
     isVerified: boolean;
+    onVacation: boolean | null;
     location: string | null;
     /** Shop join date - formatted for display */
     joinDate: string;
@@ -168,6 +169,7 @@ export interface ShopHeaderUI {
         productCount: number | null;
         followerCount: number | null;
         rating: number | null;
+        reviewCount: number | null;
         responseRate: number | null;
     };
 }

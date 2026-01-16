@@ -216,7 +216,7 @@ export const useAvatarUpload = () => {
      * Must be called before polling status
      */
     const preCheckImages = async (assetId: string): Promise<void> => {
-        console.log('preCheckImages', assetId);
+        // console.log('preCheckImages', assetId);
         const response = await request<PreCheckImagesResponse>(
             {
                 url: API_ROUTES.STORAGE.PRE_CHECK_IMAGES,

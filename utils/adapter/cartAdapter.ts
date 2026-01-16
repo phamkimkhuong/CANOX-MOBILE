@@ -41,28 +41,28 @@ export const buildImageUrl = (
 export const transformCartItem = (item: CartItem): CartItemUI => {
     return {
         id: item.id,
-        version: item.version,
+        version: item.version ?? 0,
         variantId: item.variantId,
-        productName: item.productName,
+        productName: item.productName ?? '',
         variantAttributes: item.variantAttributes || '',
         imageUrl: buildImageUrl(item.imageBasePath, item.imageExtension),
-        unitPrice: item.unitPrice,
-        quantity: item.quantity,
-        totalPrice: item.totalPrice,
-        shopId: item.shopId,
+        unitPrice: item.unitPrice ?? 0,
+        quantity: item.quantity ?? 1,
+        totalPrice: item.totalPrice ?? 0,
+        shopId: item.shopId ?? '',
 
         // Server selection state
-        selectedForCheckout: item.selectedForCheckout,
+        selectedForCheckout: item.selectedForCheckout ?? false,
 
         // Stock management
-        availableStock: item.availableStock,
-        stockStatus: item.stockStatus,
-        stockMessage: item.stockMessage,
+        availableStock: item.availableStock ?? 0,
+        stockStatus: (item.stockStatus as 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK') ?? 'IN_STOCK',
+        stockMessage: item.stockMessage ?? '',
         isOutOfStock: item.stockStatus === 'OUT_OF_STOCK',
-        maxQuantity: item.availableStock,
+        maxQuantity: item.availableStock ?? 0,
 
         // Discount
-        discountAmount: item.discountAmount,
+        discountAmount: item.discountAmount ?? 0,
         originalPrice: null, // API doesn't provide
         discountPercent: null, // Can calculate if needed
     };
@@ -72,19 +72,22 @@ export const transformCartItem = (item: CartItem): CartItemUI => {
  * Transform Voucher (API) => VoucherUI
  */
 export const transformVoucher = (voucher: Voucher): VoucherUI => {
+    const discountValue = voucher.discountValue ?? 0;
+    const minOrderAmount = voucher.minOrderAmount ?? 0;
+
     const discountDisplay =
         voucher.discountType === 'percentage'
-            ? `Giảm ${voucher.discountValue}%`
-            : `Giảm ${formatShortCurrency(voucher.discountValue)}`;
+            ? `Giảm ${discountValue}%`
+            : `Giảm ${formatShortCurrency(discountValue)}`;
 
-    const minOrderDisplay = voucher.minOrderAmount > 0
-        ? `Đơn từ ${formatShortCurrency(voucher.minOrderAmount)}`
+    const minOrderDisplay = minOrderAmount > 0
+        ? `Đơn từ ${formatShortCurrency(minOrderAmount)}`
         : 'Không giới hạn';
 
     return {
         id: voucher.id,
-        code: voucher.code,
-        title: voucher.title,
+        code: voucher.code ?? '',
+        title: voucher.title ?? '',
         description: voucher.description || '',
         discountDisplay,
         minOrderDisplay,
@@ -99,20 +102,20 @@ export const transformVoucher = (voucher: Voucher): VoucherUI => {
 export const transformCartShop = (shop: CartShop): CartShopUI => {
     return {
         shopId: shop.shopId,
-        shopName: shop.shopName,
+        shopName: shop.shopName ?? '',
         shopLogoUrl: shop.shopLogo ? toPublicUrl(shop.shopLogo) : null,
-        items: shop.items.map(transformCartItem),
+        items: shop.items ? shop.items.map(transformCartItem) : [],
 
         // Shop totals from API
-        itemCount: shop.itemCount,
-        totalQuantity: shop.totalQuantity,
-        subtotal: shop.subtotal,
-        discount: shop.discount,
-        total: shop.total,
+        itemCount: shop.itemCount ?? 0,
+        totalQuantity: shop.totalQuantity ?? 0,
+        subtotal: shop.subtotal ?? 0,
+        discount: shop.discount ?? 0,
+        total: shop.total ?? 0,
 
         // Selection state from API
-        allSelected: shop.allSelected,
-        hasSelectedItems: shop.hasSelectedItems,
+        allSelected: shop.allSelected ?? false,
+        hasSelectedItems: shop.hasSelectedItems ?? false,
 
         // Voucher (client state - optional)
         appliedVoucherId: null,

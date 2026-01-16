@@ -68,6 +68,20 @@ export const ShopHeaderInfo: React.FC<ShopHeaderInfoProps> = ({
                             )}
                         </View>
 
+                        {/* Status Badge */}
+                        <View style={styles.statusRow}>
+                            <View style={[
+                                styles.statusDot,
+                                { backgroundColor: shop.onVacation ? theme.colors.error : theme.colors.success }
+                            ]} />
+                            <Text style={[
+                                styles.statusText,
+                                { color: shop.onVacation ? theme.colors.error : theme.colors.success }
+                            ]}>
+                                {shop.onVacation ? 'Tạm nghỉ' : 'Đang hoạt động'}
+                            </Text>
+                        </View>
+
                         {/* Meta info */}
                         <View style={styles.metaRow}>
                             <IconSymbol name="time-outline" size={12} color={theme.colors.typographySecondary} />
@@ -135,7 +149,9 @@ export const ShopHeaderInfo: React.FC<ShopHeaderInfoProps> = ({
                     <Text style={styles.statValue}>{shop.stats.rating?.toFixed(1) ?? '5.0'}</Text>
                     <View style={styles.ratingBox}>
                         <IconSymbol name="star" size={10} color="#facc15" />
-                        <Text style={styles.statLabel}>Đánh giá</Text>
+                        <Text style={styles.statLabel}>
+                            Đánh giá {shop.stats.reviewCount !== null ? `(${shop.stats.reviewCount})` : ''}
+                        </Text>
                     </View>
                 </View>
                 <View style={styles.vDivider} />
@@ -191,6 +207,21 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: 16,
         fontWeight: '700',
         color: theme.colors.typography,
+    },
+    statusRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        marginTop: 2,
+    },
+    statusDot: {
+        width: 6,
+        height: 6,
+        borderRadius: 3,
+    },
+    statusText: {
+        fontSize: 11,
+        fontWeight: '600',
     },
     metaRow: {
         flexDirection: 'row',

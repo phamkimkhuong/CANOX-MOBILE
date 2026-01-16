@@ -14,7 +14,7 @@ module.exports = {
         "splash": {
             "image": "./assets/images/splash-icon.png",
             "resizeMode": "contain",
-            "backgroundColor": "#ffffff"
+            "backgroundColor": "#eef8ff"
         },
         "ios": {
             "supportsTablet": true,
@@ -29,20 +29,30 @@ module.exports = {
             },
             "edgeToEdgeEnabled": true,
             "predictiveBackGestureEnabled": false,
-            "package": IS_DEV ? "com.calatha.canox.dev" : (IS_PREVIEW ? "com.calatha.canox.preview" : "com.calatha.canox")
+            "package": IS_DEV ? "com.calatha.canox.dev" : (IS_PREVIEW ? "com.calatha.canox.preview" : "com.calatha.canox"),
+            "googleServicesFile": IS_DEV
+                ? "./google-services/google-services.dev.json"
+                : (IS_PREVIEW
+                    ? "./google-services/google-services.preview.json"
+                    : "./google-services/google-services.production.json")
         },
-        "web": {
-            "bundler": "metro",
-            "output": "static",
-            "favicon": "./assets/images/favicon.png"
-        },
+
         "plugins": [
             "expo-router",
             "expo-video",
+            "expo-localization",
             [
                 "@react-native-google-signin/google-signin",
                 {
                     "iosUrlScheme": "com.googleusercontent.apps.521840324498-qqjs0eje1gl67opcksp8e7rtsvs338d6"
+                }
+            ],
+            [
+                "expo-notifications",
+                {
+                    "icon": "./assets/images/notification-icon.png",
+                    "color": "#1e5bc6",
+                    "defaultChannel": "default"
                 }
             ]
         ],

@@ -24,6 +24,8 @@ import { UserSyncProvider } from '@/components/UserSyncProvider';
 import { WebSocketProvider } from '@/components/WebSocketProvider';
 import { ScrollToTopProvider } from '@/contexts/ScrollToTopContext';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
+import { usePushTokenSync } from '@/hooks/usePushTokenSync';
 import { useTokenRefreshOnForeground } from '@/hooks/useTokenRefresh';
 import { alertRef } from '@/utils/AlertHelper';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
@@ -74,6 +76,12 @@ export default function RootLayout() {
 
   // Layer 1: Token refresh when app returns to foreground
   useTokenRefreshOnForeground();
+
+  // Push Notifications - Get push token
+  const { expoPushToken, tokenChanged } = usePushNotifications();
+
+  // Sync push token with backend (auto register/unregister)
+  usePushTokenSync(expoPushToken, tokenChanged);
 
   // Sync persisted language with i18next on startup
   const persistedLanguage = useAppStore((state) => state.language);

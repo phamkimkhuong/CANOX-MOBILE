@@ -67,21 +67,21 @@ export interface ProductFeedItem {
  */
 export interface BaseProductDTO {
     id: string;
-    name: string;
-    basePrice: number;
+    name?: string | null;
+    basePrice?: number | null;
     priceMin?: number | null;
     priceMax?: number | null;
     priceAfterBestVoucher?: number | null;
-    media: {
-        url: string;
-        isPrimary: boolean;
-    }[];
+    media?: {
+        url?: string | null;
+        isPrimary?: boolean | null;
+    }[] | null;
     reviewStatistics?: {
-        averageRating: number;
-        totalReviews: number;
+        averageRating?: number | null;
+        totalReviews?: number | null;
         verifiedPurchaseCount?: number | null;
     } | null;
-    shop: {
-        shopName: string;
-    };
+    shop?: {
+        shopName?: string | null;
+    } | null;
 }

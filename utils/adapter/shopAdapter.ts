@@ -31,12 +31,14 @@ export const toShopHeaderUI = (dto: ShopDetailDTO): ShopHeaderUI => {
         logoUrl: dto.logoUrl || DEFAULT_SHOP_LOGO,
         bannerUrl: dto.bannerUrl || null,
         isVerified: false,
+        onVacation: dto.onVacation ?? false,
         location: null,
         joinDate,
         stats: {
-            productCount: dto.statistics.totalProducts,
+            productCount: dto.statistics?.totalProducts ?? null,
             followerCount: null,
-            rating: dto.statistics.averageRating,
+            rating: dto.statistics?.averageRating ?? null,
+            reviewCount: dto.statistics?.totalReviews ?? null,
             responseRate: null,
         },
     };

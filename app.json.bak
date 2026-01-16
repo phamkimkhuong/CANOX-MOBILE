@@ -25,11 +25,6 @@
       "predictiveBackGestureEnabled": false,
       "package": "com.anonymous.ebay"
     },
-    "web": {
-      "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
-    },
     "plugins": [
       "expo-router"
     ],
