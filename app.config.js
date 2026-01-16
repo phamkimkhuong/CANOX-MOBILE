@@ -21,6 +21,7 @@ module.exports = {
             "bundleIdentifier": IS_DEV ? "com.calatha.canox.dev" : (IS_PREVIEW ? "com.calatha.canox.preview" : "com.calatha.canox")
         },
         "android": {
+            "icon": "./assets/images/icon-android.png",
             "adaptiveIcon": {
                 "foregroundImage": "./assets/images/adaptive-icon-foreground.png",
                 "backgroundColor": "#1e5bc6",
