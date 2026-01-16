@@ -15,7 +15,7 @@ export const VOUCHER_STRINGS: VoucherTranslation = {
     header: {
         title: 'Kho Voucher',
         myVouchers: 'Voucher của tôi',
-        searchPlaceholder: 'Tìm voucher Ebay, Shop...',
+        searchPlaceholder: 'Tìm voucher CanoX, Shop...',
     },
 
     // === Filter Tabs ===

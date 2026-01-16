@@ -49,7 +49,8 @@ export const normalizeVariantOptionValues = (
     variant: ProductVariant,
     optionValueMapping: Map<string, { optionName: string; valueName: string }>
 ): NormalizedOptionValue[] => {
-    return variant.optionValues.map(ov => {
+    const optionValues = variant.optionValues ?? [];
+    return optionValues.map(ov => {
         const mapping = optionValueMapping.get(ov.id);
         return {
             optionId: ov.id, // In this API, optionValue.id is unique
@@ -138,11 +139,11 @@ export const buildVariantMatrix = (
 
         const value: VariantMatrixValue = {
             id: variant.id,
-            price: variant.price,
-            originalPrice: variant.corePrice !== variant.price ? variant.corePrice : undefined,
-            stock: variant.inventory.stock,
-            isAvailable: variant.inventory.stock > 0,
-            sku: variant.sku,
+            price: variant.price ?? 0,
+            originalPrice: variant.corePrice !== variant.price ? (variant.corePrice ?? undefined) : undefined,
+            stock: variant.inventory?.stock ?? 0,
+            isAvailable: (variant.inventory?.stock ?? 0) > 0,
+            sku: variant.sku ?? undefined,
             // Variant can have own image
             media: variant.imageUrl ? [{
                 id: `variant-${variant.id}`,
@@ -193,7 +194,8 @@ export const buildGallery = (
     const seenIds = new Set<string>();
 
     // 1. Add general product media (primary first)
-    const sortedProductMedia = [...productMedia].sort((a, b) => {
+    const mediaArray = productMedia ?? [];
+    const sortedProductMedia = [...mediaArray].sort((a, b) => {
         if (a.isPrimary && !b.isPrimary) return -1;
         if (!a.isPrimary && b.isPrimary) return 1;
         return (a.sortOrder ?? 0) - (b.sortOrder ?? 0);
@@ -203,9 +205,9 @@ export const buildGallery = (
         if (!seenIds.has(media.id)) {
             gallery.push({
                 id: media.id,
-                url: getFullImageUrl(media.url),
-                type: media.type,
-                isPrimary: media.isPrimary,
+                url: getFullImageUrl(media.url ?? ''),
+                type: (media.type as 'IMAGE' | 'VIDEO') ?? 'IMAGE',
+                isPrimary: media.isPrimary ?? false,
                 variantId: null,
             });
             seenIds.add(media.id);
@@ -238,6 +240,11 @@ export const calculatePriceDisplay = (
     data: ProductDetailResponse,
     selectedVariant?: VariantMatrixValue | null
 ): PriceDisplay => {
+    // Safe defaults for nullable fields
+    const basePrice = data.basePrice ?? 0;
+    const priceMin = data.priceMin ?? 0;
+    const priceMax = data.priceMax ?? 0;
+
     // If specific variant selected
     if (selectedVariant) {
         let finalPrice = selectedVariant.price;
@@ -247,9 +254,10 @@ export const calculatePriceDisplay = (
 
         // 2. Re-calculate discount amount for this Variant
         if (bestVoucher) {
+            const discountValue = bestVoucher.discountValue ?? 0;
             if (bestVoucher.discountType === 'PERCENTAGE') {
                 // Calc % discount: Variant Price * % / 100
-                const rawDiscount = (selectedVariant.price * bestVoucher.discountValue) / 100;
+                const rawDiscount = (selectedVariant.price * discountValue) / 100;
 
                 // Apply cap (Max Discount) if exists
                 // Example: 5% off 8,570,000 = 428,500, but max is 250,000 -> Take 250,000
@@ -258,7 +266,7 @@ export const calculatePriceDisplay = (
                     : rawDiscount;
             } else {
                 // Fixed cash discount (FIXED)
-                discountAmount = bestVoucher.discountValue;
+                discountAmount = discountValue;
             }
         }
 
@@ -283,39 +291,40 @@ export const calculatePriceDisplay = (
     // ========================================
     // VARIANT NOT SELECTED
     // ========================================
-    const hasBestVoucher = data.priceAfterBestVoucher && data.priceAfterBestVoucher < data.priceMin;
-    const displayPrice: number = hasBestVoucher ? data.priceAfterBestVoucher! : data.priceMin;
+    const priceAfterBestVoucher = data.priceAfterBestVoucher ?? 0;
+    const hasBestVoucher = priceAfterBestVoucher > 0 && priceAfterBestVoucher < priceMin;
+    const displayPrice: number = hasBestVoucher ? priceAfterBestVoucher : priceMin;
     // Tính discount percentage
-    const discountPercentage = data.basePrice > displayPrice
-        ? Math.round(((data.basePrice - displayPrice) / data.basePrice) * 100)
+    const discountPercentage = basePrice > displayPrice
+        ? Math.round(((basePrice - displayPrice) / basePrice) * 100)
         : undefined;
 
-    const hasRange = data.priceMin !== data.priceMax;
+    const hasRange = priceMin !== priceMax;
 
     if (hasRange) {
         // Has price range (multiple variants with different prices)
         return {
             currentPrice: displayPrice,
-            originalPrice: hasBestVoucher ? data.priceMin : undefined,
+            originalPrice: hasBestVoucher ? priceMin : undefined,
             priceRange: {
                 min: displayPrice,
-                max: data.priceMax,
+                max: priceMax,
             },
             discountPercentage,
             isRange: true,
-            voucherDiscount: data.bestPlatformVoucher?.discountAmount,
-            priceAfterVoucher: data.priceAfterBestVoucher,
+            voucherDiscount: (data.bestPlatformVoucher?.discountAmount ?? undefined),
+            priceAfterVoucher: priceAfterBestVoucher || undefined,
         };
     }
 
     // Fixed price (no variant or all variants same price)
     return {
         currentPrice: displayPrice,
-        originalPrice: hasBestVoucher ? data.basePrice : undefined,
+        originalPrice: hasBestVoucher ? basePrice : undefined,
         discountPercentage,
         isRange: false,
-        voucherDiscount: data.bestPlatformVoucher?.discountAmount,
-        priceAfterVoucher: data.priceAfterBestVoucher,
+        voucherDiscount: (data.bestPlatformVoucher?.discountAmount ?? undefined),
+        priceAfterVoucher: priceAfterBestVoucher || undefined,
     };
 };
 
@@ -344,22 +353,34 @@ export const transformOptions = (
  * Transform Shop from API to UI format
  */
 export const transformShop = (shop: ProductDetailResponse['shop']): ShopUI => {
+    if (!shop) {
+        return {
+            id: '',
+            userId: '',
+            shopName: '',
+            username: '',
+            avatar: null,
+            logoUrl: null,
+            description: null,
+            isVerified: false,
+        };
+    }
     return {
-        id: shop.shopId,
-        userId: shop.userId || '',
-        shopName: shop.shopName,
-        username: shop.username,
-        avatar: shop.logoUrl,
-        logoUrl: shop.logoUrl,
-        description: shop.description,
+        id: shop.shopId ?? '',
+        userId: shop.userId ?? '',
+        shopName: shop.shopName ?? '',
+        username: shop.username ?? '',
+        avatar: shop.logoUrl ?? undefined,
+        logoUrl: shop.logoUrl ?? undefined,
+        description: shop.description ?? undefined,
         isVerified: shop.verifyBy !== null && shop.verifyBy !== undefined,
-        rating: shop.rating,
-        responseRate: shop.responseRate,
-        responseTime: shop.responseTime,
-        followerCount: shop.followerCount,
-        productCount: shop.productCount,
-        location: shop.location,
-        lastOnline: shop.lastOnline,
+        rating: shop.rating ?? undefined,
+        responseRate: shop.responseRate ?? undefined,
+        responseTime: shop.responseTime ?? undefined,
+        followerCount: shop.followerCount ?? undefined,
+        productCount: shop.productCount ?? undefined,
+        location: shop.location ?? undefined,
+        lastOnline: shop.lastOnline ?? undefined,
     };
 };
 
@@ -368,15 +389,15 @@ export const transformShop = (shop: ProductDetailResponse['shop']): ShopUI => {
  */
 export const transformVoucher = (voucher: Voucher): VoucherUI => {
     return {
-        id: voucher.voucherId,
-        code: voucher.code,
-        name: voucher.name,
-        description: voucher.description,
-        discountType: voucher.discountType,
-        discountValue: voucher.discountValue,
-        maxDiscount: voucher.maxDiscount,
-        minOrderValue: voucher.minOrderValue,
-        sponsorType: voucher.sponsorType,
+        id: voucher.voucherId ?? '',
+        code: voucher.code ?? '',
+        name: voucher.name ?? undefined,
+        description: voucher.description ?? undefined,
+        discountType: (voucher.discountType as 'PERCENTAGE' | 'FIXED_AMOUNT') ?? 'PERCENTAGE',
+        discountValue: voucher.discountValue ?? 0,
+        maxDiscount: voucher.maxDiscount ?? undefined,
+        minOrderValue: voucher.minOrderValue ?? undefined,
+        sponsorType: voucher.sponsorType as 'PLATFORM' | 'SHOP' | undefined,
         endDate: voucher.endDate,
     };
 };
@@ -422,8 +443,9 @@ export const collectVouchers = (data: ProductDetailResponse): VoucherUI[] => {
  * Calculate total remaining stock
  */
 export const calculateTotalStock = (variants: ProductVariant[]): number => {
-    return variants.reduce((total, v) => {
-        return total + v.inventory.stock;
+    const variantArray = variants ?? [];
+    return variantArray.reduce((total, v) => {
+        return total + (v.inventory?.stock ?? 0);
     }, 0);
 };
 
@@ -467,7 +489,7 @@ export const buildFlashSaleInfo = (
                 endTime: data.promotedUntil,
                 // Estimate from available data
                 quantityLimit: totalStock > 0 ? totalStock + (data.totalSold ?? 0) : undefined,
-                quantitySold: data.totalSold,
+                quantitySold: data.totalSold ?? undefined,
             };
         }
     }
@@ -503,11 +525,15 @@ export const transformProductDetail = (
     const apiOptions = data.options ?? [];
     const options = transformOptions(apiOptions);
 
+    // Safe arrays for buildVariantMatrix and buildGallery
+    const variantsArray = (data.variants ?? []).filter(v => v !== null);
+    const mediaArray = (data.media ?? []).filter(m => m !== null);
+
     // Build variant matrix (needs options for mapping)
-    const variantMatrix = buildVariantMatrix(data.variants, apiOptions);
+    const variantMatrix = buildVariantMatrix(variantsArray, apiOptions);
 
     // Build gallery
-    const gallery = buildGallery(data.media, data.variants);
+    const gallery = buildGallery(mediaArray, variantsArray);
 
     // Transform shop
     const shop = transformShop(data.shop);
@@ -521,13 +547,13 @@ export const transformProductDetail = (
     // Extract best voucher for variant price calculation
     const apiVoucher = data.bestPlatformVoucher || data.bestShopVoucher;
     const bestVoucher = apiVoucher ? {
-        discountType: apiVoucher.discountType,
-        discountValue: apiVoucher.discountValue,
+        discountType: (apiVoucher.discountType ?? 'PERCENTAGE') as 'PERCENTAGE' | 'FIXED_AMOUNT',
+        discountValue: apiVoucher.discountValue ?? 0,
         maxDiscount: apiVoucher.maxDiscount ?? undefined,
     } : undefined;
 
     // Calculate total stock
-    const totalStock = calculateTotalStock(data.variants);
+    const totalStock = calculateTotalStock(variantsArray);
 
     // Build specifications
     const specifications: ProductSpec[] = data.specifications ?? [];
@@ -535,12 +561,28 @@ export const transformProductDetail = (
     // Build Flash Sale với fallback logic
     const flashSale = buildFlashSaleInfo(data, totalStock);
 
+    // Transform reviewStatistics to match expected type
+    const reviewStats = data.reviewStatistics ?? { totalReviews: 0, averageRating: 0 };
+    const reviewStatistics = {
+        reviewableId: reviewStats.reviewableId ?? undefined,
+        totalReviews: reviewStats.totalReviews ?? 0,
+        averageRating: reviewStats.averageRating ?? 0,
+        ratingDistribution: reviewStats.ratingDistribution ?? undefined,
+        ratingPercentage: reviewStats.ratingPercentage ?? undefined,
+        verifiedPurchaseCount: reviewStats.verifiedPurchaseCount ?? undefined,
+        verifiedPurchasePercentage: reviewStats.verifiedPurchasePercentage ?? undefined,
+        commentCount: reviewStats.commentCount ?? undefined,
+        mediaReviewCount: reviewStats.mediaReviewCount ?? undefined,
+        imageReviewCount: reviewStats.imageReviewCount ?? undefined,
+        videoReviewCount: reviewStats.videoReviewCount ?? undefined,
+    };
+
     return {
         // Basic Info
         id: data.id,
-        name: data.name,
-        slug: data.slug,
-        description: data.description,
+        name: data.name ?? '',
+        slug: data.slug ?? '',
+        description: data.description ?? null,
 
         // Price
         priceDisplay,
@@ -551,26 +593,26 @@ export const transformProductDetail = (
         // Variants
         options,
         variantMatrix,
-        hasVariants: data.variants.length > 0 && options.length > 0,
+        hasVariants: variantsArray.length > 0 && options.length > 0,
 
         // Shop
         shop,
 
         // Stats
-        rating: data.reviewStatistics.averageRating,
-        totalReviews: data.reviewStatistics.totalReviews,
+        rating: reviewStatistics.averageRating,
+        totalReviews: reviewStatistics.totalReviews,
         totalSold: data.totalSold ?? 0,
-        reviewStatistics: data.reviewStatistics,
+        reviewStatistics,
 
         // Features - Sử dụng fallback logic
         flashSale,
         vouchers,
         bestVoucher,
-        shipping: data.shipping,
+        shipping: data.shipping ?? undefined,
         specifications,
         categoryPath: buildCategoryPath(data.category),
-        isActive: data.active,
-        isAvailable: data.active && totalStock > 0,
+        isActive: data.active ?? true,
+        isAvailable: (data.active ?? true) && totalStock > 0,
     };
 };
 

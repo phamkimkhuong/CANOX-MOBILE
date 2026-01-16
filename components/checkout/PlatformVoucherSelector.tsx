@@ -116,7 +116,7 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
                 ]}
                 onPress={handleOpenModal}
                 accessibilityRole="button"
-                accessibilityLabel="Chọn voucher Ebay"
+                accessibilityLabel="Chọn voucher CanoX"
             >
                 {/* Title Row */}
                 <View style={styles.titleRow}>
@@ -127,7 +127,7 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
                             color={theme.colors.error}
                         />
                     </View>
-                    <Text style={styles.title}>Voucher Ebay</Text>
+                    <Text style={styles.title}>Voucher CanoX</Text>
                 </View>
 
                 {/* Selector Row */}

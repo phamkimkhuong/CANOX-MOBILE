@@ -17,16 +17,16 @@ const AuditFieldsSchema = z.object({
 
 export const ProductMediaSchema = z.object({
     id: z.string(),
-    basePath: z.string().optional(),
-    extension: z.string().optional(),
-    mediaAssetId: z.string().optional(),
-    url: z.string(),
-    type: z.enum(['IMAGE', 'VIDEO']),
+    basePath: z.string().nullable().optional(),
+    extension: z.string().nullable().optional(),
+    mediaAssetId: z.string().nullable().optional(),
+    url: z.string().nullable().optional().default(''),
+    type: z.string().nullable().optional().default('IMAGE'),
     title: z.string().nullable().optional(),
     altText: z.string().nullable().optional(),
-    sortOrder: z.number().optional(),
-    isPrimary: z.boolean(),
-    productId: z.string().optional(),
+    sortOrder: z.number().nullable().optional().default(0),
+    isPrimary: z.boolean().nullable().optional().default(false),
+    productId: z.string().nullable().optional(),
 }).merge(AuditFieldsSchema); // ← Reuse audit fields
 
 export type ProductMedia = z.infer<typeof ProductMediaSchema>;
@@ -59,10 +59,10 @@ export type ProductOptionValue = OptionValue;
 // ============================================
 
 export const VariantInventorySchema = z.object({
-    id: z.string(),
-    stock: z.number(),
-    reserved: z.number().optional(),
-    sold: z.number().optional(),
+    id: z.string().nullable().optional(),
+    stock: z.number().nullable().optional().default(0),
+    reserved: z.number().nullable().optional().default(0),
+    sold: z.number().nullable().optional().default(0),
 });
 export type VariantInventory = z.infer<typeof VariantInventorySchema>;
 
@@ -72,28 +72,28 @@ export type VariantInventory = z.infer<typeof VariantInventorySchema>;
 
 export const ProductVariantSchema = z.object({
     id: z.string(),
-    sku: z.string().optional(),
+    sku: z.string().nullable().optional(),
     // Image fields (variant can have own image)
     imageBasePath: z.string().nullable().optional(),
     imageExtension: z.string().nullable().optional(),
     imageAssetId: z.string().nullable().optional(),
     imageUrl: z.string().nullable().optional(),
     // Price
-    corePrice: z.number().optional(),
-    price: z.number(),
+    corePrice: z.number().nullable().optional().default(0),
+    price: z.number().nullable().optional().default(0),
     // Option values  
-    optionValues: z.array(OptionValueSchema),
+    optionValues: z.array(OptionValueSchema).nullable().optional().default([]),
     // Inventory
-    inventory: VariantInventorySchema,
+    inventory: VariantInventorySchema.nullable().optional(),
     // Dimensions
-    lengthCm: z.number().optional(),
-    widthCm: z.number().optional(),
-    heightCm: z.number().optional(),
-    weightGrams: z.number().optional(),
-    dimensionsString: z.string().optional(),
-    weightString: z.string().optional(),
-    volumeCm3: z.number().optional(),
-    weightKg: z.number().optional(),
+    lengthCm: z.number().nullable().optional(),
+    widthCm: z.number().nullable().optional(),
+    heightCm: z.number().nullable().optional(),
+    weightGrams: z.number().nullable().optional(),
+    dimensionsString: z.string().nullable().optional(),
+    weightString: z.string().nullable().optional(),
+    volumeCm3: z.number().nullable().optional(),
+    weightKg: z.number().nullable().optional(),
 }).merge(AuditFieldsSchema);
 
 export type ProductVariant = z.infer<typeof ProductVariantSchema>;
@@ -151,26 +151,26 @@ export type Category = z.infer<typeof CategorySchema>;
 // ============================================
 
 export const ShopSchema = z.object({
-    shopId: z.string(),
-    shopName: z.string(),
+    shopId: z.string().nullable().optional(),
+    shopName: z.string().nullable().optional().default(''),
     description: z.string().nullable().optional(),
     logoUrl: z.string().nullable().optional(),
     bannerUrl: z.string().nullable().optional(),
-    status: z.enum(['ACTIVE', 'INACTIVE', 'PENDING', 'SUSPENDED']).optional(),
+    status: z.string().nullable().optional().default('ACTIVE'),
     rejectedReason: z.string().nullable().optional(),
     verifyBy: z.string().nullable().optional(),
     verifyDate: z.string().nullable().optional(),
-    userId: z.string().optional(),
-    username: z.string(),
+    userId: z.string().nullable().optional(),
+    username: z.string().nullable().optional().default(''),
     // Extended fields (BE might add later)
-    isVerified: z.boolean().optional(),
-    rating: z.number().optional(),
-    responseRate: z.number().optional(),
-    responseTime: z.string().optional(),
-    followerCount: z.number().optional(),
-    productCount: z.number().optional(),
-    location: z.string().optional(),
-    lastOnline: z.string().optional(),
+    isVerified: z.boolean().nullable().optional().default(false),
+    rating: z.number().nullable().optional(),
+    responseRate: z.number().nullable().optional(),
+    responseTime: z.string().nullable().optional(),
+    followerCount: z.number().nullable().optional(),
+    productCount: z.number().nullable().optional(),
+    location: z.string().nullable().optional(),
+    lastOnline: z.string().nullable().optional(),
 });
 export type Shop = z.infer<typeof ShopSchema>;
 
@@ -179,21 +179,21 @@ export type Shop = z.infer<typeof ShopSchema>;
 // ============================================
 
 export const VoucherSchema = z.object({
-    voucherId: z.string(),
-    code: z.string(),
-    name: z.string().optional(),
+    voucherId: z.string().nullable().optional(),
+    code: z.string().nullable().optional().default(''),
+    name: z.string().nullable().optional(),
     description: z.string().nullable().optional(),
-    voucherScope: z.enum(['SHOP_ORDER', 'PLATFORM_ORDER', 'PRODUCT', 'CATEGORY']).optional(),
-    discountType: z.enum(['PERCENTAGE', 'FIXED_AMOUNT']),
-    discountValue: z.number(),
+    voucherScope: z.string().nullable().optional(),
+    discountType: z.string().nullable().optional().default('PERCENTAGE'),
+    discountValue: z.number().nullable().optional().default(0),
     maxDiscount: z.number().nullable().optional(),
-    minOrderValue: z.number().optional(),
-    sponsorType: z.enum(['PLATFORM', 'SHOP']).optional(),
+    minOrderValue: z.number().nullable().optional(),
+    sponsorType: z.string().nullable().optional(),
     startDate: z.string().nullable().optional(),
     endDate: z.string().nullable().optional(),
     // Calculated values from BE
-    discountAmount: z.number().optional(),
-    priceAfterDiscount: z.number().optional(),
+    discountAmount: z.number().nullable().optional(),
+    priceAfterDiscount: z.number().nullable().optional(),
 });
 export type Voucher = z.infer<typeof VoucherSchema>;
 
@@ -202,17 +202,17 @@ export type Voucher = z.infer<typeof VoucherSchema>;
 // ============================================
 
 export const ReviewStatsSchema = z.object({
-    reviewableId: z.string().optional(),
-    totalReviews: z.number(),
-    averageRating: z.number(),
-    ratingDistribution: z.record(z.string(), z.number()).optional(),
-    ratingPercentage: z.record(z.string(), z.number()).optional(),
-    verifiedPurchaseCount: z.number().optional(),
-    verifiedPurchasePercentage: z.number().optional(),
-    commentCount: z.number().optional(),
-    mediaReviewCount: z.number().optional(),
-    imageReviewCount: z.number().optional(),
-    videoReviewCount: z.number().optional(),
+    reviewableId: z.string().nullable().optional(),
+    totalReviews: z.number().nullable().optional().default(0),
+    averageRating: z.number().nullable().optional().default(0),
+    ratingDistribution: z.record(z.string(), z.number()).nullable().optional(),
+    ratingPercentage: z.record(z.string(), z.number()).nullable().optional(),
+    verifiedPurchaseCount: z.number().nullable().optional(),
+    verifiedPurchasePercentage: z.number().nullable().optional(),
+    commentCount: z.number().nullable().optional(),
+    mediaReviewCount: z.number().nullable().optional(),
+    imageReviewCount: z.number().nullable().optional(),
+    videoReviewCount: z.number().nullable().optional(),
 });
 export type ReviewStats = z.infer<typeof ReviewStatsSchema>;
 
@@ -262,55 +262,55 @@ export type ProductSpec = z.infer<typeof ProductSpecSchema>;
 
 export const ProductDetailResponseSchema = z.object({
     id: z.string(),
-    name: z.string(),
-    slug: z.string(),
-    description: z.string().nullable(),
+    name: z.string().nullable().optional().default(''),
+    slug: z.string().nullable().optional().default(''),
+    description: z.string().nullable().optional(),
 
     // Pricing
-    basePrice: z.number(),
-    priceMin: z.number(),
-    priceMax: z.number(),
-    priceAfterBestVoucher: z.number().optional(),
-    priceAfterBestShopVoucher: z.number().optional(),
-    priceAfterBestPlatformVoucher: z.number().optional(),
+    basePrice: z.number().nullable().optional().default(0),
+    priceMin: z.number().nullable().optional().default(0),
+    priceMax: z.number().nullable().optional().default(0),
+    priceAfterBestVoucher: z.number().nullable().optional(),
+    priceAfterBestShopVoucher: z.number().nullable().optional(),
+    priceAfterBestPlatformVoucher: z.number().nullable().optional(),
 
     // Status (API returns 'active' not 'isActive')
-    active: z.boolean(),
-    approvalStatus: z.enum(['PENDING', 'APPROVED', 'REJECTED']).optional(),
+    active: z.boolean().nullable().optional().default(true),
+    approvalStatus: z.string().nullable().optional().default('APPROVED'),
     approvedBy: z.string().nullable().optional(),
     approvedAt: z.string().nullable().optional(),
 
     // Feature flags
     promotedUntil: z.string().nullable().optional(),
-    isFeatured: z.boolean().optional(),
+    isFeatured: z.boolean().nullable().optional().default(false),
 
     // Stats
-    totalSold: z.number().optional(),
-    viewCount: z.number().optional(),
+    totalSold: z.number().nullable().optional().default(0),
+    viewCount: z.number().nullable().optional().default(0),
 
     // Relations
-    media: z.array(ProductMediaSchema),
-    variants: z.array(ProductVariantSchema),
-    options: z.array(ProductOptionSchema).optional(),
-    shop: ShopSchema,
-    category: CategorySchema.optional(),
-    reviewStatistics: ReviewStatsSchema,
+    media: z.array(ProductMediaSchema).nullable().optional().default([]),
+    variants: z.array(ProductVariantSchema).nullable().optional().default([]),
+    options: z.array(ProductOptionSchema).nullable().optional().default([]),
+    shop: ShopSchema.nullable().optional(),
+    category: CategorySchema.nullable().optional(),
+    reviewStatistics: ReviewStatsSchema.nullable().optional(),
 
     // Restrictions
-    shippingRestrictions: ShippingRestrictionsSchema.optional(),
+    shippingRestrictions: ShippingRestrictionsSchema.nullable().optional(),
 
     // Vouchers
     bestShopVoucher: VoucherSchema.nullable().optional(),
     bestPlatformVoucher: VoucherSchema.nullable().optional(),
-    shopVouchers: z.array(VoucherSchema).optional(),
+    shopVouchers: z.array(VoucherSchema).nullable().optional().default([]),
 
     // Optional features (BE might add later)
-    flashSale: FlashSaleInfoSchema.optional(),
-    shipping: ShippingInfoSchema.optional(),
-    specifications: z.array(ProductSpecSchema).optional(),
+    flashSale: FlashSaleInfoSchema.nullable().optional(),
+    shipping: ShippingInfoSchema.nullable().optional(),
+    specifications: z.array(ProductSpecSchema).nullable().optional().default([]),
 
     // Version control
-    version: z.number().optional(),
+    version: z.number().nullable().optional(),
 });
 export type ProductDetailResponse = z.infer<typeof ProductDetailResponseSchema>;
 

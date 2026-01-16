@@ -201,6 +201,13 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     coin: { ios: 'cash-outline', android: 'cash-outline' },
     'checkmark.circle': { ios: 'checkmark-circle', android: 'checkmark-circle' },
     'arrow.clockwise': { ios: 'refresh', android: 'refresh' },
+
+    // === Error State Icons (for StateView/DataGuard) ===
+    wifi: { ios: 'wifi-outline', android: 'wifi-outline' },
+    'wifi-off': { ios: 'cloud-offline-outline', android: 'cloud-offline-outline' },
+    'cloud-offline-outline': { ios: 'cloud-offline-outline', android: 'cloud-offline-outline' },
+    'folder-open-outline': { ios: 'folder-open-outline', android: 'folder-open-outline' },
+    refresh: { ios: 'refresh', android: 'refresh' },
 };
 
 interface IconSymbolProps {
