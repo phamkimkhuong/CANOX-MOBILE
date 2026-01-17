@@ -1,8 +1,15 @@
 import { registerPushToken, unregisterPushToken } from '@/services/api/pushTokenApi';
 import { useIsAuthenticated } from '@/store/useAuthStore';
 import { buildPushTokenPayload, collectDeviceInfo } from '@/utils/deviceInfo';
+import { logger } from '@/utils/logger';
 import { useCallback, useEffect, useRef } from 'react';
 import { clearPushToken } from './usePushNotifications';
+
+/**
+ * Feature flag to enable/disable push token sync
+ * Set to true when Backend has implemented /api/v1/push-tokens endpoint
+ */
+const ENABLE_PUSH_TOKEN_SYNC = true;
 
 /**
  * Hook to sync push token with backend
@@ -11,7 +18,6 @@ import { clearPushToken } from './usePushNotifications';
  * - Sends push token to server when user logs in
  * - Updates token on server if it changes
  * - Removes token from server when user logs out
- * 
  * Usage: Call this in _layout.tsx after usePushNotifications
  */
 export function usePushTokenSync(
@@ -26,37 +32,46 @@ export function usePushTokenSync(
     const registerToken = useCallback(async () => {
         if (!expoPushToken) return;
 
+        if (!ENABLE_PUSH_TOKEN_SYNC) {
+            logger.push.info('[PushToken] Sync disabled - Backend not ready');
+            return;
+        }
+
         try {
             const payload = await buildPushTokenPayload(expoPushToken);
+            logger.push.info('[PushToken] Registering token', payload);
             await registerPushToken(payload);
             hasRegisteredRef.current = true;
             lastTokenRef.current = expoPushToken;
-            console.log('[PushToken] Registered successfully');
+            logger.push.info('[PushToken] Registered successfully');
         } catch (error) {
-            console.error('[PushToken] Failed to register:', error);
+            logger.push.error('[PushToken] Failed to register:', error);
         }
     }, [expoPushToken]);
 
     // Unregister token when user logs out
     const unregisterToken = useCallback(async () => {
+        // Always clear local storage
+        clearPushToken();
+        hasRegisteredRef.current = false;
+        lastTokenRef.current = null;
+
+        if (!ENABLE_PUSH_TOKEN_SYNC) {
+            return;
+        }
+
         try {
             const deviceInfo = await collectDeviceInfo();
             await unregisterPushToken(deviceInfo.deviceId);
-            hasRegisteredRef.current = false;
-            lastTokenRef.current = null;
-            clearPushToken(); // Clear local storage
-            console.log('[PushToken] Unregistered successfully');
+            logger.push.info('[PushToken] Unregistered successfully');
         } catch (error) {
-            console.error('[PushToken] Failed to unregister:', error);
+            logger.push.error('[PushToken] Failed to unregister:', error);
         }
     }, []);
 
     // Effect: Register token when authenticated
     useEffect(() => {
         if (isAuthenticated && expoPushToken) {
-            // Only register if:
-            // 1. Haven't registered yet, OR
-            // 2. Token has changed
             const shouldRegister =
                 !hasRegisteredRef.current ||
                 tokenChanged ||
@@ -70,7 +85,6 @@ export function usePushTokenSync(
 
     // Effect: Cleanup when user logs out
     useEffect(() => {
-        // If was authenticated and now not, unregister
         if (!isAuthenticated && hasRegisteredRef.current) {
             unregisterToken();
         }

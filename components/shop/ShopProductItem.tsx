@@ -18,8 +18,8 @@ import { formatCurrency, formatSoldCount } from '@/utils/format';
 import { Navigator } from '@/utils/navigation';
 import { Image } from 'expo-image';
 import React, { useCallback } from 'react';
-import { Pressable, Text, useWindowDimensions, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { Pressable, Text, View } from 'react-native';
+import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 
 interface ShopProductItemProps {
     /** Product data from adapter (ProductFeedItem) */
@@ -44,7 +44,7 @@ export const ShopProductItem: React.FC<ShopProductItemProps> = ({
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const { width: screenWidth } = useWindowDimensions();
+    const screenWidth = UnistylesRuntime.screen.width;
 
     // Calculate item width for 2-column grid
     const horizontalMargin = theme.margins.md;

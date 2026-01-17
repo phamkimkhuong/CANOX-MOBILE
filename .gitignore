@@ -42,6 +42,7 @@ yarn-error.*
 /ios
 /android
 .cursor
+.claude
 thietke
 stitch_ebay_th_ng_m_i_i_n_t
 .github

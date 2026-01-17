@@ -22,6 +22,12 @@ const lightTheme = {
         typography: '#1c3024',
         typographySecondary: '#687076',
         info: '#0ea5e9',
+        // Accent color - Orange for CTAs, Promotions, Urgency
+        accent: '#ff7a00',
+        onAccent: '#ffffff',
+        accentSoft: 'rgba(255, 122, 0, 0.15)',
+        accentLight: 'rgba(255, 122, 0, 0.10)',
+        accentSubtle: 'rgba(255, 122, 0, 0.08)',
         // Semantic colors
         primarySoft: 'rgba(0, 136, 204, 0.15)',
         primaryLight: 'rgba(0, 136, 204, 0.10)',

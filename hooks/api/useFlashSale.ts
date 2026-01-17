@@ -27,7 +27,12 @@ export const useFlashSale = () => {
             // 1. Lấy slot mô phỏng
             const slot = getNextFlashSaleSlot();
 
-            // 2. Transform items
+            // 2. Guard: Check response.data exists
+            if (!response.data) {
+                return { slot, items: [] };
+            }
+
+            // 3. Transform items
             const items: FlashSaleItem[] = response.data.content.map((product) => {
                 // Tính tổng tồn kho từ các variant
                 const totalStock = product.variants?.reduce((acc: number, v) => acc + (v.inventory?.stock || 0), 0) || 50;
@@ -41,19 +46,26 @@ export const useFlashSale = () => {
                     ? Math.min(Math.round((soldCount / (soldCount + totalStock)) * 100), 90)
                     : 0;
 
-                // Lấy ảnh primary
-                const primaryMedia = product.media.find(m => m.isPrimary) || product.media[0];
+                // Lấy ảnh primary (with null safety)
+                const mediaArray = product.media ?? [];
+                const primaryMedia = mediaArray.find(m => m.isPrimary) || mediaArray[0];
 
-                const currentPrice = product.priceAfterBestVoucher || product.priceMin || product.basePrice;
+                const basePrice = product.basePrice ?? 0;
+                const currentPrice = product.priceAfterBestVoucher ?? product.priceMin ?? basePrice;
+
+                // Calculate discount percentage safely
+                const discountPercentage = basePrice > 0 && currentPrice !== null
+                    ? Math.round(((basePrice - currentPrice) / basePrice) * 100)
+                    : 0;
 
                 return {
                     id: product.id,
                     productId: product.id,
-                    name: product.name,
+                    name: product.name ?? 'Sản phẩm',
                     image: toPublicUrl(primaryMedia?.url),
                     price: currentPrice,
-                    originalPrice: product.basePrice,
-                    discountPercentage: Math.round(((product.basePrice - currentPrice) / product.basePrice) * 100),
+                    originalPrice: basePrice,
+                    discountPercentage,
                     soldCount,
                     totalStock,
                     progress,

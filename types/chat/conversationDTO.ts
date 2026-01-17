@@ -168,7 +168,7 @@ const UserDTOSchema = z.object({
 const ParticipantDTOSchema = z.object({
     id: z.string(),
     user: UserDTOSchema,
-    role: z.string(),
+    role: z.enum(['ADMIN', 'MEMBER']),
     nickname: z.string().nullable().optional(),
     unreadCount: z.number(),
     isMuted: z.boolean(),
@@ -241,6 +241,8 @@ const ConversationPageDTOSchema = z.object({
  * Schema to validate full API response
  */
 export const ConversationListResponseSchema = ResponseDefaultSchema.extend({
+    code: z.number(),
+    success: z.boolean(),
     message: z.string(),
     data: ConversationPageDTOSchema,
 });
@@ -278,6 +280,8 @@ export interface ConversationActionResponse {
  * Schema for single conversation action response
  */
 export const ConversationActionResponseSchema = ResponseDefaultSchema.extend({
+    code: z.number(),
+    success: z.boolean(),
     message: z.string(),
     data: ConversationDTOSchema,
 });
@@ -311,6 +315,8 @@ export interface CreateConversationResponse {
  * Schema for create conversation response
  */
 export const CreateConversationResponseSchema = ResponseDefaultSchema.extend({
+    code: z.number(),
+    success: z.boolean(),
     message: z.string(),
     data: ConversationDTOSchema,
 });

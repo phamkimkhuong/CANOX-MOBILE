@@ -82,6 +82,11 @@ const fetchRelatedProducts = async (productId: string) => {
         PaginatedProductResponseSchema
     );
 
+    // Guard: Check response.data exists
+    if (!response.data) {
+        return { content: [], page: 0, size: 0, totalPages: 0, hasNext: false };
+    }
+
     return {
         ...response.data,
         content: response.data.content.map(transformProduct),

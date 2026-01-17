@@ -170,6 +170,9 @@ export const logger = {
 
     /** Chat logs:  */
     chat: createLogger('Chat'),
+
+    /** Push notification logs: */
+    push: createLogger('Push'),
 };
 
 // ============================================

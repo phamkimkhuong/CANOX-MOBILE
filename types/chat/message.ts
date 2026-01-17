@@ -332,6 +332,8 @@ const MessagePageDTOSchema = z.object({
  * Extends ResponseDefaultSchema with MessagePageDTO data
  */
 export const MessageListResponseSchema = ResponseDefaultSchema.extend({
+    code: z.number(),
+    success: z.boolean(),
     message: z.string(),
     data: MessagePageDTOSchema,
 });
@@ -400,6 +402,8 @@ export interface SendMessageResponse {
  * Extends ResponseDefaultSchema with MessageDTO data
  */
 export const SendMessageResponseSchema = ResponseDefaultSchema.extend({
+    code: z.number(),
+    success: z.boolean(),
     message: z.string(),
     data: MessageDTOSchema,
 });
@@ -432,6 +436,8 @@ export interface MarkAsReadResponse {
  * Extends ResponseDefaultSchema - data can be null/undefined/empty object
  */
 export const MarkAsReadResponseSchema = ResponseDefaultSchema.extend({
+    code: z.number(),
+    success: z.boolean(),
     message: z.string().optional(),
     data: z.object({}).nullable().optional(),
 });

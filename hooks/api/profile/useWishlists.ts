@@ -85,6 +85,11 @@ export const useWishlists = (params?: WishlistFilterParams) => {
                 WishlistsResponseSchema
             );
 
+            // Guard: Check response.data exists
+            if (!response.data) {
+                return { items: [], totalElements: 0, hasNext: false };
+            }
+
             return {
                 items: toWishlistsUI(response.data.content),
                 totalElements: response.data.totalElements ?? 0,
@@ -161,6 +166,11 @@ export const usePrefetchWishlists = () => {
                     },
                     WishlistsResponseSchema
                 );
+
+                // Guard: Check response.data exists
+                if (!response.data) {
+                    return { items: [], totalElements: 0, hasNext: false };
+                }
 
                 return {
                     items: toWishlistsUI(response.data.content),

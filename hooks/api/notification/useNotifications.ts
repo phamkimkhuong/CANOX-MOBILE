@@ -88,6 +88,15 @@ const fetchNotifications = async (
         NotificationApiResponseSchema
     );
 
+    // Guard: Check response.data exists
+    if (!response.data) {
+        return {
+            data: [],
+            nextCursor: null,
+            hasMore: false,
+        };
+    }
+
     const { content, hasNext, nextPage } = response.data;
     return {
         data: content.map(mapApiNotificationToUi),

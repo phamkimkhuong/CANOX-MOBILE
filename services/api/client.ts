@@ -164,12 +164,21 @@ apiClient.interceptors.request.use(
 // RESPONSE INTERCEPTOR (Layer 2: Error Handling & Token Refresh)
 // ============================================
 
+/** Maximum retry attempts for 401 errors per request */
+const MAX_401_RETRY_COUNT = 1;
+
+/** Custom config property to track retry count */
+interface RetryConfig {
+    _retryCount?: number;
+}
+
 apiClient.interceptors.response.use(
     // Success - pass through
     (response) => response,
 
     // Error handling
     async (error: AxiosError) => {
+        const config = error.config as AxiosRequestConfig & RetryConfig;
         const data = error.response?.data as Record<string, unknown> | undefined;
         const statusCode = error.response?.status;
         const errorCode = data?.code as number | undefined;
@@ -191,19 +200,34 @@ apiClient.interceptors.response.use(
 
         // Handle 401 Unauthorized - Token expired or invalid access (AUTH endpoints only)
         if (statusCode === 401) {
+            // Initialize retry count
+            config._retryCount = config._retryCount ?? 0;
+
+            // Check if max retries exceeded
+            if (config._retryCount >= MAX_401_RETRY_COUNT) {
+                logger.auth.error(`Max 401 retry (${MAX_401_RETRY_COUNT}) exceeded for: ${config.url}`);
+                throw new SessionExpiredError('Phiên đăng nhập không hợp lệ');
+            }
+
+            // Increment retry count
+            config._retryCount += 1;
+
             logger.api.error('Received 401 Error from Backend:', {
                 url: error.config?.url,
                 method: error.config?.method?.toUpperCase(),
                 data: data,
                 timestamp: new Date().toISOString(),
+                retryCount: config._retryCount,
             });
 
-            logger.auth.warn('Attempting token refresh due to 401...');
+            logger.auth.warn(`Attempting token refresh due to 401 (attempt ${config._retryCount}/${MAX_401_RETRY_COUNT})...`);
 
             try {
                 // Use TokenManager to handle 401 with refresh logic
-                return await handle401Error(error, async (config) => {
-                    return apiClient.request(config);
+                return await handle401Error(error, async (retryConfig) => {
+                    // Preserve retry count in the retried request
+                    (retryConfig as RetryConfig)._retryCount = config._retryCount;
+                    return apiClient.request(retryConfig);
                 });
             } catch (refreshError) {
                 logger.auth.error('Token refresh failed - throwing SessionExpiredError');

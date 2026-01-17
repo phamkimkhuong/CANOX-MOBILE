@@ -201,6 +201,11 @@ export const shopRoutes = {
             ...(params?.instantNav && { instantNav: 'true' }),
         },
     }),
+    /** Navigate to shop voucher detail */
+    voucherDetail: (voucherId: string, voucherData: string, shopName?: string): Href => ({
+        pathname: '/(main)/(shop)/voucher/[id]',
+        params: { id: voucherId, voucherData, shopName },
+    } as unknown as Href),
 } as const;
 
 /**

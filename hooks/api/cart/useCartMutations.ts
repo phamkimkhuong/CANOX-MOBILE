@@ -64,6 +64,9 @@ export const useUpdateCartItemQuantity = () => {
                 CartApiResponseSchema
             );
 
+            if (!response.data) {
+                throw new Error('Đã xảy ra lỗi khi cập nhật số lượng');
+            }
             return transformCart(response.data);
         },
 

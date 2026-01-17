@@ -60,12 +60,12 @@ const PriceSection = memo<{ priceDisplay: PriceDisplay }>(({ priceDisplay }) => 
                 <Text style={styles.currentPrice}>
                     {formatCurrency(priceDisplay.currentPrice)}
                 </Text>
-                {priceDisplay.originalPrice && (
+                {priceDisplay.originalPrice != null && priceDisplay.originalPrice > 0 && (
                     <Text style={styles.originalPrice}>
                         {formatCurrency(priceDisplay.originalPrice)}
                     </Text>
                 )}
-                {priceDisplay.discountPercentage && (
+                {priceDisplay.discountPercentage != null && priceDisplay.discountPercentage > 0 && (
                     <View style={styles.discountBadge}>
                         <Text style={styles.discountText}>
                             -{priceDisplay.discountPercentage}%
@@ -156,7 +156,7 @@ export const ProductInfoSection = memo<ProductInfoSectionProps>(({
                     <Text style={styles.internationalText}>{PRODUCT_STRINGS.badges.international}</Text>
                 </View>
             )}
-            {priceDisplay.voucherDiscount && (
+            {priceDisplay.voucherDiscount != null && priceDisplay.voucherDiscount > 0 && (
                 <View style={[styles.badge, styles.voucherBadge]}>
                     <IconSymbol name="ticket" size={12} color={theme.colors.success} />
                     <Text style={styles.voucherText}>

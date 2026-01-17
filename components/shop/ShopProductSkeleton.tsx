@@ -9,8 +9,8 @@
 
 import { SkeletonBox, SkeletonText } from '@/components/ui/feedback/Skeleton';
 import React from 'react';
-import { useWindowDimensions, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { View } from 'react-native';
+import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 
 interface ShopProductSkeletonProps {
     /** Number of skeleton items to show */
@@ -34,7 +34,7 @@ export const ShopProductSkeleton: React.FC<ShopProductSkeletonProps> = ({
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const { width: screenWidth } = useWindowDimensions();
+    const screenWidth = UnistylesRuntime.screen.width;
 
     // Calculate item dimensions
     const horizontalPadding = theme.margins.md;

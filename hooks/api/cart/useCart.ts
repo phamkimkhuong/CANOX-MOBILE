@@ -22,6 +22,9 @@ export const fetchCart = async (): Promise<CartUI> => {
         { url: API_ROUTES.CART.GET, method: 'GET' },
         CartApiResponseSchema
     );
+    if (!response.data) {
+        throw new Error('Đã xảy ra lỗi khi tải giỏ hàng');
+    }
     return transformCart(response.data);
 };
 
@@ -129,6 +132,9 @@ export const useAddToCart = () => {
                 CartApiResponseSchema
             );
 
+            if (!response.data) {
+                throw new Error('Đã xảy ra lỗi khi thêm sản phẩm vào giỏ hàng');
+            }
             return transformCart(response.data);
         },
 

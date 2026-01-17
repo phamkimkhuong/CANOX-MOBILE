@@ -1,7 +1,6 @@
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { request } from '@/services/api/client';
-import { PaginatedProductResponseSchema, ProductFeedItem, ProductResponseItem } from '@/types/product/product';
-import { PaginatedResponse } from '@/types/responseSchema';
+import { PaginatedProductResponseSchema, ProductFeedItem } from '@/types/product/product';
 import { transformProduct } from '@/utils/adapter/product/productAdapter';
 import { useInfiniteQuery } from '@tanstack/react-query';
 
@@ -11,14 +10,16 @@ export type FeedType = 'new' | 'sale' | 'featured' | 'promoted';
 // 1. Helper to get URL by Tab
 const getApiUrl = (type: FeedType) => {
     switch (type) {
-        case 'sale': return API_ROUTES.PUBLIC_PRODUCTS.SALE;
+        // case 'sale': return API_ROUTES.PUBLIC_PRODUCTS.SALE;
         // case 'new': return API_ROUTES.PUBLIC_PRODUCTS.NEW;
         // case 'featured': return API_ROUTES.PUBLIC_PRODUCTS.FEATURED;
-        // default: return API_ROUTES.PUBLIC_PRODUCTS.PROMOTED;
-        case 'new': return API_ROUTES.PUBLIC_PRODUCTS.SALE;
-        case 'featured': return API_ROUTES.PUBLIC_PRODUCTS.SALE;
-        case 'promoted': return API_ROUTES.PUBLIC_PRODUCTS.SALE;
-        default: return API_ROUTES.PUBLIC_PRODUCTS.SALE;
+        // case 'promoted': return API_ROUTES.PUBLIC_PRODUCTS.PROMOTED;
+        // default: return API_ROUTES.PUBLIC_PRODUCTS.SALE;
+        case 'sale': return API_ROUTES.PUBLIC_PRODUCTS.SEARCH;
+        case 'new': return API_ROUTES.PUBLIC_PRODUCTS.SEARCH;
+        case 'featured': return API_ROUTES.PUBLIC_PRODUCTS.SEARCH;
+        case 'promoted': return API_ROUTES.PUBLIC_PRODUCTS.SEARCH;
+        default: return API_ROUTES.PUBLIC_PRODUCTS.SEARCH;
     }
 };
 
@@ -29,7 +30,7 @@ export const useProductFeed = (type: FeedType) => {
         initialPageParam: 0,
         queryFn: async ({ pageParam = 0 }) => {
             const url = getApiUrl(type);
-            const response = await request<PaginatedResponse<ProductResponseItem>>(
+            const response = await request(
                 {
                     url,
                     method: 'GET',
@@ -40,6 +41,11 @@ export const useProductFeed = (type: FeedType) => {
                 },
                 PaginatedProductResponseSchema
             );
+
+            // Guard: Check response.data exists
+            if (!response.data) {
+                return { items: [], nextPage: undefined };
+            }
 
             // TRANSFORM DATA RIGHT HERE
             // Helps React Query Cache be lighter

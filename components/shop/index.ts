@@ -34,3 +34,10 @@ export { ShopProductSkeleton } from './ShopProductSkeleton';
 
 export { ShopEmptyState } from './ShopEmptyState';
 
+// ============================================
+// VOUCHER COMPONENTS
+// ============================================
+
+export { ShopVoucherCard } from './ShopVoucherCard';
+export { ShopVoucherSection } from './ShopVoucherSection';
+export { ShopVoucherSkeleton } from './ShopVoucherSkeleton';

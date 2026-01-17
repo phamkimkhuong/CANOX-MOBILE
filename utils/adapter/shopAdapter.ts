@@ -10,12 +10,114 @@
  */
 
 import { ProductFeedItem } from '@/types/product/product';
-import { ShopDetailDTO, ShopHeaderUI, ShopProductDTO } from '@/types/shop';
+import {
+    ShopDetailDTO,
+    ShopHeaderUI,
+    ShopProductDTO,
+    ShopVoucherDTO,
+    ShopVoucherUI,
+    VoucherScope
+} from '@/types/shop';
 import { transformProduct } from '@/utils/adapter/product/productAdapter';
-import { formatMonthYear } from '@/utils/date';
+import { formatDate, formatMonthYear, safeParseDate } from '@/utils/date';
+import { formatPriceShort } from '@/utils/format';
 
 /** Default placeholder for shop logo */
 const DEFAULT_SHOP_LOGO = 'https://via.placeholder.com/100x100?text=Shop';
+
+/** Scope label mapping */
+const SCOPE_LABELS: Record<VoucherScope, string> = {
+    SHOP_ORDER: 'Đơn hàng',
+    SHIPPING: 'Vận chuyển',
+    PRODUCT: 'Sản phẩm',
+};
+
+/**
+ * Build title display based on voucherScope and discountType
+ */
+const buildTitleDisplay = (
+    voucherScope: VoucherScope,
+    isPercentage: boolean,
+    discountVal: number,
+    maxDiscountVal: number
+): string => {
+    // Shipping voucher
+    if (voucherScope === 'SHIPPING') {
+        if (isPercentage && discountVal >= 100) {
+            return 'Miễn phí vận chuyển';
+        } else if (isPercentage) {
+            return `Giảm ${discountVal}% phí ship`;
+        } else {
+            return `Giảm ${formatPriceShort(discountVal).replace('k', 'K')} phí ship`;
+        }
+    }
+
+    // SHOP_ORDER or PRODUCT voucher
+    if (isPercentage && maxDiscountVal > 0) {
+        return `Giảm tối đa ${formatPriceShort(maxDiscountVal).replace('k', 'K')}`;
+    } else if (isPercentage) {
+        return `Giảm ${discountVal}%`;
+    } else {
+        return `Giảm ${formatPriceShort(discountVal).replace('k', 'K')}`;
+    }
+};
+
+/**
+ * Transform ShopVoucherDTO → ShopVoucherUI
+ */
+export const transformShopVoucher = (dto: ShopVoucherDTO): ShopVoucherUI => {
+    const isPercentage = dto.discountType === 'PERCENTAGE';
+    const discountVal = dto.discountValue ?? 0;
+    const minSpend = dto.minOrderAmount ?? 0;
+    const maxDiscountVal = dto.maxDiscount ?? 0;
+    const voucherScope: VoucherScope = dto.voucherScope ?? 'SHOP_ORDER';
+
+    // Build Title Display (main heading)
+    const titleDisplay = buildTitleDisplay(voucherScope, isPercentage, discountVal, maxDiscountVal);
+
+    // Build Discount Display (left section): "GIẢM 12%" or "GIẢM 150K"
+    const discountDisplay = isPercentage
+        ? `GIẢM ${discountVal}%`
+        : `GIẢM ${formatPriceShort(discountVal).replace('k', 'K')}`;
+
+    // Build Min Spend Display: "Đơn tối thiểu 350K"
+    const minOrderDisplay = minSpend > 0
+        ? `Đơn tối thiểu ${formatPriceShort(minSpend).replace('k', 'K')}`
+        : 'Mọi đơn hàng';
+
+    // Scope label for badge
+    const scopeLabel = SCOPE_LABELS[voucherScope];
+
+    const startD = safeParseDate(dto.startDate);
+    const endD = safeParseDate(dto.endDate);
+    const isExpired = endD ? endD.getTime() < Date.now() : false;
+
+    return {
+        id: dto.id,
+        code: dto.code,
+        name: dto.name ?? '',
+        description: dto.description ?? '',
+        titleDisplay,
+        discountDisplay,
+        minOrderDisplay,
+        scopeLabel,
+        voucherScope,
+        maxDiscount: maxDiscountVal,
+        minOrderAmount: minSpend,
+        startDate: startD ? formatDate(startD, 'DD/MM/YYYY HH:mm') : '',
+        endDate: endD ? formatDate(endD, 'DD/MM/YYYY HH:mm') : '',
+        isExpired,
+        discountType: (dto.discountType as 'PERCENTAGE' | 'FIXED_AMOUNT') || 'PERCENTAGE',
+        discountValue: discountVal,
+        maxUsage: dto.maxUsage ?? 0,
+        sponsorType: dto.sponsorType ?? 'SHOP',
+        applyToAllProducts: dto.applyToAllProducts ?? true,
+    };
+};
+
+export const toShopVouchersUI = (vouchers: ShopVoucherDTO[]): ShopVoucherUI[] => {
+    return vouchers.map(transformShopVoucher);
+};
 
 /**
  * Transform ShopDetailDTO → ShopHeaderUI

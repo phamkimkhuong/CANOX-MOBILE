@@ -19,8 +19,11 @@ import {
     ShopProductItemUI,
     ShopProductsResponse,
     ShopProductsResponseSchema,
+    ShopVoucherUI,
+    ShopVouchersResponse,
+    ShopVouchersResponseSchema,
 } from '@/types/shop';
-import { toShopHeaderUI, toShopProductsUI } from '@/utils/adapter/shopAdapter';
+import { toShopHeaderUI, toShopProductsUI, toShopVouchersUI } from '@/utils/adapter/shopAdapter';
 import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
@@ -33,6 +36,7 @@ export const shopKeys = {
     detail: (shopId: string) => [...shopKeys.all, 'detail', shopId] as const,
     products: (shopId: string, filters?: ShopProductFilterParams) =>
         [...shopKeys.all, 'products', shopId, filters] as const,
+    vouchers: (shopId: string) => [...shopKeys.all, 'vouchers', shopId] as const,
 };
 
 // ============================================
@@ -147,13 +151,13 @@ export const useShopProducts = (
             );
 
             // Transform to UI types
-            const items = toShopProductsUI(response.data.content);
+            const items = toShopProductsUI(response.data?.content || []);
 
             return {
                 items,
-                nextPage: response.data.hasNext ? response.data.page + 1 : undefined,
-                totalElements: response.data.totalElements ?? 0,
-                totalPages: response.data.totalPages,
+                nextPage: response.data?.hasNext ? response.data.page + 1 : undefined,
+                totalElements: response.data?.totalElements ?? 0,
+                totalPages: response.data?.totalPages ?? 0,
             };
         },
         getNextPageParam: (lastPage) => lastPage.nextPage,
@@ -177,6 +181,7 @@ export const useRefreshShopProducts = (
     return useSmartRefresh(shopKeys.products(shopId ?? '', filters));
 };
 
+
 // ============================================
 // HELPER HOOKS
 // ============================================
@@ -190,5 +195,43 @@ export const useRefreshShopProducts = (
  */
 export const useShopProductCount = (shopId: string | undefined) => {
     const { data } = useShopProducts(shopId);
-    return data?.pages[0]?.totalElements ?? null;
+    return data?.pages?.[0]?.totalElements ?? null;
+};
+
+// ============================================
+// SHOP VOUCHERS HOOK
+// ============================================
+
+/**
+ * Fetch shop vouchers for horizontal display
+ * 
+ * Features:
+ * - Zod validation
+ * - Adapter transformation to ShopVoucherUI[]
+ * - 5 minute cache (vouchers don't change frequently)
+ * - Returns empty array when no vouchers
+ * 
+ * @param shopId - Shop UUID
+ * @returns Query result with vouchers array
+ */
+export const useShopVouchers = (shopId: string | undefined) => {
+    return useQuery({
+        queryKey: shopKeys.vouchers(shopId ?? ''),
+        enabled: !!shopId,
+        queryFn: async (): Promise<ShopVoucherUI[]> => {
+            const response = await request<ShopVouchersResponse>(
+                {
+                    url: API_ROUTES.SHOPS.VOUCHERS(shopId!),
+                    method: 'GET',
+                },
+                ShopVouchersResponseSchema
+            );
+
+            // Transform to UI types, filter out expired vouchers
+            return toShopVouchersUI(response.data || [])
+                .filter((v) => !v.isExpired);
+        },
+        staleTime: 1000 * 60 * 5, // 5 minutes
+        gcTime: 1000 * 60 * 30,   // Keep in cache 30 minutes
+    });
 };

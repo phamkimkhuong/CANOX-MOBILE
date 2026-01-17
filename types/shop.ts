@@ -225,3 +225,73 @@ export const SHOP_TABS: ShopTab[] = [
     { key: 'profile', label: 'Hồ sơ' },
     { key: 'categories', label: 'Danh mục' },
 ];
+// ============================================
+// SHOP VOUCHER TYPES
+// ============================================
+
+/**
+ * Voucher Scope - Phạm vi áp dụng voucher
+ */
+export const VoucherScopeEnum = z.enum(['SHOP_ORDER', 'SHIPPING', 'PRODUCT']);
+export type VoucherScope = z.infer<typeof VoucherScopeEnum>;
+
+/**
+ * Shop Voucher DTO Schema - Matches API response
+ * Endpoint: GET /api/v1/public/shops/{shopId}/vouchers
+ */
+export const ShopVoucherDTOSchema = z.object({
+    id: z.string(),
+    code: z.string(),
+    name: z.string().nullable().optional().default(''),
+    description: z.string().nullable().optional().default(''),
+    voucherScope: VoucherScopeEnum.nullable().optional().default('SHOP_ORDER'),
+    discountType: z.enum(['PERCENTAGE', 'FIXED_AMOUNT']).nullable().optional().default('PERCENTAGE'),
+    discountValue: z.number().nullable().optional().default(0),
+    minOrderAmount: z.number().nullable().optional().default(0),
+    maxDiscount: z.number().nullable().optional().default(0),
+    startDate: z.string().nullable().optional(),
+    endDate: z.string().nullable().optional(),
+    maxUsage: z.number().nullable().optional().default(0),
+    sponsorType: z.string().nullable().optional().default('SHOP'),
+    applyToAllProducts: z.boolean().nullable().optional().default(true),
+    active: z.boolean().nullable().optional().default(true),
+    imageBasePath: z.string().nullable().optional(),
+    imageExtension: z.string().nullable().optional(),
+});
+
+export type ShopVoucherDTO = z.infer<typeof ShopVoucherDTOSchema>;
+
+/**
+ * Shop Vouchers Response Schema (Array of Vouchers)
+ */
+export const ShopVouchersResponseSchema = ResponseDefaultSchema.extend({
+    data: z.array(ShopVoucherDTOSchema).default([]),
+});
+
+export type ShopVouchersResponse = z.infer<typeof ShopVouchersResponseSchema>;
+
+/**
+ * Shop Voucher UI Model - For rendering in Shop list and Detail
+ */
+export interface ShopVoucherUI {
+    id: string;
+    code: string;
+    name: string;
+    description: string;
+    titleDisplay: string;
+    discountDisplay: string;
+    minOrderDisplay: string;
+    scopeLabel: string;
+    voucherScope: VoucherScope;
+    maxDiscount: number;
+    minOrderAmount: number;
+    startDate: string;
+    endDate: string;
+    isExpired: boolean;
+    discountType: 'PERCENTAGE' | 'FIXED_AMOUNT';
+    discountValue: number;
+    maxUsage: number;
+    sponsorType: string;
+    shopName?: string;
+    applyToAllProducts: boolean;
+}

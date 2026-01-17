@@ -18,6 +18,7 @@ interface ShopHeaderInfoProps {
     onPrefetchChat?: () => void;
     onFollowPress?: () => void;
     isFollowing?: boolean;
+    hasVouchers?: boolean;
 }
 
 const AVATAR_SIZE = 72;
@@ -32,6 +33,7 @@ export const ShopHeaderInfo: React.FC<ShopHeaderInfoProps> = ({
     onPrefetchChat,
     onFollowPress,
     isFollowing = false,
+    hasVouchers = false,
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
@@ -42,7 +44,7 @@ export const ShopHeaderInfo: React.FC<ShopHeaderInfoProps> = ({
     };
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, hasVouchers && styles.containerNoRadius]}>
             {/* Top Section: Avatar & Basic Info & Buttons */}
             <View style={styles.topSection}>
                 {/* Avatar with offset */}
@@ -171,6 +173,10 @@ const stylesheet = StyleSheet.create((theme) => ({
         paddingBottom: theme.margins.sm,
         borderBottomLeftRadius: theme.radius.l,
         borderBottomRightRadius: theme.radius.l,
+    },
+    containerNoRadius: {
+        borderBottomLeftRadius: 0,
+        borderBottomRightRadius: 0,
     },
     topSection: {
         flexDirection: 'row',

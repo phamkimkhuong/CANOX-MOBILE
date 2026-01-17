@@ -12,14 +12,15 @@ import {
     ShopHeaderSkeleton,
     ShopNavBar,
     ShopProductSkeleton,
-    ShopTabs
+    ShopTabs,
+    ShopVoucherSection,
 } from '@/components/shop';
 import { IconSymbol } from '@/components/ui/Icon';
 import { ProductCard } from '@/components/ui/product/ProductCard';
 import { CHAT_STRINGS } from '@/constants/i18n/vi/chat';
 import { chatRoutes, productRoutes } from '@/constants/routes';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
-import { useRefreshShopProducts, useShopDetail, useShopProducts } from '@/hooks/api/useShop';
+import { useRefreshShopProducts, useShopDetail, useShopProducts, useShopVouchers } from '@/hooks/api/useShop';
 import { MINIMUM_SKELETON_DURATION_MS } from '@/hooks/usePrefetchTiming';
 import { useAuthStore } from '@/store/useAuthStore';
 import type { ShopProductFilterParams, ShopProductItemUI, ShopTabType } from '@/types/shop';
@@ -53,6 +54,7 @@ const AnimatedFlashList = Animated.createAnimatedComponent<any>(FlashList);
  */
 type FlatListItem =
     | { type: 'header' }
+    | { type: 'voucher-section' }
     | { type: 'tab-spacer' }
     | { type: 'product'; data: ShopProductItemUI };
 
@@ -106,6 +108,7 @@ export default function ShopDetailScreen() {
 
     const { data: shop, isLoading: isLoadingShop, isError: isShopError, refetch: refetchShop } = useShopDetail(shopId);
     const { data: productsData, isLoading: isLoadingProducts, isRefetching: isRefetchingProducts, isFetchingNextPage, hasNextPage, fetchNextPage } = useShopProducts(shopId, filters);
+    const { data: vouchers = [], isLoading: isLoadingVouchers } = useShopVouchers(shopId);
 
     // Minimum skeleton duration for instant nav (prevents flash)
     const [minSkeletonComplete, setMinSkeletonComplete] = useState(!isInstantNav);
@@ -135,13 +138,27 @@ export default function ShopDetailScreen() {
     const products = useMemo(() => productsData?.pages.flatMap(page => page.items) ?? [], [productsData]);
     const totalProductCount = productsData?.pages[0]?.totalElements ?? 0;
 
-    const listData = useMemo((): FlatListItem[] => {
-        if (activeTab !== 'products') return [{ type: 'header' }, { type: 'tab-spacer' }];
-        const productItems: FlatListItem[] = products.map(product => ({ type: 'product' as const, data: product }));
-        return [{ type: 'header' }, { type: 'tab-spacer' }, ...productItems];
-    }, [activeTab, products]);
+    // Build list data with voucher section between header and tabs
+    const hasVouchers = vouchers.length > 0 || isLoadingVouchers;
 
-    const stickyHeaderIndices = useMemo(() => [1], []);
+    const listData = useMemo((): FlatListItem[] => {
+        const baseItems: FlatListItem[] = [{ type: 'header' }];
+
+        // Add voucher section if shop has vouchers or loading
+        if (hasVouchers) {
+            baseItems.push({ type: 'voucher-section' });
+        }
+
+        baseItems.push({ type: 'tab-spacer' });
+
+        if (activeTab !== 'products') return baseItems;
+
+        const productItems: FlatListItem[] = products.map(product => ({ type: 'product' as const, data: product }));
+        return [...baseItems, ...productItems];
+    }, [activeTab, products, hasVouchers]);
+
+    // Sticky header index: tabs position depends on whether vouchers exist
+    const stickyHeaderIndices = useMemo(() => [hasVouchers ? 2 : 1], [hasVouchers]);
 
     const handleBackPress = useCallback(() => Navigator.back(), []);
     const handleSearchPress = useCallback(() => { }, []);
@@ -190,21 +207,41 @@ export default function ShopDetailScreen() {
     const handleLoadMore = useCallback(() => hasNextPage && !isFetchingNextPage && activeTab === 'products' && fetchNextPage(), [hasNextPage, isFetchingNextPage, activeTab, fetchNextPage]);
     const handleRefresh = useCallback(() => { refetchShop(); smartRefreshProducts(); }, [refetchShop, smartRefreshProducts]);
 
+    /** Collect voucher handler */
+    const handleCollectVoucher = useCallback((voucherId: string) => {
+        // TODO: Implement collect voucher API
+        Toast.show({
+            type: 'success',
+            text1: 'Đã lưu voucher',
+            text2: 'Voucher đã được thêm vào kho của bạn',
+        });
+    }, []);
+
     const renderItem: ListRenderItem<FlatListItem> = useCallback(({ item, index }) => {
         switch (item.type) {
             case 'header':
                 if (shouldShowSkeleton) return <ShopHeaderSkeleton />;
                 if (!shop) return null;
                 return (
-                    <View>
+                    <View style={styles.fullWidthItem}>
                         <ShopBanner bannerUrl={shop.bannerUrl} logoUrl={shop.logoUrl} />
                         <ShopHeaderInfo
                             shop={shop}
                             onChatPress={handleChatPress}
                             onPrefetchChat={handlePrefetchChat}
                             onFollowPress={handleFollowPress}
+                            hasVouchers={hasVouchers}
                         />
                     </View>
+                );
+            case 'voucher-section':
+                return (
+                    <ShopVoucherSection
+                        vouchers={vouchers}
+                        shopName={shop?.name}
+                        isLoading={isLoadingVouchers && shouldShowSkeleton}
+                        onCollectVoucher={handleCollectVoucher}
+                    />
                 );
             case 'tab-spacer':
                 return (
@@ -234,7 +271,7 @@ export default function ShopDetailScreen() {
                 );
             default: return null;
         }
-    }, [shouldShowSkeleton, shop, activeTab, totalProductCount, handleChatPress, handleFollowPress, handleTabChange, theme, HEADER_HEIGHT]);
+    }, [shouldShowSkeleton, shop, activeTab, totalProductCount, vouchers, isLoadingVouchers, hasVouchers, handleChatPress, handleFollowPress, handleTabChange, handleCollectVoucher, handlePrefetchChat, handleProductPress]);
 
     if (isShopError) {
         return (
@@ -266,7 +303,7 @@ export default function ShopDetailScreen() {
                 stickyHeaderIndices={stickyHeaderIndices}
                 numColumns={NUM_COLUMNS}
                 overrideItemLayout={(layout: any, item: FlatListItem) => {
-                    layout.span = (item.type === 'header' || item.type === 'tab-spacer') ? NUM_COLUMNS : 1;
+                    layout.span = (item.type === 'header' || item.type === 'voucher-section' || item.type === 'tab-spacer') ? NUM_COLUMNS : 1;
                 }}
                 onEndReached={handleLoadMore}
                 onEndReachedThreshold={0.5}
@@ -285,15 +322,20 @@ export default function ShopDetailScreen() {
 const styles = StyleSheet.create((theme) => ({
     container: { flex: 1, backgroundColor: theme.colors.background },
 
+    fullWidthItem: {
+        marginHorizontal: -theme.margins.sm,
+    },
     tabsWrapper: {
+        marginHorizontal: -theme.margins.sm,
         backgroundColor: theme.colors.surface,
         zIndex: 10,
     },
     productItemWrapper: {
-        width: '100%',
+        flex: 1,
         paddingBottom: 4
     },
     listContent: {
+        paddingHorizontal: theme.margins.sm,
         paddingBottom: theme.margins.xxl
     },
     loadingFooter: {
