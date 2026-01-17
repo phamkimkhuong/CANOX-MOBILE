@@ -17,6 +17,8 @@ expo-env.d.ts
 *.p12
 *.key
 *.mobileprovision
+eas.json
+google-services
 
 # Metro
 .metro-health-check*
@@ -39,10 +41,8 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+.cursor
 thietke
 stitch_ebay_th_ng_m_i_i_n_t
 .github
 docs
-.cursor
-eas.json
-google-services

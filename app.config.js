@@ -18,7 +18,7 @@ module.exports = {
         },
         "ios": {
             "supportsTablet": true,
-            "bundleIdentifier": IS_DEV ? "com.calatha.canox.dev" : (IS_PREVIEW ? "com.calatha.canox.preview" : "com.calatha.canox")
+            "bundleIdentifier": IS_DEV ? "com.cano.canox.dev" : (IS_PREVIEW ? "com.cano.canox.preview" : "com.cano.canox")
         },
         "android": {
             "icon": "./assets/images/icon-android.png",
@@ -29,7 +29,7 @@ module.exports = {
             },
             "edgeToEdgeEnabled": true,
             "predictiveBackGestureEnabled": false,
-            "package": IS_DEV ? "com.calatha.canox.dev" : (IS_PREVIEW ? "com.calatha.canox.preview" : "com.calatha.canox"),
+            "package": IS_DEV ? "com.cano.canox.dev" : (IS_PREVIEW ? "com.cano.canox.preview" : "com.cano.canox"),
             "googleServicesFile": IS_DEV
                 ? "./google-services/google-services.dev.json"
                 : (IS_PREVIEW
