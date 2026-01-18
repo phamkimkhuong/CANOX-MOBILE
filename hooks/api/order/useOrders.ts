@@ -20,6 +20,7 @@ export const orderKeys = {
     all: ['orders'] as const,
     lists: () => [...orderKeys.all, 'list'] as const,
     list: (status: OrderTabStatus) => [...orderKeys.lists(), status] as const,
+    byShop: (shopId: string) => [...orderKeys.lists(), 'shop', shopId] as const,
     detail: (orderId: string) => [...orderKeys.all, 'detail', orderId] as const,
 };
 
@@ -69,6 +70,47 @@ export const useOrderList = (status: OrderTabStatus, enabled: boolean = true) =>
         enabled,
         staleTime: 2 * 60 * 1000, // 2 phút - orders có thể thay đổi nhanh
         gcTime: 10 * 60 * 1000, // 10 phút cache
+    });
+};
+
+/**
+ * Fetch orders by shop với pagination
+ */
+const fetchShopOrders = async (
+    shopId: string,
+    page: number
+): Promise<OrdersPageResponse> => {
+    const response = await apiClient.get<OrdersApiResponse>(API_ROUTES.ORDERS.BY_SHOP(shopId), {
+        params: {
+            page,
+            size: PAGE_SIZE,
+        },
+    });
+
+    if (!response.data.success) {
+        throw new ApiError(response.data.message, response.status, response.data.code);
+    }
+
+    return response.data.data;
+};
+
+/**
+ * useShopOrders - Get list of orders of buyer at shop
+ */
+export const useShopOrders = (shopId: string | undefined, enabled: boolean = true) => {
+    return useInfiniteQuery({
+        queryKey: orderKeys.byShop(shopId || ''),
+        queryFn: async ({ pageParam }) => {
+            if (!shopId) return { content: [], page: 0, size: PAGE_SIZE, totalElements: 0, totalPages: 0, hasNext: false, hasPrevious: false, previousPage: 0, nextPage: 0, empty: true, first: true, last: true };
+            const data = await fetchShopOrders(shopId, pageParam);
+            return {
+                ...data,
+                content: data.content.map(transformOrder),
+            };
+        },
+        initialPageParam: 0,
+        getNextPageParam: (lastPage) => lastPage.hasNext ? lastPage.nextPage : undefined,
+        enabled: !!shopId && enabled,
     });
 };
 

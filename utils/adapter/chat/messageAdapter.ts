@@ -57,7 +57,7 @@ export const transformAttachment = (
 ): MessageAttachment => ({
     id: attachment.id,
     type: (attachment.type as any) || 'IMAGE',
-    url: toPublicUrl(attachment.url) || '',
+    url: toPublicUrl(attachment.fileUrl || attachment.url) || '',
     thumbnail: toPublicUrl(attachment.thumbnailUrl),
     fileName: attachment.fileName || undefined,
     fileSize: attachment.fileSize || undefined,
@@ -75,39 +75,44 @@ export const transformAttachment = (
 export const transformMessage = (
     dto: MessageDTO,
     currentUserId: string
-): Message => ({
-    id: dto.id,
-    conversationId: dto.conversationId,
-    type: dto.type,
-    content: dto.content,
-    sender: transformMessageUser(dto.user),
-    status: dto.status,
-    sentAt: dto.sentAt,
-    isEdited: dto.isEdited,
-    isDeleted: dto.isDeleted ?? false,
-    attachments: dto.attachments.map(transformAttachment),
-    metadata: dto.metadata || undefined,
-    replyTo: dto.replyToMessage
-        ? {
-            id: dto.replyToMessage.id,
-            type: dto.replyToMessage.type,
-            content: dto.replyToMessage.content,
-            senderName:
-                dto.replyToMessage.user?.fullNameBuyer ||
-                dto.replyToMessage.user?.username ||
-                'Người dùng',
-        }
-        : undefined,
-    reactions: dto.reactionsSummary
-        ? Object.entries(dto.reactionsSummary).map(([emoji, count]) => ({
-            emoji,
-            count,
-            hasReacted: dto.reactions.some(
-                (r) => r.emoji === emoji && r.userId === currentUserId
-            ),
-        }))
-        : [],
-});
+): Message => {
+    const isRecalled = dto.deletedType === 'DELETE_FOR_EVERYONE';
+    const isDeleted = isRecalled || dto.isDeleted === true;
+
+    return {
+        id: dto.id,
+        conversationId: dto.conversationId,
+        type: dto.type,
+        content: dto.content,
+        sender: transformMessageUser(dto.user),
+        status: dto.status,
+        sentAt: dto.sentAt,
+        isEdited: dto.isEdited,
+        isDeleted,
+        attachments: dto.attachments.map(transformAttachment),
+        metadata: dto.metadata || undefined,
+        replyTo: dto.replyToMessage
+            ? {
+                id: dto.replyToMessage.id,
+                type: dto.replyToMessage.type,
+                content: dto.replyToMessage.content,
+                senderName:
+                    dto.replyToMessage.user?.fullNameBuyer ||
+                    dto.replyToMessage.user?.username ||
+                    'Người dùng',
+            }
+            : undefined,
+        reactions: dto.reactionsSummary
+            ? Object.entries(dto.reactionsSummary).map(([emoji, count]) => ({
+                emoji,
+                count,
+                hasReacted: dto.reactions.some(
+                    (r) => r.emoji === emoji && r.userId === currentUserId
+                ),
+            }))
+            : [],
+    };
+};
 
 /**
  * Transform list of MessageDTO to Message[]

@@ -208,6 +208,7 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     'cloud-offline-outline': { ios: 'cloud-offline-outline', android: 'cloud-offline-outline' },
     'folder-open-outline': { ios: 'folder-open-outline', android: 'folder-open-outline' },
     refresh: { ios: 'refresh', android: 'refresh' },
+    undo: { ios: 'arrow-undo-outline', android: 'arrow-undo-outline' },
 };
 
 interface IconSymbolProps {

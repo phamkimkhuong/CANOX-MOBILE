@@ -13,9 +13,10 @@ export { default as SafetyBanner } from './SafetyBanner';
 export { AttachmentMenu } from './AttachmentMenu';
 export { default as ChatInputArea } from './ChatInputArea';
 export { default as ContextBar } from './ContextBar';
+export { MessageActionSheet } from './MessageActionSheet';
+export type { MessageActionSheetRef } from './MessageActionSheet';
 export { default as MessageItem } from './MessageItem';
 export { default as QuickReplyList } from './QuickReplyList';
-
 // Screen Header
 export { default as ChatDetailHeader } from './ChatDetailHeader';
 

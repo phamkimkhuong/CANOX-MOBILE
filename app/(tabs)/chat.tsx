@@ -74,6 +74,7 @@ export default function ChatScreen() {
             partnerAvatar: item.partner.avatar,
             partnerIsOnline: item.partner.isOnline ? 'true' : 'false',
             partnerIsVerified: item.partner.isVerified ? 'true' : 'false',
+            shopId: item.shopId,
         }));
     }, []);
 

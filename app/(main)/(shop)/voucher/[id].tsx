@@ -150,8 +150,10 @@ export default function VoucherDetailScreen() {
                     <View style={styles.sectionContent}>
                         <View style={styles.conditionRow}>
                             <IconSymbol name="cash" size={18} color={theme.colors.secondary} />
-                            <Text style={styles.conditionLabel}>Đơn hàng tối thiểu</Text>
-                            <Text style={styles.conditionValue}>
+                            <Text style={styles.conditionLabel}>
+                                {voucher.voucherScope === 'PRODUCT' ? 'Giá trị sản phẩm tối thiểu' : 'Đơn hàng tối thiểu'}
+                            </Text>
+                            <Text style={styles.amountValue}>
                                 {voucher.minOrderAmount > 0
                                     ? formatCurrency(voucher.minOrderAmount)
                                     : 'Không yêu cầu'}
@@ -161,7 +163,7 @@ export default function VoucherDetailScreen() {
                             <View style={styles.conditionRow}>
                                 <IconSymbol name="percent" size={18} color={theme.colors.secondary} />
                                 <Text style={styles.conditionLabel}>Giảm tối đa</Text>
-                                <Text style={styles.conditionValue}>
+                                <Text style={styles.amountValue}>
                                     {formatCurrency(voucher.maxDiscount)}
                                 </Text>
                             </View>
@@ -287,7 +289,7 @@ const styles = StyleSheet.create((theme) => ({
     heroCard: {
         backgroundColor: theme.colors.surface,
         borderRadius: theme.radius.l,
-        padding: theme.margins.lg,
+        padding: theme.margins.md,
         alignItems: 'center',
         borderTopWidth: 4,
         borderTopColor: theme.colors.accent,
@@ -332,7 +334,6 @@ const styles = StyleSheet.create((theme) => ({
     codeLabel: {
         fontSize: 12,
         color: theme.colors.typographySecondary,
-        marginBottom: 2,
     },
     codeValue: {
         fontSize: 16,
@@ -375,7 +376,8 @@ const styles = StyleSheet.create((theme) => ({
         color: theme.colors.typography,
     },
     sectionContent: {
-        padding: theme.margins.md,
+        paddingVertical: theme.margins.sm,
+        paddingHorizontal: theme.margins.md,
     },
     conditionRow: {
         flexDirection: 'row',
@@ -387,6 +389,11 @@ const styles = StyleSheet.create((theme) => ({
         fontSize: 14,
         color: theme.colors.typographySecondary,
         marginLeft: theme.margins.sm,
+    },
+    amountValue: {
+        fontSize: 14,
+        fontWeight: '500',
+        color: theme.colors.error,
     },
     conditionValue: {
         fontSize: 14,

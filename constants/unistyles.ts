@@ -57,6 +57,7 @@ const lightTheme = {
         card: '#ffffff',
         text: '#1c3024',
         border: '#e8e8e8',
+        borderMuted: '#f1f1f1',
         notification: '#ef4444',
     },
     margins: {

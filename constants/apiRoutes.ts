@@ -63,6 +63,9 @@ export const API_ROUTES = {
         MESSAGES: (conversationId: string) => `${API_PREFIX}/chat/conversations/${conversationId}/messages`,
         CONVERSATION_MESSAGES: (conversationId: string) => `${API_PREFIX}/chat/messages/conversation/${conversationId}`,
         SEND_MESSAGE: `${API_PREFIX}/chat/messages`,
+        SEND_PRODUCT_CARD: `${API_PREFIX}/chat/messages/product-card`,
+        SEND_ORDER_CARD: `${API_PREFIX}/chat/messages/order-card`,
+        DELETE_MESSAGE: (messageId: string) => `${API_PREFIX}/chat/messages/${messageId}`,
         MARK_AS_READ: (conversationId: string) => `${API_PREFIX}/chat/messages/conversation/${conversationId}/read`,
         PIN: (conversationId: string) => `${API_PREFIX}/chat/conversations/${conversationId}/pin`,
         MUTE: (conversationId: string) => `${API_PREFIX}/chat/conversations/${conversationId}/mute`,
@@ -95,6 +98,7 @@ export const API_ROUTES = {
     },
     ORDERS: {
         LIST: `${API_PREFIX}/buyer/orders`,
+        BY_SHOP: (shopId: string) => `${API_PREFIX}/buyer/orders/shop/${shopId}`,
         DETAIL: (orderId: string) => `${API_PREFIX}/buyer/orders/${orderId}`,
         CANCEL: (orderId: string) => `${API_PREFIX}/buyer/orders/${orderId}/cancel`,
         CONFIRM_RECEIVED: (orderId: string) => `${API_PREFIX}/buyer/orders/${orderId}/confirm-received`,

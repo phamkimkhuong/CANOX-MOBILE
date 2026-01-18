@@ -221,6 +221,7 @@ export const toConversationUI = (
         isPinned,
         isMuted,
         conversationType: dto.conversationType as 'BUYER_TO_SHOP' | 'BUYER_TO_PLATFORM',
+        shopId: partner?.user.shopId ?? undefined,
     };
 };
 

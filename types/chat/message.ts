@@ -72,6 +72,7 @@ export interface AttachmentDTO {
     id: string;
     type?: string | null;
     url?: string | null;
+    fileUrl?: string | null;
     thumbnailUrl?: string | null;
     fileName?: string | null;
     fileSize?: number | null;
@@ -257,6 +258,7 @@ const AttachmentDTOSchema = z.object({
     id: z.string(),
     type: z.string().optional().nullable().transform(v => v || 'IMAGE'),
     url: z.string().optional().nullable().transform(v => v || ''),
+    fileUrl: z.string().optional().nullable(),
     thumbnailUrl: z.string().nullable().optional(),
     fileName: z.string().nullable().optional(),
     fileSize: z.number().nullable().optional(),

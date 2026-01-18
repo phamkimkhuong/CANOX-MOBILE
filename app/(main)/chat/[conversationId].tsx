@@ -16,16 +16,21 @@ import {
     ChatInputArea,
     ContextBar,
     DateSeparator,
+    MessageActionSheet,
+    MessageActionSheetRef,
     MessageItem,
     QuickReplyList,
-    SafetyBanner,
+    SafetyBanner
 } from '@/components/chat/detail';
+import { IconSymbol } from '@/components/ui/Icon';
 import { CHAT_STRINGS } from '@/constants/i18n/vi/chat';
-import { orderRoutes, productRoutes } from '@/constants/routes';
-import { CONVERSATIONS_QUERY_KEY, useChatMessages, useMarkMessagesAsRead, useSendMessage } from '@/hooks/api/chat';
+import { chatRoutes, orderRoutes, productRoutes } from '@/constants/routes';
+import type { DeleteType } from '@/hooks/api/chat';
+import { CONVERSATIONS_QUERY_KEY, useChatMessages, useDeleteMessage, useMarkMessagesAsRead, useSendMediaMessage, useSendMessage, useSendOrderCard, useSendProductCard } from '@/hooks/api/chat';
 import { useChatImagePicker } from '@/hooks/api/chat/useChatImagePicker';
 import { buildChatWithShopRequest, useCreateConversation } from '@/hooks/api/chat/useCreateConversation';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useChatPickerStore } from '@/store/useChatPickerStore';
 import {
     ContextType,
     getQuickRepliesByContext,
@@ -43,11 +48,14 @@ import { logger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useQueryClient } from '@tanstack/react-query';
+import { Image } from 'expo-image';
 import { useLocalSearchParams } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, FlatList, Keyboard, ListRenderItem, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Keyboard, ListRenderItem, Modal, Pressable, Text, View } from 'react-native';
+import Gallery, { RenderItemInfo } from 'react-native-awesome-gallery';
 import { KeyboardAvoidingView, KeyboardProvider } from 'react-native-keyboard-controller';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface MessageListItem {
@@ -147,12 +155,20 @@ export default function ChatDetailScreen() {
     const styles = stylesheet;
     const flatListRef = useRef<FlatList<MessageListItem>>(null);
     const attachmentMenuRef = useRef<BottomSheetModal>(null);
+    const messageActionSheetRef = useRef<MessageActionSheetRef>(null);
+    const {
+        selectedProduct,
+        selectedOrder,
+        conversationId: pickerConvId,
+        clearSelections
+    } = useChatPickerStore();
 
     // State management for conversationId
     const [currentConvId, setCurrentConvId] = useState<string>(params.conversationId);
     const isGhostMode = currentConvId.startsWith('ghost_');
     const userId = useAuthStore((s) => s.userId);
     const myShopId = useAuthStore((s) => s.shopId);
+    const insets = useSafeAreaInsets();
 
     // Flag to delay rendering of message list until the end of screen transition
     const [isReady, setIsReady] = useState(false);
@@ -169,6 +185,34 @@ export default function ChatDetailScreen() {
         fetchNextPage,
         error,
     } = useChatMessages(isGhostMode ? '' : currentConvId);
+
+    // View images full screen
+    const [viewerVisible, setViewerVisible] = useState(false);
+    const [viewerIndex, setViewerIndex] = useState(0);
+
+    const chatImages = useMemo(() => {
+        const allImages: { uri: string; id: string }[] = [];
+        // Extract all images from the conversation chronological order
+        [...messages].reverse().forEach(msg => {
+            if (msg.type === MessageType.IMAGE && msg.attachments && msg.attachments.length > 0) {
+                msg.attachments.forEach(att => {
+                    const url = att.url;
+                    if (url) {
+                        allImages.push({ uri: url, id: att.id });
+                    }
+                });
+            }
+        });
+        return allImages;
+    }, [messages]);
+
+    const handleImagePress = useCallback((url: string) => {
+        const index = chatImages.findIndex(img => img.uri === url);
+        if (index >= 0) {
+            setViewerIndex(index);
+            setViewerVisible(true);
+        }
+    }, [chatImages]);
 
     // ============================================
     // EFFECTS & LOGIC
@@ -281,8 +325,12 @@ export default function ChatDetailScreen() {
 
         return null;
     }, [params, messages, userId]);
-
+    const partnerShopId = params.shopId;
     const sendMessageMutation = useSendMessage(currentConvId);
+    const sendProductCardMutation = useSendProductCard(currentConvId);
+    const sendOrderCardMutation = useSendOrderCard(currentConvId);
+    const sendMediaMessageMutation = useSendMediaMessage(currentConvId);
+    const deleteMessageMutation = useDeleteMessage(currentConvId);
     const markAsReadMutation = useMarkMessagesAsRead(currentConvId);
     const queryClient = useQueryClient();
     const hasMarkedAsRead = useRef(false);
@@ -316,6 +364,79 @@ export default function ChatDetailScreen() {
             });
         }
     }, [currentConvId, queryClient, markAsReadMutation, isGhostMode]);
+
+    // ============================================
+    // HANDLE PICKER SELECTIONS (from picker pages)
+    // ============================================
+    useEffect(() => {
+        if (selectedProduct && pickerConvId === currentConvId && !isGhostMode) {
+            const message = `Tôi muốn hỏi về sản phẩm: ${selectedProduct.title}`;
+            sendProductCardMutation.mutate(
+                {
+                    productId: selectedProduct.id,
+                    message: message,
+                    productInfo: {
+                        title: selectedProduct.title,
+                        price: selectedProduct.price,
+                        thumbnail: selectedProduct.thumbnail,
+                        shopId: selectedProduct.shopId,
+                        shopName: selectedProduct.shopName,
+                    },
+                },
+                {
+                    onSuccess: () => {
+                        flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
+                    },
+                    onError: (error) => {
+                        logger.chat.error('Failed to send product card', {
+                            productId: selectedProduct.id,
+                            error
+                        });
+                    },
+                }
+            );
+            // Clear selection after consuming
+            clearSelections();
+        }
+    }, [selectedProduct, pickerConvId, currentConvId, isGhostMode, sendProductCardMutation, clearSelections]);
+
+    // Effect: Process selected order from picker page
+    useEffect(() => {
+        if (selectedOrder && pickerConvId === currentConvId && !isGhostMode) {
+            const message = `Tôi muốn hỏi về đơn hàng: ${selectedOrder.orderNumber}`;
+            sendOrderCardMutation.mutate(
+                {
+                    orderId: selectedOrder.orderId,
+                    message: message,
+                    orderInfo: {
+                        orderCode: selectedOrder.orderNumber,
+                        status: selectedOrder.status as OrderStatus,
+                        totalAmount: selectedOrder.grandTotal,
+                        items: selectedOrder.items.map(item => ({
+                            productId: item.productId,
+                            productName: item.productName,
+                            quantity: item.quantity,
+                            image: item.imageUrl,
+                        })),
+                        shopId: selectedOrder.shopId,
+                    },
+                },
+                {
+                    onSuccess: () => {
+                        flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
+                    },
+                    onError: (error) => {
+                        logger.chat.error('Failed to send order card', {
+                            orderId: selectedOrder.orderId,
+                            error
+                        });
+                    },
+                }
+            );
+            // Clear selection after consuming
+            clearSelections();
+        }
+    }, [selectedOrder, pickerConvId, currentConvId, isGhostMode, sendOrderCardMutation, clearSelections]);
 
     // Quick replies based on context
     const quickReplies = useMemo(
@@ -472,41 +593,81 @@ export default function ChatDetailScreen() {
         attachmentMenuRef.current?.present();
     }, []);
 
-    // Hook xử lý chọn ảnh/chụp ảnh
-    const { pickImage, takePhoto, isProcessing: isImageProcessing } = useChatImagePicker();
+    /**
+     * Handler when long press on message
+     * Open MessageActionSheet with options: Copy, Recall, Delete
+     */
+    const handleMessageLongPress = useCallback((message: Message) => {
+        const isMe = message.sender.userId === userId;
+        messageActionSheetRef.current?.present(message, isMe);
+    }, [userId]);
 
-    const handleSelectAttachmentOption = useCallback(async (type: 'image' | 'camera' | 'product') => {
+
+    /**
+     * Handler when user selects recall or delete message
+     */
+    const handleRecallMessage = useCallback((messageId: string, deleteType: DeleteType) => {
+        deleteMessageMutation.mutate(
+            { messageId, deleteType },
+            {
+                onSuccess: () => {
+                    logger.chat.info('Message recalled successfully', { messageId, deleteType });
+                },
+                onError: (error) => {
+                    logger.chat.error('Failed to recall message', { messageId, error });
+                },
+            }
+        );
+    }, [deleteMessageMutation]);
+
+    // Hook xử lý chọn ảnh/chụp ảnh
+    const { pickMultipleImages, takePhoto, isProcessing: isImageProcessing } = useChatImagePicker();
+
+    const handleSelectAttachmentOption = useCallback(async (type: 'image' | 'camera' | 'product' | 'order') => {
         attachmentMenuRef.current?.dismiss();
         logger.chat.info('Selected attachment option', { type });
 
         if (type === 'image') {
-            const image = await pickImage();
-            if (image) {
-                // TODO: Upload ảnh lên server và gửi message với image URL
-                logger.chat.info('Image selected for sending', {
-                    fileName: image.fileName,
-                    size: image.fileSize,
-                    dimensions: `${image.width}x${image.height}`,
+            const images = await pickMultipleImages(10);
+            if (images.length > 0) {
+                sendMediaMessageMutation.mutate({
+                    files: images.map(img => ({
+                        uri: img.uri,
+                        fileName: img.fileName || `image_${Date.now()}.jpg`,
+                        fileSize: img.fileSize,
+                        mimeType: img.mimeType,
+                        width: img.width,
+                        height: img.height,
+                    })),
                 });
-                // Placeholder: Hiển thị thông báo thành công
-                handleSendMessage(`[Ảnh đã chọn: ${image.fileName}]`);
             }
         } else if (type === 'camera') {
             const photo = await takePhoto();
             if (photo) {
-                // TODO: Upload ảnh lên server và gửi message với image URL
-                logger.chat.info('Photo captured for sending', {
-                    fileName: photo.fileName,
-                    size: photo.fileSize,
-                    dimensions: `${photo.width}x${photo.height}`,
+                sendMediaMessageMutation.mutate({
+                    files: [{
+                        uri: photo.uri,
+                        fileName: photo.fileName || `photo_${Date.now()}.jpg`,
+                        fileSize: photo.fileSize,
+                        mimeType: photo.mimeType,
+                        width: photo.width,
+                        height: photo.height,
+                    }],
                 });
-                // Placeholder: Hiển thị thông báo thành công
-                handleSendMessage(`[Ảnh đã chụp: ${photo.fileName}]`);
             }
-        } else if (type === 'product' && productContext) {
-            handleSendMessage(`Sản phẩm: ${productContext.name} - ${productContext.price}đ`);
+        } else if (type === 'product') {
+            Navigator.push(chatRoutes.selectProduct({
+                shopId: partnerShopId || '',
+                conversationId: currentConvId,
+                shopName: partner?.name,
+            }));
+        } else if (type === 'order') {
+            Navigator.push(chatRoutes.selectOrder({
+                shopId: partnerShopId || '',
+                conversationId: currentConvId,
+            }));
         }
-    }, [pickImage, takePhoto, productContext, handleSendMessage]);
+    }, [pickMultipleImages, takePhoto, partnerShopId, currentConvId, partner]);
 
     // ============================================
     // RENDER FUNCTIONS
@@ -519,20 +680,12 @@ export default function ChatDetailScreen() {
             }
 
             const message = item.data as Message;
-
-            // In a standard list:
-            // - Index - 1 is OLDER (visually above)
-            // - Index + 1 is NEWER (visually below)
             const olderItem = flatListData[index - 1];
             const newerItem = flatListData[index + 1];
 
             const olderMessage = olderItem?.type === 'message' ? (olderItem.data as Message) : undefined;
             const newerMessage = newerItem?.type === 'message' ? (newerItem.data as Message) : undefined;
-
-            // Avatar: Show on the FIRST message of a group (top)
             const showAvatar = calculateShowAvatar(message, olderMessage, userId || '');
-
-            // Time: Show on the LAST message of a group (bottom)
             const showTime = calculateShowTime(message, newerMessage);
 
             const position = calculateBubblePosition(message, olderMessage, newerMessage);
@@ -545,10 +698,12 @@ export default function ChatDetailScreen() {
                     showAvatar={showAvatar}
                     showTime={showTime}
                     onPress={handleMessagePress}
+                    onLongPress={handleMessageLongPress}
+                    onImagePress={handleImagePress}
                 />
             );
         },
-        [userId, flatListData]
+        [userId, flatListData, handleMessageLongPress, handleMessagePress, handleImagePress]
     );
 
     // Memoized keyExtractor to avoid recreating function on each render
@@ -700,10 +855,95 @@ export default function ChatDetailScreen() {
                     ref={attachmentMenuRef}
                     onSelectOption={handleSelectAttachmentOption}
                 />
+
+                {/* Message Action Sheet (Long press menu) */}
+                <MessageActionSheet
+                    ref={messageActionSheetRef}
+                    onRecallMessage={handleRecallMessage}
+                />
+
+
+                {/* Full Screen Image Viewer*/}
+                <Modal
+                    visible={viewerVisible}
+                    transparent={true}
+                    onRequestClose={() => setViewerVisible(false)}
+                    animationType="fade"
+                >
+                    <View style={viewerStyles.container}>
+                        <Gallery
+                            data={chatImages}
+                            keyExtractor={(item) => item.id}
+                            initialIndex={viewerIndex}
+                            onIndexChange={setViewerIndex}
+                            onSwipeToClose={() => setViewerVisible(false)}
+                            renderItem={({ item, setImageDimensions }: RenderItemInfo<{ uri: string; id: string }>) => (
+                                <Image
+                                    source={{ uri: item.uri }}
+                                    style={viewerStyles.image}
+                                    contentFit="contain"
+                                    onLoad={(e) => {
+                                        const { width, height } = e.source;
+                                        setImageDimensions({ width, height });
+                                    }}
+                                />
+                            )}
+                        />
+                        {/* Viewer Header with Close Button */}
+                        <View style={[viewerStyles.header, { top: insets.top }]}>
+                            <Pressable
+                                style={viewerStyles.closeButton}
+                                onPress={() => setViewerVisible(false)}
+                            >
+                                <IconSymbol name="close" size={24} color="#FFF" />
+                            </Pressable>
+                            <Text style={viewerStyles.headerText}>
+                                {viewerIndex + 1} / {chatImages.length}
+                            </Text>
+                            <View style={{ width: 44 }} />
+                        </View>
+                    </View>
+                    <StatusBar style="light" hidden />
+                </Modal>
             </SafeAreaView>
         </KeyboardProvider>
     );
 }
+
+const viewerStyles = StyleSheet.create((theme) => ({
+    container: {
+        flex: 1,
+        backgroundColor: '#000',
+    },
+    image: {
+        flex: 1,
+    },
+    header: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        height: 60,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: theme.margins.md,
+        backgroundColor: 'rgba(0, 0, 0, 0.3)',
+        zIndex: 10,
+    },
+    closeButton: {
+        width: 44,
+        height: 44,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 22,
+        backgroundColor: 'rgba(0, 0, 0, 0.2)',
+    },
+    headerText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: '600',
+    },
+}));
 
 const stylesheet = StyleSheet.create((theme) => ({
     safeArea: {

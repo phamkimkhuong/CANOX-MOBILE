@@ -15,5 +15,16 @@ export {
 
 // Chat messages (detail view)
 export {
-    chatMessagesQueryKeys, useAddMessageToCache, useChatMessages, useMarkMessagesAsRead, useSendMessage
+    chatMessagesQueryKeys,
+    useAddMessageToCache,
+    useChatMessages,
+    useDeleteMessage,
+    useMarkMessagesAsRead,
+    useSendMessage,
+    useSendOrderCard,
+    useSendProductCard
 } from './useChatMessages';
+export type { DeleteType } from './useChatMessages';
+export { useSendMediaMessage } from './useSendMediaMessage';
+export type { ChatMediaFile } from './useSendMediaMessage';
+

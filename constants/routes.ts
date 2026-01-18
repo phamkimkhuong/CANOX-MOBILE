@@ -150,6 +150,38 @@ export const chatRoutes = {
         pathname: '/chat/[conversationId]',
         params: { conversationId, ...otherParams },
     }),
+
+    /**
+     * Select product picker page (full screen)
+     * Used to pick a product to send as a card in chat
+     */
+    selectProduct: (params: {
+        shopId: string;
+        conversationId: string;
+        shopName?: string;
+    }): Href => ({
+        pathname: '/chat/select-product',
+        params: {
+            shopId: params.shopId,
+            conversationId: params.conversationId,
+            shopName: params.shopName || 'Shop',
+        },
+    }),
+
+    /**
+     * Select order picker page (full screen)
+     * Used to pick an order to send as a card in chat
+     */
+    selectOrder: (params: {
+        shopId: string;
+        conversationId: string;
+    }): Href => ({
+        pathname: '/chat/select-order',
+        params: {
+            shopId: params.shopId,
+            conversationId: params.conversationId,
+        },
+    }),
 } as const;
 
 /**

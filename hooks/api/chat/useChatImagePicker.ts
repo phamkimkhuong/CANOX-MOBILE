@@ -109,6 +109,50 @@ export const useChatImagePicker = () => {
     }, [requestMediaLibraryPermission]);
 
     /**
+     * Pick multiple images from the library (Gallery)
+     * Allows user to select up to `selectionLimit` images at once
+     * @param selectionLimit Maximum number of images to select (default: 10)
+     * @returns Array of PickedImage or empty array if user cancels/error
+     */
+    const pickMultipleImages = useCallback(async (selectionLimit: number = 10): Promise<PickedImage[]> => {
+        try {
+            setIsProcessing(true);
+            const hasPermission = await requestMediaLibraryPermission();
+            if (!hasPermission) return [];
+            const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ['images'],
+                allowsEditing: false,
+                quality: 0.8,
+                allowsMultipleSelection: true,
+                selectionLimit: selectionLimit,
+            });
+            if (result.canceled || !result.assets?.length) {
+                logger.chat.info('User cancelled multi-image picker');
+                return [];
+            }
+            const pickedImages: PickedImage[] = result.assets.map((asset, index) => ({
+                uri: asset.uri,
+                width: asset.width,
+                height: asset.height,
+                fileName: asset.fileName || `image_${Date.now()}_${index}.jpg`,
+                mimeType: asset.mimeType || 'image/jpeg',
+                fileSize: asset.fileSize,
+            }));
+            return pickedImages;
+        } catch (error) {
+            logger.chat.error('Error picking multiple images', error);
+            Toast.show({
+                type: 'error',
+                text1: 'Lỗi',
+                text2: 'Không thể chọn ảnh. Vui lòng thử lại.',
+            });
+            return [];
+        } finally {
+            setIsProcessing(false);
+        }
+    }, [requestMediaLibraryPermission]);
+
+    /**
      * Take a photo using the camera
      * @returns PickedImage or null if user cancels/error
      */
@@ -160,6 +204,7 @@ export const useChatImagePicker = () => {
 
     return {
         pickImage,
+        pickMultipleImages,
         takePhoto,
         isProcessing,
     };
