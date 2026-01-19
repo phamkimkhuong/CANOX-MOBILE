@@ -2,6 +2,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import { dateToDisplayFormat } from '@/hooks/api/profile/useUpdateProfile';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Platform, Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -18,23 +19,24 @@ interface DatePickerFieldProps {
 
 /**
  * DatePickerField - Native Date Picker wrapper
- * - Display format: DD/MM/YYYY
- * - iOS: Inline picker with modal
- * - Android: Native date dialog
  */
 export const DatePickerField: React.FC<DatePickerFieldProps> = ({
     value,
     onChange,
     error,
-    label = 'Ngày sinh',
-    placeholder = 'Chọn ngày sinh',
+    label,
+    placeholder,
     minDate,
     maxDate = new Date(), // Default: cannot select future dates
     disabled = false,
 }) => {
     const { theme } = useUnistyles();
+    const { t, i18n } = useTranslation(['profile', 'common']);
     const styles = stylesheet;
     const [showPicker, setShowPicker] = useState(false);
+
+    const actualLabel = label || t('profile:editProfile.form.birthday');
+    const actualPlaceholder = placeholder || t('profile:editProfile.form.birthdayPlaceholder');
 
     const handleChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
         // On Android, picker auto-closes
@@ -66,7 +68,7 @@ export const DatePickerField: React.FC<DatePickerFieldProps> = ({
 
     return (
         <View style={styles.container}>
-            <Text style={styles.label}>{label}</Text>
+            <Text style={styles.label}>{actualLabel}</Text>
 
             <TouchableOpacity
                 style={[
@@ -77,6 +79,8 @@ export const DatePickerField: React.FC<DatePickerFieldProps> = ({
                 onPress={handlePress}
                 activeOpacity={0.7}
                 disabled={disabled}
+                accessibilityLabel={`${actualLabel}, ${displayValue || actualPlaceholder}`}
+                accessibilityRole="button"
             >
                 <View style={styles.iconContainer}>
                     <IconSymbol name="calendar" size={20} color={theme.colors.secondary} />
@@ -88,7 +92,7 @@ export const DatePickerField: React.FC<DatePickerFieldProps> = ({
                         !displayValue && styles.placeholder,
                     ]}
                 >
-                    {displayValue || placeholder}
+                    {displayValue || actualPlaceholder}
                 </Text>
 
                 <View style={styles.chevronContainer}>
@@ -105,8 +109,8 @@ export const DatePickerField: React.FC<DatePickerFieldProps> = ({
                         // iOS: Show as modal overlay
                         <View style={styles.iosPickerContainer}>
                             <View style={styles.iosPickerHeader}>
-                                <TouchableOpacity onPress={handleIOSClose}>
-                                    <Text style={styles.iosDoneButton}>Xong</Text>
+                                <TouchableOpacity onPress={handleIOSClose} accessibilityLabel={t('common:actions.done')}>
+                                    <Text style={styles.iosDoneButton}>{t('common:actions.done')}</Text>
                                 </TouchableOpacity>
                             </View>
                             <DateTimePicker
@@ -116,7 +120,7 @@ export const DatePickerField: React.FC<DatePickerFieldProps> = ({
                                 onChange={handleChange}
                                 minimumDate={minDate}
                                 maximumDate={maxDate}
-                                locale="vi-VN"
+                                locale={i18n.language === 'vi' ? 'vi-VN' : 'en-US'}
                             />
                         </View>
                     ) : (

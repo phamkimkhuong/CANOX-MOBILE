@@ -12,6 +12,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Stack } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import {
     ActivityIndicator,
     Alert,
@@ -36,6 +37,7 @@ import { ProfileInput } from './ProfileInput';
  */
 export default function EditProfileScreen() {
     const { theme } = useUnistyles();
+    const { t } = useTranslation(['profile', 'common']);
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
 
@@ -131,16 +133,16 @@ export default function EditProfileScreen() {
             onSuccess: () => {
                 Toast.show({
                     type: 'success',
-                    text1: 'Thành công',
-                    text2: 'Cập nhật hồ sơ thành công',
+                    text1: t('common:status.success'),
+                    text2: t('profile:editProfile.messages.updateSuccess'),
                 });
                 Navigator.back();
             },
             onError: (error) => {
                 Toast.show({
                     type: 'error',
-                    text1: 'Lỗi',
-                    text2: error.message || 'Không thể cập nhật hồ sơ',
+                    text1: t('common:status.error'),
+                    text2: error.message || t('profile:editProfile.messages.updateError'),
                 });
             },
         });
@@ -151,11 +153,11 @@ export default function EditProfileScreen() {
      */
     const handleAvatarPress = useCallback(() => {
         Alert.alert(
-            'Thay đổi ảnh đại diện',
-            'Chọn nguồn ảnh',
+            t('profile:editProfile.avatar.change'),
+            t('profile:editProfile.avatar.chooseSource'),
             [
                 {
-                    text: 'Chụp ảnh',
+                    text: t('profile:editProfile.avatar.camera'),
                     onPress: async () => {
                         const uri = await takePhoto();
                         if (uri) {
@@ -164,16 +166,16 @@ export default function EditProfileScreen() {
                                 onSuccess: () => {
                                     Toast.show({
                                         type: 'success',
-                                        text1: 'Thành công',
-                                        text2: 'Cập nhật ảnh đại diện thành công',
+                                        text1: t('common:status.success'),
+                                        text2: t('profile:editProfile.messages.uploadSuccess'),
                                     });
                                     setAvatarPreview(null);
                                 },
                                 onError: (error) => {
                                     Toast.show({
                                         type: 'error',
-                                        text1: 'Lỗi',
-                                        text2: error.message || 'Không thể tải ảnh lên',
+                                        text1: t('common:status.error'),
+                                        text2: error.message || t('profile:editProfile.messages.uploadError'),
                                     });
                                     setAvatarPreview(null);
                                 },
@@ -182,7 +184,7 @@ export default function EditProfileScreen() {
                     },
                 },
                 {
-                    text: 'Chọn từ thư viện',
+                    text: t('profile:editProfile.avatar.gallery'),
                     onPress: async () => {
                         const uri = await pickFromGallery();
                         if (uri) {
@@ -191,16 +193,16 @@ export default function EditProfileScreen() {
                                 onSuccess: () => {
                                     Toast.show({
                                         type: 'success',
-                                        text1: 'Thành công',
-                                        text2: 'Cập nhật ảnh đại diện thành công',
+                                        text1: t('common:status.success'),
+                                        text2: t('profile:editProfile.messages.uploadSuccess'),
                                     });
                                     setAvatarPreview(null);
                                 },
                                 onError: (error) => {
                                     Toast.show({
                                         type: 'error',
-                                        text1: 'Lỗi',
-                                        text2: error.message || 'Không thể tải ảnh lên',
+                                        text1: t('common:status.error'),
+                                        text2: error.message || t('profile:editProfile.messages.uploadError'),
                                     });
                                     setAvatarPreview(null);
                                 },
@@ -209,22 +211,22 @@ export default function EditProfileScreen() {
                     },
                 },
                 {
-                    text: 'Hủy',
+                    text: t('common:actions.cancel'),
                     style: 'cancel',
                 },
             ]
         );
-    }, [pickFromGallery, takePhoto, uploadImage]);
+    }, [pickFromGallery, takePhoto, uploadImage, t]);
 
     // Handle back navigation with unsaved changes warning
     const handleBack = () => {
         if (isDirty) {
             Alert.alert(
-                'Hủy thay đổi?',
-                'Bạn có những thay đổi chưa lưu. Bạn có chắc muốn thoát?',
+                t('profile:editProfile.messages.unsavedChangesTitle'),
+                t('profile:editProfile.messages.unsavedChangesMessage'),
                 [
-                    { text: 'Ở lại', style: 'cancel' },
-                    { text: 'Thoát', style: 'destructive', onPress: () => Navigator.back() },
+                    { text: t('profile:editProfile.messages.stay'), style: 'cancel' },
+                    { text: t('profile:editProfile.messages.exit'), style: 'destructive', onPress: () => Navigator.back() },
                 ]
             );
         } else {
@@ -237,7 +239,7 @@ export default function EditProfileScreen() {
         return (
             <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color={theme.colors.primary} />
-                <Text style={styles.loadingText}>Đang tải thông tin...</Text>
+                <Text style={styles.loadingText}>{t('profile:editProfile.messages.loading')}</Text>
             </View>
         );
     }
@@ -247,10 +249,10 @@ export default function EditProfileScreen() {
             {/* Stack Header Configuration */}
             <Stack.Screen
                 options={{
-                    title: 'Chỉnh sửa Hồ sơ',
+                    title: t('profile:editProfile.title'),
                     headerShown: true,
                     headerLeft: () => (
-                        <TouchableOpacity onPress={handleBack} style={styles.headerButton}>
+                        <TouchableOpacity onPress={handleBack} style={styles.headerButton} accessibilityLabel={t('common:actions.back')}>
                             <IconSymbol name="arrow-back" size={24} color={theme.colors.typography} />
                         </TouchableOpacity>
                     ),
@@ -259,6 +261,7 @@ export default function EditProfileScreen() {
                             onPress={handleSubmit(onSubmit)}
                             disabled={isUpdating || !isDirty}
                             style={styles.headerButton}
+                            accessibilityLabel={t('profile:editProfile.save')}
                         >
                             {isUpdating ? (
                                 <ActivityIndicator size="small" color={theme.colors.primary} />
@@ -269,7 +272,7 @@ export default function EditProfileScreen() {
                                         (!isDirty) && styles.saveButtonDisabled,
                                     ]}
                                 >
-                                    Lưu
+                                    {t('profile:editProfile.save')}
                                 </Text>
                             )}
                         </TouchableOpacity>
@@ -307,9 +310,9 @@ export default function EditProfileScreen() {
                         <ProfileInput
                             control={control}
                             name="fullName"
-                            label="Họ và tên"
+                            label={t('profile:editProfile.form.fullName')}
                             icon="person"
-                            placeholder="Nhập họ và tên"
+                            placeholder={t('profile:editProfile.form.fullNamePlaceholder')}
                             autoCapitalize="words"
                         />
 
@@ -335,8 +338,6 @@ export default function EditProfileScreen() {
                                     value={watchedDateOfBirth}
                                     onChange={onChange}
                                     error={error?.message}
-                                    label="Ngày sinh"
-                                    placeholder="Chọn ngày sinh"
                                 />
                             )}
                         />
@@ -345,9 +346,9 @@ export default function EditProfileScreen() {
                         <ProfileInput
                             control={control}
                             name="phone"
-                            label="Số điện thoại"
+                            label={t('profile:editProfile.form.phone')}
                             icon="phone"
-                            placeholder="Nhập số điện thoại"
+                            placeholder={t('profile:editProfile.form.phonePlaceholder')}
                             keyboardType="phone-pad"
                         />
 
@@ -355,11 +356,11 @@ export default function EditProfileScreen() {
                         <ProfileInput
                             control={control}
                             name="email"
-                            label="Email"
+                            label={t('profile:editProfile.form.email')}
                             icon="mail"
-                            placeholder="Email"
+                            placeholder={t('profile:editProfile.form.email')}
                             disabled={true}
-                            rightText="Đã xác thực"
+                            rightText={t('profile:editProfile.form.verified')}
                         />
                     </View>
 
@@ -367,7 +368,7 @@ export default function EditProfileScreen() {
                     <View style={styles.noticeContainer}>
                         <IconSymbol name="info" size={20} color={theme.colors.secondary} />
                         <Text style={styles.noticeText}>
-                            Email không thể thay đổi vì đã được liên kết với tài khoản của bạn.
+                            {t('profile:editProfile.form.emailLockNotice')}
                         </Text>
                     </View>
                 </ScrollView>
@@ -384,13 +385,14 @@ export default function EditProfileScreen() {
                         onPress={handleSubmit(onSubmit)}
                         disabled={isUpdating}
                         activeOpacity={0.8}
+                        accessibilityRole="button"
                     >
                         {isUpdating ? (
                             <ActivityIndicator size="small" color="#ffffff" />
                         ) : (
                             <>
                                 <IconSymbol name="checkmark" size={20} color="#ffffff" />
-                                <Text style={styles.saveButtonFixedText}>Lưu thay đổi</Text>
+                                <Text style={styles.saveButtonFixedText}>{t('profile:editProfile.save')}</Text>
                             </>
                         )}
                     </TouchableOpacity>

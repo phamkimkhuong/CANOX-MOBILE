@@ -110,6 +110,11 @@ export const PRODUCT_STRINGS: ProductTranslation = {
         notFound: 'Không tìm thấy sản phẩm',
         notFoundDetail: 'Sản phẩm này hiện tại không khả dụng hoặc đã bị gỡ bỏ.',
         home: 'Trang chủ',
+        authRequiredTitle: 'Yêu cầu đăng nhập',
+        authRequiredChat: 'Vui lòng đăng nhập để bắt đầu trò chuyện',
+        authRequiredCart: 'Vui lòng đăng nhập để thêm vào giỏ hàng',
+        authRequiredBuyNow: 'Vui lòng đăng nhập để tiếp tục mua hàng',
+        authRequiredGeneric: 'Vui lòng đăng nhập để thực hiện hành động này',
     },
 
     // === Navigation ===

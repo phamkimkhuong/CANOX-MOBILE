@@ -1,7 +1,8 @@
 import { IconSymbol } from '@/components/ui/Icon';
-import { CHAT_FILTER_TABS, ChatFilter } from '@/types/chat';
+import { ChatFilter } from '@/types/chat';
 import { Navigator } from '@/utils/navigation';
-import React from 'react';
+import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -28,8 +29,16 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
     onSearchChange,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation(['chat', 'common']);
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
+
+    const translatedTabs = useMemo(() => [
+        { key: ChatFilter.ALL, label: t('list.filterAll') },
+        { key: ChatFilter.UNREAD, label: t('list.filterUnread') },
+        { key: ChatFilter.SHOP, label: t('list.filterShop') },
+        { key: ChatFilter.SUPPORT, label: t('list.filterSupport') },
+    ], [t]);
 
     return (
         <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -40,10 +49,11 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
                     onPress={() => Navigator.back()}
                     style={styles.backBtn}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    accessibilityLabel={t('common:actions.back')}
                 >
                     <IconSymbol name="arrow-back" size={24} color={theme.colors.typography} />
                 </TouchableOpacity>
-                <Text style={styles.title}>Tin nhắn</Text>
+                <Text style={styles.title}>{t('list.title')}</Text>
             </View>
 
             {/* Search Bar */}
@@ -56,7 +66,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
                 />
                 <TextInput
                     style={styles.searchInput}
-                    placeholder="Tìm kiếm Shop, tin nhắn..."
+                    placeholder={t('list.search')}
                     placeholderTextColor={theme.colors.secondary}
                     value={searchQuery}
                     onChangeText={onSearchChange}
@@ -72,7 +82,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.tabsContainer}
             >
-                {CHAT_FILTER_TABS.map((tab) => {
+                {translatedTabs.map((tab) => {
                     const isActive = activeFilter === tab.key;
                     return (
                         <TouchableOpacity
@@ -80,6 +90,8 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
                             style={[styles.tab, isActive && styles.tabActive]}
                             onPress={() => onFilterChange(tab.key)}
                             activeOpacity={0.7}
+                            accessibilityRole="button"
+                            accessibilityState={{ selected: isActive }}
                         >
                             <Text style={[styles.tabText, isActive && styles.tabTextActive]}>
                                 {tab.label}

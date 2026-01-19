@@ -1,6 +1,7 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { Image } from 'expo-image';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -19,9 +20,6 @@ const DEFAULT_AVATAR_ASSET = require('@/assets/images/icon.png');
 
 /**
  * AvatarEditView - Display avatar with camera icon overlay
- * - Supports image preview before upload
- * - Shows upload progress indicator
- * - Camera icon indicates edit capability
  */
 export const AvatarEditView: React.FC<AvatarEditViewProps> = ({
     uri,
@@ -34,6 +32,7 @@ export const AvatarEditView: React.FC<AvatarEditViewProps> = ({
     uploadProgress = 0,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('profile');
     const styles = stylesheet;
 
     // Show preview if available, otherwise show current avatar
@@ -104,12 +103,12 @@ export const AvatarEditView: React.FC<AvatarEditViewProps> = ({
 
             {/* Helper text */}
             {showEditButton && !isUploading && (
-                <Text style={styles.helperText}>Nhấn để thay đổi ảnh đại diện</Text>
+                <Text style={styles.helperText}>{t('editProfile.avatar.helper')}</Text>
             )}
 
             {/* Upload status text */}
             {isUploading && (
-                <Text style={styles.uploadingText}>Đang tải lên...</Text>
+                <Text style={styles.uploadingText}>{t('editProfile.avatar.uploading')}</Text>
             )}
         </View>
     );

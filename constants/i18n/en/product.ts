@@ -94,6 +94,11 @@ export const PRODUCT_STRINGS: ProductTranslation = {
         notFound: 'Product not found',
         notFoundDetail: 'This product is currently unavailable or has been removed.',
         home: 'Home',
+        authRequiredTitle: 'Login Required',
+        authRequiredChat: 'Please login to start chatting',
+        authRequiredCart: 'Please login to add this product to your cart',
+        authRequiredBuyNow: 'Please login to proceed with purchase',
+        authRequiredGeneric: 'Please login to perform this action',
     },
 
     // === Navigation ===

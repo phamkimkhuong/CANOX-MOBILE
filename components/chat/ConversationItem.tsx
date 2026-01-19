@@ -1,8 +1,10 @@
 import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import { Conversation, MessageType, PARTNER_TYPE_CONFIG } from '@/types/chat';
+import { formatTime } from '@/utils/date';
 import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import React, { useCallback, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
@@ -15,6 +17,7 @@ import Animated, {
     withTiming
 } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { runOnJS } from 'react-native-worklets';
 import { OnlineStatusBadge } from './OnlineStatusBadge';
 
 // Current user ID for checking message sender
@@ -39,43 +42,8 @@ interface ConversationItemProps {
     onDelete?: (item: Conversation) => void;
 }
 
-import { formatTime } from '@/utils/date';
-import { runOnJS } from 'react-native-worklets';
-
-/**
- * Get message preview with icon based on type
- * @param lastMessage - Last message object
- * @param isFromMe - Whether message was sent by current user
- * @returns Object containing optional icon name and preview text
- */
-const getMessagePreview = (
-    lastMessage: Conversation['lastMessage'],
-    isFromMe: boolean
-): { icon?: IconSymbolName; text: string } => {
-    const prefix = isFromMe ? 'Bạn: ' : '';
-
-    switch (lastMessage.type) {
-        case MessageType.IMAGE:
-            return { icon: 'image', text: `${prefix}Đã gửi một ảnh` };
-        case MessageType.PRODUCT_CARD:
-            return { icon: 'bag', text: `${prefix}Sản phẩm: ${lastMessage.content}` };
-        case MessageType.ORDER_CARD:
-            return { icon: 'shipping', text: lastMessage.content };
-        case MessageType.FILE:
-            return { icon: 'attach', text: lastMessage.content };
-        default:
-            return { text: `${prefix}${lastMessage.content}` };
-    }
-};
-
 /**
  * ConversationItem - Hiển thị một cuộc trò chuyện với swipe actions
- * 
- * Features:
- * - Swipe left: Hiển thị nút Mute và Delete
- * - Swipe right: Hiển thị nút Pin
- * - Mutual exclusion: Chỉ 1 row được mở tại một thời điểm
- * - Haptic feedback khi swipe qua threshold
  */
 export const ConversationItem: React.FC<ConversationItemProps> = ({
     item,
@@ -87,6 +55,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
     onDelete,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation(['chat', 'common']);
     const styles = stylesheet;
 
     const translateX = useSharedValue(0);
@@ -103,8 +72,35 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
 
     const isFromMe = item.lastMessage.senderId === CURRENT_USER_ID;
     const hasUnread = item.unreadCount > 0;
-    const messagePreview = getMessagePreview(item.lastMessage, isFromMe);
     const partnerConfig = PARTNER_TYPE_CONFIG[item.partner.type];
+
+    /**
+     * Get message preview with icon based on type
+     */
+    const getMessagePreview = (
+        lastMessage: Conversation['lastMessage'],
+        isFromMe: boolean
+    ): { icon?: IconSymbolName; text: string } => {
+        const prefix = isFromMe ? t('chat:list.messageYou') : '';
+
+        switch (lastMessage.type) {
+            case MessageType.IMAGE:
+                return { icon: 'image', text: `${prefix}${t('chat:list.messageSentImage')}` };
+            case MessageType.PRODUCT_CARD:
+                return {
+                    icon: 'bag',
+                    text: `${prefix}${t('chat:list.messageProduct', { name: lastMessage.content })}`
+                };
+            case MessageType.ORDER_CARD:
+                return { icon: 'shipping', text: lastMessage.content };
+            case MessageType.FILE:
+                return { icon: 'attach', text: lastMessage.content };
+            default:
+                return { text: `${prefix}${lastMessage.content}` };
+        }
+    };
+
+    const messagePreview = getMessagePreview(item.lastMessage, isFromMe);
 
     // Auto-close this row when another row is opened (mutual exclusion)
     useEffect(() => {
@@ -280,7 +276,9 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
                         size={22}
                         color="#fff"
                     />
-                    <Text style={styles.actionText}>{item.isPinned ? 'Bỏ ghim' : 'Ghim'}</Text>
+                    <Text style={styles.actionText}>
+                        {item.isPinned ? t('chat:list.actionUnpin') : t('chat:list.actionPin')}
+                    </Text>
                 </TouchableOpacity>
             </Animated.View>
 
@@ -296,7 +294,9 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
                         size={22}
                         color="#fff"
                     />
-                    <Text style={styles.actionText}>{item.isMuted ? 'Bật' : 'Tắt'}</Text>
+                    <Text style={styles.actionText}>
+                        {item.isMuted ? t('chat:list.actionUnmute') : t('chat:list.actionMute')}
+                    </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={[styles.actionButton, styles.deleteButton]}
@@ -304,7 +304,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
                     activeOpacity={0.8}
                 >
                     <IconSymbol name="delete" size={22} color="#fff" />
-                    <Text style={styles.actionText}>Xóa</Text>
+                    <Text style={styles.actionText}>{t('common:actions.delete')}</Text>
                 </TouchableOpacity>
             </Animated.View>
 
@@ -397,7 +397,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
                                     color={theme.colors.primary}
                                 />
                                 <Text style={styles.responseText}>
-                                    Phản hồi {item.partner.responseRate}%
+                                    {t('chat:list.responseRate', { rate: item.partner.responseRate })}
                                 </Text>
                             </View>
                         )}

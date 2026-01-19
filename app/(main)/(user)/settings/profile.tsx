@@ -1,11 +1,13 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 export default function ProfileSettingsScreen() {
+    const { t } = useTranslation('profile');
     return (
         <View style={styles.container}>
-            <Text>Hồ sơ & Địa chỉ</Text>
+            <Text>{t('settings.items.profile')}</Text>
         </View>
     );
 }

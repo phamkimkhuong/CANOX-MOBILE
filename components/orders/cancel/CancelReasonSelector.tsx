@@ -12,6 +12,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import type { CancelReasonCode } from '@/types/order/cancel';
 import { CANCEL_REASONS, MIN_OTHER_REASON_LENGTH } from '@/types/order/cancelReasons';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     Pressable,
     Text,
@@ -41,6 +42,7 @@ export const CancelReasonSelector: React.FC<CancelReasonSelectorProps> = ({
     showOtherError = false,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('order');
     const styles = stylesheet;
 
     const isOtherSelected = selectedReason === 'OTHER';
@@ -48,7 +50,7 @@ export const CancelReasonSelector: React.FC<CancelReasonSelectorProps> = ({
     return (
         <View style={styles.container}>
             {/* Header */}
-            <Text style={styles.header}>Lý do huỷ đơn</Text>
+            <Text style={styles.header}>{t('cancel.title')}</Text>
 
             {/* Reason Options */}
             <View style={styles.optionsList}>
@@ -73,7 +75,7 @@ export const CancelReasonSelector: React.FC<CancelReasonSelectorProps> = ({
                                         isSelected && styles.optionLabelSelected,
                                     ]}
                                 >
-                                    {reason.label}
+                                    {t(`cancel.reasons.${reason.code}` as any)}
                                 </Text>
 
                                 {/* Radio Circle */}
@@ -97,7 +99,7 @@ export const CancelReasonSelector: React.FC<CancelReasonSelectorProps> = ({
                                             styles.textArea,
                                             showOtherError && styles.textAreaError,
                                         ]}
-                                        placeholder="Nhập lý do chi tiết (tối thiểu 10 ký tự)..."
+                                        placeholder={t('cancel.otherReasonPlaceholder')}
                                         placeholderTextColor={theme.colors.typographySecondary}
                                         multiline
                                         numberOfLines={4}
@@ -117,7 +119,7 @@ export const CancelReasonSelector: React.FC<CancelReasonSelectorProps> = ({
                                                     color={theme.colors.error}
                                                 />
                                                 <Text style={styles.errorText}>
-                                                    Vui lòng nhập tối thiểu {MIN_OTHER_REASON_LENGTH} ký tự
+                                                    {t('cancel.otherReasonMinChars', { count: MIN_OTHER_REASON_LENGTH })}
                                                 </Text>
                                             </View>
                                         )}

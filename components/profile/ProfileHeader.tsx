@@ -2,6 +2,7 @@ import { ROUTES } from '@/constants/routes';
 import { Navigator } from '@/utils/navigation';
 import { MaterialIcons } from '@expo/vector-icons';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -19,6 +20,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     hasNotification = true,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('profile');
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
 
@@ -36,13 +38,15 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
     return (
         <View style={[styles.container, { paddingTop: insets.top + theme.margins.sm }]}>
-            <Text style={styles.title}>Hồ sơ</Text>
+            <Text style={styles.title}>{t('title')}</Text>
 
             <View style={styles.actions}>
                 <TouchableOpacity
                     style={styles.iconBtn}
                     onPress={handleSearch}
                     activeOpacity={0.7}
+                    accessibilityLabel={t('header.searchAccessibility')}
+                    accessibilityRole="button"
                 >
                     <MaterialIcons name="search" size={20} color={theme.colors.typographySecondary} />
                 </TouchableOpacity>
@@ -51,6 +55,8 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                     style={styles.iconBtn}
                     onPress={handleNotification}
                     activeOpacity={0.7}
+                    accessibilityLabel={t('header.notificationAccessibility')}
+                    accessibilityRole="button"
                 >
                     <MaterialIcons name="notifications" size={20} color={theme.colors.typographySecondary} />
                     {hasNotification && <View style={styles.notificationDot} />}
@@ -60,6 +66,8 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                     style={styles.iconBtn}
                     onPress={handleSettings}
                     activeOpacity={0.7}
+                    accessibilityLabel={t('header.settingsAccessibility')}
+                    accessibilityRole="button"
                 >
                     <MaterialIcons name="settings" size={20} color={theme.colors.typographySecondary} />
                 </TouchableOpacity>

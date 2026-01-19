@@ -13,6 +13,9 @@ export const COMMON_STRINGS: CommonTranslation = {
         retry: 'Thử lại',
         copy: 'Sao chép',
         viewNow: 'Xem ngay',
+        seeAll: 'Xem tất cả',
+        yes: 'Có',
+        no: 'Không',
     },
     status: {
         loading: 'Đang tải...',

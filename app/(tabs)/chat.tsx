@@ -13,6 +13,7 @@ import { ChatFilter, Conversation } from '@/types/chat';
 import { Navigator } from '@/utils/navigation';
 import { FlashList } from '@shopify/flash-list';
 import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, RefreshControl, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -22,6 +23,7 @@ const SEARCH_DEBOUNCE_MS = 300;
 
 export default function ChatScreen() {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('chat');
     const styles = stylesheet;
 
     const [activeFilter, setActiveFilter] = useState<ChatFilter>(ChatFilter.ALL);
@@ -135,12 +137,12 @@ export default function ChatScreen() {
     const renderHeader = useCallback(
         () => (
             <PromoBanner
-                subtitle="Sự kiện 11.11 sắp tới!"
-                title="Giảm 50% phí vận chuyển quốc tế"
+                subtitle={t('promo.subtitle')}
+                title={t('promo.title')}
                 icon="shipping"
             />
         ),
-        []
+        [t]
     );
 
     const renderFooter = useCallback(() => {

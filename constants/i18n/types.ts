@@ -78,6 +78,11 @@ export interface ProductTranslation {
         notFound: string;
         notFoundDetail: string;
         home: string;
+        authRequiredTitle: string;
+        authRequiredChat: string;
+        authRequiredCart: string;
+        authRequiredBuyNow: string;
+        authRequiredGeneric: string;
     };
     navigation: {
         title: string;
@@ -244,6 +249,9 @@ export interface CommonTranslation {
         retry: string;
         copy: string;
         viewNow: string;
+        seeAll: string;
+        yes: string;
+        no: string;
     };
     status: {
         loading: string;
@@ -302,10 +310,52 @@ export interface AuthTranslation {
         loginNow: string;
     };
     forgotPassword: {
+        headerTitle: string;
         title: string;
         subtitle: string;
         emailLabel: string;
+        emailPlaceholder: string;
+        infoBox: string;
         sendButton: string;
+        sendingButton: string;
+        successToast: string;
+        successToastDetail: string;
+        errorToast: string;
+        errorToastDetail: string;
+        rememberedPassword: string;
+        loginLink: string;
+    };
+    resetPassword: {
+        headerTitle: string;
+        title: string;
+        subtitle: string;
+        passwordLabel: string;
+        confirmPasswordLabel: string;
+        passwordPlaceholder: string;
+        confirmPasswordPlaceholder: string;
+        requirementsTitle: string;
+        requirementLength: string;
+        requirementUppercase: string;
+        requirementLowercase: string;
+        requirementNumber: string;
+        submitButton: string;
+        submittingButton: string;
+        successToast: string;
+        successToastDetail: string;
+        errorToast: string;
+        errorToastDetail: string;
+        rememberedPassword: string;
+        loginLink: string;
+        missingInfoToast: string;
+        missingInfoDetail: string;
+    };
+    validation: {
+        emailRequired: string;
+        emailInvalid: string;
+        passwordRequired: string;
+        passwordTooShort: string;
+        passwordMismatch: string;
+        usernameRequired: string;
     };
 }
 
@@ -491,6 +541,24 @@ export interface OrderTranslation {
             total: string;
             savings: string;
         };
+        customerNote: string;
+        cancellationReason: string;
+        copyTrackingSuccess: string;
+        noTrackingTitle: string;
+        noTrackingMessage: string;
+        missingShopInfo: string;
+        missingPaymentUrlTitle: string;
+        missingPaymentUrlMessage: string;
+        confirmReceivedTitle: string;
+        confirmReceivedMessage: string;
+        confirmReceivedSuccess: string;
+        confirmReceivedError: string;
+        returnRequestTitle: string;
+        returnRequestMessage: string;
+        carrierTitle: string;
+        trackingID: string;
+        estimatedDelivery: string;
+        trackOrder: string;
     };
     timeline: {
         created: string;
@@ -515,6 +583,34 @@ export interface OrderTranslation {
         pay: string;
         return: string;
     };
+    cancel: {
+        title: string;
+        selectReason: string;
+        otherReasonPlaceholder: string;
+        otherReasonError: string;
+        otherReasonMinChars: string;
+        confirmTitle: string;
+        confirmMessage: string;
+        confirmMessageVoucher: string;
+        submit: string;
+        loading: string;
+        notFound: string;
+        notFoundDetail: string;
+        success: string;
+        reasons: {
+            CHANGE_ADDRESS: string;
+            CHANGE_PRODUCT: string;
+            FOUND_CHEAPER: string;
+            DELIVERY_TOO_LONG: string;
+            DONT_WANT: string;
+            OTHER: string;
+        };
+        refund: {
+            notPaid: string;
+            refundInfo: string;
+            voucherWarning: string;
+        };
+    };
 }
 
 /**
@@ -524,7 +620,24 @@ export interface ChatTranslation {
     list: {
         title: string;
         search: string;
-        empty: string;
+        emptyTitle: string;
+        emptySubtitle: string;
+        filterAll: string;
+        filterUnread: string;
+        filterShop: string;
+        filterSupport: string;
+        actionPin: string;
+        actionUnpin: string;
+        actionMute: string;
+        actionUnmute: string;
+        messageYou: string;
+        messageSentImage: string;
+        messageProduct: string;
+        responseRate: string;
+    };
+    promo: {
+        title: string;
+        subtitle: string;
     };
     detail: {
         loadingMessages: string;
@@ -546,10 +659,14 @@ export interface ChatTranslation {
  * Profile & Settings translations
  */
 export interface ProfileTranslation {
+    title: string;
     header: {
         login: string;
         register: string;
         guestName: string;
+        searchAccessibility: string;
+        notificationAccessibility: string;
+        settingsAccessibility: string;
     };
     stats: {
         favorites: string;
@@ -611,8 +728,75 @@ export interface ProfileTranslation {
             coins: string;
         };
     };
+    editProfile: {
+        title: string;
+        save: string;
+        saving: string;
+        avatar: {
+            change: string;
+            chooseSource: string;
+            camera: string;
+            gallery: string;
+            helper: string;
+            uploading: string;
+        };
+        form: {
+            fullName: string;
+            fullNamePlaceholder: string;
+            gender: string;
+            genderMale: string;
+            genderFemale: string;
+            genderOther: string;
+            birthday: string;
+            birthdayPlaceholder: string;
+            phone: string;
+            phonePlaceholder: string;
+            email: string;
+            verified: string;
+            emailLockNotice: string;
+        };
+        messages: {
+            loading: string;
+            updateSuccess: string;
+            updateError: string;
+            uploadSuccess: string;
+            uploadError: string;
+            unsavedChangesTitle: string;
+            unsavedChangesMessage: string;
+            stay: string;
+            exit: string;
+        };
+    };
+    changePassword: {
+        title: string;
+        subtitle: string;
+        description: string;
+        currentPassword: string;
+        currentPasswordPlaceholder: string;
+        newPassword: string;
+        newPasswordPlaceholder: string;
+        confirmPassword: string;
+        confirmPasswordPlaceholder: string;
+        submitButton: string;
+        successTitle: string;
+        successSubtitle: string;
+        successToast: string;
+        successToastDetail: string;
+        errorToast: string;
+        errorWrongPassword: string;
+        tips: {
+            title: string;
+            item1: string;
+            item2: string;
+            item3: string;
+        };
+    };
     settings: {
         title: string;
+        header: {
+            help: string;
+            back: string;
+        };
         sections: {
             account: string;
             payment: string;
@@ -639,6 +823,12 @@ export interface ProfileTranslation {
             deleteAccountConfirm: string;
             confirmClearCache: string;
             cacheCleared: string;
+        };
+        footer: {
+            version: string;
+            copyright: string;
+            deleteAccountHint: string;
+            deleteAccountAccessibility: string;
         };
     };
 }

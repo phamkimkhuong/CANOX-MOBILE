@@ -82,8 +82,8 @@ export default function ChangePasswordScreen() {
                     setIsSuccess(true);
                     Toast.show({
                         type: 'success',
-                        text1: 'Đổi mật khẩu thành công',
-                        text2: 'Mật khẩu của bạn đã được cập nhật',
+                        text1: t('profile:changePassword.successToast'),
+                        text2: t('profile:changePassword.successToastDetail'),
                         visibilityTime: 3000,
                     });
                     // Delay navigation để user thấy success state
@@ -95,15 +95,15 @@ export default function ChangePasswordScreen() {
                     if (isWrongOldPasswordError(error)) {
                         setError('oldPassword', {
                             type: 'manual',
-                            message: 'Mật khẩu hiện tại không đúng',
+                            message: t('profile:changePassword.errorWrongPassword'),
                         });
                         setFocus('oldPassword');
                     } else {
                         const apiError = error as { message?: string };
                         Toast.show({
                             type: 'error',
-                            text1: 'Đổi mật khẩu thất bại',
-                            text2: apiError.message || 'Vui lòng thử lại sau',
+                            text1: t('profile:changePassword.errorToast'),
+                            text2: apiError.message || t('common:status.error'),
                             visibilityTime: 3000,
                         });
                     }
@@ -130,9 +130,9 @@ export default function ChangePasswordScreen() {
                 <View style={styles.successIconCircle}>
                     <IconSymbol name="check-circle" size={48} color={theme.colors.success} />
                 </View>
-                <Text style={styles.successTitle}>Đổi mật khẩu thành công!</Text>
+                <Text style={styles.successTitle}>{t('profile:changePassword.successTitle')}</Text>
                 <Text style={styles.successSubtitle}>
-                    Đang chuyển hướng về Cài đặt...
+                    {t('profile:changePassword.successSubtitle')}
                 </Text>
             </View>
         );
@@ -149,7 +149,7 @@ export default function ChangePasswordScreen() {
                 >
                     <IconSymbol name="arrow-back" size={24} color={theme.colors.typography} />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Đổi mật khẩu</Text>
+                <Text style={styles.headerTitle}>{t('profile:changePassword.title')}</Text>
                 <View style={styles.headerSpacer} />
             </View>
 
@@ -167,9 +167,9 @@ export default function ChangePasswordScreen() {
                         <View style={styles.iconCircle}>
                             <IconSymbol name="lock-reset" size={36} color={theme.colors.primary} />
                         </View>
-                        <Text style={styles.sectionTitle}>Bảo mật tài khoản</Text>
+                        <Text style={styles.sectionTitle}>{t('profile:changePassword.subtitle')}</Text>
                         <Text style={styles.sectionSubtitle}>
-                            Mật khẩu mới cần có ít nhất 6 ký tự, bao gồm chữ hoa, chữ thường và số.
+                            {t('profile:changePassword.description')}
                         </Text>
                     </View>
 
@@ -179,8 +179,8 @@ export default function ChangePasswordScreen() {
                         <AuthInput
                             control={control}
                             name="oldPassword"
-                            label="Mật khẩu hiện tại"
-                            placeholder="Nhập mật khẩu hiện tại"
+                            label={t('profile:changePassword.currentPassword')}
+                            placeholder={t('profile:changePassword.currentPasswordPlaceholder')}
                             icon="lock"
                             isPassword
                         />
@@ -188,7 +188,7 @@ export default function ChangePasswordScreen() {
                         {/* Divider */}
                         <View style={styles.divider}>
                             <View style={styles.dividerLine} />
-                            <Text style={styles.dividerText}>Mật khẩu mới</Text>
+                            <Text style={styles.dividerText}>{t('profile:changePassword.newPassword')}</Text>
                             <View style={styles.dividerLine} />
                         </View>
 
@@ -196,8 +196,8 @@ export default function ChangePasswordScreen() {
                         <AuthInput
                             control={control}
                             name="newPassword"
-                            label="Mật khẩu mới"
-                            placeholder="Nhập mật khẩu mới"
+                            label={t('profile:changePassword.newPassword')}
+                            placeholder={t('profile:changePassword.newPasswordPlaceholder')}
                             icon="lock-reset"
                             isPassword
                         />
@@ -211,8 +211,8 @@ export default function ChangePasswordScreen() {
                         <AuthInput
                             control={control}
                             name="confirmPassword"
-                            label="Xác nhận mật khẩu mới"
-                            placeholder="Nhập lại mật khẩu mới"
+                            label={t('profile:changePassword.confirmPassword')}
+                            placeholder={t('profile:changePassword.confirmPasswordPlaceholder')}
                             icon="verified-user"
                             isPassword
                         />
@@ -236,7 +236,7 @@ export default function ChangePasswordScreen() {
                                         size={20}
                                         color={theme.colors.onPrimary}
                                     />
-                                    <Text style={styles.submitBtnText}>Xác nhận đổi mật khẩu</Text>
+                                    <Text style={styles.submitBtnText}>{t('profile:changePassword.submitButton')}</Text>
                                 </>
                             )}
                         </TouchableOpacity>
@@ -246,24 +246,24 @@ export default function ChangePasswordScreen() {
                     <View style={styles.tipsCard}>
                         <View style={styles.tipHeader}>
                             <IconSymbol name="info" size={18} color={theme.colors.info} />
-                            <Text style={styles.tipTitle}>Mẹo bảo mật</Text>
+                            <Text style={styles.tipTitle}>{t('profile:changePassword.tips.title')}</Text>
                         </View>
                         <View style={styles.tipItem}>
                             <IconSymbol name="check" size={14} color={theme.colors.success} />
                             <Text style={styles.tipText}>
-                                Không sử dụng thông tin cá nhân như tên, ngày sinh
+                                {t('profile:changePassword.tips.item1')}
                             </Text>
                         </View>
                         <View style={styles.tipItem}>
                             <IconSymbol name="check" size={14} color={theme.colors.success} />
                             <Text style={styles.tipText}>
-                                Kết hợp ký tự đặc biệt để tăng độ bảo mật
+                                {t('profile:changePassword.tips.item2')}
                             </Text>
                         </View>
                         <View style={styles.tipItem}>
                             <IconSymbol name="check" size={14} color={theme.colors.success} />
                             <Text style={styles.tipText}>
-                                Không sử dụng lại mật khẩu từ các trang khác
+                                {t('profile:changePassword.tips.item3')}
                             </Text>
                         </View>
                     </View>

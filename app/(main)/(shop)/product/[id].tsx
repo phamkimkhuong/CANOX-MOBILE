@@ -29,6 +29,7 @@ import { createLogger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, RefreshControl, Text, View } from 'react-native';
 import Animated, {
     useAnimatedScrollHandler,
@@ -45,6 +46,7 @@ export default function ProductDetailScreen() {
     const { id, instantNav } = useLocalSearchParams<{ id: string; instantNav?: string }>();
     const insets = useSafeAreaInsets();
     const { theme } = useUnistyles();
+    const { t } = useTranslation(['product', 'chat', 'common']);
     const [variantSheetVisible, setVariantSheetVisible] = useState(false);
     /** Tracks how the variant sheet was opened - determines button text and action */
     const [variantSheetMode, setVariantSheetMode] = useState<VariantSheetMode>('select');
@@ -176,8 +178,10 @@ export default function ProductDetailScreen() {
             setVariantSheetVisible(false);
             Toast.show({
                 type: 'info',
-                text1: 'Yêu cầu đăng nhập',
-                text2: 'Vui lòng đăng nhập để thực hiện hành động này',
+                text1: t('product:error.authRequiredTitle'),
+                text2: variantSheetMode === 'add-to-cart'
+                    ? t('product:error.authRequiredCart')
+                    : t('product:error.authRequiredBuyNow'),
             });
             Navigator.push(ROUTES.AUTH.LOGIN);
             return;
@@ -266,8 +270,8 @@ export default function ProductDetailScreen() {
         if (shopId === myShopId) {
             Toast.show({
                 type: 'info',
-                text1: CHAT_STRINGS.error.chatWithSelf,
-                text2: 'Bạn đang ở trong shop của chính mình',
+                text1: t('chat:error.chatWithSelf'),
+                text2: t('product:error.authRequiredGeneric'),
             });
             return;
         }
@@ -312,8 +316,8 @@ export default function ProductDetailScreen() {
         if (!isAuthenticated) {
             Toast.show({
                 type: 'info',
-                text1: 'Yêu cầu đăng nhập',
-                text2: 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng',
+                text1: t('product:error.authRequiredTitle'),
+                text2: t('product:error.authRequiredCart'),
             });
             Navigator.push(ROUTES.AUTH.LOGIN);
             return;
@@ -352,8 +356,8 @@ export default function ProductDetailScreen() {
         if (!isAuthenticated) {
             Toast.show({
                 type: 'info',
-                text1: 'Yêu cầu đăng nhập',
-                text2: 'Vui lòng đăng nhập để tiếp tục mua hàng',
+                text1: t('product:error.authRequiredTitle'),
+                text2: t('product:error.authRequiredBuyNow'),
             });
             Navigator.push(ROUTES.AUTH.LOGIN);
             return;

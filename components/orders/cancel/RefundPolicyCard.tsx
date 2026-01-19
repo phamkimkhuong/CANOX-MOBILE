@@ -9,9 +9,9 @@
  */
 
 import { IconSymbol } from '@/components/ui/Icon';
-import { REFUND_MESSAGES } from '@/types/order/cancelReasons';
 import type { OrderStatus, PaymentMethod } from '@/types/order/order';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -30,12 +30,13 @@ export const RefundPolicyCard: React.FC<RefundPolicyCardProps> = ({
     hasVoucher,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('order');
     const styles = stylesheet;
     const isActuallyPaid = paymentMethod !== 'COD' && status !== 'AWAITING_PAYMENT';
 
     const refundMessage = isActuallyPaid
-        ? REFUND_MESSAGES.REFUND
-        : REFUND_MESSAGES.NOT_PAID;
+        ? t('cancel.refund.refundInfo')
+        : t('cancel.refund.notPaid');
 
     return (
         <View style={styles.container}>
@@ -74,7 +75,7 @@ export const RefundPolicyCard: React.FC<RefundPolicyCardProps> = ({
                         />
                     </View>
                     <Text style={styles.voucherWarningText}>
-                        {REFUND_MESSAGES.VOUCHER_WARNING}
+                        {t('cancel.refund.voucherWarning')}
                     </Text>
                 </View>
             )}

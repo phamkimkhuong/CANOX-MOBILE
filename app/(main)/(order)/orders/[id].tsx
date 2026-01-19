@@ -30,7 +30,6 @@ import {
     ShippingInfoCard,
 } from '@/components/orders/detail';
 import { OrderShopHeader } from '@/components/orders/OrderShopHeader';
-import { CHAT_STRINGS } from '@/constants/i18n/vi/chat';
 import { cartRoutes, chatRoutes, orderRoutes, shopRoutes } from '@/constants/routes';
 import { useAddToCart } from '@/hooks/api/cart';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
@@ -62,7 +61,7 @@ export default function OrderDetailScreen() {
 
     const myShopId = useAuthStore((s) => s.shopId);
     const { theme } = useUnistyles();
-    const { t } = useTranslation(['order', 'common', 'profile', 'product']);
+    const { t } = useTranslation(['order', 'common', 'profile', 'product', 'chat']);
     const styles = stylesheet;
     const prefetchChat = usePrefetchShopChat();
 
@@ -149,7 +148,7 @@ export default function OrderDetailScreen() {
         if (!shopUserId || !shopName) {
             Toast.show({
                 type: 'error',
-                text1: 'Thiếu thông tin Shop',
+                text1: t('order:detail.missingShopInfo'),
             });
             return;
         }
@@ -157,8 +156,8 @@ export default function OrderDetailScreen() {
         if (order.shopId === myShopId) {
             Toast.show({
                 type: 'info',
-                text1: CHAT_STRINGS.error.chatWithSelf,
-                text2: 'Bạn đang ở trong shop của chính mình',
+                text1: t('chat:error.chatWithSelf'),
+                text2: t('chat:error.chatWithSelfDetail' as any), // Fallback if detail key exists or just t()
             });
             return;
         }
@@ -182,8 +181,8 @@ export default function OrderDetailScreen() {
         if (!order?.trackingNumber) {
             Toast.show({
                 type: 'info',
-                text1: 'Chưa có mã vận đơn',
-                text2: 'Vui lòng chờ shop giao hàng',
+                text1: t('order:detail.noTrackingTitle'),
+                text2: t('order:detail.noTrackingMessage'),
             });
             return;
         }
@@ -191,20 +190,20 @@ export default function OrderDetailScreen() {
         await Clipboard.setStringAsync(order.trackingNumber);
         Toast.show({
             type: 'success',
-            text1: 'Đã sao chép mã vận đơn',
+            text1: t('order:detail.copyTrackingSuccess'),
             text2: order.trackingNumber,
         });
-    }, [order?.trackingNumber]);
+    }, [order?.trackingNumber, t]);
 
     const handleConfirmReceived = useCallback(() => {
         if (!rawOrder) return;
 
         CustomAlertHelper.show({
-            title: 'Xác nhận đã nhận hàng',
-            message: 'Bạn đã nhận được hàng và hài lòng với đơn hàng?',
+            title: t('order:detail.confirmReceivedTitle'),
+            message: t('order:detail.confirmReceivedMessage'),
             type: 'success',
-            confirmText: 'Đã nhận',
-            cancelText: 'Chưa',
+            confirmText: t('common:actions.yes'),
+            cancelText: t('common:actions.no'),
             onConfirm: async () => {
                 setLoadingAction('confirm');
                 try {
@@ -212,33 +211,33 @@ export default function OrderDetailScreen() {
                     logger.api.info('Confirm received:', rawOrder.orderId);
                     Toast.show({
                         type: 'success',
-                        text1: 'Đã xác nhận nhận hàng',
+                        text1: t('order:detail.confirmReceivedSuccess'),
                     });
                     await refetch();
                 } catch (err) {
                     logger.api.error('Confirm received failed:', err);
                     Toast.show({
                         type: 'error',
-                        text1: 'Xác nhận thất bại',
-                        text2: 'Vui lòng thử lại sau',
+                        text1: t('order:detail.confirmReceivedError'),
+                        text2: t('common:status.error'),
                     });
                 } finally {
                     setLoadingAction(null);
                 }
             },
         });
-    }, [rawOrder, refetch]);
+    }, [rawOrder, refetch, t]);
 
     const handleReturnOrder = useCallback(() => {
         if (!rawOrder) return;
         // TODO: Navigate to return request screen
         Toast.show({
             type: 'info',
-            text1: 'Yêu cầu trả hàng',
-            text2: 'Chức năng đang được tích hợp',
+            text1: t('order:detail.returnRequestTitle'),
+            text2: t('order:detail.returnRequestMessage'),
         });
         logger.api.info('Return order request:', rawOrder.orderId);
-    }, [rawOrder]);
+    }, [rawOrder, t]);
 
     const { mutateAsync: addToCart } = useAddToCart();
     const handleRebuy = useCallback(async () => {
@@ -285,13 +284,13 @@ export default function OrderDetailScreen() {
         if (!rawOrder?.paymentUrl) {
             Toast.show({
                 type: 'error',
-                text1: 'Không tìm thấy liên kết thanh toán',
-                text2: 'Vui lòng thử lại sau hoặc liên hệ shop',
+                text1: t('order:detail.missingPaymentUrlTitle'),
+                text2: t('order:detail.missingPaymentUrlMessage'),
             });
             return;
         }
         Linking.openURL(rawOrder.paymentUrl);
-    }, [rawOrder?.paymentUrl]);
+    }, [rawOrder?.paymentUrl, t]);
 
     const handleReviewItem = useCallback(
         (item: OrderItemUI) => {
@@ -403,14 +402,14 @@ export default function OrderDetailScreen() {
                         {/* Notes */}
                         {order.customerNote && (
                             <View style={styles.noteSection}>
-                                <Text style={styles.noteLabel}>Ghi chú:</Text>
+                                <Text style={styles.noteLabel}>{t('order:detail.customerNote')}</Text>
                                 <Text style={styles.noteText}>{order.customerNote}</Text>
                             </View>
                         )}
 
                         {order.cancellationReason && (
                             <View style={styles.cancelSection}>
-                                <Text style={styles.cancelLabel}>Lý do huỷ:</Text>
+                                <Text style={styles.cancelLabel}>{t('order:detail.cancellationReason')}</Text>
                                 <Text style={styles.cancelText}>{order.cancellationReason}</Text>
                             </View>
                         )}

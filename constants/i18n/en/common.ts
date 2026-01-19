@@ -13,6 +13,9 @@ export const COMMON_STRINGS: CommonTranslation = {
         retry: 'Retry',
         copy: 'Copy',
         viewNow: 'View Now',
+        seeAll: 'See All',
+        yes: 'Yes',
+        no: 'No',
     },
     status: {
         loading: 'Loading...',

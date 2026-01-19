@@ -2,6 +2,7 @@ import { Navigator } from '@/utils/navigation';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Platform, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -18,14 +19,16 @@ interface SettingsHeaderProps {
  * Clean header with back navigation, title, and optional help action
  */
 export const SettingsHeader: React.FC<SettingsHeaderProps> = memo(({
-    title = 'Cài đặt',
+    title,
     showBackButton = true,
     showHelpButton = true,
     onHelpPress,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation(['profile', 'common']);
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
+    const headerTitle = title || t('profile:settings.title');
 
     const handleGoBack = () => {
         if (router.canGoBack()) {
@@ -56,7 +59,7 @@ export const SettingsHeader: React.FC<SettingsHeaderProps> = memo(({
                         <TouchableOpacity
                             onPress={handleGoBack}
                             style={styles.iconButton}
-                            accessibilityLabel="Quay lại"
+                            accessibilityLabel={t('profile:settings.header.back')}
                             accessibilityRole="button"
                             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                         >
@@ -72,7 +75,7 @@ export const SettingsHeader: React.FC<SettingsHeaderProps> = memo(({
                 {/* Center: Title */}
                 <View style={styles.centerSection}>
                     <Text style={styles.title} numberOfLines={1}>
-                        {title}
+                        {headerTitle}
                     </Text>
                 </View>
 
@@ -82,7 +85,7 @@ export const SettingsHeader: React.FC<SettingsHeaderProps> = memo(({
                         <TouchableOpacity
                             onPress={handleHelpPress}
                             style={styles.iconButton}
-                            accessibilityLabel="Trợ giúp"
+                            accessibilityLabel={t('profile:settings.header.help')}
                             accessibilityRole="button"
                             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                         >

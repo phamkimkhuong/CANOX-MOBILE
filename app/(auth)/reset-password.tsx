@@ -21,6 +21,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import {
     ActivityIndicator,
     KeyboardAvoidingView,
@@ -42,6 +43,7 @@ type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 
 export default function ResetPasswordScreen() {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('auth');
     const styles = stylesheet;
 
     // Get params from navigation
@@ -65,12 +67,12 @@ export default function ResetPasswordScreen() {
         if (!email || !otpCode) {
             Toast.show({
                 type: 'error',
-                text1: 'Thiếu thông tin',
-                text2: 'Vui lòng thực hiện lại từ đầu.',
+                text1: t('resetPassword.missingInfoToast'),
+                text2: t('resetPassword.missingInfoDetail'),
             });
             Navigator.replace(ROUTES.AUTH.FORGOT_PASSWORD);
         }
-    }, [email, otpCode]);
+    }, [email, otpCode, t]);
 
     const onSubmit = async (data: ResetPasswordFormData) => {
         if (!email || !otpCode) return;
@@ -84,8 +86,8 @@ export default function ResetPasswordScreen() {
 
             Toast.show({
                 type: 'success',
-                text1: 'Đặt lại mật khẩu thành công',
-                text2: 'Vui lòng đăng nhập với mật khẩu mới.',
+                text1: t('resetPassword.successToast'),
+                text2: t('resetPassword.successToastDetail'),
             });
 
             // Navigate to login
@@ -99,14 +101,14 @@ export default function ResetPasswordScreen() {
                 Toast.show({
                     type: 'error',
                     text1: error.message,
-                    text2: 'Vui lòng thực hiện lại từ đầu.',
+                    text2: t('resetPassword.missingInfoDetail'),
                 });
                 Navigator.replace(ROUTES.AUTH.FORGOT_PASSWORD);
             } else {
                 Toast.show({
                     type: 'error',
-                    text1: 'Đặt lại mật khẩu thất bại',
-                    text2: error?.message || 'Vui lòng thử lại sau.',
+                    text1: t('resetPassword.errorToast'),
+                    text2: error?.message || t('resetPassword.errorToastDetail'),
                 });
             }
         }
@@ -133,7 +135,7 @@ export default function ResetPasswordScreen() {
                         <TouchableOpacity style={styles.backBtn} onPress={handleBack}>
                             <IconSymbol name="arrow-back" size={24} color={theme.colors.typography} />
                         </TouchableOpacity>
-                        <Text style={styles.headerTitle}>Đặt mật khẩu mới</Text>
+                        <Text style={styles.headerTitle}>{t('resetPassword.headerTitle')}</Text>
                         <View style={styles.headerSpacer} />
                     </View>
 
@@ -142,9 +144,9 @@ export default function ResetPasswordScreen() {
                         <View style={styles.iconCircle}>
                             <IconSymbol name="lock" size={36} color={theme.colors.primary} />
                         </View>
-                        <Text style={styles.welcomeTitle}>Tạo mật khẩu mới</Text>
+                        <Text style={styles.welcomeTitle}>{t('resetPassword.title')}</Text>
                         <Text style={styles.welcomeSubtitle}>
-                            Mật khẩu phải có ít nhất 6 ký tự, bao gồm chữ hoa, chữ thường và số
+                            {t('resetPassword.subtitle')}
                         </Text>
                     </View>
 
@@ -154,9 +156,9 @@ export default function ResetPasswordScreen() {
                         <AuthInput
                             control={control}
                             name="password"
-                            label="Mật khẩu mới"
+                            label={t('resetPassword.passwordLabel')}
                             icon="lock"
-                            placeholder="Nhập mật khẩu mới"
+                            placeholder={t('resetPassword.passwordPlaceholder')}
                             isPassword
                             editable={!isSubmitting}
                         />
@@ -165,31 +167,31 @@ export default function ResetPasswordScreen() {
                         <AuthInput
                             control={control}
                             name="confirmPassword"
-                            label="Xác nhận mật khẩu"
+                            label={t('resetPassword.confirmPasswordLabel')}
                             icon="lock"
-                            placeholder="Nhập lại mật khẩu mới"
+                            placeholder={t('resetPassword.confirmPasswordPlaceholder')}
                             isPassword
                             editable={!isSubmitting}
                         />
 
                         {/* Password Requirements */}
                         <View style={styles.requirementsBox}>
-                            <Text style={styles.requirementsTitle}>Yêu cầu mật khẩu:</Text>
+                            <Text style={styles.requirementsTitle}>{t('resetPassword.requirementsTitle')}</Text>
                             <View style={styles.requirementRow}>
                                 <IconSymbol name="check" size={14} color={theme.colors.success} />
-                                <Text style={styles.requirementText}>Ít nhất 6 ký tự</Text>
+                                <Text style={styles.requirementText}>{t('resetPassword.requirementLength')}</Text>
                             </View>
                             <View style={styles.requirementRow}>
                                 <IconSymbol name="check" size={14} color={theme.colors.success} />
-                                <Text style={styles.requirementText}>Chứa chữ hoa (A-Z)</Text>
+                                <Text style={styles.requirementText}>{t('resetPassword.requirementUppercase')}</Text>
                             </View>
                             <View style={styles.requirementRow}>
                                 <IconSymbol name="check" size={14} color={theme.colors.success} />
-                                <Text style={styles.requirementText}>Chứa chữ thường (a-z)</Text>
+                                <Text style={styles.requirementText}>{t('resetPassword.requirementLowercase')}</Text>
                             </View>
                             <View style={styles.requirementRow}>
                                 <IconSymbol name="check" size={14} color={theme.colors.success} />
-                                <Text style={styles.requirementText}>Chứa số (0-9)</Text>
+                                <Text style={styles.requirementText}>{t('resetPassword.requirementNumber')}</Text>
                             </View>
                         </View>
 
@@ -202,19 +204,19 @@ export default function ResetPasswordScreen() {
                             {isSubmitting ? (
                                 <View style={styles.loadingRow}>
                                     <ActivityIndicator size="small" color={theme.colors.onPrimary} />
-                                    <Text style={styles.submitBtnText}>Đang xử lý...</Text>
+                                    <Text style={styles.submitBtnText}>{t('resetPassword.submittingButton')}</Text>
                                 </View>
                             ) : (
-                                <Text style={styles.submitBtnText}>Đặt lại mật khẩu</Text>
+                                <Text style={styles.submitBtnText}>{t('resetPassword.submitButton')}</Text>
                             )}
                         </TouchableOpacity>
                     </View>
 
                     {/* Footer */}
                     <View style={styles.footer}>
-                        <Text style={styles.footerText}>Đã nhớ mật khẩu? </Text>
+                        <Text style={styles.footerText}>{t('resetPassword.rememberedPassword')}</Text>
                         <TouchableOpacity onPress={() => Navigator.replace(ROUTES.AUTH.LOGIN)}>
-                            <Text style={styles.footerLink}>Đăng nhập</Text>
+                            <Text style={styles.footerLink}>{t('resetPassword.loginLink')}</Text>
                         </TouchableOpacity>
                     </View>
                 </ScrollView>

@@ -22,12 +22,13 @@ import { ROUTES } from '@/constants/routes';
 import { useCancelOrder } from '@/hooks/api/order/useCancelOrder';
 import { useOrderDetail } from '@/hooks/api/order/useOrderDetail';
 import type { CancelReasonCode } from '@/types/order/cancel';
-import { CANCEL_REASONS, MIN_OTHER_REASON_LENGTH } from '@/types/order/cancelReasons';
+import { MIN_OTHER_REASON_LENGTH } from '@/types/order/cancelReasons';
 import { Alert as CustomAlertHelper } from '@/utils/AlertHelper';
 import { logger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     ActivityIndicator,
     KeyboardAvoidingView,
@@ -47,6 +48,7 @@ export default function CancelOrderScreen() {
         fromDetail?: string;
     }>();
     const { theme } = useUnistyles();
+    const { t } = useTranslation(['order', 'common']);
     const styles = stylesheet;
     const { bottom } = useSafeAreaInsets();
 
@@ -63,6 +65,11 @@ export default function CancelOrderScreen() {
     // === MUTATION ===
     const { mutate: cancelOrder, isPending: isCancelling } = useCancelOrder({
         onSuccess: () => {
+            Toast.show({
+                type: 'success',
+                text1: t('common:status.success'),
+                text2: t('cancel.success'),
+            });
             if (fromDetail === 'true') {
                 Navigator.replace(`${ROUTES.ORDERS.LIST}?tab=cancelled`);
             } else {
@@ -88,11 +95,8 @@ export default function CancelOrderScreen() {
         if (selectedReason === 'OTHER') {
             return otherReasonText.trim();
         }
-
-        // Find the label for selected reason
-        const reason = CANCEL_REASONS.find((r) => r.code === selectedReason);
-        return reason?.label ?? null;
-    }, [selectedReason, otherReasonText]);
+        return t(`cancel.reasons.${selectedReason}` as any);
+    }, [selectedReason, otherReasonText, t]);
 
     // === VALIDATION ===
     const validateForm = useCallback((): boolean => {
@@ -100,7 +104,7 @@ export default function CancelOrderScreen() {
         if (!selectedReason) {
             Toast.show({
                 type: 'error',
-                text1: 'Vui lòng chọn lý do huỷ đơn',
+                text1: t('cancel.selectReason'),
             });
             return false;
         }
@@ -112,15 +116,15 @@ export default function CancelOrderScreen() {
                 setShowOtherError(true);
                 Toast.show({
                     type: 'error',
-                    text1: 'Vui lòng nhập lý do chi tiết',
-                    text2: `Tối thiểu ${MIN_OTHER_REASON_LENGTH} ký tự`,
+                    text1: t('cancel.otherReasonError'),
+                    text2: t('cancel.otherReasonMinChars', { count: MIN_OTHER_REASON_LENGTH }),
                 });
                 return false;
             }
         }
 
         return true;
-    }, [selectedReason, otherReasonText]);
+    }, [selectedReason, otherReasonText, t]);
 
     // === HANDLERS ===
     const handleBack = useCallback(() => {
@@ -147,15 +151,15 @@ export default function CancelOrderScreen() {
 
         // Confirm alert before submitting
         const confirmMessage = hasVoucher
-            ? 'Bạn có chắc chắn muốn huỷ đơn hàng này?\n\nMã giảm giá đã dùng sẽ không được hoàn lại.'
-            : 'Bạn có chắc chắn muốn huỷ đơn hàng này?';
+            ? t('cancel.confirmMessageVoucher')
+            : t('cancel.confirmMessage');
 
         CustomAlertHelper.show({
-            title: 'Xác nhận huỷ đơn',
+            title: t('cancel.confirmTitle'),
             message: confirmMessage,
             type: 'warning',
-            confirmText: 'Huỷ đơn',
-            cancelText: 'Không',
+            confirmText: t('actions.cancel'),
+            cancelText: t('common:actions.no'),
             onConfirm: () => {
                 logger.api.info('Submitting cancel order:', orderId, reasonText);
                 cancelOrder({
@@ -164,7 +168,7 @@ export default function CancelOrderScreen() {
                 });
             },
         });
-    }, [orderId, validateForm, getFinalReasonText, hasVoucher, cancelOrder]);
+    }, [orderId, validateForm, getFinalReasonText, hasVoucher, cancelOrder, t]);
 
     // === RENDER: Loading ===
     if (isLoadingOrder) {
@@ -173,7 +177,7 @@ export default function CancelOrderScreen() {
                 <Header onBack={handleBack} />
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color={theme.colors.primary} />
-                    <Text style={styles.loadingText}>Đang tải thông tin đơn hàng...</Text>
+                    <Text style={styles.loadingText}>{t('cancel.loading')}</Text>
                 </View>
             </View>
         );
@@ -190,9 +194,9 @@ export default function CancelOrderScreen() {
                         size={48}
                         color={theme.colors.error}
                     />
-                    <Text style={styles.errorTitle}>Không tìm thấy đơn hàng</Text>
+                    <Text style={styles.errorTitle}>{t('cancel.notFound')}</Text>
                     <Text style={styles.errorMessage}>
-                        Đơn hàng không tồn tại hoặc đã bị xoá
+                        {t('cancel.notFoundDetail')}
                     </Text>
                 </View>
             </View>
@@ -257,12 +261,14 @@ export default function CancelOrderScreen() {
                         onPress={handleSubmit}
                         activeOpacity={0.7}
                         disabled={!selectedReason || isCancelling}
+                        accessibilityLabel={t('cancel.submit')}
+                        accessibilityRole="button"
                     >
                         {isCancelling ? (
                             <ActivityIndicator size="small" color={theme.colors.onPrimary} />
                         ) : (
                             <>
-                                <Text style={styles.submitButtonText}>Gửi yêu cầu huỷ</Text>
+                                <Text style={styles.submitButtonText}>{t('cancel.submit')}</Text>
                                 <IconSymbol
                                     name="send"
                                     size={18}
@@ -284,6 +290,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onBack }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation(['order', 'common']);
     const styles = stylesheet;
     const { top } = useSafeAreaInsets();
 
@@ -293,6 +300,8 @@ const Header: React.FC<HeaderProps> = ({ onBack }) => {
                 style={styles.headerBackButton}
                 onPress={onBack}
                 activeOpacity={0.7}
+                accessibilityLabel={t('common:actions.back')}
+                accessibilityRole="button"
             >
                 <IconSymbol
                     name="arrow-back"
@@ -300,7 +309,7 @@ const Header: React.FC<HeaderProps> = ({ onBack }) => {
                     color={theme.colors.typography}
                 />
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>Huỷ đơn hàng</Text>
+            <Text style={styles.headerTitle}>{t('cancel.title')}</Text>
             <View style={styles.headerSpacer} />
         </View>
     );

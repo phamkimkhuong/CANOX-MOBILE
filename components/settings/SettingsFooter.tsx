@@ -1,6 +1,7 @@
 import { APP_VERSION } from '@/constants/settings';
 import { MaterialIcons } from '@expo/vector-icons';
 import React, { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -18,6 +19,7 @@ export const SettingsFooter: React.FC<SettingsFooterProps> = memo(({
     showDeleteAccount = true,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('profile');
     const styles = stylesheet;
 
     return (
@@ -27,16 +29,16 @@ export const SettingsFooter: React.FC<SettingsFooterProps> = memo(({
                 <TouchableOpacity
                     onPress={onDeleteAccount}
                     style={styles.deleteButton}
-                    accessibilityLabel="Yêu cầu xóa tài khoản"
+                    accessibilityLabel={t('settings.footer.deleteAccountAccessibility')}
                     accessibilityRole="button"
-                    accessibilityHint="Xóa vĩnh viễn tài khoản và dữ liệu của bạn"
+                    accessibilityHint={t('settings.footer.deleteAccountHint')}
                 >
                     <MaterialIcons
                         name="delete-forever"
                         size={20}
                         color={theme.colors.error}
                     />
-                    <Text style={styles.deleteText}>Yêu cầu xóa tài khoản</Text>
+                    <Text style={styles.deleteText}>{t('settings.actions.deleteAccount')}</Text>
                 </TouchableOpacity>
             )}
 
@@ -48,13 +50,13 @@ export const SettingsFooter: React.FC<SettingsFooterProps> = memo(({
                     color={theme.colors.secondary}
                 />
                 <Text style={styles.versionText}>
-                    Phiên bản {APP_VERSION}
+                    {t('settings.footer.version', { version: APP_VERSION })}
                 </Text>
             </View>
 
             {/* Copyright */}
             <Text style={styles.copyright}>
-                © 2024 CanoX VN. All rights reserved.
+                {t('settings.footer.copyright')}
             </Text>
         </View>
     );

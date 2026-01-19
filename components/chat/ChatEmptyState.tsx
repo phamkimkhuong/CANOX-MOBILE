@@ -1,5 +1,6 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -10,6 +11,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
  */
 export const ChatEmptyState: React.FC = () => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('chat');
     const styles = stylesheet;
 
     return (
@@ -21,9 +23,9 @@ export const ChatEmptyState: React.FC = () => {
                     color={theme.colors.secondary}
                 />
             </View>
-            <Text style={styles.title}>Chưa có tin nhắn</Text>
+            <Text style={styles.title}>{t('list.emptyTitle')}</Text>
             <Text style={styles.subtitle}>
-                Bắt đầu trò chuyện với Shop để được hỗ trợ về sản phẩm
+                {t('list.emptySubtitle')}
             </Text>
         </View>
     );

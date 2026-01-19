@@ -2,9 +2,26 @@ import { ChatTranslation } from '../types';
 
 export const CHAT_STRINGS: ChatTranslation = {
     list: {
-        title: 'Chat',
-        search: 'Tìm kiếm tin nhắn...',
-        empty: 'Chưa có cuộc hội thoại nào',
+        title: 'Tin nhắn',
+        search: 'Tìm kiếm Shop, tin nhắn...',
+        emptyTitle: 'Chưa có tin nhắn',
+        emptySubtitle: 'Bắt đầu trò chuyện với Shop để được hỗ trợ về sản phẩm',
+        filterAll: 'Tất cả',
+        filterUnread: 'Chưa đọc',
+        filterShop: 'Từ Shop',
+        filterSupport: 'Hỗ trợ',
+        actionPin: 'Ghim',
+        actionUnpin: 'Bỏ ghim',
+        actionMute: 'Tắt',
+        actionUnmute: 'Bật',
+        messageYou: 'Bạn: ',
+        messageSentImage: 'Đã gửi một ảnh',
+        messageProduct: 'Sản phẩm: {{name}}',
+        responseRate: 'Phản hồi {{rate}}%',
+    },
+    promo: {
+        title: 'Giảm 50% phí vận chuyển quốc tế',
+        subtitle: 'Sự kiện 11.11 sắp tới!',
     },
     detail: {
         loadingMessages: 'Đang tải tin nhắn...',

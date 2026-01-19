@@ -16,6 +16,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import type { Carrier } from '@/types/order/order';
 import * as Clipboard from 'expo-clipboard';
 import React, { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -46,6 +47,7 @@ const CopyableText: React.FC<{
     onCopy?: () => void;
 }> = ({ label, value, onCopy }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation(['order', 'common']);
     const styles = stylesheet;
     const [copied, setCopied] = useState(false);
 
@@ -56,13 +58,13 @@ const CopyableText: React.FC<{
 
         Toast.show({
             type: 'success',
-            text1: 'Đã sao chép mã vận đơn',
+            text1: t('order:detail.copyTrackingSuccess'),
             text2: value,
         });
 
         // Reset after 2 seconds
         setTimeout(() => setCopied(false), 2000);
-    }, [value, onCopy]);
+    }, [value, onCopy, t]);
 
     return (
         <View style={styles.copyableRow}>
@@ -88,7 +90,7 @@ const CopyableText: React.FC<{
                         styles.copyText,
                         { color: copied ? theme.colors.success : theme.colors.primary }
                     ]}>
-                        {copied ? 'Đã sao chép' : 'Sao chép'}
+                        {copied ? t('common:status.copied' as any) || 'Đã sao chép' : t('common:actions.copy' as any) || 'Sao chép'}
                     </Text>
                 </Pressable>
             </View>
@@ -106,6 +108,7 @@ export const ShippingInfoCard: React.FC<ShippingInfoCardProps> = ({
     onTrackingPress,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation(['order', 'common']);
     const styles = stylesheet;
 
     // If no carrier, don't show anything
@@ -124,12 +127,12 @@ export const ShippingInfoCard: React.FC<ShippingInfoCardProps> = ({
                         color={theme.colors.primary}
                     />
                 </View>
-                <Text style={styles.headerTitle}>Thông tin vận chuyển</Text>
+                <Text style={styles.headerTitle}>{t('order:detail.tracking')}</Text>
             </View>
 
             {/* Carrier Info */}
             <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Đơn vị vận chuyển</Text>
+                <Text style={styles.infoLabel}>{t('order:detail.carrierTitle')}</Text>
                 <View style={styles.carrierBadge}>
                     <View style={[styles.carrierDot, { backgroundColor: carrierInfo.color }]} />
                     <Text style={styles.carrierName}>{carrierInfo.name}</Text>
@@ -139,7 +142,7 @@ export const ShippingInfoCard: React.FC<ShippingInfoCardProps> = ({
             {/* Tracking Number - Only show if available */}
             {trackingNumber && (
                 <CopyableText
-                    label="Mã vận đơn"
+                    label={t('order:detail.trackingID')}
                     value={trackingNumber}
                 />
             )}
@@ -147,7 +150,7 @@ export const ShippingInfoCard: React.FC<ShippingInfoCardProps> = ({
             {/* Estimated Delivery - Only show if available */}
             {estimatedDelivery && (
                 <View style={styles.infoRow}>
-                    <Text style={styles.infoLabel}>Dự kiến giao</Text>
+                    <Text style={styles.infoLabel}>{t('order:detail.estimatedDelivery')}</Text>
                     <Text style={styles.infoValue}>{estimatedDelivery}</Text>
                 </View>
             )}
@@ -166,7 +169,7 @@ export const ShippingInfoCard: React.FC<ShippingInfoCardProps> = ({
                         size={16}
                         color={theme.colors.primary}
                     />
-                    <Text style={styles.trackButtonText}>Theo dõi đơn hàng</Text>
+                    <Text style={styles.trackButtonText}>{t('order:detail.trackOrder')}</Text>
                     <IconSymbol
                         name="chevron-right"
                         size={16}

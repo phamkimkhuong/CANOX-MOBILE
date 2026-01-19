@@ -1,6 +1,7 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { Gender } from '@/types/user';
-import React from 'react';
+import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -9,12 +10,6 @@ interface GenderOption {
     label: string;
     icon: 'male' | 'female' | 'person';
 }
-
-const GENDER_OPTIONS: GenderOption[] = [
-    { value: 'MALE', label: 'Nam', icon: 'male' },
-    { value: 'FEMALE', label: 'Nữ', icon: 'female' },
-    { value: 'OTHER', label: 'Khác', icon: 'person' },
-];
 
 interface GenderSelectorProps {
     value: Gender | null;
@@ -25,8 +20,6 @@ interface GenderSelectorProps {
 
 /**
  * GenderSelector - Segmented Control for gender selection
- * Single-tap selection (no dropdown needed)
- * Visual feedback with icons and selected state
  */
 export const GenderSelector: React.FC<GenderSelectorProps> = ({
     value,
@@ -35,17 +28,24 @@ export const GenderSelector: React.FC<GenderSelectorProps> = ({
     disabled = false,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('profile');
     const styles = stylesheet;
+
+    const genderOptions: GenderOption[] = useMemo(() => [
+        { value: 'MALE', label: t('editProfile.form.genderMale'), icon: 'male' },
+        { value: 'FEMALE', label: t('editProfile.form.genderFemale'), icon: 'female' },
+        { value: 'OTHER', label: t('editProfile.form.genderOther'), icon: 'person' },
+    ], [t]);
 
     return (
         <View style={styles.container}>
-            <Text style={styles.label}>Giới tính</Text>
+            <Text style={styles.label}>{t('editProfile.form.gender')}</Text>
 
             <View style={[styles.segmentContainer, !!error && styles.segmentError]}>
-                {GENDER_OPTIONS.map((option, index) => {
+                {genderOptions.map((option, index) => {
                     const isSelected = value === option.value;
                     const isFirst = index === 0;
-                    const isLast = index === GENDER_OPTIONS.length - 1;
+                    const isLast = index === genderOptions.length - 1;
 
                     return (
                         <TouchableOpacity
@@ -59,6 +59,8 @@ export const GenderSelector: React.FC<GenderSelectorProps> = ({
                             onPress={() => onChange(option.value)}
                             disabled={disabled}
                             activeOpacity={0.7}
+                            accessibilityRole="radio"
+                            accessibilityState={{ selected: isSelected }}
                         >
                             <IconSymbol
                                 name={option.icon}

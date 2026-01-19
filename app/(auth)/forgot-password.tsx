@@ -5,28 +5,32 @@ import { useForgotPassword } from '@/hooks/api/useAuth';
 import { Navigator } from '@/utils/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { z } from 'zod';
 
-// Schema Validation
-const forgotPasswordSchema = z.object({
-    email: z.string()
-        .min(1, 'Vui lòng nhập email')
-        .email('Email không hợp lệ'),
-});
-
-type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
+type ForgotPasswordFormData = {
+    email: string;
+};
 
 export default function ForgotPasswordScreen() {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('auth');
     const styles = stylesheet;
 
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Schema Validation with i18n
+    const forgotPasswordSchema = useMemo(() => z.object({
+        email: z.string()
+            .min(1, t('validation.emailRequired'))
+            .email(t('validation.emailInvalid')),
+    }), [t]);
 
     const { control, handleSubmit, formState: { errors }, setError } = useForm<ForgotPasswordFormData>({
         resolver: zodResolver(forgotPasswordSchema),
@@ -49,8 +53,8 @@ export default function ForgotPasswordScreen() {
             // Success - Navigate to OTP screen
             Toast.show({
                 type: 'success',
-                text1: 'Đã gửi mã xác thực',
-                text2: 'Vui lòng kiểm tra email của bạn',
+                text1: t('forgotPassword.successToast'),
+                text2: t('forgotPassword.successToastDetail'),
             });
 
             // Navigate to verify OTP with forgot-password type
@@ -68,8 +72,8 @@ export default function ForgotPasswordScreen() {
             } else {
                 Toast.show({
                     type: 'error',
-                    text1: 'Gửi yêu cầu thất bại',
-                    text2: error?.message || 'Vui lòng thử lại sau',
+                    text1: t('forgotPassword.errorToast'),
+                    text2: error?.message || t('forgotPassword.errorToastDetail'),
                 });
             }
         } finally {
@@ -78,7 +82,7 @@ export default function ForgotPasswordScreen() {
     };
 
     const getButtonText = () => {
-        return isSubmitting ? 'Đang gửi mã...' : 'Gửi mã xác thực';
+        return isSubmitting ? t('forgotPassword.sendingButton') : t('forgotPassword.sendButton');
     };
 
     return (
@@ -93,10 +97,11 @@ export default function ForgotPasswordScreen() {
                         <TouchableOpacity
                             style={styles.backBtn}
                             onPress={() => router.canGoBack() ? Navigator.back() : Navigator.replace(ROUTES.AUTH.LOGIN)}
+                            accessibilityLabel={t('forgotPassword.loginLink')}
                         >
                             <IconSymbol name="arrow-back" size={24} color={theme.colors.typography} />
                         </TouchableOpacity>
-                        <Text style={styles.headerTitle}>Quên mật khẩu</Text>
+                        <Text style={styles.headerTitle}>{t('forgotPassword.headerTitle')}</Text>
                         <View style={styles.headerSpacer} />
                     </View>
 
@@ -105,9 +110,9 @@ export default function ForgotPasswordScreen() {
                         <View style={styles.iconCircle}>
                             <IconSymbol name="lock" size={32} color={theme.colors.primary} />
                         </View>
-                        <Text style={styles.welcomeTitle}>Đặt lại mật khẩu</Text>
+                        <Text style={styles.welcomeTitle}>{t('forgotPassword.title')}</Text>
                         <Text style={styles.welcomeSubtitle}>
-                            Nhập email đã đăng ký để nhận mã xác thực đặt lại mật khẩu
+                            {t('forgotPassword.subtitle')}
                         </Text>
                     </View>
 
@@ -116,9 +121,9 @@ export default function ForgotPasswordScreen() {
                         <AuthInput
                             control={control}
                             name="email"
-                            label="Email"
+                            label={t('forgotPassword.emailLabel')}
                             icon="mail"
-                            placeholder="Nhập email đã đăng ký"
+                            placeholder={t('forgotPassword.emailPlaceholder')}
                             keyboardType="email-address"
                             autoCapitalize="none"
                             autoComplete="email"
@@ -129,7 +134,7 @@ export default function ForgotPasswordScreen() {
                         <View style={styles.infoBox}>
                             <IconSymbol name="info" size={20} color={theme.colors.primary} />
                             <Text style={styles.infoText}>
-                                Mã xác thực 6 số sẽ được gửi đến email của bạn. Nếu không nhận được, vui lòng kiểm tra thư mục Spam.
+                                {t('forgotPassword.infoBox')}
                             </Text>
                         </View>
 
@@ -138,6 +143,7 @@ export default function ForgotPasswordScreen() {
                             style={[styles.submitBtn, isSubmitting && styles.submitBtnDisabled]}
                             onPress={handleSubmit(onSubmit)}
                             disabled={isSubmitting}
+                            accessibilityLabel={t('forgotPassword.sendButton')}
                         >
                             {isSubmitting ? (
                                 <View style={styles.loadingRow}>
@@ -152,9 +158,9 @@ export default function ForgotPasswordScreen() {
 
                     {/* Footer */}
                     <View style={styles.footer}>
-                        <Text style={styles.footerText}>Đã nhớ mật khẩu? </Text>
+                        <Text style={styles.footerText}>{t('forgotPassword.rememberedPassword')}</Text>
                         <TouchableOpacity onPress={() => Navigator.replace(ROUTES.AUTH.LOGIN)}>
-                            <Text style={styles.footerLink}>Đăng nhập</Text>
+                            <Text style={styles.footerLink}>{t('forgotPassword.loginLink')}</Text>
                         </TouchableOpacity>
                     </View>
                 </ScrollView>

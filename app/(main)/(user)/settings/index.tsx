@@ -29,7 +29,7 @@ export default function SettingsScreen() {
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
-    const { t } = useTranslation(['profile', 'common']);
+    const { t, i18n } = useTranslation(['profile', 'common']);
 
     // App Store - Global settings
     const darkModeEnabled = useAppStore((state) => state.darkModeEnabled);
@@ -113,6 +113,8 @@ export default function SettingsScreen() {
                 return darkModeEnabled;
             case 'cache':
                 return cacheSize;
+            case 'language':
+                return i18n.language?.startsWith('vi') ? 'Tiếng Việt' : 'English';
             default:
                 if (item.type === 'toggle' && item.storeKey) {
                     return item.storeKey === 'biometricsEnabled'
@@ -121,7 +123,7 @@ export default function SettingsScreen() {
                 }
                 return undefined;
         }
-    }, [biometricsIsEnabled, darkModeEnabled, cacheSize]);
+    }, [biometricsIsEnabled, darkModeEnabled, cacheSize, i18n.language]);
 
     // Get onPress handler for each item
     const getItemHandler = useCallback((item: SettingsItemType): (() => void) | undefined => {
@@ -189,10 +191,16 @@ export default function SettingsScreen() {
         const toggleValue = typeof dynamicValue === 'boolean' ? dynamicValue : false;
         const infoValue = typeof dynamicValue === 'string' ? dynamicValue : undefined;
 
+        // Override subtitle for link items if dynamic value is present
+        let finalItem = { ...item, label };
+        if (item.type === 'link' && typeof dynamicValue === 'string') {
+            finalItem = { ...item, label, subtitle: dynamicValue };
+        }
+
         return (
             <SettingsItem
                 key={item.id}
-                item={{ ...item, label }}
+                item={finalItem as SettingsItemType}
                 onPress={onPress}
                 onToggleChange={onToggleChange}
                 toggleValue={toggleValue}

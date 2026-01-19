@@ -13,6 +13,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import type { OrderStatus, OrderUI } from '@/types/order/order';
 import { getOrderActions } from '@/utils/adapter/order/orderActions';
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     ActivityIndicator,
     Text,
@@ -135,6 +136,7 @@ export const OrderDetailFooter: React.FC<OrderDetailFooterProps> = ({
     loadingAction = null,
 }) => {
     const styles = stylesheet;
+    const { t } = useTranslation(['order', 'common']);
     const { bottom } = useSafeAreaInsets();
 
     // Get available actions based on status or full order
@@ -145,6 +147,8 @@ export const OrderDetailFooter: React.FC<OrderDetailFooterProps> = ({
         return actions.map((action) => {
             let onPress = () => { };
             let loading = false;
+
+            const translationKey = `order:actions.${action.action}`;
 
             switch (action.action) {
                 case 'cancel':
@@ -177,7 +181,7 @@ export const OrderDetailFooter: React.FC<OrderDetailFooterProps> = ({
 
             return {
                 key: action.action,
-                label: action.label,
+                label: t(translationKey as any) || action.label,
                 icon: action.icon || '',
                 variant: action.type,
                 onPress,
@@ -186,7 +190,7 @@ export const OrderDetailFooter: React.FC<OrderDetailFooterProps> = ({
                 hidden: action.action === 'review' && !canReview,
             };
         }).filter(b => !b.hidden);
-    }, [actions, onCancel, onContactShop, onTrackOrder, onConfirmReceived, onRebuy, onReview, loadingAction, canReview]);
+    }, [actions, onCancel, onContactShop, onTrackOrder, onConfirmReceived, onRebuy, onReview, loadingAction, canReview, t]);
 
     // Don't render if no actions
     if (buttons.length === 0) {
