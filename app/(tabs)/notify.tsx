@@ -7,21 +7,22 @@ import { SectionHeader } from '@/components/notifications/SectionHeader';
 import { useMarkAllAsRead, useMarkAsRead, useNotifications, useRefreshNotifications } from '@/hooks/api/notification/useNotifications';
 import { usePrefetchNotificationNav } from '@/hooks/api/notification/usePrefetchNotificationNav';
 import {
-    FILTER_TABS,
     FlattenedNotificationItem,
     Notification,
-    NotificationFilter,
+    NotificationFilter
 } from '@/types/notification';
 import { Alert as CustomAlert } from '@/utils/AlertHelper';
 import { Navigator } from '@/utils/navigation';
 import { FlashList } from '@shopify/flash-list';
 import React, { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, RefreshControl, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 export default function NotifyScreen() {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+    const { t } = useTranslation(['notification', 'common']);
     const [activeFilter, setActiveFilter] = useState<NotificationFilter>(NotificationFilter.ALL);
 
     const {
@@ -49,17 +50,17 @@ export default function NotifyScreen() {
 
     const handleMarkAllRead = useCallback(() => {
         CustomAlert.show({
-            title: 'Đánh dấu đã đọc',
-            message: 'Bạn có muốn đánh dấu tất cả thông báo là đã đọc không?',
+            title: t('actions.markAllAsReadTitle'),
+            message: t('actions.markAllAsReadMessage'),
             type: 'info',
-            confirmText: 'Đồng ý',
-            cancelText: 'Huỷ',
+            confirmText: t('common:actions.confirm'),
+            cancelText: t('common:actions.cancel'),
             showCancel: true,
             onConfirm: () => {
                 markAllAsRead.mutate();
             },
         });
-    }, [markAllAsRead]);
+    }, [markAllAsRead, t]);
 
     /**
      * Handle notification press - navigate to target screen
@@ -119,9 +120,11 @@ export default function NotifyScreen() {
     }, [isFetchingNextPage, styles.loadingFooter, theme.colors.primary]);
 
     const renderEmpty = useCallback(() => {
-        const currentFilter = FILTER_TABS.find((tab) => tab.key === activeFilter);
-        return <EmptyState filterLabel={activeFilter !== NotificationFilter.ALL ? currentFilter?.label : undefined} />;
-    }, [activeFilter]);
+        const filterLabel = activeFilter !== NotificationFilter.ALL
+            ? t(`filters.${activeFilter.toLowerCase()}` as any)
+            : undefined;
+        return <EmptyState filterLabel={filterLabel} />;
+    }, [activeFilter, t]);
 
     // Show skeleton on initial load
     if (isLoading) {

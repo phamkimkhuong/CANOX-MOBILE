@@ -11,6 +11,7 @@ import { Navigator } from '@/utils/navigation';
 import { useFocusEffect } from '@react-navigation/native';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -58,6 +59,7 @@ import { logger } from '@/utils/logger';
 
 export default function CheckoutScreen() {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('checkout');
     const styles = stylesheet;
 
     // ========================================
@@ -304,8 +306,8 @@ export default function CheckoutScreen() {
                 const timer = setTimeout(() => {
                     Toast.show({
                         type: 'success',
-                        text1: 'Đã áp dụng voucher tốt nhất',
-                        text2: 'Hệ thống đã tự động chọn ưu đãi tối ưu cho đơn hàng của bạn.',
+                        text1: t('voucher.bestApplied'),
+                        text2: t('voucher.bestAppliedDetail'),
                         position: 'bottom',
                         visibilityTime: 3000,
                     });
@@ -459,7 +461,7 @@ export default function CheckoutScreen() {
         } catch (error: any) {
             hideGlobalLoading();
             logger.checkout.error('Place order failed', { error: error.message });
-            Alert.error(error.message || 'Đặt hàng thất bại. Vui lòng thử lại.');
+            Alert.error(t('status.orderFailed'));
         }
     }, [
         canPlaceOrder,
@@ -474,18 +476,18 @@ export default function CheckoutScreen() {
 
     const handleBack = useCallback(() => {
         Alert.show({
-            title: 'Hủy thanh toán?',
-            message: 'Thông tin thanh toán sẽ không được lưu.',
+            title: t('actions.cancelTitle'),
+            message: t('actions.cancelMessage'),
             type: 'warning',
             showCancel: true,
-            cancelText: 'Ở lại',
-            confirmText: 'Hủy',
+            cancelText: t('actions.cancelStay'),
+            confirmText: t('actions.cancelConfirm'),
             onConfirm: () => {
                 resetSession(); // Retaining resetSession as it was in the original logic
                 Navigator.back();
             }
         });
-    }, [resetSession]);
+    }, [resetSession, t]);
 
     // ================================
     // PLATFORM VOUCHER RECOMMENDATIONS
@@ -533,7 +535,7 @@ export default function CheckoutScreen() {
     if (!isInitialized || (!previewData && isLoadingPreview)) {
         return (
             <View style={styles.container}>
-                <CheckoutHeader title="Thanh toán" onBack={handleBack} />
+                <CheckoutHeader title={t('header.title')} onBack={handleBack} />
                 <ScrollView
                     style={styles.scrollView}
                     contentContainerStyle={styles.scrollContent}
@@ -548,7 +550,7 @@ export default function CheckoutScreen() {
     return (
         <View style={styles.container}>
             {/* Header */}
-            <CheckoutHeader title="Thanh toán" onBack={handleBack} />
+            <CheckoutHeader title={t('header.title')} onBack={handleBack} />
 
             {/* Scrollable Content */}
             <ScrollView

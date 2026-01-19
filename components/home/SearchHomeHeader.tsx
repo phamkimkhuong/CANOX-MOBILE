@@ -1,25 +1,27 @@
+import { RollingSearchPlaceholder } from '@/components/search/RollingSearchPlaceholder';
 import { IconSymbol } from '@/components/ui/Icon';
 import { SmartNavButton } from '@/components/ui/navigation/SmartNavButton';
-import { ROUTES } from '@/constants/routes';
+import { ROUTES, searchRoutes } from '@/constants/routes';
 import '@/constants/unistyles';
 import { usePrefetchCart } from '@/hooks/api/cart/useCart';
 import { useUnreadMessageCount } from '@/hooks/api/chat';
 import { usePrefetchChat } from '@/hooks/api/chat/useChatList';
+import { useHotKeywords } from '@/hooks/api/search';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useCartStore } from '@/store/useCartStore';
-import React from 'react';
+import { Navigator } from '@/utils/navigation';
+import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Pressable, Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 
 /**
  * HomeHeader - Header component cho trang chủ
- * Bao gồm thanh tìm kiếm và các nút chức năng (giỏ hàng, chat).
+ * Bao gồm thanh tìm kiếm với Rolling Keywords và các nút chức năng.
  */
 export const HomeHeader = () => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const userId = useAuthStore((state) => state.userId);
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     const cartItemCount = useCartStore((state) => state.totalQuantity);
 
@@ -27,26 +29,49 @@ export const HomeHeader = () => {
     const prefetchCart = usePrefetchCart();
     const prefetchChat = usePrefetchChat();
 
+    // Fetch hot keywords for rolling placeholder
+    const { data: hotKeywords, isLoading: isLoadingKeywords } = useHotKeywords({ limit: 10 });
+
+    // Extract keywords array from hot keywords data
+    const rollingKeywords = useMemo(() => {
+        if (!hotKeywords || hotKeywords.length === 0) return [];
+        return hotKeywords.map((item) => item.keyword);
+    }, [hotKeywords]);
+
     // Fetch unread message count for chat badge
     const { data: unreadMessageCount } = useUnreadMessageCount();
     const { t } = useTranslation('home');
 
+    // Navigate to search entry screen
+    const handleSearchPress = useCallback(() => {
+        Navigator.push(searchRoutes.entry());
+    }, []);
+
     return (
         <View style={styles.headerContainer}>
-            {/* 1. Thanh tìm kiếm */}
-            <View style={styles.searchContainer}>
+            {/* 1. Thanh tìm kiếm - Rolling Keywords */}
+            <Pressable
+                style={({ pressed }) => [
+                    styles.searchContainer,
+                    pressed && styles.searchContainerPressed,
+                ]}
+                onPress={handleSearchPress}
+            >
                 <IconSymbol name="search" size={20} color={theme.colors.secondary} style={{ marginLeft: 10 }} />
 
-                <TextInput
-                    placeholder={t('search.placeholder')}
-                    placeholderTextColor={theme.colors.secondary}
-                    style={styles.searchInput}
-                />
+                <View style={styles.placeholderContainer}>
+                    <RollingSearchPlaceholder
+                        keywords={rollingKeywords}
+                        fallbackText={t('search.placeholder')}
+                        animate={!isLoadingKeywords && rollingKeywords.length > 1}
+                        interval={3500}
+                    />
+                </View>
 
                 <TouchableOpacity style={styles.cameraBtn}>
                     <IconSymbol name="camera-outline" size={22} color={theme.colors.secondary} />
                 </TouchableOpacity>
-            </View>
+            </Pressable>
 
             {/* 2. Các nút chức năng */}
             <View style={styles.actions}>
@@ -112,6 +137,22 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderRadius: theme.radius.full, // Dùng token radius
         backgroundColor: '#eff6ff',
         paddingHorizontal: 5,
+    },
+    placeholderContainer: {
+        flex: 1,
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        overflow: 'hidden',
+    },
+    searchContainerPressed: {
+        backgroundColor: '#e0ebfc',
+    },
+    searchPlaceholder: {
+        flex: 1,
+        paddingHorizontal: 8,
+        fontSize: 14,
+        color: theme.colors.secondary,
     },
     searchInput: {
         flex: 1,

@@ -1,5 +1,6 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -15,6 +16,7 @@ interface EmptyStateProps {
 export const EmptyState: React.FC<EmptyStateProps> = ({ filterLabel }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+    const { t } = useTranslation('notification');
 
     return (
         <View style={styles.container}>
@@ -25,11 +27,11 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ filterLabel }) => {
                     color={theme.colors.secondary}
                 />
             </View>
-            <Text style={styles.title}>Không có thông báo</Text>
+            <Text style={styles.title}>{t('empty.title')}</Text>
             <Text style={styles.subtitle}>
                 {filterLabel
-                    ? `Bạn chưa có thông báo nào trong mục "${filterLabel}"`
-                    : 'Bạn chưa có thông báo nào'}
+                    ? t('empty.subtitleWithFilter', { filter: filterLabel })
+                    : t('empty.subtitle')}
             </Text>
         </View>
     );

@@ -12,6 +12,7 @@
 import type { CartCalculationResult, CheckboxState, VoucherUI } from '@/types/cart';
 import { formatCurrency } from '@/utils/format';
 import React, { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import Animated, {
     runOnJS,
@@ -111,6 +112,7 @@ export const CartFooter: React.FC<CartFooterProps> = memo(({
     tabBarHeight = 0,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('cart');
     const insets = useSafeAreaInsets();
 
     const {
@@ -182,7 +184,7 @@ export const CartFooter: React.FC<CartFooterProps> = memo(({
                         state={selectAllState}
                         onToggle={onToggleSelectAll}
                     />
-                    <Text style={styles.selectAllText}>Tất cả</Text>
+                    <Text style={styles.selectAllText}>{t('footer.selectAll')}</Text>
                 </View>
 
                 {/* Price & Checkout */}
@@ -195,7 +197,7 @@ export const CartFooter: React.FC<CartFooterProps> = memo(({
                         />
                         {totalSavings > 0 && (
                             <Text style={styles.savingsText}>
-                                Tiết kiệm {formatCurrency(totalSavings)}
+                                {t('footer.savings', { amount: formatCurrency(totalSavings) })}
                             </Text>
                         )}
                     </View>
@@ -208,11 +210,13 @@ export const CartFooter: React.FC<CartFooterProps> = memo(({
                             styles.checkoutButton,
                             !hasSelection && styles.checkoutButtonDisabled,
                         ]}
-                        accessibilityLabel={`Mua ${selectedCount} sản phẩm`}
+                        accessibilityLabel={t('footer.checkoutWithCount', { count: selectedCount })}
                         accessibilityRole="button"
                     >
                         <Text style={styles.checkoutButtonText}>
-                            Mua hàng {hasSelection ? `(${selectedCount})` : ''}
+                            {hasSelection
+                                ? t('footer.checkoutWithCount', { count: selectedCount })
+                                : t('footer.checkout')}
                         </Text>
                     </Pressable>
                 </View>

@@ -11,7 +11,8 @@
  */
 
 import { IconSymbol } from '@/components/ui/Icon';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     KeyboardAvoidingView,
     Modal,
@@ -39,12 +40,22 @@ export const ShopNoteInput: React.FC<ShopNoteInputProps> = ({
     value,
     onChange,
     maxLength = 200,
-    placeholder = 'Ghi chú cho Shop (VD: Màu sắc, size, thời gian giao...)',
+    placeholder,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('checkout');
     const styles = stylesheet;
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [tempNote, setTempNote] = useState(value);
+
+    const inputPlaceholder = placeholder || t('note.placeholder');
+
+    const QUICK_NOTES = useMemo(() => [
+        t('note.suggestions.callBeforeSelection'),
+        t('note.suggestions.officeHours'),
+        t('note.suggestions.packCarefully'),
+        t('note.suggestions.inspectBefore'),
+    ], [t]);
 
     const handleOpen = useCallback(() => {
         setTempNote(value);
@@ -70,7 +81,7 @@ export const ShopNoteInput: React.FC<ShopNoteInputProps> = ({
                 ]}
                 onPress={handleOpen}
                 accessibilityRole="button"
-                accessibilityLabel="Thêm ghi chú cho Shop"
+                accessibilityLabel={t('note.addNote')}
             >
                 <IconSymbol
                     name="note"
@@ -81,7 +92,7 @@ export const ShopNoteInput: React.FC<ShopNoteInputProps> = ({
                     style={[styles.displayText, !value && styles.placeholderText]}
                     numberOfLines={1}
                 >
-                    {value || placeholder}
+                    {value || inputPlaceholder}
                 </Text>
                 <IconSymbol
                     name="chevron-right"
@@ -117,7 +128,7 @@ export const ShopNoteInput: React.FC<ShopNoteInputProps> = ({
                                                 color={theme.colors.primary}
                                             />
                                             <Text style={styles.modalTitle}>
-                                                Ghi chú cho Shop
+                                                {t('note.title')}
                                             </Text>
                                         </View>
                                         <Pressable
@@ -138,7 +149,7 @@ export const ShopNoteInput: React.FC<ShopNoteInputProps> = ({
                                             style={styles.textInput}
                                             value={tempNote}
                                             onChangeText={setTempNote}
-                                            placeholder={placeholder}
+                                            placeholder={inputPlaceholder}
                                             placeholderTextColor={theme.colors.secondary}
                                             multiline
                                             maxLength={maxLength}
@@ -152,7 +163,7 @@ export const ShopNoteInput: React.FC<ShopNoteInputProps> = ({
                                     {/* Suggestions */}
                                     <View style={styles.suggestions}>
                                         <Text style={styles.suggestionsTitle}>
-                                            Gợi ý:
+                                            {t('note.suggestionsTitle')}
                                         </Text>
                                         <View style={styles.chipContainer}>
                                             {QUICK_NOTES.map((note, index) => (
@@ -180,7 +191,7 @@ export const ShopNoteInput: React.FC<ShopNoteInputProps> = ({
                                             onPress={handleSave}
                                         >
                                             <Text style={styles.saveButtonText}>
-                                                Xác nhận
+                                                {t('actions.confirm')}
                                             </Text>
                                         </Pressable>
                                     </View>
@@ -194,13 +205,7 @@ export const ShopNoteInput: React.FC<ShopNoteInputProps> = ({
     );
 };
 
-// Quick note suggestions
-const QUICK_NOTES = [
-    'Gọi trước khi giao',
-    'Giao giờ hành chính',
-    'Gói kỹ giúp Shop',
-    'Kiểm tra hàng trước',
-];
+// Quick note suggestions - removed from outside component since it's now using i18n inside component
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {

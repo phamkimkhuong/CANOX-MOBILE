@@ -18,6 +18,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import { formatCurrency } from '@/utils/format';
 import { Navigator } from '@/utils/navigation';
 import React, { useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -42,6 +43,7 @@ interface CheckoutShopGroupProps {
 
 export const CheckoutShopGroup: React.FC<CheckoutShopGroupProps> = ({ shop }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('checkout');
     const styles = stylesheet;
 
 
@@ -125,7 +127,7 @@ export const CheckoutShopGroup: React.FC<CheckoutShopGroupProps> = ({ shop }) =>
                 ]}
                 onPress={handleShopPress}
                 accessibilityRole="button"
-                accessibilityLabel={`Xem shop ${shop.shopName}`}
+                accessibilityLabel={t('shopGroup.viewShop', { shopName: shop.shopName })}
             >
                 <View style={styles.shopIcon}>
                     <IconSymbol
@@ -191,7 +193,7 @@ export const CheckoutShopGroup: React.FC<CheckoutShopGroupProps> = ({ shop }) =>
             {shopSubtotal && (
                 <View style={styles.subtotalRow}>
                     <Text style={styles.subtotalLabel}>
-                        Tổng ({shopSubtotal.itemCount} sản phẩm):
+                        {t('shopGroup.totalItems', { count: shopSubtotal.itemCount })}
                     </Text>
                     <Text style={styles.subtotalValue}>
                         {formatCurrency(shopSubtotal.shopTotal)}

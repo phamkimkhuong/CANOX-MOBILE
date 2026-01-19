@@ -20,6 +20,7 @@
 import type { CheckboxState } from '@/types/cart';
 import { Image } from 'expo-image';
 import React, { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { IconSymbol } from '../ui/Icon';
@@ -60,6 +61,7 @@ export const ShopHeader: React.FC<ShopHeaderProps> = memo(({
     isEditMode = false,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('cart');
 
     return (
         <View style={styles.container}>
@@ -74,7 +76,7 @@ export const ShopHeader: React.FC<ShopHeaderProps> = memo(({
                 onPress={onNavigateToShop}
                 onPressIn={onShopPressIn}
                 style={styles.shopInfo}
-                accessibilityLabel={`Xem shop ${shopName}`}
+                accessibilityLabel={t('header.viewShop', { shopName })}
                 accessibilityRole="button"
             >
                 {shopLogoUrl ? (
@@ -117,11 +119,11 @@ export const ShopHeader: React.FC<ShopHeaderProps> = memo(({
                 <Pressable
                     onPress={onEditPress}
                     hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                    accessibilityLabel={isEditMode ? 'Xong' : 'Sửa'}
+                    accessibilityLabel={isEditMode ? t('header.done') : t('header.edit')}
                     accessibilityRole="button"
                 >
                     <Text style={styles.editText}>
-                        {isEditMode ? 'Xong' : 'Sửa'}
+                        {isEditMode ? t('header.done') : t('header.edit')}
                     </Text>
                 </Pressable>
             )}

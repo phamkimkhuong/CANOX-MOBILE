@@ -12,12 +12,15 @@ export const COMMON_STRINGS: CommonTranslation = {
         next: 'Tiếp theo',
         retry: 'Thử lại',
         copy: 'Sao chép',
+        viewNow: 'Xem ngay',
     },
     status: {
         loading: 'Đang tải...',
         success: 'Thành công',
         error: 'Đã xảy ra lỗi',
         empty: 'Không có dữ liệu',
+        verified: 'Đã xác thực',
+        unverified: 'Chưa xác thực',
     },
     bottomTab: {
         home: 'Trang chủ',

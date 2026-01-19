@@ -10,6 +10,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import type { VoucherUI } from '@/types/cart';
 import { formatCurrency } from '@/utils/format';
 import React, { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal, Pressable, ScrollView, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -34,6 +35,7 @@ export const CheckoutVoucherRow: React.FC<CheckoutVoucherRowProps> = ({
     disabled = false,
 }) => {
     const { theme } = useUnistyles();
+    const { t, i18n } = useTranslation('checkout');
     const styles = stylesheet;
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [manualCode, setManualCode] = useState('');
@@ -71,7 +73,7 @@ export const CheckoutVoucherRow: React.FC<CheckoutVoucherRowProps> = ({
                 onPress={handleOpenModal}
                 disabled={disabled || availableVouchers.length === 0}
                 accessibilityRole="button"
-                accessibilityLabel="Chọn voucher Shop"
+                accessibilityLabel={t('voucher.selectShopVoucher')}
             >
                 {/* Section Title */}
                 <View style={styles.titleRow}>
@@ -82,7 +84,7 @@ export const CheckoutVoucherRow: React.FC<CheckoutVoucherRowProps> = ({
                             color={theme.colors.error}
                         />
                     </View>
-                    <Text style={styles.title}>Voucher của Shop</Text>
+                    <Text style={styles.title}>{t('voucher.shopTitle')}</Text>
                 </View>
 
                 {/* Content Row */}
@@ -105,8 +107,8 @@ export const CheckoutVoucherRow: React.FC<CheckoutVoucherRowProps> = ({
                                 availableVouchers.length === 0 && { color: theme.colors.typographySecondary }
                             ]}>
                                 {availableVouchers.length > 0
-                                    ? `Chọn hoặc nhập mã`
-                                    : 'Không có voucher khả dụng'}
+                                    ? t('voucher.placeholder')
+                                    : t('voucher.noVouchers')}
                             </Text>
                         )}
                     </View>
@@ -144,7 +146,7 @@ export const CheckoutVoucherRow: React.FC<CheckoutVoucherRowProps> = ({
                                             color={theme.colors.error}
                                         />
                                         <Text style={styles.modalTitle}>
-                                            Voucher của Shop
+                                            {t('voucher.shopTitle')}
                                         </Text>
                                     </View>
                                     <Pressable
@@ -163,7 +165,7 @@ export const CheckoutVoucherRow: React.FC<CheckoutVoucherRowProps> = ({
                                     <View style={styles.inputWrapper}>
                                         <TextInput
                                             style={styles.manualInput}
-                                            placeholder="Nhập mã voucher của Shop"
+                                            placeholder={t('voucher.manualInputPlaceholder')}
                                             value={manualCode}
                                             onChangeText={setManualCode}
                                             autoCapitalize="characters"
@@ -187,7 +189,7 @@ export const CheckoutVoucherRow: React.FC<CheckoutVoucherRowProps> = ({
                                         onPress={handleManualApply}
                                         disabled={!manualCode.trim()}
                                     >
-                                        <Text style={styles.applyButtonText}>Áp dụng</Text>
+                                        <Text style={styles.applyButtonText}>{t('voucher.applyButton')}</Text>
                                     </Pressable>
                                 </View>
 
@@ -215,7 +217,7 @@ export const CheckoutVoucherRow: React.FC<CheckoutVoucherRowProps> = ({
                                             </View>
                                         </View>
                                         <Text style={styles.noVoucherText}>
-                                            Không sử dụng voucher
+                                            {t('voucher.noUsing')}
                                         </Text>
                                     </Pressable>
 
@@ -261,7 +263,7 @@ export const CheckoutVoucherRow: React.FC<CheckoutVoucherRowProps> = ({
                                                     </Text>
                                                     {voucher.expiresAt && (
                                                         <Text style={styles.voucherExpiry}>
-                                                            HSD: {new Date(voucher.expiresAt).toLocaleDateString('vi-VN')}
+                                                            {t('voucher.expiry', { date: new Date(voucher.expiresAt).toLocaleDateString(i18n.language === 'en' ? 'en-US' : 'vi-VN') })}
                                                         </Text>
                                                     )}
                                                 </View>

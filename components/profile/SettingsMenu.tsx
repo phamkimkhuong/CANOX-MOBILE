@@ -1,25 +1,30 @@
 import { IconSymbol } from '@/components/ui/Icon';
-import { SETTINGS_MENU_CONFIG, SettingsMenuItem } from '@/types/profile/profile';
-import React, { memo, useCallback } from 'react';
+import { ProfileMenuItem, SETTINGS_MENU_CONFIG } from '@/types/profile/profile';
+import { Navigator } from '@/utils/navigation';
+import React, { memo, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface SettingsMenuProps {
+    appVersion?: string;
     onPressItem?: (route: string) => void;
 }
 
 interface MenuItemProps {
-    item: SettingsMenuItem;
+    item: ProfileMenuItem;
     isFirst: boolean;
     isLast: boolean;
     onPress: (route: string) => void;
+    value?: string;
 }
 
 /**
  * Single menu item component
  */
-const MenuItem: React.FC<MenuItemProps> = memo(({ item, isFirst, isLast, onPress }) => {
+const MenuItem: React.FC<MenuItemProps> = memo(({ item, isFirst, isLast, onPress, value }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('profile');
     const styles = stylesheet;
 
     return (
@@ -39,7 +44,8 @@ const MenuItem: React.FC<MenuItemProps> = memo(({ item, isFirst, isLast, onPress
                     color={item.iconColor}
                 />
             </View>
-            <Text style={styles.menuLabel}>{item.label}</Text>
+            <Text style={styles.menuLabel}>{t(`menu.${item.key}` as any)}</Text>
+            {value && <Text style={styles.menuValue}>{value}</Text>}
             <IconSymbol name="chevron-right" size={18} color={theme.colors.typographySecondary} />
         </TouchableOpacity>
     );
@@ -50,16 +56,29 @@ MenuItem.displayName = 'MenuItem';
 /**
  * Settings menu section with grouped items
  */
-export const SettingsMenu: React.FC<SettingsMenuProps> = memo(({ onPressItem }) => {
+export const SettingsMenu: React.FC<SettingsMenuProps> = memo(({ appVersion = '1.0.0', onPressItem }) => {
     const styles = stylesheet;
+    const { t } = useTranslation('profile');
 
     const handlePress = useCallback((route: string) => {
-        onPressItem?.(route);
-        // TODO: Navigate to route
+        if (onPressItem) {
+            onPressItem(route);
+        } else {
+            Navigator.navigate(route as any);
+        }
     }, [onPressItem]);
 
+    const getValue = useCallback((key: string): string | undefined => {
+        switch (key) {
+            case 'version':
+                return appVersion;
+            default:
+                return undefined;
+        }
+    }, [appVersion]);
+
     // Group items by category
-    const groupedItems = SETTINGS_MENU_CONFIG.reduce<Record<string, SettingsMenuItem[]>>(
+    const groupedItems = useMemo(() => SETTINGS_MENU_CONFIG.reduce<Record<string, ProfileMenuItem[]>>(
         (acc, item) => {
             const group = item.group ?? 'other';
             if (!acc[group]) {
@@ -69,7 +88,7 @@ export const SettingsMenu: React.FC<SettingsMenuProps> = memo(({ onPressItem }) 
             return acc;
         },
         {}
-    );
+    ), []);
 
     const groups = Object.entries(groupedItems);
 
@@ -90,6 +109,7 @@ export const SettingsMenu: React.FC<SettingsMenuProps> = memo(({ onPressItem }) 
                             isFirst={index === 0}
                             isLast={index === items.length - 1}
                             onPress={handlePress}
+                            value={getValue(item.key)}
                         />
                     ))}
                 </View>
@@ -148,5 +168,10 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontWeight: '600',
         color: theme.colors.typography,
         marginLeft: theme.margins.md,
+    },
+    menuValue: {
+        fontSize: 13,
+        color: theme.colors.typographySecondary,
+        marginRight: theme.margins.sm,
     },
 }));

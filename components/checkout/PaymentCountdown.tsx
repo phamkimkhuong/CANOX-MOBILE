@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, TextStyle, View, ViewStyle } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -22,6 +23,7 @@ export const PaymentCountdown: React.FC<PaymentCountdownProps> = ({
     textStyle,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('checkout');
     const styles = stylesheet;
 
     const [timeLeft, setTimeLeft] = useState<number>(0);
@@ -58,7 +60,7 @@ export const PaymentCountdown: React.FC<PaymentCountdownProps> = ({
     if (timeLeft <= 0) {
         return (
             <View style={[styles.container, containerStyle]}>
-                <Text style={[styles.expiredText, textStyle]}>Đã hết hạn thanh toán</Text>
+                <Text style={[styles.expiredText, textStyle]}>{t('payment.expired')}</Text>
             </View>
         );
     }

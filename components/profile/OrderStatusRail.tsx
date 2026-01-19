@@ -3,6 +3,7 @@ import { ROUTES } from '@/constants/routes';
 import { ORDER_STATUS_CONFIG, OrderStats } from '@/types/profile/profile';
 import { Navigator } from '@/utils/navigation';
 import React, { memo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -32,6 +33,7 @@ export const OrderStatusRail: React.FC<OrderStatusRailProps> = memo(({
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+    const { t } = useTranslation(['profile', 'common']);
 
     const handlePress = useCallback((statusKey: string) => {
         Navigator.push({
@@ -49,13 +51,13 @@ export const OrderStatusRail: React.FC<OrderStatusRailProps> = memo(({
         return (
             <View style={styles.card}>
                 <View style={styles.header}>
-                    <Text style={styles.title}>Đơn mua</Text>
+                    <Text style={styles.title}>{t('orders.title')}</Text>
                 </View>
                 <View style={styles.errorContainer}>
                     <IconSymbol name="error" size={24} color={theme.colors.error} />
-                    <Text style={styles.errorText}>Không thể tải dữ liệu</Text>
+                    <Text style={styles.errorText}>{t('common:status.error')}</Text>
                     <TouchableOpacity style={styles.retryBtn} onPress={onRetry}>
-                        <Text style={styles.retryText}>Thử lại</Text>
+                        <Text style={styles.retryText}>{t('common:actions.retry')}</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -85,13 +87,13 @@ export const OrderStatusRail: React.FC<OrderStatusRailProps> = memo(({
         <View style={styles.card}>
             {/* Header */}
             <View style={styles.header}>
-                <Text style={styles.title}>Đơn mua</Text>
+                <Text style={styles.title}>{t('orders.title')}</Text>
                 <TouchableOpacity
                     style={styles.viewAllBtn}
                     onPress={handleViewHistory}
                     activeOpacity={0.7}
                 >
-                    <Text style={styles.viewAllText}>Xem lịch sử mua hàng</Text>
+                    <Text style={styles.viewAllText}>{t('orders.viewAll')}</Text>
                     <IconSymbol name="forward" size={14} color={theme.colors.secondary} />
                 </TouchableOpacity>
             </View>
@@ -124,7 +126,7 @@ export const OrderStatusRail: React.FC<OrderStatusRailProps> = memo(({
                                 )}
                             </View>
                             <Text style={styles.statusLabel} numberOfLines={2}>
-                                {item.label}
+                                {t(`orderStatus.${item.key}`)}
                             </Text>
                         </TouchableOpacity>
                     );

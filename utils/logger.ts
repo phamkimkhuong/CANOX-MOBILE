@@ -173,6 +173,9 @@ export const logger = {
 
     /** Push notification logs: */
     push: createLogger('Push'),
+
+    /** Search logs: */
+    search: createLogger(' Search'),
 };
 
 // ============================================

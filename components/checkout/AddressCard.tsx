@@ -16,6 +16,7 @@ import type { ShippingAddress } from '@/types/address';
 import { formatShippingAddress } from '@/utils/adapter/addressAdapter';
 import { Navigator } from '@/utils/navigation';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -32,6 +33,7 @@ interface AddressCardProps {
  */
 export const AddressCard: React.FC<AddressCardProps> = ({ address, onPress }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('checkout');
     const styles = stylesheet;
 
 
@@ -53,7 +55,7 @@ export const AddressCard: React.FC<AddressCardProps> = ({ address, onPress }) =>
                 styles.container,
                 pressed && styles.containerPressed,
             ]}
-            accessibilityLabel={address ? 'Thay đổi địa chỉ giao hàng' : 'Thêm địa chỉ giao hàng'}
+            accessibilityLabel={address ? t('address.changeAddress') : t('address.addAddress')}
             accessibilityRole="button"
         >
             {/* Location Icon with circular background */}
@@ -72,11 +74,11 @@ export const AddressCard: React.FC<AddressCardProps> = ({ address, onPress }) =>
                         {/* Title row with optional default badge */}
                         <View style={styles.titleRow}>
                             <Text style={styles.title}>
-                                Giao tới: {address.recipientName}
+                                {t('address.deliverTo', { name: address.recipientName })}
                             </Text>
                             {address.isDefault && (
                                 <View style={styles.defaultBadge}>
-                                    <Text style={styles.defaultBadgeText}>Mặc định</Text>
+                                    <Text style={styles.defaultBadgeText}>{t('address.defaultBadge')}</Text>
                                 </View>
                             )}
                         </View>
@@ -97,7 +99,7 @@ export const AddressCard: React.FC<AddressCardProps> = ({ address, onPress }) =>
                             color={theme.colors.primary}
                         />
                         <Text style={styles.emptyText}>
-                            Thêm địa chỉ giao hàng
+                            {t('address.addAddress')}
                         </Text>
                     </View>
                 )}

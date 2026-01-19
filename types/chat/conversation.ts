@@ -37,6 +37,7 @@ export interface ConversationPartner {
     isVerified?: boolean;
     responseRate?: number;
     type: PartnerType;
+    shopId?: string;
 }
 
 /**

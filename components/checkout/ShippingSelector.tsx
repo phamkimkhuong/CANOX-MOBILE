@@ -13,6 +13,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import { ShippingMethod, getShippingMethodConfig } from '@/types/checkout';
 import { formatCurrency } from '@/utils/format';
 import React, { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal, Pressable, Text, TouchableWithoutFeedback, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -30,6 +31,7 @@ export const ShippingSelector: React.FC<ShippingSelectorProps> = ({
     onSelect,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('checkout');
     const styles = stylesheet;
     const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -72,7 +74,7 @@ export const ShippingSelector: React.FC<ShippingSelectorProps> = ({
                         color={theme.colors.error}
                     />
                     <Text style={styles.errorText}>
-                        Không hỗ trợ giao đến địa chỉ này
+                        {t('shipping.notSupported')}
                     </Text>
                 </View>
             </View>
@@ -89,7 +91,7 @@ export const ShippingSelector: React.FC<ShippingSelectorProps> = ({
                 ]}
                 onPress={() => setIsModalVisible(true)}
                 accessibilityRole="button"
-                accessibilityLabel="Chọn phương thức vận chuyển"
+                accessibilityLabel={t('shipping.select')}
             >
                 <View style={styles.mainRow}>
                     {/* Dynamic icon from domain types */}
@@ -121,7 +123,7 @@ export const ShippingSelector: React.FC<ShippingSelectorProps> = ({
                             </>
                         ) : (
                             <Text style={styles.placeholder}>
-                                Chọn phương thức vận chuyển
+                                {t('shipping.select')}
                             </Text>
                         )}
                     </View>
@@ -152,7 +154,7 @@ export const ShippingSelector: React.FC<ShippingSelectorProps> = ({
                                 <View style={styles.modalHeader}>
                                     <View style={styles.modalHeaderLeft}>
                                         <Text style={styles.modalTitle}>
-                                            Phương thức vận chuyển
+                                            {t('shipping.title')}
                                         </Text>
                                     </View>
                                     <Pressable
@@ -205,7 +207,7 @@ export const ShippingSelector: React.FC<ShippingSelectorProps> = ({
                                                         </Text>
                                                         {method.fee === 0 && (
                                                             <View style={styles.freeBadge}>
-                                                                <Text style={styles.freeBadgeText}>Miễn phí</Text>
+                                                                <Text style={styles.freeBadgeText}>{t('shipping.free')}</Text>
                                                             </View>
                                                         )}
                                                     </View>

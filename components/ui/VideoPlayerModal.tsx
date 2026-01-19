@@ -129,7 +129,6 @@ export function VideoPlayerModal({
                 {isLoading && (
                     <View style={styles.loadingOverlay}>
                         <ActivityIndicator size="large" color="#FFFFFF" />
-                        <Text style={styles.loadingText}>Đang tải video...</Text>
                     </View>
                 )}
 
@@ -207,10 +206,6 @@ const styles = StyleSheet.create((theme) => ({
         justifyContent: 'center',
         backgroundColor: 'rgba(0, 0, 0, 0.7)',
         gap: theme.margins.md,
-    },
-    loadingText: {
-        color: '#FFFFFF',
-        fontSize: 14,
     },
     errorOverlay: {
         ...StyleSheet.absoluteFillObject,

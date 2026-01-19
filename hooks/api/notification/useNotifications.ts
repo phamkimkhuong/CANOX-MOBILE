@@ -13,6 +13,7 @@ import { ResponseDefaultSchema } from '@/types/responseSchema';
 import { mapApiNotificationToUi } from '@/utils/adapter/notificationAdapter';
 import { InfiniteData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import Toast from 'react-native-toast-message';
 
 const PAGE_SIZE = 20;
@@ -193,6 +194,7 @@ export const useMarkAsRead = () => {
  */
 export const useMarkAllAsRead = () => {
     const queryClient = useQueryClient();
+    const { t } = useTranslation('notification');
     return useMutation({
         mutationFn: async () => {
             return request(
@@ -249,8 +251,8 @@ export const useMarkAllAsRead = () => {
 
             Toast.show({
                 type: 'error',
-                text1: 'Đánh dấu tất cả đã đọc thất bại',
-                text2: 'Vui lòng thử lại.',
+                text1: t('errors.markAllAsReadFailed'),
+                text2: t('errors.tryAgain'),
             });
         },
         onSuccess: () => {
@@ -277,10 +279,10 @@ const getDateSection = (timestamp: string): string => {
     const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
     const notifDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
-    if (notifDate.getTime() === today.getTime()) return 'Hôm nay';
-    if (notifDate.getTime() === yesterday.getTime()) return 'Hôm qua';
-    if (notifDate.getTime() > today.getTime() - 7 * 24 * 60 * 60 * 1000) return 'Tuần này';
-    return 'Trước đó';
+    if (notifDate.getTime() === today.getTime()) return 'today';
+    if (notifDate.getTime() === yesterday.getTime()) return 'yesterday';
+    if (notifDate.getTime() > today.getTime() - 7 * 24 * 60 * 60 * 1000) return 'thisWeek';
+    return 'earlier';
 };
 
 /**

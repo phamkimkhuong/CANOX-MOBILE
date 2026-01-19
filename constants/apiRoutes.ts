@@ -156,4 +156,9 @@ export const API_ROUTES = {
     BUYERS: {
         UPDATE_AVATAR: (buyerId: string) => `${API_PREFIX}/buyers/${buyerId}/avatar`,
     },
+    SEARCH: {
+        HOT: `${API_PREFIX}/search/hot`,
+        SUGGESTIONS: `${API_PREFIX}/search/suggestions`,
+        TRACK: `${API_PREFIX}/search/track`,
+    },
 } as const;  // <--- as const for TS to understand these are readonly values

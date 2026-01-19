@@ -1,9 +1,15 @@
-// Global client state for NON-SENSITIVE data
-// Uses MMKV for fast synchronous persistence
+/**
+ * ==============================================
+ * APP STORE - Global Client State
+ * ==============================================
+ * Uses MMKV for fast synchronous persistence.
+ * For NON-SENSITIVE data only.
+ */
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+import { getDeviceLanguage, type SupportedLanguage } from '@/utils/language';
 import { zustandMMKVStorage } from './storage';
 
 type ThemeMode = 'light' | 'dark' | 'system';
@@ -25,9 +31,9 @@ interface AppState {
     hasSeenOnboarding: boolean;
     setHasSeenOnboarding: (value: boolean) => void;
 
-    // Language
-    language: string;
-    setLanguage: (lang: string) => void;
+    // Language - Uses SupportedLanguage type for type safety
+    language: SupportedLanguage;
+    setLanguage: (lang: SupportedLanguage) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -52,8 +58,8 @@ export const useAppStore = create<AppState>()(
             hasSeenOnboarding: false,
             setHasSeenOnboarding: (value) => set({ hasSeenOnboarding: value }),
 
-            // Language
-            language: 'vi',
+            // Language - Default to device language
+            language: getDeviceLanguage(),
             setLanguage: (lang) => set({ language: lang }),
         }),
         {

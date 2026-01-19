@@ -5,6 +5,7 @@ import { MEMBER_LEVEL_CONFIG, OrderStats, QUICK_STATS_CONFIG, UserProfile } from
 import { Navigator } from '@/utils/navigation';
 import { Image } from 'expo-image';
 import React, { memo, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -24,6 +25,7 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+    const { t } = useTranslation(['profile', 'common']);
 
     // Fetch wishlist data for favorites count
     const { data: wishlistData, isLoading: isLoadingWishlists } = useWishlists();
@@ -43,9 +45,9 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
         ) ?? 0;
 
         return {
-            totalOrders: stats?.total ?? 0,
-            favoriteCount: wishlistItemCount,
-            recentViewCount: profile.recentViewCount,
+            orders: stats?.total ?? 0,
+            favorites: wishlistItemCount,
+            recent: profile.recentViewCount,
         };
     }, [profile, stats, wishlistData]);
 
@@ -102,7 +104,9 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
                             size={10}
                             color="#fff"
                         />
-                        <Text style={styles.levelBadgeText}>{levelConfig.label.toUpperCase()}</Text>
+                        <Text style={styles.levelBadgeText}>
+                            {t(`memberLevel.${levelConfig.key}`).toUpperCase()}
+                        </Text>
                     </View>
                 </View>
 
@@ -116,12 +120,16 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
                         {profile.isVerified ? (
                             <View style={[styles.statusBadge, styles.verifiedBadge]}>
                                 <IconSymbol name="checkmark-circle" size={12} color={theme.colors.primary} />
-                                <Text style={[styles.statusText, styles.verifiedText]}>Đã xác thực</Text>
+                                <Text style={[styles.statusText, styles.verifiedText]}>
+                                    {t('common:status.verified', { defaultValue: 'Đã xác thực' })}
+                                </Text>
                             </View>
                         ) : (
                             <View style={[styles.statusBadge, styles.unverifiedBadge]}>
                                 <IconSymbol name="error" size={12} color="#f59e0b" />
-                                <Text style={[styles.statusText, styles.unverifiedText]}>Chưa xác thực</Text>
+                                <Text style={[styles.statusText, styles.unverifiedText]}>
+                                    {t('common:status.unverified', { defaultValue: 'Chưa xác thực' })}
+                                </Text>
                             </View>
                         )}
 
@@ -130,7 +138,7 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
                             onPress={handleEditProfile}
                             activeOpacity={0.7}
                         >
-                            <Text style={styles.editBtnText}>Sửa hồ sơ</Text>
+                            <Text style={styles.editBtnText}>{t('settings.items.profile')}</Text>
                             <IconSymbol name="chevron-right" size={14} color={theme.colors.secondary} />
                         </TouchableOpacity>
                     </View>
@@ -167,9 +175,9 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
 
                         {/* Value & Label */}
                         <Text style={styles.statValue}>
-                            {statsWithWishlist[stat.valueKey] ?? 0}
+                            {statsWithWishlist[stat.key as keyof typeof statsWithWishlist] ?? 0}
                         </Text>
-                        <Text style={styles.statLabel}>{stat.label}</Text>
+                        <Text style={styles.statLabel}>{t(`stats.${stat.key}`)}</Text>
                     </TouchableOpacity>
                 ))}
             </View>

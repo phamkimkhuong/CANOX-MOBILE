@@ -243,12 +243,15 @@ export interface CommonTranslation {
         next: string;
         retry: string;
         copy: string;
+        viewNow: string;
     };
     status: {
         loading: string;
         success: string;
         error: string;
         empty: string;
+        verified: string;
+        unverified: string;
     };
     bottomTab: {
         home: string;
@@ -314,6 +317,7 @@ export interface CartTranslation {
         title: string;
         edit: string;
         done: string;
+        viewShop: string;
     };
     empty: {
         title: string;
@@ -324,10 +328,133 @@ export interface CartTranslation {
         selectAll: string;
         total: string;
         checkout: string;
+        savings: string;
+        checkoutWithCount: string;
     };
     item: {
         variation: string;
         delete: string;
+        outOfStock: string;
+        findSimilar: string;
+        selectVariation: string;
+    };
+    status: {
+        syncing: string;
+        rebuySuccess: string;
+        rebuySuccessDetail: string;
+    };
+    error: {
+        loadFailed: string;
+        tryAgainLater: string;
+        retryButton: string;
+    };
+}
+
+/**
+ * Checkout module translations
+ */
+export interface CheckoutTranslation {
+    header: {
+        title: string;
+        back: string;
+    };
+    address: {
+        title: string;
+        deliverTo: string;
+        defaultBadge: string;
+        changeAddress: string;
+        addAddress: string;
+        noAddress: string;
+    };
+    shopGroup: {
+        totalItems: string;
+        viewShop: string;
+    };
+    item: {
+        productImage: string;
+        variation: string;
+    };
+    voucher: {
+        shopTitle: string;
+        platformTitle: string;
+        selectShopVoucher: string;
+        selectPlatformVoucher: string;
+        noVouchers: string;
+        placeholder: string;
+        applyButton: string;
+        noUsing: string;
+        expiry: string;
+        bestApplied: string;
+        bestAppliedDetail: string;
+        manualInputPlaceholder: string;
+        findingBest: string;
+        shippingVoucherTitle: string;
+        noShippingVoucher: string;
+        discountVoucherTitle: string;
+        noDiscountVoucher: string;
+    };
+    shipping: {
+        title: string;
+        select: string;
+        notSupported: string;
+        free: string;
+        calculating: string;
+    };
+    note: {
+        title: string;
+        placeholder: string;
+        addNote: string;
+        suggestionsTitle: string;
+        suggestions: {
+            callBeforeSelection: string;
+            officeHours: string;
+            packCarefully: string;
+            inspectBefore: string;
+        };
+    };
+    payment: {
+        title: string;
+        select: string;
+        cod: {
+            name: string;
+            description: string;
+        };
+        bankTransfer: {
+            name: string;
+            description: string;
+        };
+        expired: string;
+        payBefore: string;
+    };
+    summary: {
+        title: string;
+        subtotal: string;
+        shipping: string;
+        shopVoucher: string;
+        platformVoucher: string;
+        shippingDiscount: string;
+        tax: string;
+    };
+    footer: {
+        total: string;
+        savings: string;
+        placeOrder: string;
+        placeOrderWithCount: string;
+        accessibilityPlaceOrder: string;
+    };
+    actions: {
+        cancelTitle: string;
+        cancelMessage: string;
+        cancelConfirm: string;
+        cancelStay: string;
+        done: string;
+        confirm: string;
+    };
+    status: {
+        placingOrder: string;
+        orderSuccess: string;
+        orderFailed: string;
+        orderFailedDetail: string;
     };
 }
 
@@ -422,6 +549,7 @@ export interface ProfileTranslation {
     header: {
         login: string;
         register: string;
+        guestName: string;
     };
     stats: {
         favorites: string;
@@ -429,10 +557,35 @@ export interface ProfileTranslation {
         recent: string;
         coins: string;
         vouchers: string;
+        orders: string;
+        units: {
+            vouchers: string;
+            reviews: string;
+            collect: string;
+            pending: string;
+            buyNow: string;
+        };
     };
     orders: {
         title: string;
         viewAll: string;
+    };
+    memberLevel: {
+        BRONZE: string;
+        SILVER: string;
+        GOLD: string;
+        PLATINUM: string;
+        DIAMOND: string;
+    };
+    orderStatus: {
+        pendingPayment: string;
+        processing: string;
+        shipping: string;
+        completed: string;
+        cancelled: string;
+        returned: string;
+        review: string;
+        total: string;
     };
     menu: {
         wallet: string;
@@ -440,6 +593,23 @@ export interface ProfileTranslation {
         affiliate: string;
         support: string;
         settings: string;
+        coins: string;
+        vouchers: string;
+        reviews: string;
+        shipping: string;
+        security: string;
+    };
+    guestState: {
+        title: string;
+        subtitle: string;
+        login: string;
+        register: string;
+        benefitsTitle: string;
+        benefits: {
+            exclusive: string;
+            shipping: string;
+            coins: string;
+        };
     };
     settings: {
         title: string;
@@ -474,6 +644,78 @@ export interface ProfileTranslation {
 }
 
 /**
+ * Search module translations
+ */
+export interface SearchTranslation {
+    header: {
+        placeholder: string;
+        placeholderTyping: string;
+        cancel: string;
+    };
+    recent: {
+        title: string;
+        clearAll: string;
+        empty: string;
+    };
+    hot: {
+        title: string;
+        badge: string;
+    };
+    suggestions: {
+        searchIn: string;
+        shopPrefix: string;
+        categoryPrefix: string;
+        noResults: string;
+    };
+    actions: {
+        search: string;
+        searchByImage: string;
+        searchByVoice: string;
+    };
+    error: {
+        loadFailed: string;
+    };
+}
+
+/**
+ * Notification module translations
+ */
+export interface NotificationTranslation {
+    header: {
+        title: string;
+        markAllRead: string;
+    };
+    filters: {
+        all: string;
+        order: string;
+        promo: string;
+        product: string;
+        shipping: string;
+        wallet: string;
+        system: string;
+    };
+    empty: {
+        title: string;
+        subtitle: string;
+        subtitleWithFilter: string;
+    };
+    sections: {
+        today: string;
+        yesterday: string;
+        thisWeek: string;
+        earlier: string;
+    };
+    errors: {
+        markAllAsReadFailed: string;
+        tryAgain: string;
+    };
+    actions: {
+        markAllAsReadTitle: string;
+        markAllAsReadMessage: string;
+    };
+}
+
+/**
  * Global I18n Resources
  */
 export interface I18nResources {
@@ -487,4 +729,7 @@ export interface I18nResources {
     profile: ProfileTranslation;
     home: HomeTranslation;
     category: CategoryTranslation;
+    search: SearchTranslation;
+    notification: NotificationTranslation;
+    checkout: CheckoutTranslation;
 }

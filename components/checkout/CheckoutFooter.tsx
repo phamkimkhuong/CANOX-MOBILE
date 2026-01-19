@@ -11,6 +11,7 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { formatCurrency } from '@/utils/format';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 
@@ -38,6 +39,7 @@ export const CheckoutFooter: React.FC<CheckoutFooterProps> = ({
     onPlaceOrder,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('checkout');
     const styles = stylesheet;
 
     const isDisabled = !canPlaceOrder;
@@ -63,7 +65,7 @@ export const CheckoutFooter: React.FC<CheckoutFooterProps> = ({
             <View style={styles.mainRow}>
                 {/* Total Section */}
                 <View style={styles.totalSection}>
-                    <Text style={styles.totalLabel}>Tổng thanh toán</Text>
+                    <Text style={styles.totalLabel}>{t('footer.total')}</Text>
                     <Text style={styles.totalAmount}>
                         {formatCurrency(totalAmount)}
                     </Text>
@@ -75,7 +77,7 @@ export const CheckoutFooter: React.FC<CheckoutFooterProps> = ({
                                 color={theme.colors.success}
                             />
                             <Text style={styles.savingsText}>
-                                Tiết kiệm {formatCurrency(totalSavings)}
+                                {t('footer.savings', { amount: formatCurrency(totalSavings) })}
                             </Text>
                         </View>
                     )}
@@ -91,11 +93,11 @@ export const CheckoutFooter: React.FC<CheckoutFooterProps> = ({
                     onPress={onPlaceOrder}
                     disabled={isDisabled}
                     accessibilityRole="button"
-                    accessibilityLabel={`Đặt hàng, tổng ${formatCurrency(totalAmount)}`}
+                    accessibilityLabel={t('footer.accessibilityPlaceOrder', { amount: formatCurrency(totalAmount) })}
                     accessibilityState={{ disabled: isDisabled }}
                 >
                     <Text style={styles.orderButtonText}>
-                        Đặt hàng ({itemCount})
+                        {t('footer.placeOrderWithCount', { count: itemCount })}
                     </Text>
                 </Pressable>
             </View>

@@ -45,6 +45,7 @@ import { Navigator } from '@/utils/navigation';
 import { FlashList } from '@shopify/flash-list';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, RefreshControl, Text, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -62,6 +63,7 @@ interface CartHeaderProps {
 
 const CartHeader: React.FC<CartHeaderProps> = ({ onEditPress, isEditMode }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('cart');
     const insets = useSafeAreaInsets();
     const totalQuantity = useCartStore((state) => state.totalQuantity);
 
@@ -71,21 +73,21 @@ const CartHeader: React.FC<CartHeaderProps> = ({ onEditPress, isEditMode }) => {
                 <Pressable
                     onPress={() => Navigator.back()}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    accessibilityLabel="Quay lại"
+                    accessibilityLabel={t('header.back' as any)} // Fallback or add to cart i18n
                     accessibilityRole="button"
                 >
                     <IconSymbol name="arrow-back" size={24} color={theme.colors.typography} />
                 </Pressable>
-                <Text style={styles.headerTitle}>Giỏ hàng ({totalQuantity})</Text>
+                <Text style={styles.headerTitle}>{t('header.title')} ({totalQuantity})</Text>
 
                 <Pressable
                     onPress={onEditPress}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    accessibilityLabel={isEditMode ? 'Xong' : 'Sửa'}
+                    accessibilityLabel={isEditMode ? t('header.done') : t('header.edit')}
                     accessibilityRole="button"
                 >
                     <Text style={[styles.headerAction, { color: theme.colors.primary }]}>
-                        {isEditMode ? 'Xong' : 'Sửa'}
+                        {isEditMode ? t('header.done') : t('header.edit')}
                     </Text>
                 </Pressable>
             </View>
@@ -100,6 +102,7 @@ interface EmptyCartProps {
 
 const EmptyCart: React.FC<EmptyCartProps> = ({ onRefresh, refreshing }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('cart');
 
     return (
         <Animated.ScrollView
@@ -119,16 +122,16 @@ const EmptyCart: React.FC<EmptyCartProps> = ({ onRefresh, refreshing }) => {
                 <View style={styles.emptyIconCircle}>
                     <IconSymbol name="cart" size={48} color={theme.colors.primary} />
                 </View>
-                <Text style={styles.emptyTitle}>Giỏ hàng trống</Text>
-                <Text style={styles.emptySubtitle}>Hãy thêm sản phẩm vào giỏ hàng nhé!</Text>
+                <Text style={styles.emptyTitle}>{t('empty.title')}</Text>
+                <Text style={styles.emptySubtitle}>{t('empty.subtitle')}</Text>
 
                 <Pressable
                     onPress={() => Navigator.push('/')}
                     style={styles.shopNowButton}
-                    accessibilityLabel="Mua sắm ngay"
+                    accessibilityLabel={t('empty.shopNow')}
                     accessibilityRole="button"
                 >
-                    <Text style={styles.shopNowText}>MUA SẮM NGAY</Text>
+                    <Text style={styles.shopNowText}>{t('empty.shopNow')}</Text>
                 </Pressable>
             </View>
 
@@ -144,6 +147,7 @@ const EmptyCart: React.FC<EmptyCartProps> = ({ onRefresh, refreshing }) => {
 
 export default function CartScreen() {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('cart');
     const insets = useSafeAreaInsets();
     const { rebuySuccess } = useLocalSearchParams<{ rebuySuccess?: string }>();
 
@@ -198,12 +202,12 @@ export default function CartScreen() {
         if (isReady && !isLoading && rebuySuccess === 'true') {
             Toast.show({
                 type: 'success',
-                text1: 'Mua lại thành công',
-                text2: 'Sản phẩm đã được thêm vào giỏ hàng của bạn',
+                text1: t('status.rebuySuccess'),
+                text2: t('status.rebuySuccessDetail'),
                 visibilityTime: 3000,
             });
         }
-    }, [isReady, isLoading, rebuySuccess]);
+    }, [isReady, isLoading, rebuySuccess, t]);
 
     // ========================================
     // CALCULATIONS (Client-side selection)
@@ -396,13 +400,13 @@ export default function CartScreen() {
             return (
                 <View style={styles.emptyContainer}>
                     <IconSymbol name="error-outline" size={64} color={theme.colors.error} />
-                    <Text style={styles.emptyTitle}>Không thể tải giỏ hàng</Text>
-                    <Text style={styles.emptySubtitle}>Vui lòng thử lại sau</Text>
+                    <Text style={styles.emptyTitle}>{t('error.loadFailed')}</Text>
+                    <Text style={styles.emptySubtitle}>{t('error.tryAgainLater')}</Text>
                     <Pressable
                         onPress={() => refetch()}
                         style={styles.shopNowButton}
                     >
-                        <Text style={styles.shopNowText}>Thử lại</Text>
+                        <Text style={styles.shopNowText}>{t('error.retryButton')}</Text>
                     </Pressable>
                 </View>
             );
@@ -430,7 +434,7 @@ export default function CartScreen() {
                         {(isFetching && userInteracted || isUpdating || isRemoving) && (
                             <View style={styles.syncBar}>
                                 <ActivityIndicator size="small" color={theme.colors.primary} />
-                                <Text style={styles.syncText}>Đang cập nhật giá mới nhất...</Text>
+                                <Text style={styles.syncText}>{t('status.syncing')}</Text>
                             </View>
                         )}
 

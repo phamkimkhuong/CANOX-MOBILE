@@ -1,4 +1,4 @@
-# EBAY - Ứng dụng Thương mại Điện tử
+# CanoX - Ứng dụng Thương mại Điện tử
 
 Ứng dụng Mobile Thương mại Điện tử được xây dựng bằng **React Native** với **Expo SDK 54**, hỗ trợ cả nền tảng **iOS** và **Android**.
 
@@ -104,7 +104,7 @@
 ### 1. Clone Repository
 ```bash
 git clone <repository-url>
-cd EBAY_TMDT_APP_mobi_DEV03
+cd CanoX
 ```
 
 ### 2. Cài đặt Dependencies
@@ -165,13 +165,13 @@ npm run a
     npm run ios
     ```
 *   **Cách 2: Chạy trực tiếp từ Xcode (Khi cần cấu hình sâu hoặc debug lỗi Native)**:
-    1. Mở file workspace: `open ios/ebay.xcworkspace`
+    1. Mở file workspace: `open ios/canox.xcworkspace`
     2. Trong giao diện Xcode, chọn thiết bị giả lập (Simulator) và nhấn nút **Play (Run)** ở góc trên bên trái.
 
 ## 📁 Cấu trúc dự án
 
 ```
-EBAY_TMDT_APP_mobi_DEV03/
+CanoX/
 ├── app/                    # Routes (file-based routing)
 │   ├── (auth)/            # Authentication screens
 │   ├── (main)/            # Main screens (non-tab)
@@ -232,4 +232,4 @@ Private - All Rights Reserved
 
 ---
 
-© 2025 EBAY TMDT. Phát triển bởi đội ngũ Mobile Development.
+© 2025 CanoX TMDT. Phát triển bởi đội ngũ Mobile Development.

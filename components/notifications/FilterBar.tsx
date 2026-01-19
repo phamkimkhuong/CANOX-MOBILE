@@ -1,6 +1,7 @@
 import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import { FILTER_TABS, NotificationFilter } from '@/types/notification';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -18,6 +19,7 @@ interface FilterBarProps {
 export const FilterBar: React.FC<FilterBarProps> = ({ activeFilter, onFilterChange }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+    const { t } = useTranslation('notification');
 
     return (
         <View style={styles.container}>
@@ -43,7 +45,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({ activeFilter, onFilterChan
                                 />
                             ) : null}
                             <Text style={[styles.chipText, isActive && styles.chipTextActive]}>
-                                {tab.label}
+                                {t(`filters.${tab.key.toLowerCase()}` as any)}
                             </Text>
                         </TouchableOpacity>
                     );

@@ -9,6 +9,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import type { VoucherUI } from '@/types/cart';
 import { formatCurrency } from '@/utils/format';
 import React, { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal, Pressable, ScrollView, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -42,6 +43,7 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
     isLoading = false,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('checkout');
     const styles = stylesheet;
     const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -116,7 +118,7 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
                 ]}
                 onPress={handleOpenModal}
                 accessibilityRole="button"
-                accessibilityLabel="Chọn voucher CanoX"
+                accessibilityLabel={t('voucher.selectPlatformVoucher')}
             >
                 {/* Title Row */}
                 <View style={styles.titleRow}>
@@ -127,7 +129,7 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
                             color={theme.colors.error}
                         />
                     </View>
-                    <Text style={styles.title}>Voucher CanoX</Text>
+                    <Text style={styles.title}>{t('voucher.platformTitle')}</Text>
                 </View>
 
                 {/* Selector Row */}
@@ -159,10 +161,10 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
                     ) : (
                         <Text style={styles.placeholderText}>
                             {isLoading
-                                ? 'Đang tìm voucher tốt nhất...'
+                                ? t('voucher.findingBest')
                                 : availableVouchers.length > 0
-                                    ? `Chọn hoặc nhập mã (${availableVouchers.length} khả dụng)`
-                                    : 'Không có voucher khả dụng'}
+                                    ? t('voucher.placeholder', { count: availableVouchers.length })
+                                    : t('voucher.noVouchers')}
                         </Text>
                     )}
                     <IconSymbol
@@ -208,7 +210,7 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
                                             color={theme.colors.error}
                                         />
                                         <Text style={styles.modalTitle}>
-                                            Voucher Ebay
+                                            {t('voucher.platformTitle')}
                                         </Text>
                                     </View>
                                     <Pressable
@@ -216,7 +218,7 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
                                         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                                     >
                                         <View style={styles.doneButton}>
-                                            <Text style={styles.doneButtonText}>Xong</Text>
+                                            <Text style={styles.doneButtonText}>{t('actions.done')}</Text>
                                         </View>
                                     </Pressable>
                                 </View>
@@ -226,7 +228,7 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
                                     <View style={styles.inputWrapper}>
                                         <TextInput
                                             style={styles.manualInput}
-                                            placeholder="Nhập mã voucher Ebay"
+                                            placeholder={t('voucher.manualInputPlaceholder')}
                                             value={manualCode}
                                             onChangeText={setManualCode}
                                             autoCapitalize="characters"
@@ -250,7 +252,7 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
                                         onPress={handleManualApply}
                                         disabled={!manualCode.trim()}
                                     >
-                                        <Text style={styles.applyButtonText}>Áp dụng</Text>
+                                        <Text style={styles.applyButtonText}>{t('voucher.applyButton')}</Text>
                                     </Pressable>
                                 </View>
 
@@ -258,7 +260,7 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
                                 <ScrollView style={styles.voucherList}>
                                     {/* SECTION 1: SHIPPING VOUCHERS */}
                                     <View style={styles.sectionHeader}>
-                                        <Text style={styles.sectionTitle}>Voucher vận chuyển</Text>
+                                        <Text style={styles.sectionTitle}>{t('voucher.shippingVoucherTitle')}</Text>
                                     </View>
 
                                     {shippingVouchers.map((voucher) => {
@@ -273,12 +275,12 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
                                         );
                                     })}
                                     {shippingVouchers.length === 0 && (
-                                        <Text style={styles.emptyCategoryText}>Không có mã vận chuyển</Text>
+                                        <Text style={styles.emptyCategoryText}>{t('voucher.noShippingVoucher')}</Text>
                                     )}
 
                                     {/* SECTION 2: DISCOUNT VOUCHERS */}
                                     <View style={styles.sectionHeader}>
-                                        <Text style={styles.sectionTitle}>Voucher mã giảm giá</Text>
+                                        <Text style={styles.sectionTitle}>{t('voucher.discountVoucherTitle')}</Text>
                                     </View>
 
                                     {discountVouchers.map((voucher) => {
@@ -293,7 +295,7 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
                                         );
                                     })}
                                     {discountVouchers.length === 0 && (
-                                        <Text style={styles.emptyCategoryText}>Không có mã giảm giá</Text>
+                                        <Text style={styles.emptyCategoryText}>{t('voucher.noDiscountVoucher')}</Text>
                                     )}
                                 </ScrollView>
 
@@ -316,6 +318,7 @@ interface VoucherItemProps {
 
 const VoucherItem: React.FC<VoucherItemProps> = ({ voucher, isSelected, onPress }) => {
     const { theme } = useUnistyles();
+    const { t, i18n } = useTranslation('checkout');
     const styles = stylesheet;
     const isShipping = voucher.category === 'SHIPPING';
 
@@ -370,7 +373,11 @@ const VoucherItem: React.FC<VoucherItemProps> = ({ voucher, isSelected, onPress 
                     </Text>
                     {voucher.expiresAt && (
                         <Text style={styles.voucherCardExpiry}>
-                            HSD: {new Date(voucher.expiresAt).toLocaleDateString('vi-VN')}
+                            {t('voucher.expiry', {
+                                date: new Date(voucher.expiresAt).toLocaleDateString(
+                                    i18n.language === 'en' ? 'en-US' : 'vi-VN'
+                                )
+                            })}
                         </Text>
                     )}
                 </View>

@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "ebay",
-    "slug": "ebay",
+    "name": "canox",
+    "slug": "canox",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "ebay",
+    "scheme": "canox",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
@@ -23,7 +23,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.ebay"
+      "package": "com.anonymous.canox"
     },
     "plugins": [
       "expo-router"

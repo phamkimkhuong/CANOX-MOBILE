@@ -4,6 +4,7 @@ export const PROFILE_STRINGS: ProfileTranslation = {
     header: {
         login: 'Đăng nhập',
         register: 'Đăng ký',
+        guestName: 'Khách',
     },
     stats: {
         favorites: 'Yêu thích',
@@ -11,10 +12,35 @@ export const PROFILE_STRINGS: ProfileTranslation = {
         recent: 'Đã xem gần đây',
         coins: 'Xu',
         vouchers: 'Voucher',
+        orders: 'Đơn hàng',
+        units: {
+            vouchers: 'mã',
+            reviews: 'sản phẩm',
+            collect: 'Thu thập',
+            pending: 'Đang chờ',
+            buyNow: 'Đặt ngay',
+        },
     },
     orders: {
-        title: 'Đơn hàng của tôi',
+        title: 'Đơn mua',
         viewAll: 'Xem lịch sử mua hàng',
+    },
+    memberLevel: {
+        BRONZE: 'Đồng',
+        SILVER: 'Bạc',
+        GOLD: 'Vàng',
+        PLATINUM: 'Bạch Kim',
+        DIAMOND: 'Kim Cương',
+    },
+    orderStatus: {
+        pendingPayment: 'Chờ thanh toán',
+        processing: 'Chờ xác nhận',
+        shipping: 'Đang giao',
+        completed: 'Đã mua',
+        cancelled: 'Đã hủy',
+        returned: 'Trả hàng',
+        review: 'Đánh giá',
+        total: 'Tất cả',
     },
     menu: {
         wallet: 'Ví Calatha',
@@ -22,6 +48,23 @@ export const PROFILE_STRINGS: ProfileTranslation = {
         affiliate: 'Tiếp thị liên kết',
         support: 'Trung tâm hỗ trợ',
         settings: 'Thiết lập tài khoản',
+        coins: 'Xu Tích Lũy',
+        vouchers: 'Kho Voucher',
+        reviews: 'Đánh giá của tôi',
+        shipping: 'Vận chuyển QT',
+        security: 'Thiết lập tài khoản & Bảo mật',
+    },
+    guestState: {
+        title: 'Chào mừng bạn đến với CanoX',
+        subtitle: 'Đăng nhập để nhận nhiều ưu đãi hấp dẫn và theo dõi đơn hàng dễ dàng',
+        login: 'Đăng nhập',
+        register: 'Đăng ký tài khoản mới',
+        benefitsTitle: 'Quyền lợi thành viên',
+        benefits: {
+            exclusive: 'Ưu đãi độc quyền',
+            shipping: 'Miễn phí vận chuyển',
+            coins: 'Tích xu mỗi đơn hàng',
+        },
     },
     settings: {
         title: 'Thiết lập tài khoản',

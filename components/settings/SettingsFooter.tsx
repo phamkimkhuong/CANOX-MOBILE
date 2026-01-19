@@ -54,7 +54,7 @@ export const SettingsFooter: React.FC<SettingsFooterProps> = memo(({
 
             {/* Copyright */}
             <Text style={styles.copyright}>
-                © 2024 eBay VN. All rights reserved.
+                © 2024 CanoX VN. All rights reserved.
             </Text>
         </View>
     );

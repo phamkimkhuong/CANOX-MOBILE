@@ -4,11 +4,11 @@ const IS_PREVIEW = process.env.APP_VARIANT === 'preview';
 module.exports = {
     "expo": {
         "name": IS_DEV ? "CanoX (Dev)" : (IS_PREVIEW ? "CanoX (Preview)" : "CanoX"),
-        "slug": "ebay",
+        "slug": "canox",
         "version": "1.0.0",
         "orientation": "portrait",
         "icon": "./assets/images/icon.png",
-        "scheme": "ebay",
+        "scheme": "canox",
         "userInterfaceStyle": "light",
         "newArchEnabled": true,
         "splash": {

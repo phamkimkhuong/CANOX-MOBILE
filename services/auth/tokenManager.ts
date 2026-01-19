@@ -65,6 +65,13 @@ let proactiveRefreshTimer: ReturnType<typeof setTimeout> | null = null;
 /** Callback when refresh fails - used to trigger logout */
 let onRefreshFailedCallback: (() => void) | null = null;
 
+// ============================================
+// IN-MEMORY CACHE (Performance optimization)
+// ============================================
+
+let cachedAccessToken: string | null = null;
+let cachedTokenExpiry: number | null = null;
+
 /**
  * Set callback to be called when token refresh fails
  * This should be called once from useAuthStore to trigger logout
@@ -73,16 +80,42 @@ export const setOnRefreshFailedCallback = (callback: () => void): void => {
     onRefreshFailedCallback = callback;
 };
 
+/**
+ * Check if token refresh is currently in progress
+ * Used by Request Interceptor to wait for ongoing refresh
+ */
+export const isTokenRefreshing = (): boolean => {
+    return isRefreshing;
+};
+
+/**
+ * Wait for ongoing token refresh to complete
+ * Returns the new access token when refresh succeeds
+ */
+export const waitForTokenRefresh = (): Promise<string> => {
+    return new Promise<string>((resolve, reject) => {
+        failedQueue.push({ resolve, reject });
+    });
+};
+
 // ============================================
 // TOKEN STORAGE HELPERS
 // ============================================
 
 /**
- * Get access token from secure storage
+ * Get access token - uses in-memory cache first, falls back to SecureStore
  */
 export const getAccessToken = async (): Promise<string | null> => {
+    // Return from cache if available (instant)
+    if (cachedAccessToken !== null) {
+        return cachedAccessToken;
+    }
+
+    // Fallback to SecureStore (app restart scenario)
     try {
-        return await SecureStore.getItemAsync(STORAGE_KEYS.ACCESS_TOKEN);
+        const token = await SecureStore.getItemAsync(STORAGE_KEYS.ACCESS_TOKEN);
+        cachedAccessToken = token;
+        return token;
     } catch (error) {
         logger.auth.error('Failed to get access token:', error);
         return null;
@@ -102,12 +135,19 @@ export const getRefreshToken = async (): Promise<string | null> => {
 };
 
 /**
- * Get token expiry timestamp from secure storage
+ * Get token expiry timestamp - uses in-memory cache first, falls back to SecureStore
  */
 export const getTokenExpiry = async (): Promise<number | null> => {
+    // Return from cache if available (instant)
+    if (cachedTokenExpiry !== null) {
+        return cachedTokenExpiry;
+    }
+
+    // Fallback to SecureStore (app restart scenario)
     try {
         const expiry = await SecureStore.getItemAsync(STORAGE_KEYS.TOKEN_EXPIRY);
-        return expiry ? parseInt(expiry, 10) : null;
+        cachedTokenExpiry = expiry ? parseInt(expiry, 10) : null;
+        return cachedTokenExpiry;
     } catch (error) {
         logger.auth.error('Failed to get token expiry:', error);
         return null;
@@ -115,7 +155,7 @@ export const getTokenExpiry = async (): Promise<number | null> => {
 };
 
 /**
- * Save tokens to secure storage
+ * Save tokens to secure storage AND in-memory cache
  */
 export const saveTokens = async (
     accessToken: string,
@@ -124,6 +164,11 @@ export const saveTokens = async (
     try {
         const expiryTime = Date.now() + TOKEN_LIFETIME_MS;
 
+        //  Update in-memory cache first (instant)
+        cachedAccessToken = accessToken;
+        cachedTokenExpiry = expiryTime;
+
+        //  Persist to SecureStore (async)
         await Promise.all([
             SecureStore.setItemAsync(STORAGE_KEYS.ACCESS_TOKEN, accessToken),
             SecureStore.setItemAsync(STORAGE_KEYS.REFRESH_TOKEN, refreshToken),
@@ -141,7 +186,7 @@ export const saveTokens = async (
 };
 
 /**
- * Clear all tokens from secure storage
+ * Clear all tokens from secure storage AND in-memory cache
  */
 export const clearTokens = async (): Promise<void> => {
     try {
@@ -151,6 +196,11 @@ export const clearTokens = async (): Promise<void> => {
             proactiveRefreshTimer = null;
         }
 
+        // Clear in-memory cache (instant)
+        cachedAccessToken = null;
+        cachedTokenExpiry = null;
+
+        // Clear SecureStore (async)
         await Promise.all([
             SecureStore.deleteItemAsync(STORAGE_KEYS.ACCESS_TOKEN),
             SecureStore.deleteItemAsync(STORAGE_KEYS.REFRESH_TOKEN),

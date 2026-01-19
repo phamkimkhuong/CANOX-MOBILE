@@ -15,7 +15,11 @@ import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } f
 import { z } from 'zod';
 import {
     getAccessToken,
-    handle401Error
+    getTokenExpiry,
+    handle401Error,
+    isTokenRefreshing,
+    performTokenRefresh,
+    waitForTokenRefresh
 } from '../auth/tokenManager';
 
 // ============================================
@@ -25,6 +29,9 @@ import {
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 
 const TIMEOUT = 30000; // 30s for mobile (slow network)
+
+/** Time before expiry to trigger proactive refresh in Request Interceptor (60 minutes) */
+const PROACTIVE_REFRESH_THRESHOLD_MS = 60 * 60 * 1000;
 
 /** Endpoints that don't require authentication */
 const PUBLIC_ENDPOINTS = [
@@ -119,7 +126,7 @@ export const apiClient: AxiosInstance = axios.create({
 });
 
 // ============================================
-// REQUEST INTERCEPTOR (Layer 1: Authentication)
+// REQUEST INTERCEPTOR (Proactive Token Refresh)
 // ============================================
 
 apiClient.interceptors.request.use(
@@ -145,14 +152,38 @@ apiClient.interceptors.request.use(
 
         logger.api.info(`🔐 [AUTH] ${config.method?.toUpperCase()} ${buildFullUrl()}`);
 
-        // Attach access token from secure storage
         try {
+            // If token refresh is in progress, wait for it
+            if (isTokenRefreshing()) {
+                logger.auth.info('Request waiting for token refresh...');
+                const newToken = await waitForTokenRefresh();
+                if (config.headers) {
+                    config.headers.Authorization = `Bearer ${newToken}`;
+                }
+                return config;
+            }
+
+            // Check if token is expiring soon (within threshold)
+            const tokenExpiry = await getTokenExpiry();
+            const isExpiringSoon = tokenExpiry !== null &&
+                (tokenExpiry - Date.now() < PROACTIVE_REFRESH_THRESHOLD_MS);
+
+            if (isExpiringSoon) {
+                logger.auth.info('Token expiring soon - proactive refresh before request');
+                const newToken = await performTokenRefresh();
+                if (newToken && config.headers) {
+                    config.headers.Authorization = `Bearer ${newToken}`;
+                }
+                return config;
+            }
+
+            // Token is healthy - attach it normally
             const token = await getAccessToken();
             if (token && config.headers) {
                 config.headers.Authorization = `Bearer ${token}`;
             }
         } catch (error) {
-            logger.api.error('Error retrieving token:', error);
+            logger.api.error('Error in Request Interceptor:', error);
         }
 
         return config;
@@ -268,8 +299,6 @@ export async function request<T>(
 ): Promise<T> {
     try {
         const response: AxiosResponse = await apiClient(config);
-
-        // Validate response against schema
         const parseResult = schema.safeParse(response.data);
 
         if (!parseResult.success) {

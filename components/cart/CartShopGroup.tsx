@@ -18,6 +18,7 @@
 
 import type { CartItemUI, CartShopUI, CheckboxState } from '@/types/cart';
 import React, { memo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 import { SwipeableRow } from '../ui/SwipeableRow';
@@ -74,6 +75,7 @@ export const CartShopGroup: React.FC<CartShopGroupProps> = memo(({
     isEditMode = false,
     onEditModeToggle,
 }) => {
+    const { t } = useTranslation('cart');
     const {
         shopId,
         shopName,
@@ -101,6 +103,8 @@ export const CartShopGroup: React.FC<CartShopGroupProps> = memo(({
                                 ? undefined
                                 : () => onFindSimilar?.(item.id)
                         }
+                        deleteLabel={t('item.delete')}
+                        findSimilarLabel={t('item.findSimilar')}
                         disabled={isEditMode}
                     >
                         <CartItem

@@ -15,6 +15,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import type { CheckoutCalculationResult } from '@/types/checkout';
 import { formatCurrency } from '@/utils/format';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -24,6 +25,7 @@ interface BillSummaryProps {
 
 export const BillSummary: React.FC<BillSummaryProps> = ({ calculation }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('checkout');
     const styles = stylesheet;
 
     return (
@@ -37,7 +39,7 @@ export const BillSummary: React.FC<BillSummaryProps> = ({ calculation }) => {
                         color={theme.colors.primary}
                     />
                 </View>
-                <Text style={styles.title}>Chi tiết thanh toán</Text>
+                <Text style={styles.title}>{t('summary.title')}</Text>
             </View>
 
             {/* Summary Rows */}
@@ -45,7 +47,7 @@ export const BillSummary: React.FC<BillSummaryProps> = ({ calculation }) => {
                 {/* Subtotal */}
                 <View style={styles.row}>
                     <Text style={styles.label}>
-                        Tổng tiền hàng ({calculation.totalItemCount} sản phẩm)
+                        {t('summary.subtotal', { count: calculation.totalItemCount })}
                     </Text>
                     <Text style={styles.value}>
                         {formatCurrency(calculation.subtotal)}
@@ -54,9 +56,9 @@ export const BillSummary: React.FC<BillSummaryProps> = ({ calculation }) => {
 
                 {/* Shipping */}
                 <View style={styles.row}>
-                    <Text style={styles.label}>Tổng tiền vận chuyển</Text>
+                    <Text style={styles.label}>{t('summary.shipping')}</Text>
                     {calculation.isCalculatingShipping ? (
-                        <Text style={styles.loadingText}>Đang tính...</Text>
+                        <Text style={styles.loadingText}>{t('shipping.calculating')}</Text>
                     ) : (
                         <Text style={styles.value}>
                             {formatCurrency(calculation.totalShippingFee)}
@@ -67,7 +69,7 @@ export const BillSummary: React.FC<BillSummaryProps> = ({ calculation }) => {
                 {/* Shop Voucher Discount (if any) */}
                 {calculation.totalShopVoucherDiscount > 0 && (
                     <View style={styles.row}>
-                        <Text style={styles.label}>Giảm giá từ Shop</Text>
+                        <Text style={styles.label}>{t('summary.shopVoucher')}</Text>
                         <Text style={styles.discountValue}>
                             -{formatCurrency(calculation.totalShopVoucherDiscount)}
                         </Text>
@@ -77,7 +79,7 @@ export const BillSummary: React.FC<BillSummaryProps> = ({ calculation }) => {
                 {/* Platform Voucher Discount (if any) */}
                 {calculation.platformVoucherDiscount > 0 && (
                     <View style={styles.row}>
-                        <Text style={styles.label}>Voucher giảm giá </Text>
+                        <Text style={styles.label}>{t('summary.platformVoucher')}</Text>
                         <Text style={styles.discountValue}>
                             -{formatCurrency(calculation.platformVoucherDiscount)}
                         </Text>
@@ -87,7 +89,7 @@ export const BillSummary: React.FC<BillSummaryProps> = ({ calculation }) => {
                 {/* Shipping Discount (if any) */}
                 {calculation.shippingDiscount > 0 && (
                     <View style={styles.row}>
-                        <Text style={styles.label}>Giảm phí vận chuyển</Text>
+                        <Text style={styles.label}>{t('summary.shippingDiscount')}</Text>
                         <Text style={styles.discountValue}>
                             -{formatCurrency(calculation.shippingDiscount)}
                         </Text>
@@ -97,7 +99,7 @@ export const BillSummary: React.FC<BillSummaryProps> = ({ calculation }) => {
                 {/* Tax (if any) */}
                 {calculation.taxAmount > 0 && (
                     <View style={styles.row}>
-                        <Text style={styles.label}>Thuế (VAT)</Text>
+                        <Text style={styles.label}>{t('summary.tax')}</Text>
                         <Text style={styles.value}>
                             {formatCurrency(calculation.taxAmount)}
                         </Text>

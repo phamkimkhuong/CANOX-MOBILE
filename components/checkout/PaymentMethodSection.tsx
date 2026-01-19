@@ -8,7 +8,8 @@
 
 import { IconSymbol } from '@/components/ui/Icon';
 import type { PaymentMethodType } from '@/types/checkout';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal, Pressable, ScrollView, Text, TouchableWithoutFeedback, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -17,50 +18,37 @@ interface PaymentMethodSectionProps {
     onSelect: (method: PaymentMethodType) => void;
 }
 
-// Payment method configurations with modern icons
-const PAYMENT_METHODS: Array<{
-    id: PaymentMethodType;
-    name: string;
-    description: string;
-    icon: any; // Using IconSymbolName from Icon.tsx or any for simplicity
-    iconColor: string;
-}> = [
-        {
-            id: 'cod',
-            name: 'Thanh toán khi nhận hàng',
-            description: 'Thanh toán bằng tiền mặt khi nhận hàng',
-            icon: 'cash',
-            iconColor: '#10B981',
-        },
-        {
-            id: 'bank_transfer',
-            name: 'Chuyển khoản ngân hàng',
-            description: 'Chuyển khoản qua tài khoản ngân hàng',
-            icon: 'bank',
-            iconColor: '#3B82F6',
-        },
-        // {
-        //     id: 'e_wallet',
-        //     name: 'Ví điện tử',
-        //     description: 'MoMo, ZaloPay, VNPay...',
-        //     icon: 'wallet',
-        //     iconColor: '#A855F7',
-        // },
-        // {
-        //     id: 'credit_card',
-        //     name: 'Thẻ tín dụng / Ghi nợ',
-        //     description: 'Visa, Mastercard, JCB',
-        //     icon: 'card',
-        //     iconColor: '#F59E0B',
-        // },
-    ];
-
 export const PaymentMethodSection: React.FC<PaymentMethodSectionProps> = ({
     selectedMethod,
     onSelect,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('checkout');
     const styles = stylesheet;
+
+    // Payment method configurations with modern icons
+    const PAYMENT_METHODS: Array<{
+        id: PaymentMethodType;
+        name: string;
+        description: string;
+        icon: any; // Using IconSymbolName from Icon.tsx or any for simplicity
+        iconColor: string;
+    }> = useMemo(() => [
+        {
+            id: 'cod',
+            name: t('payment.cod.name'),
+            description: t('payment.cod.description'),
+            icon: 'cash',
+            iconColor: '#10B981',
+        },
+        {
+            id: 'bank_transfer',
+            name: t('payment.bankTransfer.name'),
+            description: t('payment.bankTransfer.description'),
+            icon: 'bank',
+            iconColor: '#3B82F6',
+        },
+    ], [t]);
     const [isModalVisible, setIsModalVisible] = useState(false);
 
     const selectedConfig = PAYMENT_METHODS.find((m) => m.id === selectedMethod);
@@ -83,11 +71,11 @@ export const PaymentMethodSection: React.FC<PaymentMethodSectionProps> = ({
                 ]}
                 onPress={() => setIsModalVisible(true)}
                 accessibilityRole="button"
-                accessibilityLabel="Chọn phương thức thanh toán"
+                accessibilityLabel={t('payment.select')}
             >
                 {/* Section Title */}
                 <View style={styles.titleRow}>
-                    <Text style={styles.title}>Phương thức thanh toán</Text>
+                    <Text style={styles.title}>{t('payment.title')}</Text>
                 </View>
 
                 {/* Selected Method */}
@@ -139,7 +127,7 @@ export const PaymentMethodSection: React.FC<PaymentMethodSectionProps> = ({
                                             color={theme.colors.primary}
                                         />
                                         <Text style={styles.modalTitle}>
-                                            Phương thức thanh toán
+                                            {t('payment.title')}
                                         </Text>
                                     </View>
                                     <Pressable

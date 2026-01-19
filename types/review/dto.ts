@@ -13,7 +13,7 @@ export type ReviewType = 'PRODUCT' | 'SHOP' | 'ORDER';
 /**
  * Review status
  */
-export type ReviewStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+export type ReviewStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'FLAGGED';
 
 /**
  * Media type (IMAGE, VIDEO)
@@ -41,7 +41,7 @@ export interface MyReviewDTO {
     comment: string;
     userId: string;
     username: string;
-    userAvatar: string | null;
+    userAvatar?: string | null;
     buyerId: string;
     buyerName: string;
     verifiedPurchase: boolean;
@@ -49,11 +49,11 @@ export interface MyReviewDTO {
     status: ReviewStatus;
     rejectionReason?: string;
     helpfulCount: number;
-    hasResponse: boolean;
+    hasResponse?: boolean;
     sellerResponse?: string | null;
     sellerResponseDate?: string | null;
     sellerResponseBy?: string | null;
-    media: ReviewMediaDTO[];
+    media?: ReviewMediaDTO[];
     createdAt?: string;
     updatedAt?: string;
 }

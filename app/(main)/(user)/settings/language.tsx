@@ -13,6 +13,7 @@
 
 import { SettingsHeader } from '@/components/settings';
 import { useAppStore } from '@/store/useAppStore';
+import { SupportedLanguage } from '@/utils/language';
 import { MaterialIcons } from '@expo/vector-icons';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -26,7 +27,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 // ============================================
 
 interface LanguageOption {
-    code: string;
+    code: SupportedLanguage;
     nativeName: string;
     englishName: string;
     flag: string; // Emoji flag
@@ -129,7 +130,7 @@ export default function LanguageSettingsScreen() {
     const setLanguage = useAppStore((state) => state.setLanguage);
 
     // Local state for pending selection
-    const [selectedLang, setSelectedLang] = useState(currentLanguage);
+    const [selectedLang, setSelectedLang] = useState<SupportedLanguage>(currentLanguage);
 
     // Checks if there are unsaved changes
     const hasChanges = selectedLang !== currentLanguage;

@@ -12,12 +12,15 @@ export const COMMON_STRINGS: CommonTranslation = {
         next: 'Next',
         retry: 'Retry',
         copy: 'Copy',
+        viewNow: 'View Now',
     },
     status: {
         loading: 'Loading...',
         success: 'Success',
         error: 'Error occurred',
         empty: 'No data',
+        verified: 'Verified',
+        unverified: 'Unverified',
     },
     bottomTab: {
         home: 'Home',

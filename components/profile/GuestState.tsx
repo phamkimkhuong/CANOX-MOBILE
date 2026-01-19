@@ -2,6 +2,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
 import { Navigator } from '@/utils/navigation';
 import React, { memo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
 import Animated, {
     FadeIn,
@@ -20,6 +21,7 @@ interface GuestStateProps {
 export const GuestState: React.FC<GuestStateProps> = memo(({ onLogin, onRegister }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+    const { t } = useTranslation('profile');
 
     const handleLogin = useCallback(() => {
         if (onLogin) {
@@ -56,9 +58,9 @@ export const GuestState: React.FC<GuestStateProps> = memo(({ onLogin, onRegister
                 entering={FadeInDown.duration(600).delay(200)}
                 style={styles.content}
             >
-                <Text style={styles.title}>Chào mừng bạn đến với Ebay</Text>
+                <Text style={styles.title}>{t('guestState.title')}</Text>
                 <Text style={styles.subtitle}>
-                    Đăng nhập để nhận nhiều ưu đãi hấp dẫn và theo dõi đơn hàng dễ dàng
+                    {t('guestState.subtitle')}
                 </Text>
             </Animated.View>
 
@@ -72,7 +74,7 @@ export const GuestState: React.FC<GuestStateProps> = memo(({ onLogin, onRegister
                     onPress={handleLogin}
                     activeOpacity={0.85}
                 >
-                    <Text style={styles.loginBtnText}>Đăng nhập</Text>
+                    <Text style={styles.loginBtnText}>{t('guestState.login')}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -80,7 +82,7 @@ export const GuestState: React.FC<GuestStateProps> = memo(({ onLogin, onRegister
                     onPress={handleRegister}
                     activeOpacity={0.7}
                 >
-                    <Text style={styles.registerBtnText}>Đăng ký tài khoản mới</Text>
+                    <Text style={styles.registerBtnText}>{t('guestState.register')}</Text>
                 </TouchableOpacity>
             </Animated.View>
 
@@ -89,11 +91,11 @@ export const GuestState: React.FC<GuestStateProps> = memo(({ onLogin, onRegister
                 entering={FadeInDown.duration(600).delay(600)}
                 style={styles.benefits}
             >
-                <Text style={styles.benefitsTitle}>Quyền lợi thành viên</Text>
+                <Text style={styles.benefitsTitle}>{t('guestState.benefitsTitle')}</Text>
                 <View style={styles.benefitsList}>
-                    <BenefitItem icon="percent" text="Ưu đãi độc quyền" />
-                    <BenefitItem icon="shipping" text="Miễn phí vận chuyển" />
-                    <BenefitItem icon="sparkles" text="Tích xu mỗi đơn hàng" />
+                    <BenefitItem icon="percent" text={t('guestState.benefits.exclusive')} />
+                    <BenefitItem icon="shipping" text={t('guestState.benefits.shipping')} />
+                    <BenefitItem icon="sparkles" text={t('guestState.benefits.coins')} />
                 </View>
             </Animated.View>
         </View>

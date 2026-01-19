@@ -2,8 +2,6 @@
  * ==============================================
  * REVIEW HISTORY LIST - FlashList with Filters
  * ==============================================
- * Infinite scroll list for review history with
- * rating filter support
  */
 
 import type { MyReviewUI, RatingFilter } from '@/types/review';
@@ -81,29 +79,25 @@ export const ReviewHistoryList: React.FC<ReviewHistoryListProps> = ({
         }
     }, [hasNextPage, isFetchingNextPage, onLoadMore]);
 
-    const renderFooter = () => {
+    const renderFooter = useCallback(() => {
         if (!isFetchingNextPage) return null;
-
         return (
             <View style={styles.footer}>
                 <ActivityIndicator size="small" color={theme.colors.primary} />
             </View>
         );
-    };
-
-    const renderHeader = () => (
-        <RatingFilterBar
-            activeFilter={ratingFilter}
-            onFilterChange={onRatingFilterChange}
-            counts={counts}
-        />
-    );
+    }, [isFetchingNextPage, styles.footer, theme.colors.primary]);
 
     // Loading state
     if (isLoading && reviews.length === 0) {
         return (
             <View style={styles.container}>
-                {renderHeader()}
+                {/* RatingFilterBar */}
+                <RatingFilterBar
+                    activeFilter={ratingFilter}
+                    onFilterChange={onRatingFilterChange}
+                    counts={counts}
+                />
                 <ReviewListSkeleton />
             </View>
         );
@@ -113,7 +107,12 @@ export const ReviewHistoryList: React.FC<ReviewHistoryListProps> = ({
     if (!isLoading && reviews.length === 0) {
         return (
             <View style={styles.container}>
-                {renderHeader()}
+                {/* RatingFilterBar*/}
+                <RatingFilterBar
+                    activeFilter={ratingFilter}
+                    onFilterChange={onRatingFilterChange}
+                    counts={counts}
+                />
                 <EmptyReviewState
                     type="history"
                     onRefresh={onRefresh}
@@ -124,11 +123,15 @@ export const ReviewHistoryList: React.FC<ReviewHistoryListProps> = ({
 
     return (
         <View style={styles.container}>
+            <RatingFilterBar
+                activeFilter={ratingFilter}
+                onFilterChange={onRatingFilterChange}
+                counts={counts}
+            />
             <FlashList
                 data={reviews}
                 renderItem={renderItem}
                 keyExtractor={keyExtractor}
-                ListHeaderComponent={renderHeader}
                 ListFooterComponent={renderFooter}
                 contentContainerStyle={styles.contentContainer}
                 refreshControl={

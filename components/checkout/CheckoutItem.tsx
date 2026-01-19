@@ -12,6 +12,7 @@ import type { CheckoutItemUI } from '@/types/checkout';
 import { formatCurrency } from '@/utils/format';
 import { Image } from 'expo-image';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -21,6 +22,7 @@ interface CheckoutItemProps {
 
 export const CheckoutItem: React.FC<CheckoutItemProps> = ({ item }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('checkout');
     const styles = stylesheet;
 
     const formattedPrice = formatCurrency(item.unitPrice);
@@ -35,7 +37,7 @@ export const CheckoutItem: React.FC<CheckoutItemProps> = ({ item }) => {
                     style={styles.image}
                     contentFit="cover"
                     transition={200}
-                    accessibilityLabel={`Ảnh sản phẩm ${item.productName}`}
+                    accessibilityLabel={t('item.productImage', { name: item.productName })}
                 />
                 {/* Quantity Badge */}
                 <View style={styles.quantityBadge}>
@@ -54,7 +56,7 @@ export const CheckoutItem: React.FC<CheckoutItemProps> = ({ item }) => {
                 {item.variantAttributes && (
                     <View style={styles.variantContainer}>
                         <Text style={styles.variantText}>
-                            Phân loại: {item.variantAttributes}
+                            {t('item.variation', { attributes: item.variantAttributes })}
                         </Text>
                     </View>
                 )}

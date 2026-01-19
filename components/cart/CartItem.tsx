@@ -15,6 +15,7 @@ import type { CartItemUI } from '@/types/cart';
 import { formatCurrency } from '@/utils/format';
 import { Image } from 'expo-image';
 import React, { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { IconSymbol } from '../ui/Icon';
@@ -49,6 +50,7 @@ export const CartItem: React.FC<CartItemProps> = memo(({
     onDelete,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('cart');
     const isSelected = useCartStore(state => state.selectedItemIds.has(item.id));
 
     // const handleProductPress = useCallback(() => {
@@ -105,7 +107,7 @@ export const CartItem: React.FC<CartItemProps> = memo(({
                     {/* Out of Stock Overlay */}
                     {isOutOfStock && (
                         <View style={styles.outOfStockOverlay}>
-                            <Text style={styles.outOfStockText}>Hết hàng</Text>
+                            <Text style={styles.outOfStockText}>{t('item.outOfStock')}</Text>
                         </View>
                     )}
                 </Pressable>
@@ -130,7 +132,7 @@ export const CartItem: React.FC<CartItemProps> = memo(({
                             onPress={() => onVariantPress?.(item.id)}
                             style={styles.variantSelector}
                             disabled={isOutOfStock}
-                            accessibilityLabel="Chọn phân loại hàng"
+                            accessibilityLabel={t('item.selectVariation')}
                             accessibilityRole="button"
                         >
                             <Text style={styles.variantText} numberOfLines={1}>
@@ -163,10 +165,10 @@ export const CartItem: React.FC<CartItemProps> = memo(({
                             <Pressable
                                 onPress={() => onFindSimilar?.(item.id)}
                                 style={styles.findSimilarButton}
-                                accessibilityLabel="Tìm sản phẩm tương tự"
+                                accessibilityLabel={t('item.findSimilar')}
                                 accessibilityRole="button"
                             >
-                                <Text style={styles.findSimilarText}>Tìm SP tương tự</Text>
+                                <Text style={styles.findSimilarText}>{t('item.findSimilar')}</Text>
                             </Pressable>
                         ) : (
                             <QuantityStepper

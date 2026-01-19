@@ -3,6 +3,7 @@ import { ProfileMenuItem, SERVICE_MENU_CONFIG } from '@/types/profile/profile';
 import { formatCurrency } from '@/utils/format';
 import { Navigator } from '@/utils/navigation';
 import React, { memo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -26,6 +27,7 @@ export const ServiceGrid: React.FC<ServiceGridProps> = memo(({
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+    const { t } = useTranslation(['profile', 'common']);
 
     const handlePress = useCallback((route: string) => {
         if (route) {
@@ -41,13 +43,13 @@ export const ServiceGrid: React.FC<ServiceGridProps> = memo(({
             case 'wallet':
                 return formatCurrency(walletBalance);
             case 'coins':
-                return coinsBalance > 0 ? `${coinsBalance.toLocaleString('vi-VN')}` : 'Thu thập';
+                return coinsBalance > 0 ? `${coinsBalance.toLocaleString('vi-VN')}` : t('stats.units.collect');
             case 'vouchers':
-                return voucherCount > 0 ? `${voucherCount} mã` : 'Xem ngay';
+                return voucherCount > 0 ? `${voucherCount} ${t('stats.units.vouchers')}` : t('common:actions.viewNow');
             case 'reviews':
-                return reviewCount > 0 ? `${reviewCount} sản phẩm` : 'Đang chờ';
+                return reviewCount > 0 ? `${reviewCount} ${t('stats.units.reviews')}` : t('stats.units.pending');
             case 'shipping':
-                return 'Đặt ngay';
+                return t('stats.units.buyNow');
             default:
                 return '';
         }
@@ -99,7 +101,7 @@ export const ServiceGrid: React.FC<ServiceGridProps> = memo(({
                                 />
                             </View>
                             <View style={styles.textContainer}>
-                                <Text style={styles.label}>{item.label}</Text>
+                                <Text style={styles.label}>{t(`menu.${item.key}` as any)}</Text>
                                 <Text
                                     style={[
                                         styles.value,

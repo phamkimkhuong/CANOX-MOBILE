@@ -8,6 +8,7 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { Navigator } from '@/utils/navigation';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 
@@ -17,11 +18,13 @@ interface CheckoutHeaderProps {
 }
 
 export const CheckoutHeader: React.FC<CheckoutHeaderProps> = ({
-    title = 'Thanh toán',
+    title,
     onBack,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('checkout');
     const styles = stylesheet;
+    const headerTitle = title || t('header.title');
 
 
     const handleBack = () => {
@@ -46,7 +49,7 @@ export const CheckoutHeader: React.FC<CheckoutHeaderProps> = ({
                     ]}
                     onPress={handleBack}
                     accessibilityRole="button"
-                    accessibilityLabel="Quay lại"
+                    accessibilityLabel={t('header.back')}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
                     <IconSymbol
@@ -56,7 +59,7 @@ export const CheckoutHeader: React.FC<CheckoutHeaderProps> = ({
                     />
                 </Pressable>
 
-                <Text style={styles.title}>{title}</Text>
+                <Text style={styles.title}>{headerTitle}</Text>
 
                 {/* Placeholder for symmetry */}
                 <View style={styles.placeholder} />

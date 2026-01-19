@@ -4,12 +4,13 @@
  */
 
 import { IconSymbol } from '@/components/ui/Icon';
+import { shopRoutes } from '@/constants/routes';
 import { ConversationPartner } from '@/types/chat';
 import { Navigator } from '@/utils/navigation';
 import { toPublicUrl } from '@/utils/url';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -44,6 +45,12 @@ export const ChatDetailHeader: React.FC<ChatDetailHeaderProps> = ({
         }
     };
 
+    const handlePartnerPress = useCallback(() => {
+        if (partner?.shopId) {
+            Navigator.push(shopRoutes.detail(partner.shopId));
+        }
+    }, [partner?.shopId]);
+
     return (
         <View style={[styles.container, { paddingTop: insets.top }]}>
             <View style={styles.content}>
@@ -57,7 +64,12 @@ export const ChatDetailHeader: React.FC<ChatDetailHeaderProps> = ({
                 </TouchableOpacity>
 
                 {/* Partner info */}
-                <TouchableOpacity style={styles.partnerInfo} activeOpacity={0.7}>
+                <TouchableOpacity
+                    style={styles.partnerInfo}
+                    activeOpacity={partner?.shopId ? 0.7 : 1}
+                    onPress={handlePartnerPress}
+                    disabled={!partner?.shopId}
+                >
                     {/* Avatar */}
                     <View style={styles.avatarContainer}>
                         {partner?.avatar ? (

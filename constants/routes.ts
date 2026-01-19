@@ -103,6 +103,14 @@ export const ROUTES = {
         RATE_APP: '/settings/rate-app' as const,
         DELETE_ACCOUNT: '/settings/delete-account' as const,
     },
+
+    // ============ SEARCH ============
+    SEARCH: {
+        /** Search entry screen (recent + hot keywords) */
+        ENTRY: '/(main)/search' as const,
+        /** Search results (tab) */
+        RESULTS: '/(tabs)/search' as const,
+    },
 } as const;
 
 /**
@@ -118,7 +126,8 @@ export type StaticRoute =
     | (typeof ROUTES.PROFILE)[keyof typeof ROUTES.PROFILE]
     | (typeof ROUTES.ORDERS)[keyof typeof ROUTES.ORDERS]
     | (typeof ROUTES.USER)[keyof typeof ROUTES.USER]
-    | (typeof ROUTES.SETTINGS)[keyof typeof ROUTES.SETTINGS];
+    | (typeof ROUTES.SETTINGS)[keyof typeof ROUTES.SETTINGS]
+    | (typeof ROUTES.SEARCH)[keyof typeof ROUTES.SEARCH];
 
 // ============================================
 // DYNAMIC ROUTE BUILDERS
@@ -317,6 +326,14 @@ export const reviewRoutes = {
     } as unknown as Href),
 } as const;
 
+export const searchRoutes = {
+    entry: (): Href => '/(main)/search' as Href,
+    results: (query: string): Href => ({
+        pathname: '/(tabs)/search',
+        params: { q: query },
+    } as unknown as Href),
+} as const;
+
 // ============================================
 // TYPE-SAFE HREF HELPERS
 // ============================================
@@ -342,6 +359,7 @@ export const isValidRoute = (route: string): route is StaticRoute => {
         ...Object.values(ROUTES.ORDERS),
         ...Object.values(ROUTES.USER),
         ...Object.values(ROUTES.SETTINGS),
+        ...Object.values(ROUTES.SEARCH),
     ];
     return allRoutes.includes(route as StaticRoute);
 };
@@ -404,4 +422,5 @@ export type DynamicRouteBuilders = {
     cart: typeof cartRoutes;
     wishlist: typeof wishlistRoutes;
     review: typeof reviewRoutes;
+    search: typeof searchRoutes;
 };

@@ -1,5 +1,6 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -21,11 +22,12 @@ export const NotificationHeader: React.FC<NotificationHeaderProps> = ({
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
+    const { t } = useTranslation('notification');
 
     return (
         <View style={[styles.container, { paddingTop: insets.top }]}>
             <View style={styles.content}>
-                <Text style={styles.title}>Thông báo</Text>
+                <Text style={styles.title}>{t('header.title')}</Text>
                 <TouchableOpacity
                     style={[styles.markAllButton, isMarkingAll && styles.markAllButtonDisabled]}
                     onPress={onMarkAllRead}
@@ -41,7 +43,7 @@ export const NotificationHeader: React.FC<NotificationHeaderProps> = ({
                         styles.markAllText,
                         isMarkingAll && styles.markAllTextDisabled
                     ]}>
-                        Đọc tất cả
+                        {t('header.markAllRead')}
                     </Text>
                 </TouchableOpacity>
             </View>

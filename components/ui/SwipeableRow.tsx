@@ -36,6 +36,10 @@ interface SwipeableRowProps {
     onDelete?: () => void;
     /** Callback when "Find Similar" button is pressed */
     onFindSimilar?: () => void;
+    /** Label for delete action */
+    deleteLabel?: string;
+    /** Label for find similar action */
+    findSimilarLabel?: string;
     /** Disable swipe functionality */
     disabled?: boolean;
 }
@@ -59,6 +63,8 @@ export const SwipeableRow: React.FC<SwipeableRowProps> = memo(({
     children,
     onDelete,
     onFindSimilar,
+    deleteLabel = 'Xóa',
+    findSimilarLabel = 'Tìm SP tương tự',
     disabled = false,
 }) => {
     const { theme } = useUnistyles();
@@ -167,12 +173,12 @@ export const SwipeableRow: React.FC<SwipeableRowProps> = memo(({
                             styles.actionButton,
                             { backgroundColor: theme.colors.primary },
                         ]}
-                        accessibilityLabel="Tìm sản phẩm tương tự"
+                        accessibilityLabel={findSimilarLabel}
                         accessibilityRole="button"
                     >
                         <IconSymbol name="search" size={20} color={theme.colors.onPrimary} />
                         <Text style={[styles.actionText, { color: theme.colors.onPrimary }]}>
-                            Tìm SP tương tự
+                            {findSimilarLabel}
                         </Text>
                     </Pressable>
                 )}
@@ -184,12 +190,12 @@ export const SwipeableRow: React.FC<SwipeableRowProps> = memo(({
                             styles.actionButton,
                             { backgroundColor: theme.colors.error },
                         ]}
-                        accessibilityLabel="Xóa sản phẩm"
+                        accessibilityLabel={deleteLabel}
                         accessibilityRole="button"
                     >
                         <IconSymbol name="delete" size={20} color={theme.colors.onPrimary} />
                         <Text style={[styles.actionText, { color: theme.colors.onPrimary }]}>
-                            Xóa
+                            {deleteLabel}
                         </Text>
                     </Pressable>
                 )}

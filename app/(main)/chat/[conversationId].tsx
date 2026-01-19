@@ -307,12 +307,23 @@ export default function ChatDetailScreen() {
                 isOnline: params.partnerIsOnline === 'true',
                 isVerified: params.partnerIsVerified === 'true',
                 type: 'SHOP',
+                shopId: params.shopId,
             };
         }
 
         //  Fallback: try to find partner info from messages
         const otherMessage = messages.find((m) => m.sender.userId !== userId);
         if (otherMessage) {
+            let shopIdFromMetadata: string | undefined;
+            if (otherMessage.metadata) {
+                try {
+                    const metadata = JSON.parse(otherMessage.metadata);
+                    shopIdFromMetadata = metadata.shopId;
+                } catch (e) {
+                    // Ignore parse error
+                }
+            }
+
             return {
                 id: otherMessage.sender.userId,
                 name: otherMessage.sender.displayName,
@@ -320,6 +331,7 @@ export default function ChatDetailScreen() {
                 isOnline: false,
                 isVerified: false,
                 type: 'SHOP', // Partner side is usually a shop in this app
+                shopId: shopIdFromMetadata || params.shopId,
             };
         }
 
@@ -776,6 +788,7 @@ export default function ChatDetailScreen() {
                         type: 'SHOP',
                         isOnline: params.partnerIsOnline === 'true',
                         isVerified: params.partnerIsVerified === 'true',
+                        shopId: params.shopId,
                     }}
                 />
 
