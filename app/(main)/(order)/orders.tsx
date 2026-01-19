@@ -41,7 +41,7 @@ const mapProfileTabToOrderTab = (profileTab: string | undefined): OrderTabStatus
             if (__DEV__ && profileTab) {
                 console.warn(`[Orders] Unknown tab param: "${profileTab}", using default CREATED`);
             }
-            return 'CREATED';
+            return 'COMPLETED';
     }
 };
 

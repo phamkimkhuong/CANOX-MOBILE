@@ -55,7 +55,14 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
         Navigator.push(ROUTES.USER.EDIT_PROFILE);
     }, []);
 
-    const handleStatPress = useCallback((route: string) => {
+    const handleStatPress = useCallback((route: string, key: string) => {
+        if (key === 'orders') {
+            Navigator.push({
+                pathname: ROUTES.ORDERS.LIST,
+                params: { tab: 'completed' },
+            });
+            return;
+        }
         Navigator.push(route as never);
     }, []);
 
@@ -93,7 +100,7 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
                     <Image
                         source={{ uri: profile.avatar ?? undefined }}
                         style={styles.avatar}
-                        placeholder={require('@/assets/images/icon.png')}
+                        placeholder={require('@/assets/images/default-avatar.png')}
                         contentFit="cover"
                         transition={200}
                     />
@@ -151,7 +158,7 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
                     <TouchableOpacity
                         key={stat.key}
                         style={[styles.statCard, { backgroundColor: stat.bgColor }]}
-                        onPress={() => handleStatPress(stat.route)}
+                        onPress={() => handleStatPress(stat.route, stat.key)}
                         activeOpacity={0.8}
                     >
                         {/* Background icon */}

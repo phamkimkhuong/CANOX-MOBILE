@@ -5,7 +5,7 @@ import { formatCurrency } from '@/utils/format';
 import { Image } from 'expo-image';
 import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Text, TouchableOpacity, View, ViewStyle } from 'react-native';
+import { FlatList, Text, TouchableOpacity, useWindowDimensions, View, ViewStyle } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { FeaturedSectionSkeleton } from './FeaturedSectionSkeleton';
 
@@ -62,6 +62,13 @@ export const FeaturedSection = memo(({ onProductPress }: FeaturedSectionProps = 
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const { t } = useTranslation(['home', 'product']);
+    const { width: screenWidth } = useWindowDimensions();
+    const VISIBLE_CARDS = 2.6;
+    const horizontalPadding = theme.margins.md * 2;
+    const gapBetweenCards = theme.margins.sm;
+    const totalGaps = gapBetweenCards * (Math.ceil(VISIBLE_CARDS) - 1);
+    const cardWidth = (screenWidth - horizontalPadding - totalGaps) / VISIBLE_CARDS;
+    const imageHeight = cardWidth * 0.85;
 
     // Fetch data từ API
     // const { data, isLoading, isError } = useProductFeed('featured');
@@ -73,7 +80,7 @@ export const FeaturedSection = memo(({ onProductPress }: FeaturedSectionProps = 
     }, [data]);
 
     const mainProduct = products[0];
-    const smallProducts = products.slice(1, 4);
+    const smallProducts = products.slice(1);
 
     // Loading state
     if (isLoading) {
@@ -141,21 +148,26 @@ export const FeaturedSection = memo(({ onProductPress }: FeaturedSectionProps = 
                 </View>
             </TouchableOpacity>
 
-            {/* Small Featured Products*/}
+            {/* Small Featured Products - Horizontal Scrollable */}
             {smallProducts.length > 0 && (
-                <View style={styles.smallProductsRow}>
-                    {smallProducts.map((product) => {
+                <FlatList<ProductFeedItem>
+                    data={smallProducts}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.smallProductsList}
+                    keyExtractor={(item) => item.id}
+                    ItemSeparatorComponent={() => <View style={{ width: gapBetweenCards }} />}
+                    renderItem={({ item: product }) => {
                         const badge = getBadge(product);
                         const discountBadge = getDiscountBadge(product);
 
                         return (
                             <TouchableOpacity
-                                key={product.id}
-                                style={styles.smallCard}
+                                style={[styles.smallCard, { width: cardWidth }]}
                                 activeOpacity={0.85}
                                 onPress={() => onProductPress?.(product.id)}
                             >
-                                <View style={styles.smallImageContainer}>
+                                <View style={[styles.smallImageContainer, { height: imageHeight }]}>
                                     <Image
                                         source={{ uri: product.thumbnail }}
                                         style={styles.smallImage}
@@ -185,8 +197,8 @@ export const FeaturedSection = memo(({ onProductPress }: FeaturedSectionProps = 
                                 </Text>
                             </TouchableOpacity>
                         );
-                    })}
-                </View>
+                    }}
+                />
             )}
         </View>
     );
@@ -264,19 +276,14 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontWeight: '600',
         color: theme.colors.onPrimary,
     },
-    smallProductsRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
+    smallProductsList: {
         paddingHorizontal: theme.margins.md,
         paddingBottom: theme.margins.md,
     },
     smallCard: {
-        flex: 1,
-        marginHorizontal: theme.margins.sm / 2,
     },
     smallImageContainer: {
         width: '100%',
-        height: 100,
         borderRadius: theme.radius.m,
         overflow: 'hidden',
         backgroundColor: theme.colors.backgroundInput,

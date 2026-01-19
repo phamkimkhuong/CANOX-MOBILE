@@ -43,7 +43,10 @@ export const OrderStatusRail: React.FC<OrderStatusRailProps> = memo(({
     }, []);
 
     const handleViewHistory = useCallback(() => {
-        Navigator.push(ROUTES.ORDERS.LIST);
+        Navigator.push({
+            pathname: ROUTES.ORDERS.LIST,
+            params: { tab: 'completed' },
+        });
     }, []);
 
     // Error state
