@@ -100,7 +100,7 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
                     <Image
                         source={{ uri: profile.avatar ?? undefined }}
                         style={styles.avatar}
-                        placeholder={require('@/assets/images/default-avatar.png')}
+                        placeholder={require('@/assets/images/default_avatar.png')}
                         contentFit="cover"
                         transition={200}
                     />
