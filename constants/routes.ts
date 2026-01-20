@@ -108,8 +108,8 @@ export const ROUTES = {
     SEARCH: {
         /** Search entry screen (recent + hot keywords) */
         ENTRY: '/(main)/search' as const,
-        /** Search results (tab) */
-        RESULTS: '/(tabs)/search' as const,
+        /** Search results with products */
+        RESULTS: '/(main)/search/results' as const,
     },
 } as const;
 
@@ -329,7 +329,7 @@ export const reviewRoutes = {
 export const searchRoutes = {
     entry: (): Href => '/(main)/search' as Href,
     results: (query: string): Href => ({
-        pathname: '/(tabs)/search',
+        pathname: '/(main)/search/results',
         params: { q: query },
     } as unknown as Href),
 } as const;

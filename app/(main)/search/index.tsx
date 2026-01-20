@@ -22,7 +22,7 @@ import {
 import { searchRoutes } from '@/constants/routes';
 import { useTrackSearch } from '@/hooks/api/search';
 import { useSearchHistory } from '@/hooks/api/search/useSearchHistory';
-import { SearchSuggestionUI, TrackSearchSource } from '@/types/search';
+import { SearchSuggestionUI } from '@/types/search';
 import { Navigator } from '@/utils/navigation';
 import React, { useCallback, useRef, useState } from 'react';
 import {
@@ -63,13 +63,13 @@ export default function SearchScreen() {
     /**
      * Execute search and navigate to results
      */
-    const executeSearch = useCallback((keyword: string, source: TrackSearchSource) => {
+    const executeSearch = useCallback((keyword: string) => {
         if (!keyword.trim()) return;
 
         const trimmedKeyword = keyword.trim();
 
         // Track the search
-        trackSearch({ keyword: trimmedKeyword, source });
+        trackSearch({ keyword: trimmedKeyword, source: 'SUBMIT' });
 
         // Add to history
         addSearch(trimmedKeyword);
@@ -83,7 +83,7 @@ export default function SearchScreen() {
      * Handle search submission from keyboard
      */
     const handleSubmit = useCallback((text: string) => {
-        executeSearch(text, 'SUBMIT');
+        executeSearch(text);
     }, [executeSearch]);
 
     /**
@@ -91,7 +91,7 @@ export default function SearchScreen() {
      */
     const handleRecentSelect = useCallback((keyword: string) => {
         setQuery(keyword);
-        executeSearch(keyword, 'HISTORY');
+        executeSearch(keyword);
     }, [executeSearch]);
 
     /**
@@ -99,7 +99,7 @@ export default function SearchScreen() {
      */
     const handleHotKeywordSelect = useCallback((keyword: string) => {
         setQuery(keyword);
-        executeSearch(keyword, 'HOT');
+        executeSearch(keyword);
     }, [executeSearch]);
 
     /**
@@ -107,7 +107,7 @@ export default function SearchScreen() {
      */
     const handleSuggestionSelect = useCallback((suggestion: SearchSuggestionUI) => {
         setQuery(suggestion.keyword);
-        executeSearch(suggestion.keyword, 'SUGGESTION');
+        executeSearch(suggestion.keyword);
     }, [executeSearch]);
 
     /**

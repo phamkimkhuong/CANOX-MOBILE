@@ -865,6 +865,49 @@ export interface SearchTranslation {
     error: {
         loadFailed: string;
     };
+    // Search Results Screen
+    results: {
+        title: string;
+        count: string;
+        countPlural: string;
+        filter: string;
+        filterCount: string;
+    };
+    sort: {
+        relevance: string;
+        newest: string;
+        bestSelling: string;
+        price: string;
+        priceAsc: string;
+        priceDesc: string;
+    };
+    quickFilter: {
+        freeship: string;
+        express: string;
+        rating4Plus: string;
+        mall: string;
+        voucher: string;
+    };
+    filterModal: {
+        title: string;
+        reset: string;
+        apply: string;
+        priceRange: string;
+        priceMin: string;
+        priceMax: string;
+        rating: string;
+        ratingFrom: string;
+        category: string;
+        location: string;
+        allLocations: string;
+    };
+    empty: {
+        title: string;
+        subtitle: string;
+        suggestion: string;
+        tryAgain: string;
+        adjustFilters: string;
+    };
 }
 
 /**

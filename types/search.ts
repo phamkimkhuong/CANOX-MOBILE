@@ -92,7 +92,7 @@ export type SearchSuggestionsResponse = z.infer<typeof SearchSuggestionsResponse
 export interface TrackSearchRequest {
     keyword: string;
     categoryId?: string;
-    source: 'SUBMIT' | 'SUGGESTION' | 'HISTORY' | 'HOT';
+    source: 'SUBMIT';
 }
 
 /**
@@ -138,7 +138,7 @@ export interface SearchSuggestionUI {
 /**
  * Track search source types
  */
-export type TrackSearchSource = 'SUBMIT' | 'SUGGESTION' | 'HISTORY' | 'HOT';
+export type TrackSearchSource = 'SUBMIT';
 
 /**
  * Recent Search Item - Stored in MMKV

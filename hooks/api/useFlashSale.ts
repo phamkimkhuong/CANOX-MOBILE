@@ -50,7 +50,7 @@ export const useFlashSale = () => {
                 const mediaArray = product.media ?? [];
                 const primaryMedia = mediaArray.find(m => m.isPrimary) || mediaArray[0];
 
-                const basePrice = product.basePrice ?? 0;
+                const basePrice = product.priceBeforeDiscount ?? 0;
                 const currentPrice = product.priceAfterBestVoucher ?? product.priceMin ?? basePrice;
 
                 // Calculate discount percentage safely

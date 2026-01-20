@@ -35,4 +35,47 @@ export const SEARCH_STRINGS: SearchTranslation = {
     error: {
         loadFailed: 'Failed to load data. Please try again.',
     },
+    // Search Results Screen
+    results: {
+        title: 'Search Results',
+        count: '{{count}} product',
+        countPlural: '{{count}} products',
+        filter: 'Filter',
+        filterCount: 'Filter ({{count}})',
+    },
+    sort: {
+        relevance: 'Relevance',
+        newest: 'Newest',
+        bestSelling: 'Best Selling',
+        price: 'Price',
+        priceAsc: 'Price Low to High',
+        priceDesc: 'Price High to Low',
+    },
+    quickFilter: {
+        freeship: 'Free Shipping',
+        express: 'Express',
+        rating4Plus: '4 Stars+',
+        mall: 'Mall',
+        voucher: 'Has Voucher',
+    },
+    filterModal: {
+        title: 'Filter',
+        reset: 'Reset',
+        apply: 'Apply',
+        priceRange: 'Price Range',
+        priceMin: 'Min Price',
+        priceMax: 'Max Price',
+        rating: 'Rating',
+        ratingFrom: 'From {{rating}} stars',
+        category: 'Category',
+        location: 'Location',
+        allLocations: 'All',
+    },
+    empty: {
+        title: 'No products found',
+        subtitle: 'No results for "{{keyword}}"',
+        suggestion: 'You might like',
+        tryAgain: 'Try another search',
+        adjustFilters: 'Or adjust filters',
+    },
 };

@@ -23,9 +23,9 @@ export const ProductResponseItemSchema = z.object({
     id: z.string(),
     name: z.string().nullable().optional().default(''),
     slug: z.string().nullable().optional().default(''),
-    basePrice: z.number().nullable().optional().default(0),
     priceMin: z.number().nullable().optional().default(0),
     priceMax: z.number().nullable().optional().default(0),
+    priceBeforeDiscount: z.number().nullable().optional().default(0),
     priceAfterBestVoucher: z.number().nullable().optional().default(0),
     isFeatured: z.boolean().nullable().optional().default(false),
     media: z.array(ProductMediaRawSchema).nullable().optional().default([]),
@@ -71,6 +71,7 @@ export interface BaseProductDTO {
     basePrice?: number | null;
     priceMin?: number | null;
     priceMax?: number | null;
+    priceBeforeDiscount?: number | null;
     priceAfterBestVoucher?: number | null;
     media?: {
         url?: string | null;

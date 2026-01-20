@@ -11,18 +11,20 @@ export const transformProduct = (raw: BaseProductDTO): ProductFeedItem => {
     const primaryMedia = media.find(m => m.isPrimary) || media[0];
 
     // 2. Display price logic
-    // Handle optional fields from different DTOs
-    const basePrice = raw.basePrice ?? 0;
+    const priceMin = raw.priceMin ?? 0;
     const priceAfterVoucher = raw.priceAfterBestVoucher ?? 0;
-    const priceMin = raw.priceMin ?? basePrice;
+    const priceBeforeDiscount = raw.priceBeforeDiscount ?? 0;
 
     // Prioritize price after voucher (actual amount user pays)
     const displayPrice = priceAfterVoucher > 0 ? priceAfterVoucher : priceMin;
 
+    // Original price: use priceBeforeDiscount if available, else priceMin
+    const originalPrice = priceBeforeDiscount > displayPrice ? priceBeforeDiscount : undefined;
+
     // 3. Calculate % discount
     let discount = 0;
-    if (basePrice > displayPrice && basePrice > 0) {
-        discount = Math.round(((basePrice - displayPrice) / basePrice) * 100);
+    if (originalPrice && originalPrice > displayPrice) {
+        discount = Math.round(((originalPrice - displayPrice) / originalPrice) * 100);
     }
 
     return {
@@ -30,7 +32,7 @@ export const transformProduct = (raw: BaseProductDTO): ProductFeedItem => {
         title: raw.name ?? '',
         thumbnail: toPublicUrl(primaryMedia?.url ?? ''),
         price: displayPrice,
-        originalPrice: basePrice > displayPrice ? basePrice : undefined,
+        originalPrice,
         discountPercentage: discount > 0 ? discount : undefined,
         rating: raw.reviewStatistics?.averageRating ?? 0,
         reviews: raw.reviewStatistics?.totalReviews ?? 0,

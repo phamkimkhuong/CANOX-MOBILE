@@ -55,31 +55,10 @@ export const useTrackSearch = () => {
 // ============================================
 
 /**
- * Build track request from different sources
+ * Build track request
  */
-export const buildTrackRequest = {
-    /** User pressed Enter to submit search */
-    fromSubmit: (keyword: string, categoryId?: string): TrackSearchRequest => ({
-        keyword,
-        categoryId,
-        source: 'SUBMIT',
-    }),
-
-    /** User clicked a suggestion */
-    fromSuggestion: (keyword: string): TrackSearchRequest => ({
-        keyword,
-        source: 'SUGGESTION',
-    }),
-
-    /** User clicked a recent search */
-    fromHistory: (keyword: string): TrackSearchRequest => ({
-        keyword,
-        source: 'HISTORY',
-    }),
-
-    /** User clicked a hot keyword */
-    fromHot: (keyword: string): TrackSearchRequest => ({
-        keyword,
-        source: 'HOT',
-    }),
-};
+export const buildTrackRequest = (keyword: string, categoryId?: string): TrackSearchRequest => ({
+    keyword,
+    categoryId,
+    source: 'SUBMIT',
+});
