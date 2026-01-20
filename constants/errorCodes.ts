@@ -5,6 +5,7 @@ const VI_MAP: Record<number, string> = {
     208: "Tên đăng nhập đã tồn tại!",
     209: "Email đã tồn tại!",
     220: "Mật khẩu cũ không đúng",
+    500: "Đã xảy ra lỗi. Vui lòng thử lại sau!",
 
     // HỆ THỐNG (6000-699)
     6001: "Lỗi máy chủ nội bộ!",

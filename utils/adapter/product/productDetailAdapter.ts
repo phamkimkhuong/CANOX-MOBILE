@@ -16,7 +16,6 @@ import type {
     Voucher,
     VoucherUI,
 } from '@/types/product/productDetail';
-import { getNextFlashSaleSlot } from '@/utils/date';
 
 
 const IMAGE_BASE_URL = process.env.EXPO_PUBLIC_IMAGE_BASE_URL ?? 'https://pub-5341c10461574a539df355b9fbe87197.r2.dev/';
@@ -137,12 +136,16 @@ export const buildVariantMatrix = (
         const normalizedValues = normalizeVariantOptionValues(variant, optionValueMapping);
         const key = createVariantMatrixKey(normalizedValues);
 
+        const promo = variant.promotion;
+        const currentPrice = promo?.salePrice ?? variant.price ?? 0;
+        const originalPrice = promo?.originalPrice ?? variant.priceBeforeDiscount ?? undefined;
+
         const value: VariantMatrixValue = {
             id: variant.id,
-            price: variant.price ?? 0,
-            originalPrice: variant.corePrice !== variant.price ? (variant.corePrice ?? undefined) : undefined,
-            stock: variant.inventory?.stock ?? 0,
-            isAvailable: (variant.inventory?.stock ?? 0) > 0,
+            price: currentPrice,
+            originalPrice: (originalPrice && originalPrice > currentPrice) ? originalPrice : undefined,
+            stock: variant.inventory?.available ?? variant.inventory?.stock ?? 0,
+            isAvailable: (variant.inventory?.available ?? variant.inventory?.stock ?? 0) > 0,
             sku: variant.sku ?? undefined,
             // Variant can have own image
             media: variant.imageUrl ? [{
@@ -241,9 +244,9 @@ export const calculatePriceDisplay = (
     selectedVariant?: VariantMatrixValue | null
 ): PriceDisplay => {
     // Safe defaults for nullable fields
-    const basePrice = data.basePrice ?? 0;
     const priceMin = data.priceMin ?? 0;
     const priceMax = data.priceMax ?? 0;
+    const priceBeforeDiscount = data.priceBeforeDiscount ?? 0;
 
     // If specific variant selected
     if (selectedVariant) {
@@ -279,8 +282,10 @@ export const calculatePriceDisplay = (
             ((selectedVariant.price - finalPrice) / selectedVariant.price) * 100
         );
         return {
-            currentPrice: finalPrice, // 8,320,000 (Correct)
-            originalPrice: selectedVariant.price, // 8,570,000 (Strikethrough Price)
+            currentPrice: finalPrice,
+            originalPrice: (selectedVariant.originalPrice && selectedVariant.originalPrice > finalPrice)
+                ? selectedVariant.originalPrice
+                : (selectedVariant.price > finalPrice ? selectedVariant.price : undefined),
             discountPercentage: totalDiscountPercent > 0 ? totalDiscountPercent : undefined,
             isRange: false,
             voucherDiscount: discountAmount,
@@ -294,9 +299,10 @@ export const calculatePriceDisplay = (
     const priceAfterBestVoucher = data.priceAfterBestVoucher ?? 0;
     const hasBestVoucher = priceAfterBestVoucher > 0 && priceAfterBestVoucher < priceMin;
     const displayPrice: number = hasBestVoucher ? priceAfterBestVoucher : priceMin;
+    const effectiveOriginalPrice = priceBeforeDiscount > displayPrice ? priceBeforeDiscount : 0;
     // Tính discount percentage
-    const discountPercentage = basePrice > displayPrice
-        ? Math.round(((basePrice - displayPrice) / basePrice) * 100)
+    const discountPercentage = effectiveOriginalPrice > displayPrice
+        ? Math.round(((effectiveOriginalPrice - displayPrice) / effectiveOriginalPrice) * 100)
         : undefined;
 
     const hasRange = priceMin !== priceMax;
@@ -305,7 +311,7 @@ export const calculatePriceDisplay = (
         // Has price range (multiple variants with different prices)
         return {
             currentPrice: displayPrice,
-            originalPrice: hasBestVoucher ? priceMin : undefined,
+            originalPrice: effectiveOriginalPrice || (hasBestVoucher ? priceMin : undefined),
             priceRange: {
                 min: displayPrice,
                 max: priceMax,
@@ -320,7 +326,7 @@ export const calculatePriceDisplay = (
     // Fixed price (no variant or all variants same price)
     return {
         currentPrice: displayPrice,
-        originalPrice: hasBestVoucher ? basePrice : undefined,
+        originalPrice: effectiveOriginalPrice || (hasBestVoucher ? priceMin : undefined),
         discountPercentage,
         isRange: false,
         voucherDiscount: (data.bestPlatformVoucher?.discountAmount ?? undefined),
@@ -445,72 +451,50 @@ export const collectVouchers = (data: ProductDetailResponse): VoucherUI[] => {
 export const calculateTotalStock = (variants: ProductVariant[]): number => {
     const variantArray = variants ?? [];
     return variantArray.reduce((total, v) => {
-        return total + (v.inventory?.stock ?? 0);
+        return total + (v.inventory?.available ?? v.inventory?.stock ?? 0);
     }, 0);
 };
 
 // ============================================
-// FLASH SALE FALLBACK LOGIC
+// FLASH SALE / CAMPAIGN LOGIC
 // ============================================
 
 /**
- * Create Flash Sale info from API response or fallback from Home slot
+ * Build Flash Sale info from activeCampaigns
  * 
- * Logic "Fake it until you make it":
- * 1. If API returns flashSale with isActive = true → Use it
- * 2. If API has promotedUntil → Create flash sale from promotedUntil
- * 3. FALLBACK: Get slot from Home (getNextFlashSaleSlot)
+ * Uses real data from BE - no more simulation/fallback
  */
 export const buildFlashSaleInfo = (
     data: ProductDetailResponse,
     totalStock: number
 ): FlashSaleInfo | undefined => {
-    // Case 1: API returns full flash sale
-    if (data.flashSale?.isActive && data.flashSale.endTime) {
-        return data.flashSale;
-    }
+    // Check activeCampaigns for FLASH_SALE or SHOP_SALE
+    const activeCampaign = data.activeCampaigns?.find(c =>
+        c.campaignType === 'FLASH_SALE' || c.campaignType === 'SHOP_SALE'
+    );
 
-    // Case 2: API has flashSale.isActive but missing endTime
-    if (data.flashSale?.isActive) {
-        const slot = getNextFlashSaleSlot();
-        return {
-            ...data.flashSale,
-            endTime: slot.endTime,
-        };
-    }
+    if (activeCampaign && activeCampaign.endTime) {
+        // Get max discount percentage from variant promotions
+        const maxDiscount = data.variants?.reduce((max, v) => {
+            const pct = v.promotion?.discountPercent ?? 0;
+            return pct > max ? pct : max;
+        }, 0) ?? 0;
 
-    // Case 3: API has promotedUntil (product is being promoted)
-    if (data.promotedUntil) {
-        const promotedDate = new Date(data.promotedUntil);
-        // Only create flash sale if promotedUntil is valid
-        if (promotedDate.getTime() > Date.now()) {
-            return {
-                isActive: true,
-                endTime: data.promotedUntil,
-                // Estimate from available data
-                quantityLimit: totalStock > 0 ? totalStock + (data.totalSold ?? 0) : undefined,
-                quantitySold: data.totalSold ?? undefined,
-            };
-        }
-    }
-
-    // Case 4: FALLBACK - Simulate Flash Sale from Home slot
-    // Condition: Product in stock and has voucher (on sale)
-    const hasActiveVoucher = data.bestPlatformVoucher || data.bestShopVoucher;
-    const hasStock = totalStock > 0;
-
-    if (hasActiveVoucher && hasStock) {
-        const slot = getNextFlashSaleSlot();
         return {
             isActive: true,
-            endTime: slot.endTime,
-            // Estimate quantity from inventory
+            endTime: activeCampaign.endTime,
+            discountPercentage: maxDiscount > 0 ? maxDiscount : undefined,
             quantityLimit: totalStock + (data.totalSold ?? 0),
             quantitySold: data.totalSold ?? 0,
         };
     }
 
-    // No flash sale
+    // Fallback: API returns flashSale object directly (legacy support)
+    if (data.flashSale?.isActive && data.flashSale.endTime) {
+        return data.flashSale;
+    }
+
+    // No active campaign/flash sale
     return undefined;
 };
 

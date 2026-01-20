@@ -170,6 +170,8 @@ export default function ChatDetailScreen() {
     const myShopId = useAuthStore((s) => s.shopId);
     const insets = useSafeAreaInsets();
 
+    const [ghostModeError, setGhostModeError] = useState<Error | null>(null);
+
     // Flag to delay rendering of message list until the end of screen transition
     const [isReady, setIsReady] = useState(false);
 
@@ -273,28 +275,39 @@ export default function ChatDetailScreen() {
     // ============================================
 
     // If ghost mode, automatically resolve to real ID
-    const { mutate: createConv } = useCreateConversation();
+    const { mutate: createConv, isPending: isResolvingGhost } = useCreateConversation();
+
+    const resolveGhostMode = useCallback(() => {
+        if (!params.shopUserId || !params.partnerName) return;
+        if (params.shopId && params.shopId === myShopId) {
+            logger.chat.warn('Attempted to resolve ghost mode for chatting with self - aborting');
+            return;
+        }
+        setGhostModeError(null);
+
+        const request = buildChatWithShopRequest(
+            params.shopUserId,
+            params.partnerName,
+            params.partnerAvatar
+        );
+
+        createConv(request, {
+            onSuccess: (res) => {
+                setCurrentConvId(res.data.id);
+                logger.chat.info('Ghost mode resolved to real ID', { id: res.data.id });
+            },
+            onError: (error) => {
+                logger.chat.error('Ghost mode resolution failed', { error });
+                setGhostModeError(error instanceof Error ? error : new Error(CHAT_STRINGS.error.startChatFailed));
+            }
+        });
+    }, [params.shopUserId, params.partnerName, params.partnerAvatar, params.shopId, myShopId, createConv]);
 
     useEffect(() => {
-        if (isGhostMode && params.shopUserId && params.partnerName) {
-            if (params.shopId && params.shopId === myShopId) {
-                logger.chat.warn('Attempted to resolve ghost mode for chatting with self - aborting');
-                return;
-            }
-            const request = buildChatWithShopRequest(
-                params.shopUserId,
-                params.partnerName,
-                params.partnerAvatar
-            );
-
-            createConv(request, {
-                onSuccess: (res) => {
-                    setCurrentConvId(res.data.id);
-                    logger.chat.info('Ghost mode resolved to real ID', { id: res.data.id });
-                }
-            });
+        if (isGhostMode) {
+            resolveGhostMode();
         }
-    }, [isGhostMode, params.shopUserId, params.partnerName, params.partnerAvatar, createConv]);
+    }, [isGhostMode, resolveGhostMode]);
 
     // Partner info from params or fallback to messages
     const partner: ConversationPartner | null = useMemo(() => {
@@ -756,6 +769,56 @@ export default function ChatDetailScreen() {
     // ERROR STATE
     // ============================================
 
+    // Ghost mode error - createConversation failed
+    if (ghostModeError) {
+        return (
+            <SafeAreaView style={styles.safeArea}>
+                <ChatDetailHeader
+                    partner={partner || {
+                        id: params.shopUserId || '',
+                        name: params.partnerName || CHAT_STRINGS.detail.ghostHeader,
+                        avatar: params.partnerAvatar || undefined,
+                        type: 'SHOP',
+                        isOnline: false,
+                        isVerified: false,
+                        shopId: params.shopId,
+                    }}
+                />
+                <View style={styles.errorContainer}>
+                    <IconSymbol
+                        name="error"
+                        size={48}
+                        color={theme.colors.error}
+                    />
+                    <Text style={[styles.errorText, { marginTop: theme.margins.md }]}>
+                        {CHAT_STRINGS.error.startChatFailed}
+                    </Text>
+                    <Text style={styles.errorSubtext}>
+                        {CHAT_STRINGS.error.tryAgainLater}
+                    </Text>
+                    <Pressable
+                        style={[styles.retryButton, { marginTop: theme.margins.lg }]}
+                        onPress={resolveGhostMode}
+                        disabled={isResolvingGhost}
+                    >
+                        {isResolvingGhost ? (
+                            <ActivityIndicator size="small" color={theme.colors.surface} />
+                        ) : (
+                            <Text style={styles.retryButtonText}>Thử lại</Text>
+                        )}
+                    </Pressable>
+                    <Pressable
+                        style={[styles.backButton, { marginTop: theme.margins.sm }]}
+                        onPress={() => Navigator.back()}
+                    >
+                        <Text style={styles.backButtonText}>Quay lại</Text>
+                    </Pressable>
+                </View>
+            </SafeAreaView>
+        );
+    }
+
+    // Messages loading error
     if (error) {
         return (
             <SafeAreaView style={styles.safeArea}>
@@ -1011,5 +1074,33 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: 14,
         color: theme.colors.secondary,
         textAlign: 'center',
+    },
+    retryButton: {
+        paddingHorizontal: theme.margins.xl,
+        paddingVertical: theme.margins.smd,
+        backgroundColor: theme.colors.primary,
+        borderRadius: theme.radius.m,
+        minWidth: 120,
+        alignItems: 'center',
+    },
+    retryButtonText: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: theme.colors.surface,
+    },
+    backButton: {
+        paddingHorizontal: theme.margins.xl,
+        paddingVertical: theme.margins.smd,
+        backgroundColor: theme.colors.background,
+        borderRadius: theme.radius.m,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        minWidth: 120,
+        alignItems: 'center',
+    },
+    backButtonText: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: theme.colors.typography,
     },
 }))

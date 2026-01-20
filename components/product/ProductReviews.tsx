@@ -22,8 +22,6 @@ interface ProductReviewsProps {
     totalReviews: number;
     /** Callback khi nhấn "Xem tất cả" */
     onViewAllPress?: () => void;
-    /** Callback khi nhấn "Hỏi đáp" */
-    onAskQuestionPress?: () => void;
 }
 
 interface FilterChipProps {
@@ -168,7 +166,6 @@ export const ProductReviews = memo<ProductReviewsProps>(({
     rating,
     totalReviews,
     onViewAllPress,
-    onAskQuestionPress,
 }) => {
     const { theme } = useUnistyles();
 
@@ -220,19 +217,6 @@ export const ProductReviews = memo<ProductReviewsProps>(({
                         {PRODUCT_STRINGS.reviews.beFirst}
                     </Text>
                 </View>
-
-                {/* Q&A Section */}
-                <Pressable style={styles.qaSection} onPress={onAskQuestionPress}>
-                    <Text style={styles.qaTitle}>{PRODUCT_STRINGS.reviews.qna}</Text>
-                    <View style={styles.qaAction}>
-                        <Text style={styles.qaActionText}>{PRODUCT_STRINGS.reviews.askQuestion}</Text>
-                        <IconSymbol
-                            name="chevron-right"
-                            size={16}
-                            color={theme.colors.primary}
-                        />
-                    </View>
-                </Pressable>
             </View>
         );
     }
@@ -384,24 +368,6 @@ export const ProductReviews = memo<ProductReviewsProps>(({
                     </View>
                 )}
             </View>
-
-            {/* Q&A Section */}
-            <Pressable style={styles.qaSection} onPress={onAskQuestionPress}>
-                <View style={styles.qaLeft}>
-                    <Text style={styles.qaTitle}>{PRODUCT_STRINGS.reviews.qna}</Text>
-                    <Text style={styles.qaCount}>
-                        ({reviewStatistics.commentCount ?? 0} {PRODUCT_STRINGS.reviews.questions})
-                    </Text>
-                </View>
-                <View style={styles.qaAction}>
-                    <Text style={styles.qaActionText}>{PRODUCT_STRINGS.reviews.viewAll}</Text>
-                    <IconSymbol
-                        name="chevron-right"
-                        size={16}
-                        color={theme.colors.primary}
-                    />
-                </View>
-            </Pressable>
         </View>
     );
 });
@@ -578,39 +544,6 @@ const styles = StyleSheet.create((theme) => ({
         color: 'white',
         fontWeight: '700',
         fontSize: 14,
-    },
-    qaSection: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: theme.margins.md,
-        paddingTop: theme.margins.md,
-        borderTopWidth: 1,
-        borderTopColor: theme.colors.border,
-    },
-    qaLeft: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-    },
-    qaTitle: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: theme.colors.typography,
-    },
-    qaCount: {
-        fontSize: 13,
-        color: theme.colors.typographySecondary,
-    },
-    qaAction: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 2,
-    },
-    qaActionText: {
-        fontSize: 13,
-        color: theme.colors.primary,
-        fontWeight: '500',
     },
     emptyContainer: {
         alignItems: 'center',

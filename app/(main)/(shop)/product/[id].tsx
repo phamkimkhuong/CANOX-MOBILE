@@ -414,13 +414,7 @@ export default function ProductDetailScreen() {
         log.info('View all reviews for product:', productId);
     }, [productId]);
 
-    /**
-     * Handle ask question
-     */
-    const handleAskQuestion = useCallback(() => {
-        // TODO: Navigate to Q&A screen or open modal
-        log.info('Ask question about product:', productId);
-    }, [productId]);
+
 
     // ============================================
     // EARLY RETURNS - Loading & Error States
@@ -538,7 +532,6 @@ export default function ProductDetailScreen() {
                         rating={product.rating}
                         totalReviews={product.totalReviews}
                         onViewAllPress={handleViewAllReviews}
-                        onAskQuestionPress={handleAskQuestion}
                     />
 
                     {/* Shop Info */}

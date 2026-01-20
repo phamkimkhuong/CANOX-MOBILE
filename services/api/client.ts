@@ -10,6 +10,7 @@
  */
 
 import { getErrorMessageByCode } from '@/constants/errorCodes';
+import i18n from '@/constants/i18n';
 import { logger } from '@/utils/logger';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { z } from 'zod';
@@ -215,10 +216,9 @@ apiClient.interceptors.response.use(
         const errorCode = data?.code as number | undefined;
 
         // Build error message for UI
-        // Localized message from internal mapping (errorCode)
-        // Generic human-friendly message (e.g. 6005)
-        const mappedMessage = errorCode ? getErrorMessageByCode(errorCode, 'vi') : undefined;
-        const genericFallback = getErrorMessageByCode(6005, 'vi') || 'Đã xảy ra lỗi. Vui lòng thử lại sau!';
+        const currentLang = (i18n.language?.split('-')[0] || 'vi') as 'vi' | 'en';
+        const mappedMessage = errorCode ? getErrorMessageByCode(errorCode, currentLang) : undefined;
+        const genericFallback = getErrorMessageByCode(6005, currentLang) || 'Đã xảy ra lỗi. Vui lòng thử lại sau!';
 
         const finalMessage = mappedMessage || genericFallback;
 
@@ -308,7 +308,9 @@ export async function request<T>(
                 errors: parseResult.error.format(),
                 data: response.data,
             });
-            throw new ApiError('Invalid response structure from server!', 500, 6006);
+            const currentLang = (i18n.language?.split('-')[0] || 'vi') as 'vi' | 'en';
+            const validationErrorMessage = getErrorMessageByCode(6006, currentLang) || 'Invalid response structure from server!';
+            throw new ApiError(validationErrorMessage, 500, 6006);
         }
 
         return parseResult.data;

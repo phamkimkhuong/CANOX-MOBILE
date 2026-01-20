@@ -62,9 +62,6 @@ export interface ProductTranslation {
         filterAll: string;
         filter5Star: string;
         filterWithMedia: string;
-        qna: string;
-        askQuestion: string;
-        questions: string;
         newest: string;
         viewAllReviews: string;
     };
