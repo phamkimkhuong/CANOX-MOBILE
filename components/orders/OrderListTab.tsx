@@ -142,7 +142,7 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
                 break;
             }
             case 'contact': {
-                const shopUserId = order._raw.shopInfo.userId;
+                const shopUserId = order._raw.shopInfo?.userId;
                 const shopName = order.shopName;
                 const shopLogoUrl = order.shopLogoUrl;
 
@@ -161,7 +161,7 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
                 }
 
                 // Prefetch logic (on press)
-                prefetchChat(shopUserId, shopName, shopLogoUrl, order.shopId);
+                prefetchChat(shopUserId, shopName, shopLogoUrl ?? undefined, order.shopId ?? undefined);
 
                 // Instant Navigation Logic (Ghost ID)
                 const cachedId = getCachedConversationId(shopUserId);
@@ -176,8 +176,8 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
                 break;
             }
             case 'pay':
-                if (order._raw.paymentUrl) {
-                    Linking.openURL(order._raw.paymentUrl);
+                if (order._raw.payment.url) {
+                    Linking.openURL(order._raw.payment.url);
                 } else {
                     Toast.show({
                         type: 'error',

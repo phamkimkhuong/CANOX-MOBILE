@@ -15,7 +15,7 @@ import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface OrderShopHeaderProps {
-    shopInfo: OrderShopInfo;
+    shopInfo: OrderShopInfo | null;
     status: OrderStatus;
     onShopPress?: () => void;
 }

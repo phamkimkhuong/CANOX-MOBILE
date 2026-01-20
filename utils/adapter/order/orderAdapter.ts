@@ -2,10 +2,20 @@
  * ==============================================
  * ORDER ADAPTER - Transform API to UI
  * ==============================================
- * Centralized transformation logic for Order data
  */
 
-import { Carrier, Order, OrderItem, OrderItemUI, OrderUI, OrdersApiResponse, OrdersPageResponse, PaymentMethod } from '@/types/order/order';
+import {
+    Carrier,
+    Order,
+    OrderItem,
+    OrderItemUI,
+    OrderLoyalty,
+    OrderShippingAddress,
+    OrderUI,
+    OrdersApiResponse,
+    OrdersPageResponse,
+    PaymentMethod
+} from '@/types/order/order';
 import { formatDate } from '@/utils/date';
 import { toPublicUrl, toSizedImageUrl } from '@/utils/url';
 import { getStatusDisplay } from './orderStatusMapper';
@@ -22,6 +32,15 @@ const PAYMENT_METHOD_NAMES: Record<PaymentMethod, string> = {
     PAYOS: 'PayOS',
     STRIPE: 'Stripe',
     BANK_TRANSFER: 'Chuyển khoản ngân hàng',
+};
+
+/**
+ * Default loyalty object khi không có data
+ */
+const DEFAULT_LOYALTY: OrderLoyalty = {
+    pointsUsed: 0,
+    discountAmount: 0,
+    pointsEarned: 0,
 };
 
 /**
@@ -48,24 +67,38 @@ export const transformOrderItem = (item: OrderItem): OrderItemUI => {
 
 /**
  * Format time from ISO string
+ * Returns empty string if input is null/invalid
  */
-const formatTime = (isoString: string): string => {
-    const date = new Date(isoString);
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    return `${hours}:${minutes}`;
+const formatTime = (isoString: string | null): string => {
+    if (!isoString) return '';
+
+    try {
+        const date = new Date(isoString);
+        if (isNaN(date.getTime())) return '';
+
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        return `${hours}:${minutes}`;
+    } catch {
+        return '';
+    }
 };
 
 /**
- * Build full address string
+ * Build full address string from OrderShippingAddress
+ * Returns default message if address is null
  */
-const buildFullAddress = (order: Order): string => {
+const buildFullAddress = (address: OrderShippingAddress | null): string => {
+    if (!address) {
+        return 'Không có thông tin địa chỉ';
+    }
+
     const parts = [
-        order.addressLine1,
-        order.addressLine2,
-        order.city,
-        order.province,
-        order.postalCode,
+        address.addressLine1,
+        address.addressLine2,
+        address.city,
+        address.province,
+        address.postalCode,
     ].filter(Boolean);
 
     return parts.join(', ');
@@ -73,10 +106,18 @@ const buildFullAddress = (order: Order): string => {
 
 /**
  * Transform Order (API) => OrderUI
+ * Updated to read from nested objects
  */
 export const transformOrder = (order: Order): OrderUI => {
     const statusDisplay = getStatusDisplay(order.status);
     const shopLogoUrl = order.shopInfo?.logoUrl ? toPublicUrl(order.shopInfo.logoUrl) : null;
+
+    // Extract nested objects with safe defaults
+    const pricing = order.pricing;
+    const payment = order.payment;
+    const shipment = order.shipment;
+    const shippingAddress = order.shippingAddress;
+    const loyalty = order.loyalty || DEFAULT_LOYALTY;
 
     return {
         orderId: order.orderId,
@@ -88,39 +129,42 @@ export const transformOrder = (order: Order): OrderUI => {
         status: order.status,
         statusDisplay,
 
-        // Formatted dates
-        formattedDate: formatDate(order.createdAt),
+        // Formatted dates - handle null createdAt
+        formattedDate: order.createdAt ? formatDate(order.createdAt) : '',
         formattedTime: formatTime(order.createdAt),
 
-        // Prices
-        subtotal: order.subtotal,
-        totalDiscount: order.totalDiscount || (order.shopDiscount + order.platformDiscount + order.shippingDiscount),
-        shippingFee: order.shippingFee,
-        grandTotal: order.grandTotal,
+        // Prices - from nested pricing object
+        subtotal: pricing.subtotal,
+        totalDiscount: pricing.totalDiscount,
+        shippingFee: pricing.shippingFee,
+        grandTotal: pricing.grandTotal,
 
         // Items
         items: order.items.map(transformOrderItem),
         itemCount: order.itemCount,
         totalQuantity: order.totalQuantity,
 
-        // Shipping
-        trackingNumber: order.trackingNumber,
-        carrier: order.carrier,
-        carrierName: order.carrier ? CARRIER_NAMES[order.carrier] : null,
+        // Shipping - from nested shipment object
+        trackingNumber: shipment.trackingNumber,
+        carrier: shipment.carrier,
+        carrierName: shipment.carrier ? CARRIER_NAMES[shipment.carrier] : null,
 
-        // Payment
-        paymentMethod: order.paymentMethod,
-        paymentMethodDisplay: PAYMENT_METHOD_NAMES[order.paymentMethod],
+        // Payment - from nested payment object
+        paymentMethod: payment.method,
+        paymentMethodDisplay: PAYMENT_METHOD_NAMES[payment.method],
+        expiresAt: payment.expiresAt,
 
-        // Address
-        recipientName: order.recipientName,
-        phoneNumber: order.phoneNumber,
-        fullAddress: buildFullAddress(order),
+        // Address - from nested shippingAddress object
+        recipientName: shippingAddress?.recipientName || '',
+        phoneNumber: shippingAddress?.phoneNumber || '',
+        fullAddress: buildFullAddress(shippingAddress),
 
         // Notes
         customerNote: order.customerNote,
         cancellationReason: order.cancellationReason,
-        expiresAt: order.expiresAt,
+
+        // Loyalty
+        loyalty,
 
         // Raw data
         _raw: order,

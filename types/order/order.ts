@@ -2,7 +2,6 @@
  * ==============================================
  * ORDER TYPES - Domain Layer
  * ==============================================
- * Định nghĩa Interface khớp với API Response
  */
 
 // Enum cho các trạng thái đơn hàng
@@ -39,6 +38,73 @@ export type OrderTabStatus =
 export type PaymentMethod = 'COD' | 'PAYOS' | 'STRIPE' | 'BANK_TRANSFER';
 export type Carrier = 'GHN' | 'SUPERSHIP' | 'GHTK' | 'VIETTEL_POST';
 
+// ============================================
+// NESTED OBJECTS - NEW API STRUCTURE
+// ============================================
+
+/**
+ * Order Pricing - All price-related fields
+ */
+export interface OrderPricing {
+    subtotal: number;
+    shopDiscount: number;
+    platformDiscount: number;
+    shippingDiscount: number;
+    originalShippingFee: number;
+    appliedVoucherCodes: string | null;
+    totalDiscount: number;
+    taxAmount: number;
+    shippingFee: number;
+    grandTotal: number;
+}
+
+/**
+ * Order Payment - Payment method and status
+ */
+export interface OrderPayment {
+    method: PaymentMethod;
+    url: string | null;
+    intentId: string | null;
+    groupId: string | null;
+    expiresAt: string | null;
+}
+
+/**
+ * Order Shipment - Tracking and carrier info
+ */
+export interface OrderShipment {
+    trackingNumber: string | null;
+    carrier: Carrier | null;
+}
+
+/**
+ * Order Shipping Address - Delivery destination
+ */
+export interface OrderShippingAddress {
+    recipientName: string;
+    phoneNumber: string;
+    addressLine1: string;
+    addressLine2: string | null;
+    city: string;
+    province: string;
+    postalCode: string;
+    country: string;
+    email: string;
+}
+
+/**
+ * Order Loyalty - Points and rewards
+ */
+export interface OrderLoyalty {
+    pointsUsed: number;
+    discountAmount: number;
+    pointsEarned: number;
+}
+
+// ============================================
+// SHOP & ITEM TYPES
+// ============================================
+
 // Shop Info từ API
 export interface OrderShopInfo {
     shopId: string;
@@ -56,7 +122,7 @@ export interface OrderShopInfo {
 
 // Order Item từ API
 export interface OrderItem {
-    itemId: string;
+    itemId: string | null;
     productId: string;
     variantId: string;
     sku: string;
@@ -71,47 +137,37 @@ export interface OrderItem {
     reviewed: boolean;
 }
 
-// Order chính từ API
+// ============================================
+// ORDER MAIN TYPE - UPDATED STRUCTURE
+// ============================================
+
+/**
+ * Order 
+ */
 export interface Order {
     orderId: string;
     orderNumber: string;
-    shopId: string;
-    shopInfo: OrderShopInfo;
+    shopId: string | null;
+    shopInfo: OrderShopInfo | null;
     status: OrderStatus;
     currency: string;
-    subtotal: number;
-    shopDiscount: number;
-    platformDiscount: number;
-    shippingDiscount: number;
-    originalShippingFee: number;
-    appliedVoucherCodes: string | null;
-    totalDiscount: number | null;
-    taxAmount: number;
-    shippingFee: number;
-    grandTotal: number;
+
+    // Nested objects
+    pricing: OrderPricing;
+    payment: OrderPayment;
+    shipment: OrderShipment;
+    shippingAddress: OrderShippingAddress | null; // Can be null
+    loyalty: OrderLoyalty;
+
+    // Order summary
     itemCount: number;
     totalQuantity: number;
     customerNote: string | null;
     cancellationReason: string | null;
-    createdAt: string;
+    createdAt: string | null;
+
+    // Items
     items: OrderItem[];
-    paymentMethod: PaymentMethod;
-    paymentUrl: string | null;
-    paymentIntentId: string | null;
-    paymentGroupId: string | null;
-    expiresAt: string | null;
-    trackingNumber: string | null;
-    carrier: Carrier | null;
-    // Shipping Address
-    recipientName: string;
-    phoneNumber: string;
-    addressLine1: string;
-    addressLine2: string | null;
-    city: string;
-    province: string;
-    postalCode: string;
-    country: string;
-    email: string;
 }
 
 // Paginated Response từ API
@@ -162,7 +218,7 @@ export interface OrderTabConfig {
  * OrderItemUI - Enhanced item for UI rendering
  */
 export interface OrderItemUI {
-    itemId: string;
+    itemId: string | null;
     productId: string;
     variantId: string;
     productName: string;
@@ -181,7 +237,7 @@ export interface OrderItemUI {
 export interface OrderUI {
     orderId: string;
     orderNumber: string;
-    shopId: string;
+    shopId: string | null;
     shopUserId: string; // Shop owner's user ID for chat
     shopName: string;
     shopLogoUrl: string | null; // Pre-built URL
@@ -197,7 +253,7 @@ export interface OrderUI {
     formattedDate: string; //  "12/01/2024"
     formattedTime: string; // "14:30"
 
-    // Price fields
+    // Price fields (flattened from pricing object)
     subtotal: number;
     totalDiscount: number;
     shippingFee: number;
@@ -208,16 +264,17 @@ export interface OrderUI {
     itemCount: number;
     totalQuantity: number;
 
-    // Shipping info
+    // Shipping info (from shipment object)
     trackingNumber: string | null;
     carrier: Carrier | null;
     carrierName: string | null; // "Giao Hàng Nhanh"
 
-    // Payment
+    // Payment (from payment object)
     paymentMethod: PaymentMethod;
     paymentMethodDisplay: string; //  "Thanh toán khi nhận hàng"
+    expiresAt: string | null;
 
-    // Delivery address (formatted)
+    // Delivery address (formatted from shippingAddress object)
     recipientName: string;
     phoneNumber: string;
     fullAddress: string; //  Combined address
@@ -225,7 +282,9 @@ export interface OrderUI {
     // Notes
     customerNote: string | null;
     cancellationReason: string | null;
-    expiresAt: string | null;
+
+    // Loyalty (NEW)
+    loyalty: OrderLoyalty;
 
     // Raw data (for actions)
     _raw: Order; //  Keep original for detail screen
