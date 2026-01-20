@@ -203,7 +203,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         marginBottom: 4,
         fontSize: 13,
         lineHeight: 18,
-        height: 36,
         color: theme.colors.typography,
         fontWeight: '500',
     },

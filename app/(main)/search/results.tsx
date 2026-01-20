@@ -366,6 +366,8 @@ export default function SearchResultsScreen() {
                 getItemType={getItemType}
                 overrideItemLayout={overrideItemLayout}
                 numColumns={2}
+                masonry={true}
+                optimizeItemArrangement={true}
                 ListFooterComponent={renderFooter}
                 onEndReached={handleLoadMore}
                 onEndReachedThreshold={0.3}

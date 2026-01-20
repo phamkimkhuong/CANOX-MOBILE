@@ -402,13 +402,15 @@ export default function HomeScreen() {
         <ProductTabs activeTab={activeTab} onTabChange={handleTabChange} />
       </Animated.View>
 
-      {/* 3. FlashList - Main content */}
+      {/* 3. FlashList - Main content với layout zigzag (masonry) */}
       <FlashList
         ref={listRef}
         data={listData}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
         numColumns={2}
+        masonry={true}
+        optimizeItemArrangement={true}
         ListEmptyComponent={renderListEmpty}
         ListFooterComponent={renderListFooter}
         getItemType={getItemType}

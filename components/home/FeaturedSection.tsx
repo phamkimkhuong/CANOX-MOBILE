@@ -1,7 +1,7 @@
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { useProductFeed } from '@/hooks/api/useHomeProducts';
 import type { ProductFeedItem } from '@/types/product/product';
-import { formatCurrency } from '@/utils/format';
+import { formatCurrency, formatSoldCount } from '@/utils/format';
 import { Image } from 'expo-image';
 import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -129,7 +129,7 @@ export const FeaturedSection = memo(({ onProductPress }: FeaturedSectionProps = 
                 />
                 <View style={styles.mainOverlay}>
                     <View style={styles.editorBadge}>
-                        <Text style={styles.editorBadgeText}>Editor's Pick</Text>
+                        <Text style={styles.editorBadgeText}>Yêu thích</Text>
                     </View>
                     <Text style={styles.mainTitle} numberOfLines={2}>
                         {mainProduct.title}
@@ -138,12 +138,26 @@ export const FeaturedSection = memo(({ onProductPress }: FeaturedSectionProps = 
                         {mainProduct.shopName}
                     </Text>
                     <View style={styles.mainFooter}>
-                        <Text style={styles.mainPrice}>
-                            {formatCurrency(mainProduct.price)}
-                        </Text>
-                        <TouchableOpacity style={styles.buyNowBtn}>
-                            <Text style={styles.buyNowText}>{t('product:variant.buyNow')}</Text>
-                        </TouchableOpacity>
+                        <View style={styles.mainPriceContainer}>
+                            <Text style={styles.mainPrice}>
+                                {formatCurrency(mainProduct.price)}
+                            </Text>
+                            {mainProduct.originalPrice && mainProduct.originalPrice > mainProduct.price && (
+                                <Text style={styles.mainOriginalPrice}>
+                                    {formatCurrency(mainProduct.originalPrice)}
+                                </Text>
+                            )}
+                        </View>
+                        <View style={styles.mainActionRow}>
+                            {mainProduct.sold > 0 && (
+                                <Text style={styles.mainSoldText}>
+                                    Đã bán {formatSoldCount(mainProduct.sold)}
+                                </Text>
+                            )}
+                            <TouchableOpacity style={styles.buyNowBtn}>
+                                <Text style={styles.buyNowText}>{t('product:variant.buyNow')}</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
             </TouchableOpacity>
@@ -192,9 +206,21 @@ export const FeaturedSection = memo(({ onProductPress }: FeaturedSectionProps = 
                                 <Text style={styles.smallTitle} numberOfLines={2}>
                                     {product.title}
                                 </Text>
-                                <Text style={styles.smallPrice}>
-                                    {formatCurrency(product.price)}
-                                </Text>
+                                <View style={styles.smallPriceRow}>
+                                    <Text style={styles.smallPrice}>
+                                        {formatCurrency(product.price)}
+                                    </Text>
+                                    {product.originalPrice && product.originalPrice > product.price && (
+                                        <Text style={styles.smallOriginalPrice}>
+                                            {formatCurrency(product.originalPrice)}
+                                        </Text>
+                                    )}
+                                </View>
+                                {product.sold > 0 && (
+                                    <Text style={styles.smallSoldText}>
+                                        Đã bán {formatSoldCount(product.sold)}
+                                    </Text>
+                                )}
                             </TouchableOpacity>
                         );
                     }}
@@ -233,7 +259,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     editorBadge: {
         alignSelf: 'flex-start',
-        backgroundColor: theme.colors.primary,
+        backgroundColor: theme.colors.accent,
         paddingHorizontal: 10,
         paddingVertical: 4,
         borderRadius: theme.radius.s,
@@ -260,10 +286,30 @@ const stylesheet = StyleSheet.create((theme) => ({
         alignItems: 'center',
         justifyContent: 'space-between',
     },
+    mainPriceContainer: {
+        flexDirection: 'row',
+        alignItems: 'baseline',
+        gap: 6,
+    },
     mainPrice: {
         fontSize: 20,
         fontWeight: 'bold',
         color: theme.colors.onPrimary,
+    },
+    mainOriginalPrice: {
+        fontSize: 14,
+        color: theme.colors.textOnOverlay,
+        textDecorationLine: 'line-through',
+    },
+    mainActionRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: theme.margins.sm,
+    },
+    mainSoldText: {
+        fontSize: 12,
+        color: theme.colors.textOnOverlay,
+        fontWeight: '500',
     },
     buyNowBtn: {
         backgroundColor: theme.colors.primary,
@@ -324,12 +370,27 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: 12,
         fontWeight: '500',
         color: theme.colors.typography,
-        height: 32,
         lineHeight: 16,
+    },
+    smallPriceRow: {
+        flexDirection: 'row',
+        alignItems: 'baseline',
+        gap: 4,
+        marginTop: 2,
     },
     smallPrice: {
         fontSize: 14,
         fontWeight: 'bold',
         color: theme.colors.error,
+    },
+    smallOriginalPrice: {
+        fontSize: 10,
+        color: theme.colors.secondary,
+        textDecorationLine: 'line-through',
+    },
+    smallSoldText: {
+        fontSize: 10,
+        color: theme.colors.secondary,
+        marginTop: 2,
     },
 }));

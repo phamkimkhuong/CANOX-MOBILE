@@ -110,9 +110,16 @@ export const FlashSale = memo(({ onProductPress }: FlashSaleProps = {}) => {
                             <Text style={styles.productName} numberOfLines={1}>
                                 {item.name}
                             </Text>
-                            <Text style={styles.price}>
-                                {formatCurrency(item.price)}
-                            </Text>
+                            <View style={styles.priceRow}>
+                                <Text style={styles.price}>
+                                    {formatCurrency(item.price)}
+                                </Text>
+                                {item.originalPrice > item.price && (
+                                    <Text style={styles.originalPrice}>
+                                        {formatCurrency(item.originalPrice)}
+                                    </Text>
+                                )}
+                            </View>
                             {/* Progress Bar */}
                             <View style={styles.progressBg}>
                                 {/* Progress Fill with gradient effect */}
@@ -248,10 +255,20 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontWeight: '500',
         color: theme.colors.typography,
     },
+    priceRow: {
+        flexDirection: 'row',
+        alignItems: 'baseline',
+        gap: 4,
+    },
     price: {
         fontSize: 15,
         fontWeight: 'bold',
         color: theme.colors.error,
+    },
+    originalPrice: {
+        fontSize: 10,
+        color: theme.colors.secondary,
+        textDecorationLine: 'line-through',
     },
     progressBg: {
         position: 'relative',
