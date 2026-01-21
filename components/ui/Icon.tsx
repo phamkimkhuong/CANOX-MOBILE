@@ -129,6 +129,14 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     storefront: { ios: 'storefront-outline', android: 'storefront-outline' },
     'rate-review': { ios: 'chatbubble-ellipses-outline', android: 'chatbubble-ellipses-outline' },
     'shopping-cart': { ios: 'cart-outline', android: 'cart-outline' },
+    'credit-card': { ios: 'card-outline', android: 'card-outline' },
+    badge: { ios: 'person-circle-outline', android: 'person-circle-outline' },
+    fingerprint: { ios: 'finger-print', android: 'finger-print' },
+    link: { ios: 'link', android: 'link' },
+    language: { ios: 'language', android: 'language' },
+    'delete-sweep': { ios: 'trash-outline', android: 'trash-outline' },
+    policy: { ios: 'shield-checkmark-outline', android: 'shield-checkmark-outline' },
+    description: { ios: 'document-text-outline', android: 'document-text-outline' },
 
     // === Status & Error Icons ===
     'check-circle': { ios: 'checkmark-circle', android: 'checkmark-circle' },

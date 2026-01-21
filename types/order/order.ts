@@ -255,7 +255,11 @@ export interface OrderUI {
 
     // Price fields (flattened from pricing object)
     subtotal: number;
+    shopDiscount: number;
+    platformDiscount: number;
+    shippingDiscount: number;
     totalDiscount: number;
+    taxAmount: number;
     shippingFee: number;
     grandTotal: number;
 

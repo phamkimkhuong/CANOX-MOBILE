@@ -135,7 +135,11 @@ export const transformOrder = (order: Order): OrderUI => {
 
         // Prices - from nested pricing object
         subtotal: pricing.subtotal,
+        shopDiscount: pricing.shopDiscount,
+        platformDiscount: pricing.platformDiscount,
+        shippingDiscount: pricing.shippingDiscount,
         totalDiscount: pricing.totalDiscount,
+        taxAmount: pricing.taxAmount,
         shippingFee: pricing.shippingFee,
         grandTotal: pricing.grandTotal,
 

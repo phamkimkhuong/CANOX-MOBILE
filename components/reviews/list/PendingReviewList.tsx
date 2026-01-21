@@ -77,7 +77,10 @@ export const PendingReviewList: React.FC<PendingReviewListProps> = ({
         []
     );
 
-    const keyExtractor = useCallback((item: ListItem) => `item-${item.data.itemId}`, []);
+    const keyExtractor = useCallback(
+        (item: ListItem) => `pending-${item.data.orderId}-${item.data.itemId || item.data.productId}-${item.data.variantId || 'default'}`,
+        []
+    );
 
     const getItemType = useCallback(() => 'item', []);
 

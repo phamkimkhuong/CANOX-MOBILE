@@ -49,7 +49,7 @@ const applyFilter = (reviews: MyReviewUI[], filter: RatingFilter): MyReviewUI[] 
 /**
  * useMyReviews - Fetch and filter reviews on client side
  */
-export const useMyReviews = (filter: RatingFilter = 'all') => {
+export const useMyReviews = (filter: RatingFilter = 'all', enabled = true) => {
     // Always fetch ALL reviews (no filter param to API)
     const query = useInfiniteQuery({
         queryKey: reviewKeys.myReviews(), // Same key for all filters
@@ -64,6 +64,7 @@ export const useMyReviews = (filter: RatingFilter = 'all') => {
         getNextPageParam: (lastPage) => (lastPage.hasNext ? lastPage.nextPage : undefined),
         staleTime: 2 * 60 * 1000,
         gcTime: 10 * 60 * 1000,
+        enabled,
     });
 
     // All reviews from all pages

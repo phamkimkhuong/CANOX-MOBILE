@@ -3,8 +3,15 @@
  */
 import { z } from 'zod';
 
+export interface CreateOrderItemRequest {
+    itemId: string;
+    expectedUnitPrice: number;
+    promotionId?: string | null;
+}
+
 export interface CreateOrderShopRequest {
     shopId: string;
+    items: CreateOrderItemRequest[];
     itemIds: string[];
     vouchers?: string[];
     serviceCode: number;
@@ -30,8 +37,64 @@ export interface CreateOrderRequest {
     allSelectedItemIds: string[];
 }
 
+// ============================================
+// RESPONSE DTO - Nested Structure
+// ============================================
+
+export interface OrderPricingDTO {
+    subtotal?: number | null;
+    shopDiscount?: number | null;
+    platformDiscount?: number | null;
+    shippingDiscount?: number | null;
+    originalShippingFee?: number | null;
+    appliedVoucherCodes?: string | null;
+    totalDiscount?: number | null;
+    taxAmount?: number | null;
+    shippingFee?: number | null;
+    grandTotal?: number | null;
+}
+
+export interface OrderPaymentDTO {
+    paymentMethod?: string | null;
+    amount?: number | null;
+    currency?: string | null;
+    success?: boolean | null;
+    paymentLink?: string | null;
+    qrCode?: string | null;
+    orderCode?: string | null;
+    expiredAt?: number | null;
+    accountName?: string | null;
+    accountNumber?: string | null;
+    description?: string | null;
+    errorMessage?: string | null;
+    depositId?: string | null;
+}
+
+export interface OrderShipmentDTO {
+    carrier?: string | null;
+    trackingNumber?: string | null;
+}
+
+export interface OrderShippingAddressDTO {
+    recipientName?: string | null;
+    phoneNumber?: string | null;
+    email?: string | null;
+    addressLine1?: string | null;
+    addressLine2?: string | null;
+    city?: string | null;
+    province?: string | null;
+    country?: string | null;
+    postalCode?: string | null;
+}
+
+export interface OrderLoyaltyDTO {
+    pointsUsed?: number | null;
+    pointsEarned?: number | null;
+    discountAmount?: number | null;
+}
+
 export interface OrderItemDTO {
-    itemId: string;
+    itemId?: string | null;
     productId: string;
     variantId?: string | null;
     sku?: string | null;
@@ -68,18 +131,14 @@ export interface OrderDTO {
     buyerId?: string | null;
     status?: string | null;
     currency?: string | null;
-    subtotal?: number | null;
-    shopDiscount?: number | null;
-    platformDiscount?: number | null;
-    shippingDiscount?: number | null;
-    originalShippingFee?: number | null;
-    appliedVoucherCodes?: string | null;
-    totalDiscount?: number | null;
-    taxAmount?: number | null;
-    shippingFee?: number | null;
-    grandTotal?: number | null;
-    totalPlatformFee?: number | null;
-    netRevenue?: number | null;
+
+    // Nested objects
+    pricing?: OrderPricingDTO | null;
+    payment?: OrderPaymentDTO | null;
+    shipment?: OrderShipmentDTO | null;
+    shippingAddress?: OrderShippingAddressDTO | null;
+    loyalty?: OrderLoyaltyDTO | null;
+
     itemCount?: number | null;
     totalQuantity?: number | null;
     customerNote?: string | null;
@@ -87,24 +146,6 @@ export interface OrderDTO {
     cancellationReason?: string | null;
     createdAt?: string | null;
     items?: OrderItemDTO[] | null;
-    paymentMethod?: string | null;
-    paymentUrl?: string | null;
-    paymentIntentId?: string | null;
-    paymentGroupId?: string | null;
-    expiresAt?: string | null;
-    trackingNumber?: string | null;
-    carrier?: string | null;
-    conkinBillId?: string | null;
-    conkinShippingCost?: number | null;
-    recipientName?: string | null;
-    phoneNumber?: string | null;
-    addressLine1?: string | null;
-    addressLine2?: string | null;
-    city?: string | null;
-    province?: string | null;
-    postalCode?: string | null;
-    country?: string | null;
-    email?: string | null;
 }
 
 export interface PaymentInfoDTO {
@@ -131,15 +172,66 @@ export interface CreateOrderResponse {
         orders?: OrderDTO[] | null;
         paymentInfo?: PaymentInfoDTO | null;
     } | null;
-    paymentInfo?: PaymentInfoDTO | null;
 }
 
 // ============================================
 // ZOD SCHEMAS
 // ============================================
 
+const OrderPricingSchema = z.object({
+    subtotal: z.number().optional().nullable().default(0),
+    shopDiscount: z.number().optional().nullable().default(0),
+    platformDiscount: z.number().optional().nullable().default(0),
+    shippingDiscount: z.number().optional().nullable().default(0),
+    originalShippingFee: z.number().optional().nullable().default(0),
+    appliedVoucherCodes: z.string().optional().nullable(),
+    totalDiscount: z.number().optional().nullable().default(0),
+    taxAmount: z.number().optional().nullable().default(0),
+    shippingFee: z.number().optional().nullable().default(0),
+    grandTotal: z.number().optional().nullable().default(0),
+});
+
+const OrderPaymentSchema = z.object({
+    paymentMethod: z.string().optional().nullable(),
+    amount: z.number().optional().nullable(),
+    currency: z.string().optional().nullable(),
+    success: z.boolean().optional().nullable(),
+    paymentLink: z.string().optional().nullable(),
+    qrCode: z.string().optional().nullable(),
+    orderCode: z.string().optional().nullable(),
+    expiredAt: z.number().optional().nullable(),
+    accountName: z.string().optional().nullable(),
+    accountNumber: z.string().optional().nullable(),
+    description: z.string().optional().nullable(),
+    errorMessage: z.string().optional().nullable(),
+    depositId: z.string().optional().nullable(),
+});
+
+const OrderShipmentSchema = z.object({
+    carrier: z.string().optional().nullable(),
+    trackingNumber: z.string().optional().nullable(),
+});
+
+const OrderShippingAddressSchema = z.object({
+    recipientName: z.string().optional().nullable(),
+    phoneNumber: z.string().optional().nullable(),
+    email: z.string().optional().nullable(),
+    addressLine1: z.string().optional().nullable(),
+    addressLine2: z.string().optional().nullable(),
+    city: z.string().optional().nullable(),
+    province: z.string().optional().nullable(),
+    country: z.string().optional().nullable(),
+    postalCode: z.string().optional().nullable(),
+});
+
+const OrderLoyaltySchema = z.object({
+    pointsUsed: z.number().optional().nullable().default(0),
+    pointsEarned: z.number().optional().nullable().default(0),
+    discountAmount: z.number().optional().nullable().default(0),
+});
+
 const OrderItemSchema = z.object({
-    itemId: z.string(),
+    itemId: z.string().optional().nullable(), // Nullable to bypass error if missing
     productId: z.string(),
     variantId: z.string().optional().nullable(),
     sku: z.string().optional().nullable(),
@@ -176,18 +268,14 @@ const OrderSchema = z.object({
     buyerId: z.string().optional().nullable(),
     status: z.string().optional().nullable(),
     currency: z.string().optional().nullable().default('VND'),
-    subtotal: z.number().optional().nullable().default(0),
-    shopDiscount: z.number().optional().nullable().default(0),
-    platformDiscount: z.number().optional().nullable().default(0),
-    shippingDiscount: z.number().optional().nullable().default(0),
-    originalShippingFee: z.number().optional().nullable().default(0),
-    appliedVoucherCodes: z.string().optional().nullable(),
-    totalDiscount: z.number().optional().nullable().default(0),
-    taxAmount: z.number().optional().nullable().default(0),
-    shippingFee: z.number().optional().nullable().default(0),
-    grandTotal: z.number().optional().nullable().default(0),
-    totalPlatformFee: z.number().optional().nullable().default(0),
-    netRevenue: z.number().optional().nullable().default(0),
+
+    // Nested objects in schema
+    pricing: OrderPricingSchema.optional().nullable(),
+    payment: OrderPaymentSchema.optional().nullable(),
+    shipment: OrderShipmentSchema.optional().nullable(),
+    shippingAddress: OrderShippingAddressSchema.optional().nullable(),
+    loyalty: OrderLoyaltySchema.optional().nullable(),
+
     itemCount: z.number().optional().nullable().default(0),
     totalQuantity: z.number().optional().nullable().default(0),
     customerNote: z.string().optional().nullable(),
@@ -195,24 +283,6 @@ const OrderSchema = z.object({
     cancellationReason: z.string().optional().nullable(),
     createdAt: z.string().optional().nullable(),
     items: z.array(OrderItemSchema).optional().nullable().default([]),
-    paymentMethod: z.string().optional().nullable(),
-    paymentUrl: z.string().optional().nullable(),
-    paymentIntentId: z.string().optional().nullable(),
-    paymentGroupId: z.string().optional().nullable(),
-    expiresAt: z.string().optional().nullable(),
-    trackingNumber: z.string().optional().nullable(),
-    carrier: z.string().optional().nullable(),
-    conkinBillId: z.string().optional().nullable(),
-    conkinShippingCost: z.number().optional().nullable().default(0),
-    recipientName: z.string().optional().nullable(),
-    phoneNumber: z.string().optional().nullable(),
-    addressLine1: z.string().optional().nullable(),
-    addressLine2: z.string().optional().nullable(),
-    city: z.string().optional().nullable(),
-    province: z.string().optional().nullable(),
-    postalCode: z.string().optional().nullable(),
-    country: z.string().optional().nullable(),
-    email: z.string().optional().nullable(),
 });
 
 const PaymentInfoSchema = z.object({
@@ -239,5 +309,4 @@ export const CreateOrderResponseSchema = z.object({
         orders: z.array(OrderSchema).optional().nullable().default([]),
         paymentInfo: PaymentInfoSchema.optional().nullable(),
     }).optional().nullable(),
-    paymentInfo: PaymentInfoSchema.optional().nullable(),
 });

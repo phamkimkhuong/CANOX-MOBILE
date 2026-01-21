@@ -168,6 +168,7 @@ export interface CheckoutItemUI {
     quantity: number;
     lineTotal: number;
     shopId: string;
+    promotionId: string | null;
 }
 
 /**
@@ -184,8 +185,8 @@ export interface CheckoutShopUI {
     appliedVoucherId: string | null;
     /** Available shop vouchers */
     availableVouchers: VoucherUI[];
-    /** Ghi chú cho shop */
     note: string;
+    loyaltyPoints: number;
 }
 
 /**
@@ -202,6 +203,7 @@ export const toCheckoutItem = (cartItem: CartItemUI): CheckoutItemUI => ({
     quantity: cartItem.quantity,
     lineTotal: cartItem.totalPrice,
     shopId: cartItem.shopId,
+    promotionId: null,
 });
 
 // ============================================
@@ -255,17 +257,11 @@ export interface ShopSubtotal {
 export interface CheckoutCalculationResult {
     /** Tổng tiền hàng tất cả shop */
     subtotal: number;
-    /** Tổng phí vận chuyển */
     totalShippingFee: number;
-    /** Tổng giảm giá từ Shop Vouchers */
     totalShopVoucherDiscount: number;
-    /** Giảm giá từ Platform Voucher */
     platformVoucherDiscount: number;
-    /** Giảm giá phí vận chuyển (từ free ship voucher) */
     shippingDiscount: number;
-    /** Voucher platform đang áp dụng (Discount) */
     appliedPlatformVoucherId?: string | null;
-    /** Voucher platform đang áp dụng (Shipping) */
     appliedShippingVoucherId?: string | null;
     /** Tổng tiền phải trả */
     totalAmount: number;
@@ -281,4 +277,6 @@ export interface CheckoutCalculationResult {
     isCalculatingShipping: boolean;
     /** Platform voucher có valid không (để hiển thị warning) */
     platformVoucherValidation: VoucherValidationResult | null;
+    /** Tổng điểm loyalty quy đổi của toàn đơn hàng */
+    loyaltyPoints: number;
 }

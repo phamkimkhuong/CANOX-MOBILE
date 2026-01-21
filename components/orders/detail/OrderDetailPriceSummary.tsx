@@ -238,7 +238,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     valueTotal: {
         fontSize: 18,
         fontWeight: '700',
-        color: theme.colors.primary,
+        color: theme.colors.error,
     },
     divider: {
         height: 1,

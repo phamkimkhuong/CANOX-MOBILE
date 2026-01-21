@@ -163,7 +163,7 @@ export default function OrderDetailScreen() {
         }
 
         // Prefetch message
-        prefetchChat(shopUserId, shopName, shopLogoUrl, order.shopId);
+        prefetchChat(shopUserId, shopName, shopLogoUrl, order.shopId ?? undefined);
 
         // Instant navigation with Ghost ID
         const cachedId = getCachedConversationId(shopUserId);
@@ -281,7 +281,7 @@ export default function OrderDetailScreen() {
     }, [rawOrder]);
 
     const handlePay = useCallback(() => {
-        if (!rawOrder?.paymentUrl) {
+        if (!rawOrder?.payment?.url) {
             Toast.show({
                 type: 'error',
                 text1: t('order:detail.missingPaymentUrlTitle'),
@@ -289,8 +289,8 @@ export default function OrderDetailScreen() {
             });
             return;
         }
-        Linking.openURL(rawOrder.paymentUrl);
-    }, [rawOrder?.paymentUrl, t]);
+        Linking.openURL(rawOrder.payment.url);
+    }, [rawOrder?.payment?.url, t]);
 
     const handleReviewItem = useCallback(
         (item: OrderItemUI) => {
@@ -367,7 +367,7 @@ export default function OrderDetailScreen() {
                                 recipientName={order.recipientName}
                                 phoneNumber={order.phoneNumber}
                                 fullAddress={order.fullAddress}
-                                email={rawOrder?.email}
+                                email={rawOrder?.shippingAddress?.email}
                             />
                         </View>
 
@@ -389,11 +389,11 @@ export default function OrderDetailScreen() {
                         <View style={styles.section}>
                             <OrderDetailPriceSummary
                                 subtotal={order.subtotal}
-                                shopDiscount={rawOrder?.shopDiscount || 0}
-                                platformDiscount={rawOrder?.platformDiscount || 0}
-                                shippingDiscount={rawOrder?.shippingDiscount || 0}
+                                shopDiscount={order.shopDiscount}
+                                platformDiscount={order.platformDiscount}
+                                shippingDiscount={order.shippingDiscount}
                                 shippingFee={order.shippingFee}
-                                taxAmount={rawOrder?.taxAmount}
+                                taxAmount={order.taxAmount}
                                 grandTotal={order.grandTotal}
                                 paymentMethod={order.paymentMethodDisplay}
                             />

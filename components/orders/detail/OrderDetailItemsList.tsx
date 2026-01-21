@@ -146,7 +146,7 @@ export const OrderDetailItemsList: React.FC<OrderDetailItemsListProps> = ({
     return (
         <View style={styles.container}>
             {items.map((item, index) => (
-                <React.Fragment key={item.itemId}>
+                <React.Fragment key={item.itemId ?? item.variantId ?? item.productId ?? `order-item-${index}`}>
                     <OrderItemRow
                         item={item}
                         showReviewStatus={showReviewStatus}
@@ -206,7 +206,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     itemPrice: {
         fontSize: 13,
         fontWeight: '600',
-        color: theme.colors.primary,
+        color: theme.colors.typographySecondary,
     },
     itemQuantity: {
         fontSize: 12,
@@ -255,7 +255,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     itemTotal: {
         fontSize: 13,
         fontWeight: '600',
-        color: theme.colors.typography,
+        color: theme.colors.error,
     },
     divider: {
         height: 1,

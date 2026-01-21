@@ -9,10 +9,6 @@
 
 import { z } from 'zod';
 
-// ============================================
-// REQUEST TYPES
-// ============================================
-
 export interface CheckoutPreviewShopRequest {
     shopId: string;
     itemIds: string[];
@@ -46,6 +42,17 @@ export interface CheckoutPreviewRequest {
 // RESPONSE DTO - Raw API Response Types
 // ============================================
 
+/** Promotion detail */
+export interface CheckoutPromotionDTO {
+    promotionId: string;
+    campaignId: string;
+    campaignName: string;
+    campaignType: string;
+    originalPrice: number;
+    salePrice: number;
+    discountPercent: number;
+}
+
 /** Item từ API response - sẽ được transform sang CheckoutItemUI */
 export interface CheckoutPreviewItemDTO {
     itemId: string;
@@ -66,9 +73,10 @@ export interface CheckoutPreviewItemDTO {
     widthCm?: number | null;
     heightCm?: number | null;
     weightGrams?: number | null;
+    promotion?: CheckoutPromotionDTO | null;
 }
 
-/** Shipping option từ API - sẽ được transform sang ShippingMethod */
+/** Shipping option từ API */
 export interface CheckoutShippingOptionDTO {
     serviceCode?: number | null;
     serviceType?: string | null;
@@ -183,6 +191,16 @@ export interface CheckoutPreviewResponse {
 // ZOD SCHEMAS - Response Validation
 // ============================================
 
+const CheckoutPromotionSchema = z.object({
+    promotionId: z.string(),
+    campaignId: z.string(),
+    campaignName: z.string(),
+    campaignType: z.string(),
+    originalPrice: z.number(),
+    salePrice: z.number(),
+    discountPercent: z.number().int(),
+});
+
 const CheckoutPreviewItemSchema = z.object({
     itemId: z.string(),
     productId: z.string(),
@@ -202,6 +220,7 @@ const CheckoutPreviewItemSchema = z.object({
     widthCm: z.number().nullable().optional(),
     heightCm: z.number().nullable().optional(),
     weightGrams: z.number().nullable().optional(),
+    promotion: CheckoutPromotionSchema.nullable().optional(),
 });
 
 const CheckoutShippingOptionSchema = z.object({

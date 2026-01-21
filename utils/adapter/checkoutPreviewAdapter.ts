@@ -49,6 +49,7 @@ export const toCheckoutItemUI = (dto: CheckoutPreviewItemDTO): CheckoutItemUI =>
     quantity: dto.quantity ?? 1,
     lineTotal: dto.lineTotal ?? 0,
     shopId: '', // Will be set by parent
+    promotionId: dto.promotion?.promotionId ?? null,
 });
 
 // ============================================
@@ -203,6 +204,7 @@ export const toCheckoutShopUI = (dto: CheckoutPreviewShopDTO): CheckoutShopUI =>
         appliedVoucherId: firstShopVoucher?.voucherCode ?? null,
         availableVouchers: allVouchers,  // Contains both SHOP and PLATFORM for UI to filter
         note: '', // Not in API response, managed client-side
+        loyaltyPoints: dto.loyaltyInfo?.pointsToRedeem ?? 0,
     };
 };
 
@@ -271,6 +273,7 @@ export const toCheckoutCalculation = (
         shopSubtotals: shops.map((shop) => toShopSubtotal(shop.shopId ?? '', shop.summary, shop.voucherResult)),
         isCalculatingShipping: false,
         platformVoucherValidation: null,
+        loyaltyPoints: shops.reduce((sum, shop) => sum + (shop.loyaltyInfo?.pointsToRedeem ?? 0), 0),
     };
 };
 
@@ -302,19 +305,11 @@ export interface CheckoutPreviewUI {
  * This is the main entry point for the adapter.
  */
 export const toCheckoutPreviewUI = (dto: CheckoutPreviewDataDTO): CheckoutPreviewUI => {
-    let cleanPreviewAt = dto.previewAt;
-    if (cleanPreviewAt && cleanPreviewAt.includes('.')) {
-        const parts = cleanPreviewAt.split('.');
-        const timePart = parts[0];
-        const fractionPart = parts[1].replace('Z', '').substring(0, 3);
-        cleanPreviewAt = `${timePart}.${fractionPart}Z`;
-    }
-
     return {
         previewId: dto.cartId,
         cartId: dto.cartId,
         currency: dto.currency,
-        previewAt: cleanPreviewAt,
+        previewAt: dto.previewAt,
         addressId: dto.buyerAddressData?.addressId ?? '',
         addressType: dto.buyerAddressData?.addressType ?? null,
         taxAddress: dto.buyerAddressData?.taxAddress ?? null,

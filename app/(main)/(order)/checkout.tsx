@@ -105,6 +105,7 @@ export default function CheckoutScreen() {
         shopSubtotals: [],
         isCalculatingShipping: true,
         platformVoucherValidation: null,
+        loyaltyPoints: 0,
     };
 
     // Platform voucher validation from warnings
@@ -372,12 +373,17 @@ export default function CheckoutScreen() {
 
                     return {
                         shopId: shop.shopId,
+                        items: shop.items.map(item => ({
+                            itemId: item.id,
+                            expectedUnitPrice: item.unitPrice,
+                            promotionId: item.promotionId,
+                        })),
                         itemIds: shop.items.map(i => i.id),
                         vouchers: shopVouchers,
                         serviceCode: Number(shop.shippingOptions.selectedMethodId) || 0,
                         shippingFee: shop.shippingOptions.methods.find(m => m.id === shop.shippingOptions.selectedMethodId)?.fee || 0,
                         globalVouchers: globalVouchersArray,
-                        loyaltyPoints: 0,
+                        loyaltyPoints: shop.loyaltyPoints,
                     };
                 }),
                 buyerAddressData: {
@@ -386,7 +392,7 @@ export default function CheckoutScreen() {
                     addressType: previewData.addressType ?? 0,
                     taxAddress: previewData.taxAddress,
                 },
-                loyaltyPoints: 0,
+                loyaltyPoints: calculation.loyaltyPoints,
                 paymentMethod: paymentMethod === 'cod' ? 'COD' : 'PAYOS',
                 previewId: previewData.previewId ?? '',
                 previewAt: previewData.previewAt,
@@ -422,8 +428,8 @@ export default function CheckoutScreen() {
                 orderNumber: order.orderNumber,
                 shopName: order.shopInfo?.shopName || 'Shop',
                 // Additional fields for single order display
-                grandTotal: order.grandTotal,
-                paymentMethod: order.paymentMethod,
+                grandTotal: order.pricing?.grandTotal,
+                paymentMethod: order.payment?.paymentMethod,
                 createdAt: order.createdAt,
                 itemCount: order.itemCount || order.items?.length || 0,
                 // Product images for thumbnails (limit to 3)
