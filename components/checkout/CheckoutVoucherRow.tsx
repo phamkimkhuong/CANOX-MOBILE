@@ -42,11 +42,13 @@ export const CheckoutVoucherRow: React.FC<CheckoutVoucherRowProps> = ({
 
     const selectedVoucher = availableVouchers.find((v) => v.id === selectedVoucherId);
 
+    // Count applicable vouchers (isApplicable = true)
+    const applicableVouchersCount = availableVouchers.filter(v => v.isApplicable !== false).length;
+    const hasApplicableVouchers = applicableVouchersCount > 0;
+
     const handleOpenModal = useCallback(() => {
-        if (!disabled) {
-            setIsModalVisible(true);
-        }
-    }, [disabled]);
+        setIsModalVisible(true);
+    }, []);
 
     const handleSelect = useCallback((voucherId: string | null) => {
         onSelect(voucherId);
@@ -61,30 +63,42 @@ export const CheckoutVoucherRow: React.FC<CheckoutVoucherRowProps> = ({
         setManualCode('');
     }, [manualCode, onSelect]);
 
+    // Determine placeholder text
+    const getPlaceholderText = () => {
+        if (availableVouchers.length === 0) return t('voucher.noVouchers');
+        if (!hasApplicableVouchers) return t('voucher.noApplicableVouchers');
+        return t('voucher.placeholder');
+    };
+
+    // Show secondary styling if has vouchers but none are applicable
+    const showSecondaryStyling = !hasApplicableVouchers && availableVouchers.length > 0;
+
     return (
         <>
             {/* Whole section is pressable for better UX */}
             <Pressable
                 style={({ pressed }) => [
                     styles.container,
-                    pressed && !disabled && availableVouchers.length > 0 && styles.containerPressed,
-                    (disabled || availableVouchers.length === 0) && styles.containerDisabled,
+                    pressed && !disabled && styles.containerPressed,
+                    (disabled || showSecondaryStyling) && styles.containerSecondary,
                 ]}
                 onPress={handleOpenModal}
-                disabled={disabled || availableVouchers.length === 0}
+                disabled={disabled}
                 accessibilityRole="button"
                 accessibilityLabel={t('voucher.selectShopVoucher')}
             >
                 {/* Section Title */}
                 <View style={styles.titleRow}>
-                    <View style={styles.titleIcon}>
+                    <View style={[styles.titleIcon, showSecondaryStyling && styles.titleIconSecondary]}>
                         <IconSymbol
                             name="percent"
                             size={18}
-                            color={theme.colors.error}
+                            color={showSecondaryStyling ? theme.colors.typographySecondary : theme.colors.error}
                         />
                     </View>
-                    <Text style={styles.title}>{t('voucher.shopTitle')}</Text>
+                    <Text style={[styles.title, showSecondaryStyling && styles.titleSecondary]}>
+                        {t('voucher.shopTitle')}
+                    </Text>
                 </View>
 
                 {/* Content Row */}
@@ -104,22 +118,18 @@ export const CheckoutVoucherRow: React.FC<CheckoutVoucherRowProps> = ({
                         ) : (
                             <Text style={[
                                 styles.placeholderText,
-                                availableVouchers.length === 0 && { color: theme.colors.typographySecondary }
+                                (availableVouchers.length === 0 || showSecondaryStyling) && styles.placeholderTextSecondary
                             ]}>
-                                {availableVouchers.length > 0
-                                    ? t('voucher.placeholder')
-                                    : t('voucher.noVouchers')}
+                                {getPlaceholderText()}
                             </Text>
                         )}
                     </View>
 
-                    {availableVouchers.length > 0 && (
-                        <IconSymbol
-                            name="chevron-right"
-                            size={18}
-                            color={theme.colors.typographySecondary}
-                        />
-                    )}
+                    <IconSymbol
+                        name="chevron-right"
+                        size={18}
+                        color={theme.colors.typographySecondary}
+                    />
                 </View>
             </Pressable>
 
@@ -224,21 +234,31 @@ export const CheckoutVoucherRow: React.FC<CheckoutVoucherRowProps> = ({
                                     {/* Voucher options */}
                                     {availableVouchers.map((voucher) => {
                                         const isSelected = voucher.id === selectedVoucherId;
+                                        const isDisabled = voucher.isApplicable === false;
+
+                                        const handleItemPress = () => {
+                                            if (isDisabled) return;
+                                            handleSelect(voucher.id);
+                                        };
+
                                         return (
                                             <Pressable
                                                 key={voucher.id}
                                                 style={({ pressed }) => [
                                                     styles.voucherItem,
                                                     isSelected && styles.voucherItemSelected,
-                                                    pressed && styles.voucherItemPressed,
+                                                    pressed && !isDisabled && styles.voucherItemPressed,
+                                                    isDisabled && styles.voucherItemDisabled,
                                                 ]}
-                                                onPress={() => handleSelect(voucher.id)}
+                                                onPress={handleItemPress}
+                                                disabled={isDisabled}
                                             >
                                                 <View style={styles.radioContainer}>
                                                     <View
                                                         style={[
                                                             styles.radioOuter,
                                                             isSelected && styles.radioOuterSelected,
+                                                            isDisabled && styles.radioOuterDisabled,
                                                         ]}
                                                     >
                                                         {isSelected && (
@@ -249,19 +269,24 @@ export const CheckoutVoucherRow: React.FC<CheckoutVoucherRowProps> = ({
 
                                                 <View style={styles.voucherInfo}>
                                                     <View style={styles.voucherHeader}>
-                                                        <View style={styles.voucherBadge}>
+                                                        <View style={[styles.voucherBadge, isDisabled && styles.voucherBadgeDisabled]}>
                                                             <Text style={styles.voucherBadgeText}>
                                                                 {voucher.discountDisplay}
                                                             </Text>
                                                         </View>
-                                                        <Text style={styles.voucherCode}>
+                                                        <Text style={[styles.voucherCode, isDisabled && styles.voucherCodeDisabled]}>
                                                             {voucher.code}
                                                         </Text>
                                                     </View>
                                                     <Text style={styles.voucherCondition}>
                                                         {voucher.minOrderDisplay}
                                                     </Text>
-                                                    {voucher.expiresAt && (
+                                                    {isDisabled && voucher.description && (
+                                                        <Text style={styles.voucherNotApplicableReason}>
+                                                            {voucher.description}
+                                                        </Text>
+                                                    )}
+                                                    {!isDisabled && voucher.expiresAt && (
                                                         <Text style={styles.voucherExpiry}>
                                                             {t('voucher.expiry', { date: new Date(voucher.expiresAt).toLocaleDateString(i18n.language === 'en' ? 'en-US' : 'vi-VN') })}
                                                         </Text>
@@ -538,6 +563,39 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: '#FFFFFF',
         fontWeight: '700',
         fontSize: 14,
+    },
+
+    // Secondary/Disabled styles
+    containerSecondary: {
+        opacity: 0.8,
+    },
+    titleIconSecondary: {
+        backgroundColor: `${theme.colors.typographySecondary}12`,
+    },
+    titleSecondary: {
+        color: theme.colors.typographySecondary,
+    },
+    placeholderTextSecondary: {
+        color: theme.colors.typographySecondary,
+    },
+    voucherItemDisabled: {
+        opacity: 0.6,
+    },
+    radioOuterDisabled: {
+        borderColor: theme.colors.border,
+        backgroundColor: theme.colors.background,
+    },
+    voucherBadgeDisabled: {
+        backgroundColor: theme.colors.typographySecondary,
+    },
+    voucherCodeDisabled: {
+        color: theme.colors.typographySecondary,
+    },
+    voucherNotApplicableReason: {
+        fontSize: 11,
+        color: theme.colors.warning,
+        marginTop: 4,
+        fontWeight: '500',
     },
 }));
 

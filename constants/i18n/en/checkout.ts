@@ -39,6 +39,7 @@ export const CHECKOUT_STRINGS: CheckoutTranslation = {
         noShippingVoucher: 'No shipping vouchers available',
         discountVoucherTitle: 'Discount Voucher',
         noDiscountVoucher: 'No discount vouchers available',
+        noApplicableVouchers: 'No applicable vouchers',
     },
     shipping: {
         title: 'Shipping Method',

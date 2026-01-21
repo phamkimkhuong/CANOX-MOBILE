@@ -8,9 +8,10 @@
 import { ROUTES } from '@/constants/routes';
 import { Alert } from '@/utils/AlertHelper';
 import { Navigator } from '@/utils/navigation';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useQueryClient } from '@tanstack/react-query';
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useLocalSearchParams } from 'expo-router';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
 import Toast from 'react-native-toast-message';
@@ -29,7 +30,8 @@ import {
 } from '@/components/checkout';
 
 // Store & Hooks
-import { CART_QUERY_KEY } from '@/hooks/api/cart/useCart';
+import { CART_QUERY_KEY, useAddToCart } from '@/hooks/api/cart/useCart';
+import { useRemoveCartItem } from '@/hooks/api/cart/useCartMutations';
 import { useCheckoutPreview } from '@/hooks/api/checkout/useCheckoutPreview';
 import { useCreateOrder } from '@/hooks/api/checkout/useCreateOrder';
 import { useRecommendPlatformVouchers } from '@/hooks/api/checkout/useRecommendPlatformVouchers';
@@ -63,12 +65,30 @@ export default function CheckoutScreen() {
     const styles = stylesheet;
 
     // ========================================
+    // ROUTE PARAMS - Buy Now mode detection
+    // ========================================
+    const { mode, variantId, quantity } = useLocalSearchParams<{
+        mode?: 'buy-now';
+        variantId?: string;
+        quantity?: string;
+    }>();
+    const isBuyNowMode = mode === 'buy-now' && !!variantId;
+
+    // ========================================
     // API Hooks
     // ========================================
     const queryClient = useQueryClient();
     const { mutate: callPreview } = useCheckoutPreview();
     const { mutateAsync: placeOrder } = useCreateOrder();
     const { data: userAddresses } = useUserAddresses();
+    const { mutateAsync: addToCart } = useAddToCart();
+    const { mutate: removeCartItem } = useRemoveCartItem();
+
+    // Buy Now processing state
+    const [isBuyNowProcessing, setIsBuyNowProcessing] = useState(false);
+    const buyNowProcessedRef = useRef(false);
+    const buyNowItemIdRef = useRef<string | null>(null);
+    const orderPlacedRef = useRef(false);
 
     // ========================================
     // Store state & selectors
@@ -128,11 +148,126 @@ export default function CheckoutScreen() {
 
     // Store actions
     const resetSession = useCheckoutStore((s) => s.resetSession);
+    const initSession = useCheckoutStore((s) => s.initSession);
     const applyPlatformVoucher = useCheckoutStore((s) => s.applyPlatformVoucher);
     const applyBulkPlatformVouchers = useCheckoutStore((s) => s.applyBulkPlatformVouchers);
     const setPaymentMethod = useCheckoutStore((s) => s.setPaymentMethod);
     const setPreviewData = useCheckoutStore((s) => s.setPreviewData);
     const setLoadingPreview = useCheckoutStore((s) => s.setLoadingPreview);
+
+    // ========================================
+    // BUY NOW MODE PROCESSING
+    // ========================================
+    useEffect(() => {
+        if (!isBuyNowMode || buyNowProcessedRef.current) return;
+        if (isInitialized) return; // Already initialized from cart flow
+
+        const processBuyNow = async () => {
+            buyNowProcessedRef.current = true;
+            setIsBuyNowProcessing(true);
+
+            try {
+                logger.checkout.info('Buy Now: Adding to cart', { variantId, quantity });
+                // Add to cart and get updated cart data
+                const cartData = await addToCart({
+                    variantId: variantId!,
+                    quantity: parseInt(quantity || '1', 10),
+                    hideToast: true,
+                });
+
+                // Find the item we just added (latest item with this variantId)
+                let addedItemId: string | null = null;
+                let addedShopId: string | null = null;
+
+                for (const shop of cartData.shops) {
+                    const item = shop.items.find((i) => i.variantId === variantId);
+                    if (item) {
+                        addedItemId = item.id;
+                        addedShopId = shop.shopId;
+                        break;
+                    }
+                }
+
+                if (!addedItemId || !addedShopId) {
+                    throw new Error('Could not find added item in cart');
+                }
+
+                // Save item ID for cleanup if user cancels
+                buyNowItemIdRef.current = addedItemId;
+
+                logger.checkout.info('Buy Now: Item added, initializing session', {
+                    itemId: addedItemId,
+                    shopId: addedShopId,
+                });
+
+                // Initialize checkout session with just this item
+                initSession([addedItemId], [{ shopId: addedShopId, itemIds: [addedItemId] }]);
+
+                // Preview will be triggered automatically by the debounced effect
+            } catch (error) {
+                logger.checkout.error('Buy Now failed', { error });
+                Toast.show({
+                    type: 'error',
+                    text1: 'Không thể mua ngay',
+                    text2: error instanceof Error ? error.message : 'Đã có lỗi xảy ra',
+                });
+                // Navigate back on failure
+                Navigator.back();
+            } finally {
+                setIsBuyNowProcessing(false);
+            }
+        };
+
+        processBuyNow();
+    }, [isBuyNowMode, variantId, quantity, isInitialized, addToCart, initSession, t]);
+
+    // ========================================
+    // BACK NAVIGATION HANDLING (GESTURES & SYSTEM BACK)
+    // ========================================
+    const navigation = useNavigation();
+
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('beforeRemove', (e: any) => {
+            if (orderPlacedRef.current) return;
+            e.preventDefault();
+            Alert.show({
+                title: t('actions.cancelTitle'),
+                message: t('actions.cancelMessage'),
+                type: 'warning',
+                showCancel: true,
+                cancelText: t('actions.cancelStay'),
+                confirmText: t('actions.cancelConfirm'),
+                onConfirm: () => {
+                    // Logic to actually leave the screen
+                    navigation.dispatch(e.data.action);
+                },
+            });
+        });
+
+        return unsubscribe;
+    }, [navigation, t]);
+
+    // Cleanup on unmount: Reset store and remove Buy Now item if order was NOT placed
+    useEffect(() => {
+        return () => {
+            // Reset refs
+            buyNowProcessedRef.current = false;
+
+            // If Buy Now mode and order was NOT placed, remove the item from cart
+            if (isBuyNowMode && buyNowItemIdRef.current && !orderPlacedRef.current) {
+                logger.checkout.info('Buy Now cancelled, removing item from cart', {
+                    itemId: buyNowItemIdRef.current,
+                });
+                removeCartItem({ itemId: buyNowItemIdRef.current });
+            }
+
+            // Reset refs
+            buyNowItemIdRef.current = null;
+            if (!orderPlacedRef.current) {
+                resetSession();
+            }
+        };
+    }, [isBuyNowMode, removeCartItem, resetSession]);
 
     // ========================================
     // BUILD PREVIEW REQUEST
@@ -403,6 +538,9 @@ export default function CheckoutScreen() {
 
             const response = await placeOrder(request);
 
+            // Mark order as placed to prevent Buy Now cleanup from removing item
+            orderPlacedRef.current = true;
+
             // Background Cart Refresh
             // Invalidate cart query to trigger background refetch
             queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
@@ -481,19 +619,8 @@ export default function CheckoutScreen() {
     ]);
 
     const handleBack = useCallback(() => {
-        Alert.show({
-            title: t('actions.cancelTitle'),
-            message: t('actions.cancelMessage'),
-            type: 'warning',
-            showCancel: true,
-            cancelText: t('actions.cancelStay'),
-            confirmText: t('actions.cancelConfirm'),
-            onConfirm: () => {
-                resetSession(); // Retaining resetSession as it was in the original logic
-                Navigator.back();
-            }
-        });
-    }, [resetSession, t]);
+        Navigator.back();
+    }, []);
 
     // ================================
     // PLATFORM VOUCHER RECOMMENDATIONS
@@ -537,8 +664,9 @@ export default function CheckoutScreen() {
     // RENDER
     // ========================================
 
-    // Show skeleton while loading
-    if (!isInitialized || (!previewData && isLoadingPreview)) {
+    const shouldShowSkeleton = !isInitialized || !previewData || isBuyNowProcessing;
+
+    if (shouldShowSkeleton) {
         return (
             <View style={styles.container}>
                 <CheckoutHeader title={t('header.title')} onBack={handleBack} />

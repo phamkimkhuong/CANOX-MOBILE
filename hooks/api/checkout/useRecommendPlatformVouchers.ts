@@ -30,6 +30,7 @@ export const useRecommendPlatformVouchers = (
     options: { enabled?: boolean } = {}
 ) => {
     return useQuery({
+
         queryKey: requestBody ? RECOMMEND_PLATFORM_VOUCHERS_KEY(requestBody) : ['vouchers', 'recommend', 'platform', 'empty'],
 
         queryFn: async () => {
@@ -39,7 +40,6 @@ export const useRecommendPlatformVouchers = (
                 totalAmount: requestBody.totalAmount,
                 shopCount: requestBody.shopIds.length,
             });
-
             const response = await request(
                 {
                     url: API_ROUTES.VOUCHERS.RECOMMEND_PLATFORM,

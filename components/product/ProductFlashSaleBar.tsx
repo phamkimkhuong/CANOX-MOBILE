@@ -72,7 +72,7 @@ export const ProductFlashSaleBar = memo<ProductFlashSaleBarProps>(({
                 <View style={styles.titleRow}>
                     <IconSymbol name="flash" size={18} color="#FFD700" />
                     <Text style={styles.title}>{PRODUCT_STRINGS.flashSale.title}</Text>
-                    {flashSale.discountPercentage && flashSale.discountPercentage > 0 && (
+                    {!!flashSale.discountPercentage && flashSale.discountPercentage > 0 && (
                         <View style={styles.discountBadge}>
                             <Text style={styles.discountText}>
                                 -{flashSale.discountPercentage}%
@@ -92,7 +92,7 @@ export const ProductFlashSaleBar = memo<ProductFlashSaleBarProps>(({
             </View>
 
             {/* Progress Bar */}
-            {flashSale.quantityLimit && flashSale.quantityLimit > 0 && (
+            {!!flashSale.quantityLimit && flashSale.quantityLimit > 0 && (
                 <View style={styles.progressContainer}>
                     <View style={styles.progressTrack}>
                         <View

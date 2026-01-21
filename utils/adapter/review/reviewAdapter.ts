@@ -27,7 +27,7 @@ export const toPendingReviewItemUI = (
     item: OrderItem,
     order: Order
 ): PendingReviewItemUI => ({
-    itemId: item.itemId,
+    itemId: item.itemId || `${order.orderId}-${item.productId}`, // Fallback if itemId is null
     productId: item.productId,
     variantId: item.variantId,
     productName: item.productName,
@@ -37,10 +37,10 @@ export const toPendingReviewItemUI = (
     formattedPrice: formatCurrency(item.unitPrice),
     orderId: order.orderId,
     orderNumber: order.orderNumber,
-    deliveredAt: order.createdAt,
-    shopId: order.shopId,
+    deliveredAt: order.createdAt || new Date().toISOString(),
+    shopId: order.shopId || '',
     shopName: order.shopInfo?.shopName || 'Shop',
-    shopLogo: order.shopInfo?.logoUrl ? buildImageUrl(order.shopInfo.logoUrl, '', '') : null, // Assuming logoUrl is already a path or needs building
+    shopLogo: order.shopInfo?.logoUrl ? buildImageUrl(order.shopInfo.logoUrl, '', '') : null,
 });
 
 /**
@@ -54,9 +54,9 @@ export const extractPendingReviews = (orders: Order[]): PendingReviewGroupUI[] =
 
         if (unreviewedItems.length > 0) {
             groups.push({
-                orderId: order.orderId,
-                orderNumber: order.orderNumber,
-                deliveredAt: order.createdAt,
+                orderId: order.orderId || '',
+                orderNumber: order.orderNumber || '000000',
+                deliveredAt: order.createdAt || new Date().toISOString(),
                 shopName: order.shopInfo?.shopName || 'Shop',
                 items: unreviewedItems.map((item) => toPendingReviewItemUI(item, order)),
             });

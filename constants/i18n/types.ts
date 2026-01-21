@@ -439,6 +439,7 @@ export interface CheckoutTranslation {
         noShippingVoucher: string;
         discountVoucherTitle: string;
         noDiscountVoucher: string;
+        noApplicableVouchers: string;
     };
     shipping: {
         title: string;

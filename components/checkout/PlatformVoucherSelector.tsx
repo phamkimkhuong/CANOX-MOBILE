@@ -59,6 +59,10 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
     const shippingVouchers = availableVouchers.filter(v => v.category === 'SHIPPING');
     const discountVouchers = availableVouchers.filter(v => v.category !== 'SHIPPING');
 
+    // Count applicable vouchers (isApplicable = true)
+    const applicableVouchersCount = availableVouchers.filter(v => v.isApplicable).length;
+    const hasApplicableVouchers = applicableVouchersCount > 0;
+
     const handleOpenModal = useCallback(() => {
         setTempDiscountId(selectedDiscountVoucherId);
         setTempShippingId(selectedShippingVoucherId);
@@ -108,6 +112,17 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
 
     const hasAnySelection = !!selectedDiscountVoucher || !!selectedShippingVoucher;
 
+    // Determine placeholder text based on voucher availability
+    const getPlaceholderText = (): string => {
+        if (isLoading) return t('voucher.findingBest');
+        if (availableVouchers.length === 0) return t('voucher.noVouchers');
+        if (!hasApplicableVouchers) return t('voucher.noApplicableVouchers');
+        return t('voucher.placeholder', { count: applicableVouchersCount });
+    };
+
+    // Check if we should show secondary styling (no applicable vouchers but has vouchers)
+    const showSecondaryStyling = !hasApplicableVouchers && availableVouchers.length > 0;
+
     return (
         <>
             {/* Whole container is pressable for better UX */}
@@ -115,6 +130,7 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
                 style={({ pressed }) => [
                     styles.container,
                     pressed && styles.containerPressed,
+                    showSecondaryStyling && styles.containerSecondary,
                 ]}
                 onPress={handleOpenModal}
                 accessibilityRole="button"
@@ -122,14 +138,16 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
             >
                 {/* Title Row */}
                 <View style={styles.titleRow}>
-                    <View style={styles.titleIcon}>
+                    <View style={[styles.titleIcon, showSecondaryStyling && styles.titleIconSecondary]}>
                         <IconSymbol
                             name="percent"
                             size={18}
-                            color={theme.colors.error}
+                            color={showSecondaryStyling ? theme.colors.typographySecondary : theme.colors.error}
                         />
                     </View>
-                    <Text style={styles.title}>{t('voucher.platformTitle')}</Text>
+                    <Text style={[styles.title, showSecondaryStyling && styles.titleSecondary]}>
+                        {t('voucher.platformTitle')}
+                    </Text>
                 </View>
 
                 {/* Selector Row */}
@@ -159,12 +177,11 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
                             )}
                         </View>
                     ) : (
-                        <Text style={styles.placeholderText}>
-                            {isLoading
-                                ? t('voucher.findingBest')
-                                : availableVouchers.length > 0
-                                    ? t('voucher.placeholder', { count: availableVouchers.length })
-                                    : t('voucher.noVouchers')}
+                        <Text style={[
+                            styles.placeholderText,
+                            showSecondaryStyling && styles.placeholderTextSecondary,
+                        ]}>
+                            {getPlaceholderText()}
                         </Text>
                     )}
                     <IconSymbol
@@ -321,21 +338,30 @@ const VoucherItem: React.FC<VoucherItemProps> = ({ voucher, isSelected, onPress 
     const { t, i18n } = useTranslation('checkout');
     const styles = stylesheet;
     const isShipping = voucher.category === 'SHIPPING';
+    const isDisabled = !voucher.isApplicable;
+
+    const handlePress = () => {
+        if (isDisabled) return; // Prevent selection if not applicable
+        onPress();
+    };
 
     return (
         <Pressable
             style={({ pressed }) => [
                 styles.voucherItem,
                 isSelected && styles.voucherItemSelected,
-                pressed && styles.voucherItemPressed,
+                pressed && !isDisabled && styles.voucherItemPressed,
+                isDisabled && styles.voucherItemDisabled,
             ]}
-            onPress={onPress}
+            onPress={handlePress}
+            disabled={isDisabled}
         >
             <View style={styles.radioContainer}>
                 <View
                     style={[
                         styles.radioOuter,
                         isSelected && styles.radioOuterSelected,
+                        isDisabled && styles.radioOuterDisabled,
                     ]}
                 >
                     {isSelected && (
@@ -345,12 +371,13 @@ const VoucherItem: React.FC<VoucherItemProps> = ({ voucher, isSelected, onPress 
             </View>
 
             {/* Voucher card */}
-            <View style={styles.voucherCard}>
+            <View style={[styles.voucherCard, isDisabled && styles.voucherCardDisabled]}>
                 {/* Left badge */}
                 <View
                     style={[
                         styles.voucherLeftBadge,
                         isShipping && styles.voucherLeftBadgeShipping,
+                        isDisabled && styles.voucherLeftBadgeDisabled,
                     ]}
                 >
                     <IconSymbol
@@ -365,13 +392,19 @@ const VoucherItem: React.FC<VoucherItemProps> = ({ voucher, isSelected, onPress 
 
                 {/* Info */}
                 <View style={styles.voucherCardInfo}>
-                    <Text style={styles.voucherCardCode}>
+                    <Text style={[styles.voucherCardCode, isDisabled && styles.voucherCardCodeDisabled]}>
                         {voucher.code}
                     </Text>
                     <Text style={styles.voucherCardCondition}>
                         {voucher.minOrderDisplay}
                     </Text>
-                    {voucher.expiresAt && (
+                    {/* Show reason why voucher is not applicable */}
+                    {isDisabled && voucher.description && (
+                        <Text style={styles.voucherNotApplicableReason}>
+                            {voucher.description}
+                        </Text>
+                    )}
+                    {!isDisabled && voucher.expiresAt && (
                         <Text style={styles.voucherCardExpiry}>
                             {t('voucher.expiry', {
                                 date: new Date(voucher.expiresAt).toLocaleDateString(
@@ -736,6 +769,52 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: '#FFFFFF',
         fontWeight: '700',
         fontSize: 14,
+    },
+
+    // Disabled voucher styles (when isApplicable = false)
+    voucherItemDisabled: {
+        opacity: 0.6,
+    },
+
+    radioOuterDisabled: {
+        borderColor: theme.colors.border,
+        backgroundColor: theme.colors.background,
+    },
+
+    voucherCardDisabled: {
+        backgroundColor: `${theme.colors.background}80`,
+    },
+
+    voucherLeftBadgeDisabled: {
+        backgroundColor: theme.colors.typographySecondary,
+    },
+
+    voucherCardCodeDisabled: {
+        color: theme.colors.typographySecondary,
+    },
+
+    voucherNotApplicableReason: {
+        fontSize: 11,
+        color: theme.colors.warning,
+        marginTop: 4,
+        fontWeight: '500',
+    },
+
+    // Selector secondary styles (when no applicable vouchers but still clickable)
+    containerSecondary: {
+        opacity: 0.8,
+    },
+
+    titleIconSecondary: {
+        backgroundColor: `${theme.colors.typographySecondary}12`,
+    },
+
+    titleSecondary: {
+        color: theme.colors.typographySecondary,
+    },
+
+    placeholderTextSecondary: {
+        color: theme.colors.typographySecondary,
     },
 }));
 

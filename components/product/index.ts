@@ -6,7 +6,6 @@ export { ProductInfoSection } from './ProductInfoSection';
 export { ProductNavBar } from './ProductNavBar';
 export { ProductReviews } from './ProductReviews';
 export { ProductSpecs } from './ProductSpecs';
-export { RelatedProducts } from './RelatedProducts';
 export { ShopInfoCard } from './ShopInfoCard';
 export { StickyBottomBar } from './StickyBottomBar';
 export { VariantBottomSheet, VariantSelectorRow } from './VariantSelector';

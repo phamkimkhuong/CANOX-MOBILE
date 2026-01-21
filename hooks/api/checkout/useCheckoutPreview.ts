@@ -63,16 +63,7 @@ export const useCheckoutPreview = () => {
                 throw new Error(response.message || 'Checkout preview failed');
             }
             logger.checkout.debug('Checkout preview response:', response);
-
-            // Transform DTO to UI types
             const uiData = toCheckoutPreviewUI(response.data);
-
-            logger.checkout.info('Checkout preview success', {
-                isValid: uiData.isValid,
-                grandTotal: uiData.calculation.totalAmount,
-                shopCount: uiData.shops.length,
-            });
-
             return uiData;
         },
     });

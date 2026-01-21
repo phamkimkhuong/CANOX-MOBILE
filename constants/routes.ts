@@ -40,6 +40,7 @@ export const ROUTES = {
     // ============ CHECKOUT ============
     CHECKOUT: {
         INDEX: '/checkout' as const,
+        BUY_NOW: '/checkout' as const, // Same route, different params
     },
 
     // ============ ADDRESS ============
@@ -203,6 +204,23 @@ export const cartRoutes = {
             ...(params?.rebuySuccess && { rebuySuccess: 'true' }),
         },
     }),
+} as const;
+
+/**
+ * Checkout routes
+ */
+export const checkoutRoutes = {
+    /** Normal checkout from cart */
+    index: (): Href => '/checkout' as Href,
+    /** Buy Now: Direct purchase without going through cart */
+    buyNow: (variantId: string, quantity: number): Href => ({
+        pathname: '/checkout',
+        params: {
+            mode: 'buy-now',
+            variantId,
+            quantity: String(quantity),
+        },
+    } as unknown as Href),
 } as const;
 
 /**
