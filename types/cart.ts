@@ -92,10 +92,19 @@ export const CartResponseSchema = z.object({
     hasChanges: z.boolean().nullable().optional().default(false),
 });
 
+// Add To Cart Response
+export const AddToCartResponseSchema = z.object({
+    cartItemId: z.string(),
+});
+
 // Full API Response Wrapper
 export const CartApiResponseSchema = ResponseDefaultSchema.extend({
     message: z.string().nullable().optional(),
     data: CartResponseSchema.nullable().optional(),
+});
+
+export const AddToCartApiResponseSchema = ResponseDefaultSchema.extend({
+    data: AddToCartResponseSchema.nullable().optional(),
 });
 // ============================================
 // INFERRED TYPES (API Response)
@@ -105,6 +114,7 @@ export type CartItem = z.infer<typeof CartItemSchema>;
 export type CartShop = z.infer<typeof CartShopSchema>;
 export type Voucher = z.infer<typeof VoucherSchema>;
 export type CartResponse = z.infer<typeof CartResponseSchema>;
+export type AddToCartResponse = z.infer<typeof AddToCartResponseSchema>;
 
 // ============================================
 // UI TYPES (For Rendering & Client State)

@@ -3,7 +3,7 @@ import { request } from '@/services/api/client';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useCartStore } from '@/store/useCartStore';
 import { hideGlobalLoading, showGlobalLoading } from '@/store/useLoadingStore';
-import { CartApiResponseSchema, CartUI } from '@/types/cart';
+import { AddToCartApiResponseSchema, AddToCartResponse, CartApiResponseSchema, CartUI } from '@/types/cart';
 import { transformCart } from '@/utils/adapter/cartAdapter';
 import { logger } from '@/utils/logger';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -111,7 +111,7 @@ export const useAddToCart = () => {
     const setTotalQuantity = useCartStore((state) => state.setTotalQuantity);
 
     return useMutation({
-        mutationFn: async ({ variantId, quantity }: AddToCartInput): Promise<CartUI> => {
+        mutationFn: async ({ variantId, quantity }: AddToCartInput): Promise<AddToCartResponse | null> => {
             logger.cart.info('Adding to cart', { variantId, quantity });
 
             // Generate unique idempotency key for this request
@@ -129,13 +129,10 @@ export const useAddToCart = () => {
                         'Idempotency-Key': idempotencyKey,
                     },
                 },
-                CartApiResponseSchema
+                AddToCartApiResponseSchema
             );
 
-            if (!response.data) {
-                throw new Error('Đã xảy ra lỗi khi thêm sản phẩm vào giỏ hàng');
-            }
-            return transformCart(response.data);
+            return response.data ?? null;
         },
 
         // Show loading overlay immediately when mutation starts
@@ -166,29 +163,21 @@ export const useAddToCart = () => {
         },
 
         // On success: Hide loading, update cache, and show success message
-        onSuccess: (cartUI, variables) => {
+        onSuccess: (data, variables) => {
             hideGlobalLoading();
 
-            logger.cart.info('Added to cart successfully');
+            logger.cart.info('Added to cart successfully', { cartItemId: data?.cartItemId });
 
-            if (cartUI) {
-                const totalItems = cartUI.shops.reduce(
-                    (sum, shop) => sum + shop.itemCount,
-                    0
-                );
-                setTotalQuantity(totalItems);
-                queryClient.setQueryData(CART_QUERY_KEY, cartUI);
+            // Invalidate to refetch full cart data from server since POST only returns cartItemId
+            queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
 
-                if (!variables.hideToast) {
-                    Toast.show({
-                        type: 'success',
-                        text1: 'Đã thêm vào giỏ hàng',
-                        position: 'top',
-                        visibilityTime: 2000,
-                    });
-                }
-            } else {
-                queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
+            if (!variables.hideToast) {
+                Toast.show({
+                    type: 'success',
+                    text1: 'Đã thêm vào giỏ hàng',
+                    position: 'top',
+                    visibilityTime: 2000,
+                });
             }
         },
     });
