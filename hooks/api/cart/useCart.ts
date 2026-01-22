@@ -166,7 +166,7 @@ export const useAddToCart = () => {
         onSuccess: (data, variables) => {
             hideGlobalLoading();
 
-            logger.cart.info('Added to cart successfully', { cartItemId: data?.cartItemId });
+            logger.cart.info('Added to cart successfully', { cartItemId: data?.id });
 
             // Invalidate to refetch full cart data from server since POST only returns cartItemId
             queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });

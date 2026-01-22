@@ -6,13 +6,10 @@ import { AppState, AppStateStatus } from 'react-native';
 // ============================================
 
 interface CountdownDuration {
-    /** Hours remaining */
+    days: number;
     hours: number;
-    /** Minutes remaining */
     minutes: number;
-    /** Seconds remaining */
     seconds: number;
-    /** Total seconds remaining */
     totalSeconds: number;
 }
 
@@ -59,7 +56,8 @@ const calculateDurationFromTarget = (targetDate: string): CountdownDuration => {
     const totalSeconds = Math.max(0, Math.floor(diff / 1000));
 
     return {
-        hours: Math.floor(totalSeconds / 3600),
+        days: Math.floor(totalSeconds / 86400),
+        hours: Math.floor((totalSeconds % 86400) / 3600),
         minutes: Math.floor((totalSeconds % 3600) / 60),
         seconds: totalSeconds % 60,
         totalSeconds,
@@ -73,7 +71,8 @@ const calculateDurationFromSeconds = (totalSeconds: number): CountdownDuration =
     const safeSeconds = Math.max(0, totalSeconds);
 
     return {
-        hours: Math.floor(safeSeconds / 3600),
+        days: Math.floor(safeSeconds / 86400),
+        hours: Math.floor((safeSeconds % 86400) / 3600),
         minutes: Math.floor((safeSeconds % 3600) / 60),
         seconds: safeSeconds % 60,
         totalSeconds: safeSeconds,
@@ -85,7 +84,8 @@ const calculateDurationFromSeconds = (totalSeconds: number): CountdownDuration =
  */
 const formatDuration = (d: CountdownDuration): string => {
     const pad = (n: number) => n.toString().padStart(2, '0');
-    return `${pad(d.hours)}:${pad(d.minutes)}:${pad(d.seconds)}`;
+    const timeStr = `${pad(d.hours)}:${pad(d.minutes)}:${pad(d.seconds)}`;
+    return d.days > 0 ? `${d.days}d ${timeStr}` : timeStr;
 };
 
 // ============================================

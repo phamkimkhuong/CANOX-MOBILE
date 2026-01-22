@@ -1,15 +1,12 @@
-import { z } from 'zod';
-import { ProductResponseItemSchema } from './product/product';
-import { createPaginatedResponseSchema } from './responseSchema';
 
 /**
- * Flash Sale Slot Data (FE Simulated)
+ * Flash Sale Slot Data (from Public Campaign API)
  */
 export interface FlashSaleSlot {
     id: string;
     startTime: string; // ISO String
     endTime: string;   // ISO String
-    label: string;     // e.g. "09:00", "12:00"
+    label: string;     // e.g. "Khung giờ vàng", "Flash Sale 12h"
 }
 
 /**
@@ -37,10 +34,3 @@ export interface FlashSaleData {
     slot: FlashSaleSlot;
     items: FlashSaleItem[];
 }
-
-/**
- * Schema cho API response
- */
-export const FlashSaleResponseSchema = createPaginatedResponseSchema(ProductResponseItemSchema);
-
-export type FlashSaleResponse = z.infer<typeof FlashSaleResponseSchema>;

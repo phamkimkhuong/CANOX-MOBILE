@@ -30,7 +30,7 @@ import {
 } from '@/components/checkout';
 
 // Store & Hooks
-import { CART_QUERY_KEY, fetchCart, useAddToCart } from '@/hooks/api/cart/useCart';
+import { CART_QUERY_KEY, useAddToCart } from '@/hooks/api/cart/useCart';
 import { useRemoveCartItem } from '@/hooks/api/cart/useCartMutations';
 import { useCheckoutPreview } from '@/hooks/api/checkout/useCheckoutPreview';
 import { useCreateOrder } from '@/hooks/api/checkout/useCreateOrder';
@@ -179,23 +179,8 @@ export default function CheckoutScreen() {
                     throw new Error('Failed to add item to cart');
                 }
 
-                const cartData = await queryClient.fetchQuery({
-                    queryKey: CART_QUERY_KEY,
-                    queryFn: fetchCart,
-                });
-
-                // Find the item we just added (latest item with this variantId)
-                let addedItemId: string | null = null;
-                let addedShopId: string | null = null;
-
-                for (const shop of cartData.shops) {
-                    const item = shop.items.find((i) => i.variantId === variantId);
-                    if (item) {
-                        addedItemId = item.id;
-                        addedShopId = shop.shopId;
-                        break;
-                    }
-                }
+                const addedItemId = addResult.id;
+                const addedShopId = addResult.shopId;
 
                 if (!addedItemId || !addedShopId) {
                     throw new Error('Could not find added item in cart');

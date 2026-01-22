@@ -119,6 +119,34 @@ export const CountdownDigits = memo<CountdownDigitsProps>(({
                 </Text>
             )}
             <View style={[styles.container, { gap: config.gap }]}>
+                {/* Days */}
+                {duration.days > 0 && (
+                    <>
+                        <View style={[
+                            styles.digitBox,
+                            config.boxPadding,
+                            {
+                                backgroundColor: colors.boxBg,
+                                minWidth: config.boxMinWidth,
+                                borderRadius: config.borderRadius,
+                            },
+                        ]}>
+                            <Text style={[
+                                styles.digit,
+                                { fontSize: config.fontSize, color: colors.digitColor },
+                            ]}>
+                                {duration.days}
+                            </Text>
+                        </View>
+                        <Text style={[
+                            styles.separator,
+                            { fontSize: config.labelSize, color: colors.separatorColor, fontWeight: '500' },
+                        ]}>
+                            {duration.days > 1 ? 'ngày' : 'ngày'}
+                        </Text>
+                    </>
+                )}
+
                 {/* Hours */}
                 {shouldShowHours && (
                     <>

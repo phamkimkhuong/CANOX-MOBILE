@@ -61,6 +61,8 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     receipt: { ios: 'receipt-outline', android: 'receipt-outline' },
     store: { ios: 'storefront-outline', android: 'storefront-outline' },
     ticket: { ios: 'ticket-outline', android: 'ticket-outline' },
+    gift: { ios: 'gift-outline', android: 'gift-outline' },
+    tag: { ios: 'pricetag-outline', android: 'pricetag-outline' },
     note: { ios: 'document-text-outline', android: 'document-text-outline' },
     'note-filled': { ios: 'document-text', android: 'document-text' },
     card: { ios: 'card-outline', android: 'card-outline' },

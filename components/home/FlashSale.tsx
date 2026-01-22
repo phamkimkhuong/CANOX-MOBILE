@@ -22,10 +22,10 @@ export const FlashSale = memo(({ onProductPress }: FlashSaleProps = {}) => {
     const { t } = useTranslation('home');
 
     // Fetch data from API Campaign Slots
-    const { data: flashSaleData, isLoading, isError } = useActiveFlashSale();
+    const { data: flashSaleData, isLoading, isError, refetch } = useActiveFlashSale();
 
     // State for timer
-    const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
+    const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
     useEffect(() => {
         if (!flashSaleData?.slot?.endTime) return;
@@ -33,9 +33,12 @@ export const FlashSale = memo(({ onProductPress }: FlashSaleProps = {}) => {
         const updateTimer = () => {
             const time = formatTimeLeft(flashSaleData.slot.endTime);
             if (time.total <= 0) {
-                setTimeLeft({ hours: 0, minutes: 0, seconds: 0 });
+                setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+                // When time is up, refetch to get the next slot or hide the component
+                refetch();
             } else {
                 setTimeLeft({
+                    days: time.days,
                     hours: time.hours,
                     minutes: time.minutes,
                     seconds: time.seconds,
@@ -47,7 +50,7 @@ export const FlashSale = memo(({ onProductPress }: FlashSaleProps = {}) => {
         const timer = setInterval(updateTimer, 1000);
 
         return () => clearInterval(timer);
-    }, [flashSaleData?.slot?.endTime]);
+    }, [flashSaleData?.slot?.endTime, refetch]);
 
     if (isLoading) {
         return <FlashSaleSkeleton />;
@@ -65,6 +68,14 @@ export const FlashSale = memo(({ onProductPress }: FlashSaleProps = {}) => {
                 <View style={styles.titleRow}>
                     <Text style={styles.title}>{t('flashSale.title')}</Text>
                     <View style={styles.timerRow}>
+                        {timeLeft.days > 0 && (
+                            <>
+                                <View style={styles.timerBox}>
+                                    <Text style={styles.timerText}>{timeLeft.days}</Text>
+                                </View>
+                                <Text style={styles.timerDayText}>ngày</Text>
+                            </>
+                        )}
                         <View style={styles.timerBox}>
                             <Text style={styles.timerText}>{formatNumber(timeLeft.hours)}</Text>
                         </View>
@@ -117,7 +128,7 @@ export const FlashSale = memo(({ onProductPress }: FlashSaleProps = {}) => {
                                 {item.isSoldOut ? (
                                     <View style={styles.soldOutOverlay}>
                                         <View style={styles.soldOutBadge}>
-                                            <Text style={styles.soldOutText}>HẾT HÀNG</Text>
+                                            <Text style={styles.soldOutText}>{t('flashSale.soldOut') || 'HẾT HÀNG'}</Text>
                                         </View>
                                     </View>
                                 ) : (
@@ -152,9 +163,10 @@ export const FlashSale = memo(({ onProductPress }: FlashSaleProps = {}) => {
                                         ]}
                                     />
                                     <View style={styles.progressLabelContainer}>
+                                        {isUrgent && (
+                                            <IconSymbol name="fire" size={10} color={theme.colors.background} />
+                                        )}
                                         <Text style={styles.progressText}>
-                                            {isUrgent ? <IconSymbol name="flame" size={10} color={theme.colors.background} /> : null}
-                                            {isUrgent ? ' ' : ''}
                                             {progressLabel}
                                         </Text>
                                     </View>
@@ -222,6 +234,12 @@ const stylesheet = StyleSheet.create((theme) => ({
     timerColon: {
         color: theme.colors.typography,
         fontWeight: 'bold',
+    },
+    timerDayText: {
+        fontSize: 10,
+        color: theme.colors.typography,
+        fontWeight: '600',
+        marginHorizontal: 1,
     },
     seeAllBtn: {
         flexDirection: 'row',

@@ -468,12 +468,13 @@ export const buildFlashSaleInfo = (
     data: ProductDetailResponse,
     totalStock: number
 ): FlashSaleInfo | undefined => {
-    // Check activeCampaigns for FLASH_SALE or SHOP_SALE
+    // Check activeCampaigns for any active tactical campaign
+    const tacticalCampaigns = ['FLASH_SALE', 'DAILY_DEAL', 'MEGA_SALE', 'SHOP_SALE', 'SHOP_PROMOTION'];
     const activeCampaign = data.activeCampaigns?.find(c =>
-        c.campaignType === 'FLASH_SALE' || c.campaignType === 'SHOP_SALE'
+        tacticalCampaigns.includes(c.campaignType ?? '')
     );
 
-    if (activeCampaign && activeCampaign.endTime) {
+    if (activeCampaign) {
         // Get max discount percentage from variant promotions
         const maxDiscount = data.variants?.reduce((max, v) => {
             const pct = v.promotion?.discountPercent ?? 0;
@@ -482,7 +483,9 @@ export const buildFlashSaleInfo = (
 
         return {
             isActive: true,
-            endTime: activeCampaign.endTime,
+            endTime: activeCampaign.endTime ?? undefined,
+            secondsRemaining: activeCampaign.secondsRemaining ?? undefined,
+            campaignType: activeCampaign.campaignType ?? undefined,
             discountPercentage: maxDiscount > 0 ? maxDiscount : undefined,
             quantityLimit: totalStock + (data.totalSold ?? 0),
             quantitySold: data.totalSold ?? 0,

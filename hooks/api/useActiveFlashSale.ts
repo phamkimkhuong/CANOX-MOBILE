@@ -24,8 +24,26 @@ export const useActiveFlashSale = () => {
             const activeSlots = slotResponse.data || [];
             if (activeSlots.length === 0) return null;
 
-            // Pick first active slot
-            const slot = activeSlots[0];
+            // Select the "Best Slot" using priority logic:
+            const todayStr = new Date().toISOString().split('T')[0];
+
+            const sortedSlots = [...activeSlots].sort((a, b) => {
+                // Fallback to startTime if slotDate is missing
+                const dateA = a.slotDate || a.startTime.split('T')[0];
+                const dateB = b.slotDate || b.startTime.split('T')[0];
+
+                const isAToday = dateA === todayStr;
+                const isBToday = dateB === todayStr;
+
+                // Today's slots come first
+                if (isAToday && !isBToday) return -1;
+                if (!isAToday && isBToday) return 1;
+
+                // Earlier end time (secondsUntilEnd asc)
+                return (a.secondsUntilEnd || 0) - (b.secondsUntilEnd || 0);
+            });
+
+            const slot = sortedSlots[0];
 
             // Fetch products for this slot
             const productsResponse = await request<SlotProductsResponse>(

@@ -240,6 +240,8 @@ export type ReviewStats = z.infer<typeof ReviewStatsSchema>;
 export const FlashSaleInfoSchema = z.object({
     isActive: z.boolean(),
     endTime: z.string().optional(),
+    secondsRemaining: z.number().optional(),
+    campaignType: z.string().optional(), // FLASH_SALE, DAILY_DEAL, MEGA_SALE, SHOP_SALE, SHOP_PROMOTION
     discountPercentage: z.number().optional(),
     quantityLimit: z.number().optional(),
     quantitySold: z.number().optional(),

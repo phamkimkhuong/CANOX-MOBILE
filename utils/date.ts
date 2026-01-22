@@ -84,15 +84,17 @@ export const formatRelativeDate = (dateString: string | null | undefined): strin
  */
 export const formatTimeLeft = (targetDate: string) => {
     const parsed = safeParseDate(targetDate);
-    if (!parsed) return { total: 0, hours: 0, minutes: 0, seconds: 0 };
+    if (!parsed) return { total: 0, days: 0, hours: 0, minutes: 0, seconds: 0 };
 
     const total = parsed.getTime() - Date.now();
     const seconds = Math.floor((total / 1000) % 60);
     const minutes = Math.floor((total / 1000 / 60) % 60);
     const hours = Math.floor((total / (1000 * 60 * 60)) % 24);
+    const days = Math.floor(total / (1000 * 60 * 60 * 24));
 
     return {
         total,
+        days: Math.max(0, days),
         hours: Math.max(0, hours),
         minutes: Math.max(0, minutes),
         seconds: Math.max(0, seconds),

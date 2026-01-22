@@ -217,10 +217,10 @@ export default function WriteReviewScreen() {
                     <Pressable
                         style={styles.backButton}
                         onPress={() => Navigator.back()}
-                        hitSlop={8}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                     >
                         <IconSymbol
-                            name="close"
+                            name="arrow-back"
                             size={24}
                             color={theme.colors.typography}
                         />
@@ -244,7 +244,7 @@ export default function WriteReviewScreen() {
                     keyboardShouldPersistTaps="handled"
                 >
                     {/* Product Info */}
-                    <View style={styles.section}>
+                    <View style={styles.productSection}>
                         <ReviewProductSnippet
                             productName={productName}
                             imageUrl={productImage}
@@ -398,12 +398,14 @@ const stylesheet = StyleSheet.create((theme) => ({
         height: 40,
         alignItems: 'center',
         justifyContent: 'center',
-        borderRadius: 20,
+        marginLeft: -theme.margins.sm,
     },
     headerTitle: {
         fontSize: 18,
         fontWeight: '600',
         color: theme.colors.typography,
+        flex: 1,
+        textAlign: 'center',
     },
     headerPlaceholder: {
         width: 40,
@@ -417,26 +419,18 @@ const stylesheet = StyleSheet.create((theme) => ({
     scrollContent: {
         paddingVertical: theme.margins.md,
         paddingHorizontal: theme.margins.md,
-        marginHorizontal: theme.margins.md,
-        marginTop: theme.margins.md,
-        marginBottom: theme.margins.md,
-        backgroundColor: theme.colors.surface,
-        borderRadius: theme.radius.l,
-        // Subtle shadow for depth
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 3,
-        elevation: 1,
+    },
+    productSection: {
+        marginBottom: theme.margins.lg,
     },
     section: {
-        marginBottom: theme.margins.md,
+        marginBottom: theme.margins.lg,
     },
     sectionLabel: {
-        fontSize: 14,
+        fontSize: 15,
         fontWeight: '600',
         color: theme.colors.typography,
-        marginBottom: theme.margins.sm,
+        marginBottom: theme.margins.smd,
     },
     errorText: {
         fontSize: 12,
@@ -454,10 +448,12 @@ const stylesheet = StyleSheet.create((theme) => ({
         paddingVertical: theme.margins.smd,
         borderRadius: theme.radius.m,
         alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: 48,
     },
     submitButtonDisabled: {
-        backgroundColor: theme.colors.secondary,
-        opacity: 0.5,
+        backgroundColor: theme.colors.secondaryLight,
+        opacity: 0.6,
     },
     submitButtonText: {
         fontSize: 16,

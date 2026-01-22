@@ -14,13 +14,6 @@ import {
 import { REVIEW_INCENTIVE } from '@/utils/adapter/review/reviewIncentives';
 import React, { useMemo } from 'react';
 import { Text, View } from 'react-native';
-import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withRepeat,
-    withSequence,
-    withTiming,
-} from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface IncentiveBannerProps {
@@ -31,37 +24,17 @@ interface IncentiveBannerProps {
 }
 
 /**
- * AnimatedCoin - Coin icon with pulse animation
+ * CoinIcon - Simple coin icon without animation
  */
-const AnimatedCoin: React.FC<{ active: boolean }> = ({ active }) => {
+const CoinIcon: React.FC<{ active: boolean }> = ({ active }) => {
     const { theme } = useUnistyles();
-    const scale = useSharedValue(1);
-
-    React.useEffect(() => {
-        if (active) {
-            scale.value = withRepeat(
-                withSequence(
-                    withTiming(1.2, { duration: 300 }),
-                    withTiming(1, { duration: 300 })
-                ),
-                3, // Repeat 3 times
-                false
-            );
-        }
-    }, [active, scale]);
-
-    const animatedStyle = useAnimatedStyle(() => ({
-        transform: [{ scale: scale.value }],
-    }));
 
     return (
-        <Animated.View style={animatedStyle}>
-            <IconSymbol
-                name="coin"
-                size={20}
-                color={active ? theme.colors.warning : theme.colors.secondary}
-            />
-        </Animated.View>
+        <IconSymbol
+            name="coin"
+            size={20}
+            color={active ? theme.colors.accent : theme.colors.typographySecondary}
+        />
     );
 };
 
@@ -96,7 +69,7 @@ export const IncentiveBanner: React.FC<IncentiveBannerProps> = ({
         <View style={[styles.container, isMaxReward && styles.containerMax]}>
             {/* Icon & Title */}
             <View style={styles.header}>
-                <AnimatedCoin active={isMaxReward} />
+                <CoinIcon active={isMaxReward} />
                 <Text style={[styles.title, isMaxReward && styles.titleMax]}>
                     {isMaxReward
                         ? `Tuyệt vời! Nhận ${estimatedReward} ${rewardLabel}`
@@ -175,14 +148,14 @@ export const IncentiveBanner: React.FC<IncentiveBannerProps> = ({
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
-        backgroundColor: theme.colors.warningSoft,
+        backgroundColor: theme.colors.accentSubtle,
         borderRadius: theme.radius.m,
         padding: theme.margins.smd,
         borderWidth: 1,
-        borderColor: theme.colors.warningLight,
+        borderColor: theme.colors.accentLight,
     },
     containerMax: {
-        backgroundColor: theme.colors.successSoft,
+        backgroundColor: theme.colors.successSubtle,
         borderColor: theme.colors.successLight,
     },
     header: {
@@ -193,8 +166,9 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     title: {
         fontSize: 14,
-        fontWeight: '700',
-        color: '#FF5722',
+        fontWeight: '600',
+        color: theme.colors.accent,
+        flex: 1,
     },
     titleMax: {
         color: theme.colors.success,

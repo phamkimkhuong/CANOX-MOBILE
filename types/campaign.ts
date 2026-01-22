@@ -45,6 +45,7 @@ export const CampaignSlotResponseSchema = z.object({
     campaignId: z.string().nullable().optional(),
     campaignName: z.string().nullable().optional(),
     slotName: z.string().nullable().optional(),
+    slotDate: z.string().nullable().optional(),
     startTime: z.string(),
     endTime: z.string(),
     secondsUntilStart: z.number().nullable().optional().default(0),

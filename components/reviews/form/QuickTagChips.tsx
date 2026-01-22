@@ -64,7 +64,9 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     hint: {
         fontSize: 13,
+        fontWeight: '400',
         color: theme.colors.typographySecondary,
+        marginBottom: 4,
     },
     chipsContainer: {
         flexDirection: 'row',

@@ -9,12 +9,6 @@ import { IconSymbol } from '@/components/ui/Icon';
 import { getReviewRatingLabel } from '@/utils/adapter/review/reviewAdapter';
 import React, { useCallback } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withSequence,
-    withSpring
-} from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface StarRatingInputProps {
@@ -35,46 +29,28 @@ interface StarRatingInputProps {
 const STAR_COUNT = 5;
 
 /**
- * AnimatedStar - Single star with scale animation
+ * Star - Simple star without animation for better performance
  */
-const AnimatedStar: React.FC<{
+const Star: React.FC<{
     index: number;
     filled: boolean;
     size: number;
     onPress: () => void;
     readonly: boolean;
-}> = ({ index, filled, size, onPress, readonly }) => {
+}> = ({ filled, size, onPress, readonly }) => {
     const { theme } = useUnistyles();
-    const scale = useSharedValue(1);
-
-    const handlePress = useCallback(() => {
-        if (readonly) return;
-
-        // Bounce animation
-        scale.value = withSequence(
-            withSpring(1.3, { damping: 5 }),
-            withSpring(1, { damping: 8 })
-        );
-        onPress();
-    }, [readonly, onPress, scale]);
-
-    const animatedStyle = useAnimatedStyle(() => ({
-        transform: [{ scale: scale.value }],
-    }));
 
     return (
         <Pressable
-            onPress={handlePress}
+            onPress={onPress}
             disabled={readonly}
             hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
         >
-            <Animated.View style={animatedStyle}>
-                <IconSymbol
-                    name={filled ? 'star-fill' : 'star-outline'}
-                    size={size}
-                    color={filled ? theme.colors.warning : theme.colors.secondary}
-                />
-            </Animated.View>
+            <IconSymbol
+                name={filled ? 'star-fill' : 'star-outline'}
+                size={size}
+                color={filled ? theme.colors.warning : theme.colors.secondary}
+            />
         </Pressable>
     );
 };
@@ -107,7 +83,7 @@ export const StarRatingInput: React.FC<StarRatingInputProps> = ({
             {/* Stars Row */}
             <View style={styles.starsContainer}>
                 {Array.from({ length: STAR_COUNT }).map((_, index) => (
-                    <AnimatedStar
+                    <Star
                         key={index}
                         index={index}
                         filled={index < value}
@@ -151,12 +127,12 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     label: {
         fontSize: 14,
-        fontWeight: '500',
-        color: theme.colors.secondary,
+        fontWeight: '400',
+        color: theme.colors.typographySecondary,
     },
     labelActive: {
-        color: theme.colors.warning,
-        fontWeight: '600',
+        color: theme.colors.typography,
+        fontWeight: '500',
     },
     labelError: {
         color: theme.colors.error,

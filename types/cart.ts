@@ -93,9 +93,7 @@ export const CartResponseSchema = z.object({
 });
 
 // Add To Cart Response
-export const AddToCartResponseSchema = z.object({
-    cartItemId: z.string(),
-});
+export const AddToCartResponseSchema = CartItemSchema;
 
 // Full API Response Wrapper
 export const CartApiResponseSchema = ResponseDefaultSchema.extend({

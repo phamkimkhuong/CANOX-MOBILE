@@ -6,14 +6,15 @@ import { ProductCardSkeleton } from '@/components/ui/product/ProductCardSkeleton
 import { productRoutes } from '@/constants/routes';
 import { useScrollToTopHandler } from '@/contexts/ScrollToTopContext';
 import { usePrefetchProductDetail } from '@/hooks/api/product/useProductDetail';
-import { FeedType, useProductFeed } from '@/hooks/api/useHomeProducts';
+import { FeedType, useProductFeed, useRefreshProductFeed } from '@/hooks/api/useHomeProducts';
 import { PREFETCH_GRACE_PERIOD_MS } from '@/hooks/usePrefetchTiming';
 import type { ProductFeedItem } from '@/types/product/product';
 import { Navigator } from '@/utils/navigation';
 import { FlashList, FlashListRef, ListRenderItemInfo } from '@shopify/flash-list';
+import { useQueryClient } from '@tanstack/react-query';
 import React, { memo, useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, LayoutChangeEvent, NativeScrollEvent, NativeSyntheticEvent, Text, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, LayoutChangeEvent, NativeScrollEvent, NativeSyntheticEvent, RefreshControl, Text, useWindowDimensions, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -149,14 +150,28 @@ export default function HomeScreen() {
     minHeight: screenHeight + headerHeightRef.current
   }), [screenHeight]);
 
-  // Fetch product data theo activeTab
   const {
     data,
     isLoading,
+    isRefetching,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
   } = useProductFeed(activeTab);
+
+  // Smart refresh: only fetch page 0 instead of all loaded pages
+  const { refresh: smartRefreshProducts } = useRefreshProductFeed(activeTab);
+  const queryClient = useQueryClient();
+
+  const handleRefresh = useCallback(async () => {
+    // Refresh products feed (smart way - page 0 only)
+    const refreshPromise = smartRefreshProducts();
+
+    // Refresh other home sections
+    queryClient.invalidateQueries({ queryKey: ['campaigns', 'slots', 'active'] });
+
+    await refreshPromise;
+  }, [smartRefreshProducts, queryClient]);
 
   /**
    * Scroll to Top Handler - Register with context to handle when user returns to Home tab
@@ -419,6 +434,15 @@ export default function HomeScreen() {
         scrollEventThrottle={16}
         onEndReached={handleEndReached}
         onEndReachedThreshold={0.5}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching && !isLoading}
+            onRefresh={handleRefresh}
+            tintColor={theme.colors.primary}
+            colors={[theme.colors.primary]}
+            progressViewOffset={homeHeaderHeight}
+          />
+        }
         contentContainerStyle={[
           styles.listContent,
           (isLoading || listData.length < 5) && minHeightStyle

@@ -7,11 +7,6 @@
 import type { QuickTagCategory } from '@/utils/adapter/review/reviewTags';
 import React from 'react';
 import { Pressable, Text } from 'react-native';
-import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withSpring,
-} from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface QuickTagChipProps {
@@ -36,19 +31,6 @@ export const QuickTagChip: React.FC<QuickTagChipProps> = ({
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const scale = useSharedValue(1);
-
-    const handlePressIn = () => {
-        scale.value = withSpring(0.95);
-    };
-
-    const handlePressOut = () => {
-        scale.value = withSpring(1);
-    };
-
-    const animatedStyle = useAnimatedStyle(() => ({
-        transform: [{ scale: scale.value }],
-    }));
 
     // Get colors based on category and selection state
     const getColors = () => {
@@ -88,23 +70,18 @@ export const QuickTagChip: React.FC<QuickTagChipProps> = ({
     return (
         <Pressable
             onPress={onPress}
-            onPressIn={handlePressIn}
-            onPressOut={handlePressOut}
+            style={({ pressed }) => [
+                styles.chip,
+                {
+                    backgroundColor: colors.bg,
+                    borderColor: colors.border,
+                    opacity: pressed ? 0.7 : 1,
+                },
+            ]}
         >
-            <Animated.View
-                style={[
-                    styles.chip,
-                    {
-                        backgroundColor: colors.bg,
-                        borderColor: colors.border,
-                    },
-                    animatedStyle,
-                ]}
-            >
-                <Text style={[styles.label, { color: colors.text }]}>
-                    {label}
-                </Text>
-            </Animated.View>
+            <Text style={[styles.label, { color: colors.text }]}>
+                {label}
+            </Text>
         </Pressable>
     );
 };
@@ -118,7 +95,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     label: {
         fontSize: 13,
-        fontWeight: '500',
+        fontWeight: '400',
     },
 }));
 

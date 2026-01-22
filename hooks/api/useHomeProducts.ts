@@ -3,6 +3,7 @@ import { request } from '@/services/api/client';
 import { PaginatedProductResponseSchema, ProductFeedItem } from '@/types/product/product';
 import { transformProduct } from '@/utils/adapter/product/productAdapter';
 import { useInfiniteQuery } from '@tanstack/react-query';
+import { useSmartRefresh } from '../useSmartRefresh';
 
 // Types for Feeds
 export type FeedType = 'new' | 'sale' | 'featured' | 'promoted';
@@ -60,3 +61,11 @@ export const useProductFeed = (type: FeedType) => {
         staleTime: 1000 * 60 * 5, // Cache 5 minutes
     });
 };
+
+/**
+ * Smart refresh for product feed
+ */
+export const useRefreshProductFeed = (type: FeedType) => {
+    return useSmartRefresh(['products', type]);
+};
+
