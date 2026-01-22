@@ -129,15 +129,23 @@ export const transformVoucherDTOToUI = (
     voucher: RecommendedVoucherDetailDTO,
     applicable: boolean,
     reason?: string | null,
+    calculatedDiscount?: number | null,
     category?: 'SHIPPING' | 'DISCOUNT'
 ): VoucherUI => {
     const discountValue = voucher.discountValue ?? 0;
-    const discountDisplay =
-        voucher.discountType === 'PERCENTAGE'
-            ? `Giảm\u00A0${Math.round(discountValue)}%`
-            : `Giảm\u00A0${formatCurrency(discountValue)}`;
+    const isPercentage = voucher.discountType === 'PERCENTAGE';
+    const maxDiscount = voucher.maxDiscount ?? null;
 
-    const minOrderDisplay = voucher.minOrderAmount
+    // Format discount display: "Giảm 9%" hoặc "Giảm 50K"
+    const discountDisplay = isPercentage
+        ? `Giảm\u00A0${Math.round(discountValue)}%`
+        : `Giảm\u00A0${formatCurrency(discountValue)}`;
+
+    const maxDiscountDisplay = isPercentage && maxDiscount && maxDiscount > 0
+        ? `Giảm tối đa ${formatCurrency(maxDiscount)}`
+        : `Giảm ${formatCurrency(discountValue)}`;
+
+    const minOrderDisplay = voucher.minOrderAmount && voucher.minOrderAmount > 0
         ? `Đơn tối thiểu ${formatCurrency(voucher.minOrderAmount)}`
         : 'Mọi đơn hàng';
 
@@ -155,6 +163,15 @@ export const transformVoucherDTOToUI = (
         isApplicable: applicable,
         expiresAt: voucher.endDate ?? null,
         category: voucherCategory,
+
+        // Extended fields
+        discountType: isPercentage ? 'PERCENTAGE' : 'FIXED_AMOUNT',
+        discountValue,
+        maxDiscount,
+        maxDiscountDisplay,
+        maxUsage: voucher.maxUsage ?? null,
+        calculatedDiscount: calculatedDiscount ?? null,
+        reason: reason ?? null,
     };
 };
 

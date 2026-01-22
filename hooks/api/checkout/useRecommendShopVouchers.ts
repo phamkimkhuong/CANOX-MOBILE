@@ -59,11 +59,28 @@ export const useRecommendShopVouchers = (
                 logger.api.error('Failed to fetch shop vouchers:', response.message);
                 return [];
             }
-            return response.data
+            const vouchers = response.data
                 .filter((item): item is RecommendedShopVoucherDTO & { voucher: NonNullable<RecommendedShopVoucherDTO['voucher']> } => !!item.voucher)
                 .map((item): VoucherUI => {
-                    return transformVoucherDTOToUI(item.voucher, item.applicable, item.reason);
+                    return transformVoucherDTOToUI(
+                        item.voucher,
+                        item.applicable,
+                        item.reason,
+                        item.calculatedDiscount
+                    );
+                })
+                .sort((a, b) => {
+                    // Applicable vouchers first
+                    if (a.isApplicable !== b.isApplicable) {
+                        return a.isApplicable ? -1 : 1;
+                    }
+                    // Then sort by calculatedDiscount descending
+                    const discountA = a.calculatedDiscount ?? 0;
+                    const discountB = b.calculatedDiscount ?? 0;
+                    return discountB - discountA;
                 });
+
+            return vouchers;
         },
 
         enabled: options.enabled && !!shopId && !!requestBody,

@@ -47,7 +47,9 @@ export const OrderCard: React.FC<OrderCardProps> = ({
     }, [onPressIn, order.orderId]);
 
     const handleShopPress = useCallback(() => {
-        onShopPress?.(order.shopId);
+        if (order.shopId) {
+            onShopPress?.(order.shopId);
+        }
     }, [onShopPress, order.shopId]);
 
     const handleAction = useCallback((action: OrderAction['action'], order: OrderUI) => {

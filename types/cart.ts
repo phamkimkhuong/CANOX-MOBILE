@@ -190,6 +190,15 @@ export interface VoucherUI {
     isApplicable: boolean;
     expiresAt: string | null;
     category?: 'SHIPPING' | 'DISCOUNT';
+
+    // Extended fields for rich voucher display
+    discountType?: 'PERCENTAGE' | 'FIXED_AMOUNT';
+    discountValue?: number;
+    maxDiscount?: number | null;
+    maxDiscountDisplay?: string;
+    maxUsage?: number | null;
+    calculatedDiscount?: number | null;
+    reason?: string | null;
 }
 
 /**

@@ -99,7 +99,7 @@ export const useChatPickerStore = create<ChatPickerState>((set) => ({
             orderNumber: order.orderNumber,
             status: order.status,
             grandTotal: order.grandTotal,
-            shopId: order.shopId,
+            shopId: order.shopId || '',
             items: order.items.map(item => ({
                 productId: item.productId,
                 productName: item.productName,

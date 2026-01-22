@@ -30,7 +30,7 @@ import {
 } from '@/components/checkout';
 
 // Store & Hooks
-import { CART_QUERY_KEY, useAddToCart } from '@/hooks/api/cart/useCart';
+import { CART_QUERY_KEY, fetchCart, useAddToCart } from '@/hooks/api/cart/useCart';
 import { useRemoveCartItem } from '@/hooks/api/cart/useCartMutations';
 import { useCheckoutPreview } from '@/hooks/api/checkout/useCheckoutPreview';
 import { useCreateOrder } from '@/hooks/api/checkout/useCreateOrder';
@@ -168,11 +168,20 @@ export default function CheckoutScreen() {
 
             try {
                 logger.checkout.info('Buy Now: Adding to cart', { variantId, quantity });
-                // Add to cart and get updated cart data
-                const cartData = await addToCart({
+                // Add to cart
+                const addResult = await addToCart({
                     variantId: variantId!,
                     quantity: parseInt(quantity || '1', 10),
                     hideToast: true,
+                });
+
+                if (!addResult) {
+                    throw new Error('Failed to add item to cart');
+                }
+
+                const cartData = await queryClient.fetchQuery({
+                    queryKey: CART_QUERY_KEY,
+                    queryFn: fetchCart,
                 });
 
                 // Find the item we just added (latest item with this variantId)

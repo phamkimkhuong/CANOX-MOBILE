@@ -83,8 +83,8 @@ export default function CancelOrderScreen() {
         if (!rawOrder) return false;
         // Check if order has any discount (voucher applied)
         return (
-            (rawOrder.totalDiscount ?? 0) > 0 ||
-            !!rawOrder.appliedVoucherCodes
+            (rawOrder.pricing.totalDiscount ?? 0) > 0 ||
+            !!rawOrder.pricing.appliedVoucherCodes
         );
     }, [rawOrder]);
 
@@ -245,7 +245,7 @@ export default function CancelOrderScreen() {
 
                     {/* Refund Policy Card */}
                     <RefundPolicyCard
-                        paymentMethod={rawOrder.paymentMethod}
+                        paymentMethod={rawOrder.payment.method}
                         status={rawOrder.status}
                         hasVoucher={hasVoucher}
                     />

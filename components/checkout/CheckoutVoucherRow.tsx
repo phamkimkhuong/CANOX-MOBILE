@@ -13,6 +13,7 @@ import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal, Pressable, ScrollView, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { VoucherPickerCard } from './VoucherPickerCard';
 
 interface CheckoutVoucherRowProps {
     /** Available vouchers for this shop */
@@ -232,67 +233,19 @@ export const CheckoutVoucherRow: React.FC<CheckoutVoucherRowProps> = ({
                                     </Pressable>
 
                                     {/* Voucher options */}
-                                    {availableVouchers.map((voucher) => {
+                                    {availableVouchers.map((voucher, index) => {
                                         const isSelected = voucher.id === selectedVoucherId;
-                                        const isDisabled = voucher.isApplicable === false;
 
-                                        const handleItemPress = () => {
-                                            if (isDisabled) return;
-                                            handleSelect(voucher.id);
-                                        };
+                                        const isBestValue = index === 0 && voucher.isApplicable;
 
                                         return (
-                                            <Pressable
+                                            <VoucherPickerCard
                                                 key={voucher.id}
-                                                style={({ pressed }) => [
-                                                    styles.voucherItem,
-                                                    isSelected && styles.voucherItemSelected,
-                                                    pressed && !isDisabled && styles.voucherItemPressed,
-                                                    isDisabled && styles.voucherItemDisabled,
-                                                ]}
-                                                onPress={handleItemPress}
-                                                disabled={isDisabled}
-                                            >
-                                                <View style={styles.radioContainer}>
-                                                    <View
-                                                        style={[
-                                                            styles.radioOuter,
-                                                            isSelected && styles.radioOuterSelected,
-                                                            isDisabled && styles.radioOuterDisabled,
-                                                        ]}
-                                                    >
-                                                        {isSelected && (
-                                                            <View style={styles.radioInner} />
-                                                        )}
-                                                    </View>
-                                                </View>
-
-                                                <View style={styles.voucherInfo}>
-                                                    <View style={styles.voucherHeader}>
-                                                        <View style={[styles.voucherBadge, isDisabled && styles.voucherBadgeDisabled]}>
-                                                            <Text style={styles.voucherBadgeText}>
-                                                                {voucher.discountDisplay}
-                                                            </Text>
-                                                        </View>
-                                                        <Text style={[styles.voucherCode, isDisabled && styles.voucherCodeDisabled]}>
-                                                            {voucher.code}
-                                                        </Text>
-                                                    </View>
-                                                    <Text style={styles.voucherCondition}>
-                                                        {voucher.minOrderDisplay}
-                                                    </Text>
-                                                    {isDisabled && voucher.description && (
-                                                        <Text style={styles.voucherNotApplicableReason}>
-                                                            {voucher.description}
-                                                        </Text>
-                                                    )}
-                                                    {!isDisabled && voucher.expiresAt && (
-                                                        <Text style={styles.voucherExpiry}>
-                                                            {t('voucher.expiry', { date: new Date(voucher.expiresAt).toLocaleDateString(i18n.language === 'en' ? 'en-US' : 'vi-VN') })}
-                                                        </Text>
-                                                    )}
-                                                </View>
-                                            </Pressable>
+                                                voucher={voucher}
+                                                isSelected={isSelected}
+                                                isBestValue={isBestValue}
+                                                onPress={() => handleSelect(voucher.id)}
+                                            />
                                         );
                                     })}
                                 </ScrollView>
@@ -474,41 +427,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.typographySecondary,
     },
 
-    voucherInfo: {
-        flex: 1,
-    },
-
-    voucherHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: theme.margins.sm,
-        marginBottom: 4,
-    },
-
-    voucherBadge: {
-        backgroundColor: theme.colors.error,
-        paddingHorizontal: 8,
-        paddingVertical: 3,
-        borderRadius: 6,
-    },
-
-    voucherBadgeText: {
-        fontSize: 11,
-        fontWeight: '700',
-        color: '#FFFFFF',
-    },
-
-    voucherCondition: {
-        fontSize: 12,
-        color: theme.colors.typographySecondary,
-    },
-
-    voucherExpiry: {
-        fontSize: 11,
-        color: theme.colors.secondary,
-        marginTop: 2,
-    },
-
     modalFooter: {
         height: 34,
     },
@@ -577,25 +495,6 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     placeholderTextSecondary: {
         color: theme.colors.typographySecondary,
-    },
-    voucherItemDisabled: {
-        opacity: 0.6,
-    },
-    radioOuterDisabled: {
-        borderColor: theme.colors.border,
-        backgroundColor: theme.colors.background,
-    },
-    voucherBadgeDisabled: {
-        backgroundColor: theme.colors.typographySecondary,
-    },
-    voucherCodeDisabled: {
-        color: theme.colors.typographySecondary,
-    },
-    voucherNotApplicableReason: {
-        fontSize: 11,
-        color: theme.colors.warning,
-        marginTop: 4,
-        fontWeight: '500',
     },
 }));
 

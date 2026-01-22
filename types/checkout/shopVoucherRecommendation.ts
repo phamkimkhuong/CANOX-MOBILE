@@ -50,6 +50,7 @@ export const RecommendedShopVoucherDTOSchema = z.object({
     voucher: RecommendedVoucherDetailDTOSchema.nullable().optional(),
     applicable: z.boolean().optional().default(false),
     reason: z.string().nullable().optional(),
+    calculatedDiscount: z.number().nullable().optional(),
 });
 
 /**
