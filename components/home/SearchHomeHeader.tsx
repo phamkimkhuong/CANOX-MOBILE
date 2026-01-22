@@ -151,14 +151,14 @@ const stylesheet = StyleSheet.create((theme) => ({
     searchPlaceholder: {
         flex: 1,
         paddingHorizontal: 8,
-        fontSize: 14,
+        fontSize: theme.fontSizes.md,
         color: theme.colors.secondary,
     },
     searchInput: {
         flex: 1,
         height: '100%',
         paddingHorizontal: 8,
-        fontSize: 14,
+        fontSize: theme.fontSizes.md,
         color: theme.colors.typography,
         fontFamily: 'System', // Thay bằng font custom nếu có
     },

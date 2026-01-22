@@ -163,7 +163,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         elevation: 1,
     },
     text: {
-        fontSize: 10,
+        fontSize: theme.fontSizes.xs,
         color: theme.colors.typography,
         textAlign: 'center',
         fontWeight: '500',

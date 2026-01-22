@@ -209,7 +209,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         gap: 12,
     },
     title: {
-        fontSize: 18,
+        fontSize: theme.fontSizes.base,
         fontWeight: 'bold',
         fontStyle: 'italic',
         color: theme.colors.warning,
@@ -228,7 +228,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     timerText: {
         color: theme.colors.surface,
-        fontSize: 12,
+        fontSize: theme.fontSizes.xs,
         fontWeight: 'bold',
     },
     timerColon: {
@@ -236,7 +236,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontWeight: 'bold',
     },
     timerDayText: {
-        fontSize: 10,
+        fontSize: theme.fontSizes.xs,
         color: theme.colors.typography,
         fontWeight: '600',
         marginHorizontal: 1,
@@ -246,7 +246,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         alignItems: 'center',
     },
     seeAllText: {
-        fontSize: 12,
+        fontSize: theme.fontSizes.xs,
         color: theme.colors.secondary,
         fontWeight: '500',
     },
@@ -291,7 +291,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         gap: 4,
     },
     productName: {
-        fontSize: 12,
+        fontSize: theme.fontSizes.sm,
         fontWeight: '500',
         color: theme.colors.typography,
     },
@@ -301,12 +301,12 @@ const stylesheet = StyleSheet.create((theme) => ({
         gap: 4,
     },
     price: {
-        fontSize: 15,
+        fontSize: theme.fontSizes.md,
         fontWeight: 'bold',
         color: theme.colors.error,
     },
     originalPrice: {
-        fontSize: 10,
+        fontSize: theme.fontSizes.xs,
         color: theme.colors.secondary,
         textDecorationLine: 'line-through',
     },
@@ -334,7 +334,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         zIndex: 1,
     },
     progressText: {
-        fontSize: 10,
+        fontSize: theme.fontSizes.xs,
         fontWeight: 'bold',
         color: theme.colors.background,
         textShadowColor: 'rgba(0, 0, 0, 0.3)',
@@ -361,7 +361,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     soldOutText: {
         color: '#fff',
-        fontSize: 10,
+        fontSize: theme.fontSizes.xs,
         fontWeight: 'bold',
     },
     soldOutPrice: {

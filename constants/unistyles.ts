@@ -1,4 +1,60 @@
-import { StyleSheet } from 'react-native-unistyles';
+import { PixelRatio } from 'react-native';
+import { StyleSheet, UnistylesRuntime } from 'react-native-unistyles';
+
+/**
+ * ============================================================================
+ * RESPONSIVE FONT SCALING - Unistyles Native Approach
+ * ============================================================================
+ * 
+ * Base width: 375 (iPhone 11/12/13/14 standard width)
+ * 
+ * Common phone widths for reference:
+ * - iPhone SE: 320
+ * - iPhone 14: 390
+ * - iPhone 14 Pro Max: 430
+ * - Samsung Galaxy S21: 360
+ * - Pixel 7: 412
+ */
+
+// Constants for scaling calculations
+export const GUIDELINE_BASE_WIDTH = 375;
+export const MIN_SCALE = 0.9;  // Prevent text too small on tiny phones
+export const MAX_SCALE = 1.15; // Prevent text too large on big phones
+
+/**
+ * Creates a scaled font size using UnistylesRuntime (REACTIVE)
+ * @param size - Base font size (designed for 375w screen)
+ * @param factor - Moderation factor (0 = no scale, 1 = full linear scale)
+ * @returns Scaled and rounded font size
+ * 
+ * @example
+ * const stylesheet = StyleSheet.create((theme, rt) => ({
+ *     bodyText: {
+ *         fontSize: createScaledFontSize(theme.fontSizes.base, rt.screen.width),
+ *     },
+ * }));
+ */
+export const createScaledFontSize = (
+    size: number,
+    screenWidth: number,
+    factor = 0.5
+): number => {
+    const rawScale = screenWidth / GUIDELINE_BASE_WIDTH;
+    const clampedScale = Math.min(Math.max(rawScale, MIN_SCALE), MAX_SCALE);
+    const moderatedSize = size + (size * (clampedScale - 1) * factor);
+    return Math.round(PixelRatio.roundToNearestPixel(moderatedSize));
+};
+
+/**
+ * Get current scaled font size (for use in components, not stylesheets)
+ * @example
+ * // In a component:
+ * const fontSize = getScaledFontSize(16);
+ */
+export const getScaledFontSize = (size: number, factor = 0.5): number => {
+    return createScaledFontSize(size, UnistylesRuntime.screen.width, factor);
+};
+
 
 const breakpoints = {
     xs: 0,
@@ -69,13 +125,36 @@ const lightTheme = {
         xl: 32,
         xxl: 48,
     },
-    // Add standard E-commerce borderRadius
     radius: {
         s: 4,
         m: 8,
         l: 16,
         xl: 24,
         full: 999
+    },
+    fontSizes: {
+        xs: 10,    // Smallest caption, timestamps, badges
+        xsm: 11,   // Small captions, footnotes
+        sm: 12,    // Caption, helper text, footnotes  
+        md: 14,    // Body small, secondary descriptions
+        base: 16,  // DEFAULT BODY TEXT
+        lg: 18,    // Emphasized body, subtitle
+        xl: 20,    // Section headers, card titles
+        xxl: 22,   // Prominent headers, featured titles
+        '2xl': 24, // Screen titles, large headers
+        '3xl': 28, // Hero text, promotional headlines
+        '4xl': 32, // Display text, splash numbers
+    },
+    lineHeights: {
+        tight: 1.25,
+        normal: 1.5,
+        relaxed: 1.75,
+    },
+    fontWeights: {
+        regular: '400' as const,
+        medium: '500' as const,
+        semibold: '600' as const,
+        bold: '700' as const,
     },
     shadows: {
         small: {

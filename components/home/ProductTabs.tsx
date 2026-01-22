@@ -308,7 +308,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         gap: 3,
     },
     tabText: {
-        fontSize: 14,
+        fontSize: theme.fontSizes.sm,
         fontWeight: '500',
         color: theme.colors.secondary,
     },
@@ -322,7 +322,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderRadius: 5,
     },
     newBadgeText: {
-        fontSize: 11,
+        fontSize: theme.fontSizes.xs,
         fontWeight: '800',
         color: '#FFFFFF',
         letterSpacing: 0.5,

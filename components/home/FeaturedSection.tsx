@@ -266,7 +266,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         marginBottom: theme.margins.sm,
     },
     editorBadgeText: {
-        fontSize: 11,
+        fontSize: theme.fontSizes.xs,
         fontWeight: '600',
         color: theme.colors.onPrimary,
     },
