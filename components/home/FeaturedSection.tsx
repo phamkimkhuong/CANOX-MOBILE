@@ -135,7 +135,7 @@ export const FeaturedSection = memo(({ onProductPress }: FeaturedSectionProps = 
                         {mainProduct.title}
                     </Text>
                     <Text style={styles.mainSubtitle} numberOfLines={1}>
-                        {mainProduct.shopName}
+                        {mainProduct.location}
                     </Text>
                     <View style={styles.mainFooter}>
                         <View style={styles.mainPriceContainer}>

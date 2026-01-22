@@ -79,7 +79,7 @@ const ProductItem = React.memo(({ item }: { item: SearchProductUI }) => {
             rating={item.rating}
             reviews={item.reviews}
             sold={item.sold}
-            location={item.shopName}
+            location={item.location}
             discount={item.discountPercentage}
             onPress={handlePress}
             onPressIn={handlePressIn}

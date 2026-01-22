@@ -1,4 +1,3 @@
-import { FlashSaleSlot } from '@/types/home';
 
 // ============================================
 // SAFE DATE PARSING - Cross-Platform Compatible
@@ -77,31 +76,6 @@ export const formatRelativeDate = (dateString: string | null | undefined): strin
         month: '2-digit',
         year: 'numeric',
     });
-};
-
-export const getNextFlashSaleSlot = (): FlashSaleSlot => {
-    const now = new Date();
-    const hours = now.getHours();
-
-    // Find next slot divisible by 3
-    const slotStartHour = Math.floor(hours / 3) * 3;
-    const slotEndHour = slotStartHour + 3;
-
-    const startTime = new Date(now);
-    startTime.setHours(slotStartHour, 0, 0, 0);
-
-    const endTime = new Date(now);
-    endTime.setHours(slotEndHour, 0, 0, 0);
-
-    // Format display label (e.g. "09:00")
-    const label = `${slotStartHour.toString().padStart(2, '0')}:00`;
-
-    return {
-        id: `slot-${slotStartHour}`,
-        startTime: startTime.toISOString(),
-        endTime: endTime.toISOString(),
-        label,
-    };
 };
 
 /**

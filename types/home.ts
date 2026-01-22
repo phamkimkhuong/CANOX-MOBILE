@@ -26,6 +26,8 @@ export interface FlashSaleItem {
     soldCount: number;
     totalStock: number;
     progress: number; // 0 to 100
+    isSoldOut: boolean;
+    purchaseLimitPerUser?: number | null;
 }
 
 /**

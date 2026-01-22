@@ -121,7 +121,12 @@ export const ProductCard = ({
                             {sold != null && (
                                 <Text style={styles.soldText}>Đã bán {formatSoldCount(sold)}</Text>
                             )}
-                            {location && <Text style={styles.location}>{location}</Text>}
+                            {location && (
+                                <View style={styles.locationRow}>
+                                    <IconSymbol name="location-outline" size={12} color={theme.colors.secondary} />
+                                    <Text style={styles.location} numberOfLines={1}>{location}</Text>
+                                </View>
+                            )}
                         </View>
                     </View>
                 </View>
@@ -242,8 +247,15 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: 11,
         color: theme.colors.secondary,
     },
+    locationRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 2,
+        flexShrink: 1,
+    },
     location: {
         fontSize: 11,
         color: theme.colors.secondary,
+        flexShrink: 1,
     },
 }));

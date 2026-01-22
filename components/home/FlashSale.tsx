@@ -1,5 +1,5 @@
 import { IconSymbol } from '@/components/ui/Icon';
-import { useFlashSale } from '@/hooks/api/useFlashSale';
+import { useActiveFlashSale } from '@/hooks/api/useActiveFlashSale';
 import { formatTimeLeft } from '@/utils/date';
 import { formatCurrency } from '@/utils/format';
 import { Image } from 'expo-image';
@@ -21,20 +21,19 @@ export const FlashSale = memo(({ onProductPress }: FlashSaleProps = {}) => {
     const styles = stylesheet;
     const { t } = useTranslation('home');
 
-    // Fetch data từ API
-    const { data: flashSaleData, isLoading, isError } = useFlashSale();
+    // Fetch data from API Campaign Slots
+    const { data: flashSaleData, isLoading, isError } = useActiveFlashSale();
 
-    // State cho đồng hồ đếm ngược
+    // State for timer
     const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
 
     useEffect(() => {
-        if (!flashSaleData?.slot.endTime) return;
+        if (!flashSaleData?.slot?.endTime) return;
 
-        const timer = setInterval(() => {
+        const updateTimer = () => {
             const time = formatTimeLeft(flashSaleData.slot.endTime);
             if (time.total <= 0) {
-                clearInterval(timer);
-                // Có thể trigger refetch ở đây
+                setTimeLeft({ hours: 0, minutes: 0, seconds: 0 });
             } else {
                 setTimeLeft({
                     hours: time.hours,
@@ -42,13 +41,18 @@ export const FlashSale = memo(({ onProductPress }: FlashSaleProps = {}) => {
                     seconds: time.seconds,
                 });
             }
-        }, 1000);
+        };
+
+        updateTimer();
+        const timer = setInterval(updateTimer, 1000);
 
         return () => clearInterval(timer);
-    }, [flashSaleData?.slot.endTime]);
+    }, [flashSaleData?.slot?.endTime]);
+
     if (isLoading) {
         return <FlashSaleSkeleton />;
     }
+
     if (isError || !flashSaleData || flashSaleData.items.length === 0) {
         return null;
     }
@@ -86,61 +90,79 @@ export const FlashSale = memo(({ onProductPress }: FlashSaleProps = {}) => {
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.scrollContent}
             >
-                {flashSaleData.items.map((item) => (
-                    <TouchableOpacity
-                        key={item.id}
-                        style={styles.productCard}
-                        activeOpacity={0.85}
-                        onPress={() => onProductPress?.(item.id)}
-                    >
-                        <View style={styles.imageContainer}>
-                            <Image
-                                source={{ uri: item.image }}
-                                style={styles.productImage}
-                                contentFit="cover"
-                                transition={200}
-                            />
-                            {item.discountPercentage > 0 && (
-                                <View style={styles.discountBadge}>
-                                    <Text style={styles.discountText}>-{item.discountPercentage}%</Text>
-                                </View>
-                            )}
-                        </View>
-                        <View style={styles.productInfo}>
-                            <Text style={styles.productName} numberOfLines={1}>
-                                {item.name}
-                            </Text>
-                            <View style={styles.priceRow}>
-                                <Text style={styles.price}>
-                                    {formatCurrency(item.price)}
-                                </Text>
-                                {item.originalPrice > item.price && (
-                                    <Text style={styles.originalPrice}>
-                                        {formatCurrency(item.originalPrice)}
-                                    </Text>
+                {flashSaleData.items.map((item) => {
+                    const isUrgent = item.progress >= 80 && !item.isSoldOut;
+                    const progressLabel = item.isSoldOut
+                        ? t('flashSale.soldOut') || 'Hết hàng'
+                        : item.soldCount === 0
+                            ? t('flashSale.sellingFast') || 'Vừa mở bán'
+                            : isUrgent
+                                ? t('flashSale.urgentStock') || 'SẮP CHÁY HÀNG'
+                                : t('flashSale.soldCount', { count: item.soldCount });
+
+                    return (
+                        <TouchableOpacity
+                            key={item.id}
+                            style={[styles.productCard, item.isSoldOut && styles.soldOutCard]}
+                            activeOpacity={item.isSoldOut ? 1 : 0.85}
+                            onPress={() => !item.isSoldOut && onProductPress?.(item.productId)}
+                        >
+                            <View style={styles.imageContainer}>
+                                <Image
+                                    source={{ uri: item.image }}
+                                    style={[styles.productImage, item.isSoldOut && styles.grayscaleImage]}
+                                    contentFit="cover"
+                                    transition={200}
+                                />
+                                {item.isSoldOut ? (
+                                    <View style={styles.soldOutOverlay}>
+                                        <View style={styles.soldOutBadge}>
+                                            <Text style={styles.soldOutText}>HẾT HÀNG</Text>
+                                        </View>
+                                    </View>
+                                ) : (
+                                    item.discountPercentage > 0 && (
+                                        <View style={styles.discountBadge}>
+                                            <Text style={styles.discountText}>-{item.discountPercentage}%</Text>
+                                        </View>
+                                    )
                                 )}
                             </View>
-                            {/* Progress Bar */}
-                            <View style={styles.progressBg}>
-                                {/* Progress Fill with gradient effect */}
-                                <View
-                                    style={[
-                                        styles.progressFill,
-                                        { width: `${Math.max(item.progress, 30)}%` }, // Min 30% để luôn thấy màu
-                                    ]}
-                                />
-                                <View style={styles.progressLabelContainer}>
-
-                                    <Text style={styles.progressText}>
-                                        {item.soldCount > 0
-                                            ? t('flashSale.soldCount', { count: item.soldCount })
-                                            : t('flashSale.sellingFast')}
+                            <View style={styles.productInfo}>
+                                <Text style={styles.productName} numberOfLines={1}>
+                                    {item.name}
+                                </Text>
+                                <View style={styles.priceRow}>
+                                    <Text style={[styles.price, item.isSoldOut && styles.soldOutPrice]}>
+                                        {formatCurrency(item.price)}
                                     </Text>
+                                    {!item.isSoldOut && item.originalPrice > item.price && (
+                                        <Text style={styles.originalPrice}>
+                                            {formatCurrency(item.originalPrice)}
+                                        </Text>
+                                    )}
+                                </View>
+                                {/* Progress Bar */}
+                                <View style={[styles.progressBg, isUrgent && styles.progressBgUrgent, item.isSoldOut && styles.progressBgSoldOut]}>
+                                    <View
+                                        style={[
+                                            styles.progressFill,
+                                            item.isSoldOut ? { width: '100%', backgroundColor: theme.colors.secondary } : { width: `${Math.max(item.progress, 20)}%` },
+                                            isUrgent && styles.progressFillUrgent
+                                        ]}
+                                    />
+                                    <View style={styles.progressLabelContainer}>
+                                        <Text style={styles.progressText}>
+                                            {isUrgent ? <IconSymbol name="flame" size={10} color={theme.colors.background} /> : null}
+                                            {isUrgent ? ' ' : ''}
+                                            {progressLabel}
+                                        </Text>
+                                    </View>
                                 </View>
                             </View>
-                        </View>
-                    </TouchableOpacity>
-                ))}
+                        </TouchableOpacity>
+                    );
+                })}
             </ScrollView>
         </View>
     );
@@ -299,6 +321,43 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.background,
         textShadowColor: 'rgba(0, 0, 0, 0.3)',
         textShadowRadius: 2,
+    },
+    // Sold Out Styles
+    soldOutCard: {
+        opacity: 0.8,
+    },
+    grayscaleImage: {
+        opacity: 0.6,
+    },
+    soldOutOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0,0,0,0.1)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    soldOutBadge: {
+        backgroundColor: 'rgba(0,0,0,0.6)',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 4,
+    },
+    soldOutText: {
+        color: '#fff',
+        fontSize: 10,
+        fontWeight: 'bold',
+    },
+    soldOutPrice: {
+        color: theme.colors.secondary,
+    },
+    // Urgent / Progress Styles
+    progressBgUrgent: {
+        backgroundColor: '#fed7aa', // Light orange
+    },
+    progressFillUrgent: {
+        backgroundColor: '#f97316', // Bright orange
+    },
+    progressBgSoldOut: {
+        backgroundColor: theme.colors.secondaryLight,
     },
 }));
 

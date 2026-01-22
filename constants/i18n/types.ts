@@ -106,6 +106,8 @@ export interface HomeTranslation {
         seeAll: string;
         soldCount: string;
         sellingFast: string;
+        soldOut: string;
+        urgentStock: string;
     };
     featured: {
         title: string;

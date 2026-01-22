@@ -39,6 +39,7 @@ export const ProductResponseItemSchema = z.object({
     shop: z.object({
         shopName: z.string().nullable().optional().default(''),
         username: z.string().nullable().optional().default(''),
+        shop_location: z.string().nullable().optional().default(''),
     }).nullable().optional(),
 });
 export type ProductResponseItem = z.infer<typeof ProductResponseItemSchema>;
@@ -46,7 +47,7 @@ export type ProductResponseItem = z.infer<typeof ProductResponseItemSchema>;
 // Paginated Product Response (Schema dùng cho validator)
 export const PaginatedProductResponseSchema = createPaginatedResponseSchema(ProductResponseItemSchema);
 
-// DOMAIN MODEL (Dữ liệu rút gọn cho UI)
+// DOMAIN MODEL
 export interface ProductFeedItem {
     id: string;
     title: string;
@@ -57,7 +58,7 @@ export interface ProductFeedItem {
     rating: number;
     reviews: number;
     sold: number;
-    shopName: string;
+    location: string;
     isMall?: boolean;
 }
 
@@ -84,5 +85,6 @@ export interface BaseProductDTO {
     } | null;
     shop?: {
         shopName?: string | null;
+        shop_location?: string | null;
     } | null;
 }

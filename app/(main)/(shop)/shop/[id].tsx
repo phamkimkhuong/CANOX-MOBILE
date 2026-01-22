@@ -263,7 +263,7 @@ export default function ShopDetailScreen() {
                             sold={product.sold}
                             discount={product.discountPercentage}
                             isMall={product.isMall}
-                            location={product.shopName}
+                            location={product.location}
                             onPress={() => handleProductPress(product)}
                             route={productRoutes.detail(product.id)}
                         />

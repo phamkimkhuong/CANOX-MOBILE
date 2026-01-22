@@ -10,6 +10,8 @@ export const HOME_STRINGS: HomeTranslation = {
         seeAll: 'Xem tất cả',
         soldCount: 'Đã bán {{count}}',
         sellingFast: 'Đang bán chạy',
+        soldOut: 'Hết hàng',
+        urgentStock: 'SẮP CHÁY HÀNG',
     },
     featured: {
         title: 'Gợi ý cho bạn',

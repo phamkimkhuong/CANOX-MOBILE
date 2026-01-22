@@ -104,48 +104,32 @@ export const API_ROUTES = {
         CONFIRM_RECEIVED: (orderId: string) => `${API_PREFIX}/buyer/orders/${orderId}/confirm-received`,
     },
     REVIEWS: {
-        /** GET - List reviews for a specific entity */
         LIST: (type: string, id: string | number) => `${API_PREFIX}/reviews/${type}/${id}`,
-        /** POST - Create a new review */
         CREATE: `${API_PREFIX}/reviews`,
-        /** GET - Get my reviews (history) */
         MY_REVIEWS: `${API_PREFIX}/reviews/my-reviews`,
-        /** PUT - Update a review */
         UPDATE: (reviewId: string) => `${API_PREFIX}/reviews/${reviewId}`,
-        /** DELETE - Delete a review */
         DELETE: (reviewId: string) => `${API_PREFIX}/reviews/${reviewId}`,
     },
     BUYERS_INFORMATION: {
         UPDATE: (buyerId: string) => `${API_PREFIX}/buyers/${buyerId}`,
     },
     WISHLISTS: {
-        /** GET - List user's wishlists */
         LIST: `${API_PREFIX}/wishlists`,
-        /** GET - Get wishlist detail with items */
         DETAIL: (wishlistId: string) => `${API_PREFIX}/wishlists/${wishlistId}`,
         /** GET - Get items in a wishlist */
         ITEMS: (wishlistId: string) => `${API_PREFIX}/wishlists/${wishlistId}/items`,
-        /** POST - Create new wishlist */
         CREATE: `${API_PREFIX}/wishlists`,
-        /** PUT - Update wishlist */
         UPDATE: (wishlistId: string) => `${API_PREFIX}/wishlists/${wishlistId}`,
-        /** DELETE - Delete wishlist */
         DELETE: (wishlistId: string) => `${API_PREFIX}/wishlists/${wishlistId}`,
         /** GET - Get default wishlist */
         DEFAULT: `${API_PREFIX}/wishlists/default`,
-        /** GET - Popular public wishlists */
         POPULAR: `${API_PREFIX}/wishlists/popular`,
-        /** GET - Latest public wishlists */
         LATEST: `${API_PREFIX}/wishlists/latest`,
-        /** GET - Search public wishlists */
         SEARCH: `${API_PREFIX}/wishlists/public/search`,
         /** GET - Items that met price target */
         PRICE_TARGET_MET: `${API_PREFIX}/wishlists/price-target-met`,
-        /** POST - Add item to wishlist */
         ADD_ITEM: (wishlistId: string) => `${API_PREFIX}/wishlists/${wishlistId}/items`,
-        /** PUT - Update wishlist item */
         UPDATE_ITEM: (wishlistId: string, itemId: string) => `${API_PREFIX}/wishlists/${wishlistId}/items/${itemId}`,
-        /** DELETE - Remove item from wishlist */
         REMOVE_ITEM: (wishlistId: string, itemId: string) => `${API_PREFIX}/wishlists/${wishlistId}/items/${itemId}`,
     },
     STORAGE: {
@@ -160,5 +144,12 @@ export const API_ROUTES = {
         HOT: `${API_PREFIX}/search/hot`,
         SUGGESTIONS: `${API_PREFIX}/search/suggestions`,
         TRACK: `${API_PREFIX}/search/track`,
+    },
+    CAMPAIGNS: {
+        ACTIVE_SLOTS: `${API_PREFIX}/campaigns/slots/active`,
+        SLOT_PRODUCTS: (slotId: string) => `${API_PREFIX}/campaigns/slots/${slotId}/products`,
+        ACTIVE: `${API_PREFIX}/campaigns/active`,
+        UPCOMING: `${API_PREFIX}/campaigns/upcoming`,
+        FEATURED: `${API_PREFIX}/campaigns/featured`,
     },
 } as const;  // <--- as const for TS to understand these are readonly values

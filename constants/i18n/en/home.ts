@@ -10,6 +10,8 @@ export const HOME_STRINGS: HomeTranslation = {
         seeAll: 'See all',
         soldCount: 'Sold {{count}}',
         sellingFast: 'Selling fast',
+        soldOut: 'Sold Out',
+        urgentStock: 'LOW STOCK',
     },
     featured: {
         title: 'Featured Categories',

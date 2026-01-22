@@ -47,7 +47,7 @@ export const RecommendedProducts = () => {
                             rating={item.rating}
                             reviews={item.reviews}
                             sold={item.sold}
-                            location={item.shopName}
+                            location={item.location}
                             discount={item.discountPercentage}
                             isMall={item.isMall}
                             onPress={() => {

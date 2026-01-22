@@ -2,6 +2,17 @@ import { BaseProductDTO, ProductFeedItem } from '@/types/product/product';
 import { toPublicUrl } from '@/utils/url';
 
 /**
+ * Shorten Vietnam location names for display
+ * Examples:
+ * - "Thành Phố Hồ Chí Minh" -> "TP. Hồ Chí Minh"
+ */
+export const shortenLocationName = (location: string | null | undefined): string => {
+    if (!location) return '';
+
+    return location.trim().replace(/^Thành\s+[Pp]hố\s+/i, 'TP. ');
+};
+
+/**
  * Transform Raw API Data -> Lightweight UI Model
  * Supports multiple DTO types via BaseProductDTO interface
  */
@@ -26,6 +37,7 @@ export const transformProduct = (raw: BaseProductDTO): ProductFeedItem => {
     if (originalPrice && originalPrice > displayPrice) {
         discount = Math.round(((originalPrice - displayPrice) / originalPrice) * 100);
     }
+    const location = shortenLocationName(raw.shop?.shop_location);
 
     return {
         id: raw.id,
@@ -37,6 +49,6 @@ export const transformProduct = (raw: BaseProductDTO): ProductFeedItem => {
         rating: raw.reviewStatistics?.averageRating ?? 0,
         reviews: raw.reviewStatistics?.totalReviews ?? 0,
         sold: raw.reviewStatistics?.verifiedPurchaseCount ?? 0,
-        shopName: raw.shop?.shopName ?? '',
+        location,
     };
 };

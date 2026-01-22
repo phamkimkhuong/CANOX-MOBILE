@@ -532,6 +532,7 @@ export default function ProductDetailScreen() {
                         rating={item.data.rating}
                         reviews={item.data.reviews}
                         sold={item.data.sold}
+                        location={item.data.location}
                         discount={item.data.discountPercentage}
                         isMall={item.data.isMall}
                         onPress={() => {
