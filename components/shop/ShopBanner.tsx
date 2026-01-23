@@ -37,9 +37,9 @@ export const ShopBanner: React.FC<ShopBannerProps> = ({
     const styles = stylesheet;
 
     const gradientColors: [string, string, string, string] = [
-        '#005f8c',
-        '#0077aa',
-        '#89b4c8',
+        '#1c252e',
+        '#2d3741',
+        '#454f5b',
         theme.colors.background,
     ];
 
@@ -67,7 +67,7 @@ export const ShopBanner: React.FC<ShopBannerProps> = ({
 
             {/* Smooth bottom transition - blend into ShopHeaderInfo */}
             <LinearGradient
-                colors={['transparent', 'rgba(255,255,255,0.5)', theme.colors.surface]}
+                colors={['transparent', 'rgba(0,0,0,0.1)', theme.colors.surface]}
                 locations={[0, 0.6, 1]}
                 style={styles.bottomFade}
             />

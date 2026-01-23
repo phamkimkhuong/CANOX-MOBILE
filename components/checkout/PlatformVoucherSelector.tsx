@@ -166,9 +166,9 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
                                 ]}
                                 numberOfLines={1}
                             >
-                                {selectedShippingVoucher?.code}
+                                {selectedShippingVoucher ? (selectedShippingVoucher.maxDiscountDisplay || selectedShippingVoucher.title) : ''}
                                 {selectedShippingVoucher && selectedDiscountVoucher ? ', ' : ''}
-                                {selectedDiscountVoucher?.code}
+                                {selectedDiscountVoucher ? (selectedDiscountVoucher.maxDiscountDisplay || selectedDiscountVoucher.title) : ''}
                             </Text>
                             {discountAmount > 0 && !isInvalid && (
                                 <Text style={styles.discountText}>
@@ -502,7 +502,7 @@ const styles = StyleSheet.create((theme, rt) => {
         discountText: {
             fontSize: 14,
             fontWeight: '700',
-            color: theme.colors.error,
+            color: theme.colors.success,
         },
 
         placeholderText: {
@@ -677,7 +677,7 @@ const styles = StyleSheet.create((theme, rt) => {
         },
 
         voucherLeftBadgeShipping: {
-            backgroundColor: '#10B981',
+            backgroundColor: theme.colors.success,
         },
 
         voucherLeftBadgeText: {

@@ -127,7 +127,7 @@ const styles = StyleSheet.create((theme) => ({
     },
     headerTitle: {
         fontSize: 14,
-        fontWeight: '700',
+        fontWeight: '500',
         color: theme.colors.typography,
     },
     badge: {

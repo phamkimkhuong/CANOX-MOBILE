@@ -21,7 +21,7 @@ interface ShopHeaderInfoProps {
     hasVouchers?: boolean;
 }
 
-const AVATAR_SIZE = 72;
+const AVATAR_SIZE = 64;
 const AVATAR_BORDER_WIDTH = 2;
 
 /**
@@ -183,7 +183,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         paddingTop: theme.margins.sm,
     },
     avatarContainer: {
-        marginTop: -30, // Negative overlap with banner
+        marginTop: -28, // Negative overlap with banner
     },
     avatar: {
         width: AVATAR_SIZE,

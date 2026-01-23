@@ -111,7 +111,7 @@ export default function OrderSuccessScreen() {
     }, []);
 
     /**
-     * Navigate to order history/list (Quay lại Trang chủ in design but we go to orders list)
+     * Navigate to order history/list
      */
     const handleGoToOrdersList = useCallback(() => {
         Navigator.replace(ROUTES.ORDERS.LIST as never);
@@ -119,6 +119,13 @@ export default function OrderSuccessScreen() {
 
     /**
      * Navigate back to home
+     */
+    const handleGoToHome = useCallback(() => {
+        Navigator.replace(ROUTES.TABS.HOME as never);
+    }, []);
+
+    /**
+     * Continue shopping (also goes to home or search)
      */
     const handleContinueShopping = useCallback(() => {
         Navigator.replace(ROUTES.TABS.HOME as never);
@@ -160,7 +167,7 @@ export default function OrderSuccessScreen() {
                         >
                             <IconSymbol
                                 name="content-copy"
-                                size={16}
+                                size={14}
                                 color={theme.colors.secondary}
                             />
                         </Pressable>
@@ -319,9 +326,7 @@ export default function OrderSuccessScreen() {
                     entering={FadeInUp.delay(300).duration(400)}
                     style={styles.subtitle}
                 >
-                    {isMultipleOrders
-                        ? `Bạn đã đặt thành công ${orderCount} đơn hàng\ntừ ${orderCount} shop khác nhau`
-                        : 'Cảm ơn bạn đã mua sắm. Đơn hàng của bạn đã được\ntiếp nhận và đang trong quá trình xử lý.'}
+                    Cảm ơn bạn đã mua sắm. Đơn hàng của bạn đã được tiếp nhận và đang trong quá trình xử lý.
                 </Animated.Text>
 
                 {/* Order Card - Different content based on order count */}
@@ -332,10 +337,10 @@ export default function OrderSuccessScreen() {
                     entering={FadeInDown.delay(500).duration(400)}
                     style={styles.actionsSection}
                 >
-                    {/* View Order Detail - Outline Button */}
+                    {/* Primary Action - View Order Detail/History */}
                     <Pressable
                         style={({ pressed }) => [
-                            styles.outlineButton,
+                            styles.primaryButton,
                             pressed && styles.buttonPressed,
                         ]}
                         onPress={() => {
@@ -349,17 +354,17 @@ export default function OrderSuccessScreen() {
                         <IconSymbol
                             name="receipt-long"
                             size={20}
-                            color={theme.colors.primary}
+                            color={theme.colors.surface}
                         />
-                        <Text style={styles.outlineButtonText}>
-                            {isMultipleOrders ? 'Xem lịch sử mua hàng' : 'Xem Chi tiết Đơn hàng'}
+                        <Text style={styles.primaryButtonText}>
+                            {isMultipleOrders ? 'Xem lịch sử mua hàng' : 'Chi tiết đơn hàng'}
                         </Text>
                     </Pressable>
 
-                    {/* Continue Shopping - Primary Button */}
+                    {/* Secondary Action - Continue Shopping */}
                     <Pressable
                         style={({ pressed }) => [
-                            styles.primaryButton,
+                            styles.outlineButton,
                             pressed && styles.buttonPressed,
                         ]}
                         onPress={handleContinueShopping}
@@ -367,17 +372,17 @@ export default function OrderSuccessScreen() {
                         <IconSymbol
                             name="shopping-bag"
                             size={20}
-                            color={theme.colors.surface}
+                            color={theme.colors.primary}
                         />
-                        <Text style={styles.primaryButtonText}>
+                        <Text style={styles.outlineButtonText}>
                             Tiếp tục Mua sắm
                         </Text>
                     </Pressable>
 
-                    {/* Back to Home - Link */}
+                    {/* Link - Back to Home */}
                     <Pressable
                         style={styles.linkButton}
-                        onPress={handleGoToOrdersList}
+                        onPress={handleGoToHome}
                     >
                         <Text style={styles.linkButtonText}>
                             Quay lại Trang chủ
@@ -413,7 +418,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         width: 112,
         height: 112,
         borderRadius: 56,
-        backgroundColor: theme.colors.surface,
+        backgroundColor: theme.colors.successSoft,
         alignItems: 'center',
         justifyContent: 'center',
         ...theme.shadows.medium,
@@ -444,9 +449,9 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderColor: theme.colors.border,
     },
     orderNumberRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        gap: 6,
         paddingBottom: theme.margins.md,
         marginBottom: theme.margins.md,
         borderBottomWidth: 1,
@@ -466,7 +471,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
 
     orderNumberText: {
-        fontSize: 16,
+        fontSize: 15,
         fontWeight: '700',
         color: theme.colors.typography,
     },
@@ -513,13 +518,13 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.typographySecondary,
     },
     detailsSection: {
-        gap: theme.margins.sm,
+        gap: theme.margins.md,
     },
 
     detailRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        gap: 4,
     },
 
     detailLabel: {

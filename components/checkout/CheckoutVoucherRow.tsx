@@ -108,7 +108,7 @@ export const CheckoutVoucherRow: React.FC<CheckoutVoucherRowProps> = ({
                         {selectedVoucher ? (
                             <View style={styles.selectedRow}>
                                 <Text style={styles.voucherCode}>
-                                    {selectedVoucher.code}
+                                    {selectedVoucher.maxDiscountDisplay || selectedVoucher.title}
                                 </Text>
                                 {discountAmount > 0 && (
                                     <Text style={styles.discountText}>
@@ -300,8 +300,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
 
     title: {
-        fontSize: 15,
-        fontWeight: '600',
+        fontWeight: '500',
         color: theme.colors.typography,
     },
 
@@ -316,15 +315,15 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
 
     voucherCode: {
-        fontSize: 14,
-        fontWeight: '600',
+        fontSize: 13,
+        fontWeight: '500',
         color: theme.colors.typography,
     },
 
     discountText: {
         fontSize: 14,
         fontWeight: '700',
-        color: theme.colors.error,
+        color: theme.colors.success,
     },
 
     placeholderText: {

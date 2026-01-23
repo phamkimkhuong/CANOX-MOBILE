@@ -172,7 +172,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     discountValue: {
         fontSize: 14,
         fontWeight: '600',
-        color: '#10B981',
+        color: theme.colors.success,
     },
 
     divider: {
@@ -209,7 +209,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 4,
-        backgroundColor: '#10B98112',
+        backgroundColor: theme.colors.successLight,
         paddingHorizontal: theme.margins.smd,
         paddingVertical: 6,
         borderRadius: 8,
@@ -218,7 +218,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     savingsText: {
         fontSize: 12,
         fontWeight: '600',
-        color: '#10B981',
+        color: theme.colors.success,
     },
 }));
 

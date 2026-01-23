@@ -171,10 +171,10 @@ const stylesheet = StyleSheet.create((theme) => ({
 
     orderButton: {
         backgroundColor: theme.colors.error,
-        paddingVertical: theme.margins.md,
-        paddingHorizontal: theme.margins.xl,
-        borderRadius: 12,
-        minWidth: 150,
+        paddingVertical: theme.margins.smd,
+        paddingHorizontal: theme.margins.md,
+        borderRadius: 10,
+        minWidth: 130,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -189,8 +189,8 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
 
     orderButtonText: {
-        fontSize: 16,
-        fontWeight: '600',
+        fontSize: 15,
+        fontWeight: '700',
         color: '#FFFFFF',
     },
 }));

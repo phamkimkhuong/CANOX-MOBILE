@@ -37,7 +37,7 @@ export const ShopNavBar: React.FC<ShopNavBarProps> = ({
     onBackPress,
     onSearchPress,
     onMorePress,
-    searchPlaceholder = 'Tìm trong Shop',
+    searchPlaceholder = 'Tìm sản phẩm trong Shop',
 }) => {
     const { theme } = useUnistyles();
     const insets = useSafeAreaInsets();
@@ -62,12 +62,12 @@ export const ShopNavBar: React.FC<ShopNavBarProps> = ({
         };
     });
 
-    // Search bar background: translucent white → background
+    // Search bar background: translucent dark → solid background on scroll
     const animatedSearchStyle = useAnimatedStyle(() => {
         const backgroundColor = interpolateColor(
             scrollY.value,
             [0, SCROLL_THRESHOLD],
-            ['rgba(255, 255, 255, 0.4)', theme.colors.background]
+            ['rgba(0, 0, 0, 0.25)', theme.colors.background]
         );
         return { backgroundColor };
     });
@@ -87,7 +87,7 @@ export const ShopNavBar: React.FC<ShopNavBarProps> = ({
         const color = interpolateColor(
             scrollY.value,
             [0, SCROLL_THRESHOLD],
-            ['rgba(255, 255, 255, 0.8)', theme.colors.typographySecondary]
+            ['rgba(255, 255, 255, 0.9)', theme.colors.typographySecondary]
         );
         return { color };
     });
@@ -193,13 +193,14 @@ const stylesheet = StyleSheet.create((theme) => ({
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
-        height: 38,
-        borderRadius: 20,
+        height: 40,
+        borderRadius: 8,
         paddingHorizontal: theme.margins.smd,
         gap: 8,
     },
     searchText: {
         fontSize: 14,
+        fontWeight: '500',
     },
     rightActions: {
         flexDirection: 'row',
