@@ -17,6 +17,7 @@
  * />
  */
 
+import { createScaledFontSize } from '@/constants/unistyles';
 import type { CheckboxState } from '@/types/cart';
 import { Image } from 'expo-image';
 import React, { memo } from 'react';
@@ -133,49 +134,53 @@ export const ShopHeader: React.FC<ShopHeaderProps> = memo(({
 
 ShopHeader.displayName = 'ShopHeader';
 
-const styles = StyleSheet.create((theme) => ({
-    container: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: theme.margins.smd,
-        paddingVertical: theme.margins.smd,
-        gap: theme.margins.smd,
-        backgroundColor: theme.colors.surface,
-        borderBottomWidth: 1,
-        borderBottomColor: theme.colors.border,
-    },
-    shopInfo: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-    },
-    shopLogo: {
-        width: 24,
-        height: 24,
-        borderRadius: 12,
-        backgroundColor: theme.colors.background,
-    },
-    shopName: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: theme.colors.typography,
-        flex: 1,
-    },
-    mallBadge: {
-        backgroundColor: theme.colors.error,
-        borderRadius: theme.radius.s,
-        paddingHorizontal: 6,
-        paddingVertical: 2,
-    },
-    mallText: {
-        fontSize: 10,
-        fontWeight: '700',
-        color: theme.colors.onPrimary,
-    },
-    editText: {
-        fontSize: 13,
-        fontWeight: '500',
-        color: theme.colors.typographySecondary,
-    },
-}));
+const styles = StyleSheet.create((theme, rt) => {
+    const f = (size: number) => createScaledFontSize(size, rt.screen.width);
+
+    return {
+        container: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingHorizontal: theme.margins.smd,
+            paddingVertical: theme.margins.smd,
+            gap: theme.margins.smd,
+            backgroundColor: theme.colors.surface,
+            borderBottomWidth: 1,
+            borderBottomColor: theme.colors.border,
+        },
+        shopInfo: {
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 8,
+        },
+        shopLogo: {
+            width: 24,
+            height: 24,
+            borderRadius: 12,
+            backgroundColor: theme.colors.background,
+        },
+        shopName: {
+            fontSize: f(theme.fontSizes.sm),
+            fontWeight: '600',
+            color: theme.colors.typography,
+            flex: 1,
+        },
+        mallBadge: {
+            backgroundColor: theme.colors.error,
+            borderRadius: theme.radius.s,
+            paddingHorizontal: 6,
+            paddingVertical: 2,
+        },
+        mallText: {
+            fontSize: f(theme.fontSizes.xs),
+            fontWeight: '700',
+            color: theme.colors.onPrimary,
+        },
+        editText: {
+            fontSize: f(theme.fontSizes.sm),
+            fontWeight: '500',
+            color: theme.colors.typographySecondary,
+        },
+    }
+});

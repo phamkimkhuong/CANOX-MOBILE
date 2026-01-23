@@ -117,7 +117,6 @@ export type AddToCartResponse = z.infer<typeof AddToCartResponseSchema>;
 // ============================================
 // UI TYPES (For Rendering & Client State)
 // ============================================
-
 /**
  * CartItemUI - Extended item for UI rendering
  * Includes calculated fields and display-ready data
@@ -143,6 +142,12 @@ export interface CartItemUI {
     stockMessage: string;
     isOutOfStock: boolean;
     maxQuantity: number;
+
+    // Low stock warning
+    lowStockWarning: {
+        text: string;        // "Chỉ còn 3 sản phẩm" or "Còn 8 sản phẩm"
+        isUrgent: boolean;   // true = red color, false = orange color
+    } | null;
 
     // Discount
     discountAmount: number;

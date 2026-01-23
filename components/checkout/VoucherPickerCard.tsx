@@ -81,7 +81,12 @@ export const VoucherPickerCard = memo<VoucherPickerCardProps>(({
 
             {/* Left Section - Discount Highlight */}
             <View style={[styles.leftSection, { backgroundColor: accentBgColor }]}>
-                <Text style={[styles.discountText, { color: accentColor }]}>
+                <Text
+                    style={[styles.discountText, { color: accentColor }]}
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                    minimumFontScale={0.7}
+                >
                     {voucher.discountDisplay}
                 </Text>
 
@@ -104,11 +109,6 @@ export const VoucherPickerCard = memo<VoucherPickerCardProps>(({
                     <Text style={[styles.titleText, isDisabled && styles.titleTextDisabled]} numberOfLines={1}>
                         {voucher.maxDiscountDisplay || voucher.title}
                     </Text>
-                    {isBestValue && voucher.isApplicable && (
-                        <View style={styles.bestValueBadge}>
-                            <Text style={styles.bestValueText}>Tốt nhất</Text>
-                        </View>
-                    )}
                 </View>
 
                 {/* Row 2: Min order condition */}
@@ -133,10 +133,17 @@ export const VoucherPickerCard = memo<VoucherPickerCardProps>(({
                 ) : null}
             </View>
 
-            {/* Absolute Usage Badge in top right */}
-            {voucher.maxUsage && voucher.maxUsage > 0 && (
+            {/* Absolute Usage Badge in top right - Only show when count < 10 */}
+            {voucher.maxUsage && voucher.maxUsage > 0 && voucher.maxUsage < 10 && (
                 <View style={styles.absoluteUsageBadge}>
                     <Text style={styles.absoluteUsageBadgeText}>x{voucher.maxUsage}</Text>
+                </View>
+            )}
+
+            {/* Best Value Badge in bottom right */}
+            {isBestValue && voucher.isApplicable && (
+                <View style={styles.bestValueBadge}>
+                    <Text style={styles.bestValueText}>Tốt nhất</Text>
                 </View>
             )}
         </Pressable>
@@ -202,7 +209,7 @@ const styles = StyleSheet.create((theme) => ({
 
     // Left Section
     leftSection: {
-        width: 70,
+        width: 88,
         height: CARD_HEIGHT - 16,
         alignItems: 'center',
         justifyContent: 'center',
@@ -248,15 +255,18 @@ const styles = StyleSheet.create((theme) => ({
         color: theme.colors.typographySecondary,
     },
     bestValueBadge: {
-        backgroundColor: theme.colors.warningSoft,
-        paddingHorizontal: 6,
-        paddingVertical: 2,
-        borderRadius: theme.radius.s,
+        position: 'absolute',
+        bottom: 0,
+        right: 0,
+        backgroundColor: theme.colors.errorSoft,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderTopLeftRadius: theme.radius.m,
     },
     bestValueText: {
-        fontSize: 11,
-        fontWeight: '700',
-        color: theme.colors.warning,
+        fontSize: 10,
+        fontWeight: '800',
+        color: theme.colors.error,
     },
     absoluteUsageBadge: {
         position: 'absolute',
@@ -294,7 +304,7 @@ const styles = StyleSheet.create((theme) => ({
     reasonText: {
         fontSize: 12,
         fontWeight: '500',
-        color: theme.colors.warning,
+        color: theme.colors.typographySecondary,
     },
 }));
 

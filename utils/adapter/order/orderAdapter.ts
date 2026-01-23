@@ -54,6 +54,7 @@ export const transformOrderItem = (item: OrderItem): OrderItemUI => {
         itemId: item.itemId,
         productId: item.productId,
         variantId: item.variantId,
+        sku: item.sku || '',
         productName: item.productName,
         imageUrl,
         variantAttributes: item.variantAttributes || '',
@@ -113,9 +114,29 @@ export const transformOrder = (order: Order): OrderUI => {
     const shopLogoUrl = order.shopInfo?.logoUrl ? toPublicUrl(order.shopInfo.logoUrl) : null;
 
     // Extract nested objects with safe defaults
-    const pricing = order.pricing;
-    const payment = order.payment;
-    const shipment = order.shipment;
+    const pricing = order.pricing ?? {
+        subtotal: 0,
+        shopDiscount: 0,
+        platformDiscount: 0,
+        shippingDiscount: 0,
+        originalShippingFee: 0,
+        appliedVoucherCodes: null,
+        totalDiscount: 0,
+        taxAmount: 0,
+        shippingFee: 0,
+        grandTotal: 0,
+    };
+    const payment = order.payment ?? {
+        method: 'COD' as PaymentMethod,
+        url: null,
+        intentId: null,
+        groupId: null,
+        expiresAt: null,
+    };
+    const shipment = order.shipment ?? {
+        trackingNumber: null,
+        carrier: null,
+    };
     const shippingAddress = order.shippingAddress;
     const loyalty = order.loyalty || DEFAULT_LOYALTY;
 

@@ -34,7 +34,6 @@ interface CartItemProps {
     onVariantPress?: (id: string) => void;
     /** Find similar product callback (receives id) */
     onFindSimilar?: (id: string) => void;
-    /** Delete item callback (receives id) */
     onDelete?: (id: string) => void;
 }
 
@@ -68,6 +67,7 @@ export const CartItem: React.FC<CartItemProps> = memo(({
         quantity,
         maxQuantity,
         isOutOfStock,
+        lowStockWarning,
     } = item;
     return (
         <View style={[styles.container, isOutOfStock && styles.outOfStockContainer]}>
@@ -164,6 +164,17 @@ export const CartItem: React.FC<CartItemProps> = memo(({
                             >
                                 {formatCurrency(unitPrice)}
                             </Text>
+                            {/* Low Stock Warning */}
+                            {lowStockWarning && (
+                                <Text
+                                    style={[
+                                        styles.lowStockWarning,
+                                        lowStockWarning.isUrgent && styles.lowStockWarningUrgent
+                                    ]}
+                                >
+                                    {lowStockWarning.text}
+                                </Text>
+                            )}
                         </View>
 
                         {/* Quantity Stepper or Find Similar Button */}
@@ -271,7 +282,7 @@ const styles = StyleSheet.create((theme, rt) => {
             opacity: 0.8,
         },
         productName: {
-            fontSize: f(theme.fontSizes.md),
+            fontSize: f(theme.fontSizes.sm),
             fontWeight: '500',
             lineHeight: 20,
             color: theme.colors.typography,
@@ -328,6 +339,16 @@ const styles = StyleSheet.create((theme, rt) => {
             fontSize: f(theme.fontSizes.sm),
             fontWeight: '500',
             color: theme.colors.primary,
+        },
+        lowStockWarning: {
+            fontSize: f(theme.fontSizes.xs),
+            fontWeight: '500',
+            color: theme.colors.warning,
+            marginTop: 2,
+        },
+        lowStockWarningUrgent: {
+            color: theme.colors.error,
+            fontWeight: '600',
         },
     };
 });

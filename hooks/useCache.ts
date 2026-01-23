@@ -12,7 +12,6 @@ interface UseCacheReturn {
     isCalculating: boolean;
     /** Whether cache is being cleared */
     isClearing: boolean;
-    /** Error message if any */
     error: string | null;
     /** Recalculate cache size */
     refreshCacheSize: () => Promise<void>;

@@ -86,14 +86,18 @@ export const ProductPreviewList: React.FC<ProductPreviewListProps> = ({
     return (
         <View style={styles.container}>
             {/* Hiển thị các items đầu tiên */}
-            {displayItems.map((item, index) => (
-                <View key={item.itemId}>
-                    <ProductItemRow item={item} />
-                    {index < displayItems.length - 1 && (
-                        <View style={styles.divider} />
-                    )}
-                </View>
-            ))}
+            {displayItems.map((item, index) => {
+                // Use sku as primary key since it's unique per variant
+                const uniqueKey = item.sku || item.itemId || `${item.productId}-${item.variantId}-${index}`;
+                return (
+                    <View key={uniqueKey}>
+                        <ProductItemRow item={item} />
+                        {index < displayItems.length - 1 && (
+                            <View style={styles.divider} />
+                        )}
+                    </View>
+                );
+            })}
 
             {/* "Xem thêm" nếu còn items */}
             {remainingCount > 0 && (
@@ -102,9 +106,11 @@ export const ProductPreviewList: React.FC<ProductPreviewListProps> = ({
                     <View style={styles.imageStack}>
                         {items.slice(maxDisplay, maxDisplay + 3).map((item, index) => {
                             const imgUrl = item.imageUrl || PLACEHOLDER_IMAGE;
+                            // Use sku as primary key since it's unique per variant
+                            const uniqueKey = item.sku || item.itemId || `stack-${item.productId}-${item.variantId}-${index}`;
                             return (
                                 <Image
-                                    key={item.itemId}
+                                    key={uniqueKey}
                                     source={{ uri: imgUrl }}
                                     style={[
                                         styles.stackImage,

@@ -35,10 +35,56 @@ export const buildImageUrl = (
 // TRANSFORM FUNCTIONS (API => UI)
 // ============================================
 
+// Stock warning thresholds
+const LOW_STOCK_THRESHOLD = 20;   // Show warning when stock <= 20
+const URGENT_STOCK_THRESHOLD = 10; // Show urgent warning when stock <= 10
+
+/**
+ * Calculate low stock warning based on available stock
+ * 
+ * - stock <= 10: Urgent warning (red) - "Chỉ còn X sản phẩm"
+ * - stock 11-20: Normal warning (orange) - "Còn X sản phẩm"  
+ * - stock > 20: No warning (null)
+ * - stock = 0: No warning (handled by OUT_OF_STOCK overlay)
+ */
+const calculateLowStockWarning = (availableStock: number): CartItemUI['lowStockWarning'] => {
+    if (availableStock <= 0 || availableStock > LOW_STOCK_THRESHOLD) {
+        return null;
+    }
+
+    if (availableStock <= URGENT_STOCK_THRESHOLD) {
+        return {
+            text: `Chỉ còn ${availableStock} sản phẩm`,
+            isUrgent: true,
+        };
+    }
+
+    return {
+        text: `Còn ${availableStock} sản phẩm`,
+        isUrgent: false,
+    };
+};
+
 /**
  * Transform CartItem (API) => CartItemUI
+ * 
+ * Pricing Logic:
+ * - originalPrice: Use priceBeforeDiscount (shown as struck-through when discounted)
+ * - unitPrice: Current selling price per unit (after discount)
+ * - discountPercent: From promotion.discountPercent if available
+ * - totalPrice: unitPrice × quantity (pre-calculated by API)
  */
 export const transformCartItem = (item: CartItem): CartItemUI => {
+    const unitPrice = item.unitPrice ?? 0;
+    const priceBeforeDiscount = item.priceBeforeDiscount ?? 0;
+    const availableStock = item.availableStock ?? 0;
+
+    // Only show original price if there's an actual discount
+    const hasDiscount = priceBeforeDiscount > unitPrice;
+
+    // Extract discount percent from promotion object if available
+    const discountPercent = item.promotion?.discountPercent ?? null;
+
     return {
         id: item.id,
         version: item.version ?? 0,
@@ -46,7 +92,7 @@ export const transformCartItem = (item: CartItem): CartItemUI => {
         productName: item.productName ?? '',
         variantAttributes: item.variantAttributes || '',
         imageUrl: buildImageUrl(item.imageBasePath, item.imageExtension),
-        unitPrice: item.unitPrice ?? 0,
+        unitPrice,
         quantity: item.quantity ?? 1,
         totalPrice: item.totalPrice ?? 0,
         shopId: item.shopId ?? '',
@@ -55,16 +101,19 @@ export const transformCartItem = (item: CartItem): CartItemUI => {
         selectedForCheckout: item.selectedForCheckout ?? false,
 
         // Stock management
-        availableStock: item.availableStock ?? 0,
+        availableStock,
         stockStatus: (item.stockStatus as 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK') ?? 'IN_STOCK',
         stockMessage: item.stockMessage ?? '',
         isOutOfStock: item.stockStatus === 'OUT_OF_STOCK',
-        maxQuantity: item.availableStock ?? 0,
+        maxQuantity: availableStock,
 
-        // Discount
+        // Low stock warning
+        lowStockWarning: calculateLowStockWarning(availableStock),
+
+        // Discount pricing
         discountAmount: item.discountAmount ?? 0,
-        originalPrice: null, // API doesn't provide
-        discountPercent: null, // Can calculate if needed
+        originalPrice: hasDiscount ? priceBeforeDiscount : null,
+        discountPercent,
     };
 };
 

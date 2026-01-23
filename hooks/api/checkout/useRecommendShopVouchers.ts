@@ -41,10 +41,7 @@ export const useRecommendShopVouchers = (
         queryFn: async () => {
             if (!shopId || !requestBody) return [];
 
-            logger.api.info('Fetching recommended shop vouchers', {
-                shopId,
-                totalAmount: requestBody.totalAmount,
-            });
+            logger.api.info('Request body for recommended shop vouchers:', { shopId, requestBody });
 
             const response = await request(
                 {
@@ -59,6 +56,7 @@ export const useRecommendShopVouchers = (
                 logger.api.error('Failed to fetch shop vouchers:', response.message);
                 return [];
             }
+            logger.api.info('Fetched recommended shop vouchers:', response.data);
             const vouchers = response.data
                 .filter((item): item is RecommendedShopVoucherDTO & { voucher: NonNullable<RecommendedShopVoucherDTO['voucher']> } => !!item.voucher)
                 .map((item): VoucherUI => {

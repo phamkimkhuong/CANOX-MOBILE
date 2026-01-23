@@ -177,6 +177,7 @@ export const CheckoutVoucherRow: React.FC<CheckoutVoucherRowProps> = ({
                                         <TextInput
                                             style={styles.manualInput}
                                             placeholder={t('voucher.manualInputPlaceholder')}
+                                            placeholderTextColor={theme.colors.typographySecondary}
                                             value={manualCode}
                                             onChangeText={setManualCode}
                                             autoCapitalize="characters"
@@ -446,7 +447,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: theme.colors.background,
+        backgroundColor: theme.colors.borderMuted,
         borderRadius: 8,
         paddingHorizontal: theme.margins.sm,
         borderWidth: 1,

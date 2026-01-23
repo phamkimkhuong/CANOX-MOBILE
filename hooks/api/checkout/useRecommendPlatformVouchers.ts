@@ -36,9 +36,8 @@ export const useRecommendPlatformVouchers = (
         queryFn: async () => {
             if (!requestBody) return [];
 
-            logger.api.info('Fetching recommended platform vouchers', {
-                totalAmount: requestBody.totalAmount,
-                shopCount: requestBody.shopIds.length,
+            logger.api.info('Request body for recommended platform vouchers', {
+                requestBody: JSON.stringify(requestBody),
             });
             const response = await request(
                 {
@@ -48,6 +47,8 @@ export const useRecommendPlatformVouchers = (
                 },
                 RecommendPlatformVoucherResponseSchema
             );
+
+            logger.api.info('Fetched recommended platform vouchers:', response.data);
 
             if (!response.success) {
                 // If the API fails but returns success: false, we'll return an empty list

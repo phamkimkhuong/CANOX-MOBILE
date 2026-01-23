@@ -15,20 +15,63 @@ const DEFAULT_IMAGE = 'https://via.placeholder.com/96';
  * Maps to the simplified VoucherUI used in checkout.
  */
 export const toPlatformVoucherUI = (dto: RecommendedPlatformVoucherDTO): VoucherUI => {
-    const { voucher, applicable, reason } = dto;
+    const voucher = dto.voucher;
+    const applicable = dto.applicable ?? false;
+    const reason = dto.reason;
+
+    if (!voucher) {
+        return {
+            id: '',
+            code: '',
+            title: '',
+            description: '',
+            discountDisplay: '',
+            minOrderDisplay: '',
+            isApplicable: false,
+            expiresAt: null,
+        };
+    }
+
+    const discountValue = voucher.discountValue ?? 0;
+    const isPercentage = voucher.discountType === 'PERCENTAGE';
+    const maxDiscount = voucher.maxDiscount ?? null;
+
+    // Format discount display: "Giảm 10%" hoặc "Giảm 50.000 đ"
+    const discountDisplay = isPercentage
+        ? `Giảm\u00A0${Math.round(discountValue)}%`
+        : `Giảm\u00A0${formatCurrency(discountValue)}`;
+
+    // Format max discount display (the main title in some views)
+    const maxDiscountDisplay = isPercentage && maxDiscount && maxDiscount > 0
+        ? `Giảm tối đa ${formatCurrency(maxDiscount)}`
+        : `Giảm ${formatCurrency(discountValue)}`;
+
+    const minOrderDisplay = voucher.minOrderAmount && voucher.minOrderAmount > 1000 // Only show if > 1k
+        ? `Đơn tối thiểu ${formatCurrency(voucher.minOrderAmount)}`
+        : 'Mọi đơn hàng';
+
+    // Determine category from voucherScope
+    const category = voucher.voucherScope === 'SHIPPING' ? 'SHIPPING' : 'DISCOUNT';
 
     return {
-        id: voucher?.code ?? '',
-        code: voucher?.code ?? '',
-        title: voucher?.name ?? '',
-        description: reason || voucher?.description || '',
-        discountDisplay: formatDiscountDisplay(voucher?.discountValue ?? 0, (voucher?.discountType as any) || 'FIXED_AMOUNT'),
-        minOrderDisplay: voucher?.minOrderAmount
-            ? `Đơn tối thiểu ${formatCurrency(voucher.minOrderAmount)}`
-            : 'Mọi đơn hàng',
-        isApplicable: applicable ?? false,
-        expiresAt: voucher?.endDate ?? null,
-        category: voucher?.voucherScope === 'SHIPPING' ? 'SHIPPING' : 'DISCOUNT',
+        id: voucher.code ?? '',
+        code: voucher.code ?? '',
+        title: voucher.name ?? '',
+        description: reason || voucher.description || '',
+        discountDisplay,
+        minOrderDisplay,
+        isApplicable: applicable,
+        expiresAt: voucher.endDate ?? null,
+        category,
+
+        // Extended fields for rich display
+        discountType: isPercentage ? 'PERCENTAGE' : 'FIXED_AMOUNT',
+        discountValue,
+        maxDiscount,
+        maxDiscountDisplay,
+        maxUsage: voucher.maxUsage ?? null,
+        calculatedDiscount: null, // We don't have this pre-calculated for separate platform recommendations usually
+        reason: reason ?? null,
     };
 };
 

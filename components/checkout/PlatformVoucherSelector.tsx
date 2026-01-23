@@ -6,6 +6,7 @@
  */
 
 import { IconSymbol } from '@/components/ui/Icon';
+import { createScaledFontSize } from '@/constants/unistyles';
 import type { VoucherUI } from '@/types/cart';
 import { formatCurrency } from '@/utils/format';
 import React, { useCallback, useState } from 'react';
@@ -44,7 +45,6 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
 }) => {
     const { theme } = useUnistyles();
     const { t } = useTranslation('checkout');
-    const styles = stylesheet;
     const [isModalVisible, setIsModalVisible] = useState(false);
 
     // Local state for modal interaction - only commit on "Xong"
@@ -246,6 +246,7 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
                                         <TextInput
                                             style={styles.manualInput}
                                             placeholder={t('voucher.manualInputPlaceholder')}
+                                            placeholderTextColor={theme.colors.typographySecondary}
                                             value={manualCode}
                                             onChangeText={setManualCode}
                                             autoCapitalize="characters"
@@ -257,7 +258,7 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
                                                 onPress={() => setManualCode('')}
                                                 style={styles.clearButton}
                                             >
-                                                <IconSymbol name="close-circle" size={18} color={theme.colors.typographySecondary} />
+                                                <IconSymbol name="close-circle" size={16} color={theme.colors.typographySecondary} />
                                             </Pressable>
                                         )}
                                     </View>
@@ -336,7 +337,6 @@ interface VoucherItemProps {
 const VoucherItem: React.FC<VoucherItemProps> = ({ voucher, isSelected, onPress }) => {
     const { theme } = useUnistyles();
     const { t, i18n } = useTranslation('checkout');
-    const styles = stylesheet;
     const isShipping = voucher.category === 'SHIPPING';
     const isDisabled = !voucher.isApplicable;
 
@@ -385,15 +385,20 @@ const VoucherItem: React.FC<VoucherItemProps> = ({ voucher, isSelected, onPress 
                         size={16}
                         color="#FFFFFF"
                     />
-                    <Text style={styles.voucherLeftBadgeText}>
+                    <Text
+                        style={styles.voucherLeftBadgeText}
+                        numberOfLines={1}
+                        adjustsFontSizeToFit
+                        minimumFontScale={0.7}
+                    >
                         {voucher.discountDisplay}
                     </Text>
                 </View>
 
                 {/* Info */}
                 <View style={styles.voucherCardInfo}>
-                    <Text style={[styles.voucherCardCode, isDisabled && styles.voucherCardCodeDisabled]}>
-                        {voucher.code}
+                    <Text style={[styles.voucherCardCode, isDisabled && styles.voucherCardCodeDisabled]} numberOfLines={1}>
+                        {voucher.maxDiscountDisplay || voucher.title}
                     </Text>
                     <Text style={styles.voucherCardCondition}>
                         {voucher.minOrderDisplay}
@@ -418,404 +423,407 @@ const VoucherItem: React.FC<VoucherItemProps> = ({ voucher, isSelected, onPress 
         </Pressable>
     );
 };
+const styles = StyleSheet.create((theme, rt) => {
+    const f = (size: number) => createScaledFontSize(size, rt.screen.width);
 
-const stylesheet = StyleSheet.create((theme) => ({
-    container: {
-        backgroundColor: theme.colors.surface,
-        marginBottom: theme.margins.sm,
-        paddingVertical: theme.margins.sm,
-    },
+    return {
+        container: {
+            backgroundColor: theme.colors.surface,
+            marginBottom: theme.margins.sm,
+            paddingVertical: theme.margins.sm,
+        },
 
-    containerPressed: {
-        backgroundColor: theme.colors.background,
-    },
+        containerPressed: {
+            backgroundColor: theme.colors.background,
+        },
 
-    titleRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: theme.margins.md,
-        paddingBottom: theme.margins.sm,
-        gap: theme.margins.sm,
-    },
+        titleRow: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingHorizontal: theme.margins.md,
+            paddingBottom: theme.margins.sm,
+            gap: theme.margins.sm,
+        },
 
-    titleIcon: {
-        width: 32,
-        height: 32,
-        borderRadius: 10,
-        backgroundColor: `${theme.colors.error}12`,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
+        titleIcon: {
+            width: 32,
+            height: 32,
+            borderRadius: 10,
+            backgroundColor: `${theme.colors.error}12`,
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
 
-    title: {
-        fontSize: 15,
-        fontWeight: '600',
-        color: theme.colors.typography,
-    },
+        title: {
+            fontSize: f(theme.fontSizes.md),
+            fontWeight: '600',
+            color: theme.colors.typography,
+        },
 
-    selectorRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: theme.margins.md,
-        paddingLeft: theme.margins.md + 32 + theme.margins.sm, // Align with title text
-    },
+        selectorRow: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingHorizontal: theme.margins.md,
+            paddingLeft: theme.margins.md + 32 + theme.margins.sm, // Align with title text
+        },
 
-    selectedContent: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: theme.margins.sm,
-    },
+        selectedContent: {
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: theme.margins.sm,
+        },
 
-    voucherBadge: {
-        backgroundColor: theme.colors.error,
-        paddingHorizontal: 8,
-        paddingVertical: 3,
-        borderRadius: 6,
-    },
+        voucherBadge: {
+            backgroundColor: theme.colors.error,
+            paddingHorizontal: 8,
+            paddingVertical: 3,
+            borderRadius: 6,
+        },
 
-    voucherBadgeText: {
-        fontSize: 11,
-        fontWeight: '700',
-        color: '#FFFFFF',
-    },
+        voucherBadgeText: {
+            fontSize: f(theme.fontSizes.xs),
+            fontWeight: '700',
+            color: '#FFFFFF',
+        },
 
-    voucherCode: {
-        flex: 1,
-        fontSize: 14,
-        fontWeight: '600',
-        color: theme.colors.typography,
-    },
+        voucherCode: {
+            flex: 1,
+            fontSize: f(theme.fontSizes.md),
+            fontWeight: '600',
+            color: theme.colors.typography,
+        },
 
-    voucherCodeInvalid: {
-        textDecorationLine: 'line-through',
-        color: theme.colors.typographySecondary,
-    },
+        voucherCodeInvalid: {
+            textDecorationLine: 'line-through',
+            color: theme.colors.typographySecondary,
+        },
 
-    discountText: {
-        fontSize: 14,
-        fontWeight: '700',
-        color: theme.colors.error,
-    },
+        discountText: {
+            fontSize: 14,
+            fontWeight: '700',
+            color: theme.colors.error,
+        },
 
-    placeholderText: {
-        flex: 1,
-        fontSize: 14,
-        color: theme.colors.primary,
-        fontWeight: '500',
-    },
+        placeholderText: {
+            flex: 1,
+            fontSize: 14,
+            color: theme.colors.primary,
+            fontWeight: '500',
+        },
 
-    warningRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: theme.margins.md,
-        paddingBottom: theme.margins.md,
-        gap: theme.margins.sm,
-        backgroundColor: `${theme.colors.warning}10`,
-        marginHorizontal: theme.margins.md,
-        borderRadius: 8,
-        paddingVertical: theme.margins.sm,
-        marginBottom: theme.margins.sm,
-    },
+        warningRow: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingHorizontal: theme.margins.md,
+            paddingBottom: theme.margins.md,
+            gap: theme.margins.sm,
+            backgroundColor: `${theme.colors.warning}10`,
+            marginHorizontal: theme.margins.md,
+            borderRadius: 8,
+            paddingVertical: theme.margins.sm,
+            marginBottom: theme.margins.sm,
+        },
 
-    warningText: {
-        fontSize: 13,
-        color: theme.colors.warning,
-        fontWeight: '500',
-    },
+        warningText: {
+            fontSize: f(theme.fontSizes.sm),
+            color: theme.colors.warning,
+            fontWeight: '500',
+        },
 
-    // Modal styles
-    modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.4)',
-        justifyContent: 'flex-end',
-    },
+        // Modal styles
+        modalOverlay: {
+            flex: 1,
+            backgroundColor: 'rgba(0, 0, 0, 0.4)',
+            justifyContent: 'flex-end',
+        },
 
-    modalContent: {
-        backgroundColor: theme.colors.surface,
-        borderTopLeftRadius: 24,
-        borderTopRightRadius: 24,
-        maxHeight: '75%',
-    },
+        modalContent: {
+            backgroundColor: theme.colors.surface,
+            borderTopLeftRadius: 24,
+            borderTopRightRadius: 24,
+            maxHeight: '75%',
+        },
 
-    handleBar: {
-        width: 36,
-        height: 4,
-        backgroundColor: theme.colors.border,
-        borderRadius: 2,
-        alignSelf: 'center',
-        marginTop: theme.margins.sm,
-    },
+        handleBar: {
+            width: 36,
+            height: 4,
+            backgroundColor: theme.colors.border,
+            borderRadius: 2,
+            alignSelf: 'center',
+            marginTop: theme.margins.sm,
+        },
 
-    modalHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: theme.margins.lg,
-        paddingVertical: theme.margins.md,
-        borderBottomWidth: 1,
-        borderBottomColor: theme.colors.border,
-    },
+        modalHeader: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingHorizontal: theme.margins.lg,
+            paddingVertical: theme.margins.md,
+            borderBottomWidth: 1,
+            borderBottomColor: theme.colors.border,
+        },
 
-    doneButton: {
-        paddingHorizontal: theme.margins.md,
-        paddingVertical: theme.margins.sm,
-        backgroundColor: `${theme.colors.primary}12`,
-        borderRadius: 8,
-    },
+        doneButton: {
+            paddingHorizontal: theme.margins.md,
+            paddingVertical: theme.margins.sm,
+            backgroundColor: `${theme.colors.primary}12`,
+            borderRadius: 8,
+        },
 
-    doneButtonText: {
-        color: theme.colors.primary,
-        fontWeight: '700',
-        fontSize: 14,
-    },
+        doneButtonText: {
+            color: theme.colors.primary,
+            fontWeight: '700',
+            fontSize: f(theme.fontSizes.sm),
+        },
 
-    modalHeaderLeft: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: theme.margins.sm,
-    },
+        modalHeaderLeft: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: theme.margins.sm,
+        },
 
-    modalTitle: {
-        fontSize: 17,
-        fontWeight: '600',
-        color: theme.colors.typography,
-    },
+        modalTitle: {
+            fontSize: f(theme.fontSizes.mdbase),
+            fontWeight: '600',
+            color: theme.colors.typography,
+        },
 
-    voucherList: {
-        maxHeight: 500,
-    },
+        voucherList: {
+            maxHeight: 500,
+        },
 
-    sectionHeader: {
-        paddingHorizontal: theme.margins.lg,
-        paddingTop: theme.margins.lg,
-        paddingBottom: theme.margins.sm,
-        backgroundColor: theme.colors.surface,
-    },
+        sectionHeader: {
+            paddingHorizontal: theme.margins.lg,
+            paddingTop: theme.margins.md,
+            paddingBottom: theme.margins.sm,
+            backgroundColor: theme.colors.surface,
+        },
 
-    sectionTitle: {
-        fontSize: 15,
-        fontWeight: '700',
-        color: theme.colors.typography,
-    },
+        sectionTitle: {
+            fontSize: f(theme.fontSizes.md),
+            fontWeight: '700',
+            color: theme.colors.typography,
+        },
 
-    emptyCategoryText: {
-        paddingHorizontal: theme.margins.lg,
-        paddingVertical: theme.margins.md,
-        fontSize: 13,
-        color: theme.colors.typographySecondary,
-        fontStyle: 'italic',
-    },
+        emptyCategoryText: {
+            paddingHorizontal: theme.margins.lg,
+            paddingVertical: theme.margins.md,
+            fontSize: f(theme.fontSizes.sm),
+            color: theme.colors.typographySecondary,
+            fontStyle: 'italic',
+        },
 
-    voucherItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: theme.margins.md,
-        paddingHorizontal: theme.margins.lg,
-    },
+        voucherItem: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingVertical: theme.margins.sm,
+            paddingHorizontal: theme.margins.lg,
+        },
 
-    voucherItemSelected: {
-        backgroundColor: `${theme.colors.primary}08`,
-    },
+        voucherItemSelected: {
+            backgroundColor: `${theme.colors.primary}08`,
+        },
 
-    voucherItemPressed: {
-        backgroundColor: theme.colors.background,
-    },
+        voucherItemPressed: {
+            backgroundColor: theme.colors.background,
+        },
 
-    radioContainer: {
-        marginRight: theme.margins.md,
-    },
+        radioContainer: {
+            marginRight: theme.margins.md,
+        },
 
-    radioOuter: {
-        width: 22,
-        height: 22,
-        borderRadius: 11,
-        borderWidth: 2,
-        borderColor: theme.colors.border,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
+        radioOuter: {
+            width: 22,
+            height: 22,
+            borderRadius: 11,
+            borderWidth: 2,
+            borderColor: theme.colors.border,
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
 
-    radioOuterSelected: {
-        borderColor: theme.colors.primary,
-    },
+        radioOuterSelected: {
+            borderColor: theme.colors.primary,
+        },
 
-    radioInner: {
-        width: 12,
-        height: 12,
-        borderRadius: 6,
-        backgroundColor: theme.colors.primary,
-    },
+        radioInner: {
+            width: 12,
+            height: 12,
+            borderRadius: 6,
+            backgroundColor: theme.colors.primary,
+        },
 
-    noVoucherText: {
-        fontSize: 14,
-        color: theme.colors.typographySecondary,
-    },
+        noVoucherText: {
+            fontSize: f(theme.fontSizes.md),
+            color: theme.colors.typographySecondary,
+        },
 
-    voucherCard: {
-        flex: 1,
-        flexDirection: 'row',
-        backgroundColor: theme.colors.background,
-        borderRadius: 12,
-        overflow: 'hidden',
-    },
+        voucherCard: {
+            flex: 1,
+            flexDirection: 'row',
+            backgroundColor: theme.colors.background,
+            borderRadius: 12,
+            overflow: 'hidden',
+        },
 
-    voucherLeftBadge: {
-        width: 85,
-        backgroundColor: theme.colors.error,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingVertical: theme.margins.smd,
-        paddingHorizontal: 4,
-    },
+        voucherLeftBadge: {
+            width: 88,
+            backgroundColor: theme.colors.error,
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingVertical: theme.margins.smd,
+            paddingHorizontal: 4,
+        },
 
-    voucherLeftBadgeShipping: {
-        backgroundColor: '#10B981',
-    },
+        voucherLeftBadgeShipping: {
+            backgroundColor: '#10B981',
+        },
 
-    voucherLeftBadgeText: {
-        fontSize: 12,
-        fontWeight: '700',
-        color: '#FFFFFF',
-        marginTop: 4,
-        textAlign: 'center',
-    },
+        voucherLeftBadgeText: {
+            fontSize: f(theme.fontSizes.sm),
+            fontWeight: '700',
+            color: '#FFFFFF',
+            marginTop: 4,
+            textAlign: 'center',
+        },
 
-    voucherCardInfo: {
-        flex: 1,
-        padding: theme.margins.smd,
-    },
+        voucherCardInfo: {
+            flex: 1,
+            padding: theme.margins.smd,
+        },
 
-    voucherCardCode: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: theme.colors.typography,
-    },
+        voucherCardCode: {
+            fontSize: f(theme.fontSizes.sm),
+            fontWeight: '600',
+            color: theme.colors.typography,
+        },
 
-    voucherCardCondition: {
-        fontSize: 12,
-        color: theme.colors.typographySecondary,
-        marginTop: 4,
-    },
+        voucherCardCondition: {
+            fontSize: f(theme.fontSizes.sm),
+            color: theme.colors.typographySecondary,
+            marginTop: 4,
+        },
 
-    voucherCardExpiry: {
-        fontSize: 11,
-        color: theme.colors.secondary,
-        marginTop: 4,
-    },
+        voucherCardExpiry: {
+            fontSize: f(theme.fontSizes.xs),
+            color: theme.colors.secondary,
+            marginTop: 4,
+        },
 
-    emptyState: {
-        alignItems: 'center',
-        paddingVertical: theme.margins.xxl,
-    },
+        emptyState: {
+            alignItems: 'center',
+            paddingVertical: theme.margins.xxl,
+        },
 
-    emptyText: {
-        fontSize: 14,
-        color: theme.colors.typographySecondary,
-        marginTop: theme.margins.md,
-    },
+        emptyText: {
+            fontSize: f(theme.fontSizes.md),
+            color: theme.colors.typographySecondary,
+            marginTop: theme.margins.md,
+        },
 
-    modalFooter: {
-        height: 34,
-    },
+        modalFooter: {
+            height: 34,
+        },
 
-    manualInputSection: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: theme.margins.lg,
-        paddingVertical: theme.margins.md,
-        backgroundColor: theme.colors.surface,
-        borderBottomWidth: 1,
-        borderBottomColor: theme.colors.border,
-        gap: theme.margins.sm,
-    },
+        manualInputSection: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingHorizontal: theme.margins.lg,
+            paddingVertical: theme.margins.md,
+            backgroundColor: theme.colors.surface,
+            borderBottomWidth: 1,
+            borderBottomColor: theme.colors.border,
+            gap: theme.margins.sm,
+        },
 
-    inputWrapper: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: theme.colors.background,
-        borderRadius: 8,
-        paddingHorizontal: theme.margins.sm,
-        borderWidth: 1,
-        borderColor: theme.colors.border,
-    },
+        inputWrapper: {
+            flex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: theme.colors.borderMuted,
+            borderRadius: 8,
+            paddingHorizontal: theme.margins.sm,
+            borderWidth: 1,
+            borderColor: theme.colors.border,
+        },
 
-    manualInput: {
-        flex: 1,
-        height: 40,
-        fontSize: 14,
-        color: theme.colors.typography,
-    },
+        manualInput: {
+            flex: 1,
+            height: 40,
+            fontSize: f(theme.fontSizes.md),
+            color: theme.colors.typography,
+        },
 
-    clearButton: {
-        padding: 4,
-    },
+        clearButton: {
+            padding: 4,
+        },
 
-    applyButton: {
-        backgroundColor: theme.colors.primary,
-        paddingHorizontal: theme.margins.lg,
-        height: 40,
-        borderRadius: 8,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
+        applyButton: {
+            backgroundColor: theme.colors.primary,
+            paddingHorizontal: theme.margins.lg,
+            height: 40,
+            borderRadius: 8,
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
 
-    applyButtonDisabled: {
-        backgroundColor: theme.colors.border,
-    },
+        applyButtonDisabled: {
+            backgroundColor: theme.colors.border,
+        },
 
-    applyButtonText: {
-        color: '#FFFFFF',
-        fontWeight: '700',
-        fontSize: 14,
-    },
+        applyButtonText: {
+            color: '#FFFFFF',
+            fontWeight: '700',
+            fontSize: f(theme.fontSizes.sm),
+        },
 
-    // Disabled voucher styles (when isApplicable = false)
-    voucherItemDisabled: {
-        opacity: 0.6,
-    },
+        // Disabled voucher styles (when isApplicable = false)
+        voucherItemDisabled: {
+            opacity: 0.6,
+        },
 
-    radioOuterDisabled: {
-        borderColor: theme.colors.border,
-        backgroundColor: theme.colors.background,
-    },
+        radioOuterDisabled: {
+            borderColor: theme.colors.border,
+            backgroundColor: theme.colors.background,
+        },
 
-    voucherCardDisabled: {
-        backgroundColor: `${theme.colors.background}80`,
-    },
+        voucherCardDisabled: {
+            backgroundColor: `${theme.colors.background}80`,
+        },
 
-    voucherLeftBadgeDisabled: {
-        backgroundColor: theme.colors.typographySecondary,
-    },
+        voucherLeftBadgeDisabled: {
+            backgroundColor: theme.colors.typographySecondary,
+        },
 
-    voucherCardCodeDisabled: {
-        color: theme.colors.typographySecondary,
-    },
+        voucherCardCodeDisabled: {
+            color: theme.colors.typographySecondary,
+        },
 
-    voucherNotApplicableReason: {
-        fontSize: 11,
-        color: theme.colors.warning,
-        marginTop: 4,
-        fontWeight: '500',
-    },
+        voucherNotApplicableReason: {
+            fontSize: f(theme.fontSizes.xs),
+            color: theme.colors.typographySecondary,
+            marginTop: 4,
+            fontWeight: '500',
+        },
 
-    // Selector secondary styles (when no applicable vouchers but still clickable)
-    containerSecondary: {
-        opacity: 0.8,
-    },
+        // Selector secondary styles (when no applicable vouchers but still clickable)
+        containerSecondary: {
+            opacity: 0.8,
+        },
 
-    titleIconSecondary: {
-        backgroundColor: `${theme.colors.typographySecondary}12`,
-    },
+        titleIconSecondary: {
+            backgroundColor: `${theme.colors.typographySecondary}12`,
+        },
 
-    titleSecondary: {
-        color: theme.colors.typographySecondary,
-    },
+        titleSecondary: {
+            color: theme.colors.typographySecondary,
+        },
 
-    placeholderTextSecondary: {
-        color: theme.colors.typographySecondary,
-    },
-}));
+        placeholderTextSecondary: {
+            color: theme.colors.typographySecondary,
+        },
+    }
+});
 
 export default PlatformVoucherSelector;

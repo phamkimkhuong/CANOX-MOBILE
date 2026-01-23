@@ -221,6 +221,7 @@ export interface OrderItemUI {
     itemId: string | null;
     productId: string;
     variantId: string;
+    sku: string; // Unique identifier for each variant
     productName: string;
     imageUrl: string; //  Pre-built URL
     variantAttributes: string;
