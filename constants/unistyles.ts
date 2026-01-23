@@ -42,7 +42,7 @@ export const createScaledFontSize = (
     const rawScale = screenWidth / GUIDELINE_BASE_WIDTH;
     const clampedScale = Math.min(Math.max(rawScale, MIN_SCALE), MAX_SCALE);
     const moderatedSize = size + (size * (clampedScale - 1) * factor);
-    return Math.round(PixelRatio.roundToNearestPixel(moderatedSize));
+    return PixelRatio.roundToNearestPixel(moderatedSize);
 };
 
 /**
@@ -137,6 +137,7 @@ const lightTheme = {
         xsm: 11,   // Small captions, footnotes
         sm: 12,    // Caption, helper text, footnotes  
         md: 14,    // Body small, secondary descriptions
+        mdbase: 15,    // Body small, secondary descriptions
         base: 16,  // DEFAULT BODY TEXT
         lg: 18,    // Emphasized body, subtitle
         xl: 20,    // Section headers, card titles

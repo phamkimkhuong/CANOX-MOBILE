@@ -74,7 +74,6 @@ export const PRODUCT_STRINGS: ProductTranslation = {
     // === Flash Sale ===
     flashSale: {
         title: 'FLASH SALE',
-        endsIn: 'Kết thúc trong',
         soldOut: 'Sắp hết hàng',
         selling: 'Đang bán chạy',
         soldPrefix: 'Đã bán',

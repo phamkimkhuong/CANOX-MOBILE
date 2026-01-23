@@ -9,6 +9,7 @@
  * - Proper safe area handling
  */
 
+import { createScaledFontSize } from '@/constants/unistyles';
 import type { CartCalculationResult, CheckboxState, VoucherUI } from '@/types/cart';
 import { formatCurrency } from '@/utils/format';
 import React, { memo } from 'react';
@@ -23,7 +24,6 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-// import { IconSymbol } from '../ui/Icon';
 import { CartCheckbox } from './CartCheckbox';
 
 // ============================================
@@ -94,7 +94,13 @@ const AnimatedPrice: React.FC<{ value: number; isCalculating?: boolean }> = ({ v
                 />
             )}
             <Animated.View style={[animatedStyle, isCalculating && { opacity: 0.5 }]}>
-                <Text style={styles.totalAmount}>
+                <Text
+                    style={styles.totalAmount}
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                    minimumFontScale={0.8}
+                    ellipsizeMode="tail"
+                >
                     {formatCurrency(displayValue)}
                 </Text>
             </Animated.View>
@@ -213,7 +219,12 @@ export const CartFooter: React.FC<CartFooterProps> = memo(({
                         accessibilityLabel={t('footer.checkoutWithCount', { count: selectedCount })}
                         accessibilityRole="button"
                     >
-                        <Text style={styles.checkoutButtonText}>
+                        <Text
+                            style={styles.checkoutButtonText}
+                            numberOfLines={1}
+                            adjustsFontSizeToFit
+                            minimumFontScale={0.8}
+                        >
                             {hasSelection
                                 ? t('footer.checkoutWithCount', { count: selectedCount })
                                 : t('footer.checkout')}
@@ -230,115 +241,118 @@ CartFooter.displayName = 'CartFooter';
 // Export constants for layout calculations
 export { CHECKOUT_BAR_HEIGHT, VOUCHER_BAR_HEIGHT };
 
-const styles = StyleSheet.create((theme) => ({
-    container: {
-        backgroundColor: theme.colors.surface,
-        borderTopWidth: 1,
-        borderTopColor: theme.colors.border,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: -4 },
-        shadowOpacity: 0.05,
-        shadowRadius: 8,
-        elevation: 8,
-    },
-    voucherBar: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: theme.margins.md,
-        paddingVertical: theme.margins.sm,
-        backgroundColor: theme.colors.primaryMuted,
-        borderBottomWidth: 1,
-        borderBottomColor: theme.colors.border,
-    },
-    voucherLeft: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: theme.margins.sm,
-    },
-    voucherLabel: {
-        fontSize: 12,
-        color: theme.colors.typography,
-    },
-    voucherRight: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-    },
-    voucherPrompt: {
-        fontSize: 12,
-        color: theme.colors.typographySecondary,
-    },
-    checkoutBar: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: theme.margins.md,
-        paddingVertical: theme.margins.smd,
-        gap: theme.margins.sm,
-    },
-    selectAllContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: theme.margins.sm,
-    },
-    selectAllText: {
-        fontSize: 14,
-        fontWeight: '500',
-        color: theme.colors.typography,
-    },
-    checkoutRight: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: theme.margins.smd,
-    },
-    priceContainer: {
-        alignItems: 'flex-end',
-        justifyContent: 'center',
-    },
-    priceWrapper: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-    },
-    priceLoader: {
-        transform: [{ scale: 0.8 }],
-    },
-    totalRow: {
-        flexDirection: 'row',
-        alignItems: 'baseline',
-        gap: 4,
-    },
+const styles = StyleSheet.create((theme, rt) => {
+    const f = (size: number) => createScaledFontSize(size, rt.screen.width);
 
-    totalAmount: {
-        fontSize: 18,
-        fontWeight: '700',
-        color: theme.colors.error,
-    },
-    savingsText: {
-        fontSize: 10,
-        fontWeight: '500',
-        color: theme.colors.success,
-    },
-    checkoutButton: {
-        backgroundColor: theme.colors.primary,
-        borderRadius: theme.radius.m,
-        paddingHorizontal: theme.margins.lg,
-        paddingVertical: theme.margins.smd,
-        shadowColor: theme.colors.primary,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-        elevation: 4,
-    },
-    checkoutButtonDisabled: {
-        backgroundColor: theme.colors.secondary,
-        shadowOpacity: 0,
-        elevation: 0,
-    },
-    checkoutButtonText: {
-        fontSize: 14,
-        fontWeight: '700',
-        color: theme.colors.onPrimary,
-    },
-}));
+    return {
+        container: {
+            backgroundColor: theme.colors.surface,
+            borderTopWidth: 1,
+            borderTopColor: theme.colors.border,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: -4 },
+            shadowOpacity: 0.05,
+            shadowRadius: 8,
+            elevation: 8,
+        },
+        voucherBar: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingHorizontal: theme.margins.md,
+            paddingVertical: theme.margins.sm,
+            backgroundColor: theme.colors.primaryMuted,
+            borderBottomWidth: 1,
+            borderBottomColor: theme.colors.border,
+        },
+        voucherLeft: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: theme.margins.sm,
+        },
+        voucherLabel: {
+            fontSize: f(theme.fontSizes.sm),
+            color: theme.colors.typography,
+        },
+        voucherRight: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 4,
+        },
+        voucherPrompt: {
+            fontSize: f(theme.fontSizes.sm),
+            color: theme.colors.typographySecondary,
+        },
+        checkoutBar: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingHorizontal: theme.margins.md,
+            paddingVertical: theme.margins.smd,
+            gap: theme.margins.sm,
+        },
+        selectAllContainer: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: theme.margins.sm,
+        },
+        selectAllText: {
+            fontSize: f(theme.fontSizes.md),
+            fontWeight: '500',
+            color: theme.colors.typography,
+        },
+        checkoutRight: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: theme.margins.smd,
+        },
+        priceContainer: {
+            alignItems: 'flex-end',
+            justifyContent: 'center',
+        },
+        priceWrapper: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 8,
+        },
+        priceLoader: {
+            transform: [{ scale: 0.8 }],
+        },
+        totalRow: {
+            flexDirection: 'row',
+            alignItems: 'baseline',
+            gap: 4,
+        },
+        totalAmount: {
+            fontSize: f(theme.fontSizes.lg),
+            fontWeight: '700',
+            color: theme.colors.error,
+        },
+        savingsText: {
+            fontSize: f(theme.fontSizes.xs),
+            fontWeight: '500',
+            color: theme.colors.success,
+        },
+        checkoutButton: {
+            backgroundColor: theme.colors.primary,
+            borderRadius: theme.radius.m,
+            paddingHorizontal: theme.margins.lg,
+            paddingVertical: theme.margins.smd,
+            shadowColor: theme.colors.primary,
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3,
+            shadowRadius: 8,
+            elevation: 4,
+        },
+        checkoutButtonDisabled: {
+            backgroundColor: theme.colors.secondary,
+            shadowOpacity: 0,
+            elevation: 0,
+        },
+        checkoutButtonText: {
+            fontSize: f(theme.fontSizes.md),
+            fontWeight: '700',
+            color: theme.colors.onPrimary,
+        },
+    };
+});

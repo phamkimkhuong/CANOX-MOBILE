@@ -48,7 +48,6 @@ export interface ProductTranslation {
     };
     flashSale: {
         title: string;
-        endsIn: string;
         soldOut: string;
         selling: string;
         soldPrefix: string;

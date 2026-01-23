@@ -10,6 +10,7 @@
  * - Optimized with React.memo
  */
 
+import { createScaledFontSize } from '@/constants/unistyles';
 import { useCartStore } from '@/store/useCartStore';
 import type { CartItemUI } from '@/types/cart';
 import { formatCurrency } from '@/utils/format';
@@ -155,7 +156,12 @@ export const CartItem: React.FC<CartItemProps> = memo(({
                                     {formatCurrency(originalPrice)}
                                 </Text>
                             )}
-                            <Text style={styles.currentPrice}>
+                            <Text
+                                style={styles.currentPrice}
+                                numberOfLines={1}
+                                adjustsFontSizeToFit
+                                minimumFontScale={0.8}
+                            >
                                 {formatCurrency(unitPrice)}
                             </Text>
                         </View>
@@ -188,136 +194,140 @@ export const CartItem: React.FC<CartItemProps> = memo(({
 
 CartItem.displayName = 'CartItem';
 
-const styles = StyleSheet.create((theme) => ({
-    container: {
-        flexDirection: 'row',
-        paddingHorizontal: theme.margins.smd,
-        paddingVertical: theme.margins.md,
-        gap: theme.margins.smd,
-        backgroundColor: theme.colors.surface,
-    },
-    outOfStockContainer: {
-        opacity: 0.7,
-    },
-    checkboxColumn: {
-        justifyContent: 'flex-start',
-        paddingTop: 32, // Align with middle of image
-    },
-    contentRow: {
-        flex: 1,
-        flexDirection: 'row',
-        gap: theme.margins.smd,
-    },
-    imageContainer: {
-        position: 'relative',
-        width: 96,
-        height: 96,
-    },
-    image: {
-        width: 96,
-        height: 96,
-        borderRadius: theme.radius.m,
-        borderWidth: 1,
-        borderColor: theme.colors.border,
-    },
-    outOfStockImage: {
-        opacity: 0.6,
-    },
-    discountBadge: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        backgroundColor: theme.colors.error,
-        borderTopLeftRadius: theme.radius.m,
-        borderBottomRightRadius: theme.radius.m,
-        paddingHorizontal: 6,
-        paddingVertical: 2,
-    },
-    discountText: {
-        fontSize: 10,
-        fontWeight: '700',
-        color: theme.colors.onPrimary,
-    },
-    outOfStockOverlay: {
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        backgroundColor: 'rgba(0,0,0,0.6)',
-        borderBottomLeftRadius: theme.radius.m,
-        borderBottomRightRadius: theme.radius.m,
-        paddingVertical: 4,
-        alignItems: 'center',
-    },
-    outOfStockText: {
-        fontSize: 10,
-        fontWeight: '600',
-        color: theme.colors.onPrimary,
-    },
-    infoColumn: {
-        flex: 1,
-        justifyContent: 'space-between',
-    },
-    outOfStockInfo: {
-        opacity: 0.8,
-    },
-    productName: {
-        fontSize: 14,
-        fontWeight: '500',
-        lineHeight: 20,
-        color: theme.colors.typography,
-    },
-    imagePressed: {
-        opacity: 0.8,
-        transform: [{ scale: 0.98 }],
-    },
-    textPressed: {
-        opacity: 0.7,
-    },
-    variantSelector: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        alignSelf: 'flex-start',
-        backgroundColor: theme.colors.background,
-        borderRadius: theme.radius.s,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        gap: 4,
-        marginTop: 4,
-    },
-    variantText: {
-        fontSize: 12,
-        color: theme.colors.typographySecondary,
-    },
-    bottomRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-end',
-        marginTop: 8,
-    },
-    priceContainer: {
-        gap: 2,
-    },
-    originalPrice: {
-        fontSize: 12,
-        color: theme.colors.secondary,
-        textDecorationLine: 'line-through',
-    },
-    currentPrice: {
-        fontSize: 16,
-        fontWeight: '700',
-        color: theme.colors.error,
-    },
-    findSimilarButton: {
-        borderWidth: 1,
-        borderColor: theme.colors.primary,
-        borderRadius: theme.radius.m,
-        paddingHorizontal: 8,
-        paddingVertical: 6,
-    },
-    findSimilarText: {
-        fontSize: 12,
-        fontWeight: '500',
-        color: theme.colors.primary,
-    },
-}));
+const styles = StyleSheet.create((theme, rt) => {
+    const f = (size: number) => createScaledFontSize(size, rt.screen.width);
+
+    return {
+        container: {
+            flexDirection: 'row',
+            paddingHorizontal: theme.margins.smd,
+            paddingVertical: theme.margins.md,
+            gap: theme.margins.smd,
+            backgroundColor: theme.colors.surface,
+        },
+        outOfStockContainer: {
+            opacity: 0.7,
+        },
+        checkboxColumn: {
+            justifyContent: 'flex-start',
+            paddingTop: 32, // Align with middle of image
+        },
+        contentRow: {
+            flex: 1,
+            flexDirection: 'row',
+            gap: theme.margins.smd,
+        },
+        imageContainer: {
+            position: 'relative',
+            width: 96,
+            height: 96,
+        },
+        image: {
+            width: 96,
+            height: 96,
+            borderRadius: theme.radius.m,
+            borderWidth: 1,
+            borderColor: theme.colors.border,
+        },
+        outOfStockImage: {
+            opacity: 0.6,
+        },
+        discountBadge: {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            backgroundColor: theme.colors.error,
+            borderTopLeftRadius: theme.radius.m,
+            borderBottomRightRadius: theme.radius.m,
+            paddingHorizontal: 6,
+            paddingVertical: 2,
+        },
+        discountText: {
+            fontSize: f(theme.fontSizes.xs),
+            fontWeight: '700',
+            color: theme.colors.onPrimary,
+        },
+        outOfStockOverlay: {
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: 'rgba(0,0,0,0.6)',
+            borderBottomLeftRadius: theme.radius.m,
+            borderBottomRightRadius: theme.radius.m,
+            paddingVertical: 4,
+            alignItems: 'center',
+        },
+        outOfStockText: {
+            fontSize: f(theme.fontSizes.xs),
+            fontWeight: '600',
+            color: theme.colors.onPrimary,
+        },
+        infoColumn: {
+            flex: 1,
+            justifyContent: 'space-between',
+        },
+        outOfStockInfo: {
+            opacity: 0.8,
+        },
+        productName: {
+            fontSize: f(theme.fontSizes.md),
+            fontWeight: '500',
+            lineHeight: 20,
+            color: theme.colors.typography,
+        },
+        imagePressed: {
+            opacity: 0.8,
+            transform: [{ scale: 0.98 }],
+        },
+        textPressed: {
+            opacity: 0.7,
+        },
+        variantSelector: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            alignSelf: 'flex-start',
+            backgroundColor: theme.colors.background,
+            borderRadius: theme.radius.s,
+            paddingHorizontal: 8,
+            paddingVertical: 4,
+            gap: 4,
+            marginTop: 4,
+        },
+        variantText: {
+            fontSize: f(theme.fontSizes.sm),
+            color: theme.colors.typographySecondary,
+        },
+        bottomRow: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'flex-end',
+            marginTop: 8,
+        },
+        priceContainer: {
+            gap: 2,
+        },
+        originalPrice: {
+            fontSize: f(theme.fontSizes.sm),
+            color: theme.colors.secondary,
+            textDecorationLine: 'line-through',
+        },
+        currentPrice: {
+            fontSize: f(theme.fontSizes.base),
+            fontWeight: '700',
+            color: theme.colors.error,
+        },
+        findSimilarButton: {
+            borderWidth: 1,
+            borderColor: theme.colors.primary,
+            borderRadius: theme.radius.m,
+            paddingHorizontal: 8,
+            paddingVertical: 6,
+        },
+        findSimilarText: {
+            fontSize: f(theme.fontSizes.sm),
+            fontWeight: '500',
+            color: theme.colors.primary,
+        },
+    };
+});

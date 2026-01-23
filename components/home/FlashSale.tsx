@@ -199,11 +199,12 @@ const stylesheet = StyleSheet.create((theme) => ({
     header: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
         paddingHorizontal: theme.margins.md,
         marginBottom: 12,
+        gap: 12,
     },
     titleRow: {
+        flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         gap: 12,

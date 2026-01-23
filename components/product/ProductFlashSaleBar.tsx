@@ -159,8 +159,6 @@ export const ProductFlashSaleBar = memo<ProductFlashSaleBarProps>(({
                     duration={duration}
                     size="small"
                     variant="dark"
-                    showLabel
-                    labelText={PRODUCT_STRINGS.flashSale.endsIn}
                 />
             </View>
 
