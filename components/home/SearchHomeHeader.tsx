@@ -12,7 +12,7 @@ import { useCartStore } from '@/store/useCartStore';
 import { Navigator } from '@/utils/navigation';
 import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, Text, TouchableOpacity, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 
 /**
@@ -57,7 +57,7 @@ export const HomeHeader = () => {
                 ]}
                 onPress={handleSearchPress}
             >
-                <IconSymbol name="search" size={20} color={theme.colors.secondary} style={{ marginLeft: 10 }} />
+                <IconSymbol name="search" size={20} color={theme.colors.header.onHeader} style={{ marginLeft: 10 }} />
 
                 <View style={styles.placeholderContainer}>
                     <RollingSearchPlaceholder
@@ -68,9 +68,9 @@ export const HomeHeader = () => {
                     />
                 </View>
 
-                <TouchableOpacity style={styles.cameraBtn}>
-                    <IconSymbol name="camera-outline" size={22} color={theme.colors.secondary} />
-                </TouchableOpacity>
+                {/* <TouchableOpacity style={styles.cameraBtn}>
+                    <IconSymbol name="camera-outline" size={22} color={theme.colors.header.onHeader} />
+                </TouchableOpacity> */}
             </Pressable>
 
             {/* 2. Các nút chức năng */}
@@ -82,7 +82,7 @@ export const HomeHeader = () => {
                 >
                     {({ pressed }) => (
                         <View style={{ opacity: pressed ? 0.9 : 1 }}>
-                            <IconSymbol name="cart" size={26} color={theme.colors.typographySecondary} />
+                            <IconSymbol name="cart" size={26} color={theme.colors.header.onHeader} />
                             {cartItemCount > 0 && (
                                 <View style={styles.badge}>
                                     <Text style={styles.badgeText}>
@@ -102,7 +102,7 @@ export const HomeHeader = () => {
                 >
                     {({ pressed }) => (
                         <View style={{ opacity: pressed ? 0.9 : 1 }}>
-                            <IconSymbol name="chatbubble-ellipses-outline" size={26} color={theme.colors.typographySecondary} />
+                            <IconSymbol name="chatbubble-ellipses-outline" size={26} color={theme.colors.header.onHeader} />
                             {isAuthenticated && unreadMessageCount !== undefined && unreadMessageCount > 0 && (
                                 <View style={styles.badge}>
                                     <Text style={styles.badgeText}>
@@ -122,20 +122,18 @@ const stylesheet = StyleSheet.create((theme) => ({
         paddingHorizontal: theme.margins.md,
         paddingBottom: theme.margins.sm,
         paddingTop: UnistylesRuntime.insets.top + 10,
-        backgroundColor: 'rgba(255,255,255,0.95)',
+        backgroundColor: theme.colors.header.headerBackground,
         flexDirection: 'row',
         alignItems: 'center',
         gap: 12,
-        borderBottomWidth: 1,
-        borderBottomColor: '#f1f5f9',
     },
     searchContainer: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         height: 40,
-        borderRadius: theme.radius.full, // Dùng token radius
-        backgroundColor: '#eff6ff',
+        borderRadius: theme.radius.full,
+        backgroundColor: theme.colors.surfaceOverlay,
         paddingHorizontal: 5,
     },
     placeholderContainer: {
@@ -146,7 +144,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         overflow: 'hidden',
     },
     searchContainerPressed: {
-        backgroundColor: '#e0ebfc',
+        backgroundColor: theme.colors.backgroundInput,
     },
     searchPlaceholder: {
         flex: 1,

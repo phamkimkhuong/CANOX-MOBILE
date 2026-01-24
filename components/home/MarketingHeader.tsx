@@ -67,6 +67,6 @@ MarketingHeader.displayName = 'MarketingHeader';
 
 const stylesheet = StyleSheet.create((theme) => ({
     categoryContainer: {
-        paddingHorizontal: theme.margins.md,
+        // paddingHorizontal: theme.margins.md,
     },
 }));

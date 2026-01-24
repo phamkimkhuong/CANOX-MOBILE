@@ -1,6 +1,6 @@
+import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
 import { Navigator } from '@/utils/navigation';
-import { MaterialIcons } from '@expo/vector-icons';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
@@ -48,7 +48,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                     accessibilityLabel={t('header.searchAccessibility')}
                     accessibilityRole="button"
                 >
-                    <MaterialIcons name="search" size={20} color={theme.colors.typographySecondary} />
+                    <IconSymbol name="search" size={20} color={theme.colors.header.onHeader} />
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -58,7 +58,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                     accessibilityLabel={t('header.notificationAccessibility')}
                     accessibilityRole="button"
                 >
-                    <MaterialIcons name="notifications" size={20} color={theme.colors.typographySecondary} />
+                    <IconSymbol name="notifications" size={20} color={theme.colors.header.onHeader} />
                     {hasNotification && <View style={styles.notificationDot} />}
                 </TouchableOpacity>
 
@@ -69,7 +69,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                     accessibilityLabel={t('header.settingsAccessibility')}
                     accessibilityRole="button"
                 >
-                    <MaterialIcons name="settings" size={20} color={theme.colors.typographySecondary} />
+                    <IconSymbol name="settings" size={20} color={theme.colors.header.onHeader} />
                 </TouchableOpacity>
             </View>
         </View>
@@ -82,12 +82,13 @@ const stylesheet = StyleSheet.create((theme) => ({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: theme.margins.md,
-        backgroundColor: theme.colors.background,
+        backgroundColor: theme.colors.header.headerBackground,
+        paddingBottom: theme.margins.sm,
     },
     title: {
         fontSize: 24,
         fontWeight: '800',
-        color: theme.colors.typography,
+        color: theme.colors.header.headerTitle,
         letterSpacing: -0.5,
     },
     actions: {
@@ -99,7 +100,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         width: 36,
         height: 36,
         borderRadius: 18,
-        backgroundColor: theme.colors.surfaceOverlay,
+        backgroundColor: 'rgba(255, 255, 255, 0.2)',
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -110,8 +111,8 @@ const stylesheet = StyleSheet.create((theme) => ({
         width: 6,
         height: 6,
         borderRadius: 3,
-        backgroundColor: theme.colors.error,
+        backgroundColor: theme.colors.success,
         borderWidth: 1,
-        borderColor: theme.colors.surface,
+        borderColor: theme.colors.header.onHeader,
     },
 }));

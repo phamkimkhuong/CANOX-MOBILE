@@ -76,6 +76,13 @@ const lightTheme = {
         success: '#22c55e',
         warning: '#f97316',
         typography: '#1c3024',
+        // Header & Screen Titles
+        header: {
+            headerBackground: '#ef4444',
+            onHeader: '#ffffff',
+            headerTitle: '#ffffff',
+            background: "#fef2f2"
+        },
         typographySecondary: '#687076',
         info: '#0ea5e9',
         // Accent color - Orange for CTAs, Promotions, Urgency

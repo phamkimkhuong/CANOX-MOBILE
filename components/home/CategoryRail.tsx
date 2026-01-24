@@ -135,7 +135,8 @@ export const CategoryRail = memo(() => {
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
         paddingVertical: theme.margins.sm / 2,
-        backgroundColor: theme.colors.background, // Đảm bảo nền trùng màu app
+        backgroundColor: theme.colors.header.headerBackground,
+        marginHorizontal: -theme.margins.sm, // Negative margin to full bleed
     },
     row: {
         paddingHorizontal: theme.margins.sm, // Padding 2 bên mép
@@ -164,7 +165,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     text: {
         fontSize: theme.fontSizes.xs,
-        color: theme.colors.typography,
+        color: theme.colors.header.onHeader,
         textAlign: 'center',
         fontWeight: '500',
         lineHeight: 12,
