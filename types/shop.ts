@@ -211,9 +211,10 @@ export interface ShopProductFilterParams {
 // ============================================
 
 /**
- * Shop detail tabs
+ * Shop detail tabs - Brand-First Strategy
+ * 'home' (Trang chủ) is the default tab - prioritizing trust/profile over products
  */
-export type ShopTabType = 'products' | 'profile' | 'categories';
+export type ShopTabType = 'home' | 'products' | 'categories';
 
 export interface ShopTab {
     key: ShopTabType;
@@ -221,8 +222,8 @@ export interface ShopTab {
 }
 
 export const SHOP_TABS: ShopTab[] = [
+    { key: 'home', label: 'Trang chủ' },
     { key: 'products', label: 'Sản phẩm' },
-    { key: 'profile', label: 'Hồ sơ' },
     { key: 'categories', label: 'Danh mục' },
 ];
 // ============================================
@@ -294,4 +295,91 @@ export interface ShopVoucherUI {
     sponsorType: string;
     shopName?: string;
     applyToAllProducts: boolean;
+}
+
+// ============================================
+// SECTION 7: SHOP PROFILE TYPES (Brand-First)
+// ============================================
+
+/**
+ * Shop Profile Type - Determines which profile template to render
+ * - 'brand': Full profile with video, gallery, certifications (Big brands)
+ * - 'verified': Business verification info (New distributors)
+ * - 'new': Onboarding template with platform guarantees (New shops)
+ */
+export type ShopProfileType = 'brand' | 'verified' | 'new';
+
+/**
+ * Trust Badge - Certification/Achievement for shop
+ */
+export interface ShopTrustBadge {
+    id: string;
+    icon: string;
+    label: string;
+    description?: string;
+}
+
+/**
+ * Gallery Item - Media in shop profile
+ */
+export interface ShopGalleryItem {
+    id: string;
+    type: 'image' | 'video';
+    url: string;
+    thumbnailUrl?: string;
+    caption?: string;
+}
+
+/**
+ * Brand Commitment/Promise
+ */
+export interface ShopCommitment {
+    id: string;
+    icon: string;
+    title: string;
+    description: string;
+}
+
+/**
+ * Business Verification Info
+ */
+export interface ShopBusinessInfo {
+    businessName?: string;
+    businessType?: string;
+    registrationNumber?: string;
+    taxId?: string;
+    address?: string;
+    verifiedAt?: string;
+}
+
+/**
+ * Shop Profile UI - Complete profile data for rendering
+ */
+export interface ShopProfileUI {
+    /** Profile type determines template */
+    type: ShopProfileType;
+
+    /** Hero section */
+    heroVideoUrl?: string | null;
+    heroImageUrl?: string | null;
+    tagline?: string | null;
+
+    /** Brand story */
+    brandStory?: string | null;
+    foundedYear?: number | null;
+
+    /** Trust metrics */
+    trustBadges: ShopTrustBadge[];
+
+    /** Gallery */
+    gallery: ShopGalleryItem[];
+
+    /** Commitments */
+    commitments: ShopCommitment[];
+
+    /** Business info (for verified type) */
+    businessInfo?: ShopBusinessInfo;
+
+    /** Featured products (for home tab) */
+    featuredProductIds?: string[];
 }

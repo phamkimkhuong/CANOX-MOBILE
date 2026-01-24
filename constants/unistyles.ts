@@ -118,6 +118,7 @@ const lightTheme = {
     },
     margins: {
         zero: 0,
+        xs: 4,
         sm: 8,
         smd: 12,
         md: 16,

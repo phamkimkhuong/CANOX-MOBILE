@@ -219,6 +219,15 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     'folder-open-outline': { ios: 'folder-open-outline', android: 'folder-open-outline' },
     refresh: { ios: 'refresh', android: 'refresh' },
     undo: { ios: 'arrow-undo-outline', android: 'arrow-undo-outline' },
+    // === Material Icons Compatibility (Add missing ones) ===
+    'workspace-premium': { ios: 'ribbon-outline', android: 'ribbon-outline' },
+    autorenew: { ios: 'sync-outline', android: 'sync-outline' },
+    security: { ios: 'shield-checkmark-outline', android: 'shield-checkmark-outline' },
+    'support-agent': { ios: 'headset-outline', android: 'headset-outline' },
+    'price-check': { ios: 'checkmark-circle-outline', android: 'checkmark-circle-outline' },
+    speed: { ios: 'speedometer-outline', android: 'speedometer-outline' },
+    straighten: { ios: 'resize-outline', android: 'resize-outline' },
+    payments: { ios: 'cash-outline', android: 'cash-outline' },
 };
 
 interface IconSymbolProps {

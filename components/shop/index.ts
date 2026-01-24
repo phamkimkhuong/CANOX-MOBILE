@@ -41,3 +41,18 @@ export { ShopEmptyState } from './ShopEmptyState';
 export { ShopVoucherCard } from './ShopVoucherCard';
 export { ShopVoucherSection } from './ShopVoucherSection';
 export { ShopVoucherSkeleton } from './ShopVoucherSkeleton';
+
+// ============================================
+// PROFILE COMPONENTS (Brand-First Strategy)
+// ============================================
+
+export {
+    ShopProfileTab,
+    ShopProfileHero,
+    ShopTrustBadges,
+    ShopCommitments,
+    ShopBrandStory,
+    ShopGallery,
+    ShopBusinessInfo,
+    ShopPlatformGuarantees,
+} from './profile';

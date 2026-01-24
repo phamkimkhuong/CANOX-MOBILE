@@ -12,6 +12,7 @@ import {
     ShopHeaderSkeleton,
     ShopNavBar,
     ShopProductSkeleton,
+    ShopProfileTab,
     ShopTabs,
     ShopVoucherSection,
 } from '@/components/shop';
@@ -22,8 +23,9 @@ import { chatRoutes, productRoutes } from '@/constants/routes';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
 import { useRefreshShopProducts, useShopDetail, useShopProducts, useShopVouchers } from '@/hooks/api/useShop';
 import { MINIMUM_SKELETON_DURATION_MS } from '@/hooks/usePrefetchTiming';
+import { getMockShopProfile } from '@/services/api/mocks/shopProfile';
 import { useAuthStore } from '@/store/useAuthStore';
-import type { ShopProductFilterParams, ShopProductItemUI, ShopTabType } from '@/types/shop';
+import type { ShopProductFilterParams, ShopProductItemUI, ShopProfileUI, ShopTabType } from '@/types/shop';
 import { Navigator } from '@/utils/navigation';
 import { FlashList, ListRenderItem } from '@shopify/flash-list';
 import { Stack, useLocalSearchParams } from 'expo-router';
@@ -49,13 +51,14 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 const NUM_COLUMNS = 2;
 const AnimatedFlashList = Animated.createAnimatedComponent<any>(FlashList);
 
-/** 
+/**
  * Flattened list item type for mixed content rendering
  */
 type FlatListItem =
     | { type: 'header' }
     | { type: 'voucher-section' }
     | { type: 'tab-spacer' }
+    | { type: 'profile-content' }
     | { type: 'product'; data: ShopProductItemUI };
 
 const ListFooterComponent: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
@@ -77,10 +80,13 @@ export default function ShopDetailScreen() {
     // Instant Nav: If true, enforce minimum skeleton duration to avoid flash
     const isInstantNav = instantNav === 'true';
 
-    const [activeTab, setActiveTab] = useState<ShopTabType>('products');
+    const [activeTab, setActiveTab] = useState<ShopTabType>('home');
     const [filters, setFilters] = useState<ShopProductFilterParams>({ size: 20 });
     const [statusBarStyle, setStatusBarStyle] = useState<'light-content' | 'dark-content'>('light-content');
     const scrollY = useSharedValue(0);
+
+    // Mock profile data - will be replaced with API call
+    const [shopProfile, setShopProfile] = useState<ShopProfileUI | null>(null);
 
     const HEADER_HEIGHT = 56 + insets.top;
     const STATUS_BAR_THRESHOLD = 100; // Switch at this scroll position
@@ -126,6 +132,14 @@ export default function ShopDetailScreen() {
     // Show skeleton if: loading OR (instant nav AND minimum duration not complete)
     const shouldShowSkeleton = isLoadingShop || (isInstantNav && !minSkeletonComplete);
 
+    // Load mock profile data when shop is loaded
+    React.useEffect(() => {
+        if (shop?.id) {
+            const profile = getMockShopProfile(shop.id);
+            setShopProfile(profile);
+        }
+    }, [shop?.id]);
+
     // Smart refresh for products infinite query
     const { refresh: smartRefreshProducts } = useRefreshShopProducts(shopId, filters);
 
@@ -151,10 +165,20 @@ export default function ShopDetailScreen() {
 
         baseItems.push({ type: 'tab-spacer' });
 
-        if (activeTab !== 'products') return baseItems;
+        // Home tab: show profile content
+        if (activeTab === 'home') {
+            baseItems.push({ type: 'profile-content' });
+            return baseItems;
+        }
 
-        const productItems: FlatListItem[] = products.map(product => ({ type: 'product' as const, data: product }));
-        return [...baseItems, ...productItems];
+        // Products tab: show product grid
+        if (activeTab === 'products') {
+            const productItems: FlatListItem[] = products.map(product => ({ type: 'product' as const, data: product }));
+            return [...baseItems, ...productItems];
+        }
+
+        // Categories tab: placeholder for now
+        return baseItems;
     }, [activeTab, products, hasVouchers]);
 
     // Sticky header index: tabs position depends on whether vouchers exist
@@ -249,6 +273,16 @@ export default function ShopDetailScreen() {
                         <ShopTabs activeTab={activeTab} onTabChange={handleTabChange} productCount={totalProductCount} />
                     </View>
                 );
+            case 'profile-content':
+                if (!shop) return null;
+                return (
+                    <View style={styles.fullWidthItem}>
+                        <ShopProfileTab
+                            shop={shop}
+                            profile={shopProfile}
+                        />
+                    </View>
+                );
             case 'product':
                 const product = item.data;
                 return (
@@ -271,7 +305,7 @@ export default function ShopDetailScreen() {
                 );
             default: return null;
         }
-    }, [shouldShowSkeleton, shop, activeTab, totalProductCount, vouchers, isLoadingVouchers, hasVouchers, handleChatPress, handleFollowPress, handleTabChange, handleCollectVoucher, handlePrefetchChat, handleProductPress]);
+    }, [shouldShowSkeleton, shop, shopProfile, activeTab, totalProductCount, vouchers, isLoadingVouchers, hasVouchers, handleChatPress, handleFollowPress, handleTabChange, handleCollectVoucher, handlePrefetchChat, handleProductPress]);
 
     if (isShopError) {
         return (
@@ -303,7 +337,7 @@ export default function ShopDetailScreen() {
                 stickyHeaderIndices={stickyHeaderIndices}
                 numColumns={NUM_COLUMNS}
                 overrideItemLayout={(layout: any, item: FlatListItem) => {
-                    layout.span = (item.type === 'header' || item.type === 'voucher-section' || item.type === 'tab-spacer') ? NUM_COLUMNS : 1;
+                    layout.span = (item.type === 'header' || item.type === 'voucher-section' || item.type === 'tab-spacer' || item.type === 'profile-content') ? NUM_COLUMNS : 1;
                 }}
                 onEndReached={handleLoadMore}
                 onEndReachedThreshold={0.5}
