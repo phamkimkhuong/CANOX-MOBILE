@@ -14,7 +14,7 @@ module.exports = {
         "splash": {
             "image": "./assets/images/splash-icon.png",
             "resizeMode": "contain",
-            "backgroundColor": "#eef8ff"
+            "backgroundColor": "#f6f6f6"
         },
         "ios": {
             "supportsTablet": true,
@@ -24,7 +24,7 @@ module.exports = {
             "icon": "./assets/images/icon-android.png",
             "adaptiveIcon": {
                 "foregroundImage": "./assets/images/adaptive-icon-foreground.png",
-                "backgroundColor": "#1e5bc6",
+                "backgroundColor": "#ef4444",
                 "monochromeImage": "./assets/images/monochrome-icon.png"
             },
             "edgeToEdgeEnabled": true,
@@ -51,7 +51,7 @@ module.exports = {
                 "expo-notifications",
                 {
                     "icon": "./assets/images/notification-icon.png",
-                    "color": "#1e5bc6",
+                    "color": "#ef4444",
                     "defaultChannel": "default"
                 }
             ]
