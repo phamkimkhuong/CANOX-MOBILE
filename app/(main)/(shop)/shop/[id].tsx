@@ -66,7 +66,7 @@ const ListFooterComponent: React.FC<{ isLoading: boolean }> = ({ isLoading }) =>
     if (!isLoading) return null;
     return (
         <View style={styles.loadingFooter}>
-            <ActivityIndicator size="small" color={theme.colors.primary} />
+            <ActivityIndicator size="small" color={theme.colors.buttonActive} />
             <Text style={styles.loadingText}>Đang tải...</Text>
         </View>
     );
@@ -344,7 +344,7 @@ export default function ShopDetailScreen() {
                 onScroll={scrollHandler}
                 scrollEventThrottle={16}
                 ListFooterComponent={<ListFooterComponent isLoading={isFetchingNextPage} />}
-                refreshControl={<RefreshControl refreshing={isRefetchingProducts && !isLoadingProducts} onRefresh={handleRefresh} tintColor={theme.colors.primary} colors={[theme.colors.primary]} progressViewOffset={HEADER_HEIGHT} />}
+                refreshControl={<RefreshControl refreshing={isRefetchingProducts && !isLoadingProducts} onRefresh={handleRefresh} tintColor={theme.colors.buttonActive} colors={[theme.colors.buttonActive]} progressViewOffset={HEADER_HEIGHT} />}
                 contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}
                 ListEmptyComponent={!isLoadingProducts && products.length === 0 ? <ShopProductSkeleton count={6} /> : null}

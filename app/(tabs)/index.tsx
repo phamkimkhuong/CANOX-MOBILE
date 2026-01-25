@@ -365,7 +365,7 @@ export default function HomeScreen() {
     if (isLoading) {
       return (
         <View style={styles.emptyContainer}>
-          <ActivityIndicator size="large" color={theme.colors.primary} />
+          <ActivityIndicator size="large" color={theme.colors.buttonActive} />
         </View>
       );
     }
@@ -379,7 +379,7 @@ export default function HomeScreen() {
     if (isFetchingNextPage) {
       return (
         <View style={styles.footer}>
-          <ActivityIndicator size="small" color={theme.colors.primary} />
+          <ActivityIndicator size="small" color={theme.colors.buttonActive} />
           <Text style={styles.loadingText}>{t('home:feed.loadingMore')}</Text>
         </View>
       );
@@ -438,8 +438,8 @@ export default function HomeScreen() {
           <RefreshControl
             refreshing={isRefetching && !isLoading}
             onRefresh={handleRefresh}
-            tintColor={theme.colors.primary}
-            colors={[theme.colors.primary]}
+            tintColor={theme.colors.buttonActive}
+            colors={[theme.colors.buttonActive]}
             progressViewOffset={homeHeaderHeight}
           />
         }

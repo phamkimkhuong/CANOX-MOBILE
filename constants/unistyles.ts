@@ -69,7 +69,7 @@ const lightTheme = {
     colors: {
         primary: '#0088cc',
         onPrimary: '#ffffff',
-        background: '#eef8ff',
+        background: '#f6f6f6',
         surface: '#ffffff',
         secondary: '#94a3b8',
         error: '#ef4444',
@@ -77,6 +77,8 @@ const lightTheme = {
         warning: '#f97316',
         typography: '#1c3024',
         // Header & Screen Titles
+        newPrimary: '#ef4444',
+        buttonActive: '#ef4444',
         header: {
             headerBackground: '#ef4444',
             onHeader: '#ffffff',
@@ -91,7 +93,16 @@ const lightTheme = {
         accentSoft: 'rgba(255, 122, 0, 0.15)',
         accentLight: 'rgba(255, 122, 0, 0.10)',
         accentSubtle: 'rgba(255, 122, 0, 0.08)',
-        // Semantic colors
+        // Active Red Variants (For buttonActive states)
+        activeSoft: 'rgba(239, 68, 68, 0.12)',
+        activeLight: 'rgba(239, 68, 68, 0.08)',
+        activeSubtle: 'rgba(239, 68, 68, 0.05)',
+        activeMuted: 'rgba(239, 68, 68, 0.03)',
+        activeSurface: 'rgba(239, 68, 68, 0.015)',
+        backgroundNewInput: '#f1f1f1',
+        backgroundNewSurface: 'rgba(0, 0, 0, 0.03)',
+
+        // Semantic colors (Blue - existing)
         primarySoft: 'rgba(0, 136, 204, 0.15)',
         primaryLight: 'rgba(0, 136, 204, 0.10)',
         primarySubtle: 'rgba(0, 136, 204, 0.08)',

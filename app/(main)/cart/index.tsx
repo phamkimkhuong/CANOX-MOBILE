@@ -113,8 +113,8 @@ const EmptyCart: React.FC<EmptyCartProps> = ({ onRefresh, refreshing }) => {
                 <RefreshControl
                     refreshing={refreshing}
                     onRefresh={onRefresh}
-                    tintColor={theme.colors.primary}
-                    colors={[theme.colors.primary]}
+                    tintColor={theme.colors.buttonActive}
+                    colors={[theme.colors.buttonActive]}
                 />
             }
         >
@@ -433,7 +433,7 @@ export default function CartScreen() {
                         */}
                         {(isFetching && userInteracted || isUpdating || isRemoving) && (
                             <View style={styles.syncBar}>
-                                <ActivityIndicator size="small" color={theme.colors.primary} />
+                                <ActivityIndicator size="small" color={theme.colors.buttonActive} />
                                 <Text style={styles.syncText}>{t('status.syncing')}</Text>
                             </View>
                         )}
@@ -453,8 +453,8 @@ export default function CartScreen() {
                                 <RefreshControl
                                     refreshing={isFetching && !isLoading}
                                     onRefresh={refetch}
-                                    tintColor={theme.colors.primary}
-                                    colors={[theme.colors.primary]}
+                                    tintColor={theme.colors.buttonActive}
+                                    colors={[theme.colors.buttonActive]}
                                 />
                             }
                         />
@@ -541,7 +541,7 @@ const styles = StyleSheet.create((theme) => ({
         width: 100,
         height: 100,
         borderRadius: 50,
-        backgroundColor: theme.colors.primaryMuted,
+        backgroundColor: theme.colors.activeSoft,
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: theme.margins.md,
@@ -580,13 +580,13 @@ const styles = StyleSheet.create((theme) => ({
         justifyContent: 'center',
         gap: theme.margins.sm,
         paddingVertical: theme.margins.sm,
-        backgroundColor: theme.colors.primaryMuted,
+        backgroundColor: theme.colors.activeSoft,
         borderBottomWidth: 1,
         borderBottomColor: theme.colors.border,
     },
     syncText: {
         fontSize: 12,
-        color: theme.colors.primary,
+        color: theme.colors.buttonActive,
         fontWeight: '500',
     },
 }));

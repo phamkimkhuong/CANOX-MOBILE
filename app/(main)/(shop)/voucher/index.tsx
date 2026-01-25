@@ -264,7 +264,7 @@ export default function VoucherScreen() {
                     <RefreshControl
                         refreshing={isLoading}
                         onRefresh={refetch}
-                        tintColor={theme.colors.primary}
+                        tintColor={theme.colors.buttonActive}
                     />
                 }
             />
@@ -272,7 +272,7 @@ export default function VoucherScreen() {
             {/* Loading Overlay */}
             {isLoading && vouchers.length === 0 && (
                 <View style={styles.loadingOverlay}>
-                    <ActivityIndicator size="large" color={theme.colors.primary} />
+                    <ActivityIndicator size="large" color={theme.colors.buttonActive} />
                 </View>
             )}
         </View>

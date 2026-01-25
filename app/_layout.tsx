@@ -44,7 +44,7 @@ const NavigationTheme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    primary: lightTheme.colors.primary,
+    primary: lightTheme.colors.buttonActive,
     background: lightTheme.colors.background,
     card: lightTheme.colors.surface,
     text: lightTheme.colors.typography,

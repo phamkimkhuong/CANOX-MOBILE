@@ -261,7 +261,7 @@ export default function SearchResultsScreen() {
         if (isFetchingNextPage) {
             return (
                 <View style={styles.footer}>
-                    <ActivityIndicator size="small" color={theme.colors.primary} />
+                    <ActivityIndicator size="small" color={theme.colors.buttonActive} />
                 </View>
             );
         }
@@ -375,7 +375,7 @@ export default function SearchResultsScreen() {
                     <RefreshControl
                         refreshing={isFetching && !isFetchingNextPage}
                         onRefresh={handleRefresh}
-                        tintColor={theme.colors.primary}
+                        tintColor={theme.colors.buttonActive}
                     />
                 }
                 contentContainerStyle={[

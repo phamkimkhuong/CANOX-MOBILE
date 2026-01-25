@@ -339,8 +339,8 @@ export default function OrderDetailScreen() {
                             <RefreshControl
                                 refreshing={refreshing}
                                 onRefresh={handleRefresh}
-                                tintColor={theme.colors.primary}
-                                colors={[theme.colors.primary]}
+                                tintColor={theme.colors.buttonActive}
+                                colors={[theme.colors.buttonActive]}
                             />
                         }
                     >

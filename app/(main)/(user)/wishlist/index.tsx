@@ -154,8 +154,8 @@ const MyCollectionsTab: React.FC = () => {
                 <RefreshControl
                     refreshing={isRefetching && !isFetchingNextPage}
                     onRefresh={handleRefresh}
-                    colors={[theme.colors.primary]}
-                    tintColor={theme.colors.primary}
+                    colors={[theme.colors.buttonActive]}
+                    tintColor={theme.colors.buttonActive}
                 />
             }
             onEndReached={handleEndReached}
@@ -163,7 +163,7 @@ const MyCollectionsTab: React.FC = () => {
             ListFooterComponent={
                 isFetchingNextPage ? (
                     <View style={styles.loadingFooter}>
-                        <ActivityIndicator color={theme.colors.primary} />
+                        <ActivityIndicator color={theme.colors.buttonActive} />
                     </View>
                 ) : null
             }
@@ -236,8 +236,8 @@ const PriceAlertsTab: React.FC = () => {
                     <RefreshControl
                         refreshing={isRefetching}
                         onRefresh={handleRefresh}
-                        colors={[theme.colors.primary]}
-                        tintColor={theme.colors.primary}
+                        colors={[theme.colors.buttonActive]}
+                        tintColor={theme.colors.buttonActive}
                     />
                 }
             />

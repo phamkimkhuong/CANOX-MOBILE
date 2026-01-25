@@ -75,7 +75,7 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
                         <IconSymbol
                             name={item.icon as IconSymbolName}
                             size={20}
-                            color={item.iconColor ?? (isActive ? theme.colors.primary : theme.colors.secondary)}
+                            color={item.iconColor ?? (isActive ? theme.colors.buttonActive : theme.colors.secondary)}
                         />
                     )}
 
@@ -139,15 +139,11 @@ const stylesheet = StyleSheet.create((theme) => ({
         paddingVertical: theme.margins.md,
         paddingHorizontal: 4,
         minHeight: 72,
-        backgroundColor: theme.colors.background,
-        // Border phải để tạo ranh giới với content
         borderRightWidth: 1,
         borderRightColor: theme.colors.border,
     },
     itemActive: {
-        backgroundColor: theme.colors.surface,
-        // SEAMLESS CONNECTION: Loại bỏ border phải khi active
-        // để item hòa vào Content (cùng màu trắng)
+        backgroundColor: theme.colors.activeLight,
         borderRightWidth: 0,
         borderRightColor: 'transparent',
     },
@@ -157,7 +153,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         top: 0,
         bottom: 0,
         width: 3,
-        backgroundColor: theme.colors.primary,
+        backgroundColor: theme.colors.buttonActive,
         borderTopRightRadius: 2,
         borderBottomRightRadius: 2,
     },
@@ -169,7 +165,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         lineHeight: 14,
     },
     itemTextActive: {
-        color: theme.colors.primary,
+        color: theme.colors.buttonActive,
         fontWeight: '700',
     },
     // Skeleton styles

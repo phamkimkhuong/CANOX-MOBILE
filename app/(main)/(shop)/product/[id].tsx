@@ -575,7 +575,7 @@ export default function ProductDetailScreen() {
         if (isLoadingRelated) {
             return (
                 <View style={styles.listFooter}>
-                    <ActivityIndicator color={theme.colors.primary} />
+                    <ActivityIndicator color={theme.colors.buttonActive} />
                 </View>
             );
         }
@@ -669,7 +669,7 @@ export default function ProductDetailScreen() {
                             <RefreshControl
                                 refreshing={isRefetching}
                                 onRefresh={handleRefresh}
-                                tintColor={theme.colors.primary}
+                                tintColor={theme.colors.buttonActive}
                             />
                         }
                     />

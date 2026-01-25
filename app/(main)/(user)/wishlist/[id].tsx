@@ -383,8 +383,8 @@ export default function WishlistDetailScreen() {
                         <RefreshControl
                             refreshing={isRefetching}
                             onRefresh={handleRefresh}
-                            colors={[theme.colors.primary]}
-                            tintColor={theme.colors.primary}
+                            colors={[theme.colors.buttonActive]}
+                            tintColor={theme.colors.buttonActive}
                         />
                     }
                 />

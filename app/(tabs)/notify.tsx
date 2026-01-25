@@ -114,7 +114,7 @@ export default function NotifyScreen() {
         if (!isFetchingNextPage) return null;
         return (
             <View style={styles.loadingFooter}>
-                <ActivityIndicator size="small" color={theme.colors.primary} />
+                <ActivityIndicator size="small" color={theme.colors.buttonActive} />
             </View>
         );
     }, [isFetchingNextPage, styles.loadingFooter, theme.colors.primary]);
@@ -161,8 +161,8 @@ export default function NotifyScreen() {
                     <RefreshControl
                         refreshing={isRefetching && !isLoading}
                         onRefresh={smartRefresh}
-                        tintColor={theme.colors.primary}
-                        colors={[theme.colors.primary]}
+                        tintColor={theme.colors.buttonActive}
+                        colors={[theme.colors.buttonActive]}
                     />
                 }
                 contentContainerStyle={styles.listContent}

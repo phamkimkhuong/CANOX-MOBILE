@@ -18,13 +18,14 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { Navigator } from '@/utils/navigation';
 import React, { useCallback, useMemo } from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 /**
  * Profile/Me screen with parallel data fetching
  * Follows atomic design pattern with config-driven menus
  */
 export default function MeScreen() {
+    const { theme } = useUnistyles();
     const styles = stylesheet;
 
     // Auth state
@@ -90,8 +91,8 @@ export default function MeScreen() {
         <RefreshControl
             refreshing={isRefreshing}
             onRefresh={handleRefresh}
-            tintColor="#0088cc"
-            colors={['#0088cc']}
+            tintColor={theme.colors.buttonActive}
+            colors={[theme.colors.buttonActive]}
         />
     ), [isRefreshing, handleRefresh]);
 
