@@ -55,7 +55,6 @@ const SkeletonCartItem: React.FC<{ isLast?: boolean }> = ({ isLast }) => {
  * Mirrors the layout of CartShopGroup component
  */
 const SkeletonShopGroup: React.FC = () => {
-    const { theme } = useUnistyles();
     const styles = stylesheet;
 
     return (
@@ -89,7 +88,6 @@ const SkeletonShopGroup: React.FC = () => {
  * if (isLoading) return <CartSkeleton />;
  */
 export const CartSkeleton: React.FC = () => {
-    const { theme } = useUnistyles();
     const styles = stylesheet;
 
     return (

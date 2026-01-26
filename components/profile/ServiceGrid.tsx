@@ -53,7 +53,7 @@ export const ServiceGrid: React.FC<ServiceGridProps> = memo(({
             default:
                 return '';
         }
-    }, [walletBalance, coinsBalance, voucherCount, reviewCount]);
+    }, [walletBalance, coinsBalance, voucherCount, reviewCount, t]);
 
     // Loading skeleton
     if (isLoading) {

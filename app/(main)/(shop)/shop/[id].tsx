@@ -81,7 +81,7 @@ export default function ShopDetailScreen() {
     const isInstantNav = instantNav === 'true';
 
     const [activeTab, setActiveTab] = useState<ShopTabType>('home');
-    const [filters, setFilters] = useState<ShopProductFilterParams>({ size: 20 });
+    const [filters] = useState<ShopProductFilterParams>({ size: 20 });
     const [statusBarStyle, setStatusBarStyle] = useState<'light-content' | 'dark-content'>('light-content');
     const scrollY = useSharedValue(0);
 
@@ -158,22 +158,23 @@ export default function ShopDetailScreen() {
     const listData = useMemo((): FlatListItem[] => {
         const baseItems: FlatListItem[] = [{ type: 'header' }];
 
-        // Add voucher section if shop has vouchers or loading
-        if (hasVouchers) {
-            baseItems.push({ type: 'voucher-section' });
-        }
-
         baseItems.push({ type: 'tab-spacer' });
 
-        // Home tab: show profile content
+        // Home tab: show profile content ONLY
         if (activeTab === 'home') {
             baseItems.push({ type: 'profile-content' });
             return baseItems;
         }
 
-        // Products tab: show product grid
+        // Products tab: show voucher section THEN product grid
         if (activeTab === 'products') {
             const productItems: FlatListItem[] = products.map(product => ({ type: 'product' as const, data: product }));
+
+            // Insert voucher section at the beginning of product list if has vouchers
+            if (hasVouchers) {
+                return [...baseItems, { type: 'voucher-section' }, ...productItems];
+            }
+
             return [...baseItems, ...productItems];
         }
 
@@ -181,8 +182,8 @@ export default function ShopDetailScreen() {
         return baseItems;
     }, [activeTab, products, hasVouchers]);
 
-    // Sticky header index: tabs position depends on whether vouchers exist
-    const stickyHeaderIndices = useMemo(() => [hasVouchers ? 2 : 1], [hasVouchers]);
+    // Sticky header index: tabs are always at index 1 now (Header is 0)
+    const stickyHeaderIndices = useMemo(() => [1], []);
 
     const handleBackPress = useCallback(() => Navigator.back(), []);
     const handleSearchPress = useCallback(() => { }, []);
@@ -232,7 +233,7 @@ export default function ShopDetailScreen() {
     const handleRefresh = useCallback(() => { refetchShop(); smartRefreshProducts(); }, [refetchShop, smartRefreshProducts]);
 
     /** Collect voucher handler */
-    const handleCollectVoucher = useCallback((voucherId: string) => {
+    const handleCollectVoucher = useCallback((_voucherId: string) => {
         // TODO: Implement collect voucher API
         Toast.show({
             type: 'success',
@@ -241,7 +242,7 @@ export default function ShopDetailScreen() {
         });
     }, []);
 
-    const renderItem: ListRenderItem<FlatListItem> = useCallback(({ item, index }) => {
+    const renderItem: ListRenderItem<FlatListItem> = useCallback(({ item }) => {
         switch (item.type) {
             case 'header':
                 if (shouldShowSkeleton) return <ShopHeaderSkeleton />;
@@ -280,6 +281,7 @@ export default function ShopDetailScreen() {
                         <ShopProfileTab
                             shop={shop}
                             profile={shopProfile}
+                            products={products}
                         />
                     </View>
                 );
@@ -332,11 +334,15 @@ export default function ShopDetailScreen() {
             <ShopNavBar scrollY={scrollY} onBackPress={handleBackPress} onSearchPress={handleSearchPress} onMorePress={handleMorePress} />
 
             <AnimatedFlashList
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 data={listData as any}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 renderItem={renderItem as any}
-                keyExtractor={(item: any, index: any) => item.type === 'product' ? `product-${item.data.id}` : `item-${item.type}-${index}`}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                keyExtractor={(item: any, index: number) => item.type === 'product' ? `product-${item.data.id}` : `item-${item.type}-${index}`}
                 stickyHeaderIndices={stickyHeaderIndices}
                 numColumns={NUM_COLUMNS}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 overrideItemLayout={(layout: any, item: any) => {
                     layout.span = (item.type === 'header' || item.type === 'voucher-section' || item.type === 'tab-spacer' || item.type === 'profile-content') ? NUM_COLUMNS : 1;
                 }}

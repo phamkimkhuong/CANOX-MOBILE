@@ -1,11 +1,11 @@
 import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
 /**
  * PromoBanner - Banner quảng cáo hiển thị trong danh sách chat
- * 
+ *
  * Hiển thị thông tin khuyến mãi với icon và nội dung.
  */
 interface PromoBannerProps {
@@ -21,7 +21,6 @@ export const PromoBanner: React.FC<PromoBannerProps> = ({
     icon = 'shipping',
     onPress,
 }) => {
-    const { theme } = useUnistyles();
     const styles = stylesheet;
 
     return (

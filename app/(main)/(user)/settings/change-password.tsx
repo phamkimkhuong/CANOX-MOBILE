@@ -110,7 +110,7 @@ export default function ChangePasswordScreen() {
                 },
             }
         );
-    }, [changePassword, setError, setFocus]);
+    }, [changePassword, setError, setFocus, t]);
 
     /**
      * Handle back navigation

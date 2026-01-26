@@ -8,14 +8,14 @@
 import { ROUTES } from '@/constants/routes';
 import { Alert } from '@/utils/AlertHelper';
 import { Navigator } from '@/utils/navigation';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { NavigationAction, useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
 import Toast from 'react-native-toast-message';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
 // Components
 import {
@@ -35,7 +35,6 @@ import { useRemoveCartItem } from '@/hooks/api/cart/useCartMutations';
 import { useCheckoutPreview } from '@/hooks/api/checkout/useCheckoutPreview';
 import { useCreateOrder } from '@/hooks/api/checkout/useCreateOrder';
 import { useRecommendPlatformVouchers } from '@/hooks/api/checkout/useRecommendPlatformVouchers';
-import { useUserAddresses } from '@/hooks/api/useUserAddresses';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useCartStore } from '@/store/useCartStore';
 import {
@@ -79,7 +78,6 @@ export default function CheckoutScreen() {
     const queryClient = useQueryClient();
     const { mutate: callPreview } = useCheckoutPreview();
     const { mutateAsync: placeOrder } = useCreateOrder();
-    const { data: userAddresses } = useUserAddresses();
     const { mutateAsync: addToCart } = useAddToCart();
     const { mutate: removeCartItem } = useRemoveCartItem();
 
@@ -217,7 +215,7 @@ export default function CheckoutScreen() {
     const navigation = useNavigation();
 
     useEffect(() => {
-        const unsubscribe = navigation.addListener('beforeRemove', (e: { preventDefault: () => void; data: { action: any } }) => {
+        const unsubscribe = navigation.addListener('beforeRemove', (e: { preventDefault: () => void; data: { action: NavigationAction } }) => {
             if (orderPlacedRef.current) return;
             e.preventDefault();
             Alert.show({

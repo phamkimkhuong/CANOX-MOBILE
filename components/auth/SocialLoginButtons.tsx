@@ -2,16 +2,15 @@ import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import { useGoogleLogin } from '@/hooks/api/useGoogleAuth';
 import React from 'react';
 import { TouchableOpacity, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
 /**
  * SocialLoginButtons - Component hiển thị các nút đăng nhập bằng mạng xã hội
- * 
+ *
  * Hỗ trợ: Google, Facebook, Apple
  * Sử dụng IconSymbol để đảm bảo consistency với toàn bộ dự án.
  */
 export const SocialLoginButtons = () => {
-    const { theme } = useUnistyles();
     const styles = stylesheet;
     const { signIn: googleSignIn } = useGoogleLogin();
 

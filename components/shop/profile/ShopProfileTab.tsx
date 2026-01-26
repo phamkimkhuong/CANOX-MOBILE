@@ -9,7 +9,7 @@
  * - 'new': Platform guarantees only (onboarding template)
  */
 
-import type { ShopHeaderUI, ShopProfileUI } from '@/types/shop';
+import type { ShopHeaderUI, ShopProductItemUI, ShopProfileUI } from '@/types/shop';
 import React, { memo } from 'react';
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
@@ -17,6 +17,7 @@ import { StyleSheet } from 'react-native-unistyles';
 import { ShopBrandStory } from './ShopBrandStory';
 import { ShopBusinessInfo } from './ShopBusinessInfo';
 import { ShopCommitments } from './ShopCommitments';
+import { ShopFeaturedProducts } from './ShopFeaturedProducts';
 import { ShopGallery } from './ShopGallery';
 import { ShopPlatformGuarantees } from './ShopPlatformGuarantees';
 import { ShopProfileHero } from './ShopProfileHero';
@@ -25,15 +26,22 @@ import { ShopTrustBadges } from './ShopTrustBadges';
 interface ShopProfileTabProps {
     shop: ShopHeaderUI;
     profile: ShopProfileUI | null;
+    products?: ShopProductItemUI[];
     onVideoPress?: () => void;
 }
 
 export const ShopProfileTab = memo(({
     shop,
     profile,
+    products = [],
     onVideoPress,
 }: ShopProfileTabProps) => {
     const styles = stylesheet;
+
+    // Common footer (Featured Products) for all shop types
+    const renderFeaturedProducts = () => (
+        products.length > 0 && <ShopFeaturedProducts products={products} />
+    );
 
     // No profile data - show new shop template
     if (!profile || profile.type === 'new') {
@@ -45,6 +53,7 @@ export const ShopProfileTab = memo(({
                     imageUrl={null}
                 />
                 <ShopPlatformGuarantees shopName={shop.name} />
+                {renderFeaturedProducts()}
             </View>
         );
     }
@@ -74,6 +83,7 @@ export const ShopProfileTab = memo(({
                 )}
 
                 <ShopPlatformGuarantees shopName={shop.name} />
+                {renderFeaturedProducts()}
             </View>
         );
     }
@@ -112,6 +122,8 @@ export const ShopProfileTab = memo(({
             {profile.commitments.length > 0 && (
                 <ShopCommitments commitments={profile.commitments} />
             )}
+
+            {renderFeaturedProducts()}
         </View>
     );
 });

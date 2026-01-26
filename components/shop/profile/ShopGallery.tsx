@@ -6,6 +6,7 @@
 
 import { IconSymbol } from '@/components/ui/Icon';
 import type { ShopGalleryItem } from '@/types/shop';
+import { Navigator } from '@/utils/navigation';
 import { Image } from 'expo-image';
 import React, { memo } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
@@ -17,8 +18,8 @@ interface ShopGalleryProps {
     onItemPress?: (item: ShopGalleryItem) => void;
 }
 
-const ITEM_WIDTH = 140;
-const ITEM_HEIGHT = 140;
+const ITEM_WIDTH = 200;
+const ITEM_HEIGHT = 200;
 
 export const ShopGallery = memo(({
     items,
@@ -27,8 +28,28 @@ export const ShopGallery = memo(({
 }: ShopGalleryProps) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+    const handlePress = (item: ShopGalleryItem) => {
+        if (item.type === 'image') {
+            // Filter only image items for the gallery viewer
+            const imageItems = items
+                .filter(i => i.type === 'image')
+                .map(i => i.url);
 
-    if (items.length === 0) return null;
+            // Find the index of the current item within the filtered image list
+            const initialIndex = imageItems.indexOf(item.url);
+
+            if (initialIndex !== -1) {
+                Navigator.push({
+                    pathname: '/common/gallery',
+                    params: {
+                        images: JSON.stringify(imageItems),
+                        initialIndex: initialIndex.toString()
+                    }
+                });
+            }
+        }
+        onItemPress?.(item);
+    };
 
     return (
         <View style={styles.container}>
@@ -42,7 +63,7 @@ export const ShopGallery = memo(({
                     <Pressable
                         key={item.id}
                         style={styles.galleryItem}
-                        onPress={() => onItemPress?.(item)}
+                        onPress={() => handlePress(item)}
                     >
                         <Image
                             source={{ uri: item.thumbnailUrl || item.url }}
@@ -117,6 +138,27 @@ const stylesheet = StyleSheet.create((theme) => ({
     caption: {
         fontSize: 11,
         color: '#FFF',
+    },
+    modalBackground: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.9)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalContent: {
+        width: '100%',
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    fullImage: {
+        width: '90%',
+        height: '80%',
+    },
+    closeButton: {
+        position: 'absolute',
+        top: 50,
+        right: 20,
     },
 }));
 

@@ -5,10 +5,9 @@
 import { SkeletonBox, SkeletonCircle } from '@/components/ui/feedback/Skeleton';
 import React, { memo } from 'react';
 import { View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
 export const AddressCardSkeleton: React.FC = memo(() => {
-    const { theme } = useUnistyles();
     const styles = stylesheet;
 
     return (
@@ -41,7 +40,6 @@ export const AddressCardSkeleton: React.FC = memo(() => {
 AddressCardSkeleton.displayName = 'AddressCardSkeleton';
 
 export const AddressListSkeleton: React.FC = memo(() => {
-    const { theme } = useUnistyles();
     const styles = stylesheet;
 
     return (

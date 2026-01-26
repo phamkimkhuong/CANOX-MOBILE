@@ -55,7 +55,6 @@ export default function ReviewsScreen() {
         isFetchingNextPage,
         hasNextPage,
         fetchNextPage,
-        error: historyError,
     } = useMyReviews(ratingFilter, activeTab === 'history');
     const { refresh: refreshHistory } = useRefreshMyReviews();
 

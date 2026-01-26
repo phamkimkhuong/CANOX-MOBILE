@@ -27,7 +27,6 @@ export default function TabLayout() {
   const { t } = useTranslation('common');
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   useCart();
-  const cartItemCount = useCartStore((state) => state.totalQuantity);
 
   // Current pathname to detect if already on home tab
   const pathname = usePathname();

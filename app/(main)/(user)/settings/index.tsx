@@ -4,7 +4,7 @@ import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
 import {
     SettingsFooter,
@@ -26,7 +26,6 @@ import type { SettingsItem as SettingsItemType } from '@/types/settings';
  * Config-driven UI with dynamic section rendering
  */
 export default function SettingsScreen() {
-    const { theme } = useUnistyles();
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
     const { t, i18n } = useTranslation(['profile', 'common']);
@@ -49,7 +48,6 @@ export default function SettingsScreen() {
 
     const {
         formattedSize: cacheSize,
-        isCalculating: cacheLoading,
         isClearing,
         clearCache,
     } = useCache();
@@ -175,8 +173,9 @@ export default function SettingsScreen() {
             return getBiometryDisplayName(biometricStatus.biometryType);
         }
         // Try to translate label based on ID
-        const translatedLabel = t(`settings.items.${item.id}` as any);
-        return translatedLabel !== `settings.items.${item.id}` ? translatedLabel : item.label;
+        const key = `settings.items.${item.id}`;
+        const translatedLabel = t(key as any);
+        return translatedLabel !== key ? translatedLabel : item.label;
     }, [biometricStatus.biometryType, t]);
 
     // Render a single settings item
@@ -184,7 +183,7 @@ export default function SettingsScreen() {
         const dynamicValue = getDynamicValue(item);
         const onPress = getItemHandler(item);
         const onToggleChange = getToggleHandler(item);
-        const disabled = isItemDisabled(item);
+        const _disabled = isItemDisabled(item);
         const label = getDynamicLabel(item);
 
         // Get the value properly typed

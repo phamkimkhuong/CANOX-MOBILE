@@ -128,7 +128,7 @@ export default function NotifyScreen() {
                 />
             );
         },
-        [handleNotificationPress, handleNotificationPressIn]
+        [handleNotificationPress, handleNotificationPressIn, handleNotificationPressOut]
     );
 
     const getItemType = useCallback((item: FlattenedNotificationItem) => {
@@ -142,7 +142,7 @@ export default function NotifyScreen() {
                 <ActivityIndicator size="small" color={theme.colors.buttonActive} />
             </View>
         );
-    }, [isFetchingNextPage, styles.loadingFooter, theme.colors.primary]);
+    }, [isFetchingNextPage, styles.loadingFooter, theme.colors.buttonActive]);
 
     const renderEmpty = useCallback(() => {
         const filterLabel = activeFilter !== NotificationFilter.ALL

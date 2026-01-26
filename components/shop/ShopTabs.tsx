@@ -85,7 +85,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderBottomColor: 'transparent',
     },
     tabActive: {
-        borderBottomColor: theme.colors.primary,
+        borderBottomColor: theme.colors.newPrimary,
     },
     tabText: {
         fontSize: 14,
@@ -93,7 +93,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.secondary,
     },
     tabTextActive: {
-        color: theme.colors.primary,
+        color: theme.colors.newPrimary,
         fontWeight: '600',
     },
 }));

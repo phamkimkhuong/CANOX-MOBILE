@@ -1,12 +1,11 @@
 import React from 'react';
 import { View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
 /**
  * ProductCardSkeleton
  */
 export const ProductCardSkeleton = () => {
-    const { theme } = useUnistyles();
     const styles = stylesheet;
 
     return (

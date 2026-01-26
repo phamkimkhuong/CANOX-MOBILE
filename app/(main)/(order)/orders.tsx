@@ -16,7 +16,7 @@ import { Navigator } from '@/utils/navigation';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
 import { View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
 /**
  * Map profile status keys to OrderTabStatus

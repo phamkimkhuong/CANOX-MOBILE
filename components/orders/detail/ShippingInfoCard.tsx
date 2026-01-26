@@ -90,7 +90,7 @@ const CopyableText: React.FC<{
                         styles.copyText,
                         { color: copied ? theme.colors.success : theme.colors.primary }
                     ]}>
-                        {copied ? t('common:status.copied' as any) || 'Đã sao chép' : t('common:actions.copy' as any) || 'Sao chép'}
+                        {copied ? t('common:status.copied' as never) || 'Đã sao chép' : t('common:actions.copy' as never) || 'Sao chép'}
                     </Text>
                 </Pressable>
             </View>

@@ -370,7 +370,7 @@ export default function HomeScreen() {
       );
     }
     return null;
-  }, [isLoading, styles.emptyContainer, theme.colors.primary]);
+  }, [isLoading, styles.emptyContainer, theme.colors.buttonActive]);
 
   /**
    * ListFooter: Loading more indicator
@@ -385,7 +385,7 @@ export default function HomeScreen() {
       );
     }
     return null;
-  }, [isFetchingNextPage, styles.footer, styles.loadingText, theme.colors.primary]);
+  }, [isFetchingNextPage, styles.footer, styles.loadingText, theme.colors.buttonActive, t]);
 
   /**
    * Override item layout: header và tabs chiếm full width

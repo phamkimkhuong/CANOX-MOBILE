@@ -37,7 +37,6 @@ import { useOrderDetail } from '@/hooks/api/order/useOrderDetail';
 import { useAuthStore } from '@/store/useAuthStore';
 import { hideGlobalLoading, showGlobalLoading } from '@/store/useLoadingStore';
 import { OrderItemUI } from '@/types/order/order';
-import { getOrderActions } from '@/utils/adapter/order';
 import { Alert as CustomAlertHelper } from '@/utils/AlertHelper';
 import { logger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
@@ -96,10 +95,6 @@ export default function OrderDetailScreen() {
     }, [order?.items, order?.status]);
 
     // === HANDLERS ===
-
-    const handleBack = useCallback(() => {
-        Navigator.back();
-    }, []);
 
     const handleSupport = useCallback(() => {
         // TODO: Navigate to support chat or help center
@@ -165,7 +160,7 @@ export default function OrderDetailScreen() {
         }));
 
         logger.api.info('Contact shop for order:', order.orderId);
-    }, [order, prefetchChat, myShopId]);
+    }, [order, prefetchChat, myShopId, t]);
 
     const handleTrackOrder = useCallback(async () => {
         if (!order?.trackingNumber) {
@@ -250,12 +245,12 @@ export default function OrderDetailScreen() {
             // Hide loading overlay before navigation
             hideGlobalLoading();
             Navigator.push(cartRoutes.index({ rebuySuccess: true }));
-        } catch (err: any) {
+        } catch (err) {
             hideGlobalLoading();
             logger.api.error('Rebuy failed:', err);
 
             // Show friendly error message from API if available
-            const errorMessage = err?.message || t('common:status.error');
+            const errorMessage = (err as Error)?.message || t('common:status.error');
 
             Toast.show({
                 type: 'error',
@@ -284,10 +279,10 @@ export default function OrderDetailScreen() {
     }, [rawOrder?.payment?.url, t]);
 
     const handleReviewItem = useCallback(
-        (item: OrderItemUI) => {
+        (_item: OrderItemUI) => {
             // Navigator.push(`/review/${rawOrder?.orderId}?itemId=${item.itemId}`);
         },
-        [rawOrder?.orderId, t]
+        []
     );
 
 

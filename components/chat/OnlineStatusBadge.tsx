@@ -6,7 +6,7 @@ import Animated, {
     withSequence,
     withTiming,
 } from 'react-native-reanimated';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
 interface OnlineStatusBadgeProps {
     isOnline: boolean;
@@ -23,7 +23,6 @@ export const OnlineStatusBadge: React.FC<OnlineStatusBadgeProps> = ({
     size = 'medium',
     showPulse = true,
 }) => {
-    const { theme } = useUnistyles();
     const styles = stylesheet;
     const scale = useSharedValue(1);
 

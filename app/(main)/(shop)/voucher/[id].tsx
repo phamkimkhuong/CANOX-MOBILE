@@ -23,7 +23,7 @@ import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 export default function VoucherDetailScreen() {
-    const { id, voucherData, shopName: shopNameFromParam } = useLocalSearchParams<{
+    const { voucherData, shopName: shopNameFromParam } = useLocalSearchParams<{
         id: string;
         voucherData: string;
         shopName?: string;

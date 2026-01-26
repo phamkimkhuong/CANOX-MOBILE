@@ -658,7 +658,6 @@ const ImageContent: React.FC<{
     onLongPress,
 }) => {
     const styles = stylesheet;
-    const { theme } = useUnistyles();
     const imageCount = attachments.length;
 
     /**
@@ -1030,15 +1029,6 @@ const ProductCardContent: React.FC<CardContentProps> = ({
     const handleViewProduct = useCallback(() => {
         if (!data) return;
         Navigator.push(productRoutes.detail(data.productId));
-    }, [data]);
-
-    /**
-     * Điều hướng đến trang chi tiết với intent mua ngay
-     * Sản phẩm sẽ được thêm vào giỏ và chuyển đến checkout sau khi chọn biến thể
-     */
-    const handleBuyNow = useCallback(() => {
-        if (!data) return;
-        Navigator.push(productRoutes.detail(data.productId, { instantNav: true }));
     }, [data]);
 
     if (!data) {

@@ -19,7 +19,7 @@ import { CHAT_STRINGS } from '@/constants/i18n/vi/chat';
 import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import { ROUTES, chatRoutes, checkoutRoutes, productRoutes, shopRoutes } from '@/constants/routes';
 import { useAddToCart } from '@/hooks/api/cart';
-import { getCachedConversationId, useCreateConversation, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
+import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
 import { useProductDetail, useRelatedProducts } from '@/hooks/api/product/useProductDetail';
 import { MINIMUM_SKELETON_DURATION_MS } from '@/hooks/usePrefetchTiming';
 import { useProductVariant } from '@/hooks/useProductVariant';
@@ -36,7 +36,6 @@ import { ActivityIndicator, NativeScrollEvent, NativeSyntheticEvent, Pressable, 
 import {
     useSharedValue,
 } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -56,14 +55,12 @@ type ProductDetailListItem =
 
 export default function ProductDetailScreen() {
     const { id, instantNav } = useLocalSearchParams<{ id: string; instantNav?: string }>();
-    const insets = useSafeAreaInsets();
     const { theme } = useUnistyles();
     const { t } = useTranslation(['product', 'chat', 'common']);
     const [variantSheetVisible, setVariantSheetVisible] = useState(false);
     /** Tracks how the variant sheet was opened - determines button text and action */
     const [variantSheetMode, setVariantSheetMode] = useState<VariantSheetMode>('select');
     const [quantity, setQuantity] = useState(1);
-    const userId = useAuthStore((s) => s.userId);
     const myShopId = useAuthStore((s) => s.shopId);
     const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
@@ -97,7 +94,7 @@ export default function ProductDetailScreen() {
     } = useProductVariant(product);
 
     // === Add to Cart Mutation ===
-    const { mutate: addToCart, isPending: isAddingToCart } = useAddToCart();
+    const { mutate: addToCart } = useAddToCart();
 
     // === Scroll Animation ===
     const scrollY = useSharedValue(0);
@@ -158,7 +155,6 @@ export default function ProductDetailScreen() {
     const productGallery = product?.gallery;
 
     // === Create Conversation Mutation ===
-    const { mutate: createConversation, isPending: isCreatingConversation } = useCreateConversation();
     const prefetchShopChat = usePrefetchShopChat();
 
     /**
@@ -291,7 +287,7 @@ export default function ProductDetailScreen() {
         requestAnimationFrame(() => {
             log.info('Instant navigation triggered');
         });
-    }, [shopUserId, shopName, shopLogoUrl, isAuthenticated, myShopId, t]);
+    }, [shopUserId, shopName, shopLogoUrl, isAuthenticated, myShopId, shopId, t]);
 
     const handleShopPress = useCallback(() => {
         if (shopId) {
@@ -555,7 +551,6 @@ export default function ProductDetailScreen() {
         handlePrefetchChat,
         handleShopPress,
         t,
-        styles
     ]);
 
     /**
