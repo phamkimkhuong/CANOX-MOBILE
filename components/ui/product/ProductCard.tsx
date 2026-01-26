@@ -54,7 +54,7 @@ export const ProductCard = ({
             style={styles.container}
         >
             {({ pressed }) => (
-                <View style={[styles.surface, { opacity: pressed ? 0.85 : 1 }]}>
+                <View style={[styles.surface, pressed && styles.pressedOpacity]}>
                     {/* Image Container */}
                     <View style={styles.imageWrapper}>
                         <Image source={{ uri: image }} style={styles.image} contentFit="cover" />
@@ -152,6 +152,9 @@ const stylesheet = StyleSheet.create((theme) => ({
         shadowOpacity: 0.05,
         shadowRadius: 4,
         elevation: 2,
+    },
+    pressedOpacity: {
+        opacity: 0.85,
     },
     imageWrapper: {
         width: '100%',

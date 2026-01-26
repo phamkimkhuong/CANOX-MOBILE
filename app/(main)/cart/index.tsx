@@ -64,11 +64,10 @@ interface CartHeaderProps {
 const CartHeader: React.FC<CartHeaderProps> = ({ onEditPress, isEditMode }) => {
     const { theme } = useUnistyles();
     const { t } = useTranslation('cart');
-    const insets = useSafeAreaInsets();
     const totalQuantity = useCartStore((state) => state.totalQuantity);
 
     return (
-        <View style={[styles.header, { paddingTop: insets.top }]}>
+        <View style={styles.header}>
             <View style={styles.headerContent}>
                 <Pressable
                     onPress={() => Navigator.back()}
@@ -86,7 +85,7 @@ const CartHeader: React.FC<CartHeaderProps> = ({ onEditPress, isEditMode }) => {
                     accessibilityLabel={isEditMode ? t('header.done') : t('header.edit')}
                     accessibilityRole="button"
                 >
-                    <Text style={[styles.headerAction, { color: theme.colors.primary }]}>
+                    <Text style={styles.headerAction}>
                         {isEditMode ? t('header.done') : t('header.edit')}
                     </Text>
                 </Pressable>
@@ -422,13 +421,13 @@ export default function CartScreen() {
             );
         }
         return (
-            <View style={{ flex: 1 }}>
+            <View style={styles.flex1}>
                 {cartData && shops.length > 0 && (
                     <Animated.View
                         entering={FadeIn.duration(400)}
-                        style={{ flex: 1 }}
+                        style={styles.flex1}
                     >
-                        {/* 
+                        {/*
                           * Price Sync Bar
                         */}
                         {(isFetching && userInteracted || isUpdating || isRemoving) && (
@@ -442,13 +441,9 @@ export default function CartScreen() {
                             data={shops}
                             renderItem={renderShopGroup}
                             keyExtractor={(shop) => shop.shopId}
-                            contentContainerStyle={{
-                                paddingHorizontal: theme.margins.smd,
-                                paddingTop: theme.margins.smd,
-                                paddingBottom: theme.margins.lg,
-                            }}
+                            contentContainerStyle={styles.listContent}
                             showsVerticalScrollIndicator={false}
-                            style={{ flex: 1, opacity: isFetching ? 0.7 : 1 }}
+                            style={StyleSheet.flatten([styles.flex1, isFetching ? styles.fetchingOpacity : undefined])}
                             refreshControl={
                                 <RefreshControl
                                     refreshing={isFetching && !isLoading}
@@ -476,7 +471,7 @@ export default function CartScreen() {
                 {(isLoading || !isReady) && (
                     <Animated.View
                         exiting={FadeOut.duration(400)}
-                        style={[StyleSheet.absoluteFill, { backgroundColor: theme.colors.surface }]}
+                        style={styles.skeletonOverlay}
                     >
                         <CartSkeleton />
                     </Animated.View>
@@ -488,7 +483,7 @@ export default function CartScreen() {
     return (
         <View style={[
             styles.container,
-            { backgroundColor: isReady ? theme.colors.background : theme.colors.surface }
+            !isReady && styles.bgSurface
         ]}>
             <CartHeader
                 onEditPress={() => setEditMode(!isEditMode)}
@@ -499,7 +494,25 @@ export default function CartScreen() {
     );
 }
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((theme, runtime) => ({
+    flex1: {
+        flex: 1,
+    },
+    fetchingOpacity: {
+        opacity: 0.7,
+    },
+    listContent: {
+        paddingHorizontal: theme.margins.smd,
+        paddingTop: theme.margins.smd,
+        paddingBottom: theme.margins.lg,
+    },
+    skeletonOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: theme.colors.surface,
+    },
+    bgSurface: {
+        backgroundColor: theme.colors.surface,
+    },
     container: {
         flex: 1,
         backgroundColor: theme.colors.background,
@@ -508,6 +521,7 @@ const styles = StyleSheet.create((theme) => ({
         backgroundColor: theme.colors.surface,
         borderBottomWidth: 1,
         borderBottomColor: theme.colors.border,
+        paddingTop: runtime.insets.top,
     },
     headerContent: {
         flexDirection: 'row',
@@ -524,6 +538,7 @@ const styles = StyleSheet.create((theme) => ({
     headerAction: {
         fontSize: 14,
         fontWeight: '600',
+        color: theme.colors.primary,
     },
     emptyScrollContent: {
         flexGrow: 1,

@@ -158,7 +158,7 @@ export const FlashSale = memo(({ onProductPress }: FlashSaleProps = {}) => {
                                     <View
                                         style={[
                                             styles.progressFill,
-                                            item.isSoldOut ? { width: '100%', backgroundColor: theme.colors.secondary } : { width: `${Math.max(item.progress, 20)}%` },
+                                            item.isSoldOut ? styles.fullWidthSecondary : styles.dynamicWidth(Math.max(item.progress, 20)),
                                             isUrgent && styles.progressFillUrgent
                                         ]}
                                     />
@@ -327,6 +327,13 @@ const stylesheet = StyleSheet.create((theme) => ({
         backgroundColor: '#ee4d2d',
         borderRadius: 9,
     },
+    fullWidthSecondary: {
+        width: '100%',
+        backgroundColor: theme.colors.secondary,
+    },
+    dynamicWidth: (width: number) => ({
+        width: `${width}%`,
+    }),
     progressLabelContainer: {
         flexDirection: 'row',
         alignItems: 'center',

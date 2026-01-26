@@ -100,7 +100,7 @@ export const ShippingSelector: React.FC<ShippingSelectorProps> = ({
                         { backgroundColor: `${getShippingMethodConfig(selectedMethod).color}12` }
                     ]}>
                         <IconSymbol
-                            name={getShippingMethodConfig(selectedMethod).icon as any}
+                            name={getShippingMethodConfig(selectedMethod).icon as keyof typeof IconSymbol}
                             size={20}
                             color={getShippingMethodConfig(selectedMethod).color}
                         />
@@ -188,7 +188,7 @@ export const ShippingSelector: React.FC<ShippingSelectorProps> = ({
                                                 { backgroundColor: `${getShippingMethodConfig(method).color}10` }
                                             ]}>
                                                 <IconSymbol
-                                                    name={getShippingMethodConfig(method).icon as any}
+                                                    name={getShippingMethodConfig(method).icon as keyof typeof IconSymbol}
                                                     size={22}
                                                     color={getShippingMethodConfig(method).color}
                                                 />

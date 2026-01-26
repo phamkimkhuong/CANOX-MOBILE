@@ -5,7 +5,7 @@
 
 import { IconSymbol } from '@/components/ui/Icon';
 import { productRoutes } from '@/constants/routes';
-import { Message } from '@/types/chat/message';
+import { Message, MessageAttachment } from '@/types/chat/message';
 import {
     BubblePosition,
     formatFileSize,
@@ -21,6 +21,413 @@ import { ActivityIndicator, Pressable, Text, TouchableOpacity, View } from 'reac
 import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import ChatBubble from './ChatBubble';
+
+const stylesheet = StyleSheet.create((theme, _runtime) => ({
+    container: {
+        flexDirection: 'row',
+        marginBottom: theme.margins.sm,
+    },
+    containerMe: {
+        justifyContent: 'flex-end',
+    },
+    containerOther: {
+        justifyContent: 'flex-start',
+    },
+    avatarContainer: {
+        width: 32,
+        marginRight: theme.margins.sm,
+        justifyContent: 'flex-end',
+    },
+    avatar: {
+        width: 32,
+        height: 32,
+        borderRadius: theme.radius.l,
+        backgroundColor: theme.colors.backgroundInput,
+    },
+    bubbleWrapper: {
+        maxWidth: '85%',
+    },
+    textContainerFixed: {
+        position: 'relative',
+        minWidth: 85,
+        minHeight: 24,
+    },
+    textContent: {
+        fontSize: 15,
+        lineHeight: 22,
+        color: theme.colors.typography,
+    },
+    textContentMe: {
+        color: theme.colors.surface,
+    },
+    deletedText: {
+        fontStyle: 'italic',
+        opacity: 0.7,
+    },
+    timeInside: {
+        fontSize: 11,
+        fontWeight: '400',
+    },
+    timeInsideMe: {
+        color: 'rgba(255, 255, 255, 0.7)',
+    },
+    timeInsideOther: {
+        color: theme.colors.typographySecondary,
+    },
+    timeOverlayText: {
+        position: 'absolute',
+        right: 0,
+        bottom: 0,
+    },
+    timeOverlayCaption: {
+        position: 'absolute',
+        right: 12,
+        bottom: 8,
+    },
+    timeOverlayImage: {
+        position: 'absolute',
+        right: 8,
+        bottom: 6,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 10,
+    },
+    timeOnImage: {
+        color: '#fff',
+    },
+    timeSecondary: {
+        color: theme.colors.typographySecondary,
+    },
+    timeOverlayFile: {
+        alignItems: 'flex-end',
+        marginTop: 4,
+    },
+    timeOverlayCard: {
+        position: 'absolute',
+        right: 8,
+        bottom: 4,
+    },
+    // Redesigned Media Styles
+    mediaContainerMain: {
+        marginHorizontal: -12,
+        marginVertical: -8,
+        backgroundColor: 'transparent',
+    },
+    gridWrapper: {
+        backgroundColor: theme.colors.backgroundInput,
+        overflow: 'hidden',
+    },
+    gridRow: {
+        flexDirection: 'row',
+        gap: 2,
+    },
+    captionContainer: {
+        paddingHorizontal: 12,
+        paddingTop: 8,
+        paddingBottom: 8,
+    },
+    singleImageWrapper: {
+        position: 'relative',
+    },
+    messageImage: {
+        width: 240,
+        height: 180,
+    },
+    plusOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0, 0, 0, 0.4)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    plusText: {
+        color: '#fff',
+        fontSize: 22,
+        fontWeight: '600',
+    },
+    pendingIndicator: {
+        marginLeft: 4,
+    },
+    dynamicGridHalf: (height: number) => ({
+        flex: 1,
+        height,
+    }),
+    dynamicGridBig: (width: number, height: number) => ({
+        width,
+        height,
+    }),
+    gridItemBig: {
+        // bigSide is set via style prop
+    },
+    gridGap: {
+        gap: 2,
+    },
+    fullSize: {
+        width: '100%',
+        height: '100%',
+    },
+    fileContainerMain: {
+        width: 220,
+    },
+    fileContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+    },
+    fileIconContainer: {
+        width: 44,
+        height: 44,
+        borderRadius: theme.radius.m,
+        backgroundColor: theme.colors.primaryMuted,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    fileInfo: {
+        flex: 1,
+    },
+    fileName: {
+        fontSize: 14,
+        fontWeight: '500',
+        color: theme.colors.typography,
+    },
+    fileSize: {
+        fontSize: 12,
+        color: theme.colors.typographySecondary,
+        marginTop: 2,
+    },
+    fileSizeMe: {
+        color: theme.colors.textOnOverlay,
+    },
+    cardContainerMain: {
+        minWidth: 150,
+    },
+    cardContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        padding: theme.margins.sm,
+    },
+    cardErrorContent: {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-end',
+    },
+    cardMessageHeader: {
+        paddingHorizontal: 12,
+        paddingVertical: theme.margins.sm,
+        backgroundColor: theme.colors.backgroundSurface,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors.border,
+    },
+    cardMessageText: {
+        fontSize: 14,
+        lineHeight: 20,
+        color: theme.colors.typography,
+    },
+    productCard: {
+        width: 250,
+        backgroundColor: theme.colors.surface,
+        position: 'relative',
+        minHeight: 120,
+    },
+    productCardHeader: {
+        width: '100%',
+        height: 150,
+        backgroundColor: theme.colors.backgroundInput,
+    },
+    productImageLarge: {
+        width: '100%',
+        height: '100%',
+    },
+    productCardContent: {
+        padding: 12,
+        gap: 6,
+    },
+    productNameLarge: {
+        fontSize: 14,
+        fontWeight: '500',
+        color: theme.colors.typography,
+        lineHeight: 20,
+    },
+    productPriceRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-end',
+    },
+    productPriceLarge: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: theme.colors.error,
+    },
+    productCardActions: {
+        flexDirection: 'row',
+        gap: 8,
+        paddingHorizontal: 12,
+        paddingBottom: 18,
+    },
+    productActionBtn: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 4,
+        paddingVertical: 8,
+        borderRadius: theme.radius.m,
+    },
+    productActionBtnOutline: {
+        backgroundColor: 'transparent',
+        borderWidth: 1,
+        borderColor: theme.colors.accent,
+    },
+    productActionBtnFilled: {
+        backgroundColor: theme.colors.primary,
+    },
+    productActionBtnPressed: {
+        backgroundColor: theme.colors.accentSoft,
+    },
+    productActionBtnFilledPressed: {
+        opacity: 0.8,
+        backgroundColor: theme.colors.primary,
+    },
+    productActionTextOutline: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: theme.colors.accent,
+    },
+    productActionTextFilled: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: '#fff',
+    },
+    productCardFooterTime: {
+        position: 'absolute',
+        right: 8,
+        bottom: 4,
+    },
+    orderCard: {
+        width: 260,
+        padding: 12,
+        backgroundColor: theme.colors.surface,
+        position: 'relative',
+        minHeight: 120,
+    },
+    orderCardHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    orderCardHeaderLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
+    orderCardTitle: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: theme.colors.typographySecondary,
+        textTransform: 'uppercase',
+    },
+    statusBadge: {
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: theme.radius.s,
+    },
+    mb4: {
+        marginBottom: 4,
+    },
+    dynamicStatusBg: (color: string) => ({
+        backgroundColor: color + '15',
+    }),
+    dynamicStatusColor: (color: string) => ({
+        color: color,
+    }),
+    statusText: {
+        fontSize: 11,
+        fontWeight: '700',
+    },
+    pressedOpacity: {
+        opacity: 0.7,
+    },
+    orderCodeRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        marginBottom: theme.margins.sm,
+    },
+    orderCodeLarge: {
+        fontSize: 15,
+        fontWeight: '700',
+        color: theme.colors.typography,
+    },
+    orderItemsList: {
+        gap: 10,
+        marginBottom: theme.margins.sm,
+    },
+    orderItemRow: {
+        flexDirection: 'row',
+        gap: 10,
+        alignItems: 'center',
+    },
+    orderItemThumb: {
+        width: 40,
+        height: 40,
+        borderRadius: theme.radius.s,
+        backgroundColor: theme.colors.backgroundInput,
+    },
+    orderItemInfo: {
+        flex: 1,
+    },
+    orderItemNameText: {
+        fontSize: 13,
+        color: theme.colors.typography,
+    },
+    orderItemQtyText: {
+        fontSize: 12,
+        color: theme.colors.typographySecondary,
+    },
+    orderCardFooterNew: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingTop: 12,
+        borderTopWidth: 1,
+        borderTopColor: theme.colors.border,
+        paddingBottom: 10, // Chừa chỗ cho giờ absolute
+    },
+    totalLabel: {
+        fontSize: 12,
+        color: theme.colors.typographySecondary,
+    },
+    totalValue: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: theme.colors.error,
+    },
+    viewOrderBtn: {
+        backgroundColor: theme.colors.primarySubtle,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: theme.radius.m,
+    },
+    viewOrderBtnText: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: theme.colors.primary,
+    },
+    failedContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        marginTop: 4,
+        justifyContent: 'flex-end',
+    },
+    failedText: {
+        fontSize: 11,
+        color: theme.colors.error,
+    },
+}));
 
 interface MessageItemProps {
     message: Message;
@@ -193,7 +600,7 @@ const MessageTime: React.FC<{
 
     const getTimeStyle = () => {
         if (onImage) return styles.timeOnImage;
-        if (forceDark) return { color: theme.colors.typographySecondary };
+        if (forceDark) return styles.timeSecondary;
         return isMe ? styles.timeInsideMe : styles.timeInsideOther;
     };
 
@@ -235,7 +642,7 @@ const TextContent: React.FC<{ content: string; isMe: boolean; sentAt: string; st
 
 const ImageContent: React.FC<{
     content?: string;
-    attachments: any[];
+    attachments: MessageAttachment[];
     isMe: boolean;
     sentAt: string;
     status: string;
@@ -340,13 +747,13 @@ const ImageContent: React.FC<{
             const side = (GRID_WIDTH - GAP) / 2;
             return (
                 <View style={styles.gridRow}>
-                    {imagesToShow.map((img: any, idx: number) => (
+                    {imagesToShow.map((img: MessageAttachment, idx: number) => (
                         <TouchableOpacity
                             key={img.id || idx}
                             activeOpacity={0.9}
                             onLongPress={onLongPress}
                             onPress={() => onPress?.(img.url)}
-                            style={[styles.gridItemHalf, { height: side * 1.2 }]}
+                            style={styles.dynamicGridHalf(side * 1.2)}
                         >
                             <Image
                                 source={{ uri: img.url }}
@@ -376,11 +783,11 @@ const ImageContent: React.FC<{
                         activeOpacity={0.9}
                         onLongPress={onLongPress}
                         onPress={() => onPress?.(imagesToShow[0].url)}
-                        style={[styles.gridItemBig, { width: bigSide, height: bigSide }]}
+                        style={styles.dynamicGridBig(bigSide, bigSide)}
                     >
                         <Image
                             source={{ uri: imagesToShow[0].url }}
-                            style={[{ width: bigSide, height: bigSide }, getGridImageRadius(0, 3)]}
+                            style={[styles.dynamicGridBig(bigSide, bigSide), getGridImageRadius(0, 3)]}
                             contentFit="cover"
                         />
                     </TouchableOpacity>
@@ -389,11 +796,11 @@ const ImageContent: React.FC<{
                             activeOpacity={0.9}
                             onLongPress={onLongPress}
                             onPress={() => onPress?.(imagesToShow[1].url)}
-                            style={{ width: smallSide, height: smallHeight }}
+                            style={styles.dynamicGridBig(smallSide, smallHeight)}
                         >
                             <Image
                                 source={{ uri: imagesToShow[1].url }}
-                                style={[{ width: smallSide, height: smallHeight }, getGridImageRadius(1, 3)]}
+                                style={[styles.dynamicGridBig(smallSide, smallHeight), getGridImageRadius(1, 3)]}
                                 contentFit="cover"
                             />
                         </TouchableOpacity>
@@ -401,11 +808,11 @@ const ImageContent: React.FC<{
                             activeOpacity={0.9}
                             onLongPress={onLongPress}
                             onPress={() => onPress?.(imagesToShow[2].url)}
-                            style={{ width: smallSide, height: smallHeight }}
+                            style={styles.dynamicGridBig(smallSide, smallHeight)}
                         >
                             <Image
                                 source={{ uri: imagesToShow[2].url }}
-                                style={[{ width: smallSide, height: smallHeight }, getGridImageRadius(2, 3)]}
+                                style={[styles.dynamicGridBig(smallSide, smallHeight), getGridImageRadius(2, 3)]}
                                 contentFit="cover"
                             />
                         </TouchableOpacity>
@@ -424,34 +831,34 @@ const ImageContent: React.FC<{
         return (
             <View style={styles.gridGap}>
                 <View style={styles.gridRow}>
-                    {imagesToShow.slice(0, 2).map((img: any, idx: number) => (
+                    {imagesToShow.slice(0, 2).map((img: MessageAttachment, idx: number) => (
                         <TouchableOpacity
                             key={img.id || idx}
                             activeOpacity={0.9}
                             onLongPress={onLongPress}
                             onPress={() => onPress?.(img.url)}
-                            style={[styles.gridItemHalf, { height: boxSide }]}
+                            style={styles.dynamicGridHalf(boxSide)}
                         >
                             <Image
                                 source={{ uri: img.url }}
-                                style={[{ width: boxSide, height: boxSide }, getGridImageRadius(idx, 4)]}
+                                style={[styles.dynamicGridBig(boxSide, boxSide), getGridImageRadius(idx, 4)]}
                                 contentFit="cover"
                             />
                         </TouchableOpacity>
                     ))}
                 </View>
                 <View style={styles.gridRow}>
-                    {imagesToShow.slice(2, 4).map((img: any, idx: number) => (
+                    {imagesToShow.slice(2, 4).map((img: MessageAttachment, idx: number) => (
                         <TouchableOpacity
                             key={img.id || idx + 2}
                             activeOpacity={0.9}
                             onLongPress={onLongPress}
                             onPress={() => onPress?.(img.url)}
-                            style={[styles.gridItemHalf, { height: boxSide }]}
+                            style={styles.dynamicGridHalf(boxSide)}
                         >
                             <Image
                                 source={{ uri: img.url }}
-                                style={[{ width: boxSide, height: boxSide }, getGridImageRadius(idx + 2, 4)]}
+                                style={[styles.dynamicGridBig(boxSide, boxSide), getGridImageRadius(idx + 2, 4)]}
                                 contentFit="cover"
                             />
                             {imageCount > 4 && idx === 1 && (
@@ -491,7 +898,7 @@ const ImageContent: React.FC<{
     );
 };
 
-const FileContent: React.FC<{ content?: string; attachments: any[]; isMe: boolean; sentAt: string; status: string }> = ({
+const FileContent: React.FC<{ content?: string; attachments: MessageAttachment[]; isMe: boolean; sentAt: string; status: string }> = ({
     content,
     attachments,
     isMe,
@@ -506,7 +913,7 @@ const FileContent: React.FC<{ content?: string; attachments: any[]; isMe: boolea
 
     return (
         <View style={styles.fileContainerMain}>
-            <View style={[styles.fileContainer, content ? { marginBottom: 4 } : null]}>
+            <View style={[styles.fileContainer, content && styles.mb4]}>
                 <View style={styles.fileIconContainer}>
                     <IconSymbol
                         name="description"
@@ -775,8 +1182,8 @@ const OrderCardContent: React.FC<CardContentProps> = ({
                     <IconSymbol name="shipping" size={16} color={theme.colors.primary} />
                     <Text style={styles.orderCardTitle}>Đơn hàng</Text>
                 </View>
-                <View style={[styles.statusBadge, { backgroundColor: statusConfig.color + '15' }]}>
-                    <Text style={[styles.statusText, { color: statusConfig.color }]}>
+                <View style={[styles.statusBadge, styles.dynamicStatusBg(statusConfig.color)]}>
+                    <Text style={[styles.statusText, styles.dynamicStatusColor(statusConfig.color)]}>
                         {statusConfig.label}
                     </Text>
                 </View>
@@ -786,7 +1193,7 @@ const OrderCardContent: React.FC<CardContentProps> = ({
                 onPress={handleCopyCode}
                 style={({ pressed }) => [
                     styles.orderCodeRow,
-                    pressed && { opacity: 0.7 }
+                    pressed && styles.pressedOpacity
                 ]}
             >
                 <Text style={styles.orderCodeLarge}>{data.orderCode}</Text>
@@ -831,392 +1238,5 @@ const OrderCardContent: React.FC<CardContentProps> = ({
         </View>
     );
 };
-
-const stylesheet = StyleSheet.create((theme, _runtime) => ({
-    container: {
-        flexDirection: 'row',
-        marginBottom: theme.margins.sm,
-    },
-    containerMe: {
-        justifyContent: 'flex-end',
-    },
-    containerOther: {
-        justifyContent: 'flex-start',
-    },
-    avatarContainer: {
-        width: 32,
-        marginRight: theme.margins.sm,
-        justifyContent: 'flex-end',
-    },
-    avatar: {
-        width: 32,
-        height: 32,
-        borderRadius: theme.radius.l,
-        backgroundColor: theme.colors.backgroundInput,
-    },
-    bubbleWrapper: {
-        maxWidth: '85%',
-    },
-    textContainerFixed: {
-        position: 'relative',
-        minWidth: 85,
-        minHeight: 24,
-    },
-    textContent: {
-        fontSize: 15,
-        lineHeight: 22,
-        color: theme.colors.typography,
-    },
-    textContentMe: {
-        color: theme.colors.surface,
-    },
-    deletedText: {
-        fontStyle: 'italic',
-        opacity: 0.7,
-    },
-    timeInside: {
-        fontSize: 11,
-        fontWeight: '400',
-    },
-    timeInsideMe: {
-        color: 'rgba(255, 255, 255, 0.7)',
-    },
-    timeInsideOther: {
-        color: theme.colors.typographySecondary,
-    },
-    timeOverlayText: {
-        position: 'absolute',
-        right: 0,
-        bottom: 0,
-    },
-    timeOverlayCaption: {
-        position: 'absolute',
-        right: 12,
-        bottom: 8,
-    },
-    timeOverlayImage: {
-        position: 'absolute',
-        right: 8,
-        bottom: 6,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        paddingHorizontal: 6,
-        paddingVertical: 2,
-        borderRadius: 10,
-    },
-    timeOnImage: {
-        color: '#fff',
-    },
-    timeOverlayFile: {
-        alignItems: 'flex-end',
-        marginTop: 4,
-    },
-    timeOverlayCard: {
-        position: 'absolute',
-        right: 8,
-        bottom: 4,
-    },
-    // Redesigned Media Styles
-    mediaContainerMain: {
-        marginHorizontal: -12,
-        marginVertical: -8,
-        backgroundColor: 'transparent',
-    },
-    gridWrapper: {
-        backgroundColor: theme.colors.backgroundInput,
-        overflow: 'hidden',
-    },
-    gridRow: {
-        flexDirection: 'row',
-        gap: 2,
-    },
-    captionContainer: {
-        paddingHorizontal: 12,
-        paddingTop: 8,
-        paddingBottom: 8,
-    },
-    singleImageWrapper: {
-        position: 'relative',
-    },
-    messageImage: {
-        width: 240,
-        height: 180,
-    },
-    plusOverlay: {
-        ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(0, 0, 0, 0.4)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    plusText: {
-        color: '#fff',
-        fontSize: 22,
-        fontWeight: '600',
-    },
-    pendingIndicator: {
-        marginLeft: 4,
-    },
-    gridItemHalf: {
-        flex: 1,
-    },
-    gridItemBig: {
-        // bigSide is set via style prop
-    },
-    gridGap: {
-        gap: 2,
-    },
-    fullSize: {
-        width: '100%',
-        height: '100%',
-    },
-    fileContainerMain: {
-        width: 220,
-    },
-    fileContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-    },
-    fileIconContainer: {
-        width: 44,
-        height: 44,
-        borderRadius: theme.radius.m,
-        backgroundColor: theme.colors.primaryMuted,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    fileInfo: {
-        flex: 1,
-    },
-    fileName: {
-        fontSize: 14,
-        fontWeight: '500',
-        color: theme.colors.typography,
-    },
-    fileSize: {
-        fontSize: 12,
-        color: theme.colors.typographySecondary,
-        marginTop: 2,
-    },
-    fileSizeMe: {
-        color: theme.colors.textOnOverlay,
-    },
-    cardContainerMain: {
-        minWidth: 150,
-    },
-    cardContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-        padding: theme.margins.sm,
-    },
-    cardErrorContent: {
-        flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-end',
-    },
-    cardMessageHeader: {
-        paddingHorizontal: 12,
-        paddingVertical: theme.margins.sm,
-        backgroundColor: theme.colors.backgroundSurface,
-        borderBottomWidth: 1,
-        borderBottomColor: theme.colors.border,
-    },
-    cardMessageText: {
-        fontSize: 14,
-        lineHeight: 20,
-        color: theme.colors.typography,
-    },
-    productCard: {
-        width: 250,
-        backgroundColor: theme.colors.surface,
-        position: 'relative',
-        minHeight: 120,
-    },
-    productCardHeader: {
-        width: '100%',
-        height: 150,
-        backgroundColor: theme.colors.backgroundInput,
-    },
-    productImageLarge: {
-        width: '100%',
-        height: '100%',
-    },
-    productCardContent: {
-        padding: 12,
-        gap: 6,
-    },
-    productNameLarge: {
-        fontSize: 14,
-        fontWeight: '500',
-        color: theme.colors.typography,
-        lineHeight: 20,
-    },
-    productPriceRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-end',
-    },
-    productPriceLarge: {
-        fontSize: 18,
-        fontWeight: '700',
-        color: theme.colors.error,
-    },
-    productCardActions: {
-        flexDirection: 'row',
-        gap: 8,
-        paddingHorizontal: 12,
-        paddingBottom: 18,
-    },
-    productActionBtn: {
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 4,
-        paddingVertical: 8,
-        borderRadius: theme.radius.m,
-    },
-    productActionBtnOutline: {
-        backgroundColor: 'transparent',
-        borderWidth: 1,
-        borderColor: theme.colors.accent,
-    },
-    productActionBtnFilled: {
-        backgroundColor: theme.colors.primary,
-    },
-    productActionBtnPressed: {
-        backgroundColor: theme.colors.accentSoft,
-    },
-    productActionBtnFilledPressed: {
-        opacity: 0.8,
-        backgroundColor: theme.colors.primary,
-    },
-    productActionTextOutline: {
-        fontSize: 12,
-        fontWeight: '600',
-        color: theme.colors.accent,
-    },
-    productActionTextFilled: {
-        fontSize: 12,
-        fontWeight: '600',
-        color: '#fff',
-    },
-    productCardFooterTime: {
-        position: 'absolute',
-        right: 8,
-        bottom: 4,
-    },
-    orderCard: {
-        width: 260,
-        padding: 12,
-        backgroundColor: theme.colors.surface,
-        position: 'relative',
-        minHeight: 120,
-    },
-    orderCardHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 10,
-    },
-    orderCardHeaderLeft: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-    },
-    orderCardTitle: {
-        fontSize: 12,
-        fontWeight: '600',
-        color: theme.colors.typographySecondary,
-        textTransform: 'uppercase',
-    },
-    statusBadge: {
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: theme.radius.s,
-    },
-    statusText: {
-        fontSize: 11,
-        fontWeight: '700',
-    },
-    orderCodeRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        marginBottom: theme.margins.sm,
-    },
-    orderCodeLarge: {
-        fontSize: 15,
-        fontWeight: '700',
-        color: theme.colors.typography,
-    },
-    orderItemsList: {
-        gap: 10,
-        marginBottom: theme.margins.sm,
-    },
-    orderItemRow: {
-        flexDirection: 'row',
-        gap: 10,
-        alignItems: 'center',
-    },
-    orderItemThumb: {
-        width: 40,
-        height: 40,
-        borderRadius: theme.radius.s,
-        backgroundColor: theme.colors.backgroundInput,
-    },
-    orderItemInfo: {
-        flex: 1,
-    },
-    orderItemNameText: {
-        fontSize: 13,
-        color: theme.colors.typography,
-    },
-    orderItemQtyText: {
-        fontSize: 12,
-        color: theme.colors.typographySecondary,
-    },
-    orderCardFooterNew: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingTop: 12,
-        borderTopWidth: 1,
-        borderTopColor: theme.colors.border,
-        paddingBottom: 10, // Chừa chỗ cho giờ absolute
-    },
-    totalLabel: {
-        fontSize: 12,
-        color: theme.colors.typographySecondary,
-    },
-    totalValue: {
-        fontSize: 16,
-        fontWeight: '700',
-        color: theme.colors.error,
-    },
-    viewOrderBtn: {
-        backgroundColor: theme.colors.primarySubtle,
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: theme.radius.m,
-    },
-    viewOrderBtnText: {
-        fontSize: 12,
-        fontWeight: '600',
-        color: theme.colors.primary,
-    },
-    failedContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        marginTop: 4,
-        justifyContent: 'flex-end',
-    },
-    failedText: {
-        fontSize: 11,
-        color: theme.colors.error,
-    },
-}));
 
 export default MessageItem;

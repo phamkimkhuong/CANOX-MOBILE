@@ -1,6 +1,7 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import {
     BottomSheetBackdrop,
+    BottomSheetBackdropProps,
     BottomSheetModal,
     BottomSheetView
 } from '@gorhom/bottom-sheet';
@@ -30,7 +31,7 @@ export const AttachmentMenu = forwardRef<BottomSheetModal, AttachmentMenuProps>(
 
         // Backdrop when opening menu
         const renderBackdrop = useCallback(
-            (props: any) => (
+            (props: BottomSheetBackdropProps) => (
                 <BottomSheetBackdrop
                     {...props}
                     appearsOnIndex={0}
@@ -51,7 +52,7 @@ export const AttachmentMenu = forwardRef<BottomSheetModal, AttachmentMenuProps>(
                 backgroundStyle={styles.background}
                 bottomInset={insets.bottom}
             >
-                <BottomSheetView style={[styles.content, { paddingBottom: Math.max(insets.bottom, 24) }]}>
+                <BottomSheetView style={styles.content}>
                     <Text style={styles.title}>Gửi nội dung</Text>
 
                     <View style={styles.optionsGrid}>
@@ -60,7 +61,7 @@ export const AttachmentMenu = forwardRef<BottomSheetModal, AttachmentMenuProps>(
                             style={styles.optionItem}
                             onPress={() => onSelectOption('image')}
                         >
-                            <View style={[styles.iconCircle, { backgroundColor: '#E3F2FD' }]}>
+                            <View style={styles.iconCircleBlue}>
                                 <IconSymbol name="image" size={24} color="#1976D2" />
                             </View>
                             <Text style={styles.optionLabel}>Hình ảnh</Text>
@@ -71,7 +72,7 @@ export const AttachmentMenu = forwardRef<BottomSheetModal, AttachmentMenuProps>(
                             style={styles.optionItem}
                             onPress={() => onSelectOption('camera')}
                         >
-                            <View style={[styles.iconCircle, { backgroundColor: '#F3E5F5' }]}>
+                            <View style={styles.iconCirclePurple}>
                                 <IconSymbol name="camera" size={24} color="#7B1FA2" />
                             </View>
                             <Text style={styles.optionLabel}>Máy ảnh</Text>
@@ -82,7 +83,7 @@ export const AttachmentMenu = forwardRef<BottomSheetModal, AttachmentMenuProps>(
                             style={styles.optionItem}
                             onPress={() => onSelectOption('product')}
                         >
-                            <View style={[styles.iconCircle, { backgroundColor: '#E8F5E9' }]}>
+                            <View style={styles.iconCircleGreen}>
                                 <IconSymbol name="shopping-bag" size={24} color="#388E3C" />
                             </View>
                             <Text style={styles.optionLabel}>Sản phẩm</Text>
@@ -93,7 +94,7 @@ export const AttachmentMenu = forwardRef<BottomSheetModal, AttachmentMenuProps>(
                             style={styles.optionItem}
                             onPress={() => onSelectOption('order')}
                         >
-                            <View style={[styles.iconCircle, { backgroundColor: '#FFF3E0' }]}>
+                            <View style={styles.iconCircleOrange}>
                                 <IconSymbol name="shipping" size={24} color="#F57C00" />
                             </View>
                             <Text style={styles.optionLabel}>Đơn hàng</Text>
@@ -105,7 +106,7 @@ export const AttachmentMenu = forwardRef<BottomSheetModal, AttachmentMenuProps>(
     }
 );
 
-const stylesheet = StyleSheet.create((theme) => ({
+const stylesheet = StyleSheet.create((theme, runtime) => ({
     background: {
         backgroundColor: theme.colors.surface,
         borderTopLeftRadius: 16,
@@ -118,6 +119,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     content: {
         paddingHorizontal: theme.margins.lg,
         paddingTop: theme.margins.sm,
+        paddingBottom: Math.max(runtime.insets.bottom, 24),
     },
     title: {
         fontSize: 16,
@@ -147,6 +149,58 @@ const stylesheet = StyleSheet.create((theme) => ({
         shadowOpacity: 0.1,
         shadowRadius: 4,
         elevation: 2,
+    },
+    iconCircleBlue: {
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
+        backgroundColor: '#E3F2FD',
+    },
+    iconCirclePurple: {
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
+        backgroundColor: '#F3E5F5',
+    },
+    iconCircleGreen: {
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
+        backgroundColor: '#E8F5E9',
+    },
+    iconCircleOrange: {
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
+        backgroundColor: '#FFF3E0',
     },
     optionLabel: {
         fontSize: 13,

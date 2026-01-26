@@ -1,5 +1,5 @@
 import { CountdownDigits } from '@/components/ui/CountdownDigits';
-import { IconSymbol } from '@/components/ui/Icon';
+import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import { useCountdown } from '@/hooks/useCountdown';
 import type { FlashSaleInfo } from '@/types/product/productDetail';
@@ -47,7 +47,7 @@ export const ProductFlashSaleBar = memo<ProductFlashSaleBarProps>(({
             case 'FLASH_SALE':
                 return {
                     label: 'FLASH SALE',
-                    icon: 'flash' as any,
+                    icon: 'flash' as IconSymbolName,
                     iconColor: '#FFD700',
                     bgColor: '#FFF5F5',
                     borderColor: '#FFE0E0',
@@ -57,7 +57,7 @@ export const ProductFlashSaleBar = memo<ProductFlashSaleBarProps>(({
             case 'MEGA_SALE':
                 return {
                     label: 'MEGA SALE',
-                    icon: 'flame' as any,
+                    icon: 'flame' as IconSymbolName,
                     iconColor: '#FFD700',
                     bgColor: '#F3E5F5', // Purple light
                     borderColor: '#E1BEE7',
@@ -67,7 +67,7 @@ export const ProductFlashSaleBar = memo<ProductFlashSaleBarProps>(({
             case 'DAILY_DEAL':
                 return {
                     label: 'DEAL DAILY',
-                    icon: 'gift' as any,
+                    icon: 'gift' as IconSymbolName,
                     iconColor: '#2196F3',
                     bgColor: '#E3F2FD', // Blue light
                     borderColor: '#BBDEFB',
@@ -77,7 +77,7 @@ export const ProductFlashSaleBar = memo<ProductFlashSaleBarProps>(({
             case 'SHOP_SALE':
                 return {
                     label: 'SHOP SALE',
-                    icon: 'tag' as any,
+                    icon: 'tag' as IconSymbolName,
                     iconColor: '#FF9800',
                     bgColor: '#FFF8E1', // Amber light
                     borderColor: '#FFECB3',
@@ -87,7 +87,7 @@ export const ProductFlashSaleBar = memo<ProductFlashSaleBarProps>(({
             case 'SHOP_PROMOTION':
                 return {
                     label: 'SHOP PROMOTION',
-                    icon: 'gift' as any,
+                    icon: 'gift' as IconSymbolName,
                     iconColor: '#E91E63',
                     bgColor: '#FCE4EC', // Pink light
                     borderColor: '#F8BBD0',
@@ -97,7 +97,7 @@ export const ProductFlashSaleBar = memo<ProductFlashSaleBarProps>(({
             default:
                 return {
                     label: 'FLASH SALE',
-                    icon: 'flash' as any,
+                    icon: 'flash' as IconSymbolName,
                     iconColor: '#FFD700',
                     bgColor: '#FFF5F5',
                     borderColor: '#FFE0E0',

@@ -12,7 +12,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { enableFreeze } from 'react-native-screens';
@@ -113,7 +113,7 @@ export default function RootLayout() {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: lightTheme.colors.surface }}>
+    <GestureHandlerRootView style={styles.container}>
       <QueryClientProvider client={queryClient}>
         <WebSocketProvider autoConnect={false}>
           <ScrollToTopProvider>
@@ -160,3 +160,10 @@ export default function RootLayout() {
     </GestureHandlerRootView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: lightTheme.colors.surface,
+  },
+});

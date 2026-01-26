@@ -126,15 +126,10 @@ export const CartCheckbox: React.FC<CartCheckboxProps> = memo(({
             <Animated.View
                 style={[
                     styles.checkbox,
+                    styles.size(size),
                     animatedStyle,
-                    {
-                        width: config.box,
-                        height: config.box,
-                        borderRadius: config.borderRadius,
-                        backgroundColor,
-                        borderColor,
-                        opacity: disabled ? 0.5 : 1,
-                    },
+                    styles.colors(backgroundColor, borderColor),
+                    disabled && styles.disabled,
                 ]}
             >
                 {isChecked && (
@@ -148,10 +143,8 @@ export const CartCheckbox: React.FC<CartCheckboxProps> = memo(({
                     <View
                         style={[
                             styles.indeterminateLine,
-                            {
-                                width: config.icon - 4,
-                                backgroundColor: theme.colors.onPrimary,
-                            },
+                            styles.indeterminateWidth(config.icon - 4),
+                            styles.bgOnPrimary,
                         ]}
                     />
                 )}
@@ -168,8 +161,26 @@ const styles = StyleSheet.create((theme) => ({
         alignItems: 'center',
         borderWidth: 2,
     },
+    size: (size: 'small' | 'medium') => ({
+        width: SIZE_CONFIG[size].box,
+        height: SIZE_CONFIG[size].box,
+        borderRadius: SIZE_CONFIG[size].borderRadius,
+    }),
+    colors: (backgroundColor: string, borderColor: string) => ({
+        backgroundColor,
+        borderColor,
+    }),
+    disabled: {
+        opacity: 0.5,
+    },
     indeterminateLine: {
         height: 2,
         borderRadius: 1,
     },
+    bgOnPrimary: {
+        backgroundColor: theme.colors.onPrimary,
+    },
+    indeterminateWidth: (width: number) => ({
+        width,
+    }),
 }));

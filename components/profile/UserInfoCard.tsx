@@ -108,7 +108,7 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
                     {/* Level badge */}
                     <View style={[styles.levelBadge, { backgroundColor: levelConfig.color }]}>
                         <IconSymbol
-                            name={levelConfig.icon as any}
+                            name={levelConfig.icon as keyof typeof IconSymbol}
                             size={10}
                             color="#fff"
                         />
@@ -165,7 +165,7 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
                         {/* Background icon */}
                         <View style={styles.statBgIcon}>
                             <IconSymbol
-                                name={stat.icon as any}
+                                name={stat.icon as keyof typeof IconSymbol}
                                 size={50}
                                 color={stat.iconColor}
                                 style={styles.statBgIconInner}
@@ -175,7 +175,7 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
                         {/* Icon */}
                         <View style={[styles.statIconContainer, { backgroundColor: theme.colors.surface }]}>
                             <IconSymbol
-                                name={stat.icon as any}
+                                name={stat.icon as keyof typeof IconSymbol}
                                 size={20}
                                 color={stat.iconColor}
                             />

@@ -579,7 +579,7 @@ export default function ProductDetailScreen() {
                 </View>
             );
         }
-        return <View style={{ height: theme.margins.lg }} />;
+        return <View style={styles.footerSpacer} />;
     }, [isLoadingRelated, theme]);
 
 
@@ -598,7 +598,7 @@ export default function ProductDetailScreen() {
                 {/* NavBar vẫn cho phép quay lại */}
                 <ProductNavBar scrollY={scrollY} title={PRODUCT_STRINGS.navigation.title} />
 
-                <View style={{ flex: 1 }}>
+                <View style={styles.flex1}>
                     <ProductDetailSkeleton />
                     <View style={styles.errorOverlay}>
                         <View style={styles.errorCard}>
@@ -650,7 +650,7 @@ export default function ProductDetailScreen() {
             {!isTransitionFinished ? (
                 <ProductDetailSkeleton />
             ) : (
-                <View style={{ flex: 1 }}>
+                <View style={styles.flex1}>
                     <FlashList
                         ref={listRef}
                         data={listData}
@@ -714,6 +714,12 @@ const styles = StyleSheet.create((theme) => ({
     container: {
         flex: 1,
         backgroundColor: theme.colors.background,
+    },
+    flex1: {
+        flex: 1,
+    },
+    footerSpacer: {
+        height: theme.margins.lg,
     },
     scrollView: {
         flex: 1,

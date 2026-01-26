@@ -12,6 +12,7 @@ import { DeleteType } from '@/hooks/api/chat';
 import { Message } from '@/types/chat/message';
 import {
     BottomSheetBackdrop,
+    BottomSheetBackdropProps,
     BottomSheetModal,
     BottomSheetView
 } from '@gorhom/bottom-sheet';
@@ -54,7 +55,7 @@ export const MessageActionSheet = forwardRef<MessageActionSheetRef, MessageActio
 
         // Backdrop component
         const renderBackdrop = useCallback(
-            (props: any) => (
+            (props: BottomSheetBackdropProps) => (
                 <BottomSheetBackdrop
                     {...props}
                     appearsOnIndex={0}

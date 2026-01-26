@@ -114,7 +114,7 @@ export const ProductPreviewList: React.FC<ProductPreviewListProps> = ({
                                     source={{ uri: imgUrl }}
                                     style={[
                                         styles.stackImage,
-                                        { marginLeft: index > 0 ? -12 : 0, zIndex: 3 - index },
+                                        styles.dynamicStack(index),
                                     ]}
                                     contentFit="cover"
                                 />
@@ -221,6 +221,10 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderWidth: 2,
         borderColor: theme.colors.surface,
     },
+    dynamicStack: (index: number) => ({
+        marginLeft: index > 0 ? -12 : 0,
+        zIndex: 3 - index,
+    }),
     moreTextWrapper: {
         flex: 1,
         marginLeft: theme.margins.sm,

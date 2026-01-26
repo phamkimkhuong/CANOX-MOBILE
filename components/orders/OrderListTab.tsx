@@ -128,15 +128,15 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
                     logger.orders.info('Rebuy successful for order:', orderId);
                     hideGlobalLoading();
                     Navigator.push(cartRoutes.index({ rebuySuccess: true }));
-                } catch (err: any) {
+                } catch (err: unknown) {
                     hideGlobalLoading();
+                    const message = err instanceof Error ? err.message : t('common:status.error');
                     logger.orders.error('Rebuy failed:', err);
 
-                    const errorMessage = err?.message || t('common:status.error');
                     Toast.show({
                         type: 'error',
                         text1: t('common:status.error'),
-                        text2: errorMessage,
+                        text2: message,
                     });
                 }
                 break;

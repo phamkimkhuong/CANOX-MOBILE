@@ -113,34 +113,31 @@ export const CountdownDigits = memo<CountdownDigitsProps>(({
             {showLabel && (
                 <Text style={[
                     styles.label,
-                    { fontSize: config.labelSize, color: colors.labelColor },
+                    styles.dynamicLabelSize(config.labelSize, colors.labelColor),
                 ]}>
                     {labelText}
                 </Text>
             )}
-            <View style={[styles.container, { gap: config.gap }]}>
+            <View style={[styles.container, styles.dynamicGap(config.gap)]}>
                 {/* Days */}
                 {duration.days > 0 && (
                     <>
                         <View style={[
                             styles.digitBox,
                             config.boxPadding,
-                            {
-                                backgroundColor: colors.boxBg,
-                                minWidth: config.boxMinWidth,
-                                borderRadius: config.borderRadius,
-                            },
+                            styles.dynamicBox(colors.boxBg, config.boxMinWidth, config.borderRadius),
                         ]}>
                             <Text style={[
                                 styles.digit,
-                                { fontSize: config.fontSize, color: colors.digitColor },
+                                styles.dynamicDigit(config.fontSize, colors.digitColor),
                             ]}>
                                 {duration.days}
                             </Text>
                         </View>
                         <Text style={[
                             styles.separator,
-                            { fontSize: config.labelSize, color: colors.separatorColor, fontWeight: '500' },
+                            styles.dynamicSeparator(config.labelSize, colors.separatorColor),
+                            styles.fontWeight500,
                         ]}>
                             {duration.days > 1 ? 'ngày' : 'ngày'}
                         </Text>
@@ -153,22 +150,18 @@ export const CountdownDigits = memo<CountdownDigitsProps>(({
                         <View style={[
                             styles.digitBox,
                             config.boxPadding,
-                            {
-                                backgroundColor: colors.boxBg,
-                                minWidth: config.boxMinWidth,
-                                borderRadius: config.borderRadius,
-                            },
+                            styles.dynamicBox(colors.boxBg, config.boxMinWidth, config.borderRadius),
                         ]}>
                             <Text style={[
                                 styles.digit,
-                                { fontSize: config.fontSize, color: colors.digitColor },
+                                styles.dynamicDigit(config.fontSize, colors.digitColor),
                             ]}>
                                 {formatNumber(duration.hours)}
                             </Text>
                         </View>
                         <Text style={[
                             styles.separator,
-                            { fontSize: config.separatorSize, color: colors.separatorColor },
+                            styles.dynamicSeparator(config.separatorSize, colors.separatorColor),
                         ]}>
                             :
                         </Text>
@@ -179,15 +172,11 @@ export const CountdownDigits = memo<CountdownDigitsProps>(({
                 <View style={[
                     styles.digitBox,
                     config.boxPadding,
-                    {
-                        backgroundColor: colors.boxBg,
-                        minWidth: config.boxMinWidth,
-                        borderRadius: config.borderRadius,
-                    },
+                    styles.dynamicBox(colors.boxBg, config.boxMinWidth, config.borderRadius),
                 ]}>
                     <Text style={[
                         styles.digit,
-                        { fontSize: config.fontSize, color: colors.digitColor },
+                        styles.dynamicDigit(config.fontSize, colors.digitColor),
                     ]}>
                         {formatNumber(duration.minutes)}
                     </Text>
@@ -195,7 +184,7 @@ export const CountdownDigits = memo<CountdownDigitsProps>(({
 
                 <Text style={[
                     styles.separator,
-                    { fontSize: config.separatorSize, color: colors.separatorColor },
+                    styles.dynamicSeparator(config.separatorSize, colors.separatorColor),
                 ]}>
                     :
                 </Text>
@@ -204,15 +193,11 @@ export const CountdownDigits = memo<CountdownDigitsProps>(({
                 <View style={[
                     styles.digitBox,
                     config.boxPadding,
-                    {
-                        backgroundColor: colors.boxBg,
-                        minWidth: config.boxMinWidth,
-                        borderRadius: config.borderRadius,
-                    },
+                    styles.dynamicBox(colors.boxBg, config.boxMinWidth, config.borderRadius),
                 ]}>
                     <Text style={[
                         styles.digit,
-                        { fontSize: config.fontSize, color: colors.digitColor },
+                        styles.dynamicDigit(config.fontSize, colors.digitColor),
                     ]}>
                         {formatNumber(duration.seconds)}
                     </Text>
@@ -233,19 +218,42 @@ const styles = StyleSheet.create((theme) => ({
     label: {
         fontWeight: '500',
     },
+    dynamicLabelSize: (fontSize: number, color: string) => ({
+        fontSize,
+        color,
+    }),
     container: {
         flexDirection: 'row',
         alignItems: 'center',
     },
+    dynamicGap: (gap: number) => ({
+        gap,
+    }),
     digitBox: {
         alignItems: 'center',
         justifyContent: 'center',
     },
+    dynamicBox: (backgroundColor: string, minWidth: number, borderRadius: number) => ({
+        backgroundColor,
+        minWidth,
+        borderRadius,
+    }),
     digit: {
         fontWeight: '700',
         fontVariant: ['tabular-nums'],
     },
+    dynamicDigit: (fontSize: number, color: string) => ({
+        fontSize,
+        color,
+    }),
     separator: {
         fontWeight: '700',
+    },
+    dynamicSeparator: (fontSize: number, color: string) => ({
+        fontSize,
+        color,
+    }),
+    fontWeight500: {
+        fontWeight: '500',
     },
 }));

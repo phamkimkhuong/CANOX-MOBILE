@@ -116,7 +116,7 @@ export const OrderStatusRail: React.FC<OrderStatusRailProps> = memo(({
                         >
                             <View style={styles.iconContainer}>
                                 <IconSymbol
-                                    name={item.icon as any}
+                                    name={item.icon as keyof typeof IconSymbol}
                                     size={24}
                                     color={theme.colors.secondary}
                                 />

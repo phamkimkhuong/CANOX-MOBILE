@@ -92,15 +92,16 @@ export default function ResetPasswordScreen() {
 
             // Navigate to login
             Navigator.replace(ROUTES.AUTH.LOGIN);
-        } catch (error: any) {
+        } catch (error: unknown) {
             // Use centralized error handling architecture
             // Code 2500, 2514 = OTP Expired (defined in constants/errorCodes.ts)
-            const isOtpExpired = error?.code === 2500 || error?.code === 2514;
+            const apiError = error as { code?: number; message?: string };
+            const isOtpExpired = apiError?.code === 2500 || apiError?.code === 2514;
 
             if (isOtpExpired) {
                 Toast.show({
                     type: 'error',
-                    text1: error.message,
+                    text1: apiError.message || t('resetPassword.errorToast'),
                     text2: t('resetPassword.missingInfoDetail'),
                 });
                 Navigator.replace(ROUTES.AUTH.FORGOT_PASSWORD);
@@ -108,7 +109,7 @@ export default function ResetPasswordScreen() {
                 Toast.show({
                     type: 'error',
                     text1: t('resetPassword.errorToast'),
-                    text2: error?.message || t('resetPassword.errorToastDetail'),
+                    text2: apiError?.message || t('resetPassword.errorToastDetail'),
                 });
             }
         }

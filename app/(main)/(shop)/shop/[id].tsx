@@ -49,7 +49,7 @@ import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 const NUM_COLUMNS = 2;
-const AnimatedFlashList = Animated.createAnimatedComponent<any>(FlashList);
+const AnimatedFlashList = Animated.createAnimatedComponent(FlashList);
 
 /**
  * Flattened list item type for mixed content rendering
@@ -332,12 +332,12 @@ export default function ShopDetailScreen() {
             <ShopNavBar scrollY={scrollY} onBackPress={handleBackPress} onSearchPress={handleSearchPress} onMorePress={handleMorePress} />
 
             <AnimatedFlashList
-                data={listData}
-                renderItem={renderItem}
-                keyExtractor={(item: any, index: number) => item.type === 'product' ? `product-${item.data.id}` : `item-${item.type}-${index}`}
+                data={listData as any}
+                renderItem={renderItem as any}
+                keyExtractor={(item: any, index: any) => item.type === 'product' ? `product-${item.data.id}` : `item-${item.type}-${index}`}
                 stickyHeaderIndices={stickyHeaderIndices}
                 numColumns={NUM_COLUMNS}
-                overrideItemLayout={(layout: any, item: FlatListItem) => {
+                overrideItemLayout={(layout: any, item: any) => {
                     layout.span = (item.type === 'header' || item.type === 'voucher-section' || item.type === 'tab-spacer' || item.type === 'profile-content') ? NUM_COLUMNS : 1;
                 }}
                 onEndReached={handleLoadMore}

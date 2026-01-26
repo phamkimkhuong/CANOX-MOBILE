@@ -95,7 +95,7 @@ export const ServiceGrid: React.FC<ServiceGridProps> = memo(({
                         >
                             <View style={[styles.iconWrapper, { backgroundColor: item.iconBgColor }]}>
                                 <IconSymbol
-                                    name={item.icon as any}
+                                    name={item.icon as keyof typeof IconSymbol}
                                     size={20}
                                     color={item.iconColor}
                                 />

@@ -515,7 +515,7 @@ export default function ChatDetailScreen() {
         }
     }, [flatListData.length, isLoading]);
 
-    const handleScroll = useCallback((event: any) => {
+    const handleScroll = useCallback((event: { nativeEvent: { contentOffset: { y: number } } }) => {
         const { contentOffset } = event.nativeEvent;
         // For inverted list: offset 0 = bottom (newest messages)
         setIsNearBottom(contentOffset.y < NEAR_BOTTOM_THRESHOLD);
@@ -790,14 +790,14 @@ export default function ChatDetailScreen() {
                         size={48}
                         color={theme.colors.error}
                     />
-                    <Text style={[styles.errorText, { marginTop: theme.margins.md }]}>
+                    <Text style={styles.errorTextWithMargin}>
                         {CHAT_STRINGS.error.startChatFailed}
                     </Text>
                     <Text style={styles.errorSubtext}>
                         {CHAT_STRINGS.error.tryAgainLater}
                     </Text>
                     <Pressable
-                        style={[styles.retryButton, { marginTop: theme.margins.lg }]}
+                        style={styles.retryButtonWithMargin}
                         onPress={resolveGhostMode}
                         disabled={isResolvingGhost}
                     >
@@ -808,7 +808,7 @@ export default function ChatDetailScreen() {
                         )}
                     </Pressable>
                     <Pressable
-                        style={[styles.backButton, { marginTop: theme.margins.sm }]}
+                        style={styles.backButtonWithMargin}
                         onPress={() => Navigator.back()}
                     >
                         <Text style={styles.backButtonText}>Quay lại</Text>
@@ -966,7 +966,7 @@ export default function ChatDetailScreen() {
                             )}
                         />
                         {/* Viewer Header with Close Button */}
-                        <View style={[viewerStyles.header, { top: insets.top }]}>
+                        <View style={viewerStyles.header}>
                             <Pressable
                                 style={viewerStyles.closeButton}
                                 onPress={() => setViewerVisible(false)}
@@ -976,7 +976,7 @@ export default function ChatDetailScreen() {
                             <Text style={viewerStyles.headerText}>
                                 {viewerIndex + 1} / {chatImages.length}
                             </Text>
-                            <View style={{ width: 44 }} />
+                            <View style={viewerStyles.headerSpacer} />
                         </View>
                     </View>
                     <StatusBar style="light" hidden />
@@ -986,7 +986,7 @@ export default function ChatDetailScreen() {
     );
 }
 
-const viewerStyles = StyleSheet.create((theme) => ({
+const viewerStyles = StyleSheet.create((theme, runtime) => ({
     container: {
         flex: 1,
         backgroundColor: '#000',
@@ -996,6 +996,7 @@ const viewerStyles = StyleSheet.create((theme) => ({
     },
     header: {
         position: 'absolute',
+        top: runtime.insets.top,
         left: 0,
         right: 0,
         height: 60,
@@ -1018,6 +1019,9 @@ const viewerStyles = StyleSheet.create((theme) => ({
         color: '#FFFFFF',
         fontSize: 16,
         fontWeight: '600',
+    },
+    headerSpacer: {
+        width: 44,
     },
 }));
 
@@ -1070,6 +1074,12 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.error,
         marginBottom: theme.margins.sm,
     },
+    errorTextWithMargin: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: theme.colors.error,
+        marginTop: theme.margins.md,
+    },
     errorSubtext: {
         fontSize: 14,
         color: theme.colors.secondary,
@@ -1082,6 +1092,15 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderRadius: theme.radius.m,
         minWidth: 120,
         alignItems: 'center',
+    },
+    retryButtonWithMargin: {
+        paddingHorizontal: theme.margins.xl,
+        paddingVertical: theme.margins.smd,
+        backgroundColor: theme.colors.primary,
+        borderRadius: theme.radius.m,
+        minWidth: 120,
+        alignItems: 'center',
+        marginTop: theme.margins.lg,
     },
     retryButtonText: {
         fontSize: 14,
@@ -1097,6 +1116,17 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderColor: theme.colors.border,
         minWidth: 120,
         alignItems: 'center',
+    },
+    backButtonWithMargin: {
+        paddingHorizontal: theme.margins.xl,
+        paddingVertical: theme.margins.smd,
+        backgroundColor: theme.colors.background,
+        borderRadius: theme.radius.m,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        minWidth: 120,
+        alignItems: 'center',
+        marginTop: theme.margins.sm,
     },
     backButtonText: {
         fontSize: 14,

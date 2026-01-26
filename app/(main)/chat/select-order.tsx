@@ -179,7 +179,7 @@ export default function SelectOrderScreen() {
                             source={{ uri: orderItem.imageUrl }}
                             style={[
                                 styles.rowItemThumb,
-                                idx > 0 && { marginLeft: -24, marginTop: 4 }
+                                idx > 0 && styles.stackedImage
                             ]}
                             contentFit="cover"
                         />
@@ -431,6 +431,10 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderWidth: 2,
         borderColor: theme.colors.surface,
         backgroundColor: theme.colors.backgroundInput,
+    },
+    stackedImage: {
+        marginLeft: -24,
+        marginTop: 4,
     },
     moreBadgeMini: {
         position: 'absolute',

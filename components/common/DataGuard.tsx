@@ -96,8 +96,8 @@ const detectErrorType = (error: unknown): StateType => {
         return 'network';
     }
 
-    const errorMessage = (error as any)?.message?.toLowerCase() || '';
-    const errorCode = (error as any)?.code || '';
+    const errorMessage = (error as { message?: string })?.message?.toLowerCase() || '';
+    const errorCode = (error as { code?: string })?.code || '';
 
     if (
         errorMessage.includes('network') ||
@@ -111,13 +111,13 @@ const detectErrorType = (error: unknown): StateType => {
 
     // 2. Check HTTP status codes
     const status =
-        (error as any)?.status ||
-        (error as any)?.response?.status ||
-        (error as any)?.statusCode;
+        (error as { status?: number })?.status ||
+        (error as { response?: { status?: number } })?.response?.status ||
+        (error as { statusCode?: number })?.statusCode;
 
     if (status === 404) return 'not-found';
     if (status === 403 || status === 401) return 'forbidden';
-    if (status >= 500) return 'server';
+    if (status && status >= 500) return 'server';
 
     // 3. Default to server error for unknown cases
     return 'server';
@@ -132,21 +132,23 @@ const defaultIsEmpty = (data: unknown): boolean => {
     if (Array.isArray(data)) return data.length === 0;
 
     if (typeof data === 'object') {
+        const obj = data as Record<string, unknown>;
         // Check common API response patterns
-        if ('items' in (data as any)) {
-            return (data as any).items?.length === 0;
+        if ('items' in obj) {
+            return (obj.items as unknown[])?.length === 0;
         }
-        if ('data' in (data as any)) {
-            return defaultIsEmpty((data as any).data);
+        if ('data' in obj) {
+            return defaultIsEmpty(obj.data);
         }
         // InfiniteQuery pages
-        if ('pages' in (data as any)) {
-            const pages = (data as any).pages as any[];
+        if ('pages' in obj) {
+            const pages = obj.pages as unknown[];
             if (!pages || pages.length === 0) return true;
             return pages.every((page) => {
                 if (Array.isArray(page)) return page.length === 0;
-                if (page?.items) return page.items.length === 0;
-                if (page?.data) return defaultIsEmpty(page.data);
+                const pageObj = page as Record<string, unknown>;
+                if (pageObj?.items) return (pageObj.items as unknown[]).length === 0;
+                if (pageObj?.data) return defaultIsEmpty(pageObj.data);
                 return false;
             });
         }

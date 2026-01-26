@@ -39,7 +39,7 @@ const MenuItem: React.FC<MenuItemProps> = memo(({ item, isFirst, isLast, onPress
         >
             <View style={[styles.iconWrapper, { backgroundColor: item.backgroundColor }]}>
                 <IconSymbol
-                    name={item.icon as any}
+                    name={item.icon as keyof typeof IconSymbol}
                     size={18}
                     color={item.iconColor}
                 />
@@ -64,7 +64,7 @@ export const SettingsMenu: React.FC<SettingsMenuProps> = memo(({ appVersion = '1
         if (onPressItem) {
             onPressItem(route);
         } else {
-            Navigator.navigate(route as any);
+            Navigator.navigate(route as never);
         }
     }, [onPressItem]);
 

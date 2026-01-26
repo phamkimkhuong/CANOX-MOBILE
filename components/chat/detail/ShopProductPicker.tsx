@@ -11,6 +11,7 @@ import { formatCurrency } from '@/utils/format';
 import { toPublicUrl } from '@/utils/url';
 import {
     BottomSheetBackdrop,
+    BottomSheetBackdropProps,
     BottomSheetFlatList,
     BottomSheetModal,
     BottomSheetTextInput,
@@ -78,7 +79,7 @@ export const ShopProductPicker = forwardRef<BottomSheetModal, ShopProductPickerP
 
         // Backdrop component
         const renderBackdrop = useCallback(
-            (props: any) => (
+            (props: BottomSheetBackdropProps) => (
                 <BottomSheetBackdrop
                     {...props}
                     appearsOnIndex={0}

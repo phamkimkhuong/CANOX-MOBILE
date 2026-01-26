@@ -25,7 +25,6 @@ import {
     OrderDetailHeader,
     OrderDetailItemsList,
     OrderDetailPriceSummary,
-    OrderDetailSkeleton,
     OrderTracker,
     ShippingInfoCard,
 } from '@/components/orders/detail';
@@ -88,10 +87,6 @@ export default function OrderDetailScreen() {
     // Computed values
     const order = data?.ui;
     const rawOrder = data?.raw;
-    const actions = useMemo(
-        () => (order ? getOrderActions(order) : null),
-        [order]
-    );
 
     // Check if any item can be reviewed
 
@@ -321,7 +316,7 @@ export default function OrderDetailScreen() {
                 </View>
             ) : (
                 // STAGE DATA: Show real UI with smooth FadeIn
-                <Animated.View entering={FadeIn.duration(300)} style={{ flex: 1 }}>
+                <Animated.View entering={FadeIn.duration(300)} style={styles.flex1}>
                     {/* Header */}
                     <OrderDetailHeader
                         orderNumber={order?.orderNumber || (id?.slice(-8) || '...')}
@@ -329,7 +324,7 @@ export default function OrderDetailScreen() {
                     />
 
                     {/* Main Content */}
-                    <View style={{ flex: 1 }}>
+                    <View style={styles.flex1}>
                         <ScrollView
                             key={`scroll-${order?.orderId}`}
                             style={styles.scrollView}
@@ -442,6 +437,9 @@ const stylesheet = StyleSheet.create((theme) => ({
     container: {
         flex: 1,
         backgroundColor: theme.colors.background,
+    },
+    flex1: {
+        flex: 1,
     },
     scrollView: {
         flex: 1,

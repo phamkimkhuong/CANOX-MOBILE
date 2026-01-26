@@ -32,7 +32,7 @@ export default function ForgotPasswordScreen() {
             .email(t('validation.emailInvalid')),
     }), [t]);
 
-    const { control, handleSubmit, formState: { errors }, setError } = useForm<ForgotPasswordFormData>({
+    const { control, handleSubmit, setError } = useForm<ForgotPasswordFormData>({
         resolver: zodResolver(forgotPasswordSchema),
         defaultValues: {
             email: '',
@@ -63,17 +63,18 @@ export default function ForgotPasswordScreen() {
                 type: 'forgot-password',
             }));
 
-        } catch (error: any) {
-            if (error?.code === 1001) {
+        } catch (error: unknown) {
+            const apiError = error as { code?: number; message?: string };
+            if (apiError?.code === 1001) {
                 setError('email', {
                     type: 'manual',
-                    message: error.message,
+                    message: apiError.message || '',
                 });
             } else {
                 Toast.show({
                     type: 'error',
                     text1: t('forgotPassword.errorToast'),
-                    text2: error?.message || t('forgotPassword.errorToastDetail'),
+                    text2: apiError?.message || t('forgotPassword.errorToastDetail'),
                 });
             }
         } finally {

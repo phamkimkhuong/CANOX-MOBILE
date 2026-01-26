@@ -22,7 +22,7 @@ export default function LoginScreen() {
     const styles = stylesheet;
 
     // 2. Setup React Hook Form
-    const { control, handleSubmit, setError, setFocus, formState: { isSubmitting } } = useForm<LoginPayload>({
+    const { control, handleSubmit, formState: { isSubmitting } } = useForm<LoginPayload>({
         resolver: zodResolver(LoginRequestSchema),
         defaultValues: {
             username: '',

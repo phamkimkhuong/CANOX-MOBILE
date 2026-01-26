@@ -43,6 +43,14 @@ export const ShopHeaderInfo: React.FC<ShopHeaderInfoProps> = ({
         else Navigator.push(`/chat/${shop.id}`);
     };
 
+    const dynamicStatusBg = (onVacation: boolean) => ({
+        backgroundColor: onVacation ? theme.colors.error : theme.colors.success
+    });
+
+    const dynamicStatusColor = (onVacation: boolean) => ({
+        color: onVacation ? theme.colors.error : theme.colors.success
+    });
+
     return (
         <View style={[styles.container, hasVouchers && styles.containerNoRadius]}>
             {/* Top Section: Avatar & Basic Info & Buttons */}
@@ -74,11 +82,11 @@ export const ShopHeaderInfo: React.FC<ShopHeaderInfoProps> = ({
                         <View style={styles.statusRow}>
                             <View style={[
                                 styles.statusDot,
-                                { backgroundColor: shop.onVacation ? theme.colors.error : theme.colors.success }
+                                dynamicStatusBg(!!shop.onVacation)
                             ]} />
                             <Text style={[
                                 styles.statusText,
-                                { color: shop.onVacation ? theme.colors.error : theme.colors.success }
+                                dynamicStatusColor(!!shop.onVacation)
                             ]}>
                                 {shop.onVacation ? 'Tạm nghỉ' : 'Đang hoạt động'}
                             </Text>

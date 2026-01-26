@@ -65,7 +65,7 @@ export const ShopPlatformGuarantees = memo(({ shopName }: ShopPlatformGuarantees
                     <View key={item.id} style={styles.guaranteeItem}>
                         <View style={styles.iconContainer}>
                             <IconSymbol
-                                name={item.icon as any}
+                                name={item.icon as keyof typeof IconSymbol}
                                 size={20}
                                 color={theme.colors.primary}
                             />

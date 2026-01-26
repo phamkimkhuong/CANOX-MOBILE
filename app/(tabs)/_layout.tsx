@@ -11,26 +11,19 @@ import { Navigator } from '@/utils/navigation';
 import { Tabs, usePathname } from 'expo-router';
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useUnistyles } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 // Helper để render Icon gọn gàng với IconSymbol
 function TabBarIcon(props: {
   name: IconSymbolName;
   color: string;
 }) {
-  return <IconSymbol size={24} style={{ marginBottom: -3 }} {...props} />;
+  return <IconSymbol size={24} name={props.name} color={props.color} />;
 }
-
-// // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
-// function TabBarIcon(props: {
-//   name: React.ComponentProps<typeof FontAwesome>['name'];
-//   color: string;
-// }) {
-//   return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
-// }
 
 export default function TabLayout() {
   const { theme } = useUnistyles();
+  const styles = stylesheet;
   const { t } = useTranslation('common');
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   useCart();
@@ -79,11 +72,7 @@ export default function TabLayout() {
       screenOptions={{
         tabBarActiveTintColor: theme.colors.buttonActive,
         tabBarInactiveTintColor: theme.colors.typographySecondary,
-        tabBarStyle: {
-          backgroundColor: theme.colors.surface,
-          borderTopWidth: 0,
-          elevation: 5,
-        },
+        tabBarStyle: styles.tabBar,
         // Disable the static render of the header on web
         // to prevent a hydration error in React Navigation v6.
         headerShown: useClientOnlyValue(false, true),
@@ -144,3 +133,14 @@ export default function TabLayout() {
     </Tabs>
   );
 }
+
+const stylesheet = StyleSheet.create((theme) => ({
+  tabIcon: {
+    marginBottom: -3,
+  },
+  tabBar: {
+    backgroundColor: theme.colors.surface,
+    borderTopWidth: 0,
+    elevation: 5,
+  },
+}));

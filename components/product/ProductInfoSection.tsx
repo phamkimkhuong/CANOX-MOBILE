@@ -168,7 +168,7 @@ export const ProductInfoSection = memo<ProductInfoSectionProps>(({
     ), [isMall, isInternational, priceDisplay.voucherDiscount, theme.colors.primary, theme.colors.success]);
 
     return (
-        <View style={[styles.container, flashSale?.isActive && { paddingTop: 5 }]}>
+        <View style={[styles.container, flashSale?.isActive && styles.flashSaleActive]}>
             {/* Flash Sale Banner  */}
             {flashSale?.isActive && (
                 <ProductFlashSaleBar
@@ -207,6 +207,9 @@ const styles = StyleSheet.create((theme) => ({
         paddingHorizontal: theme.margins.sm,
         paddingBottom: theme.margins.sm,
         paddingTop: 4,
+    },
+    flashSaleActive: {
+        paddingTop: 5,
     },
     priceContainer: {
         flexDirection: 'row',

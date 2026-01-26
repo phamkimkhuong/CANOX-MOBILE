@@ -7,7 +7,6 @@ import Animated, {
     withRepeat,
     withTiming,
 } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface StaticOrderDetailShellProps {
@@ -26,7 +25,6 @@ export const StaticOrderDetailShell: React.FC<StaticOrderDetailShellProps> = ({
     showShimmer = false
 }) => {
     const { theme } = useUnistyles();
-    const insets = useSafeAreaInsets();
     const styles = stylesheet;
     const opacity = useSharedValue(1);
 
@@ -49,7 +47,7 @@ export const StaticOrderDetailShell: React.FC<StaticOrderDetailShellProps> = ({
     return (
         <View style={styles.container}>
             {/* Mock Header with Safe Area Padding */}
-            <View style={[styles.header, { paddingTop: insets.top, height: 56 + insets.top }]}>
+            <View style={styles.header}>
                 <IconSymbol name="chevron-left" size={24} color={theme.colors.typography} />
                 <View style={styles.titlePlaceholder} />
             </View>
@@ -57,7 +55,7 @@ export const StaticOrderDetailShell: React.FC<StaticOrderDetailShellProps> = ({
             <View style={styles.content}>
                 {/* Status Section Shell */}
                 <View style={styles.section}>
-                    <Animated.View style={[styles.box, { height: 80 }, shimmerStyle]} />
+                    <Animated.View style={[styles.box, styles.h80, shimmerStyle]} />
                 </View>
 
                 {/* Shipping Info Shell */}
@@ -65,8 +63,8 @@ export const StaticOrderDetailShell: React.FC<StaticOrderDetailShellProps> = ({
                     <View style={styles.row}>
                         <Animated.View style={[styles.iconPlaceholder, shimmerStyle]} />
                         <View style={styles.textStack}>
-                            <Animated.View style={[styles.line, { width: '40%' }, shimmerStyle]} />
-                            <Animated.View style={[styles.line, { width: '80%' }, shimmerStyle]} />
+                            <Animated.View style={[styles.line, styles.w40p, shimmerStyle]} />
+                            <Animated.View style={[styles.line, styles.w80p, shimmerStyle]} />
                         </View>
                     </View>
                 </View>
@@ -76,8 +74,8 @@ export const StaticOrderDetailShell: React.FC<StaticOrderDetailShellProps> = ({
                     <View style={styles.row}>
                         <Animated.View style={[styles.imagePlaceholder, shimmerStyle]} />
                         <View style={styles.textStack}>
-                            <Animated.View style={[styles.line, { width: '60%' }, shimmerStyle]} />
-                            <Animated.View style={[styles.line, { width: '30%' }, shimmerStyle]} />
+                            <Animated.View style={[styles.line, styles.w60p, shimmerStyle]} />
+                            <Animated.View style={[styles.line, styles.w30p, shimmerStyle]} />
                         </View>
                     </View>
                 </View>
@@ -85,12 +83,12 @@ export const StaticOrderDetailShell: React.FC<StaticOrderDetailShellProps> = ({
                 {/* Summary Shell */}
                 <View style={styles.footer}>
                     <View style={styles.footerRow}>
-                        <Animated.View style={[styles.line, { width: '30%' }, shimmerStyle]} />
-                        <Animated.View style={[styles.line, { width: '20%' }, shimmerStyle]} />
+                        <Animated.View style={[styles.line, styles.w30p, shimmerStyle]} />
+                        <Animated.View style={[styles.line, styles.w20p, shimmerStyle]} />
                     </View>
                     <View style={styles.footerRow}>
-                        <Animated.View style={[styles.line, { width: '30%' }, shimmerStyle]} />
-                        <Animated.View style={[styles.line, { width: '25%' }, shimmerStyle]} />
+                        <Animated.View style={[styles.line, styles.w30p, shimmerStyle]} />
+                        <Animated.View style={[styles.line, styles.w25p, shimmerStyle]} />
                     </View>
                 </View>
             </View>
@@ -98,13 +96,14 @@ export const StaticOrderDetailShell: React.FC<StaticOrderDetailShellProps> = ({
     );
 };
 
-const stylesheet = StyleSheet.create((theme) => ({
+const stylesheet = StyleSheet.create((theme, runtime) => ({
     container: {
         flex: 1,
         backgroundColor: theme.colors.background,
     },
     header: {
-        height: 56,
+        height: 56 + runtime.insets.top,
+        paddingTop: runtime.insets.top,
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: theme.margins.md,
@@ -131,6 +130,9 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderWidth: 1,
         borderColor: theme.colors.border,
     },
+    h80: {
+        height: 80,
+    },
     row: {
         flexDirection: 'row',
         gap: theme.margins.md,
@@ -156,6 +158,24 @@ const stylesheet = StyleSheet.create((theme) => ({
         height: 12,
         backgroundColor: theme.colors.border,
         borderRadius: 4,
+    },
+    w20p: {
+        width: '20%',
+    },
+    w25p: {
+        width: '25%',
+    },
+    w30p: {
+        width: '30%',
+    },
+    w40p: {
+        width: '40%',
+    },
+    w60p: {
+        width: '60%',
+    },
+    w80p: {
+        width: '80%',
     },
     footer: {
         marginTop: 'auto',

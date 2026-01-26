@@ -93,7 +93,7 @@ const AnimatedPrice: React.FC<{ value: number; isCalculating?: boolean }> = ({ v
                     style={styles.priceLoader}
                 />
             )}
-            <Animated.View style={[animatedStyle, isCalculating && { opacity: 0.5 }]}>
+            <Animated.View style={[animatedStyle, isCalculating && styles.calculatingOpacity]}>
                 <Text
                     style={styles.totalAmount}
                     numberOfLines={1}
@@ -140,10 +140,7 @@ export const CartFooter: React.FC<CartFooterProps> = memo(({
         <View
             style={[
                 styles.container,
-                {
-                    bottom: tabBarHeight,
-                    paddingBottom: insets.bottom,
-                },
+                styles.dynamicBottom(tabBarHeight),
             ]}
         >
             {/* TEMPORARILY HIDDEN - Platform Voucher Bar */}
@@ -254,6 +251,13 @@ const styles = StyleSheet.create((theme, rt) => {
             shadowOpacity: 0.05,
             shadowRadius: 8,
             elevation: 8,
+        },
+        dynamicBottom: (tabBarHeight: number) => ({
+            bottom: tabBarHeight,
+            paddingBottom: rt.insets.bottom,
+        }),
+        calculatingOpacity: {
+            opacity: 0.5,
         },
         voucherBar: {
             flexDirection: 'row',

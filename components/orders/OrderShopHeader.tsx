@@ -64,10 +64,7 @@ export const OrderShopHeader: React.FC<OrderShopHeaderProps> = ({
             {/* Right: Status Badge */}
             <View style={[
                 styles.statusBadge,
-                {
-                    backgroundColor: statusDisplay.bgColor,
-                    gap: (status !== 'FULFILLING' && status !== 'DELIVERED') ? 4 : 0,
-                }
+                styles.dynamicStatusBadge(statusDisplay.bgColor, (status !== 'FULFILLING' && status !== 'DELIVERED') ? 4 : 0)
             ]}>
                 {status !== 'FULFILLING' && status !== 'DELIVERED' && (
                     <IconSymbol
@@ -76,7 +73,7 @@ export const OrderShopHeader: React.FC<OrderShopHeaderProps> = ({
                         color={statusDisplay.color}
                     />
                 )}
-                <Text style={[styles.statusText, { color: statusDisplay.color }]}>
+                <Text style={[styles.statusText, styles.dynamicStatusColor(statusDisplay.color)]}>
                     {statusDisplay.label}
                 </Text>
             </View>
@@ -126,6 +123,13 @@ const stylesheet = StyleSheet.create((theme) => ({
         paddingVertical: 4,
         borderRadius: theme.radius.m,
     },
+    dynamicStatusBadge: (backgroundColor: string, gap: number) => ({
+        backgroundColor,
+        gap,
+    }),
+    dynamicStatusColor: (color: string) => ({
+        color,
+    }),
     statusText: {
         fontSize: 12,
         fontWeight: '600',

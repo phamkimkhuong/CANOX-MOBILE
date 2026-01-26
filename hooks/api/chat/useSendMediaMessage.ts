@@ -23,7 +23,7 @@ import {
     getFileExtension,
     readFileAsArrayBuffer,
 } from '@/utils/storage';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { InfiniteData, useMutation, useQueryClient } from '@tanstack/react-query';
 import { v4 as uuidv4 } from 'uuid';
 import { chatMessagesQueryKeys } from './useChatMessages';
 
@@ -152,7 +152,7 @@ export const useSendMediaMessage = (conversationId: string) => {
         };
     };
 
-    return useMutation<SendMessageResponse, Error, SendMediaMessagePayload, { previousData: any }>({
+    return useMutation<SendMessageResponse, Error, SendMediaMessagePayload, { previousData: unknown }>({
         mutationFn: async ({ files, content }) => {
             logger.chat.info('Uploading media files', { count: files.length });
 
@@ -217,13 +217,13 @@ export const useSendMediaMessage = (conversationId: string) => {
                 reactions: [],
             };
 
-            queryClient.setQueryData<any>(
+            queryClient.setQueryData<InfiniteData<{ messages: Message[] }>>(
                 chatMessagesQueryKeys.conversation(conversationId),
-                (old: any) => {
+                (old) => {
                     if (!old?.pages) return old;
                     return {
                         ...old,
-                        pages: old.pages.map((page: any, index: number) => {
+                        pages: old.pages.map((page, index) => {
                             if (index === 0) {
                                 return {
                                     ...page,
@@ -250,17 +250,17 @@ export const useSendMediaMessage = (conversationId: string) => {
         onSuccess: (data) => {
             if (userId) {
                 const realMessage = transformMessage(data.data, userId);
-                queryClient.setQueryData<any>(
+                queryClient.setQueryData<InfiniteData<{ messages: Message[] }>>(
                     chatMessagesQueryKeys.conversation(conversationId),
-                    (old: any) => {
+                    (old) => {
                         if (!old?.pages) return old;
                         return {
                             ...old,
-                            pages: old.pages.map((page: any, index: number) => {
+                            pages: old.pages.map((page, index) => {
                                 if (index === 0) {
                                     return {
                                         ...page,
-                                        messages: page.messages.map((msg: any) =>
+                                        messages: page.messages.map((msg) =>
                                             msg.id.startsWith('temp-') ? realMessage : msg
                                         ),
                                     };

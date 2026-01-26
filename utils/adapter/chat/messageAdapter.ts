@@ -56,7 +56,7 @@ export const transformAttachment = (
     attachment: MessageDTO['attachments'][0]
 ): MessageAttachment => ({
     id: attachment.id,
-    type: (attachment.type as any) || 'IMAGE',
+    type: (attachment.type as MessageAttachment['type']) || 'IMAGE',
     url: toPublicUrl(attachment.fileUrl || attachment.url) || '',
     thumbnail: toPublicUrl(attachment.thumbnailUrl),
     fileName: attachment.fileName || undefined,

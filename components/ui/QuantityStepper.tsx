@@ -180,7 +180,7 @@ export const QuantityStepper: React.FC<QuantityStepperProps> = memo(({
     const isMaxDisabled = disabled || displayValue >= max;
 
     return (
-        <View style={[styles.container, { height: config.height }]}>
+        <View style={[styles.container, styles.dynamicHeight(config.height)]}>
             {/* Decrement Button */}
             <AnimatedPressable
                 onPress={handleDecrement}
@@ -189,13 +189,7 @@ export const QuantityStepper: React.FC<QuantityStepperProps> = memo(({
                 style={[
                     styles.button,
                     minusAnimatedStyle,
-                    {
-                        width: config.buttonSize,
-                        height: config.height,
-                        borderTopLeftRadius: theme.radius.m,
-                        borderBottomLeftRadius: theme.radius.m,
-                        opacity: isMinDisabled ? 0.4 : 1,
-                    },
+                    styles.dynamicLeftButton(config.buttonSize, config.height, isMinDisabled),
                 ]}
                 accessibilityLabel="Giảm số lượng"
                 accessibilityRole="button"
@@ -211,19 +205,13 @@ export const QuantityStepper: React.FC<QuantityStepperProps> = memo(({
             <View
                 style={[
                     styles.valueContainer,
-                    {
-                        width: config.inputWidth,
-                        height: config.height,
-                    },
+                    styles.dynamicValueContainer(config.inputWidth, config.height),
                 ]}
             >
                 <Text
                     style={[
                         styles.valueText,
-                        {
-                            fontSize: config.fontSize,
-                            color: disabled ? theme.colors.secondary : theme.colors.typography,
-                        },
+                        styles.dynamicValueText(config.fontSize, disabled),
                     ]}
                 >
                     {displayValue}
@@ -238,13 +226,7 @@ export const QuantityStepper: React.FC<QuantityStepperProps> = memo(({
                 style={[
                     styles.button,
                     plusAnimatedStyle,
-                    {
-                        width: config.buttonSize,
-                        height: config.height,
-                        borderTopRightRadius: theme.radius.m,
-                        borderBottomRightRadius: theme.radius.m,
-                        opacity: isMaxDisabled ? 0.4 : 1,
-                    },
+                    styles.dynamicRightButton(config.buttonSize, config.height, isMaxDisabled),
                 ]}
                 accessibilityLabel="Tăng số lượng"
                 accessibilityRole="button"
@@ -271,10 +253,27 @@ const styles = StyleSheet.create((theme) => ({
         backgroundColor: theme.colors.surface,
         overflow: 'hidden',
     },
+    dynamicHeight: (height: number) => ({
+        height,
+    }),
     button: {
         justifyContent: 'center',
         alignItems: 'center',
     },
+    dynamicLeftButton: (width: number, height: number, isDisabled: boolean) => ({
+        width,
+        height,
+        borderTopLeftRadius: theme.radius.m,
+        borderBottomLeftRadius: theme.radius.m,
+        opacity: isDisabled ? 0.4 : 1,
+    }),
+    dynamicRightButton: (width: number, height: number, isDisabled: boolean) => ({
+        width,
+        height,
+        borderTopRightRadius: theme.radius.m,
+        borderBottomRightRadius: theme.radius.m,
+        opacity: isDisabled ? 0.4 : 1,
+    }),
     valueContainer: {
         justifyContent: 'center',
         alignItems: 'center',
@@ -282,8 +281,16 @@ const styles = StyleSheet.create((theme) => ({
         borderRightWidth: 1,
         borderColor: theme.colors.border,
     },
+    dynamicValueContainer: (width: number, height: number) => ({
+        width,
+        height,
+    }),
     valueText: {
         fontWeight: '600',
         textAlign: 'center',
     },
+    dynamicValueText: (fontSize: number, isDisabled: boolean) => ({
+        fontSize,
+        color: isDisabled ? theme.colors.secondary : theme.colors.typography,
+    }),
 }));

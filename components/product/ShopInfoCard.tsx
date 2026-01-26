@@ -145,7 +145,7 @@ export const ShopInfoCard = memo<ShopInfoCardProps>(({
                         style={styles.chatButton}
                     >
                         {({ pressed }) => (
-                            <View style={[styles.chatButtonInner, { opacity: pressed ? 0.7 : 1 }]}>
+                            <View style={[styles.chatButtonInner, pressed && styles.pressedOpacity]}>
                                 <IconSymbol
                                     name="chat"
                                     size={18}
@@ -162,7 +162,7 @@ export const ShopInfoCard = memo<ShopInfoCardProps>(({
                         style={styles.viewShopButton}
                     >
                         {({ pressed }) => (
-                            <View style={[styles.chatButtonInner, { opacity: pressed ? 0.7 : 1 }]}>
+                            <View style={[styles.chatButtonInner, pressed && styles.pressedOpacity]}>
                                 <IconSymbol
                                     name="storefront-outline"
                                     size={18}
@@ -286,6 +286,9 @@ const styles = StyleSheet.create((theme) => ({
         gap: 4,
         paddingHorizontal: 12,
         paddingVertical: 8,
+    },
+    pressedOpacity: {
+        opacity: 0.7,
     },
     chatButtonText: {
         fontSize: 13,

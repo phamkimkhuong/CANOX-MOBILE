@@ -18,17 +18,17 @@ import { isSessionExpiredError } from './client';
  * @param error - The error object
  * @param maxRetries - Maximum number of retries (default from global config)
  */
-export const handleQueryRetry = (failureCount: number, error: any, maxRetries: number = 2): boolean => {
+export const handleQueryRetry = (failureCount: number, error: unknown, maxRetries: number = 2): boolean => {
     // Never retry SessionExpiredError - pointless, session is dead
     if (isSessionExpiredError(error)) {
         return false;
     }
     // Never retry 403 Forbidden
-    if (error?.status === 403) {
+    if ((error as { status?: number })?.status === 403) {
         return false;
     }
-    // Never retry 401 Unauthorized 
-    if (error?.status === 401) {
+    // Never retry 401 Unauthorized
+    if ((error as { status?: number })?.status === 401) {
         return false;
     }
 

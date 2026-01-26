@@ -95,7 +95,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
             ) : (
                 <>
                     <IconSymbol
-                        name={icon as never}
+                        name={icon as keyof typeof IconSymbol}
                         size={18}
                         color={iconColor}
                     />
@@ -181,7 +181,7 @@ export const OrderDetailFooter: React.FC<OrderDetailFooterProps> = ({
 
             return {
                 key: action.action,
-                label: t(translationKey as any) || action.label,
+                label: (t(translationKey as any) || action.label) as string,
                 icon: action.icon || '',
                 variant: action.type,
                 onPress,

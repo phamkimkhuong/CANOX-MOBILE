@@ -72,7 +72,7 @@ export default function MeScreen() {
 
     // Handle settings menu item press
     const handleSettingsPress = useCallback((route: string) => {
-        Navigator.push(route as any);
+        Navigator.push(route as never);
     }, []);
 
     // TODO: Enable when BE has follow shop API

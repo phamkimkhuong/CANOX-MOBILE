@@ -8,6 +8,7 @@ import { OrderUI } from '@/types/order/order';
 import { formatCurrency } from '@/utils/format';
 import {
     BottomSheetBackdrop,
+    BottomSheetBackdropProps,
     BottomSheetFlatList,
     BottomSheetModal,
     BottomSheetTextInput,
@@ -83,7 +84,7 @@ export const ShopOrderPicker = forwardRef<BottomSheetModal, ShopOrderPickerProps
 
         // Backdrop component
         const renderBackdrop = useCallback(
-            (props: any) => (
+            (props: BottomSheetBackdropProps) => (
                 <BottomSheetBackdrop
                     {...props}
                     appearsOnIndex={0}
@@ -157,7 +158,7 @@ export const ShopOrderPicker = forwardRef<BottomSheetModal, ShopOrderPickerProps
                                 source={{ uri: orderItem.imageUrl }}
                                 style={[
                                     styles.rowItemThumb,
-                                    idx > 0 && { marginLeft: -24, marginTop: 4 }
+                                    idx > 0 && styles.stackedImage
                                 ]}
                                 contentFit="cover"
                             />
@@ -175,8 +176,8 @@ export const ShopOrderPicker = forwardRef<BottomSheetModal, ShopOrderPickerProps
                             <Text style={styles.orderNumberSmall} numberOfLines={1}>
                                 #{item.orderNumber.split('-').pop()}
                             </Text>
-                            <View style={[styles.statusDot, { backgroundColor: item.statusDisplay.color }]} />
-                            <Text style={[styles.statusLabelSmall, { color: item.statusDisplay.color }]}>
+                            <View style={[styles.statusDot, styles.dynamicStatusBg(item.statusDisplay.color)]} />
+                            <Text style={[styles.statusLabelSmall, styles.dynamicStatusColor(item.statusDisplay.color)]}>
                                 {item.statusDisplay.label}
                             </Text>
                         </View>
@@ -252,10 +253,7 @@ export const ShopOrderPicker = forwardRef<BottomSheetModal, ShopOrderPickerProps
                             data={filteredOrders}
                             renderItem={renderOrder}
                             keyExtractor={(item: OrderUI) => item.orderId}
-                            contentContainerStyle={[
-                                styles.listContent,
-                                { paddingBottom: insets.bottom + 24 }
-                            ]}
+                            contentContainerStyle={styles.listContent}
                             showsVerticalScrollIndicator={false}
                             onEndReached={handleLoadMore}
                             onEndReachedThreshold={0.3}
@@ -269,7 +267,7 @@ export const ShopOrderPicker = forwardRef<BottomSheetModal, ShopOrderPickerProps
     }
 );
 
-const stylesheet = StyleSheet.create((theme) => ({
+const stylesheet = StyleSheet.create((theme, rt) => ({
     background: {
         backgroundColor: theme.colors.surface,
         borderTopLeftRadius: 24,
@@ -334,6 +332,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     listContent: {
         paddingHorizontal: theme.margins.md,
+        paddingBottom: rt.insets.bottom + 24,
     },
     orderRow: {
         flexDirection: 'row',
@@ -360,6 +359,10 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderWidth: 2,
         borderColor: theme.colors.surface,
         backgroundColor: theme.colors.backgroundInput,
+    },
+    stackedImage: {
+        marginLeft: -24,
+        marginTop: 4,
     },
     moreBadgeMini: {
         position: 'absolute',
@@ -394,6 +397,12 @@ const stylesheet = StyleSheet.create((theme) => ({
         height: 4,
         borderRadius: 2,
     },
+    dynamicStatusBg: (color: string) => ({
+        backgroundColor: color,
+    }),
+    dynamicStatusColor: (color: string) => ({
+        color: color,
+    }),
     statusLabelSmall: {
         fontSize: 11,
         fontWeight: '600',

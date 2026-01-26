@@ -115,7 +115,7 @@ const BenefitItem: React.FC<{ icon: string; text: string }> = memo(
         return (
             <View style={styles.benefitItem}>
                 <View style={styles.benefitIcon}>
-                    <IconSymbol name={icon as any} size={16} color={theme.colors.primary} />
+                    <IconSymbol name={icon as keyof typeof IconSymbol} size={16} color={theme.colors.primary} />
                 </View>
                 <Text style={styles.benefitText}>{text}</Text>
             </View>

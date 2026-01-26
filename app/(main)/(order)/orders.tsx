@@ -46,7 +46,6 @@ const mapProfileTabToOrderTab = (profileTab: string | undefined): OrderTabStatus
 };
 
 export default function OrderHistoryScreen() {
-    const { theme } = useUnistyles();
     const styles = stylesheet;
 
     // Get tab param from URL for deep linking

@@ -59,7 +59,7 @@ const StepItem: React.FC<{
                     <View
                         style={[
                             styles.line,
-                            { backgroundColor: step.isCompleted || step.isActive ? theme.colors.success : theme.colors.border },
+                            styles.dynamicLineColor(step.isCompleted || step.isActive),
                         ]}
                     />
                 )}
@@ -68,14 +68,7 @@ const StepItem: React.FC<{
                 <View
                     style={[
                         styles.circle,
-                        {
-                            backgroundColor: step.isCompleted
-                                ? theme.colors.success
-                                : step.isActive
-                                    ? theme.colors.primary
-                                    : theme.colors.background,
-                            borderColor: stepColor,
-                        },
+                        styles.dynamicCircle(step.isCompleted, step.isActive, stepColor),
                     ]}
                 >
                     {step.isCompleted ? (
@@ -85,7 +78,7 @@ const StepItem: React.FC<{
                             color={theme.colors.onPrimary}
                         />
                     ) : step.isActive ? (
-                        <View style={[styles.innerDot, { backgroundColor: theme.colors.primary }]} />
+                        <View style={[styles.innerDot, styles.bgPrimary]} />
                     ) : null}
                 </View>
 
@@ -94,7 +87,7 @@ const StepItem: React.FC<{
                     <View
                         style={[
                             styles.line,
-                            { backgroundColor: step.isCompleted ? theme.colors.success : theme.colors.border },
+                            styles.dynamicLineColor(step.isCompleted),
                         ]}
                     />
                 )}
@@ -104,12 +97,7 @@ const StepItem: React.FC<{
             <Text
                 style={[
                     styles.stepLabel,
-                    {
-                        color: step.isCompleted || step.isActive
-                            ? theme.colors.typography
-                            : theme.colors.typographySecondary,
-                        fontWeight: step.isActive ? '600' : '400',
-                    },
+                    styles.dynamicLabel(step.isCompleted || step.isActive, step.isActive),
                 ]}
                 numberOfLines={1}
             >
@@ -142,13 +130,13 @@ const AbnormalStatusBanner: React.FC<{
     const textColor = isCancelled ? theme.colors.error : theme.colors.warning;
 
     return (
-        <View style={[styles.abnormalBanner, { backgroundColor: bgColor }]}>
+        <View style={[styles.abnormalBanner, styles.dynamicAbnormalBg(bgColor)]}>
             <IconSymbol
                 name={isCancelled ? 'close-circle' : 'alert-circle'}
                 size={20}
                 color={textColor}
             />
-            <Text style={[styles.abnormalText, { color: textColor }]}>
+            <Text style={[styles.abnormalText, styles.dynamicAbnormalColor(textColor)]}>
                 {message}
             </Text>
         </View>
@@ -231,6 +219,9 @@ const stylesheet = StyleSheet.create((theme) => ({
         flex: 1,
         height: 2,
     },
+    dynamicLineColor: (isHighlighted: boolean) => ({
+        backgroundColor: isHighlighted ? theme.colors.success : theme.colors.border,
+    }),
     circle: {
         width: 24,
         height: 24,
@@ -239,16 +230,33 @@ const stylesheet = StyleSheet.create((theme) => ({
         alignItems: 'center',
         justifyContent: 'center',
     },
+    dynamicCircle: (isCompleted: boolean, isActive: boolean, borderColor: string) => ({
+        backgroundColor: isCompleted
+            ? theme.colors.success
+            : isActive
+                ? theme.colors.primary
+                : theme.colors.background,
+        borderColor,
+    }),
     innerDot: {
         width: 8,
         height: 8,
         borderRadius: 4,
+    },
+    bgPrimary: {
+        backgroundColor: theme.colors.primary,
     },
     stepLabel: {
         fontSize: 11,
         marginTop: theme.margins.sm,
         textAlign: 'center',
     },
+    dynamicLabel: (isHighlighted: boolean, isActive: boolean) => ({
+        color: isHighlighted
+            ? theme.colors.typography
+            : theme.colors.typographySecondary,
+        fontWeight: isActive ? '600' : '400',
+    }),
     stepTime: {
         fontSize: 10,
         color: theme.colors.typographySecondary,
@@ -263,6 +271,12 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderRadius: theme.radius.m,
         gap: theme.margins.sm,
     },
+    dynamicAbnormalBg: (backgroundColor: string) => ({
+        backgroundColor,
+    }),
+    dynamicAbnormalColor: (color: string) => ({
+        color,
+    }),
     abnormalText: {
         fontSize: 14,
         fontWeight: '600',

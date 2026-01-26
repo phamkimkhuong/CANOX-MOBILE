@@ -202,7 +202,7 @@ export default function PaymentPayOSScreen() {
                             expiredAt={paymentInfo.expiredAt}
                             onExpire={handleExpire}
                             label="Thanh toán trước"
-                            containerStyle={{ marginLeft: 4 }}
+                            containerStyle={styles.countdownContainer}
                             textStyle={styles.timerText}
                         />
                     </View>
@@ -222,7 +222,7 @@ export default function PaymentPayOSScreen() {
 
                 {/* QR Section */}
                 <View style={[styles.qrCard, isExpired && styles.disabledCard]}>
-                    <View style={[styles.qrContainer, isExpired && { opacity: 0.3 }]}>
+                    <View style={[styles.qrContainer, isExpired && styles.expiredOpacity]}>
                         <QRCode
                             value={paymentInfo.qrCode}
                             size={200}
@@ -318,7 +318,7 @@ export default function PaymentPayOSScreen() {
                         onPress={handleCancelOrder}
                         disabled={isExpired}
                     >
-                        <Text style={[styles.secondaryButtonText, isExpired && { opacity: 0.5 }]}>Thanh toán sau</Text>
+                        <Text style={[styles.secondaryButtonText, isExpired && styles.disabledText]}>Thanh toán sau</Text>
                     </Pressable>
                 </View>
 
@@ -368,6 +368,12 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.warning,
         fontWeight: '600',
         marginLeft: 4,
+    },
+    countdownContainer: {
+        marginLeft: 4,
+    },
+    expiredOpacity: {
+        opacity: 0.3,
     },
     scrollView: {
         flex: 1,
@@ -553,6 +559,9 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.typographySecondary,
         fontSize: 16,
         fontWeight: '600',
+    },
+    disabledText: {
+        opacity: 0.5,
     },
     errorText: {
         marginTop: theme.margins.md,

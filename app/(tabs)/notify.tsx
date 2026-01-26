@@ -148,7 +148,7 @@ export default function NotifyScreen() {
         const filterLabel = activeFilter !== NotificationFilter.ALL
             ? t(`filters.${activeFilter.toLowerCase()}` as any)
             : undefined;
-        return <EmptyState filterLabel={filterLabel} />;
+        return <EmptyState filterLabel={filterLabel as string | undefined} />;
     }, [activeFilter, t]);
 
     // Show skeleton on initial load

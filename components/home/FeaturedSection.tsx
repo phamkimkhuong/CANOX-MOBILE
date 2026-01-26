@@ -313,7 +313,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontWeight: '500',
     },
     buyNowBtn: {
-        backgroundColor: theme.colors.primary,
+        backgroundColor: theme.colors.newPrimary,
         paddingHorizontal: 16,
         paddingVertical: 8,
         borderRadius: theme.radius.m,

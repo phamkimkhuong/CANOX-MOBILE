@@ -152,8 +152,8 @@ export default function SearchResultsScreen() {
     // ========================================
 
     const handleBack = useCallback(() => {
-        router.back();
-    }, [router]);
+        Navigator.back();
+    }, []);
 
     const handleSearchPress = useCallback(() => {
         // Navigate back to search entry to edit keyword

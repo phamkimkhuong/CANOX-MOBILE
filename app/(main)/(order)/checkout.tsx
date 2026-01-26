@@ -110,8 +110,7 @@ export default function CheckoutScreen() {
     const orderBlockReasons = useOrderBlockReasons();
     const warnings = usePreviewWarnings();
 
-    // Default calculation for null safety
-    const calculation = calculationData ?? {
+    const calculation = useMemo(() => calculationData ?? {
         subtotal: 0,
         totalShippingFee: 0,
         totalShopVoucherDiscount: 0,
@@ -125,9 +124,8 @@ export default function CheckoutScreen() {
         isCalculatingShipping: true,
         platformVoucherValidation: null,
         loyaltyPoints: 0,
-    };
+    }, [calculationData]);
 
-    // Platform voucher validation from warnings
     const platformVoucherWarning = useMemo(() => {
         const voucherWarning = warnings.find(
             (w) => w.toLowerCase().includes('voucher') || w.toLowerCase().includes('mã giảm')
@@ -148,7 +146,6 @@ export default function CheckoutScreen() {
     // Store actions
     const resetSession = useCheckoutStore((s) => s.resetSession);
     const initSession = useCheckoutStore((s) => s.initSession);
-    const applyPlatformVoucher = useCheckoutStore((s) => s.applyPlatformVoucher);
     const applyBulkPlatformVouchers = useCheckoutStore((s) => s.applyBulkPlatformVouchers);
     const setPaymentMethod = useCheckoutStore((s) => s.setPaymentMethod);
     const setPreviewData = useCheckoutStore((s) => s.setPreviewData);
@@ -220,7 +217,7 @@ export default function CheckoutScreen() {
     const navigation = useNavigation();
 
     useEffect(() => {
-        const unsubscribe = navigation.addListener('beforeRemove', (e: any) => {
+        const unsubscribe = navigation.addListener('beforeRemove', (e: { preventDefault: () => void; data: { action: any } }) => {
             if (orderPlacedRef.current) return;
             e.preventDefault();
             Alert.show({
@@ -596,9 +593,10 @@ export default function CheckoutScreen() {
                     },
                 } as never);
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             hideGlobalLoading();
-            logger.checkout.error('Place order failed', { error: error.message });
+            const message = error instanceof Error ? error.message : t('status.orderFailed');
+            logger.checkout.error('Place order failed', { error: message });
             Alert.error(t('status.orderFailed'));
         }
     }, [

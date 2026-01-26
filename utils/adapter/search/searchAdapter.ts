@@ -71,7 +71,7 @@ export const mapSearchSuggestionToUI = (
         matchedPart,
         remainingPart,
         highlightedText: query,
-        source: (dto.source as any) || 'KEYWORD',
+        source: (dto.source as SearchSuggestionUI['source']) || 'KEYWORD',
     };
 };
 
