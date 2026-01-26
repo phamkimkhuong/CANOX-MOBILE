@@ -29,10 +29,8 @@ export const ShopFeaturedProducts = memo(({
 }: ShopFeaturedProductsProps) => {
     const styles = stylesheet;
 
-    if (products.length === 0) return null;
-
     // Limit to 6-10 products as requested
-    const displayProducts = products.slice(0, 10);
+    const displayProducts = useMemo(() => products.slice(0, 10), [products]);
 
     /**
      * Distribute items into 2 columns for masonry layout.
@@ -41,7 +39,7 @@ export const ShopFeaturedProducts = memo(({
     const { leftColumn, rightColumn } = useMemo(() => {
         const left: ShopProductItemUI[] = [];
         const right: ShopProductItemUI[] = [];
-        
+
         // Simple distribution: alternate between columns
         // This creates a staggered masonry effect
         displayProducts.forEach((product, index) => {
@@ -54,6 +52,8 @@ export const ShopFeaturedProducts = memo(({
 
         return { leftColumn: left, rightColumn: right };
     }, [displayProducts]);
+
+    if (products.length === 0) return null;
 
     return (
         <View style={styles.container}>

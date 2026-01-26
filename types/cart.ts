@@ -8,26 +8,23 @@ import { ResponseDefaultSchema } from './responseSchema';
 // Schema cho từng Item trong giỏ (từ API /api/v1/cart)
 export const CartItemSchema = z.object({
     id: z.string(),
-    cartId: z.string().nullable().optional(),
     variantId: z.string(),
     version: z.number().nullable().optional().default(0),
     productName: z.string().nullable().optional().default(''),
-    sku: z.string().nullable().optional().default(''),
     variantAttributes: z.string().nullable().optional().default(''),
     shopId: z.string().nullable().optional(),
-    shopName: z.string().nullable().optional().default(''),
-    shopLogo: z.string().nullable().optional(),
     imageBasePath: z.string().nullable().optional(),
     imageExtension: z.string().nullable().optional(),
 
     // Pricing
     priceBeforeDiscount: z.number().nullable().optional().default(0),
     unitPrice: z.number().nullable().optional().default(0),
-    priceAtAddTime: z.number().nullable().optional(),
     quantity: z.number().nullable().optional().default(1),
     totalPrice: z.number().nullable().optional().default(0),
     discountAmount: z.number().nullable().optional().default(0),
-    promotion: z.any().nullable().optional(),
+    promotion: z.object({
+        discountPercent: z.number().nullable().optional(),
+    }).nullable().optional(),
 
     // Selection (Server-managed)
     selectedForCheckout: z.boolean().nullable().optional().default(false),
@@ -36,7 +33,6 @@ export const CartItemSchema = z.object({
     availableStock: z.number().nullable().optional().default(0),
     stockStatus: z.string().nullable().optional().default('IN_STOCK'),
     stockMessage: z.string().nullable().optional().default(''),
-    previousQuantity: z.number().nullable().optional(),
 });
 
 // Schema cho Shop trong giỏ
@@ -44,9 +40,6 @@ export const CartShopSchema = z.object({
     shopId: z.string(),
     shopName: z.string().nullable().optional().default(''),
     shopLogo: z.string().nullable().optional(),
-    ownerName: z.string().nullable().optional(),
-    isVerified: z.boolean().nullable().optional(),
-    rating: z.number().nullable().optional(),
     items: z.array(CartItemSchema).default([]),
 
     // Shop-level aggregates (from API)
@@ -70,7 +63,6 @@ export const VoucherSchema = z.object({
     discountType: z.string().nullable().optional().default('fixed'),
     discountValue: z.number().nullable().optional().default(0),
     minOrderAmount: z.number().nullable().optional().default(0),
-    maxDiscountAmount: z.number().nullable().optional(),
     expiresAt: z.string().nullable().optional(),
     isApplicable: z.boolean().nullable().optional().default(true),
 });
@@ -78,18 +70,7 @@ export const VoucherSchema = z.object({
 // Schema cho toàn bộ Giỏ hàng (Root - từ API)
 export const CartResponseSchema = z.object({
     id: z.string(),
-    buyerId: z.string().nullable().optional(),
-    currency: z.string().nullable().optional().default('VND'),
-    totalAmount: z.number().nullable().optional().default(0),
-    totalDiscount: z.number().nullable().optional().default(0),
-    itemCount: z.number().nullable().optional().default(0),
-    createdDate: z.string().nullable().optional().default(''),
-    lastModifiedDate: z.string().nullable().optional().default(''),
-    version: z.number().nullable().optional().default(0),
     shops: z.array(CartShopSchema).default([]),
-    shopCount: z.number().nullable().optional().default(0),
-    warnings: z.array(z.string()).nullable().optional().default([]),
-    hasChanges: z.boolean().nullable().optional().default(false),
 });
 
 // Add To Cart Response

@@ -8,9 +8,8 @@
  * Uncomment when backend adds support.
  */
 
-import { IconSymbol } from '@/components/ui/Icon';
 import React from 'react';
-import { Switch, Text, View } from 'react-native';
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface AnonymousToggleProps {
@@ -39,14 +38,14 @@ const maskUsername = (name: string): string => {
  * TODO: Enable when API supports isAnonymous field
  */
 export const AnonymousToggle: React.FC<AnonymousToggleProps> = ({
-    value,
-    onChange,
+    value: _value,
+    onChange: _onChange,
     displayName = 'Người dùng',
 }) => {
-    const { theme } = useUnistyles();
+    const { theme: _theme } = useUnistyles();
     const styles = stylesheet;
 
-    const maskedName = maskUsername(displayName);
+    const _maskedName = maskUsername(displayName);
 
     // ============================================
     // TEMPORARILY DISABLED - API NOT READY

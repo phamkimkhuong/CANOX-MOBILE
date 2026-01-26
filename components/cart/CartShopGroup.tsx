@@ -71,23 +71,15 @@ export const CartShopGroup: React.FC<CartShopGroupProps> = memo(({
     onShopPressIn,
     onVariantPress,
     onFindSimilar,
-    onVoucherPress,
+    onVoucherPress: _onVoucherPress,
     isEditMode = false,
     onEditModeToggle,
 }) => {
     const { t } = useTranslation('cart');
     const {
-        shopId,
         shopName,
         items,
-        appliedVoucherId,
-        availableVouchers,
     } = shop;
-
-    // Find applied voucher object
-    const appliedVoucher = appliedVoucherId
-        ? availableVouchers.find((v) => v.id === appliedVoucherId) ?? null
-        : null;
 
     // Render single item (memoized factory)
     const renderItem = useCallback(
@@ -130,6 +122,7 @@ export const CartShopGroup: React.FC<CartShopGroupProps> = memo(({
             onDeleteItem,
             onVariantPress,
             onFindSimilar,
+            t
         ]
     );
 

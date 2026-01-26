@@ -122,7 +122,6 @@ const FilterPills: React.FC<{
     onFilterChange: (filter: FilterOption) => void;
     counts: { all: number; urgent: number; priceMet: number };
 }> = ({ activeFilter, onFilterChange, counts }) => {
-    const { theme } = useUnistyles();
     const styles = filterStyles;
 
     const filters: { key: FilterOption; label: string; count: number }[] = [
@@ -263,7 +262,7 @@ export default function WishlistDetailScreen() {
                 message: `Xem bộ sưu tập "${wishlist.name}" của tôi: ${wishlist.shareUrl}`,
                 url: wishlist.shareUrl,
             });
-        } catch (error) {
+        } catch {
             Toast.show({
                 type: 'error',
                 text1: 'Không thể chia sẻ',
@@ -292,11 +291,11 @@ export default function WishlistDetailScreen() {
         });
     }, []);
 
-    const handleEditItem = useCallback((item: WishlistItemUI) => {
+    const handleEditItem = useCallback((_item: WishlistItemUI) => {
         // TODO: Open edit item bottom sheet
     }, []);
 
-    const handleDeleteItem = useCallback((item: WishlistItemUI) => {
+    const handleDeleteItem = useCallback((_item: WishlistItemUI) => {
         // TODO: Confirm and delete item
     }, []);
 

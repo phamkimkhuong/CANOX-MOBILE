@@ -22,23 +22,11 @@ export type ReviewStatsRaw = z.infer<typeof ReviewStatsRawSchema>;
 export const ProductResponseItemSchema = z.object({
     id: z.string(),
     name: z.string().nullable().optional().default(''),
-    slug: z.string().nullable().optional().default(''),
     priceMin: z.number().nullable().optional().default(0),
-    priceMax: z.number().nullable().optional().default(0),
     priceBeforeDiscount: z.number().nullable().optional().default(0),
-    priceAfterBestVoucher: z.number().nullable().optional().default(0),
-    isFeatured: z.boolean().nullable().optional().default(false),
     media: z.array(ProductMediaRawSchema).nullable().optional().default([]),
     reviewStatistics: ReviewStatsRawSchema.nullable().optional(),
-    variants: z.array(z.object({
-        id: z.string().nullable().optional(),
-        inventory: z.object({
-            stock: z.number().nullable().optional().default(0),
-        }).nullable().optional(),
-    })).nullable().optional().default([]),
     shop: z.object({
-        shopName: z.string().nullable().optional().default(''),
-        username: z.string().nullable().optional().default(''),
         shop_location: z.string().nullable().optional().default(''),
     }).nullable().optional(),
 });
