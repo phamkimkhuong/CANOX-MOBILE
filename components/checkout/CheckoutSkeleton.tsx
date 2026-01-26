@@ -49,7 +49,7 @@ const SkeletonCheckoutItem: React.FC = () => {
             {/* Product Info */}
             <View style={styles.itemInfo}>
                 <SkeletonText width="90%" height={14} />
-                <SkeletonBox width={100} height={20} borderRadius={4} style={{ marginTop: 4 }} />
+                <SkeletonBox width={100} height={20} borderRadius={4} style={styles.mt4} />
                 <View style={styles.itemPriceRow}>
                     <SkeletonText width={80} height={14} />
                 </View>
@@ -57,6 +57,7 @@ const SkeletonCheckoutItem: React.FC = () => {
         </View>
     );
 };
+
 
 /**
  * Skeleton for Shop Group section
@@ -98,11 +99,12 @@ const SkeletonShopGroup: React.FC = () => {
             {/* Shipping Row */}
             <View style={styles.sectionRow}>
                 <SkeletonBox width={40} height={40} borderRadius={12} />
-                <View style={{ flex: 1 }}>
+                <View style={styles.shippingContent}>
                     <SkeletonText width="60%" height={14} />
-                    <SkeletonText width="40%" height={12} style={{ marginTop: 4 }} />
+                    <SkeletonText width="40%" height={12} style={styles.mt4} />
                 </View>
             </View>
+
 
             {/* Divider */}
             <View style={styles.divider} />
@@ -224,11 +226,16 @@ export const CheckoutSkeleton: React.FC = () => {
 };
 
 const stylesheet = StyleSheet.create((theme) => ({
+    mt4: {
+        marginTop: 4,
+    },
     container: {
         flex: 1,
         backgroundColor: theme.colors.background,
     },
-
+    shippingContent: {
+        flex: 1,
+    },
     // Address Card
     addressCard: {
         flexDirection: 'row',

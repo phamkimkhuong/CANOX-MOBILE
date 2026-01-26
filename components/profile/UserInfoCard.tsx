@@ -168,7 +168,7 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
                                 name={stat.icon as any}
                                 size={50}
                                 color={stat.iconColor}
-                                style={{ opacity: 0.1 }}
+                                style={styles.statBgIconInner}
                             />
                         </View>
 
@@ -180,6 +180,7 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
                                 color={stat.iconColor}
                             />
                         </View>
+
 
                         {/* Value & Label */}
                         <Text style={styles.statValue}>
@@ -329,6 +330,9 @@ const stylesheet = StyleSheet.create((theme) => ({
         position: 'absolute',
         top: 0,
         right: 0,
+        opacity: 0.1,
+    },
+    statBgIconInner: {
         opacity: 0.1,
     },
     statIconContainer: {

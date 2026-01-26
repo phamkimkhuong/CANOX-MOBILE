@@ -103,7 +103,7 @@ export const CheckoutFooter: React.FC<CheckoutFooterProps> = ({
             </View>
 
             {/* Safe Area Bottom Padding */}
-            <View style={{ height: UnistylesRuntime.insets.bottom || 16 }} />
+            <View style={styles.safeAreaBottom} />
         </View>
     );
 };
@@ -113,6 +113,9 @@ const stylesheet = StyleSheet.create((theme) => ({
         backgroundColor: theme.colors.surface,
         borderTopWidth: 1,
         borderTopColor: theme.colors.border,
+    },
+    safeAreaBottom: {
+        height: UnistylesRuntime.insets.bottom || 16,
     },
 
     warningRow: {

@@ -149,17 +149,18 @@ export const VoucherList = memo<VoucherListProps>(({
         <View style={styles.separator} />
     ), []);
 
-    // Loading state
-    if (isLoading && vouchers.length === 0) {
-        return <LoadingState />;
-    }
-
     // Merged content container style
     const mergedContentStyle = useMemo(() => ({
         paddingHorizontal: 16,
         paddingBottom: 100, // Safe area for bottom bar
         ...contentContainerStyle,
     }), [contentContainerStyle]);
+
+    // Loading state
+    if (isLoading && vouchers.length === 0) {
+        return <LoadingState />;
+    }
+
 
     return (
         <FlashList

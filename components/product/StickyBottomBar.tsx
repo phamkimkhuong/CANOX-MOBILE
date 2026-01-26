@@ -3,7 +3,7 @@ import type { InventoryStatus } from '@/types/product/productDetail';
 import React, { memo, useMemo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 import { IconSymbol } from '../ui/Icon';
 import { SmartNavButton } from '../ui/navigation/SmartNavButton';
 
@@ -50,8 +50,8 @@ export const StickyBottomBar = memo<StickyBottomBarProps>(({
     // Memoize container style với safe area
     const containerStyle = useMemo(() => [
         styles.container,
-        { paddingBottom: insets.bottom + 8 },
-    ], [insets.bottom]);
+        styles.safeBottom,
+    ], []);
 
     return (
         <View style={containerStyle}>
@@ -63,7 +63,7 @@ export const StickyBottomBar = memo<StickyBottomBarProps>(({
                     style={styles.iconButton}
                 >
                     {({ pressed }) => (
-                        <View style={{ alignItems: 'center', opacity: pressed ? 0.6 : 1 }}>
+                        <View style={[styles.iconWrapper, pressed && styles.pressedOpacity]}>
                             <IconSymbol
                                 name="chat"
                                 size={22}
@@ -78,7 +78,7 @@ export const StickyBottomBar = memo<StickyBottomBarProps>(({
 
                 <SmartNavButton onPress={onShopPress} style={styles.iconButton}>
                     {({ pressed }) => (
-                        <View style={{ alignItems: 'center', opacity: pressed ? 0.6 : 1 }}>
+                        <View style={[styles.iconWrapper, pressed && styles.pressedOpacity]}>
                             <IconSymbol
                                 name="storefront-outline"
                                 size={22}
@@ -89,6 +89,7 @@ export const StickyBottomBar = memo<StickyBottomBarProps>(({
                     )}
                 </SmartNavButton>
             </View>
+
 
             {/* Right Actions */}
             <View style={styles.rightActions}>
@@ -151,6 +152,9 @@ const styles = StyleSheet.create((theme) => ({
         shadowRadius: 4,
         elevation: 8,
     },
+    safeBottom: {
+        paddingBottom: UnistylesRuntime.insets.bottom + 8,
+    },
     leftActions: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -159,6 +163,12 @@ const styles = StyleSheet.create((theme) => ({
         alignItems: 'center',
         justifyContent: 'center',
         paddingHorizontal: theme.margins.smd,
+    },
+    iconWrapper: {
+        alignItems: 'center',
+    },
+    pressedOpacity: {
+        opacity: 0.6,
     },
     iconLabel: {
         fontSize: 10,

@@ -169,7 +169,7 @@ interface UseVoucherListResult {
 
     // Actions
     collectVoucher: (id: string) => Promise<void>;
-    useVoucher: (id: string) => void;
+    handleUseVoucher: (id: string) => void;
     setReminder: (id: string) => Promise<void>;
 
     // Refresh
@@ -242,7 +242,7 @@ export const useVoucherList = (): UseVoucherListResult => {
         // }
     }, []);
 
-    const useVoucher = useCallback((id: string) => {
+    const handleUseVoucher = useCallback((id: string) => {
         // Navigate to checkout or show usage modal
         log.info('Use voucher:', id);
     }, []);
@@ -277,7 +277,7 @@ export const useVoucherList = (): UseVoucherListResult => {
         setSearchQuery,
 
         collectVoucher,
-        useVoucher,
+        handleUseVoucher,
         setReminder,
 
         refetch,

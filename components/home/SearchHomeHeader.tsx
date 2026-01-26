@@ -57,7 +57,7 @@ export const HomeHeader = () => {
                 ]}
                 onPress={handleSearchPress}
             >
-                <IconSymbol name="search" size={20} color={theme.colors.header.onHeader} style={{ marginLeft: 10 }} />
+                <IconSymbol name="search" size={20} color={theme.colors.header.onHeader} style={styles.searchIcon} />
 
                 <View style={styles.placeholderContainer}>
                     <RollingSearchPlaceholder
@@ -67,10 +67,6 @@ export const HomeHeader = () => {
                         interval={3500}
                     />
                 </View>
-
-                {/* <TouchableOpacity style={styles.cameraBtn}>
-                    <IconSymbol name="camera-outline" size={22} color={theme.colors.header.onHeader} />
-                </TouchableOpacity> */}
             </Pressable>
 
             {/* 2. Các nút chức năng */}
@@ -81,7 +77,7 @@ export const HomeHeader = () => {
                     onPressIn={prefetchCart}
                 >
                     {({ pressed }) => (
-                        <View style={{ opacity: pressed ? 0.9 : 1 }}>
+                        <View style={[styles.iconWrapper, pressed && styles.pressedOpacity]}>
                             <IconSymbol name="cart" size={26} color={theme.colors.header.onHeader} />
                             {cartItemCount > 0 && (
                                 <View style={styles.badge}>
@@ -101,7 +97,7 @@ export const HomeHeader = () => {
                     onPressIn={prefetchChat}
                 >
                     {({ pressed }) => (
-                        <View style={{ opacity: pressed ? 0.9 : 1 }}>
+                        <View style={[styles.iconWrapper, pressed && styles.pressedOpacity]}>
                             <IconSymbol name="chatbubble-ellipses-outline" size={26} color={theme.colors.header.onHeader} />
                             {isAuthenticated && unreadMessageCount !== undefined && unreadMessageCount > 0 && (
                                 <View style={styles.badge}>
@@ -114,6 +110,7 @@ export const HomeHeader = () => {
                     )}
                 </SmartNavButton>
             </View>
+
         </View>
     );
 };
@@ -135,6 +132,9 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderRadius: theme.radius.full,
         backgroundColor: theme.colors.surfaceOverlay,
         paddingHorizontal: 5,
+    },
+    searchIcon: {
+        marginLeft: 10,
     },
     placeholderContainer: {
         flex: 1,
@@ -171,6 +171,12 @@ const stylesheet = StyleSheet.create((theme) => ({
     iconBtn: {
         padding: 4,
         position: 'relative',
+    },
+    iconWrapper: {
+        position: 'relative',
+    },
+    pressedOpacity: {
+        opacity: 0.9,
     },
     badge: {
         position: 'absolute',

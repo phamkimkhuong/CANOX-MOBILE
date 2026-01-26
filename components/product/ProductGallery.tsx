@@ -507,9 +507,10 @@ export const ProductGallery = memo(forwardRef<ProductGalleryRef, ProductGalleryP
                         <Text style={viewerStyles.headerText}>
                             {viewerIndex + 1} / {galleryImages.length}
                         </Text>
-                        <View style={{ width: 44 }} />
+                        <View style={viewerStyles.headerSpacer} />
                     </View>
                 </View>
+
                 <StatusBar style="light" hidden />
             </Modal>
 
@@ -594,6 +595,9 @@ const viewerStyles = StyleSheet.create((theme) => ({
         justifyContent: 'center',
         borderRadius: 22,
         backgroundColor: 'rgba(0, 0, 0, 0.2)',
+    },
+    headerSpacer: {
+        width: 44,
     },
     headerText: {
         color: '#FFFFFF',

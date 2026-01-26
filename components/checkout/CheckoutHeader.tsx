@@ -38,9 +38,10 @@ export const CheckoutHeader: React.FC<CheckoutHeaderProps> = ({
     return (
         <View style={styles.container}>
             {/* Safe Area Spacer */}
-            <View style={{ height: UnistylesRuntime.insets.top }} />
+            <View style={styles.safeTop} />
 
             {/* Header Content */}
+
             <View style={styles.content}>
                 <Pressable
                     style={({ pressed }) => [
@@ -72,7 +73,9 @@ const stylesheet = StyleSheet.create((theme) => ({
     container: {
         backgroundColor: theme.colors.surface,
     },
-
+    safeTop: {
+        height: UnistylesRuntime.insets.top,
+    },
     content: {
         height: 52,
         flexDirection: 'row',

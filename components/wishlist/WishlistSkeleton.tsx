@@ -21,7 +21,7 @@ export const WishlistCardSkeleton: React.FC = () => {
             <SkeletonBox width={64} height={64} borderRadius={8} />
             <View style={styles.cardContent}>
                 <SkeletonText width="70%" height={16} />
-                <SkeletonText width="50%" height={12} style={{ marginTop: 4 }} />
+                <SkeletonText width="50%" height={12} style={styles.mt4} />
                 <View style={styles.cardFooter}>
                     <SkeletonText width={80} height={12} />
                 </View>
@@ -42,8 +42,8 @@ export const WishlistItemSkeleton: React.FC = () => {
             <SkeletonBox width={80} height={80} borderRadius={8} />
             <View style={styles.itemContent}>
                 <SkeletonText width="90%" height={14} />
-                <SkeletonText width="60%" height={12} style={{ marginTop: 4 }} />
-                <SkeletonText width={100} height={16} style={{ marginTop: 8 }} />
+                <SkeletonText width="60%" height={12} style={styles.mt4} />
+                <SkeletonText width={100} height={16} style={styles.mt8} />
             </View>
             <View style={styles.itemActions}>
                 <SkeletonCircle size={32} />
@@ -53,6 +53,7 @@ export const WishlistItemSkeleton: React.FC = () => {
         </View>
     );
 };
+
 
 /**
  * Skeleton list for my wishlists tab
@@ -98,16 +99,23 @@ export const DiscoverSkeleton: React.FC = () => {
                 {Array.from({ length: 3 }).map((_, index) => (
                     <View key={index} style={styles.discoverCard}>
                         <SkeletonBox width={140} height={100} borderRadius={8} />
-                        <SkeletonText width={120} height={14} style={{ marginTop: 8 }} />
-                        <SkeletonText width={80} height={12} style={{ marginTop: 4 }} />
+                        <SkeletonText width={120} height={14} style={styles.mt8} />
+                        <SkeletonText width={80} height={12} style={styles.mt4} />
                     </View>
                 ))}
             </View>
+
         </View>
     );
 };
 
 const stylesheet = StyleSheet.create((theme) => ({
+    mt4: {
+        marginTop: 4,
+    },
+    mt8: {
+        marginTop: 8,
+    },
     listContainer: {
         paddingTop: theme.margins.sm,
     },

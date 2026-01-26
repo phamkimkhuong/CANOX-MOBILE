@@ -170,8 +170,9 @@ export const FeaturedSection = memo(({ onProductPress }: FeaturedSectionProps = 
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={styles.smallProductsList}
                     keyExtractor={(item) => item.id}
-                    ItemSeparatorComponent={() => <View style={{ width: gapBetweenCards }} />}
+                    ItemSeparatorComponent={() => <View style={styles.smallSeparator} />}
                     renderItem={({ item: product }) => {
+
                         const badge = getBadge(product);
                         const discountBadge = getDiscountBadge(product);
 
@@ -327,6 +328,9 @@ const stylesheet = StyleSheet.create((theme) => ({
         paddingBottom: theme.margins.md,
     },
     smallCard: {
+    },
+    smallSeparator: {
+        width: theme.margins.sm,
     },
     smallImageContainer: {
         width: '100%',

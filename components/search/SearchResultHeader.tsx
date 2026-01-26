@@ -19,7 +19,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 
 interface SearchResultHeaderProps {
     keyword: string;
@@ -43,7 +43,7 @@ export const SearchResultHeader = React.memo(({
     const cartItemCount = useCartStore((state) => state.totalQuantity);
 
     return (
-        <View style={[styles.container, { paddingTop: insets.top + 8 }]}>
+        <View style={[styles.container, styles.safeTop]}>
             {/* Back Button */}
             <Pressable
                 style={({ pressed }) => [
@@ -107,7 +107,7 @@ export const SearchResultHeader = React.memo(({
                 style={styles.iconButton}
             >
                 {({ pressed }) => (
-                    <View style={{ opacity: pressed ? 0.7 : 1 }}>
+                    <View style={[styles.cartWrapper, pressed && styles.cartPressed]}>
                         <IconSymbol
                             name="cart-outline"
                             size={24}
@@ -127,6 +127,7 @@ export const SearchResultHeader = React.memo(({
     );
 });
 
+
 SearchResultHeader.displayName = 'SearchResultHeader';
 
 const styles = StyleSheet.create((theme) => ({
@@ -140,12 +141,21 @@ const styles = StyleSheet.create((theme) => ({
         borderBottomWidth: 1,
         borderBottomColor: theme.colors.borderMuted,
     },
+    safeTop: {
+        paddingTop: UnistylesRuntime.insets.top + 8,
+    },
     iconButton: {
         padding: 6,
         position: 'relative',
     },
     buttonPressed: {
         opacity: 0.6,
+    },
+    cartWrapper: {
+        position: 'relative',
+    },
+    cartPressed: {
+        opacity: 0.7,
     },
     searchContainer: {
         flex: 1,

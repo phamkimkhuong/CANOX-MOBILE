@@ -1,7 +1,7 @@
 import React from 'react';
 import { useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 
 // ============================================
 // ANIMATED SKELETON BOX
@@ -45,7 +45,7 @@ export const ProductDetailSkeleton: React.FC = () => {
     const galleryHeight = screenWidth; // Gallery là hình vuông
 
     return (
-        <View style={[styles.container, { paddingTop: insets.top }]}>
+        <View style={[styles.container, styles.safeTop]}>
             {/* Gallery Skeleton */}
             <SkeletonBox
                 width={screenWidth}
@@ -80,7 +80,7 @@ export const ProductDetailSkeleton: React.FC = () => {
                     <SkeletonBox width={56} height={56} borderRadius={28} />
                     <View style={styles.shopInfo}>
                         <SkeletonBox width={120} height={16} borderRadius={4} />
-                        <SkeletonBox width={80} height={12} borderRadius={4} style={{ marginTop: 8 }} />
+                        <SkeletonBox width={80} height={12} borderRadius={4} style={styles.mt8} />
                     </View>
                     <SkeletonBox width={70} height={32} borderRadius={8} />
                 </View>
@@ -88,7 +88,7 @@ export const ProductDetailSkeleton: React.FC = () => {
                     {[1, 2, 3, 4].map((i) => (
                         <View key={i} style={styles.statItem}>
                             <SkeletonBox width={40} height={16} borderRadius={4} />
-                            <SkeletonBox width={60} height={12} borderRadius={4} style={{ marginTop: 4 }} />
+                            <SkeletonBox width={60} height={12} borderRadius={4} style={styles.mt4} />
                         </View>
                     ))}
                 </View>
@@ -96,7 +96,7 @@ export const ProductDetailSkeleton: React.FC = () => {
 
             {/* Specs Section */}
             <View style={styles.specsSection}>
-                <SkeletonBox width={120} height={18} borderRadius={4} style={{ marginBottom: 12 }} />
+                <SkeletonBox width={120} height={18} borderRadius={4} style={styles.mb12} />
                 {[1, 2, 3, 4, 5].map((i) => (
                     <View key={i} style={styles.specRow}>
                         <SkeletonBox width={100} height={14} borderRadius={4} />
@@ -107,15 +107,15 @@ export const ProductDetailSkeleton: React.FC = () => {
 
             {/* Description Section */}
             <View style={styles.descSection}>
-                <SkeletonBox width={120} height={18} borderRadius={4} style={{ marginBottom: 12 }} />
+                <SkeletonBox width={120} height={18} borderRadius={4} style={styles.mb12} />
                 <SkeletonBox width="100%" height={14} borderRadius={4} />
-                <SkeletonBox width="100%" height={14} borderRadius={4} style={{ marginTop: 8 }} />
-                <SkeletonBox width="80%" height={14} borderRadius={4} style={{ marginTop: 8 }} />
-                <SkeletonBox width="90%" height={14} borderRadius={4} style={{ marginTop: 8 }} />
+                <SkeletonBox width="100%" height={14} borderRadius={4} style={styles.mt8} />
+                <SkeletonBox width="80%" height={14} borderRadius={4} style={styles.mt8} />
+                <SkeletonBox width="90%" height={14} borderRadius={4} style={styles.mt8} />
             </View>
 
             {/* Bottom Bar Skeleton */}
-            <View style={[styles.bottomBar, { paddingBottom: insets.bottom + 8 }]}>
+            <View style={[styles.bottomBar, styles.safeBottom]}>
                 <View style={styles.leftActions}>
                     <SkeletonBox width={40} height={40} borderRadius={8} />
                     <SkeletonBox width={40} height={40} borderRadius={8} />
@@ -129,7 +129,23 @@ export const ProductDetailSkeleton: React.FC = () => {
     );
 };
 
+
 const styles = StyleSheet.create((theme) => ({
+    mt4: {
+        marginTop: 4,
+    },
+    mt8: {
+        marginTop: 8,
+    },
+    mb12: {
+        marginBottom: 12,
+    },
+    safeTop: {
+        paddingTop: UnistylesRuntime.insets.top,
+    },
+    safeBottom: {
+        paddingBottom: UnistylesRuntime.insets.bottom + 8,
+    },
     container: {
         flex: 1,
         backgroundColor: theme.colors.background,

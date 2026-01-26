@@ -126,7 +126,7 @@ export default function PaymentPayOSScreen() {
                 }
             });
         }
-    }, [orderResponse?.raw?.status, id]);
+    }, [orderResponse?.raw?.status, id, router]);
 
     const handleOpenBankApp = useCallback(() => {
         if (paymentInfo?.paymentLink) {
@@ -150,7 +150,7 @@ export default function PaymentPayOSScreen() {
                 }
             }
         });
-    }, [id]);
+    }, [id, router]);
 
     const handleBack = useCallback(() => {
         if (id) {
@@ -158,7 +158,7 @@ export default function PaymentPayOSScreen() {
         } else {
             Navigator.back();
         }
-    }, [id]);
+    }, [id, router]);
 
     const handleExpire = useCallback(() => {
         setIsExpired(true);
@@ -175,7 +175,8 @@ export default function PaymentPayOSScreen() {
                 }
             }
         });
-    }, [id]);
+    }, [id, router]);
+
 
     if (!paymentInfo) {
         return (

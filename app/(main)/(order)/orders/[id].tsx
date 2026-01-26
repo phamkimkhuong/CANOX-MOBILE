@@ -55,7 +55,7 @@ type LoadingActionType = 'cancel' | 'confirm' | null;
 
 export default function OrderDetailScreen() {
     // Route params - id is required, instantNav is optional (for hybrid pattern)
-    const { id, instantNav } = useLocalSearchParams<{
+    const { id } = useLocalSearchParams<{
         id: string;
         instantNav?: 'true';  // Set when user tapped quickly (< 150ms)
     }>();
@@ -268,7 +268,8 @@ export default function OrderDetailScreen() {
                 text2: errorMessage,
             });
         }
-    }, [order?.items, addToCart]);
+    }, [order?.items, addToCart, t]);
+
 
     const handleReview = useCallback(() => {
         if (!rawOrder) return;
@@ -291,8 +292,9 @@ export default function OrderDetailScreen() {
         (item: OrderItemUI) => {
             // Navigator.push(`/review/${rawOrder?.orderId}?itemId=${item.itemId}`);
         },
-        [rawOrder?.orderId]
+        [rawOrder?.orderId, t]
     );
+
 
     // === RENDER STATES ===
 

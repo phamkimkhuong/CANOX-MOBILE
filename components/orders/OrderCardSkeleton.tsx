@@ -30,13 +30,14 @@ export const OrderCardSkeleton: React.FC = () => {
                 <SkeletonBox width={72} height={72} borderRadius={8} />
                 <View style={styles.productInfo}>
                     <SkeletonBox width="100%" height={14} />
-                    <SkeletonBox width="60%" height={12} style={{ marginTop: 6 }} />
+                    <SkeletonBox width="60%" height={12} style={styles.mt6} />
                     <View style={styles.priceRow}>
                         <SkeletonBox width={80} height={14} />
                         <SkeletonBox width={24} height={12} />
                     </View>
                 </View>
             </View>
+
 
             {/* Summary Skeleton */}
             <View style={styles.summary}>
@@ -57,8 +58,9 @@ export const OrderCardSkeleton: React.FC = () => {
  * Multiple Skeletons for list
  */
 export const OrderListSkeleton: React.FC<{ count?: number }> = ({ count = 3 }) => {
+    const styles = stylesheet;
     return (
-        <View style={{ paddingTop: 16 }}>
+        <View style={styles.listContainer}>
             {Array.from({ length: count }).map((_, index) => (
                 <OrderCardSkeleton key={index} />
             ))}
@@ -67,6 +69,12 @@ export const OrderListSkeleton: React.FC<{ count?: number }> = ({ count = 3 }) =
 };
 
 const stylesheet = StyleSheet.create((theme) => ({
+    mt6: {
+        marginTop: 6,
+    },
+    listContainer: {
+        paddingTop: 16,
+    },
     container: {
         backgroundColor: theme.colors.surface,
         borderRadius: theme.radius.l,

@@ -15,7 +15,7 @@ import Animated, {
     useAnimatedStyle,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 
 // CONSTANTS
 const NAVBAR_HEIGHT = 56;
@@ -94,13 +94,10 @@ const NavButton: React.FC<NavButtonProps> = ({
                 name={getIconName()}
                 size={24}
                 animatedProps={animatedIconProps}
-                style={{
-                    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-                    textShadowOffset: { width: 0, height: 1 },
-                    textShadowRadius: 2,
-                }}
+                style={styles.navIcon}
             />
             {badge !== undefined && badge > 0 && (
+
                 <View style={styles.badge}>
                     <Text style={styles.badgeText}>
                         {badge > 99 ? '99+' : badge}
@@ -173,7 +170,7 @@ export const ProductNavBar: React.FC<ProductNavBarProps> = ({
         <Animated.View
             style={[
                 styles.container,
-                { paddingTop: insets.top },
+                styles.safeTop,
                 animatedHeaderStyle,
             ]}
         >
@@ -225,11 +222,19 @@ const styles = StyleSheet.create((theme) => ({
         right: 0,
         zIndex: 100,
     },
+    safeTop: {
+        paddingTop: UnistylesRuntime.insets.top,
+    },
     content: {
         height: NAVBAR_HEIGHT,
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: theme.margins.sm,
+    },
+    navIcon: {
+        textShadowColor: 'rgba(0, 0, 0, 0.3)',
+        textShadowOffset: { width: 0, height: 1 },
+        textShadowRadius: 2,
     },
     leftSection: {
         flexDirection: 'row',

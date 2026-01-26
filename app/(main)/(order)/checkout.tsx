@@ -60,7 +60,6 @@ import { logger } from '@/utils/logger';
 // ============================================
 
 export default function CheckoutScreen() {
-    const { theme } = useUnistyles();
     const { t } = useTranslation('checkout');
     const styles = stylesheet;
 
@@ -447,7 +446,8 @@ export default function CheckoutScreen() {
                 return () => clearTimeout(timer);
             }
         }
-    }, [isInitialized, previewData, isLoadingPreview, canPlaceOrder, calculation]);
+    }, [isInitialized, previewData, isLoadingPreview, canPlaceOrder, calculation, t]);
+
 
     // Cleanup on unmount
     useFocusEffect(
@@ -610,7 +610,11 @@ export default function CheckoutScreen() {
         selectedItemIds,
         placeOrder,
         resetSession,
+        calculation.loyaltyPoints,
+        queryClient,
+        t,
     ]);
+
 
     const handleBack = useCallback(() => {
         Navigator.back();

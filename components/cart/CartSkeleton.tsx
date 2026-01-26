@@ -31,7 +31,7 @@ const SkeletonCartItem: React.FC<{ isLast?: boolean }> = ({ isLast }) => {
                         <SkeletonText width="60%" height={16} />
 
                         {/* Variant Selector skeleton */}
-                        <SkeletonBox width={100} height={24} borderRadius={4} style={{ marginTop: 8 }} />
+                        <SkeletonBox width={100} height={24} borderRadius={4} style={styles.mt8} />
 
                         {/* Bottom Row: Price & Quantity */}
                         <View style={styles.bottomRow}>
@@ -42,6 +42,7 @@ const SkeletonCartItem: React.FC<{ isLast?: boolean }> = ({ isLast }) => {
                             <SkeletonBox width={100} height={32} borderRadius={theme.radius.m} />
                         </View>
                     </View>
+
                 </View>
             </View>
             {!isLast && <View style={styles.divider} />}
@@ -92,7 +93,7 @@ export const CartSkeleton: React.FC = () => {
     const styles = stylesheet;
 
     return (
-        <View style={[styles.container, { paddingTop: theme.margins.smd }]}>
+        <View style={styles.container}>
             {/* Shop Groups skeletons - Start immediately after header */}
             <View style={styles.listContent}>
                 <SkeletonShopGroup />
@@ -103,9 +104,13 @@ export const CartSkeleton: React.FC = () => {
 };
 
 const stylesheet = StyleSheet.create((theme) => ({
+    mt8: {
+        marginTop: 8,
+    },
     container: {
         flex: 1,
         backgroundColor: theme.colors.background,
+        paddingTop: theme.margins.smd,
     },
     addressBarSkeleton: {
         flexDirection: 'row',

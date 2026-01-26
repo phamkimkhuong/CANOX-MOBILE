@@ -148,12 +148,13 @@ const SuggestionItem = React.memo(({
                     name="arrow-forward"
                     size={16}
                     color={theme.colors.secondary}
-                    style={{ transform: [{ rotate: '-45deg' }] }}
+                    style={styles.fillIcon}
                 />
             </Pressable>
         </Pressable>
     );
 });
+
 
 SuggestionItem.displayName = 'SuggestionItem';
 
@@ -294,6 +295,9 @@ const styles = StyleSheet.create((theme) => ({
     },
     fillButtonPressed: {
         opacity: 0.6,
+    },
+    fillIcon: {
+        transform: [{ rotate: '-45deg' }],
     },
     // Loading state
     loadingContainer: {

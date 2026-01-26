@@ -133,23 +133,6 @@ export const ProductDescription = memo<ProductDescriptionProps>(({
     }, []);
 
     // ============================================
-    // EARLY RETURN - Empty state
-    // ============================================
-
-    if (!description && descriptionImages.length === 0) {
-        return (
-            <View style={styles.container}>
-                <View style={styles.header}>
-                    <Text style={styles.title}>{PRODUCT_STRINGS.description.title}</Text>
-                </View>
-                <View style={styles.emptyContainer}>
-                    <Text style={styles.emptyText}>{PRODUCT_STRINGS.description.empty}</Text>
-                </View>
-            </View>
-        );
-    }
-
-    // ============================================
     // MEMOIZED CONTENT - Tách riêng để control render
     // ============================================
 
@@ -196,6 +179,24 @@ export const ProductDescription = memo<ProductDescriptionProps>(({
             </View>
         );
     }, [descriptionImages]);
+
+    // ============================================
+    // EARLY RETURN - Empty state
+    // ============================================
+
+    if (!description && descriptionImages.length === 0) {
+        return (
+            <View style={styles.container}>
+                <View style={styles.header}>
+                    <Text style={styles.title}>{PRODUCT_STRINGS.description.title}</Text>
+                </View>
+                <View style={styles.emptyContainer}>
+                    <Text style={styles.emptyText}>{PRODUCT_STRINGS.description.empty}</Text>
+                </View>
+            </View>
+        );
+    }
+
 
     // ============================================
     // RENDER

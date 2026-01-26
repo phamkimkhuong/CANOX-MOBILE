@@ -15,26 +15,27 @@ import { SkeletonBox, SkeletonCircle, SkeletonText } from '@/components/ui/feedb
 import React from 'react';
 import { ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet, UnistylesRuntime } from 'react-native-unistyles';
 
 /**
  * Header Skeleton - Back button, title, support button
  */
+
 const HeaderSkeleton: React.FC = () => {
     const styles = stylesheet;
-    const { top } = useSafeAreaInsets();
 
     return (
-        <View style={[styles.header, { paddingTop: top + 8 }]}>
+        <View style={[styles.header, styles.safeTop]}>
             <SkeletonCircle size={36} />
             <View style={styles.headerCenter}>
                 <SkeletonText width={120} height={14} />
-                <SkeletonText width={80} height={11} style={{ marginTop: 4 }} />
+                <SkeletonText width={80} height={11} style={styles.mt4} />
             </View>
             <SkeletonCircle size={36} />
         </View>
     );
 };
+
 
 /**
  * Tracker Skeleton - 4-step progress bar
@@ -48,10 +49,11 @@ const TrackerSkeleton: React.FC = () => {
                 {[1, 2, 3, 4].map((i) => (
                     <View key={i} style={styles.trackerStep}>
                         <SkeletonCircle size={28} />
-                        <SkeletonText width={50} height={10} style={{ marginTop: 6 }} />
+                        <SkeletonText width={50} height={10} style={styles.mt6} />
                     </View>
                 ))}
             </View>
+
             {/* Progress line */}
             <SkeletonBox width="75%" height={2} style={styles.trackerLine} />
         </View>
@@ -68,9 +70,10 @@ const ShippingSkeleton: React.FC = () => {
         <View style={styles.card}>
             <View style={styles.cardHeader}>
                 <SkeletonCircle size={32} />
-                <SkeletonText width={120} height={14} style={{ marginLeft: 12 }} />
+                <SkeletonText width={120} height={14} style={styles.ml12} />
             </View>
             <View style={styles.shippingRows}>
+
                 <View style={styles.row}>
                     <SkeletonText width={80} height={12} />
                     <SkeletonText width={100} height={12} />
@@ -94,16 +97,17 @@ const AddressSkeleton: React.FC = () => {
         <View style={styles.card}>
             <View style={styles.cardHeader}>
                 <SkeletonCircle size={32} />
-                <SkeletonText width={100} height={14} style={{ marginLeft: 12 }} />
+                <SkeletonText width={100} height={14} style={styles.ml12} />
             </View>
             <View style={styles.addressContent}>
                 <SkeletonText width="60%" height={14} />
-                <SkeletonText width="40%" height={12} style={{ marginTop: 6 }} />
-                <SkeletonText width="90%" height={12} style={{ marginTop: 6 }} />
+                <SkeletonText width="40%" height={12} style={styles.mt6} />
+                <SkeletonText width="90%" height={12} style={styles.mt6} />
             </View>
         </View>
     );
 };
+
 
 /**
  * Shop Header Skeleton
@@ -114,10 +118,11 @@ const ShopHeaderSkeleton: React.FC = () => {
     return (
         <View style={styles.shopHeader}>
             <SkeletonCircle size={24} />
-            <SkeletonText width={120} height={14} style={{ marginLeft: 8 }} />
+            <SkeletonText width={120} height={14} style={styles.ml8} />
         </View>
     );
 };
+
 
 /**
  * Product Item Skeleton
@@ -130,8 +135,9 @@ const ProductItemSkeleton: React.FC = () => {
             <SkeletonBox width={72} height={72} borderRadius={8} />
             <View style={styles.productInfo}>
                 <SkeletonText width="80%" height={13} />
-                <SkeletonText width="40%" height={11} style={{ marginTop: 4 }} />
+                <SkeletonText width="40%" height={11} style={styles.mt4} />
                 <View style={styles.priceRow}>
+
                     <SkeletonText width={70} height={13} />
                     <SkeletonText width={30} height={11} />
                 </View>
@@ -151,9 +157,10 @@ const PriceSummarySkeleton: React.FC = () => {
         <View style={styles.card}>
             <View style={styles.cardHeader}>
                 <SkeletonCircle size={32} />
-                <SkeletonText width={140} height={14} style={{ marginLeft: 12 }} />
+                <SkeletonText width={140} height={14} style={styles.ml12} />
             </View>
             <View style={styles.priceRows}>
+
                 {[1, 2, 3].map((i) => (
                     <View key={i} style={styles.row}>
                         <SkeletonText width={80} height={12} />
@@ -161,11 +168,12 @@ const PriceSummarySkeleton: React.FC = () => {
                     </View>
                 ))}
                 {/* Total row */}
-                <View style={[styles.row, { marginTop: 8 }]}>
+                <View style={[styles.row, styles.mt8]}>
                     <SkeletonText width={100} height={15} />
                     <SkeletonText width={90} height={18} />
                 </View>
             </View>
+
         </View>
     );
 };
@@ -244,6 +252,24 @@ export const OrderDetailSkeleton: React.FC<OrderDetailSkeletonProps> = ({
 };
 
 const stylesheet = StyleSheet.create((theme) => ({
+    mt4: {
+        marginTop: 4,
+    },
+    mt6: {
+        marginTop: 6,
+    },
+    mt8: {
+        marginTop: 8,
+    },
+    ml8: {
+        marginLeft: 8,
+    },
+    ml12: {
+        marginLeft: 12,
+    },
+    safeTop: {
+        paddingTop: UnistylesRuntime.insets.top + 8,
+    },
     container: {
         flex: 1,
         backgroundColor: theme.colors.background,

@@ -38,9 +38,11 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { VoucherUI } from '@/types/voucher';
+
 const log = createLogger('VoucherScreen');
 
-const AnimatedFlashList = Animated.createAnimatedComponent(FlashList) as any;
+const AnimatedFlashList = Animated.createAnimatedComponent(FlashList) as typeof FlashList;
 
 export default function VoucherScreen() {
     const insets = useSafeAreaInsets();
@@ -55,11 +57,10 @@ export default function VoucherScreen() {
         tabs,
         setActiveTab,
         sortBy,
-        setSortBy,
         searchQuery,
         setSearchQuery,
         collectVoucher,
-        useVoucher,
+        handleUseVoucher,
         setReminder,
         refetch,
     } = useVoucherList();
@@ -99,8 +100,8 @@ export default function VoucherScreen() {
     }, [collectVoucher]);
 
     const handleUse = useCallback((id: string) => {
-        useVoucher(id);
-    }, [useVoucher]);
+        handleUseVoucher(id);
+    }, [handleUseVoucher]);
 
     const handleReminder = useCallback(async (id: string) => {
         await setReminder(id);
@@ -142,7 +143,7 @@ export default function VoucherScreen() {
     ), [featuredVoucher, handleCollect, sortBy, theme.colors.typographySecondary]);
 
     // Render voucher item
-    const renderItem = useCallback(({ item }: { item: typeof vouchers[0] }) => (
+    const renderItem = useCallback(({ item }: { item: VoucherUI }) => (
         <View style={styles.cardWrapper}>
             <VoucherCard
                 voucher={item}
@@ -155,7 +156,7 @@ export default function VoucherScreen() {
         </View>
     ), [handleCollect, handleUse, handleReminder, handleViewConditions, theme.colors.background]);
 
-    const keyExtractor = useCallback((item: typeof vouchers[0]) => item.id, []);
+    const keyExtractor = useCallback((item: VoucherUI) => item.id, []);
 
     // Empty state
     const EmptyComponent = useMemo(() => (
@@ -248,11 +249,10 @@ export default function VoucherScreen() {
             </Animated.View>
 
             {/* Voucher List */}
-            <AnimatedFlashList<typeof vouchers[0]>
+            <AnimatedFlashList<VoucherUI>
                 data={vouchers}
                 renderItem={renderItem}
                 keyExtractor={keyExtractor}
-                estimatedItemSize={112}
                 onScroll={scrollHandler}
                 scrollEventThrottle={16}
                 ListHeaderComponent={ListHeader}

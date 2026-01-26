@@ -152,8 +152,9 @@ export function VideoPlayerModal({
                     >
                         <IconSymbol name="close" size={24} color="#FFFFFF" />
                     </Pressable>
-                    <View style={{ width: 44 }} />
+                    <View style={styles.headerSpacer} />
                 </View>
+
 
                 {/* Hide status bar for immersive experience */}
                 <StatusBar hidden />
@@ -191,6 +192,9 @@ const styles = StyleSheet.create((theme) => ({
         justifyContent: 'center',
         borderRadius: 22,
         backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    },
+    headerSpacer: {
+        width: 44,
     },
     headerTitle: {
         flex: 1,
