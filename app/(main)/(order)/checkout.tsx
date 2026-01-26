@@ -161,11 +161,13 @@ export default function CheckoutScreen() {
             setIsBuyNowProcessing(true);
 
             try {
-                logger.checkout.info('Buy Now: Adding to cart', { variantId, quantity });
+                const parsedQuantity = parseInt(quantity || '1', 10) || 1;
+
+                logger.checkout.info('Buy Now: Adding to cart', { variantId, quantity: parsedQuantity });
                 // Add to cart
                 const addResult = await addToCart({
                     variantId: variantId!,
-                    quantity: parseInt(quantity || '1', 10),
+                    quantity: parsedQuantity,
                     hideToast: true,
                 });
 
@@ -189,7 +191,14 @@ export default function CheckoutScreen() {
                 });
 
                 // Initialize checkout session with just this item
-                initSession([addedItemId], [{ shopId: addedShopId, itemIds: [addedItemId] }]);
+                initSession([addedItemId], [{
+                    shopId: addedShopId,
+                    itemIds: [addedItemId],
+                    items: [{
+                        itemId: addedItemId,
+                        quantity: parsedQuantity,
+                    }],
+                }]);
 
                 // Preview will be triggered automatically by the debounced effect
             } catch (error) {
@@ -272,10 +281,12 @@ export default function CheckoutScreen() {
         if (selectedPlatformShippingVoucher) globalVouchersArray.push(selectedPlatformShippingVoucher);
 
         const request: CheckoutPreviewRequest = {
-            shippingAddress: currentAddressId ? {
-                addressId: currentAddressId,
-                addressChanged: false,
-            } : undefined,
+            shippingAddress: currentAddressId
+                ? {
+                    addressId: currentAddressId,
+                    addressChanged: false,
+                }
+                : undefined,
             globalVouchers: globalVouchersArray.length > 0 ? globalVouchersArray : undefined,
             shops: checkoutShops.map((shop) => {
                 const voucherCode = selectedShopVouchers.get(shop.shopId);
@@ -283,6 +294,7 @@ export default function CheckoutScreen() {
 
                 return {
                     shopId: shop.shopId,
+                    items: shop.items,
                     itemIds: shop.itemIds,
                     vouchers: voucherCode ? [voucherCode] : undefined,
                     globalVouchers: globalVouchersArray.length > 0 ? globalVouchersArray : undefined,

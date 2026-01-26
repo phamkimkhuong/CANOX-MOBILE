@@ -321,14 +321,20 @@ export default function CartScreen() {
 
         if (!cartData) return;
 
-        // Group selected items by shop
+        // Group selected items by shop, including quantity for each item
         const selectedShops = cartData.shops
-            .map((shop) => ({
-                shopId: shop.shopId,
-                itemIds: shop.items
-                    .filter((item) => selectedItemIds.has(item.id))
-                    .map((item) => item.id),
-            }))
+            .map((shop) => {
+                const selectedItems = shop.items.filter((item) => selectedItemIds.has(item.id));
+
+                return {
+                    shopId: shop.shopId,
+                    itemIds: selectedItems.map((item) => item.id),
+                    items: selectedItems.map((item) => ({
+                        itemId: item.id,
+                        quantity: item.quantity,
+                    })),
+                };
+            })
             .filter((shop) => shop.itemIds.length > 0);
 
         useCheckoutStore.getState().initSession([...selectedItemIds], selectedShops);

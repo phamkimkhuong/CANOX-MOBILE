@@ -342,6 +342,8 @@ export default function ShopDetailScreen() {
                 keyExtractor={(item: any, index: number) => item.type === 'product' ? `product-${item.data.id}` : `item-${item.type}-${index}`}
                 stickyHeaderIndices={stickyHeaderIndices}
                 numColumns={NUM_COLUMNS}
+                masonry
+                optimizeItemArrangement
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 overrideItemLayout={(layout: any, item: any) => {
                     layout.span = (item.type === 'header' || item.type === 'voucher-section' || item.type === 'tab-spacer' || item.type === 'profile-content') ? NUM_COLUMNS : 1;

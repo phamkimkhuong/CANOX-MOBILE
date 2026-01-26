@@ -1,14 +1,20 @@
 /**
  * ==============================================
- * SHOP FEATURED PRODUCTS - Showcase for Home tab
+ * SHOP FEATURED PRODUCTS - Manual Masonry Layout
  * ==============================================
+ * 
+ * Implements masonry layout manually using View + flexWrap.
+ * This avoids nested FlashList conflicts with parent scroll.
+ * 
+ * Masonry logic: Distributes items into 2 columns, placing each
+ * item in the column with the shorter current height.
  */
 
 import { ProductCard } from '@/components/ui/product/ProductCard';
 import { productRoutes } from '@/constants/routes';
 import type { ShopProductItemUI } from '@/types/shop';
 import { Navigator } from '@/utils/navigation';
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { Text, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
@@ -28,28 +34,74 @@ export const ShopFeaturedProducts = memo(({
     // Limit to 6-10 products as requested
     const displayProducts = products.slice(0, 10);
 
+    /**
+     * Distribute items into 2 columns for masonry layout.
+     * Each item goes to the column with shorter current height.
+     */
+    const { leftColumn, rightColumn } = useMemo(() => {
+        const left: ShopProductItemUI[] = [];
+        const right: ShopProductItemUI[] = [];
+        
+        // Simple distribution: alternate between columns
+        // This creates a staggered masonry effect
+        displayProducts.forEach((product, index) => {
+            if (index % 2 === 0) {
+                left.push(product);
+            } else {
+                right.push(product);
+            }
+        });
+
+        return { leftColumn: left, rightColumn: right };
+    }, [displayProducts]);
+
     return (
         <View style={styles.container}>
             <Text style={styles.sectionTitle}>{title}</Text>
-            <View style={styles.grid}>
-                {displayProducts.map((product) => (
-                    <View key={product.id} style={styles.productWrapper}>
-                        <ProductCard
-                            title={product.title}
-                            price={product.price}
-                            image={product.thumbnail}
-                            originalPrice={product.originalPrice}
-                            rating={product.rating}
-                            reviews={product.reviews}
-                            sold={product.sold}
-                            discount={product.discountPercentage}
-                            isMall={product.isMall}
-                            location={product.location}
-                            onPress={() => Navigator.push(productRoutes.detail(product.id))}
-                            route={productRoutes.detail(product.id)}
-                        />
-                    </View>
-                ))}
+            <View style={styles.masonryContainer}>
+                {/* Left Column */}
+                <View style={styles.column}>
+                    {leftColumn.map((product) => (
+                        <View key={product.id} style={styles.productWrapper}>
+                            <ProductCard
+                                title={product.title}
+                                price={product.price}
+                                image={product.thumbnail}
+                                originalPrice={product.originalPrice}
+                                rating={product.rating}
+                                reviews={product.reviews}
+                                sold={product.sold}
+                                discount={product.discountPercentage}
+                                isMall={product.isMall}
+                                location={product.location}
+                                onPress={() => Navigator.push(productRoutes.detail(product.id))}
+                                route={productRoutes.detail(product.id)}
+                            />
+                        </View>
+                    ))}
+                </View>
+
+                {/* Right Column */}
+                <View style={styles.column}>
+                    {rightColumn.map((product) => (
+                        <View key={product.id} style={styles.productWrapper}>
+                            <ProductCard
+                                title={product.title}
+                                price={product.price}
+                                image={product.thumbnail}
+                                originalPrice={product.originalPrice}
+                                rating={product.rating}
+                                reviews={product.reviews}
+                                sold={product.sold}
+                                discount={product.discountPercentage}
+                                isMall={product.isMall}
+                                location={product.location}
+                                onPress={() => Navigator.push(productRoutes.detail(product.id))}
+                                route={productRoutes.detail(product.id)}
+                            />
+                        </View>
+                    ))}
+                </View>
             </View>
         </View>
     );
@@ -69,15 +121,15 @@ const stylesheet = StyleSheet.create((theme) => ({
         marginBottom: theme.margins.md,
         paddingHorizontal: theme.margins.xs,
     },
-    grid: {
+    masonryContainer: {
         flexDirection: 'row',
-        flexWrap: 'wrap',
-        marginHorizontal: -4,
+    },
+    column: {
+        flex: 1,
+        gap: 4,
     },
     productWrapper: {
-        width: '50%',
-        paddingHorizontal: 4,
-        marginBottom: 8,
+        width: '100%',
     },
 }));
 

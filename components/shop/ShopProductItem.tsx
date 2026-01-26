@@ -19,19 +19,15 @@ import { Navigator } from '@/utils/navigation';
 import { Image } from 'expo-image';
 import React, { useCallback } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface ShopProductItemProps {
     /** Product data from adapter (ProductFeedItem) */
     product: ShopProductItemUI;
     /** Callback when add to cart pressed */
     onAddToCart?: (productId: string) => void;
-    /** Gap between items (for width calculation) */
-    gap?: number;
 }
 
-const NUM_COLUMNS = 2;
-const DEFAULT_GAP = 8;
 const IMAGE_ASPECT_RATIO = 1;
 
 /**
@@ -40,16 +36,9 @@ const IMAGE_ASPECT_RATIO = 1;
 export const ShopProductItem: React.FC<ShopProductItemProps> = ({
     product,
     onAddToCart,
-    gap = DEFAULT_GAP,
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const screenWidth = UnistylesRuntime.screen.width;
-
-    // Calculate item width for 2-column grid
-    const horizontalMargin = theme.margins.md;
-    const itemWidth = (screenWidth - horizontalMargin * 2 - gap) / 2;
-    const imageHeight = itemWidth * IMAGE_ASPECT_RATIO;
 
     const handlePress = useCallback(() => {
         Navigator.push(productRoutes.detail(product.id));
@@ -69,13 +58,12 @@ export const ShopProductItem: React.FC<ShopProductItemProps> = ({
         <Pressable
             style={({ pressed }) => [
                 styles.container,
-                { width: itemWidth },
                 pressed && styles.containerPressed,
             ]}
             onPress={handlePress}
         >
             {/* Image Section */}
-            <View style={[styles.imageContainer, { height: imageHeight }]}>
+            <View style={styles.imageContainer}>
                 <Image
                     source={{ uri: product.thumbnail }}
                     style={styles.image}
@@ -164,6 +152,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         width: '100%',
         backgroundColor: theme.colors.background,
         position: 'relative',
+        aspectRatio: IMAGE_ASPECT_RATIO,
     },
     image: {
         width: '100%',

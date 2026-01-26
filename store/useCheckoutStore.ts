@@ -3,12 +3,14 @@
  */
 
 import type { CheckoutShopUI, PaymentMethodType } from '@/types/checkout';
+import type { CheckoutPreviewItemRequest } from '@/types/checkout/checkoutPreview';
 import type { CheckoutPreviewUI } from '@/utils/adapter/checkoutPreviewAdapter';
 import { create } from 'zustand';
 
 interface CheckoutShopMinimal {
     shopId: string;
     itemIds: string[];
+    items: CheckoutPreviewItemRequest[];
 }
 
 interface CheckoutState {
