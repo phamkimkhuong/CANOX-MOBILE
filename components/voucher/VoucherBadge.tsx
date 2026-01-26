@@ -94,8 +94,6 @@ export const VoucherBadge = memo<VoucherBadgeProps>(({
 }) => {
     const config = useMemo(() => getBadgeConfig(variant, text), [variant, text]);
 
-    if (!config.text) return null;
-
     const containerStyle = useMemo(() => [
         styles.container,
         size === 'small' ? styles.containerSmall : styles.containerMedium,
@@ -108,6 +106,8 @@ export const VoucherBadge = memo<VoucherBadgeProps>(({
         size === 'small' ? styles.textSmall : styles.textMedium,
         { color: config.textColor },
     ], [size, config.textColor]);
+
+    if (!config.text) return null;
 
     return (
         <View style={containerStyle}>

@@ -142,7 +142,7 @@ export interface CheckoutShopSummaryDTO {
 export interface CheckoutPreviewShopDTO {
     shopId?: string;
     shopName?: string;
-    logoUrl?: string;
+    logoUrl?: string | null;
     items?: CheckoutPreviewItemDTO[];
     summary: CheckoutShopSummaryDTO;
     selectedShippingMethod: string | null;

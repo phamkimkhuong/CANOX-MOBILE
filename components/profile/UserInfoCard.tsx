@@ -1,3 +1,4 @@
+import defaultAvatar from '@/assets/images/default_avatar.png';
 import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
 import { useWishlists } from '@/hooks/api/profile/useWishlists';
@@ -100,7 +101,7 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
                     <Image
                         source={{ uri: profile.avatar ?? undefined }}
                         style={styles.avatar}
-                        placeholder={require('@/assets/images/default_avatar.png')}
+                        placeholder={defaultAvatar}
                         contentFit="cover"
                         transition={200}
                     />

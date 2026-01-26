@@ -87,144 +87,148 @@ export class WebSocketService {
      * @param token - JWT token for authentication (optional, will get from SecureStore if not provided)
      */
     async connect(token?: string): Promise<void> {
-        return new Promise(async (resolve, reject) => {
-            try {
-                // Prevent duplicate connections
-                if (this.state === WebSocketState.CONNECTED && this.connected) {
-                    logger.ws.info('Already connected, skipping');
-                    resolve();
-                    return;
-                }
+        return new Promise((resolve, reject) => {
+            const connectLogic = async () => {
+                try {
+                    // Prevent duplicate connections
+                    if (this.state === WebSocketState.CONNECTED && this.connected) {
+                        logger.ws.info('Already connected, skipping');
+                        resolve();
+                        return;
+                    }
 
-                if (this.state === WebSocketState.CONNECTING) {
-                    logger.ws.info('Connection in progress, skipping');
-                    resolve();
-                    return;
-                }
+                    if (this.state === WebSocketState.CONNECTING) {
+                        logger.ws.info('Connection in progress, skipping');
+                        resolve();
+                        return;
+                    }
 
-                this.state = WebSocketState.CONNECTING;
-                logger.ws.info('Connecting...');
+                    this.state = WebSocketState.CONNECTING;
+                    logger.ws.info('Connecting...');
 
-                // Get token from SecureStore if not provided
-                let authToken = token;
-                if (!authToken) {
-                    authToken = await SecureStore.getItemAsync(AUTH_TOKEN_KEY) || undefined;
-                }
+                    // Get token from SecureStore if not provided
+                    let authToken = token;
+                    if (!authToken) {
+                        authToken = await SecureStore.getItemAsync(AUTH_TOKEN_KEY) || undefined;
+                    }
 
-                // Create WebSocket URL with token (if any)
-                const wsUrl = authToken
-                    ? `${WEBSOCKET_CONFIG.endpoint}?token=${encodeURIComponent(authToken)}`
-                    : WEBSOCKET_CONFIG.endpoint;
+                    // Create WebSocket URL with token (if any)
+                    const wsUrl = authToken
+                        ? `${WEBSOCKET_CONFIG.endpoint}?token=${encodeURIComponent(authToken)}`
+                        : WEBSOCKET_CONFIG.endpoint;
 
-                // Tạo STOMP Client
-                this.stompClient = new Client({
-                    brokerURL: wsUrl,
+                    // Tạo STOMP Client
+                    this.stompClient = new Client({
+                        brokerURL: wsUrl,
 
-                    // Debug (only enable in development)
-                    debug: __DEV__ ? (str) => logger.ws.debug(str) : () => { },
+                        // Debug (only enable in development)
+                        debug: __DEV__ ? (str) => logger.ws.debug(str) : () => { },
 
-                    // Heartbeat settings
-                    heartbeatIncoming: WEBSOCKET_CONFIG.connection.heartbeatIncoming,
-                    heartbeatOutgoing: WEBSOCKET_CONFIG.connection.heartbeatOutgoing,
+                        // Heartbeat settings
+                        heartbeatIncoming: WEBSOCKET_CONFIG.connection.heartbeatIncoming,
+                        heartbeatOutgoing: WEBSOCKET_CONFIG.connection.heartbeatOutgoing,
 
-                    // Reconnect settings
-                    reconnectDelay: WEBSOCKET_CONFIG.connection.reconnectDelay,
+                        // Reconnect settings
+                        reconnectDelay: WEBSOCKET_CONFIG.connection.reconnectDelay,
 
-                    // Connection headers (backup authentication via STOMP headers)
-                    connectHeaders: authToken
-                        ? { Authorization: `Bearer ${authToken}` }
-                        : {},
+                        // Connection headers (backup authentication via STOMP headers)
+                        connectHeaders: authToken
+                            ? { Authorization: `Bearer ${authToken}` }
+                            : {},
 
-                    // Callbacks
-                    onConnect: (frame) => {
-                        logger.ws.info('Connected!', frame);
+                        // Callbacks
+                        onConnect: (frame) => {
+                            logger.ws.info('Connected!', frame);
+                            this.connected = true;
+                            this.state = WebSocketState.CONNECTED;
+                            this.reconnectAttempts = 0;
+
+                            // Clear reconnect timer
+                            if (this.reconnectTimer) {
+                                clearTimeout(this.reconnectTimer);
+                                this.reconnectTimer = null;
+                            }
+
+                            // Notify callbacks
+                            this.onConnectedCallbacks.forEach((cb) => cb());
+
+                            resolve();
+                        },
+
+                        onDisconnect: (frame) => {
+                            logger.ws.info('Disconnected', frame);
+                            this.connected = false;
+                            this.state = WebSocketState.DISCONNECTED;
+
+                            // Notify callbacks
+                            this.onDisconnectedCallbacks.forEach((cb) => cb());
+                        },
+
+                        onStompError: (frame) => {
+                            const errorMessage = frame.headers['message'] || 'Unknown STOMP error';
+                            logger.ws.error('STOMP Error:', errorMessage);
+                            this.state = WebSocketState.ERROR;
+
+                            // Notify error callbacks
+                            this.onErrorCallbacks.forEach((cb) => cb(errorMessage));
+
+                            // Handle specific errors
+                            if (errorMessage.includes('401') || errorMessage.includes('Unauthorized')) {
+                                reject(new Error('Authentication failed'));
+                                return;
+                            }
+
+                            // Attempt reconnection for other errors
+                            this.handleReconnection();
+                        },
+
+                        onWebSocketError: (event) => {
+                            logger.ws.error('WebSocket Error:', event);
+                            this.state = WebSocketState.ERROR;
+                            this.onErrorCallbacks.forEach((cb) => cb('WebSocket connection error'));
+                        },
+
+                        onWebSocketClose: (event) => {
+                            logger.ws.info('WebSocket Closed:', event);
+                            this.connected = false;
+
+                            // Auto reconnect if not intentional disconnect
+                            if (this.state !== WebSocketState.DISCONNECTED) {
+                                this.handleReconnection();
+                            }
+                        },
+                    });
+
+                    // Connection timeout
+                    const connectTimeout = setTimeout(() => {
+                        if (this.state === WebSocketState.CONNECTING) {
+                            logger.ws.error('Connection timeout');
+                            this.state = WebSocketState.ERROR;
+                            reject(new Error('Connection timeout'));
+                        }
+                    }, WEBSOCKET_CONFIG.connection.connectTimeout);
+
+                    // Activate connection
+                    this.stompClient.activate();
+
+                    // Clear timeout on success (handled in onConnect)
+                    this.stompClient.onConnect = (frame) => {
+                        clearTimeout(connectTimeout);
                         this.connected = true;
                         this.state = WebSocketState.CONNECTED;
                         this.reconnectAttempts = 0;
-
-                        // Clear reconnect timer
-                        if (this.reconnectTimer) {
-                            clearTimeout(this.reconnectTimer);
-                            this.reconnectTimer = null;
-                        }
-
-                        // Notify callbacks
                         this.onConnectedCallbacks.forEach((cb) => cb());
-
                         resolve();
-                    },
+                    };
 
-                    onDisconnect: (frame) => {
-                        logger.ws.info('Disconnected', frame);
-                        this.connected = false;
-                        this.state = WebSocketState.DISCONNECTED;
+                } catch (error) {
+                    logger.ws.error('Connect error:', error);
+                    this.state = WebSocketState.ERROR;
+                    reject(error);
+                }
+            };
 
-                        // Notify callbacks
-                        this.onDisconnectedCallbacks.forEach((cb) => cb());
-                    },
-
-                    onStompError: (frame) => {
-                        const errorMessage = frame.headers['message'] || 'Unknown STOMP error';
-                        logger.ws.error('STOMP Error:', errorMessage);
-                        this.state = WebSocketState.ERROR;
-
-                        // Notify error callbacks
-                        this.onErrorCallbacks.forEach((cb) => cb(errorMessage));
-
-                        // Handle specific errors
-                        if (errorMessage.includes('401') || errorMessage.includes('Unauthorized')) {
-                            reject(new Error('Authentication failed'));
-                            return;
-                        }
-
-                        // Attempt reconnection for other errors
-                        this.handleReconnection();
-                    },
-
-                    onWebSocketError: (event) => {
-                        logger.ws.error('WebSocket Error:', event);
-                        this.state = WebSocketState.ERROR;
-                        this.onErrorCallbacks.forEach((cb) => cb('WebSocket connection error'));
-                    },
-
-                    onWebSocketClose: (event) => {
-                        logger.ws.info('WebSocket Closed:', event);
-                        this.connected = false;
-
-                        // Auto reconnect if not intentional disconnect
-                        if (this.state !== WebSocketState.DISCONNECTED) {
-                            this.handleReconnection();
-                        }
-                    },
-                });
-
-                // Connection timeout
-                const connectTimeout = setTimeout(() => {
-                    if (this.state === WebSocketState.CONNECTING) {
-                        logger.ws.error('Connection timeout');
-                        this.state = WebSocketState.ERROR;
-                        reject(new Error('Connection timeout'));
-                    }
-                }, WEBSOCKET_CONFIG.connection.connectTimeout);
-
-                // Activate connection
-                this.stompClient.activate();
-
-                // Clear timeout on success (handled in onConnect)
-                this.stompClient.onConnect = (frame) => {
-                    clearTimeout(connectTimeout);
-                    this.connected = true;
-                    this.state = WebSocketState.CONNECTED;
-                    this.reconnectAttempts = 0;
-                    this.onConnectedCallbacks.forEach((cb) => cb());
-                    resolve();
-                };
-
-            } catch (error) {
-                logger.ws.error('Connect error:', error);
-                this.state = WebSocketState.ERROR;
-                reject(error);
-            }
+            connectLogic();
         });
     }
 

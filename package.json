@@ -3,6 +3,8 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
+    "lint": "eslint .",
+    "type-check": "tsc --noEmit",
     "start": "expo start",
     "clear": "expo start --clear",
     "pre": "expo prebuild",
@@ -83,12 +85,22 @@
     "zustand": "5.0.9"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@react-native/eslint-config": "^0.83.1",
     "@types/react": "~19.1.0",
     "@types/sockjs-client": "^1.5.4",
     "@types/uuid": "^10.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.53.1",
+    "@typescript-eslint/parser": "^8.53.1",
     "cross-env": "^10.1.0",
+    "eslint": "^9.39.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-native": "^5.0.0",
+    "globals": "^17.1.0",
     "react-test-renderer": "19.1.0",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.2",
+    "typescript-eslint": "^8.53.1"
   },
   "private": true
 }

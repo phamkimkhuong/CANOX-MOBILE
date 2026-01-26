@@ -14,8 +14,8 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { View } from 'react-native';
 import 'react-native-reanimated';
-import { enableFreeze } from 'react-native-screens';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { enableFreeze } from 'react-native-screens';
 
 // Enable React Freeze for all screens in the navigation stack.
 // This prevents background screens from re-rendering, saving CPU for the active screen.

@@ -18,7 +18,7 @@
 export const safeParseDate = (dateString: string | null | undefined): Date | null => {
     if (!dateString) return null;
     try {
-        let normalized = dateString.replace(' ', 'T');
+        const normalized = dateString.replace(' ', 'T');
         const timestamp = Date.parse(normalized);
         if (isNaN(timestamp)) return null;
         return new Date(timestamp);

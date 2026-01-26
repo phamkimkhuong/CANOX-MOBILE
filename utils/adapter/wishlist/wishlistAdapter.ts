@@ -26,13 +26,13 @@ import { toSizedImageUrl } from '@/utils/url';
  * Get priority configuration based on level
  * Returns localized label and theme color key
  */
-const getPriorityConfig = (priority: 0 | 1 | 2) => {
-    const config: Record<0 | 1 | 2, { label: string; color: string; icon: string }> = {
+const getPriorityConfig = (priority: number) => {
+    const config: Record<number, { label: string; color: string; icon: string }> = {
         0: { label: 'Bình thường', color: 'secondary', icon: 'bookmark-outline' },
         1: { label: 'Quan trọng', color: 'warning', icon: 'bookmark' },
         2: { label: 'Khẩn cấp', color: 'error', icon: 'fire' },
     };
-    return config[priority];
+    return config[priority] ?? config[0];
 };
 
 // ============================================

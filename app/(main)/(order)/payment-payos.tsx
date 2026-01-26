@@ -96,7 +96,7 @@ export default function PaymentPayOSScreen() {
     // Polling logic using useOrderDetail
     const { data: orderResponse } = useOrderDetail(id || null, {
         enabled: !!id,
-        // @ts-ignore - refetchInterval can be a function in TanStack Query
+        // @ts-expect-error: PayOS SDK might have loose types - refetchInterval can be a function in TanStack Query
         refetchInterval: (query: any) => {
             const status = query.state.data?.raw?.status;
             if (status === 'PAID' || status === 'CANCELLED') {

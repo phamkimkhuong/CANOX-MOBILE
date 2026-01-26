@@ -220,6 +220,20 @@ export function DataGuard<T>({
     // Track previous error to avoid duplicate toasts
     const prevErrorRef = useRef<unknown>(null);
 
+    // Handle soft error toast
+    useEffect(() => {
+        if (isError && data && showSoftErrorToast && error !== prevErrorRef.current) {
+            prevErrorRef.current = error;
+            Toast.show({
+                type: 'error',
+                text1: 'Lỗi tải dữ liệu',
+                text2: softErrorMessage,
+                position: 'top',
+                visibilityTime: 3000,
+            });
+        }
+    }, [isError, data, error, showSoftErrorToast, softErrorMessage]);
+
     if (isLoading && !data) {
         return <>{skeleton || <DefaultSkeleton />}</>;
     }
@@ -228,19 +242,6 @@ export function DataGuard<T>({
         // Case A: SOFT ERROR - Has cached data, refresh failed
         // Don't block UI, show toast, render cached data
         if (data) {
-            useEffect(() => {
-                if (showSoftErrorToast && error !== prevErrorRef.current) {
-                    prevErrorRef.current = error;
-                    Toast.show({
-                        type: 'error',
-                        text1: 'Lỗi tải dữ liệu',
-                        text2: softErrorMessage,
-                        position: 'top',
-                        visibilityTime: 3000,
-                    });
-                }
-            }, [error]);
-
             const meta: DataGuardMeta = {
                 isRefetching,
                 refetch,

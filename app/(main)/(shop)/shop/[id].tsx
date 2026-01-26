@@ -283,7 +283,7 @@ export default function ShopDetailScreen() {
                         />
                     </View>
                 );
-            case 'product':
+            case 'product': {
                 const product = item.data;
                 return (
                     <View style={styles.productItemWrapper}>
@@ -303,6 +303,7 @@ export default function ShopDetailScreen() {
                         />
                     </View>
                 );
+            }
             default: return null;
         }
     }, [shouldShowSkeleton, shop, shopProfile, activeTab, totalProductCount, vouchers, isLoadingVouchers, hasVouchers, handleChatPress, handleFollowPress, handleTabChange, handleCollectVoucher, handlePrefetchChat, handleProductPress]);

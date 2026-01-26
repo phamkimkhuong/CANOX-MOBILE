@@ -16,7 +16,9 @@ interface AvatarEditViewProps {
     uploadProgress?: number;
 }
 
-const DEFAULT_AVATAR_ASSET = require('@/assets/images/default_avatar.png');
+import defaultAvatarAsset from '@/assets/images/default_avatar.png';
+
+const DEFAULT_AVATAR_ASSET = defaultAvatarAsset;
 
 /**
  * AvatarEditView - Display avatar with camera icon overlay

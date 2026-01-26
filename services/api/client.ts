@@ -297,25 +297,20 @@ export async function request<T>(
     config: AxiosRequestConfig,
     schema: z.ZodType<T>
 ): Promise<T> {
-    try {
-        const response: AxiosResponse = await apiClient(config);
-        const parseResult = schema.safeParse(response.data);
+    const response: AxiosResponse = await apiClient(config);
+    const parseResult = schema.safeParse(response.data);
 
-        if (!parseResult.success) {
-            // Schema mismatch - log for debugging
-            logger.api.error('API Validation Error:', {
-                url: config.url,
-                errors: parseResult.error.format(),
-                data: response.data,
-            });
-            const currentLang = (i18n.language?.split('-')[0] || 'vi') as 'vi' | 'en';
-            const validationErrorMessage = getErrorMessageByCode(6006, currentLang) || 'Invalid response structure from server!';
-            throw new ApiError(validationErrorMessage, 500, 6006);
-        }
-
-        return parseResult.data;
-    } catch (error) {
-        // Re-throw for TanStack Query to handle
-        throw error;
+    if (!parseResult.success) {
+        // Schema mismatch - log for debugging
+        logger.api.error('API Validation Error:', {
+            url: config.url,
+            errors: parseResult.error.format(),
+            data: response.data,
+        });
+        const currentLang = (i18n.language?.split('-')[0] || 'vi') as 'vi' | 'en';
+        const validationErrorMessage = getErrorMessageByCode(6006, currentLang) || 'Invalid response structure from server!';
+        throw new ApiError(validationErrorMessage, 500, 6006);
     }
+
+    return parseResult.data;
 }

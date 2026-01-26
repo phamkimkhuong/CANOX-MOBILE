@@ -10,7 +10,7 @@
 // PRIORITY LEVELS
 // ============================================
 
-export type WishlistItemPriority = 0 | 1 | 2;
+export type WishlistItemPriority = 0 | 1 | 2 | number;
 
 export const PRIORITY_CONFIG = {
     0: { label: 'Bình thường', color: 'secondary', icon: 'bookmark-outline' },
@@ -48,9 +48,9 @@ export interface WishlistItemDTO {
     productDescription: string;
     quantity: number;
     notes?: string | null;
-    priority: WishlistItemPriority;
+    priority: number;
     priorityText: string;
-    desiredPrice?: number | null;
+    desiredPrice?: number | null | undefined;
     isPriceTargetMet: boolean;
     createdDate: string;
     lastModifiedDate: string;
