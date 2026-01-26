@@ -6,6 +6,7 @@ import { NotificationSkeleton } from '@/components/notifications/NotificationSke
 import { SectionHeader } from '@/components/notifications/SectionHeader';
 import { useMarkAllAsRead, useMarkAsRead, useNotifications, useRefreshNotifications } from '@/hooks/api/notification/useNotifications';
 import { usePrefetchNotificationNav } from '@/hooks/api/notification/usePrefetchNotificationNav';
+import { usePrefetchTiming } from '@/hooks/usePrefetchTiming';
 import {
     FlattenedNotificationItem,
     Notification,
@@ -14,7 +15,7 @@ import {
 import { Alert as CustomAlert } from '@/utils/AlertHelper';
 import { Navigator } from '@/utils/navigation';
 import { FlashList } from '@shopify/flash-list';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, RefreshControl, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -24,6 +25,7 @@ export default function NotifyScreen() {
     const styles = stylesheet;
     const { t } = useTranslation(['notification', 'common']);
     const [activeFilter, setActiveFilter] = useState<NotificationFilter>(NotificationFilter.ALL);
+    const isScrolling = useRef(false);
 
     const {
         flattenedData,
@@ -41,8 +43,10 @@ export default function NotifyScreen() {
     const markAllAsRead = useMarkAllAsRead();
     const markAsRead = useMarkAsRead();
 
+    const { startPrefetch: startTiming, cancelPrefetch: cancelTiming, isInstantTap, reset: resetTiming } = usePrefetchTiming();
+
     // Prefetch hook for near-instant navigation
-    const prefetchNav = usePrefetchNotificationNav();
+    const { prefetch: prefetchNav, cancelPrefetch: cancelNavPrefetch } = usePrefetchNotificationNav();
 
     const handleFilterChange = useCallback((filter: NotificationFilter) => {
         setActiveFilter(filter);
@@ -71,18 +75,38 @@ export default function NotifyScreen() {
         if (!item.isRead) {
             markAsRead.mutate(item.id);
         }
-        // Navigate using high-performance Navigator
+        // Navigate using high-performance Navigator with instantNav flag
         if (item.actionUrl) {
-            Navigator.push(item.actionUrl as any);
+            Navigator.push(`${item.actionUrl}${item.actionUrl.includes('?') ? '&' : '?'}instantNav=${isInstantTap() ? 'true' : ''}`);
         }
-    }, [markAsRead]);
+    }, [markAsRead, isInstantTap]);
+
+    const handleNotificationPressIn = useCallback((item: Notification) => {
+        // High Performance 0ms Logic: Only prefetch if not scrolling
+        if (!isScrolling.current) {
+            startTiming(() => {
+                prefetchNav(item.actionUrl);
+            });
+        }
+    }, [prefetchNav, startTiming]);
+
+    const handleScrollBegin = useCallback(() => {
+        isScrolling.current = true;
+        cancelTiming();
+        cancelNavPrefetch();
+    }, [cancelTiming, cancelNavPrefetch]);
+
+    const handleScrollEnd = useCallback(() => {
+        isScrolling.current = false;
+    }, []);
 
     /**
-     * Handle notification press in - prefetch data while finger is on screen
+     * Handle notification press out - cancel any pending prefetch
      */
-    const handleNotificationPressIn = useCallback((item: Notification) => {
-        prefetchNav(item.actionUrl);
-    }, [prefetchNav]);
+    const handleNotificationPressOut = useCallback(() => {
+        cancelTiming();
+        cancelNavPrefetch();
+    }, [cancelTiming, cancelNavPrefetch]);
 
     const handleLoadMore = useCallback(() => {
         if (hasNextPage && !isFetchingNextPage) {
@@ -100,6 +124,7 @@ export default function NotifyScreen() {
                     item={item.data}
                     onPress={handleNotificationPress}
                     onPressIn={handleNotificationPressIn}
+                    onPressOut={handleNotificationPressOut}
                 />
             );
         },
@@ -157,6 +182,8 @@ export default function NotifyScreen() {
                 onEndReachedThreshold={0.5}
                 ListEmptyComponent={renderEmpty}
                 ListFooterComponent={renderFooter}
+                onScrollBeginDrag={handleScrollBegin}
+                onMomentumScrollEnd={handleScrollEnd}
                 refreshControl={
                     <RefreshControl
                         refreshing={isRefetching && !isLoading}

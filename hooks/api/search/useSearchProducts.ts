@@ -12,6 +12,7 @@
 
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { request } from '@/services/api/client';
+import { handleQueryRetry } from '@/services/api/queryClient';
 import type {
     AdvancedFilters,
     QuickFilterType,
@@ -231,7 +232,7 @@ export const useSearchProducts = ({
         getNextPageParam: (lastPage) => lastPage.nextPage,
         staleTime: 1000 * 60 * 2, // 2 minutes cache
         gcTime: 1000 * 60 * 10,   // Keep in garbage collection for 10 minutes
-        retry: 1,
+        retry: (count, error) => handleQueryRetry(count, error, 1),
     });
 
     /**

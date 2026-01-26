@@ -13,11 +13,11 @@ const arrayOrEmpty = <T extends z.ZodTypeAny>(schema: T) =>
 
 // Helper to transform nullish numbers to default
 const numberOrDefault = (defaultValue: number) =>
-    z.number().nullish().transform((val) => val ?? defaultValue);
+    z.coerce.number().nullish().transform((val) => val ?? defaultValue);
 
 // Helper to transform nullish booleans to default
 const booleanOrDefault = (defaultValue: boolean) =>
-    z.boolean().nullish().transform((val) => val ?? defaultValue);
+    z.coerce.boolean().nullish().transform((val) => val ?? defaultValue);
 
 // ============================================
 // ITEM OPTION SCHEMA
@@ -33,12 +33,12 @@ export const WishlistItemOptionSchema = z.object({
 // ============================================
 
 export const WishlistItemSchema = z.object({
-    id: z.string(),
-    wishlistId: z.string(),
-    variantId: z.string(),
+    id: z.string().nullish().transform((val) => val ?? ''),
+    wishlistId: z.string().nullish().transform((val) => val ?? ''),
+    variantId: z.string().nullish().transform((val) => val ?? ''),
     sku: z.string().nullish().transform((val) => val ?? ''),
-    productId: z.string(),
-    productName: z.string(),
+    productId: z.string().nullish().transform((val) => val ?? ''),
+    productName: z.string().nullish().transform((val) => val ?? ''),
     imageBasePath: z.string().nullish(),
     imageExtension: z.string().nullish(),
     productImage: z.string().nullish(),
@@ -46,12 +46,12 @@ export const WishlistItemSchema = z.object({
     productDescription: z.string().nullish().transform((val) => val ?? ''),
     quantity: numberOrDefault(1),
     notes: z.string().nullish(),
-    priority: z.union([z.literal(0), z.literal(1), z.literal(2)]).nullish().transform((val) => val ?? 0),
+    priority: z.coerce.number().nullish().transform((val) => val ?? 0),
     priorityText: z.string().nullish().transform((val) => val ?? 'Normal'),
     desiredPrice: z.number().nullish(),
     isPriceTargetMet: booleanOrDefault(false),
-    createdAt: z.string().nullish().transform((val) => val ?? new Date().toISOString()),
-    updatedAt: z.string().nullish().transform((val) => val ?? new Date().toISOString()),
+    createdDate: z.string().nullish().transform((val) => val ?? new Date().toISOString()),
+    lastModifiedDate: z.string().nullish().transform((val) => val ?? new Date().toISOString()),
     options: arrayOrEmpty(WishlistItemOptionSchema),
 });
 
@@ -60,16 +60,16 @@ export const WishlistItemSchema = z.object({
 // ============================================
 
 export const WishlistSummarySchema = z.object({
-    id: z.string(),
-    name: z.string(),
+    id: z.string().nullish().transform((val) => val ?? ''),
+    name: z.string().nullish().transform((val) => val ?? 'Untitled Wishlist'),
     description: z.string().nullish(),
-    isPublic: booleanOrDefault(false),
-    isDefault: booleanOrDefault(false),
+    isPublic: z.coerce.boolean().nullish().transform(val => val ?? false),
+    isDefault: z.coerce.boolean().nullish().transform(val => val ?? false),
     buyerId: z.string().nullish().transform((val) => val ?? ''),
     buyerName: z.string().nullish().transform((val) => val ?? ''),
     itemCount: numberOrDefault(0),
-    createdAt: z.string().nullish().transform((val) => val ?? new Date().toISOString()),
-    updatedAt: z.string().nullish().transform((val) => val ?? new Date().toISOString()),
+    createdDate: z.string().nullish().transform((val) => val ?? new Date().toISOString()),
+    lastModifiedDate: z.string().nullish().transform((val) => val ?? new Date().toISOString()),
     imageBasePath: z.string().nullish(),
     imageExtension: z.string().nullish(),
 });

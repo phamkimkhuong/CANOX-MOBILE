@@ -71,7 +71,7 @@ export const adaptWishlistItem = (item: WishlistItemDTO): WishlistItemUI => {
         priceDifference: priceDiff,
         options: item.options,
         optionsDisplay: item.options.map(o => `${o.option}: ${o.value}`).join(', '),
-        createdAt: item.createdAt,
+        createdAt: item.createdDate,
     };
 };
 
@@ -93,7 +93,7 @@ export const adaptWishlistCard = (wishlist: WishlistSummaryDTO): WishlistCardUI 
         coverImageUrl: toSizedImageUrl(wishlist.imageBasePath, wishlist.imageExtension, '_medium') ?? null,
         buyerName: wishlist.buyerName,
         // Use existing date formatter - outputs "DD/MM/YYYY"
-        formattedDate: formatDate(wishlist.createdAt),
+        formattedDate: formatDate(wishlist.createdDate),
     };
 };
 

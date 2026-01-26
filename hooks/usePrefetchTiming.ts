@@ -13,7 +13,7 @@
 
 import { useCallback, useRef } from 'react';
 
-/** 
+/**
  * Time threshold to determine "quick" vs "slow" tap
  * - Below threshold: Consider as instant tap → Always show skeleton with minimum duration
  * - Above threshold: Prefetch has completed → Only show skeleton if needed
@@ -21,18 +21,28 @@ import { useCallback, useRef } from 'react';
 export const PREFETCH_GRACE_PERIOD_MS = 200;
 
 /**
+ * Smart Delay to distinguish between a "Tap" and a "Scroll"
+ * We wait for 80ms before starting prefetch.
+ */
+export const PREFETCH_SMART_DELAY_MS = 80;
+
+/**
  * Minimum duration to display skeleton to avoid "flash" effect
- * Based on Nielsen Norman Group UX research:
- * "Skeleton under 300ms creates a jolt than no skeleton"
  */
 export const MINIMUM_SKELETON_DURATION_MS = 350;
 
 interface PrefetchTimingResult {
     /**
      * Call when user starts pressing (onPressIn)
-     * Start timer and may trigger prefetch
+     * Starts a smart timer (80ms) before triggering the callback
      */
-    startPrefetch: () => void;
+    startPrefetch: (callback?: () => void) => void;
+
+    /**
+     * Call when user releases early or scrolls (onPressOut / onScroll)
+     * Cancels the pending prefetch to save resources
+     */
+    cancelPrefetch: () => void;
 
     /**
      * Call when user releases (onPress)
@@ -53,30 +63,30 @@ interface PrefetchTimingResult {
 }
 
 /**
- * Hook for prefetch timing
- * 
- * @example
- * ```tsx
- * const { startPrefetch, isInstantTap } = usePrefetchTiming();
- * 
- * const handlePressIn = () => {
- *     startPrefetch();
- *     prefetchData(id);
- * };
- * 
- * const handlePress = () => {
- *     Navigator.push(route, { 
- *         params: { instantNav: isInstantTap() ? 'true' : undefined } 
- *     });
- * };
- * ```
+ * Hook for prefetch timing with Smart Delay logic
  */
 export const usePrefetchTiming = (): PrefetchTimingResult => {
     const pressInTime = useRef<number>(0);
+    const prefetchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const startPrefetch = useCallback(() => {
-        pressInTime.current = Date.now();
+    const cancelPrefetch = useCallback(() => {
+        if (prefetchTimeoutRef.current) {
+            clearTimeout(prefetchTimeoutRef.current);
+            prefetchTimeoutRef.current = null;
+        }
     }, []);
+
+    const startPrefetch = useCallback((callback?: () => void) => {
+        cancelPrefetch(); // Clear any existing timer
+
+        pressInTime.current = Date.now();
+
+        // Smart delay: 80ms to distinguish from scroll
+        prefetchTimeoutRef.current = setTimeout(() => {
+            callback?.();
+            prefetchTimeoutRef.current = null;
+        }, PREFETCH_SMART_DELAY_MS);
+    }, [cancelPrefetch]);
 
     const getElapsedTime = useCallback(() => {
         if (pressInTime.current === 0) return 0;
@@ -89,11 +99,13 @@ export const usePrefetchTiming = (): PrefetchTimingResult => {
     }, [getElapsedTime]);
 
     const reset = useCallback(() => {
+        cancelPrefetch();
         pressInTime.current = 0;
-    }, []);
+    }, [cancelPrefetch]);
 
     return {
         startPrefetch,
+        cancelPrefetch,
         getElapsedTime,
         isInstantTap,
         reset,

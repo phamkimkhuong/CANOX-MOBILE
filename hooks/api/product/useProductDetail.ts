@@ -1,5 +1,6 @@
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { request } from '@/services/api/client';
+import { handleQueryRetry } from '@/services/api/queryClient';
 import { PaginatedProductResponseSchema } from '@/types/product/product';
 import {
     ProductDetailAPIResponseSchema,
@@ -64,7 +65,7 @@ export const useProductDetail = (
         enabled: enabled && !!productId,
         staleTime,
         gcTime: 10 * 60 * 1000, // 10 minutes
-        retry: 2,
+        retry: (count, error) => handleQueryRetry(count, error, 2),
         refetchOnWindowFocus: false,
     });
 };

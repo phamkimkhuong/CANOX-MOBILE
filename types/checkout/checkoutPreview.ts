@@ -9,9 +9,15 @@
 
 import { z } from 'zod';
 
+export interface CheckoutPreviewItemRequest {
+    itemId: string;
+    quantity: number;
+}
+
 export interface CheckoutPreviewShopRequest {
     shopId: string;
-    itemIds: string[];
+    itemIds?: string[]; // Legacy, items is preferred
+    items?: CheckoutPreviewItemRequest[];
     vouchers?: string[];
     serviceCode?: number;
     shippingMethodCode?: string;
@@ -29,6 +35,7 @@ export interface CheckoutPreviewRequest {
         taxFee?: string;
     };
     addressId?: string;
+    effectiveAddressId?: string;
     globalVouchers?: string[];
     loyaltyPoints?: number;
     paymentMethod?: string;
@@ -135,10 +142,11 @@ export interface CheckoutShopSummaryDTO {
 export interface CheckoutPreviewShopDTO {
     shopId?: string;
     shopName?: string;
+    logoUrl?: string;
     items?: CheckoutPreviewItemDTO[];
     summary: CheckoutShopSummaryDTO;
-    selectedShippingMethod: string | null;  // Có thể null khi shipping chưa tính
-    availableShippingOptions: CheckoutShippingOptionDTO[] | null;  // Có thể null
+    selectedShippingMethod: string | null;
+    availableShippingOptions: CheckoutShippingOptionDTO[] | null;
     validationErrors?: string[] | null;
     warnings?: string[] | null;
     loyaltyInfo?: CheckoutLoyaltyInfoDTO | null;
@@ -276,9 +284,10 @@ const CheckoutShopSummarySchema = z.object({
 const CheckoutPreviewShopSchema = z.object({
     shopId: z.string().optional(),
     shopName: z.string().optional(),
+    logoUrl: z.string().nullable().optional(),
     items: z.array(CheckoutPreviewItemSchema).optional().default([]),
     summary: CheckoutShopSummarySchema,
-    selectedShippingMethod: z.string().nullable(),  // Có thể null/empty khi shipping chưa tính
+    selectedShippingMethod: z.string().nullable(),
     availableShippingOptions: z.array(CheckoutShippingOptionSchema).nullable().optional().default([]),
     validationErrors: z.array(z.string()).nullable().optional().default([]),
     warnings: z.array(z.string()).nullable().optional().default([]),
@@ -305,6 +314,7 @@ const CheckoutBuyerAddressSchema = z.object({
 });
 
 const CheckoutPreviewDataSchema = z.object({
+    previewId: z.string().optional(),
     cartId: z.string().optional().default(''),
     currency: z.string().optional().default('VND'),
     previewAt: z.string().optional().default(new Date().toISOString()),

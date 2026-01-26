@@ -52,8 +52,8 @@ export interface WishlistItemDTO {
     priorityText: string;
     desiredPrice?: number | null;
     isPriceTargetMet: boolean;
-    createdAt: string;
-    updatedAt: string;
+    createdDate: string;
+    lastModifiedDate: string;
     options: WishlistItemOptionDTO[];
 }
 
@@ -69,8 +69,8 @@ export interface WishlistSummaryDTO {
     buyerId: string;
     buyerName: string;
     itemCount: number;
-    createdAt: string;
-    updatedAt: string;
+    createdDate: string;
+    lastModifiedDate: string;
     imageBasePath?: string | null;
     imageExtension?: string | null;
 }

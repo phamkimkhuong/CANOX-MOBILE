@@ -23,16 +23,16 @@ import { createPaginatedResponseSchema } from '../responseSchema';
  * All fields are nullable/optional for new users
  */
 export const WishlistDTOSchema = z.object({
-    id: z.string(),
-    name: z.string(),
+    id: z.string().nullish().transform((val) => val ?? ''),
+    name: z.string().nullish().transform((val) => val ?? 'Untitled Wishlist'),
     description: z.string().nullable().optional(),
-    isPublic: z.boolean(),
-    isDefault: z.boolean(),
-    buyerId: z.string(),
+    isPublic: z.coerce.boolean().nullish().transform(val => val ?? false),
+    isDefault: z.coerce.boolean().nullish().transform(val => val ?? false),
+    buyerId: z.string().nullish().transform((val) => val ?? ''),
     buyerName: z.string().nullable().optional(),
-    itemCount: z.number(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
+    itemCount: z.coerce.number().nullish().transform((val) => val ?? 0),
+    createdDate: z.string().nullish().transform((val) => val ?? new Date().toISOString()),
+    lastModifiedDate: z.string().nullish().transform((val) => val ?? new Date().toISOString()),
     imageBasePath: z.string().nullable().optional(),
     imageExtension: z.string().nullable().optional(),
 });

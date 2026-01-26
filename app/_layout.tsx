@@ -14,7 +14,12 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { View } from 'react-native';
 import 'react-native-reanimated';
+import { enableFreeze } from 'react-native-screens';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+// Enable React Freeze for all screens in the navigation stack.
+// This prevents background screens from re-rendering, saving CPU for the active screen.
+enableFreeze(true);
 
 import CustomAlert from '@/components/ui/feedback/CustomAlert';
 import { toastConfig } from '@/components/ui/feedback/CustomToast';

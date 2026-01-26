@@ -212,6 +212,7 @@ export const toCheckoutShopUI = (dto: CheckoutPreviewShopDTO): CheckoutShopUI =>
     return {
         shopId: dto.shopId ?? '',
         shopName: dto.shopName ?? '',
+        shopLogo: dto.logoUrl,
         items,
         shippingOptions: toShopShippingOptions(
             dto.shopId ?? '',

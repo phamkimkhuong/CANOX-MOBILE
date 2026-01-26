@@ -11,9 +11,11 @@ interface NotificationItemProps {
     onPress?: (item: Notification) => void;
     /** Called when user starts touching - used for prefetching data */
     onPressIn?: (item: Notification) => void;
+    /** Called when user releases touch - used to cancel pending prefetch */
+    onPressOut?: (item: Notification) => void;
 }
 
-export const NotificationItem: React.FC<NotificationItemProps> = ({ item, onPress, onPressIn }) => {
+export const NotificationItem: React.FC<NotificationItemProps> = ({ item, onPress, onPressIn, onPressOut }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const config = NOTIFICATION_TYPE_CONFIG[item.type];
@@ -31,6 +33,13 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({ item, onPres
     const handlePressIn = useCallback(() => {
         onPressIn?.(item);
     }, [item, onPressIn]);
+
+    /**
+     * Handle press out - cancel prefetch if user moved or released quickly
+     */
+    const handlePressOut = useCallback(() => {
+        onPressOut?.(item);
+    }, [item, onPressOut]);
 
     const renderIcon = () => {
         // If has product image, show image instead of icon
@@ -66,6 +75,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({ item, onPres
             ]}
             onPress={handlePress}
             onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
         >
             {/* Unread dot indicator */}
             {!item.isRead && <View style={styles.unreadDot} />}

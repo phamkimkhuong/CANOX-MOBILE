@@ -177,7 +177,7 @@ export interface CheckoutItemUI {
 export interface CheckoutShopUI {
     shopId: string;
     shopName: string;
-    // isMall: boolean;
+    shopLogo?: string;
     items: CheckoutItemUI[];
     /** Shipping options cho shop này */
     shippingOptions: ShopShippingOptions;

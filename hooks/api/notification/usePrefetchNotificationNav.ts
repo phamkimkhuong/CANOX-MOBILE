@@ -19,7 +19,7 @@ import { apiClient } from '@/services/api/client';
 import type { Order } from '@/types/order/order';
 import { transformOrder } from '@/utils/adapter/order/orderAdapter';
 import { useQueryClient } from '@tanstack/react-query';
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 
 /**
  * Parse actionUrl to extract route type and ID
@@ -83,17 +83,36 @@ export const usePrefetchNotificationNav = () => {
     const queryClient = useQueryClient();
 
     /**
+     * Ref to store pending prefetch timeout
+     * Used to cancel prefetch if user releases finger quickly (scrolling)
+     */
+    const prefetchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    /**
+     * Cancel any pending prefetch (call this on scroll or finger release)
+     */
+    const cancelPrefetch = useCallback(() => {
+        if (prefetchTimeoutRef.current) {
+            clearTimeout(prefetchTimeoutRef.current);
+            prefetchTimeoutRef.current = null;
+        }
+    }, []);
+
+    /**
      * Prefetch data based on actionUrl
      * Called on onPressIn to load data while user's finger is still on screen
      */
     const prefetch = useCallback((actionUrl: string | null | undefined) => {
+        // Cancel any existing pending prefetch
+        cancelPrefetch();
+
         const { type, id } = parseActionUrl(actionUrl);
 
         if (!id) return;
 
         switch (type) {
             case 'order':
-                // Prefetch order detail
+                // Prefetch order detail - Pure 0ms architecture
                 queryClient.prefetchQuery({
                     queryKey: orderKeys.detail(id),
                     queryFn: async () => {
@@ -108,20 +127,15 @@ export const usePrefetchNotificationNav = () => {
                 break;
 
             case 'product':
-                // TODO: Implement product prefetch when needed
-                // queryClient.prefetchQuery({
-                //     queryKey: productKeys.detail(id),
-                //     queryFn: () => fetchProductDetail(id),
-                // });
+                // TODO: Implement product prefetch
                 break;
 
             default:
-                // Unknown route type, do nothing
                 break;
         }
-    }, [queryClient]);
+    }, [queryClient, cancelPrefetch]);
 
-    return prefetch;
+    return { prefetch, cancelPrefetch };
 };
 
 export default usePrefetchNotificationNav;

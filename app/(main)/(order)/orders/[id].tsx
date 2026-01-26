@@ -29,12 +29,12 @@ import {
     OrderTracker,
     ShippingInfoCard,
 } from '@/components/orders/detail';
+import { StaticOrderDetailShell } from '@/components/order/StaticOrderDetailShell';
 import { OrderShopHeader } from '@/components/orders/OrderShopHeader';
 import { cartRoutes, chatRoutes, orderRoutes, shopRoutes } from '@/constants/routes';
 import { useAddToCart } from '@/hooks/api/cart';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
 import { useOrderDetail } from '@/hooks/api/order/useOrderDetail';
-import { MINIMUM_SKELETON_DURATION_MS } from '@/hooks/usePrefetchTiming';
 import { useAuthStore } from '@/store/useAuthStore';
 import { hideGlobalLoading, showGlobalLoading } from '@/store/useLoadingStore';
 import { OrderItemUI } from '@/types/order/order';
@@ -44,9 +44,10 @@ import { logger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
 import * as Clipboard from 'expo-clipboard';
 import { useLocalSearchParams } from 'expo-router';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Linking, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { InteractionManager, Linking, RefreshControl, ScrollView, Text, View } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -71,24 +72,18 @@ export default function OrderDetailScreen() {
     const [loadingAction, setLoadingAction] = useState<LoadingActionType>(null);
     const [refreshing, setRefreshing] = useState(false);
 
-    // HYBRID PATTERN: Track if minimum skeleton duration has passed
-    // Only relevant when instantNav=true
-    const [minimumDurationPassed, setMinimumDurationPassed] = useState(
-        instantNav !== 'true'  // If not instant tap, duration is already "passed"
-    );
+    // DEFERRED RENDERING: Wait for navigation animation to finish
+    const [canRenderComplexUI, setCanRenderComplexUI] = useState(false);
+
+    useEffect(() => {
+        const task = InteractionManager.runAfterInteractions(() => {
+            setCanRenderComplexUI(true);
+        });
+        return () => task.cancel();
+    }, []);
 
     // Fetch order detail
     const { data, isLoading, isError, error, refetch } = useOrderDetail(id);
-
-    // ============================================
-    // HYBRID SKELETON LOGIC
-    // ============================================
-    const shouldShowSkeleton = isLoading || (instantNav === 'true' && !minimumDurationPassed);
-
-    // Callback when skeleton's minimum duration has passed  
-    const handleMinimumDurationReached = useCallback(() => {
-        setMinimumDurationPassed(true);
-    }, []);
 
     // Computed values
     const order = data?.ui;
@@ -305,133 +300,137 @@ export default function OrderDetailScreen() {
 
     return (
         <View style={styles.container}>
-            {/* Header */}
-            <OrderDetailHeader
-                orderNumber={order?.orderNumber || (id?.slice(-8) || '...')}
-                onSupportPress={handleSupport}
-            />
-
-            {shouldShowSkeleton ? (
-                // Loading State - with minimum duration for instant taps
-                <View style={{ flex: 1 }}>
-                    <OrderDetailSkeleton
-                        minimumDuration={instantNav === 'true' ? MINIMUM_SKELETON_DURATION_MS : 0}
-                        onMinimumReached={handleMinimumDurationReached}
-                    />
-                </View>
-            ) : (isError || !order || !rawOrder) ? (
-                // Error State
+            {/* STAGE 0ms & LOADING: Render Static Shell immediately */}
+            {(!canRenderComplexUI || isLoading) ? (
+                <StaticOrderDetailShell showShimmer={canRenderComplexUI} />
+            ) : (isError || (!order || !rawOrder)) ? (
+                // Error State - Only show after animation
                 <View style={styles.errorContainer}>
-                    <Text style={styles.errorTitle}>{t('product:error.notFound')}</Text>
-                    <Text style={styles.errorMessage}>
-                        {error?.message || t('product:error.notFoundDetail')}
-                    </Text>
+                    <OrderDetailHeader
+                        orderNumber={id?.slice(-8) || '...'}
+                        onSupportPress={handleSupport}
+                    />
+                    <View style={styles.errorContent}>
+                        <Text style={styles.errorTitle}>{t('product:error.notFound')}</Text>
+                        <Text style={styles.errorMessage}>
+                            {error?.message || t('product:error.notFoundDetail')}
+                        </Text>
+                    </View>
                 </View>
             ) : (
-                // 4. Success State (Main Content)
-                <View style={{ flex: 1 }} key="order-detail-content">
-                    <ScrollView
-                        key={`scroll-${order.orderId}`}
-                        style={styles.scrollView}
-                        contentContainerStyle={styles.scrollContent}
-                        showsVerticalScrollIndicator={false}
-                        refreshControl={
-                            <RefreshControl
-                                refreshing={refreshing}
-                                onRefresh={handleRefresh}
-                                tintColor={theme.colors.buttonActive}
-                                colors={[theme.colors.buttonActive]}
-                            />
-                        }
-                    >
-                        {/* Order Tracker */}
-                        <OrderTracker
-                            status={order.status}
-                            createdAt={rawOrder?.createdAt}
-                        />
+                // STAGE DATA: Show real UI with smooth FadeIn
+                <Animated.View entering={FadeIn.duration(300)} style={{ flex: 1 }}>
+                    {/* Header */}
+                    <OrderDetailHeader
+                        orderNumber={order?.orderNumber || (id?.slice(-8) || '...')}
+                        onSupportPress={handleSupport}
+                    />
 
-                        {/* Shipping Info */}
-                        {(order.carrier || order.trackingNumber) && (
+                    {/* Main Content */}
+                    <View style={{ flex: 1 }}>
+                        <ScrollView
+                            key={`scroll-${order?.orderId}`}
+                            style={styles.scrollView}
+                            contentContainerStyle={styles.scrollContent}
+                            showsVerticalScrollIndicator={false}
+                            refreshControl={
+                                <RefreshControl
+                                    refreshing={refreshing}
+                                    onRefresh={handleRefresh}
+                                    tintColor={theme.colors.buttonActive}
+                                    colors={[theme.colors.buttonActive]}
+                                />
+                            }
+                        >
+                            {/* Order Tracker */}
+                            <OrderTracker
+                                status={order.status}
+                                createdAt={rawOrder?.createdAt}
+                            />
+
+                            {/* Shipping Info */}
+                            {(order.carrier || order.trackingNumber) && (
+                                <View style={styles.section}>
+                                    <ShippingInfoCard
+                                        carrier={order.carrier}
+                                        trackingNumber={order.trackingNumber}
+                                        onTrackingPress={handleTrackOrder}
+                                    />
+                                </View>
+                            )}
+
+                            {/* Delivery Address */}
                             <View style={styles.section}>
-                                <ShippingInfoCard
-                                    carrier={order.carrier}
-                                    trackingNumber={order.trackingNumber}
-                                    onTrackingPress={handleTrackOrder}
+                                <OrderAddressCard
+                                    recipientName={order.recipientName}
+                                    phoneNumber={order.phoneNumber}
+                                    fullAddress={order.fullAddress}
+                                    email={rawOrder?.shippingAddress?.email}
                                 />
                             </View>
-                        )}
 
-                        {/* Delivery Address */}
-                        <View style={styles.section}>
-                            <OrderAddressCard
-                                recipientName={order.recipientName}
-                                phoneNumber={order.phoneNumber}
-                                fullAddress={order.fullAddress}
-                                email={rawOrder?.shippingAddress?.email}
-                            />
-                        </View>
-
-                        {/* Order Items & Shop info */}
-                        <View style={styles.section}>
-                            <OrderShopHeader
-                                shopInfo={rawOrder?.shopInfo}
-                                status={order.status}
-                                onShopPress={handleShopPress}
-                            />
-                            <OrderDetailItemsList
-                                items={order.items}
-                                showReviewStatus={order.status === 'COMPLETED'}
-                                onPressReview={handleReviewItem}
-                            />
-                        </View>
-
-                        {/* Price Summary */}
-                        <View style={styles.section}>
-                            <OrderDetailPriceSummary
-                                subtotal={order.subtotal}
-                                shopDiscount={order.shopDiscount}
-                                platformDiscount={order.platformDiscount}
-                                shippingDiscount={order.shippingDiscount}
-                                shippingFee={order.shippingFee}
-                                taxAmount={order.taxAmount}
-                                grandTotal={order.grandTotal}
-                                paymentMethod={order.paymentMethodDisplay}
-                            />
-                        </View>
-
-                        {/* Notes */}
-                        {order.customerNote && (
-                            <View style={styles.noteSection}>
-                                <Text style={styles.noteLabel}>{t('order:detail.customerNote')}</Text>
-                                <Text style={styles.noteText}>{order.customerNote}</Text>
+                            {/* Order Items & Shop info */}
+                            <View style={styles.section}>
+                                <OrderShopHeader
+                                    shopInfo={rawOrder?.shopInfo}
+                                    status={order.status}
+                                    onShopPress={handleShopPress}
+                                />
+                                <OrderDetailItemsList
+                                    items={order.items}
+                                    showReviewStatus={order.status === 'COMPLETED'}
+                                    onPressReview={handleReviewItem}
+                                />
                             </View>
-                        )}
 
-                        {order.cancellationReason && (
-                            <View style={styles.cancelSection}>
-                                <Text style={styles.cancelLabel}>{t('order:detail.cancellationReason')}</Text>
-                                <Text style={styles.cancelText}>{order.cancellationReason}</Text>
+                            {/* Price Summary */}
+                            <View style={styles.section}>
+                                <OrderDetailPriceSummary
+                                    subtotal={order.subtotal}
+                                    shopDiscount={order.shopDiscount}
+                                    platformDiscount={order.platformDiscount}
+                                    shippingDiscount={order.shippingDiscount}
+                                    shippingFee={order.shippingFee}
+                                    taxAmount={order.taxAmount}
+                                    grandTotal={order.grandTotal}
+                                    paymentMethod={order.paymentMethodDisplay}
+                                />
                             </View>
-                        )}
-                    </ScrollView>
 
-                    {/* Sticky Footer */}
-                    <OrderDetailFooter
-                        key={`footer-${order.orderId}`}
-                        order={order}
-                        status={order.status}
-                        canReview={canReview}
-                        onCancel={handleCancel}
-                        onContactShop={handleContactShop}
-                        onTrackOrder={handleTrackOrder}
-                        onConfirmReceived={handleConfirmReceived}
-                        onReturn={handleReturnOrder}
-                        onRebuy={handleRebuy}
-                        onReview={handleReview}
-                        onPay={handlePay}
-                        loadingAction={loadingAction}
-                    />
-                </View>
+                            {/* Notes */}
+                            {order.customerNote && (
+                                <View style={styles.noteSection}>
+                                    <Text style={styles.noteLabel}>{t('order:detail.customerNote')}</Text>
+                                    <Text style={styles.noteText}>{order.customerNote}</Text>
+                                </View>
+                            )}
+
+                            {order.cancellationReason && (
+                                <View style={styles.cancelSection}>
+                                    <Text style={styles.cancelLabel}>{t('order:detail.cancellationReason')}</Text>
+                                    <Text style={styles.cancelText}>{order.cancellationReason}</Text>
+                                </View>
+                            )}
+                        </ScrollView>
+
+                        {/* Sticky Footer */}
+                        <OrderDetailFooter
+                            key={`footer-${order?.orderId}`}
+                            order={order}
+                            status={order.status}
+                            canReview={canReview}
+                            onCancel={handleCancel}
+                            onContactShop={handleContactShop}
+                            onTrackOrder={handleTrackOrder}
+                            onConfirmReceived={handleConfirmReceived}
+                            onReturn={handleReturnOrder}
+                            onRebuy={handleRebuy}
+                            onReview={handleReview}
+                            onPay={handlePay}
+                            loadingAction={loadingAction}
+                        />
+                    </View>
+                </Animated.View>
             )}
         </View>
     );
@@ -487,9 +486,12 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     errorContainer: {
         flex: 1,
+        backgroundColor: theme.colors.background,
+    },
+    errorContent: {
+        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: theme.colors.background,
         padding: theme.margins.xl,
     },
     errorTitle: {

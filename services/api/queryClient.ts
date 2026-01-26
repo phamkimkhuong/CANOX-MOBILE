@@ -12,17 +12,28 @@ import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query';
 import { isSessionExpiredError } from './client';
 
 /**
- * Check if error should trigger retry
- * SessionExpiredError should NOT retry (session is dead)
+ * Global retry logic for queries
+ * 
+ * @param failureCount - Number of times the query has failed
+ * @param error - The error object
+ * @param maxRetries - Maximum number of retries (default from global config)
  */
-const shouldRetry = (failureCount: number, error: unknown): boolean => {
+export const handleQueryRetry = (failureCount: number, error: any, maxRetries: number = 2): boolean => {
     // Never retry SessionExpiredError - pointless, session is dead
     if (isSessionExpiredError(error)) {
         return false;
     }
+    // Never retry 403 Forbidden
+    if (error?.status === 403) {
+        return false;
+    }
+    // Never retry 401 Unauthorized 
+    if (error?.status === 401) {
+        return false;
+    }
 
-    // Normal errors: retry up to 2 times
-    return failureCount < 2;
+    // Normal errors: retry up to maxRetries
+    return failureCount < maxRetries;
 };
 
 /**
@@ -68,7 +79,7 @@ export const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
             // Custom retry logic - no retry on SessionExpiredError
-            retry: shouldRetry,
+            retry: handleQueryRetry,
             // Data considered fresh for 1 minute
             staleTime: 1000 * 60,
             // Refetch on reconnect (useful for mobile)

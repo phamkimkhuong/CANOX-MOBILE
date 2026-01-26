@@ -1,6 +1,7 @@
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { useSmartRefresh } from '@/hooks/useSmartRefresh';
 import { apiClient, isSessionExpiredError, request } from '@/services/api/client';
+import { handleQueryRetry } from '@/services/api/queryClient';
 import { useAuthStore } from '@/store/useAuthStore';
 import {
     FlattenedNotificationItem,
@@ -53,7 +54,7 @@ export const useUnreadNotificationCount = () => {
         refetchInterval: isAuthenticated ? 1000 * 60 * 2 : false, // Poll every 2 minutes
         refetchOnWindowFocus: false, // Disable to avoid duplicate calls
         refetchOnMount: false, // Don't refetch on every mount if data is fresh
-        retry: 1, // Only retry once on failure
+        retry: (count, error) => handleQueryRetry(count, error, 1), // Only retry once on failure, but skip 403
     });
 };
 
@@ -70,9 +71,10 @@ const fetchNotifications = async (
     filter: NotificationFilter
 ): Promise<NotificationPage> => {
     const params: Record<string, string | number> = {
+        recipientRole: 'BUYER',
         page: pageParam,
         size: PAGE_SIZE,
-        sort: 'createdDate,desc',
+
     };
 
     // Filter by type/category if not "ALL"
