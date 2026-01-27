@@ -14,9 +14,9 @@
 import { VideoPlayerModal } from '@/components/ui/VideoPlayerModal';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Image } from 'expo-image';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useNavigation } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
     KeyboardAvoidingView,
@@ -140,6 +140,48 @@ export default function WriteReviewScreen() {
     const updateMutation = useUpdateReview();
 
     const isSubmitting = createMutation.isPending || updateMutation.isPending;
+
+    // Check if user has made any changes
+    const isDirty = useMemo(() => {
+        const initialRating = existingRating ? parseInt(existingRating, 10) : 0;
+        const initialComment = existingComment ? decodeURIComponent(existingComment) : '';
+
+        const hasRatingChanged = currentRating !== initialRating;
+        const hasCommentChanged = currentComment !== initialComment;
+        const hasMedia = mediaItems.length > 0;
+
+        return hasRatingChanged || (currentComment.trim().length > 0 && hasCommentChanged) || hasMedia;
+    }, [currentRating, currentComment, mediaItems, existingRating, existingComment]);
+
+    // Handle back navigation prevention
+    const navigation = useNavigation();
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+            // If no changes or currently submitting, allow navigation
+            if (!isDirty || isSubmitting) {
+                return;
+            }
+
+            // Prevent default behavior
+            e.preventDefault();
+
+            // Show confirmation alert
+            Alert.show({
+                title: 'Hủy bỏ đánh giá?',
+                message: 'Nội dung bạn đã nhập sẽ không được lưu. Bạn có chắc chắn muốn thoát?',
+                type: 'warning',
+                confirmText: 'Rời trang',
+                cancelText: 'Ở lại',
+                showCancel: true,
+                onConfirm: () => {
+                    // Manually trigger the navigation after confirmation
+                    navigation.dispatch(e.data.action);
+                },
+            });
+        });
+
+        return unsubscribe;
+    }, [navigation, isDirty, isSubmitting]);
 
     // Handle quick tag toggle
     const handleTagToggle = (tagId: string, tagLabel: string) => {
@@ -350,8 +392,8 @@ export default function WriteReviewScreen() {
                                     <StarRatingInput
                                         value={value}
                                         onChange={onChange}
-                                        size={44}
-                                        showLabel
+                                        size={26} // Reduced size
+                                        showLabel={false} // Hidden to stay on same row
                                         hasError={!!errors.rating}
                                     />
                                 )}
@@ -411,7 +453,7 @@ export default function WriteReviewScreen() {
                     )}
 
                     {/* Anonymous Toggle */}
-                    <View style={styles.anonymousSection}>
+                    <View style={[styles.anonymousSection, styles.lastCard]}>
                         <Controller
                             control={control}
                             name="isAnonymous"
@@ -424,29 +466,32 @@ export default function WriteReviewScreen() {
                         />
                     </View>
                 </ScrollView>
-
-                {/* Submit Button */}
-                <View style={styles.footer}>
-                    <Pressable
-                        style={[
-                            styles.submitButton,
-                            !canSubmit && styles.submitButtonDisabled,
-                        ]}
-                        onPress={handleSubmit(onSubmit)}
-                        disabled={!canSubmit}
-                    >
-                        {isSubmitting ? (
-                            <Text style={styles.submitButtonText}>
-                                Đang gửi...
-                            </Text>
-                        ) : (
-                            <Text style={styles.submitButtonText}>
-                                {isEditMode ? 'Cập nhật đánh giá' : 'Gửi đánh giá'}
-                            </Text>
-                        )}
-                    </Pressable>
-                </View>
             </KeyboardAvoidingView>
+
+            {/* Submit Button */}
+            <View style={[styles.footer, {
+                paddingBottom: Math.max(insets.bottom, theme.margins.md),
+                paddingTop: theme.margins.sm
+            }]}>
+                <Pressable
+                    style={[
+                        styles.submitButton,
+                        !canSubmit && styles.submitButtonDisabled,
+                    ]}
+                    onPress={handleSubmit(onSubmit)}
+                    disabled={!canSubmit}
+                >
+                    {isSubmitting ? (
+                        <Text style={styles.submitButtonText}>
+                            Đang gửi...
+                        </Text>
+                    ) : (
+                        <Text style={styles.submitButtonText}>
+                            {isEditMode ? 'Cập nhật đánh giá' : 'Gửi đánh giá'}
+                        </Text>
+                    )}
+                </Pressable>
+            </View>
 
             {/* Full Screen Image Viewer */}
             <Modal
@@ -553,13 +598,14 @@ const stylesheet = StyleSheet.create((theme) => ({
         flex: 1,
     },
     scrollContent: {
-        paddingVertical: theme.margins.md,
+        paddingTop: theme.margins.md,
+        paddingBottom: theme.margins.zero,
     },
     card: {
         backgroundColor: theme.colors.surface,
         borderRadius: theme.radius.l,
         marginHorizontal: theme.margins.md,
-        marginBottom: theme.margins.md,
+        marginBottom: theme.margins.sm, // Reduced from md
         padding: theme.margins.md,
         // Shadow for iOS
         shadowColor: '#000',
@@ -569,13 +615,18 @@ const stylesheet = StyleSheet.create((theme) => ({
         // Elevation for Android
         elevation: 3,
     },
+    lastCard: {
+        marginBottom: theme.margins.zero,
+    },
     bannerWrapper: {
         marginHorizontal: theme.margins.md,
         marginBottom: theme.margins.md,
     },
     ratingSection: {
+        flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: theme.margins.sm,
+        justifyContent: 'space-between',
+        paddingVertical: theme.margins.xs,
     },
     tagSection: {
         marginTop: theme.margins.md,
@@ -587,14 +638,13 @@ const stylesheet = StyleSheet.create((theme) => ({
         marginTop: theme.margins.md,
     },
     sectionLabel: {
-        fontSize: 16,
+        fontSize: 14, // Slightly smaller for row layout
         fontWeight: '700',
         color: theme.colors.typography,
-        marginBottom: theme.margins.md,
     },
     anonymousSection: {
         paddingHorizontal: theme.margins.md,
-        marginBottom: theme.margins.xl,
+        // marginBottom: theme.margins.xl,
     },
     errorText: {
         fontSize: 12,
@@ -602,21 +652,21 @@ const stylesheet = StyleSheet.create((theme) => ({
         marginTop: 8,
     },
     footer: {
-        padding: theme.margins.md,
+        paddingHorizontal: theme.margins.md,
+        paddingBottom: theme.margins.md,
         backgroundColor: theme.colors.surface,
         borderTopWidth: 1,
         borderTopColor: theme.colors.border,
-        paddingBottom: Platform.OS === 'ios' ? 34 : theme.margins.md, // Handle safe area for home indicator
     },
     submitButton: {
-        backgroundColor: theme.colors.primary,
+        backgroundColor: theme.colors.newPrimary,
         paddingVertical: theme.margins.md,
         borderRadius: theme.radius.full, // Modern rounded button
         alignItems: 'center',
         justifyContent: 'center',
         minHeight: 52,
         elevation: 4,
-        shadowColor: theme.colors.primary,
+        shadowColor: theme.colors.newPrimary,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 8,

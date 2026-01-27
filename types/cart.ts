@@ -8,6 +8,7 @@ import { ResponseDefaultSchema } from './responseSchema';
 // Schema cho từng Item trong giỏ (từ API /api/v1/cart)
 export const CartItemSchema = z.object({
     id: z.string(),
+    productId: z.string().nullable().optional(),
     variantId: z.string(),
     version: z.number().nullable().optional().default(0),
     productName: z.string().nullable().optional().default(''),
@@ -104,6 +105,7 @@ export type AddToCartResponse = z.infer<typeof AddToCartResponseSchema>;
  */
 export interface CartItemUI {
     id: string;
+    productId: string;
     version: number; // For concurrency control (If-Match header)
     variantId: string;
     productName: string;

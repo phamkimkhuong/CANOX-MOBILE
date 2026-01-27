@@ -89,7 +89,7 @@ const AnimatedPrice: React.FC<{ value: number; isCalculating?: boolean }> = ({ v
             {isCalculating && (
                 <ActivityIndicator
                     size="small"
-                    color={theme.colors.primary}
+                    color={theme.colors.newPrimary}
                     style={styles.priceLoader}
                 />
             )}
@@ -155,7 +155,7 @@ export const CartFooter: React.FC<CartFooterProps> = memo(({
                         <IconSymbol
                             name="local-activity"
                             size={20}
-                            color={theme.colors.primary}
+                            color={theme.colors.newPrimary}
                         />
                         <Text style={styles.voucherLabel}>
                             {appliedPlatformVoucher
@@ -265,7 +265,7 @@ const styles = StyleSheet.create((theme, rt) => {
             justifyContent: 'space-between',
             paddingHorizontal: theme.margins.md,
             paddingVertical: theme.margins.sm,
-            backgroundColor: theme.colors.primaryMuted,
+            backgroundColor: theme.colors.activeMuted,
             borderBottomWidth: 1,
             borderBottomColor: theme.colors.border,
         },
@@ -338,11 +338,11 @@ const styles = StyleSheet.create((theme, rt) => {
             color: theme.colors.success,
         },
         checkoutButton: {
-            backgroundColor: theme.colors.primary,
+            backgroundColor: theme.colors.newPrimary,
             borderRadius: theme.radius.m,
             paddingHorizontal: theme.margins.lg,
             paddingVertical: theme.margins.smd,
-            shadowColor: theme.colors.primary,
+            shadowColor: theme.colors.newPrimary,
             shadowOffset: { width: 0, height: 4 },
             shadowOpacity: 0.3,
             shadowRadius: 8,

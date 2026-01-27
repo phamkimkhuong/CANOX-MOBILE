@@ -5,10 +5,11 @@
  * List of products awaiting review with order grouping
  */
 
+import { IconSymbol } from '@/components/ui/Icon';
 import type { PendingReviewGroup, PendingReviewItem } from '@/types/review';
 import { FlashList, ListRenderItem } from '@shopify/flash-list';
 import React, { useCallback, useMemo } from 'react';
-import { RefreshControl, View } from 'react-native';
+import { Pressable, RefreshControl, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { EmptyReviewState } from './EmptyReviewState';
 import { PendingReviewCard } from './PendingReviewCard';
@@ -25,6 +26,10 @@ interface PendingReviewListProps {
     onRefresh?: () => void;
     /** Error state */
     error?: Error | null;
+    /** Optional Order ID to filter the list */
+    filterOrderId?: string;
+    /** Callback to clear the active filter */
+    onClearFilter?: () => void;
 }
 
 // List item type for flat list data
@@ -43,15 +48,23 @@ export const PendingReviewList: React.FC<PendingReviewListProps> = ({
     isRefreshing = false,
     onRefresh,
     error,
+    filterOrderId,
+    onClearFilter,
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+
+    // Filter groups based on orderId context
+    const filteredGroups = useMemo(() => {
+        if (!filterOrderId) return groups;
+        return groups.filter((g) => g.orderId === filterOrderId);
+    }, [groups, filterOrderId]);
 
     // Flatten groups into list items
     const listData = useMemo<ListItem[]>(() => {
         const items: ListItem[] = [];
 
-        for (const group of groups) {
+        for (const group of filteredGroups) { // Use filteredGroups here
             // Add items with their group's item count
             for (const item of group.items) {
                 items.push({
@@ -101,6 +114,20 @@ export const PendingReviewList: React.FC<PendingReviewListProps> = ({
 
     return (
         <View style={styles.container}>
+            {/* Filter Active Header */}
+            {filterOrderId && (
+                <View style={styles.filterHeader}>
+                    <View style={styles.filterInfo}>
+                        <IconSymbol name="info.circle.fill" size={14} color={theme.colors.newPrimary} />
+                        <Text style={styles.filterText}>
+                            Đang xem đơn hàng #{filteredGroups[0]?.items[0]?.orderNumber || filterOrderId.slice(0, 8)}
+                        </Text>
+                    </View>
+                    <Pressable onPress={onClearFilter} style={styles.clearButton}>
+                        <Text style={styles.clearText}>Xem tất cả</Text>
+                    </Pressable>
+                </View>
+            )}
             <FlashList
                 data={listData}
                 renderItem={renderItem}
@@ -149,6 +176,36 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     itemSeparator: {
         height: 4,
+    },
+    filterHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: theme.colors.surface,
+        paddingHorizontal: theme.margins.md,
+        paddingVertical: theme.margins.sm,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors.border,
+    },
+    filterInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        flex: 1,
+    },
+    filterText: {
+        fontSize: 12,
+        fontWeight: '500',
+        color: theme.colors.typographySecondary,
+    },
+    clearButton: {
+        paddingVertical: 4,
+        paddingHorizontal: 8,
+    },
+    clearText: {
+        fontSize: 12,
+        fontWeight: '700',
+        color: theme.colors.newPrimary,
     },
 }));
 

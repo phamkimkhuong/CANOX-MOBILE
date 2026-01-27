@@ -10,12 +10,14 @@
  * - Optimized with React.memo
  */
 
+import { productRoutes } from '@/constants/routes';
 import { createScaledFontSize } from '@/constants/unistyles';
 import { useCartStore } from '@/store/useCartStore';
 import type { CartItemUI } from '@/types/cart';
 import { formatCurrency } from '@/utils/format';
+import { Navigator } from '@/utils/navigation';
 import { Image } from 'expo-image';
-import React, { memo } from 'react';
+import React, { memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -53,9 +55,10 @@ export const CartItem: React.FC<CartItemProps> = memo(({
     const { t } = useTranslation('cart');
     const isSelected = useCartStore(state => state.selectedItemIds.has(item.id));
 
-    // const handleProductPress = useCallback(() => {
-    //     router.push(productRoutes.detail(item.productId));
-    // }, [router, item.productId]);
+    const handleProductPress = useCallback(() => {
+        if (!item.productId) return;
+        Navigator.push(productRoutes.detail(item.productId));
+    }, [item.productId]);
 
     const {
         productName,
@@ -84,7 +87,7 @@ export const CartItem: React.FC<CartItemProps> = memo(({
             <View style={styles.contentRow}>
                 {/* Image */}
                 <Pressable
-                    // onPress={handleProductPress}
+                    onPress={handleProductPress}
                     style={({ pressed }) => [
                         styles.imageContainer,
                         pressed && styles.imagePressed
@@ -117,14 +120,19 @@ export const CartItem: React.FC<CartItemProps> = memo(({
                 <View style={[styles.infoColumn, isOutOfStock && styles.outOfStockInfo]}>
                     {/* Product Name */}
                     <Pressable
-                        // onPress={handleProductPress}
-                        style={({ pressed }) => [
-                            pressed && styles.textPressed
-                        ]}
+                        onPress={handleProductPress}
                     >
-                        <Text style={styles.productName} numberOfLines={2}>
-                            {productName}
-                        </Text>
+                        {({ pressed }) => (
+                            <Text
+                                style={[
+                                    styles.productName,
+                                    pressed && { color: theme.colors.newPrimary, opacity: 0.7 }
+                                ]}
+                                numberOfLines={2}
+                            >
+                                {productName}
+                            </Text>
+                        )}
                     </Pressable>
 
                     {/* Variant Selector */}
@@ -289,7 +297,7 @@ const styles = StyleSheet.create((theme, rt) => {
         },
         imagePressed: {
             opacity: 0.8,
-            transform: [{ scale: 0.98 }],
+            transform: [{ scale: 0.96 }],
         },
         textPressed: {
             opacity: 0.7,

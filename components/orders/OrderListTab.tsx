@@ -103,9 +103,30 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
             case 'received':
                 logger.orders.info('Confirm received:', orderId);
                 break;
-            case 'review':
-                Navigator.push(reviewRoutes.list());
+            case 'review': {
+                const unreviewedItems = (order.items || []).filter((i) => !i.reviewed);
+
+                if (unreviewedItems.length === 1) {
+                    // One product: direct to write review
+                    const item = unreviewedItems[0];
+                    Navigator.push(
+                        reviewRoutes.write(item.itemId || item.productId, {
+                            orderId: order.orderId,
+                            productId: item.productId,
+                            productName: item.productName,
+                            productImage: item.imageUrl,
+                            variantAttributes: item.variantAttributes,
+                            orderNumber: order.orderNumber,
+                            shopName: order.shopName,
+                            shopLogo: order.shopLogoUrl || undefined,
+                        })
+                    );
+                } else {
+                    // Multiple products: go to list with filter
+                    Navigator.push(reviewRoutes.list({ filterOrderId: orderId }));
+                }
                 break;
+            }
             case 'return':
                 // TODO: Navigate to return request screen
                 logger.orders.info('Return request:', orderId);

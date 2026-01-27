@@ -19,6 +19,7 @@
  * Perceived lag when user taps quickly
  */
 
+import { StaticOrderDetailShell } from '@/components/order/StaticOrderDetailShell';
 import {
     OrderAddressCard,
     OrderDetailFooter,
@@ -28,9 +29,8 @@ import {
     OrderTracker,
     ShippingInfoCard,
 } from '@/components/orders/detail';
-import { StaticOrderDetailShell } from '@/components/order/StaticOrderDetailShell';
 import { OrderShopHeader } from '@/components/orders/OrderShopHeader';
-import { cartRoutes, chatRoutes, orderRoutes, shopRoutes } from '@/constants/routes';
+import { cartRoutes, chatRoutes, orderRoutes, reviewRoutes, shopRoutes } from '@/constants/routes';
 import { useAddToCart } from '@/hooks/api/cart';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
 import { useOrderDetail } from '@/hooks/api/order/useOrderDetail';
@@ -262,9 +262,29 @@ export default function OrderDetailScreen() {
 
 
     const handleReview = useCallback(() => {
-        if (!rawOrder) return;
-        // Navigator.push(`/review/${rawOrder.orderId}`);
-    }, [rawOrder]);
+        if (!order || !rawOrder) return;
+        const unreviewedItems = (order.items || []).filter((i) => !i.reviewed);
+
+        if (unreviewedItems.length === 1) {
+            // One product: direct to write review
+            const item = unreviewedItems[0];
+            Navigator.push(
+                reviewRoutes.write(item.itemId || item.productId, {
+                    orderId: order.orderId,
+                    productId: item.productId,
+                    productName: item.productName,
+                    productImage: item.imageUrl,
+                    variantAttributes: item.variantAttributes,
+                    orderNumber: order.orderNumber,
+                    shopName: order.shopName,
+                    shopLogo: order.shopLogoUrl || undefined,
+                })
+            );
+        } else {
+            // Multiple products: go to list with filter
+            Navigator.push(reviewRoutes.list({ filterOrderId: order.orderId }));
+        }
+    }, [order, rawOrder]);
 
     const handlePay = useCallback(() => {
         if (!rawOrder?.payment?.url) {
@@ -279,10 +299,22 @@ export default function OrderDetailScreen() {
     }, [rawOrder?.payment?.url, t]);
 
     const handleReviewItem = useCallback(
-        (_item: OrderItemUI) => {
-            // Navigator.push(`/review/${rawOrder?.orderId}?itemId=${item.itemId}`);
+        (item: OrderItemUI) => {
+            if (!order) return;
+            Navigator.push(
+                reviewRoutes.write(item.itemId || item.productId, {
+                    orderId: order.orderId,
+                    productId: item.productId,
+                    productName: item.productName,
+                    productImage: item.imageUrl,
+                    variantAttributes: item.variantAttributes,
+                    orderNumber: order.orderNumber,
+                    shopName: order.shopName,
+                    shopLogo: order.shopLogoUrl || undefined,
+                })
+            );
         },
-        []
+        [order]
     );
 
 

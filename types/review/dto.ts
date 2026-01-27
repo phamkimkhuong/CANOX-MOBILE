@@ -54,7 +54,7 @@ export interface MyReviewDTO {
     sellerResponseDate?: string | null;
     sellerResponseBy?: string | null;
     media?: ReviewMediaDTO[];
-    createdAt?: string;
+    createdDate?: string | null;
     updatedAt?: string;
 }
 

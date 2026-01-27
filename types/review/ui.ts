@@ -53,7 +53,7 @@ export interface MyReviewUI {
     rating: number;
     comment: string;
     status: ReviewStatus;
-    createdAt: string;
+    createdDate: string;
     media: ReviewMediaDTO[];
     helpfulCount: number;
     hasSellerResponse: boolean;

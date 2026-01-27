@@ -113,8 +113,8 @@ const stylesheet = StyleSheet.create((theme) => ({
         transform: [{ scale: 0.98 }],
     },
     primaryButton: {
-        backgroundColor: theme.colors.primary,
-        shadowColor: theme.colors.primary,
+        backgroundColor: theme.colors.newPrimary,
+        shadowColor: theme.colors.newPrimary,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.3,
         shadowRadius: 4,

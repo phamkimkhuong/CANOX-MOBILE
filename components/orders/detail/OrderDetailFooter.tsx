@@ -90,7 +90,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
             {loading ? (
                 <ActivityIndicator
                     size="small"
-                    color={variant === 'primary' ? theme.colors.onPrimary : theme.colors.primary}
+                    color={variant === 'primary' ? theme.colors.onPrimary : theme.colors.newPrimary}
                 />
             ) : (
                 <>
@@ -238,7 +238,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         gap: 6,
     },
     buttonPrimary: {
-        backgroundColor: theme.colors.primary,
+        backgroundColor: theme.colors.newPrimary,
     },
     buttonSecondary: {
         backgroundColor: theme.colors.background,

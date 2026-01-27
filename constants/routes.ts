@@ -318,7 +318,10 @@ export const wishlistRoutes = {
  */
 export const reviewRoutes = {
     /** Navigate to reviews list (tabs) */
-    list: (): Href => '/(main)/(user)/reviews' as Href,
+    list: (params?: { filterOrderId?: string }): Href => ({
+        pathname: '/(main)/(user)/reviews',
+        params: params as Record<string, string>,
+    }),
     /** Navigate to pending reviews tab */
     pending: (): Href => '/(main)/(user)/reviews/pending' as Href,
     /** Navigate to review history tab */

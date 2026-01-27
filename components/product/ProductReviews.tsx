@@ -334,7 +334,7 @@ export const ProductReviews = memo<ProductReviewsProps>(({
                                         </View>
                                     </View>
                                     <Text style={styles.reviewDate}>
-                                        {formatTime(review.createdAt)}
+                                        {formatTime(review.createdDate)}
                                     </Text>
                                 </View>
                                 <Text style={styles.reviewText} numberOfLines={3}>

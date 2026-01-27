@@ -33,7 +33,7 @@ export const ReviewDTOSchema = z.object({
     sellerResponse: z.string().nullable().optional(),
     sellerResponseDate: z.string().nullable().optional(),
     media: z.array(ReviewMediaSchema).optional().default([]),
-    createdAt: z.string().optional(),
+    createdDate: z.string().nullable().optional(),
 });
 
 export type ReviewDTO = z.infer<typeof ReviewDTOSchema>;
@@ -76,7 +76,7 @@ export interface ReviewUI {
     userAvatar?: string | null;
     buyerName?: string;
     verifiedPurchase: boolean;
-    createdAt: string;
+    createdDate: string;
     media: ReviewMediaUI[];
     sellerResponse?: {
         comment: string;

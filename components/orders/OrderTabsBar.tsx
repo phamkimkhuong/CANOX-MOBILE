@@ -194,13 +194,13 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.typographySecondary,
     },
     tabTextActive: {
-        color: theme.colors.primary,
+        color: theme.colors.newPrimary,
     },
     indicator: {
         position: 'absolute',
         bottom: 0,
         height: 3,
-        backgroundColor: theme.colors.primary,
+        backgroundColor: theme.colors.newPrimary,
         borderTopLeftRadius: 3,
         borderTopRightRadius: 3,
     },

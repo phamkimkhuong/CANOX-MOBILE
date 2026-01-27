@@ -82,7 +82,7 @@ export const ReviewHistoryCard: React.FC<ReviewHistoryCardProps> = ({
             <View style={styles.ratingRow}>
                 <View style={styles.starsContainer}>{renderStars()}</View>
                 <Text style={styles.date}>
-                    {formatRelativeDate(review.createdAt)}
+                    {formatRelativeDate(review.createdDate)}
                 </Text>
             </View>
 

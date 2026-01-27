@@ -81,7 +81,7 @@ export const toMyReviewUI = (dto: MyReviewDTO): MyReviewUI => ({
     rating: dto.rating,
     comment: dto.comment,
     status: dto.status,
-    createdAt: dto.createdAt || new Date().toISOString(),
+    createdDate: dto.createdDate || new Date().toISOString(),
     media: dto.media || [],
     helpfulCount: dto.helpfulCount || 0,
     hasSellerResponse: dto.hasResponse || false,

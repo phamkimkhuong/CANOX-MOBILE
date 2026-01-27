@@ -87,6 +87,7 @@ export const transformCartItem = (item: CartItem): CartItemUI => {
 
     return {
         id: item.id,
+        productId: item.productId ?? '',
         version: item.version ?? 0,
         variantId: item.variantId,
         productName: item.productName ?? '',

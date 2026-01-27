@@ -152,7 +152,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     price: {
         fontSize: 13,
         fontWeight: '700',
-        color: theme.colors.primary,
+        color: theme.colors.newPrimary,
     },
     shopName: {
         fontSize: 12,

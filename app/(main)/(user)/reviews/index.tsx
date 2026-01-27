@@ -11,6 +11,7 @@ import {
     ReviewHistoryList,
 } from '@/components/reviews/list';
 import { IconSymbol } from '@/components/ui/Icon';
+import { reviewRoutes } from '@/constants/routes';
 import {
     useMyReviews,
     usePendingReviews,
@@ -19,6 +20,7 @@ import {
 } from '@/hooks/api/review';
 import type { MyReviewUI, RatingFilter } from '@/types/review';
 import { Navigator } from '@/utils/navigation';
+import { useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -28,8 +30,14 @@ type TabType = 'pending' | 'history';
 
 export default function ReviewsScreen() {
     const { theme } = useUnistyles();
+    const { filterOrderId } = useLocalSearchParams<{ filterOrderId?: string }>();
     const insets = useSafeAreaInsets();
     const styles = stylesheet;
+
+    // Reset filter when navigating back or manually
+    const handleClearFilter = useCallback(() => {
+        Navigator.replace(reviewRoutes.list());
+    }, []);
 
     // Tab state
     const [activeTab, setActiveTab] = useState<TabType>('pending');
@@ -166,6 +174,8 @@ export default function ReviewsScreen() {
                         isRefreshing={isPendingRefetching}
                         onRefresh={handleRefreshPending}
                         error={pendingError}
+                        filterOrderId={filterOrderId}
+                        onClearFilter={handleClearFilter}
                     />
                 ) : (
                     <ReviewHistoryList
