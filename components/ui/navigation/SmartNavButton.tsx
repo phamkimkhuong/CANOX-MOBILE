@@ -49,13 +49,13 @@ export const SmartNavButton: React.FC<SmartButtonProps> = ({
 
     return (
         <Pressable
+            {...props}
             onPressIn={handlePressIn}
             onPress={handlePress}
             delayLongPress={200}
             pressRetentionOffset={20}
             unstable_pressDelay={0}
             style={style}
-            {...props}
         >
             {children}
         </Pressable>

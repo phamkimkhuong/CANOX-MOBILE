@@ -46,7 +46,6 @@ import type {
 } from '@/types/review/productReview';
 import { getReviewEmptyState } from '@/utils/adapter/review/productReviewAdapter';
 import { createLogger } from '@/utils/logger';
-import { Navigator } from '@/utils/navigation';
 import { FlashList } from '@shopify/flash-list';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
@@ -157,6 +156,9 @@ export default function ProductReviewsScreen() {
     const prefetchCart = usePrefetchCart();
     const prefetchChat = usePrefetchChat();
 
+    const cartRoute = useMemo(() => (isAuthenticated ? ROUTES.CART.INDEX : ROUTES.AUTH.LOGIN), [isAuthenticated]);
+    const chatRoute = useMemo(() => (isAuthenticated ? ROUTES.TABS.CHAT : ROUTES.AUTH.LOGIN), [isAuthenticated]);
+
     // ============================================
     // DATA FETCHING
     // ============================================
@@ -264,14 +266,6 @@ export default function ProductReviewsScreen() {
         router.back();
     }, [router]);
 
-    const handleCartPress = useCallback(() => {
-        Navigator.push(isAuthenticated ? ROUTES.CART.INDEX : ROUTES.AUTH.LOGIN);
-    }, [isAuthenticated]);
-
-    const handleChatPress = useCallback(() => {
-        Navigator.push(isAuthenticated ? ROUTES.TABS.CHAT : ROUTES.AUTH.LOGIN);
-    }, [isAuthenticated]);
-
     // ============================================
     // RENDER FUNCTIONS
     // ============================================
@@ -356,7 +350,7 @@ export default function ProductReviewsScreen() {
                     headerRight: () => (
                         <View style={styles.headerRight}>
                             <SmartNavButton
-                                onPress={handleCartPress}
+                                route={cartRoute}
                                 prefetchAction={prefetchCart}
                                 style={styles.iconButton}
                             >
@@ -375,7 +369,7 @@ export default function ProductReviewsScreen() {
                             </SmartNavButton>
 
                             <SmartNavButton
-                                onPress={handleChatPress}
+                                route={chatRoute}
                                 prefetchAction={prefetchChat}
                                 style={styles.iconButton}
                             >
