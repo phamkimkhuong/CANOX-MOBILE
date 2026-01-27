@@ -20,7 +20,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
  */
 
 interface AttachmentMenuProps {
-    onSelectOption: (type: 'image' | 'camera' | 'product' | 'order') => void;
+    onSelectOption: (type: 'media' | 'product' | 'order') => void;
 }
 
 export const AttachmentMenu = forwardRef<BottomSheetModal, AttachmentMenuProps>(
@@ -59,23 +59,12 @@ export const AttachmentMenu = forwardRef<BottomSheetModal, AttachmentMenuProps>(
                         {/* Option: Hình ảnh */}
                         <TouchableOpacity
                             style={styles.optionItem}
-                            onPress={() => onSelectOption('image')}
+                            onPress={() => onSelectOption('media')}
                         >
                             <View style={styles.iconCircleBlue}>
                                 <IconSymbol name="image" size={24} color="#1976D2" />
                             </View>
                             <Text style={styles.optionLabel}>Hình ảnh</Text>
-                        </TouchableOpacity>
-
-                        {/* Option: Chụp ảnh */}
-                        <TouchableOpacity
-                            style={styles.optionItem}
-                            onPress={() => onSelectOption('camera')}
-                        >
-                            <View style={styles.iconCirclePurple}>
-                                <IconSymbol name="camera" size={24} color="#7B1FA2" />
-                            </View>
-                            <Text style={styles.optionLabel}>Máy ảnh</Text>
                         </TouchableOpacity>
 
                         {/* Option: Gửi sản phẩm */}

@@ -106,8 +106,13 @@ export const UserProfileSchema = z.object({
     id: z.string(),
     username: z.string(),
     fullName: z.string(),
+    email: z.string().email().optional(),
+    phone: z.string().optional(),
     avatar: z.string().nullable(),
+    dateOfBirth: z.string().nullable().optional(),
+    gender: z.enum(['MALE', 'FEMALE', 'OTHER']).nullable().optional(),
     memberLevel: z.nativeEnum(MemberLevel).default('BRONZE'),
+    isVerified: z.boolean().default(false),
     recentViewCount: z.number().default(0),
     followingShops: z.number().default(0),
 });

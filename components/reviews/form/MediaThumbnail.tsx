@@ -19,6 +19,8 @@ interface MediaThumbnailProps {
     onRemove: () => void;
     /** Callback to retry failed upload */
     onRetry?: () => void;
+    /** Callback when thumbnail is pressed */
+    onPress?: () => void;
     /** Thumbnail size */
     size?: number;
 }
@@ -30,6 +32,7 @@ export const MediaThumbnail: React.FC<MediaThumbnailProps> = ({
     item,
     onRemove,
     onRetry,
+    onPress,
     size = 80,
 }) => {
     const { theme } = useUnistyles();
@@ -42,11 +45,17 @@ export const MediaThumbnail: React.FC<MediaThumbnailProps> = ({
     return (
         <View style={[styles.container, { width: size, height: size }]}>
             {/* Image/Video Preview */}
-            <Image
-                source={{ uri: item.uri }}
-                style={styles.image}
-                contentFit="cover"
-            />
+            <Pressable
+                style={StyleSheet.absoluteFill}
+                onPress={onPress}
+                disabled={isUploading}
+            >
+                <Image
+                    source={{ uri: item.uri }}
+                    style={styles.image}
+                    contentFit="cover"
+                />
+            </Pressable>
 
             {/* Video indicator */}
             {isVideo && (

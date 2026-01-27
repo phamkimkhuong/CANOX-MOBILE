@@ -42,6 +42,11 @@ export type UploadContext = z.infer<typeof UploadContextEnum>;
 export const ALLOWED_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'gif'] as const;
 export type ImageExtension = typeof ALLOWED_IMAGE_EXTENSIONS[number];
 
+export const ALLOWED_VIDEO_EXTENSIONS = ['mp4', 'mov', 'avi'] as const;
+export type VideoExtension = typeof ALLOWED_VIDEO_EXTENSIONS[number];
+
+export type StorageExtension = ImageExtension | VideoExtension;
+
 /**
  * File size limits per upload context (in bytes)
  * Based on API error responses
@@ -142,21 +147,22 @@ export const StorageStatusResponseSchema = z.object({
 export type StorageStatusResponse = z.infer<typeof StorageStatusResponseSchema>;
 
 /**
- * Pre-check images API
+ * Pre-check assets API (Images/Videos)
  * POST /api/v1/storage/pre-check-images
+ * POST /api/v1/storage/pre-check-videos
  */
-export const PreCheckImagesRequestSchema = z.object({
+export const StoragePreCheckRequestSchema = z.object({
     assetIds: z.array(z.string()),
 });
 
-export const PreCheckImagesResponseSchema = z.object({
+export const StoragePreCheckResponseSchema = z.object({
     code: z.number(),
     success: z.boolean(),
     message: z.string(),
 });
 
-export type PreCheckImagesRequest = z.infer<typeof PreCheckImagesRequestSchema>;
-export type PreCheckImagesResponse = z.infer<typeof PreCheckImagesResponseSchema>;
+export type StoragePreCheckRequest = z.infer<typeof StoragePreCheckRequestSchema>;
+export type StoragePreCheckResponse = z.infer<typeof StoragePreCheckResponseSchema>;
 
 /**
  * Update user avatar API

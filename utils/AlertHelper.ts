@@ -1,9 +1,17 @@
 import { createRef } from 'react';
 
+export type AlertButton = {
+    text: string;
+    onPress?: () => void;
+    style?: 'default' | 'cancel' | 'destructive';
+};
+
 export type AlertConfig = {
     title?: string;
     message?: string;
     type?: 'success' | 'error' | 'warning' | 'info';
+    buttons?: AlertButton[];
+    // Legacy support for simple confirmation
     confirmText?: string;
     cancelText?: string;
     onConfirm?: () => void;

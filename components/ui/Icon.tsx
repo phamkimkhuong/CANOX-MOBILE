@@ -163,6 +163,7 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     video: { ios: 'videocam-outline', android: 'videocam-outline' },
     cube: { ios: 'cube-outline', android: 'cube-outline' },
     play: { ios: 'play', android: 'play' },
+    'play-fill': { ios: 'play', android: 'play' },
     'play-circle': { ios: 'play-circle', android: 'play-circle' },
     location: { ios: 'location-sharp', android: 'location-sharp' },
     'location-outline': { ios: 'location-outline', android: 'location-outline' },
@@ -218,6 +219,7 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     'cloud-offline-outline': { ios: 'cloud-offline-outline', android: 'cloud-offline-outline' },
     'folder-open-outline': { ios: 'folder-open-outline', android: 'folder-open-outline' },
     refresh: { ios: 'refresh', android: 'refresh' },
+    reload: { ios: 'refresh', android: 'refresh' },
     undo: { ios: 'arrow-undo-outline', android: 'arrow-undo-outline' },
     // === Material Icons Compatibility (Add missing ones) ===
     'workspace-premium': { ios: 'ribbon-outline', android: 'ribbon-outline' },

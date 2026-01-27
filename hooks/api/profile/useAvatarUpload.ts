@@ -1,24 +1,15 @@
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { request } from '@/services/api/client';
+import { uploadFileToStorage } from '@/services/storage/storageService';
 import { useAuthStore } from '@/store/useAuthStore';
 import {
-    PreCheckImagesResponse,
-    PreCheckImagesResponseSchema,
-    PresignUploadRequest,
-    PresignUploadResponse,
-    PresignUploadResponseSchema,
-    StorageStatusResponse,
-    StorageStatusResponseSchema,
     UpdateUserAvatarResponse,
     UpdateUserAvatarResponseSchema
 } from '@/types/storage';
 import { devLog } from '@/utils/logger';
-import { ImageExtension } from '@/utils/storage';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
 import { useCallback, useState } from 'react';
-import 'react-native-get-random-values';
-import { v4 as uuidv4 } from 'uuid';
 import { profileQueryKeys } from './useProfile';
 
 /**
@@ -45,12 +36,6 @@ const IMAGE_PICKER_OPTIONS: ImagePicker.ImagePickerOptions = {
     quality: 0.7,   // 70% quality to reduce file size below 2MB limit
 };
 
-import {
-    calculateMD5FromArrayBuffer,
-    getFileExtension,
-    readFileAsArrayBuffer
-} from '@/utils/storage';
-
 /**
  * Hook for handling avatar upload
  */
@@ -62,140 +47,7 @@ export const useAvatarUpload = () => {
     const [isPickerOpen, setIsPickerOpen] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
 
-    /**
-     * Step 1: Get presigned URL from server
-     */
-    const getPresignedUrl = async (
-        extension: ImageExtension,
-        fileSize: number,
-        md5: string
-    ): Promise<PresignUploadResponse> => {
-        const payload: PresignUploadRequest = {
-            context: 'USER_AVATAR',
-            extension,
-            fileSizeBytes: fileSize,
-            md5,
-            isPrivate: false,
-        };
-        // Generate unique idempotency key to prevent duplicate uploads
-        const idempotencyKey = uuidv4();
 
-        const response = await request<PresignUploadResponse>(
-            {
-                url: API_ROUTES.STORAGE.PRESIGN_UPLOAD,
-                method: 'POST',
-                data: payload,
-                headers: {
-                    'Idempotency-Key': idempotencyKey,
-                },
-            },
-            PresignUploadResponseSchema
-        );
-
-        return response;
-    };
-
-    /**
-     * Step 2: Upload blob to presigned URL
-     */
-    const uploadToPresignedUrlWithData = async (
-        presignedUrl: string,
-        method: string,
-        headers: Record<string, string>,
-        data: ArrayBuffer
-    ): Promise<void> => {
-        const urlParams = new URLSearchParams(presignedUrl.split('?')[1] || '');
-        const signedHeadersParam = urlParams.get('X-Amz-SignedHeaders') || '';
-        const signedHeadersList = signedHeadersParam.toLowerCase().split(';');
-
-        // Skip 'host' (handled by fetch) and 'content-length' (calculated by fetch)
-        const uploadHeaders: Record<string, string> = {};
-
-        for (const [key, value] of Object.entries(headers)) {
-            const lowerKey = key.toLowerCase();
-
-            // Skip headers that are handled automatically or not in signed list
-            if (lowerKey === 'host') {
-                continue;
-            }
-            if (lowerKey === 'content-length') {
-                continue;
-            }
-
-            // Only include if it's in the signed headers list
-            if (signedHeadersList.includes(lowerKey)) {
-                uploadHeaders[key] = value;
-            }
-        }
-        const uploadResponse = await fetch(presignedUrl, {
-            method: method,
-            headers: uploadHeaders,
-            body: data,
-        });
-
-        if (!uploadResponse.ok) {
-            const errorText = await uploadResponse.text();
-            devLog('[useAvatarUpload] Upload error response:', errorText);
-            throw new Error(`Lỗi trong quá trình tải ảnh lên`);
-        }
-    };
-
-    /**
-     * Step 3: Pre-check images to trigger backend processing
-     * Must be called before polling status
-     */
-    const preCheckImages = async (assetId: string): Promise<void> => {
-        // console.log('preCheckImages', assetId);
-        const response = await request<PreCheckImagesResponse>(
-            {
-                url: API_ROUTES.STORAGE.PRE_CHECK_IMAGES,
-                method: 'POST',
-                data: {
-                    assetIds: [assetId],
-                },
-            },
-            PreCheckImagesResponseSchema
-        );
-
-        if (!response.success) {
-            throw new Error('Pre-check validation failed');
-        }
-    };
-
-    /**
-     * Step 4: Poll storage status until READY
-     * After pre-check, poll until backend finishes processing (max 10 seconds)
-     */
-    const pollStorageStatus = async (
-        assetId: string,
-        maxAttempts: number = 10,
-        intervalMs: number = 1000
-    ): Promise<string> => {
-        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-            const response = await request<StorageStatusResponse>(
-                {
-                    url: `${API_ROUTES.STORAGE.STATUS}?assetIds=${assetId}`,
-                    method: 'GET',
-                },
-                StorageStatusResponseSchema
-            );
-            const assetStatus = response.data[assetId];
-            if (!assetStatus) {
-                throw new Error('Asset not found in status response');
-            }
-            if (assetStatus.status === 'FAILED') {
-                throw new Error('Asset processing failed');
-            }
-            if (assetStatus.status === 'READY' && assetStatus.publicPath) {
-                return assetStatus.publicPath;
-            }
-            if (attempt < maxAttempts) {
-                await new Promise(resolve => setTimeout(resolve, intervalMs));
-            }
-        }
-
-        throw new Error('Timeout: Avatar processing took too long');
-    };
     const CDN_BASE_URL = process.env.EXPO_PUBLIC_CDN_BASE_URL;
 
     /**
@@ -234,54 +86,21 @@ export const useAvatarUpload = () => {
                 throw new Error('User not authenticated');
             }
 
-            setUploadProgress(10);
+            setUploadProgress(5);
 
-            // Get file extension
-            const extension = getFileExtension(imageUri);
-            const fileData = await readFileAsArrayBuffer(imageUri);
-            const fileSize = fileData.size;
-            setUploadProgress(20);
-
-            // Validate file size BEFORE calling presign API
-            if (fileSize > MAX_AVATAR_SIZE_BYTES) {
-                const fileSizeMB = (fileSize / (1024 * 1024)).toFixed(1);
-                const maxSizeMB = (MAX_AVATAR_SIZE_BYTES / (1024 * 1024)).toFixed(0);
-                throw new Error(
-                    `Ảnh quá lớn (${fileSizeMB}MB). Kích thước tối đa cho ảnh đại diện là ${maxSizeMB}MB. Vui lòng chọn ảnh nhỏ hơn.`
-                );
-            }
-
-            // Calculate MD5 from the SAME ArrayBuffer we'll upload
-            const fileMd5Hash = calculateMD5FromArrayBuffer(fileData.arrayBuffer);
-
-            setUploadProgress(30);
-
-            // Step 1: Get presigned URL
-            const presignResponse = await getPresignedUrl(extension, fileSize, fileMd5Hash);
-
-            setUploadProgress(50);
-
-            // Step 2: Upload to presigned URL using the SAME ArrayBuffer we calculated MD5 from
-            await uploadToPresignedUrlWithData(
-                presignResponse.data.url,
-                presignResponse.data.method,
-                presignResponse.data.headers,
-                fileData.arrayBuffer
+            const { assetId, publicPath } = await uploadFileToStorage(
+                imageUri,
+                'USER_AVATAR',
+                (progress) => setUploadProgress(progress.percentage)
             );
-            setUploadProgress(70);
-            // Step 3: Pre-check images to trigger backend processing
-            await preCheckImages(presignResponse.data.assetId);
-            setUploadProgress(80);
-            // Step 4: Poll storage status until READY (max 10 seconds)
-            const publicPath = await pollStorageStatus(presignResponse.data.assetId);
-            setUploadProgress(90);
+
             // Step 5: Update user avatar in backend
             devLog('[useAvatarUpload] Asset ready:', publicPath);
             await updateUserAvatar(publicPath);
             setUploadProgress(100);
+
             return {
-                assetId: presignResponse.data.assetId,
-                path: presignResponse.data.path,
+                assetId,
                 publicPath,
                 success: true,
             };

@@ -39,7 +39,6 @@ const CustomAlert = forwardRef((_props, ref) => {
     const handleConfirm = () => {
         const action = state.config.onConfirm;
         setState(prev => ({ ...prev, isVisible: false }));
-        // Execute immediately like native Alert
         if (action) action();
     };
 
@@ -47,6 +46,11 @@ const CustomAlert = forwardRef((_props, ref) => {
         const action = state.config.onCancel;
         setState(prev => ({ ...prev, isVisible: false }));
         if (action) action();
+    };
+
+    const handleButtonPress = (onPress?: () => void) => {
+        setState(prev => ({ ...prev, isVisible: false }));
+        if (onPress) onPress();
     };
 
     const getIconInfo = () => {
@@ -67,11 +71,72 @@ const CustomAlert = forwardRef((_props, ref) => {
     const icon = getIconInfo();
     const { config, isVisible } = state;
 
+    const renderButtons = () => {
+        // Option 1: Multiple buttons provided (Vertical list)
+        if (config.buttons && config.buttons.length > 0) {
+            return (
+                <View style={styles.verticalFooter}>
+                    {config.buttons.map((btn, index) => (
+                        <TouchableOpacity
+                            key={index}
+                            style={[
+                                styles.verticalBtn,
+                                index !== config.buttons!.length - 1 && styles.verticalBtnBorder
+                            ]}
+                            onPress={() => handleButtonPress(btn.onPress)}
+                            activeOpacity={0.7}
+                        >
+                            <Text
+                                style={[
+                                    styles.btnText,
+                                    btn.style === 'cancel' && styles.btnCancelText,
+                                    btn.style === 'destructive' && { color: theme.colors.error },
+                                    btn.style === 'default' && { color: theme.colors.primary }
+                                ]}
+                            >
+                                {btn.text}
+                            </Text>
+                        </TouchableOpacity>
+                    ))}
+                </View>
+            );
+        }
+
+        // Option 2: Default Confirm/Cancel (Horizontal)
+        return (
+            <View style={styles.footer}>
+                {config.showCancel !== false && (
+                    <TouchableOpacity
+                        style={[styles.btn, styles.btnCancel]}
+                        onPress={handleCancel}
+                        activeOpacity={0.7}
+                    >
+                        <Text style={styles.btnCancelText}>{config.cancelText || 'Hủy'}</Text>
+                    </TouchableOpacity>
+                )}
+
+                <TouchableOpacity
+                    style={[
+                        styles.btn,
+                        styles.btnConfirm,
+                        config.showCancel === false && styles.btnFull
+                    ]}
+                    onPress={handleConfirm}
+                    activeOpacity={0.7}
+                >
+                    <Text style={[styles.btnConfirmText, { color: icon.color }]}>
+                        {config.confirmText || 'Đồng ý'}
+                    </Text>
+                </TouchableOpacity>
+            </View>
+        );
+    };
+
     return (
         <Modal
             visible={isVisible}
             transparent
-            animationType="none" // Absolute speed, no animation like system alert
+            animationType="none"
             onRequestClose={handleCancel}
         >
             <View style={styles.modalOverlay}>
@@ -81,41 +146,17 @@ const CustomAlert = forwardRef((_props, ref) => {
                 />
                 <View style={styles.container}>
                     <View style={styles.content}>
-                        {config.type && (
+                        {config.type && config.type !== 'info' && (
                             <View style={[styles.iconContainer, { backgroundColor: `${icon.color}15` }]}>
                                 <IconSymbol name={icon.name} size={32} color={icon.color} />
                             </View>
                         )}
 
-                        <Text style={styles.title}>{config.title}</Text>
-                        <Text style={styles.message}>{config.message}</Text>
+                        {config.title && <Text style={styles.title}>{config.title}</Text>}
+                        {config.message && <Text style={styles.message}>{config.message}</Text>}
                     </View>
 
-                    <View style={styles.footer}>
-                        {config.showCancel !== false && (
-                            <TouchableOpacity
-                                style={[styles.btn, styles.btnCancel]}
-                                onPress={handleCancel}
-                                activeOpacity={0.7}
-                            >
-                                <Text style={styles.btnCancelText}>{config.cancelText || 'Hủy'}</Text>
-                            </TouchableOpacity>
-                        )}
-
-                        <TouchableOpacity
-                            style={[
-                                styles.btn,
-                                styles.btnConfirm,
-                                config.showCancel === false && styles.btnFull
-                            ]}
-                            onPress={handleConfirm}
-                            activeOpacity={0.7}
-                        >
-                            <Text style={[styles.btnConfirmText, { color: icon.color }]}>
-                                {config.confirmText || 'Đồng ý'}
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
+                    {renderButtons()}
                 </View>
             </View>
         </Modal>
@@ -176,11 +217,26 @@ const stylesheet = StyleSheet.create((theme: typeof lightTheme, runtime) => ({
         borderTopWidth: 1,
         borderTopColor: theme.colors.border,
     },
+    verticalFooter: {
+        flexDirection: 'column',
+        borderTopWidth: 1,
+        borderTopColor: theme.colors.border,
+    },
     btn: {
         flex: 1,
         paddingVertical: theme.margins.md,
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    verticalBtn: {
+        width: '100%',
+        paddingVertical: theme.margins.md,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    verticalBtnBorder: {
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors.border,
     },
     btnFull: {
         borderLeftWidth: 0,
@@ -191,6 +247,10 @@ const stylesheet = StyleSheet.create((theme: typeof lightTheme, runtime) => ({
     },
     btnConfirm: {
         // Confirmation button custom styles
+    },
+    btnText: {
+        fontSize: 16,
+        fontWeight: '600',
     },
     btnCancelText: {
         color: theme.colors.typographySecondary,

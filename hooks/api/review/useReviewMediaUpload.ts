@@ -6,21 +6,8 @@
  * Sử dụng presigned URL pattern
  */
 
-import { API_ROUTES } from '@/constants/apiRoutes';
-import { request } from '@/services/api/client';
-import type { ReviewMediaItem, ReviewMediaType } from '@/types/review';
-import {
-    PresignUploadRequest,
-    PresignUploadResponse,
-    PresignUploadResponseSchema,
-    UploadContext,
-} from '@/types/storage';
-import { REVIEW_MEDIA_LIMITS } from '@/utils/adapter/review/reviewIncentives';
-import { logger } from '@/utils/logger';
-import * as ImagePicker from 'expo-image-picker';
-import { md5 as calculateMd5 } from 'js-md5';
+import { uploadFileToStorage } from '@/services/storage/storageService';
 import { useCallback, useState } from 'react';
-import 'react-native-get-random-values';
 import Toast from 'react-native-toast-message';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -35,22 +22,11 @@ type VideoExtension = 'mp4' | 'mov' | 'avi';
 // HELPER FUNCTIONS
 // ============================================
 
-/**
- * Extract file extension from URI
- */
-const getFileExtension = (uri: string): string => {
-    const extension = uri.split('.').pop()?.toLowerCase() || 'jpg';
-    return extension;
-};
-
-/**
- * Determine if file is video
- */
-const isVideoFile = (uri: string, mimeType?: string): boolean => {
-    if (mimeType?.startsWith('video/')) return true;
-    const ext = getFileExtension(uri);
-    return ['mp4', 'mov', 'avi', 'mkv', 'webm'].includes(ext);
-};
+import type { ReviewMediaItem, ReviewMediaType } from '@/types/review';
+import { UploadContext } from '@/types/storage';
+import { REVIEW_MEDIA_LIMITS } from '@/utils/adapter/review/reviewIncentives';
+import { logger } from '@/utils/logger';
+import * as ImagePicker from 'expo-image-picker';
 
 /**
  * Get upload context based on media type
@@ -59,37 +35,7 @@ const getUploadContext = (type: ReviewMediaType): UploadContext => {
     return type === 'VIDEO' ? 'REVIEW_VIDEO' : 'REVIEW_IMAGE';
 };
 
-/**
- * Calculate MD5 hash of file
- */
-const calculateFileMD5 = async (fileUri: string): Promise<string> => {
-    const response = await fetch(fileUri);
-    const blob = await response.blob();
 
-    const arrayBuffer = await new Promise<ArrayBuffer>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-            if (reader.result instanceof ArrayBuffer) {
-                resolve(reader.result);
-            } else {
-                reject(new Error('FileReader did not return ArrayBuffer'));
-            }
-        };
-        reader.onerror = () => reject(reader.error);
-        reader.readAsArrayBuffer(blob);
-    });
-
-    return calculateMd5(arrayBuffer);
-};
-
-/**
- * Get file size from URI
- */
-const getFileSize = async (uri: string): Promise<number> => {
-    const response = await fetch(uri);
-    const blob = await response.blob();
-    return blob.size;
-};
 
 // ============================================
 // HOOK
@@ -102,7 +48,7 @@ export const useReviewMediaUpload = () => {
     /**
      * Request media library permission
      */
-    const requestPermission = useCallback(async (): Promise<boolean> => {
+    const requestLibraryPermission = useCallback(async (): Promise<boolean> => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== 'granted') {
             Toast.show({
@@ -116,96 +62,95 @@ export const useReviewMediaUpload = () => {
     }, []);
 
     /**
-     * Get presigned URL from server
+     * Request camera permission
      */
-    const getPresignedUrl = useCallback(async (
-        context: UploadContext,
-        extension: string,
-        fileSize: number,
-        md5: string
-    ): Promise<PresignUploadResponse> => {
-        const payload: PresignUploadRequest = {
-            context,
-            extension,
-            fileSizeBytes: fileSize,
-            md5,
-            isPrivate: false,
-        };
-
-        const idempotencyKey = uuidv4();
-
-        return request<PresignUploadResponse>(
-            {
-                url: API_ROUTES.STORAGE.PRESIGN_UPLOAD,
-                method: 'POST',
-                data: payload,
-                headers: {
-                    'Idempotency-Key': idempotencyKey,
-                },
-            },
-            PresignUploadResponseSchema
-        );
+    const requestCameraPermission = useCallback(async (): Promise<boolean> => {
+        const { status } = await ImagePicker.requestCameraPermissionsAsync();
+        if (status !== 'granted') {
+            Toast.show({
+                type: 'error',
+                text1: 'Cần quyền truy cập',
+                text2: 'Vui lòng cho phép truy cập máy ảnh trong Cài đặt',
+            });
+            return false;
+        }
+        return true;
     }, []);
 
     /**
-     * Upload file to presigned URL
+     * Upload a single media item following the 4-step flow
      */
-    const uploadToPresignedUrl = useCallback(async (
-        presignedUrl: string,
-        method: string,
-        headers: Record<string, string>,
-        fileUri: string
-    ): Promise<void> => {
-        const response = await fetch(fileUri);
-        const blob = await response.blob();
-
-        const uploadHeaders: Record<string, string> = {};
-        for (const [key, value] of Object.entries(headers)) {
-            if (key.toLowerCase() !== 'host') {
-                uploadHeaders[key] = value;
-            }
-        }
-
-        const uploadResponse = await fetch(presignedUrl, {
-            method,
-            headers: uploadHeaders,
-            body: blob,
-        });
-
-        if (!uploadResponse.ok) {
-            const errorText = await uploadResponse.text();
-            throw new Error(`Upload failed: ${uploadResponse.status} - ${errorText}`);
-        }
-    }, []);
-
-    /**
-     * Upload a single media item
-     */
-    const uploadSingleMedia = useCallback(async (item: ReviewMediaItem): Promise<string> => {
+    const uploadSingleMedia = useCallback(async (
+        item: ReviewMediaItem,
+        onProgress: (progress: number) => void
+    ): Promise<string> => {
         const context = getUploadContext(item.type);
-        const extension = getFileExtension(item.uri);
-        const fileSize = item.fileSize || await getFileSize(item.uri);
-        const md5 = await calculateFileMD5(item.uri);
-
-        // Get presigned URL
-        const presignResponse = await getPresignedUrl(context, extension, fileSize, md5);
-
-        // Upload to presigned URL
-        await uploadToPresignedUrl(
-            presignResponse.data.url,
-            presignResponse.data.method,
-            presignResponse.data.headers,
-            item.uri
+        const { assetId } = await uploadFileToStorage(
+            item.uri,
+            context,
+            (p) => onProgress(p.percentage)
         );
+        return assetId;
+    }, []);
 
-        return presignResponse.data.assetId;
-    }, [getPresignedUrl, uploadToPresignedUrl]);
+    /**
+     * Upload a media item
+     */
+    const uploadMedia = useCallback(async (item: ReviewMediaItem) => {
+        setIsUploading(true);
+
+        try {
+            const assetId = await uploadSingleMedia(item, (progress) => {
+                setMediaItems((prev) =>
+                    prev.map((m) =>
+                        m.id === item.id
+                            ? {
+                                ...m,
+                                uploadStatus: progress === 100 ? 'success' : 'uploading',
+                                progress
+                            }
+                            : m
+                    )
+                );
+            });
+
+            // Update final success explicitly if needed
+            setMediaItems((prev) =>
+                prev.map((m) =>
+                    m.id === item.id
+                        ? { ...m, uploadStatus: 'success' as const, progress: 100, assetId }
+                        : m
+                )
+            );
+
+            logger.api.info('[uploadMedia] Success:', assetId);
+        } catch (error) {
+            logger.api.error('[uploadMedia] Error:', error);
+
+            // Update error
+            setMediaItems((prev) =>
+                prev.map((m) =>
+                    m.id === item.id
+                        ? { ...m, uploadStatus: 'error' as const, error: (error as Error).message }
+                        : m
+                )
+            );
+
+            Toast.show({
+                type: 'error',
+                text1: 'Upload thất bại',
+                text2: 'Vui lòng thử lại',
+            });
+        } finally {
+            setIsUploading(false);
+        }
+    }, [uploadSingleMedia]);
 
     /**
      * Pick images from library
      */
     const pickImages = useCallback(async () => {
-        const hasPermission = await requestPermission();
+        const hasPermission = await requestLibraryPermission();
         if (!hasPermission) return;
 
         const currentImageCount = mediaItems.filter(m => m.type === 'IMAGE').length;
@@ -253,13 +198,60 @@ export const useReviewMediaUpload = () => {
                 text2: 'Không thể chọn ảnh',
             });
         }
-    }, [mediaItems, requestPermission]);
+    }, [mediaItems, requestLibraryPermission, uploadMedia]);
+
+    /**
+     * Take a photo using camera
+     */
+    const takePhoto = useCallback(async () => {
+        const hasPermission = await requestCameraPermission();
+        if (!hasPermission) return;
+
+        const currentImageCount = mediaItems.filter(m => m.type === 'IMAGE').length;
+        if (currentImageCount >= REVIEW_MEDIA_LIMITS.MAX_IMAGES) {
+            Toast.show({
+                type: 'info',
+                text1: 'Đã đạt giới hạn',
+                text2: `Tối đa ${REVIEW_MEDIA_LIMITS.MAX_IMAGES} ảnh`,
+            });
+            return;
+        }
+
+        try {
+            const result = await ImagePicker.launchCameraAsync({
+                mediaTypes: ['images'],
+                quality: 0.8,
+            });
+
+            if (result.canceled || !result.assets?.length) return;
+
+            const asset = result.assets[0];
+            const newItem: ReviewMediaItem = {
+                id: uuidv4(),
+                uri: asset.uri,
+                type: 'IMAGE',
+                uploadStatus: 'pending',
+                progress: 0,
+                fileSize: asset.fileSize,
+            };
+
+            setMediaItems((prev) => [...prev, newItem]);
+            uploadMedia(newItem);
+        } catch (error) {
+            logger.api.error('[takePhoto] Error:', error);
+            Toast.show({
+                type: 'error',
+                text1: 'Lỗi',
+                text2: 'Không thể mở máy ảnh',
+            });
+        }
+    }, [mediaItems, requestCameraPermission, uploadMedia]);
 
     /**
      * Pick video from library
      */
     const pickVideo = useCallback(async () => {
-        const hasPermission = await requestPermission();
+        const hasPermission = await requestLibraryPermission();
         if (!hasPermission) return;
 
         const currentVideoCount = mediaItems.filter(m => m.type === 'VIDEO').length;
@@ -314,62 +306,67 @@ export const useReviewMediaUpload = () => {
                 text2: 'Không thể chọn video',
             });
         }
-    }, [mediaItems, requestPermission]);
+    }, [mediaItems, requestLibraryPermission, uploadMedia]);
 
     /**
-     * Upload a media item
+     * Record a video using camera
      */
-    const uploadMedia = useCallback(async (item: ReviewMediaItem) => {
-        // Update status to uploading
-        setMediaItems((prev) =>
-            prev.map((m) =>
-                m.id === item.id ? { ...m, uploadStatus: 'uploading' as const, progress: 10 } : m
-            )
-        );
+    const takeVideo = useCallback(async () => {
+        const hasPermission = await requestCameraPermission();
+        if (!hasPermission) return;
+
+        const currentVideoCount = mediaItems.filter(m => m.type === 'VIDEO').length;
+        if (currentVideoCount >= REVIEW_MEDIA_LIMITS.MAX_VIDEOS) {
+            Toast.show({
+                type: 'info',
+                text1: 'Đã đạt giới hạn',
+                text2: `Tối đa ${REVIEW_MEDIA_LIMITS.MAX_VIDEOS} video`,
+            });
+            return;
+        }
 
         try {
-            setIsUploading(true);
+            const result = await ImagePicker.launchCameraAsync({
+                mediaTypes: ['videos'],
+                quality: 0.8,
+                videoMaxDuration: REVIEW_MEDIA_LIMITS.MAX_VIDEO_DURATION_SECONDS,
+            });
 
-            // Update progress
-            setMediaItems((prev) =>
-                prev.map((m) =>
-                    m.id === item.id ? { ...m, progress: 50 } : m
-                )
-            );
+            if (result.canceled || !result.assets?.[0]) return;
 
-            const assetId = await uploadSingleMedia(item);
+            const asset = result.assets[0];
 
-            // Update success
-            setMediaItems((prev) =>
-                prev.map((m) =>
-                    m.id === item.id
-                        ? { ...m, uploadStatus: 'success' as const, progress: 100, assetId }
-                        : m
-                )
-            );
+            // Validate video size
+            if (asset.fileSize && asset.fileSize > REVIEW_MEDIA_LIMITS.MAX_VIDEO_SIZE_BYTES) {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Video quá lớn',
+                    text2: `Tối đa ${REVIEW_MEDIA_LIMITS.MAX_VIDEO_SIZE_BYTES / (1024 * 1024)}MB`,
+                });
+                return;
+            }
 
-            logger.api.info('[uploadMedia] Success:', assetId);
+            const newItem: ReviewMediaItem = {
+                id: uuidv4(),
+                uri: asset.uri,
+                type: 'VIDEO',
+                uploadStatus: 'pending',
+                progress: 0,
+                fileSize: asset.fileSize,
+                duration: asset.duration ?? undefined,
+            };
+
+            setMediaItems((prev) => [...prev, newItem]);
+            uploadMedia(newItem);
         } catch (error) {
-            logger.api.error('[uploadMedia] Error:', error);
-
-            // Update error
-            setMediaItems((prev) =>
-                prev.map((m) =>
-                    m.id === item.id
-                        ? { ...m, uploadStatus: 'error' as const, error: (error as Error).message }
-                        : m
-                )
-            );
-
+            logger.api.error('[takeVideo] Error:', error);
             Toast.show({
                 type: 'error',
-                text1: 'Upload thất bại',
-                text2: 'Vui lòng thử lại',
+                text1: 'Lỗi',
+                text2: 'Không thể mở máy ảnh',
             });
-        } finally {
-            setIsUploading(false);
         }
-    }, [uploadSingleMedia]);
+    }, [mediaItems, requestCameraPermission, uploadMedia]);
 
     /**
      * Remove a media item
@@ -432,6 +429,8 @@ export const useReviewMediaUpload = () => {
         // Actions
         pickImages,
         pickVideo,
+        takePhoto,
+        takeVideo,
         removeMedia,
         retryUpload,
         reset,

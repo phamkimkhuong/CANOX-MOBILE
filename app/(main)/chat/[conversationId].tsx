@@ -44,6 +44,7 @@ import { OrderStatus } from '@/types/order/order';
 import {
     groupMessagesByDate,
 } from '@/utils/adapter/chat/messageAdapter';
+import { Alert } from '@/utils/AlertHelper';
 import { logger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -648,38 +649,59 @@ export default function ChatDetailScreen() {
     // Hook xử lý chọn ảnh/chụp ảnh
     const { pickMultipleImages, takePhoto, isProcessing: isImageProcessing } = useChatImagePicker();
 
-    const handleSelectAttachmentOption = useCallback(async (type: 'image' | 'camera' | 'product' | 'order') => {
+    /**
+     * Handle multi-image selection from gallery
+     */
+    const handlePickImages = useCallback(async () => {
+        const images = await pickMultipleImages(10);
+        if (images.length > 0) {
+            sendMediaMessageMutation.mutate({
+                files: images.map((img: any) => ({
+                    uri: img.uri,
+                    fileName: img.fileName || `image_${Date.now()}.jpg`,
+                    fileSize: img.fileSize,
+                    mimeType: img.mimeType,
+                    width: img.width,
+                    height: img.height,
+                })),
+            });
+        }
+    }, [pickMultipleImages, sendMediaMessageMutation]);
+
+    /**
+     * Handle taking a single photo
+     */
+    const handleTakePhoto = useCallback(async () => {
+        const photo = await takePhoto();
+        if (photo) {
+            sendMediaMessageMutation.mutate({
+                files: [{
+                    uri: photo.uri,
+                    fileName: photo.fileName || `photo_${Date.now()}.jpg`,
+                    fileSize: photo.fileSize,
+                    mimeType: photo.mimeType,
+                    width: photo.width,
+                    height: photo.height,
+                }],
+            });
+        }
+    }, [takePhoto, sendMediaMessageMutation]);
+
+    const handleSelectAttachmentOption = useCallback(async (type: 'media' | 'product' | 'order') => {
         attachmentMenuRef.current?.dismiss();
         logger.chat.info('Selected attachment option', { type });
 
-        if (type === 'image') {
-            const images = await pickMultipleImages(10);
-            if (images.length > 0) {
-                sendMediaMessageMutation.mutate({
-                    files: images.map(img => ({
-                        uri: img.uri,
-                        fileName: img.fileName || `image_${Date.now()}.jpg`,
-                        fileSize: img.fileSize,
-                        mimeType: img.mimeType,
-                        width: img.width,
-                        height: img.height,
-                    })),
-                });
-            }
-        } else if (type === 'camera') {
-            const photo = await takePhoto();
-            if (photo) {
-                sendMediaMessageMutation.mutate({
-                    files: [{
-                        uri: photo.uri,
-                        fileName: photo.fileName || `photo_${Date.now()}.jpg`,
-                        fileSize: photo.fileSize,
-                        mimeType: photo.mimeType,
-                        width: photo.width,
-                        height: photo.height,
-                    }],
-                });
-            }
+        if (type === 'media') {
+            // Show selection menu for media source - similar to WriteReviewScreen
+            Alert.show({
+                title: 'Thêm hình ảnh',
+                message: 'Chọn nguồn ảnh bạn muốn sử dụng',
+                buttons: [
+                    { text: 'Chụp ảnh mới', onPress: handleTakePhoto },
+                    { text: 'Chọn từ thư viện', onPress: handlePickImages },
+                    { text: 'Hủy', style: 'cancel' },
+                ]
+            });
         } else if (type === 'product') {
             Navigator.push(chatRoutes.selectProduct({
                 shopId: partnerShopId || '',
@@ -692,7 +714,7 @@ export default function ChatDetailScreen() {
                 conversationId: currentConvId,
             }));
         }
-    }, [pickMultipleImages, takePhoto, partnerShopId, currentConvId, partner]);
+    }, [handleTakePhoto, handlePickImages, partnerShopId, currentConvId, partner]);
 
     // ============================================
     // RENDER FUNCTIONS

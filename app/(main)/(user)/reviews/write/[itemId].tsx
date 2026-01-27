@@ -11,19 +11,23 @@
  * - Gamification incentive banner
  */
 
+import { VideoPlayerModal } from '@/components/ui/VideoPlayerModal';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Image } from 'expo-image';
 import { useLocalSearchParams } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import React, { useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
-    Alert,
     KeyboardAvoidingView,
+    Modal,
     Platform,
     Pressable,
     ScrollView,
     Text,
     View,
 } from 'react-native';
+import Gallery, { RenderItemInfo } from 'react-native-awesome-gallery';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -42,8 +46,9 @@ import {
     useReviewMediaUpload,
     useUpdateReview,
 } from '@/hooks/api/review';
-import { ReviewFormSchema, type ReviewFormValues } from '@/types/review';
+import { ReviewFormSchema, type ReviewFormValues, type ReviewMediaItem } from '@/types/review';
 import { toCreateReviewRequest } from '@/utils/adapter/review/reviewAdapter';
+import { Alert } from '@/utils/AlertHelper';
 import { createLogger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
 import Toast from 'react-native-toast-message';
@@ -77,11 +82,21 @@ export default function WriteReviewScreen() {
     // Selected tags state
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
+    // Full screen image viewer state
+    const [isViewerVisible, setIsViewerVisible] = useState(false);
+    const [viewerIndex, setViewerIndex] = useState(0);
+
+    // Video player modal state
+    const [isVideoPlayerVisible, setIsVideoPlayerVisible] = useState(false);
+    const [currentVideoUrl, setCurrentVideoUrl] = useState<string | null>(null);
+
     // Media upload hook
     const {
         mediaItems,
         pickImages,
         pickVideo,
+        takePhoto,
+        takeVideo,
         removeMedia,
         retryUpload,
         getAssetIds,
@@ -144,13 +159,67 @@ export default function WriteReviewScreen() {
         }
     };
 
+    /**
+     * Show selection menu for images
+     */
+    const handleAddImages = () => {
+        Alert.show({
+            title: 'Thêm hình ảnh',
+            message: 'Chọn nguồn ảnh bạn muốn sử dụng',
+            buttons: [
+                { text: 'Chụp ảnh mới', onPress: takePhoto },
+                { text: 'Chọn từ thư viện', onPress: pickImages },
+                { text: 'Hủy', style: 'cancel' },
+            ]
+        });
+    };
+
+    /**
+     * Show selection menu for videos
+     */
+    const handleAddVideo = () => {
+        Alert.show({
+            title: 'Thêm video',
+            message: 'Chọn nguồn video bạn muốn sử dụng',
+            buttons: [
+                { text: 'Quay video mới', onPress: takeVideo },
+                { text: 'Chọn từ thư viện', onPress: pickVideo },
+                { text: 'Hủy', style: 'cancel' },
+            ]
+        });
+    };
+
+    /**
+     * Handle media thumbnail press
+     */
+    const handleMediaPress = (item: ReviewMediaItem) => {
+        if (item.type === 'VIDEO') {
+            setCurrentVideoUrl(item.uri);
+            setIsVideoPlayerVisible(true);
+        } else {
+            // Find index of this image among all images
+            const imagesOnly = mediaItems.filter(m => m.type === 'IMAGE');
+            const index = imagesOnly.findIndex(img => img.id === item.id);
+            setViewerIndex(index >= 0 ? index : 0);
+            setIsViewerVisible(true);
+        }
+    };
+
+    // Filter only images for gallery
+    const galleryImages = useMemo(() =>
+        mediaItems
+            .filter(item => item.type === 'IMAGE')
+            .map(item => ({ uri: item.uri, id: item.id }))
+        , [mediaItems]);
+
     // Submit handler
     const onSubmit = async (data: ReviewFormValues) => {
         if (hasPendingUploads()) {
-            Alert.alert(
-                'Đang tải lên',
-                'Vui lòng chờ tải lên hoàn tất trước khi gửi đánh giá.'
-            );
+            Alert.show({
+                title: 'Đang tải lên',
+                message: 'Vui lòng chờ tải lên hoàn tất trước khi gửi đánh giá.',
+                type: 'warning',
+            });
             return;
         }
 
@@ -330,8 +399,9 @@ export default function WriteReviewScreen() {
                             </Text>
                             <MediaUploader
                                 mediaItems={mediaItems}
-                                onPickImages={pickImages}
-                                onPickVideo={pickVideo}
+                                onPickImages={handleAddImages}
+                                onPickVideo={handleAddVideo}
+                                onMediaPress={handleMediaPress}
                                 onRemove={removeMedia}
                                 onRetry={retryUpload}
                                 imageCount={imageCount}
@@ -377,6 +447,62 @@ export default function WriteReviewScreen() {
                     </Pressable>
                 </View>
             </KeyboardAvoidingView>
+
+            {/* Full Screen Image Viewer */}
+            <Modal
+                visible={isViewerVisible}
+                transparent={true}
+                onRequestClose={() => setIsViewerVisible(false)}
+                animationType="fade"
+            >
+                <View style={viewerStyles.container}>
+                    <Gallery
+                        data={galleryImages}
+                        keyExtractor={(item) => item.id}
+                        initialIndex={viewerIndex}
+                        onIndexChange={setViewerIndex}
+                        onSwipeToClose={() => setIsViewerVisible(false)}
+                        renderItem={({ item, setImageDimensions }: RenderItemInfo<{ uri: string; id: string }>) => (
+                            <Image
+                                source={{ uri: item.uri }}
+                                style={viewerStyles.image}
+                                contentFit="contain"
+                                onLoad={(e) => {
+                                    const { width, height } = e.source;
+                                    setImageDimensions({ width, height });
+                                }}
+                            />
+                        )}
+                    />
+                    {/* Viewer Header with Close Button */}
+                    <View style={[viewerStyles.header, { top: insets.top }]}>
+                        <Pressable
+                            style={viewerStyles.closeButton}
+                            onPress={() => setIsViewerVisible(false)}
+                        >
+                            <IconSymbol name="close" size={24} color="#FFF" />
+                        </Pressable>
+                        <Text style={viewerStyles.headerText}>
+                            {viewerIndex + 1} / {galleryImages.length}
+                        </Text>
+                        <View style={viewerStyles.headerSpacer} />
+                    </View>
+                </View>
+
+                <StatusBar style="light" hidden />
+            </Modal>
+
+            {/* Video Player Modal */}
+            {currentVideoUrl && (
+                <VideoPlayerModal
+                    visible={isVideoPlayerVisible}
+                    videoUrl={currentVideoUrl}
+                    onClose={() => {
+                        setIsVideoPlayerVisible(false);
+                        setCurrentVideoUrl(null);
+                    }}
+                />
+            )}
         </View>
     );
 }
@@ -504,5 +630,43 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: 16,
         fontWeight: '700',
         color: '#FFFFFF',
+    },
+}));
+
+const viewerStyles = StyleSheet.create((theme) => ({
+    container: {
+        flex: 1,
+        backgroundColor: '#000',
+    },
+    image: {
+        flex: 1,
+    },
+    header: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 60,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: theme.margins.md,
+        backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    },
+    closeButton: {
+        width: 44,
+        height: 44,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 22,
+        backgroundColor: 'rgba(0, 0, 0, 0.2)',
+    },
+    headerSpacer: {
+        width: 44,
+    },
+    headerText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: '600',
     },
 }));

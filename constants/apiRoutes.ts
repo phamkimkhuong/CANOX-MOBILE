@@ -136,6 +136,7 @@ export const API_ROUTES = {
         PRESIGN_UPLOAD: `${API_PREFIX}/storage/presign-upload`,
         STATUS: `${API_PREFIX}/storage/status`,
         PRE_CHECK_IMAGES: `${API_PREFIX}/storage/pre-check-images`,
+        PRE_CHECK_VIDEOS: `${API_PREFIX}/storage/pre-check-videos`,
     },
     BUYERS: {
         UPDATE_AVATAR: (buyerId: string) => `${API_PREFIX}/buyers/${buyerId}/avatar`,

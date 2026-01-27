@@ -22,6 +22,8 @@ interface MediaUploaderProps {
     onRemove: (id: string) => void;
     /** Callback to retry failed upload */
     onRetry: (id: string) => void;
+    /** Callback when a media item is pressed */
+    onMediaPress: (item: ReviewMediaItem) => void;
     /** Current image count */
     imageCount: number;
     /** Current video count */
@@ -39,6 +41,7 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({
     onPickVideo,
     onRemove,
     onRetry,
+    onMediaPress,
     imageCount,
     videoCount,
 }) => {
@@ -65,6 +68,7 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({
                         item={item}
                         onRemove={() => onRemove(item.id)}
                         onRetry={() => onRetry(item.id)}
+                        onPress={() => onMediaPress(item)}
                         size={THUMBNAIL_SIZE}
                     />
                 ))}
