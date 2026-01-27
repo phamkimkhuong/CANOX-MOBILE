@@ -456,7 +456,7 @@ export default function HomeScreen() {
 const stylesheet = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.header.background,
+    backgroundColor: theme.colors.background,
   },
   listContent: {
     paddingHorizontal: theme.margins.sm,

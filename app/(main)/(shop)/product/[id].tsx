@@ -394,8 +394,9 @@ export default function ProductDetailScreen() {
      * Handle view all reviews
      */
     const handleViewAllReviews = useCallback(() => {
-        // TODO: Navigate to reviews screen
-        log.info('View all reviews for product:', productId);
+        if (productId) {
+            Navigator.push(productRoutes.reviews(productId));
+        }
     }, [productId]);
 
     /**

@@ -147,6 +147,14 @@ export const productRoutes = {
             ...(params?.instantNav && { instantNav: 'true' }),
         },
     }),
+    
+    /**
+     * All reviews screen for a product
+     */
+    reviews: (productId: string): Href => ({
+        pathname: '/product/[id]/reviews',
+        params: { id: productId },
+    }),
 } as const;
 
 /**

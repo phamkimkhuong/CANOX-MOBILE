@@ -105,10 +105,12 @@ export const API_ROUTES = {
     },
     REVIEWS: {
         LIST: (type: string, id: string | number) => `${API_PREFIX}/reviews/${type}/${id}`,
+        STATISTICS: (type: string, id: string | number) => `${API_PREFIX}/reviews/${type}/${id}/statistics`,
         CREATE: `${API_PREFIX}/reviews`,
         MY_REVIEWS: `${API_PREFIX}/reviews/my-reviews`,
         UPDATE: (reviewId: string) => `${API_PREFIX}/reviews/${reviewId}`,
         DELETE: (reviewId: string) => `${API_PREFIX}/reviews/${reviewId}`,
+        HELPFUL: (reviewId: string) => `${API_PREFIX}/reviews/${reviewId}/helpful`,
     },
     BUYERS_INFORMATION: {
         UPDATE: (buyerId: string) => `${API_PREFIX}/buyers/${buyerId}`,
