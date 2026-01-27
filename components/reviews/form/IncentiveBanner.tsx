@@ -24,22 +24,40 @@ interface IncentiveBannerProps {
 }
 
 /**
- * CoinIcon - Simple coin icon without animation
+ * CoinIcon - Vibrant coin icon with custom coloring
  */
 const CoinIcon: React.FC<{ active: boolean }> = ({ active }) => {
-    const { theme } = useUnistyles();
-
     return (
-        <IconSymbol
-            name="coin"
-            size={20}
-            color={active ? theme.colors.accent : theme.colors.typographySecondary}
-        />
+        <View style={[innerStyles.coinWrapper, active && innerStyles.coinWrapperActive]}>
+            <IconSymbol
+                name="coin"
+                size={22}
+                color={active ? '#FFD700' : '#BDBDBD'}
+            />
+        </View>
     );
 };
 
+// Internal styles for sub-components
+const innerStyles = StyleSheet.create((theme) => ({
+    coinWrapper: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: '#FEF3C7',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 2,
+        borderColor: '#FDE68A',
+    },
+    coinWrapperActive: {
+        backgroundColor: '#DCFCE7',
+        borderColor: '#BBF7D0',
+    },
+}));
+
 /**
- * IncentiveBanner - Shows estimated reward for review
+ * IncentiveBanner - Shows estimated reward for review with modern UI
  */
 export const IncentiveBanner: React.FC<IncentiveBannerProps> = ({
     photoCount,
@@ -67,77 +85,58 @@ export const IncentiveBanner: React.FC<IncentiveBannerProps> = ({
 
     return (
         <View style={[styles.container, isMaxReward && styles.containerMax]}>
-            {/* Icon & Title */}
-            <View style={styles.header}>
+            {/* Left Content: Icon & Main Message */}
+            <View style={styles.mainContent}>
                 <CoinIcon active={isMaxReward} />
-                <Text style={[styles.title, isMaxReward && styles.titleMax]}>
-                    {isMaxReward
-                        ? `Tuyệt vời! Nhận ${estimatedReward} ${rewardLabel}`
-                        : `Nhận đến ${maxReward} ${rewardLabel}`}
-                </Text>
+                <View style={styles.textContainer}>
+                    <Text style={styles.title}>
+                        {isMaxReward
+                            ? 'Tuyệt vời! Bạn nhận được tối đa xu'
+                            : `Viết đánh giá để nhận đến ${maxReward} ${rewardLabel}`}
+                    </Text>
+                    <Text style={styles.rewardText}>
+                        Tổng cộng: <Text style={styles.highlightText}>{estimatedReward} {rewardLabel}</Text>
+                    </Text>
+                </View>
             </View>
 
-            {/* Progress indicators */}
+            {/* Divider */}
+            <View style={styles.divider} />
+
+            {/* Bottom Content: Interactive Progress Chips */}
             <View style={styles.progressRow}>
                 {/* Base reward */}
-                <View style={styles.progressItem}>
-                    <View
-                        style={[
-                            styles.progressDot,
-                            hasBaseReward && styles.progressDotActive,
-                        ]}
-                    >
-                        <IconSymbol name="checkmark" size={10} color="#fff" />
-                    </View>
-                    <Text style={styles.progressText}>
-                        +{REVIEW_INCENTIVE.baseReward} Nhận xét
+                <View style={[styles.progressChip, hasBaseReward && styles.progressChipActive]}>
+                    <IconSymbol
+                        name={hasBaseReward ? "checkmark-circle-fill" : "circle"}
+                        size={14}
+                        color={hasBaseReward ? theme.colors.success : theme.colors.secondary}
+                    />
+                    <Text style={[styles.progressText, hasBaseReward && styles.progressTextActive]}>
+                        +{REVIEW_INCENTIVE.baseReward} {rewardLabel}
                     </Text>
                 </View>
 
                 {/* Photo bonus */}
-                <View style={styles.progressItem}>
-                    <View
-                        style={[
-                            styles.progressDot,
-                            hasPhotoBonus && styles.progressDotActive,
-                        ]}
-                    >
-                        {hasPhotoBonus ? (
-                            <IconSymbol name="checkmark" size={10} color="#fff" />
-                        ) : (
-                            <IconSymbol name="camera" size={10} color={theme.colors.secondary} />
-                        )}
-                    </View>
-                    <Text
-                        style={[
-                            styles.progressText,
-                            !hasPhotoBonus && styles.progressTextInactive,
-                        ]}
-                    >
+                <View style={[styles.progressChip, hasPhotoBonus && styles.progressChipActive]}>
+                    <IconSymbol
+                        name={hasPhotoBonus ? "checkmark-circle-fill" : "camera-fill"}
+                        size={14}
+                        color={hasPhotoBonus ? theme.colors.success : theme.colors.secondary}
+                    />
+                    <Text style={[styles.progressText, hasPhotoBonus && styles.progressTextActive]}>
                         +{REVIEW_INCENTIVE.bonusWithPhoto} Có ảnh
                     </Text>
                 </View>
 
                 {/* Video bonus */}
-                <View style={styles.progressItem}>
-                    <View
-                        style={[
-                            styles.progressDot,
-                            hasVideoBonus && styles.progressDotActive,
-                        ]}
-                    >
-                        {hasVideoBonus ? (
-                            <IconSymbol name="checkmark" size={10} color="#fff" />
-                        ) : (
-                            <IconSymbol name="videocam" size={10} color={theme.colors.secondary} />
-                        )}
-                    </View>
-                    <Text
-                        style={[
-                            styles.progressText,
-                            !hasVideoBonus && styles.progressTextInactive,
-                        ]}
-                    >
+                <View style={[styles.progressChip, hasVideoBonus && styles.progressChipActive]}>
+                    <IconSymbol
+                        name={hasVideoBonus ? "checkmark-circle-fill" : "videocam-fill"}
+                        size={14}
+                        color={hasVideoBonus ? theme.colors.success : theme.colors.secondary}
+                    />
+                    <Text style={[styles.progressText, hasVideoBonus && styles.progressTextActive]}>
                         +{REVIEW_INCENTIVE.bonusWithVideo} Có video
                     </Text>
                 </View>
@@ -148,59 +147,96 @@ export const IncentiveBanner: React.FC<IncentiveBannerProps> = ({
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
-        backgroundColor: theme.colors.accentSubtle,
-        borderRadius: theme.radius.m,
-        padding: theme.margins.smd,
+        backgroundColor: '#FFFBEB', // Light warm yellow
+        borderRadius: theme.radius.l,
+        padding: theme.margins.md,
         borderWidth: 1,
-        borderColor: theme.colors.accentLight,
+        borderColor: '#FEF3C7',
+        // Subtle shadow
+        shadowColor: '#F59E0B',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
     },
     containerMax: {
-        backgroundColor: theme.colors.successSubtle,
-        borderColor: theme.colors.successLight,
+        backgroundColor: '#F0FDF4', // Light green
+        borderColor: '#DCFCE7',
+        shadowColor: '#10B981',
     },
-    header: {
+    mainContent: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: theme.margins.sm,
-        marginBottom: theme.margins.sm,
+        gap: theme.margins.md,
+    },
+    coinWrapper: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: '#FEF3C7',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 2,
+        borderColor: '#FDE68A',
+    },
+    coinWrapperActive: {
+        backgroundColor: '#DCFCE7',
+        borderColor: '#BBF7D0',
+    },
+    textContainer: {
+        flex: 1,
     },
     title: {
         fontSize: 14,
-        fontWeight: '600',
-        color: theme.colors.accent,
-        flex: 1,
+        fontWeight: '700',
+        color: '#92400E', // Darker warm brown/orange
+        marginBottom: 2,
     },
-    titleMax: {
-        color: theme.colors.success,
+    rewardText: {
+        fontSize: 12,
+        color: '#B45309',
+    },
+    highlightText: {
+        fontSize: 15,
+        fontWeight: '800',
+        color: '#D97706', // Bright orange/gold
+    },
+    divider: {
+        height: 1,
+        backgroundColor: '#FDE68A',
+        marginVertical: theme.margins.md,
+        opacity: 0.5,
     },
     progressRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: theme.margins.smd,
-        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        gap: theme.margins.sm,
     },
-    progressItem: {
+    progressChip: {
+        flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
-    },
-    progressDot: {
-        width: 16,
-        height: 16,
-        borderRadius: 8,
-        backgroundColor: theme.colors.secondaryLight,
         justifyContent: 'center',
-        alignItems: 'center',
+        gap: 6,
+        paddingVertical: 6,
+        paddingHorizontal: 8,
+        backgroundColor: '#F3F4F6',
+        borderRadius: theme.radius.full,
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
     },
-    progressDotActive: {
-        backgroundColor: theme.colors.success,
+    progressChipActive: {
+        backgroundColor: '#FFFFFF',
+        borderColor: '#BBF7D0',
     },
     progressText: {
-        fontSize: 12,
-        color: theme.colors.typography,
+        fontSize: 11,
+        fontWeight: '600',
+        color: '#6B7280',
     },
-    progressTextInactive: {
-        color: theme.colors.secondary,
+    progressTextActive: {
+        color: theme.colors.success,
     },
 }));
 

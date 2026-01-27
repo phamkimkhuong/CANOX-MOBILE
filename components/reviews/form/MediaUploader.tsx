@@ -16,9 +16,7 @@ import { MediaThumbnail } from './MediaThumbnail';
 interface MediaUploaderProps {
     /** Current media items */
     mediaItems: ReviewMediaItem[];
-    /** Callback to pick images */
     onPickImages: () => void;
-    /** Callback to pick video */
     onPickVideo: () => void;
     /** Callback to remove item */
     onRemove: (id: string) => void;

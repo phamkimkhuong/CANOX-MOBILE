@@ -243,8 +243,8 @@ export default function WriteReviewScreen() {
                     showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps="handled"
                 >
-                    {/* Product Info */}
-                    <View style={styles.productSection}>
+                    {/* Product Info Card */}
+                    <View style={styles.card}>
                         <ReviewProductSnippet
                             productName={productName}
                             imageUrl={productImage}
@@ -259,7 +259,7 @@ export default function WriteReviewScreen() {
 
                     {/* Incentive Banner - only for new reviews */}
                     {!isEditMode && (
-                        <View style={styles.section}>
+                        <View style={styles.bannerWrapper}>
                             <IncentiveBanner
                                 photoCount={imageCount}
                                 hasVideo={videoCount > 0}
@@ -267,63 +267,66 @@ export default function WriteReviewScreen() {
                         </View>
                     )}
 
-                    {/* Star Rating */}
-                    <View style={styles.section}>
-                        <Text style={styles.sectionLabel}>
-                            Chất lượng sản phẩm
-                        </Text>
-                        <Controller
-                            control={control}
-                            name="rating"
-                            render={({ field: { value, onChange } }) => (
-                                <StarRatingInput
-                                    value={value}
-                                    onChange={onChange}
-                                    size={40}
-                                    showLabel
-                                    hasError={!!errors.rating}
-                                />
-                            )}
-                        />
-                        {errors.rating && (
-                            <Text style={styles.errorText}>
-                                {errors.rating.message}
+                    {/* Main Review Card */}
+                    <View style={styles.card}>
+                        {/* Star Rating */}
+                        <View style={styles.ratingSection}>
+                            <Text style={styles.sectionLabel}>
+                                Chất lượng sản phẩm
                             </Text>
-                        )}
-                    </View>
+                            <Controller
+                                control={control}
+                                name="rating"
+                                render={({ field: { value, onChange } }) => (
+                                    <StarRatingInput
+                                        value={value}
+                                        onChange={onChange}
+                                        size={44}
+                                        showLabel
+                                        hasError={!!errors.rating}
+                                    />
+                                )}
+                            />
+                            {errors.rating && (
+                                <Text style={styles.errorText}>
+                                    {errors.rating.message}
+                                </Text>
+                            )}
+                        </View>
 
-                    {/* Quick Tags - only show when rating is selected */}
-                    {currentRating > 0 && (
-                        <View style={styles.section}>
-                            <QuickTagChips
-                                rating={currentRating}
-                                selectedTags={selectedTags}
-                                onTagToggle={handleTagToggle}
+                        {/* Quick Tags - only show when rating is selected */}
+                        {currentRating > 0 && (
+                            <View style={styles.tagSection}>
+                                <QuickTagChips
+                                    rating={currentRating}
+                                    selectedTags={selectedTags}
+                                    onTagToggle={handleTagToggle}
+                                />
+                            </View>
+                        )}
+
+                        {/* Comment Input */}
+                        <View style={styles.inputSection}>
+                            <Controller
+                                control={control}
+                                name="comment"
+                                render={({ field: { value, onChange } }) => (
+                                    <ReviewTextInput
+                                        value={value}
+                                        onChange={onChange}
+                                        placeholder="Chia sẻ thêm cảm nhận của bạn về sản phẩm này nhé..."
+                                        maxLength={1000}
+                                    />
+                                )}
                             />
                         </View>
-                    )}
-
-                    {/* Comment Input */}
-                    <View style={styles.section}>
-                        <Controller
-                            control={control}
-                            name="comment"
-                            render={({ field: { value, onChange } }) => (
-                                <ReviewTextInput
-                                    value={value}
-                                    onChange={onChange}
-                                    placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm..."
-                                    maxLength={1000}
-                                />
-                            )}
-                        />
                     </View>
 
-                    {/* Media Upload - only for new reviews */}
+                    {/* Media Upload Card - only for new reviews */}
                     {!isEditMode && (
-                        <View style={styles.section}>
+                        <View style={styles.card}>
                             <Text style={styles.sectionLabel}>
-                                Hình ảnh & Video
+                                Hình ảnh & Video thực tế
                             </Text>
                             <MediaUploader
                                 mediaItems={mediaItems}
@@ -337,17 +340,19 @@ export default function WriteReviewScreen() {
                         </View>
                     )}
 
-                    {/* Anonymous Toggle (commented out - API not ready) */}
-                    <Controller
-                        control={control}
-                        name="isAnonymous"
-                        render={({ field: { value, onChange } }) => (
-                            <AnonymousToggle
-                                value={value}
-                                onChange={onChange}
-                            />
-                        )}
-                    />
+                    {/* Anonymous Toggle */}
+                    <View style={styles.anonymousSection}>
+                        <Controller
+                            control={control}
+                            name="isAnonymous"
+                            render={({ field: { value, onChange } }) => (
+                                <AnonymousToggle
+                                    value={value}
+                                    onChange={onChange}
+                                />
+                            )}
+                        />
+                    </View>
                 </ScrollView>
 
                 {/* Submit Button */}
@@ -379,12 +384,17 @@ export default function WriteReviewScreen() {
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
         flex: 1,
-        backgroundColor: theme.colors.background,
+        backgroundColor: '#f6f6f6', // Slightly grey background to make white cards pop
     },
     header: {
         backgroundColor: theme.colors.surface,
         borderBottomWidth: 1,
         borderBottomColor: theme.colors.border,
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
     },
     headerContent: {
         flexDirection: 'row',
@@ -402,7 +412,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     headerTitle: {
         fontSize: 18,
-        fontWeight: '600',
+        fontWeight: '700',
         color: theme.colors.typography,
         flex: 1,
         textAlign: 'center',
@@ -418,46 +428,81 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     scrollContent: {
         paddingVertical: theme.margins.md,
-        paddingHorizontal: theme.margins.md,
     },
-    productSection: {
-        marginBottom: theme.margins.lg,
+    card: {
+        backgroundColor: theme.colors.surface,
+        borderRadius: theme.radius.l,
+        marginHorizontal: theme.margins.md,
+        marginBottom: theme.margins.md,
+        padding: theme.margins.md,
+        // Shadow for iOS
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 8,
+        // Elevation for Android
+        elevation: 3,
     },
-    section: {
-        marginBottom: theme.margins.lg,
+    bannerWrapper: {
+        marginHorizontal: theme.margins.md,
+        marginBottom: theme.margins.md,
+    },
+    ratingSection: {
+        alignItems: 'center',
+        paddingVertical: theme.margins.sm,
+    },
+    tagSection: {
+        marginTop: theme.margins.md,
+        paddingTop: theme.margins.md,
+        borderTopWidth: 1,
+        borderTopColor: theme.colors.border,
+    },
+    inputSection: {
+        marginTop: theme.margins.md,
     },
     sectionLabel: {
-        fontSize: 15,
-        fontWeight: '600',
+        fontSize: 16,
+        fontWeight: '700',
         color: theme.colors.typography,
-        marginBottom: theme.margins.smd,
+        marginBottom: theme.margins.md,
+    },
+    anonymousSection: {
+        paddingHorizontal: theme.margins.md,
+        marginBottom: theme.margins.xl,
     },
     errorText: {
         fontSize: 12,
         color: theme.colors.error,
-        marginTop: 4,
+        marginTop: 8,
     },
     footer: {
         padding: theme.margins.md,
         backgroundColor: theme.colors.surface,
         borderTopWidth: 1,
         borderTopColor: theme.colors.border,
+        paddingBottom: Platform.OS === 'ios' ? 34 : theme.margins.md, // Handle safe area for home indicator
     },
     submitButton: {
         backgroundColor: theme.colors.primary,
-        paddingVertical: theme.margins.smd,
-        borderRadius: theme.radius.m,
+        paddingVertical: theme.margins.md,
+        borderRadius: theme.radius.full, // Modern rounded button
         alignItems: 'center',
         justifyContent: 'center',
-        minHeight: 48,
+        minHeight: 52,
+        elevation: 4,
+        shadowColor: theme.colors.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
     },
     submitButtonDisabled: {
         backgroundColor: theme.colors.secondaryLight,
-        opacity: 0.6,
+        shadowOpacity: 0,
+        elevation: 0,
     },
     submitButtonText: {
         fontSize: 16,
-        fontWeight: '600',
+        fontWeight: '700',
         color: '#FFFFFF',
     },
 }));

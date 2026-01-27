@@ -228,6 +228,10 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     speed: { ios: 'speedometer-outline', android: 'speedometer-outline' },
     straighten: { ios: 'resize-outline', android: 'resize-outline' },
     payments: { ios: 'cash-outline', android: 'cash-outline' },
+    'checkmark-circle-fill': { ios: 'checkmark-circle', android: 'checkmark-circle' },
+    'camera-fill': { ios: 'camera', android: 'camera' },
+    'videocam-fill': { ios: 'videocam', android: 'videocam' },
+    circle: { ios: 'ellipse-outline', android: 'ellipse-outline' },
 };
 
 interface IconSymbolProps {

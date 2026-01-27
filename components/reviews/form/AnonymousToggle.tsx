@@ -8,9 +8,7 @@
  * Uncomment when backend adds support.
  */
 
-import { IconSymbol } from '@/components/ui/Icon';
 import React from 'react';
-import { Switch, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface AnonymousToggleProps {

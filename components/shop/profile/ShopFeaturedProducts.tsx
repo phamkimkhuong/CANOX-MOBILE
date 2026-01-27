@@ -2,12 +2,6 @@
  * ==============================================
  * SHOP FEATURED PRODUCTS - Manual Masonry Layout
  * ==============================================
- * 
- * Implements masonry layout manually using View + flexWrap.
- * This avoids nested FlashList conflicts with parent scroll.
- * 
- * Masonry logic: Distributes items into 2 columns, placing each
- * item in the column with the shorter current height.
  */
 
 import { ProductCard } from '@/components/ui/product/ProductCard';
@@ -41,7 +35,7 @@ export const ShopFeaturedProducts = memo(({
     const { leftColumn, rightColumn } = useMemo(() => {
         const left: ShopProductItemUI[] = [];
         const right: ShopProductItemUI[] = [];
-        
+
         // Simple distribution: alternate between columns
         // This creates a staggered masonry effect
         displayProducts.forEach((product, index) => {
