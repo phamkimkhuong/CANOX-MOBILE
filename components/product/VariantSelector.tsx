@@ -218,8 +218,8 @@ const valueStyles = StyleSheet.create((theme) => ({
         position: 'relative',
     },
     selected: {
-        borderColor: theme.colors.primary,
-        backgroundColor: theme.colors.primaryMuted,
+        borderColor: theme.colors.newPrimary,
+        backgroundColor: theme.colors.activeMuted,
     },
     disabled: {
         borderColor: theme.colors.border,
@@ -236,7 +236,7 @@ const valueStyles = StyleSheet.create((theme) => ({
         color: theme.colors.typography,
     },
     textSelected: {
-        color: theme.colors.primary,
+        color: theme.colors.newPrimary,
         fontWeight: '600',
     },
     textDisabled: {
@@ -250,7 +250,7 @@ const valueStyles = StyleSheet.create((theme) => ({
         height: 16,
         borderTopLeftRadius: 8,
         borderBottomRightRadius: theme.radius.m,
-        backgroundColor: theme.colors.primary,
+        backgroundColor: theme.colors.newPrimary,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -599,7 +599,7 @@ const sheetStyles = StyleSheet.create((theme) => ({
         borderTopColor: theme.colors.border,
     },
     confirmButton: {
-        backgroundColor: theme.colors.primary,
+        backgroundColor: theme.colors.newPrimary,
         borderRadius: theme.radius.m,
         paddingVertical: 14,
         alignItems: 'center',
@@ -608,8 +608,8 @@ const sheetStyles = StyleSheet.create((theme) => ({
         borderColor: 'transparent',
     },
     confirmButtonSoft: {
-        backgroundColor: theme.colors.primarySoft,
-        borderColor: theme.colors.primary,
+        backgroundColor: theme.colors.activeSoft,
+        borderColor: theme.colors.newPrimary,
     },
     confirmButtonDisabled: {
         backgroundColor: theme.colors.background,
@@ -621,7 +621,7 @@ const sheetStyles = StyleSheet.create((theme) => ({
         color: theme.colors.surface,
     },
     confirmTextSoft: {
-        color: theme.colors.primary,
+        color: theme.colors.newPrimary,
     },
     confirmTextDisabled: {
         color: theme.colors.secondary,

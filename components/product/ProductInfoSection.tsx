@@ -276,14 +276,14 @@ const styles = StyleSheet.create((theme) => ({
         color: theme.colors.surface,
     },
     internationalBadge: {
-        backgroundColor: theme.colors.primaryLight,
+        backgroundColor: theme.colors.activeLight,
         borderWidth: 1,
-        borderColor: theme.colors.primary,
+        borderColor: theme.colors.newPrimary,
     },
     internationalText: {
         fontSize: 11,
         fontWeight: '600',
-        color: theme.colors.primary,
+        color: theme.colors.newPrimary,
     },
     voucherBadge: {
         backgroundColor: '#E8F5E9',

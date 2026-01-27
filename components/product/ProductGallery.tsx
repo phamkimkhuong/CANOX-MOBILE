@@ -194,7 +194,7 @@ const thumbnailStyles = StyleSheet.create((theme) => ({
         borderColor: 'transparent',
     },
     containerActive: {
-        borderColor: theme.colors.primary,
+        borderColor: theme.colors.newPrimary,
     },
     image: {
         width: '100%',

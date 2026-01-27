@@ -115,7 +115,7 @@ export const toCreateReviewRequest = (params: {
     mediaAssetIds?: string[];
     reviewType?: 'PRODUCT' | 'SHOP' | 'ORDER';
 }): CreateReviewRequest => ({
-    reviewType: params.reviewType || 'ORDER',
+    reviewType: params.reviewType || 'PRODUCT',
     reviewableId: params.productId,
     rating: params.rating,
     comment: params.comment,

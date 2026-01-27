@@ -99,7 +99,7 @@ export const ShopInfoCard = memo<ShopInfoCardProps>(({
                                 <IconSymbol
                                     name="verified-user"
                                     size={12}
-                                    color={theme.colors.primary}
+                                    color={theme.colors.newPrimary}
                                 />
                             </View>
                         )}
@@ -149,7 +149,7 @@ export const ShopInfoCard = memo<ShopInfoCardProps>(({
                                 <IconSymbol
                                     name="chat"
                                     size={18}
-                                    color={theme.colors.primary}
+                                    color={theme.colors.newPrimary}
                                 />
                                 <Text style={styles.chatButtonText}>{PRODUCT_STRINGS.bottomBar.chat}</Text>
                             </View>
@@ -166,7 +166,7 @@ export const ShopInfoCard = memo<ShopInfoCardProps>(({
                                 <IconSymbol
                                     name="storefront-outline"
                                     size={18}
-                                    color={theme.colors.primary}
+                                    color={theme.colors.newPrimary}
                                 />
                                 <Text style={styles.viewShopText}>{PRODUCT_STRINGS.shop.viewShop}</Text>
                             </View>
@@ -241,7 +241,7 @@ const styles = StyleSheet.create((theme) => ({
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1,
-        borderColor: theme.colors.primary,
+        borderColor: theme.colors.newPrimary,
     },
     info: {
         flex: 1,
@@ -277,7 +277,7 @@ const styles = StyleSheet.create((theme) => ({
     chatButton: {
         borderRadius: theme.radius.m,
         borderWidth: 1,
-        borderColor: theme.colors.primary,
+        borderColor: theme.colors.newPrimary,
         overflow: 'hidden',
     },
     chatButtonInner: {
@@ -293,7 +293,7 @@ const styles = StyleSheet.create((theme) => ({
     chatButtonText: {
         fontSize: 13,
         fontWeight: '600',
-        color: theme.colors.primary,
+        color: theme.colors.newPrimary,
     },
     statsRow: {
         flexDirection: 'row',
@@ -312,7 +312,7 @@ const styles = StyleSheet.create((theme) => ({
     statValue: {
         fontSize: 14,
         fontWeight: '700',
-        color: theme.colors.primary,
+        color: theme.colors.newPrimary,
     },
     statLabel: {
         fontSize: 11,
@@ -328,13 +328,13 @@ const styles = StyleSheet.create((theme) => ({
     viewShopButton: {
         borderRadius: theme.radius.m,
         borderWidth: 1,
-        borderColor: theme.colors.primary,
+        borderColor: theme.colors.newPrimary,
         overflow: 'hidden',
     },
     viewShopText: {
         fontSize: 13,
         fontWeight: '600',
-        color: theme.colors.primary,
+        color: theme.colors.newPrimary,
     },
 }));
 
