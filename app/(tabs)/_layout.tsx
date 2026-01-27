@@ -6,7 +6,6 @@ import { useCart } from '@/hooks/api/cart/useCart';
 import { useUnreadMessageCount } from '@/hooks/api/chat';
 import { useUnreadNotificationCount } from '@/hooks/api/notification/useNotifications';
 import { useAuthStore } from '@/store/useAuthStore';
-import { useCartStore } from '@/store/useCartStore';
 import { Navigator } from '@/utils/navigation';
 import { Tabs, usePathname } from 'expo-router';
 import React, { useCallback } from 'react';

@@ -184,7 +184,7 @@ const PriceAlertsTab: React.FC = () => {
         Navigator.push(productRoutes.detail(item.productId));
     }, []);
 
-    const handleAddToCart = useCallback((item: WishlistItemUI) => {
+    const handleAddToCart = useCallback((_item: WishlistItemUI) => {
         // TODO: Add to cart mutation
     }, []);
 
@@ -265,7 +265,6 @@ const DiscoverTab: React.FC = () => {
  * Main Wishlist Hub Screen
  */
 export default function WishlistHubScreen() {
-    const { theme } = useUnistyles();
     const styles = stylesheet;
     const { bottom } = useSafeAreaInsets();
 

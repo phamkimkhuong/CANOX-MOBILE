@@ -22,9 +22,7 @@ import {
     CartFooter,
     CartShopGroup,
     CartSkeleton,
-    CHECKOUT_BAR_HEIGHT,
-    RecommendedProducts,
-    VOUCHER_BAR_HEIGHT,
+    RecommendedProducts
 } from '@/components/cart';
 import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES, shopRoutes } from '@/constants/routes';
@@ -44,11 +42,10 @@ import { logger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
 import { FlashList } from '@shopify/flash-list';
 import { useLocalSearchParams } from 'expo-router';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, RefreshControl, Text, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -147,7 +144,7 @@ const EmptyCart: React.FC<EmptyCartProps> = ({ onRefresh, refreshing }) => {
 export default function CartScreen() {
     const { theme } = useUnistyles();
     const { t } = useTranslation('cart');
-    const insets = useSafeAreaInsets();
+
     const { rebuySuccess } = useLocalSearchParams<{ rebuySuccess?: string }>();
 
     // ========================================
@@ -381,9 +378,7 @@ export default function CartScreen() {
         ]
     );
 
-    const footerHeight = useMemo(() => {
-        return CHECKOUT_BAR_HEIGHT + VOUCHER_BAR_HEIGHT + insets.bottom;
-    }, [insets.bottom]);
+
 
     // ========================================
     // RENDER

@@ -35,8 +35,6 @@ export default function MeScreen() {
     const {
         data: userProfile,
         isLoading: isLoadingProfile,
-        isError: isProfileError,
-        refetch: refetchProfile,
     } = useUserProfile();
 
     const {

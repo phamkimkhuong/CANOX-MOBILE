@@ -199,36 +199,20 @@ export interface CheckoutPreviewResponse {
 // ZOD SCHEMAS - Response Validation
 // ============================================
 
-const CheckoutPromotionSchema = z.object({
-    promotionId: z.string(),
-    campaignId: z.string(),
-    campaignName: z.string(),
-    campaignType: z.string(),
-    originalPrice: z.number(),
-    salePrice: z.number(),
-    discountPercent: z.number().int(),
-});
-
 const CheckoutPreviewItemSchema = z.object({
     itemId: z.string(),
     productId: z.string(),
     variantId: z.string(),
     productName: z.string(),
-    sku: z.string().nullable().optional(),
     basePath: z.string().nullable().optional(),
     extension: z.string().nullable().optional(),
     variantAttributes: z.string().nullable().optional(),
     unitPrice: z.number().nullable().optional().default(0),
     quantity: z.number().int().positive().nullable().optional().default(1),
-    discountAmount: z.number().nullable().optional().default(0),
     lineTotal: z.number().nullable().optional().default(0),
-    isAvailable: z.boolean().nullable().optional().default(true),
-    availabilityMessage: z.string().nullable().optional(),
-    lengthCm: z.number().nullable().optional(),
-    widthCm: z.number().nullable().optional(),
-    heightCm: z.number().nullable().optional(),
-    weightGrams: z.number().nullable().optional(),
-    promotion: CheckoutPromotionSchema.nullable().optional(),
+    promotion: z.object({
+        promotionId: z.string(),
+    }).nullable().optional(),
 });
 
 const CheckoutShippingOptionSchema = z.object({
@@ -297,11 +281,9 @@ const CheckoutPreviewShopSchema = z.object({
 
 const CheckoutOrderSummarySchema = z.object({
     totalItems: z.number().int().nullable().optional().default(0),
-    totalQuantity: z.number().int().nullable().optional().default(0),
     subtotal: z.number().nullable().optional().default(0),
     totalDiscount: z.number().nullable().optional().default(0),
     shippingDiscount: z.number().nullable().optional().default(0),
-    productDiscount: z.number().nullable().optional().default(0),
     totalShippingFee: z.number().nullable().optional().default(0),
     totalTaxAmount: z.number().nullable().optional().default(0),
     grandTotal: z.number().nullable().optional().default(0),
@@ -322,11 +304,9 @@ const CheckoutPreviewDataSchema = z.object({
     shops: z.array(CheckoutPreviewShopSchema).optional().default([]),
     summary: CheckoutOrderSummarySchema.optional().default({
         totalItems: 0,
-        totalQuantity: 0,
         subtotal: 0,
         totalDiscount: 0,
         shippingDiscount: 0,
-        productDiscount: 0,
         totalShippingFee: 0,
         totalTaxAmount: 0,
         grandTotal: 0,

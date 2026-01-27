@@ -31,7 +31,6 @@ export default function AddressListScreen() {
     // Get mode and selectedId from search params
     const {
         mode: modeParam,
-        selectedId: selectedIdParam,
     } = useLocalSearchParams<{
         mode?: string;
         selectedId?: string;
