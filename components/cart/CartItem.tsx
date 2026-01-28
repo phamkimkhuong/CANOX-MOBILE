@@ -338,7 +338,7 @@ const styles = StyleSheet.create((theme, rt) => {
         },
         findSimilarButton: {
             borderWidth: 1,
-            borderColor: theme.colors.primary,
+            borderColor: theme.colors.newPrimary,
             borderRadius: theme.radius.m,
             paddingHorizontal: 8,
             paddingVertical: 6,
@@ -346,7 +346,7 @@ const styles = StyleSheet.create((theme, rt) => {
         findSimilarText: {
             fontSize: f(theme.fontSizes.sm),
             fontWeight: '500',
-            color: theme.colors.primary,
+            color: theme.colors.newPrimary,
         },
         lowStockWarning: {
             fontSize: f(theme.fontSizes.xs),

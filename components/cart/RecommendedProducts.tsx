@@ -17,7 +17,7 @@ export const RecommendedProducts = () => {
     if (isLoading && products.length === 0) {
         return (
             <View style={styles.loadingContainer}>
-                <ActivityIndicator size="small" color={theme.colors.primary} />
+                <ActivityIndicator size="small" color={theme.colors.newPrimary} />
             </View>
         );
     }
@@ -84,18 +84,17 @@ const styles = StyleSheet.create((theme) => ({
     },
     title: {
         fontSize: 14,
-        fontWeight: '700',
-        color: theme.colors.primary,
+        fontWeight: '500',
+        color: theme.colors.typography,
         letterSpacing: 0.5,
     },
     grid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        paddingHorizontal: theme.margins.sm,
+        paddingHorizontal: theme.margins.md,
     },
     cardWrapper: {
         width: '50%',
-        padding: theme.margins.sm,
     },
     loadingContainer: {
         padding: theme.margins.xl,

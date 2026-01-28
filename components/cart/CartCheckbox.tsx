@@ -104,12 +104,12 @@ export const CartCheckbox: React.FC<CartCheckboxProps> = memo(({
     // Determine colors
     const backgroundColor =
         isChecked || isIndeterminate
-            ? theme.colors.primary
+            ? theme.colors.newPrimary
             : 'transparent';
 
     const borderColor =
         isChecked || isIndeterminate
-            ? theme.colors.primary
+            ? theme.colors.newPrimary
             : disabled
                 ? theme.colors.secondary
                 : theme.colors.border;

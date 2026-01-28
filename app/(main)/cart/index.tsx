@@ -116,18 +116,22 @@ const EmptyCart: React.FC<EmptyCartProps> = ({ onRefresh, refreshing }) => {
         >
             <View style={styles.emptyContainer}>
                 <View style={styles.emptyIconCircle}>
-                    <IconSymbol name="cart" size={48} color={theme.colors.primary} />
+                    <IconSymbol name="cart" size={60} color={theme.colors.newPrimary} />
                 </View>
                 <Text style={styles.emptyTitle}>{t('empty.title')}</Text>
                 <Text style={styles.emptySubtitle}>{t('empty.subtitle')}</Text>
 
                 <Pressable
                     onPress={() => Navigator.push('/')}
-                    style={styles.shopNowButton}
+                    style={({ pressed }) => [
+                        styles.shopNowButton,
+                        pressed && styles.shopNowButtonPressed
+                    ]}
                     accessibilityLabel={t('empty.shopNow')}
                     accessibilityRole="button"
                 >
                     <Text style={styles.shopNowText}>{t('empty.shopNow')}</Text>
+                    <IconSymbol name="arrow-forward" size={16} color={theme.colors.onPrimary} />
                 </Pressable>
             </View>
 
@@ -539,28 +543,26 @@ const styles = StyleSheet.create((theme, runtime) => ({
     headerAction: {
         fontSize: 14,
         fontWeight: '600',
-        color: theme.colors.primary,
+        color: theme.colors.buttonActive,
     },
     emptyScrollContent: {
         flexGrow: 1,
         backgroundColor: theme.colors.background,
     },
     emptyContainer: {
-        paddingTop: theme.margins.xl * 2,
-        paddingBottom: theme.margins.lg,
+        paddingTop: theme.margins.xl,
         justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: theme.margins.xl,
         gap: theme.margins.sm,
     },
     emptyIconCircle: {
-        width: 100,
-        height: 100,
+        width: 90,
+        height: 90,
         borderRadius: 50,
         backgroundColor: theme.colors.activeSoft,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: theme.margins.md,
+        marginBottom: theme.margins.sm,
     },
     emptyTitle: {
         fontSize: 18,
@@ -574,21 +576,28 @@ const styles = StyleSheet.create((theme, runtime) => ({
         marginBottom: theme.margins.md,
     },
     shopNowButton: {
-        backgroundColor: theme.colors.primary,
-        paddingHorizontal: theme.margins.xl,
+        backgroundColor: theme.colors.buttonActive,
+        paddingHorizontal: theme.margins.lg,
         paddingVertical: theme.margins.md,
-        borderRadius: theme.radius.m,
-        shadowColor: theme.colors.primary,
+        borderRadius: theme.radius.full,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: theme.margins.sm,
+        shadowColor: theme.colors.buttonActive,
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
-        elevation: 4,
+        shadowOpacity: 0.3,
+        shadowRadius: 10,
+        elevation: 6,
+    },
+    shopNowButtonPressed: {
+        opacity: 0.9,
+        transform: [{ scale: 0.98 }],
     },
     shopNowText: {
-        fontSize: 14,
-        fontWeight: '800',
+        fontSize: 15,
+        fontWeight: '600',
         color: theme.colors.onPrimary,
-        letterSpacing: 1,
+        // letterSpacing: 0.5,
     },
     syncBar: {
         flexDirection: 'row',

@@ -8,6 +8,7 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { getReviewRatingLabel } from '@/utils/adapter/review/reviewAdapter';
 import React, { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -68,6 +69,7 @@ export const StarRatingInput: React.FC<StarRatingInputProps> = ({
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+    const { t } = useTranslation(['myReviews']);
 
     const handleStarPress = useCallback(
         (index: number) => {
@@ -76,7 +78,7 @@ export const StarRatingInput: React.FC<StarRatingInputProps> = ({
         [onChange]
     );
 
-    const ratingLabel = getReviewRatingLabel(value);
+    const ratingLabelKey = getReviewRatingLabel(value);
 
     return (
         <View style={styles.container}>
@@ -103,13 +105,13 @@ export const StarRatingInput: React.FC<StarRatingInputProps> = ({
                         hasError && styles.labelError,
                     ]}
                 >
-                    {value > 0 ? ratingLabel : 'Chạm để đánh giá'}
+                    {value > 0 ? t(ratingLabelKey as any) : t('ratingLabels.none')}
                 </Text>
             )}
 
             {/* Error Message */}
             {hasError && value === 0 && (
-                <Text style={styles.errorText}>Vui lòng chọn số sao</Text>
+                <Text style={styles.errorText}>{t('toast.error')}: {t('ratingLabels.none')}</Text>
             )}
         </View>
     );

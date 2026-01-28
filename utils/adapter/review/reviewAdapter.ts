@@ -75,7 +75,7 @@ export const toMyReviewUI = (dto: MyReviewDTO): MyReviewUI => ({
     id: dto.id,
     reviewType: dto.reviewType,
     productId: dto.reviewableId,
-    productName: `Sản phẩm #${dto.reviewableId.slice(-6)}`,
+    productName: `Product #${dto.reviewableId.slice(-6)}`,
     productImage: '',
     variantAttributes: null,
     rating: dto.rating,

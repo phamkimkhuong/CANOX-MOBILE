@@ -70,7 +70,9 @@ export const ReviewHistoryCard: React.FC<ReviewHistoryCardProps> = ({
                 </View>
                 <View style={styles.productInfo}>
                     <Text style={styles.productName} numberOfLines={2}>
-                        {review.productName}
+                        {review.productName.startsWith('Product #')
+                            ? t('card.productSnapshot', { id: review.productId.slice(-6) })
+                            : review.productName}
                     </Text>
                     {review.variantAttributes && (
                         <Text style={styles.variant} numberOfLines={1}>

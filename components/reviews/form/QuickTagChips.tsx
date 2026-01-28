@@ -46,15 +46,18 @@ export const QuickTagChips: React.FC<QuickTagChipsProps> = ({
         <View style={styles.container}>
             <Text style={styles.hint}>{t('form.tagHint')}</Text>
             <View style={styles.chipsContainer}>
-                {availableTags.map((tag) => (
-                    <QuickTagChip
-                        key={tag.id}
-                        label={tag.label}
-                        category={tag.category}
-                        selected={selectedTags.includes(tag.id)}
-                        onPress={() => onTagToggle(tag.id, tag.label)}
-                    />
-                ))}
+                {availableTags.map((tag) => {
+                    const translatedLabel = t(tag.labelKey as any) as string;
+                    return (
+                        <QuickTagChip
+                            key={tag.id}
+                            label={translatedLabel}
+                            category={tag.category}
+                            selected={selectedTags.includes(tag.id)}
+                            onPress={() => onTagToggle(tag.id, translatedLabel)}
+                        />
+                    );
+                })}
             </View>
         </View>
     );

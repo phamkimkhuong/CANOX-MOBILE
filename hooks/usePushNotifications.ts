@@ -1,14 +1,14 @@
 import { mmkvStorage } from '@/store/storage';
-import Constants from 'expo-constants';
+import messaging, { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { useEffect, useRef, useState } from 'react';
-import { Platform } from 'react-native';
+import { PermissionsAndroid, Platform } from 'react-native';
 
 // Key save push token on MMKV
-const PUSH_TOKEN_KEY = 'expo_push_token';
+const FCM_TOKEN_KEY = 'fcm_push_token';
 
-// Config notification when app is open
+// Config notification when app is open (vẫn dùng expo-notifications cho local notifications)
 Notifications.setNotificationHandler({
     handleNotification: async () => ({
         shouldShowAlert: true,
@@ -20,24 +20,24 @@ Notifications.setNotificationHandler({
 });
 
 /**
- * Get push token saved on MMKV
+ * Get FCM token saved on MMKV
  */
 export function getSavedPushToken(): string | null {
-    return mmkvStorage.getString(PUSH_TOKEN_KEY) ?? null;
+    return mmkvStorage.getString(FCM_TOKEN_KEY) ?? null;
 }
 
 /**
- * Save push token on MMKV
+ * Save FCM token on MMKV
  */
 function savePushToken(token: string): void {
-    mmkvStorage.set(PUSH_TOKEN_KEY, token);
+    mmkvStorage.set(FCM_TOKEN_KEY, token);
 }
 
 /**
- * Clear push token on MMKV (when logout)
+ * Clear FCM token on MMKV (when logout)
  */
 export function clearPushToken(): void {
-    mmkvStorage.remove(PUSH_TOKEN_KEY);
+    mmkvStorage.remove(FCM_TOKEN_KEY);
 }
 
 /**
@@ -48,18 +48,30 @@ function hasTokenChanged(newToken: string): boolean {
     return savedToken !== newToken;
 }
 
+/**
+ * FCM Topics để subscribe
+ * Mobile sẽ subscribe vào các topic này để nhận broadcast notifications
+ */
+export const FCM_TOPICS = {
+    /** Tất cả users - dùng cho broadcast chung */
+    ALL_USERS: 'all_users',
+    /** Khuyến mãi, Flash Sale */
+    PROMOTIONS: 'promotions',
+    /** Tin tức, cập nhật */
+    NEWS: 'news',
+} as const;
+
 export function usePushNotifications() {
-    const [expoPushToken, setExpoPushToken] = useState<string | null>(null);
-    const [notification, setNotification] = useState<Notifications.Notification | null>(null);
+    const [fcmToken, setFcmToken] = useState<string | null>(null);
+    const [notification, setNotification] = useState<FirebaseMessagingTypes.RemoteMessage | null>(null);
     const [tokenChanged, setTokenChanged] = useState(false);
-    const notificationListener = useRef<Notifications.EventSubscription | null>(null);
-    const responseListener = useRef<Notifications.EventSubscription | null>(null);
+    const unsubscribeRef = useRef<(() => void) | null>(null);
 
     useEffect(() => {
         // Register for push token
         registerForPushNotificationsAsync().then(token => {
             if (token) {
-                setExpoPushToken(token);
+                setFcmToken(token);
 
                 // Check if token has changed
                 const changed = hasTokenChanged(token);
@@ -70,33 +82,65 @@ export function usePushNotifications() {
             }
         });
 
-        // Listen when notification received (app is open)
-        notificationListener.current = Notifications.addNotificationReceivedListener(notif => {
-            setNotification(notif);
-            console.log('Notification received:', notif.request.content.title);
+        // Subscribe to topics for broadcast notifications
+        subscribeToTopics();
+
+        // Listen when notification received (app is FOREGROUND)
+        // FCM không tự hiển thị notification khi app đang mở, cần xử lý thủ công
+        unsubscribeRef.current = messaging().onMessage(async remoteMessage => {
+            console.log('FCM Notification received (foreground):', remoteMessage);
+            setNotification(remoteMessage);
+
+            // Hiển thị local notification khi app đang mở
+            if (remoteMessage.notification) {
+                await Notifications.scheduleNotificationAsync({
+                    content: {
+                        title: remoteMessage.notification.title ?? '',
+                        body: remoteMessage.notification.body ?? '',
+                        data: remoteMessage.data,
+                    },
+                    trigger: null, // Hiển thị ngay lập tức
+                });
+            }
         });
 
-        // Listen when user tap on notification
-        responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-            console.log('Notification tapped:', response.notification.request.content.title);
-            // TODO: Handle navigation based on data in notification
-            const data = response.notification.request.content.data;
-            console.log('Notification data:', data);
-            // Example: router.push(data.screen);
+        // Listen when user tap on notification (app is BACKGROUND)
+        const unsubscribeOnNotificationOpenedApp = messaging().onNotificationOpenedApp(remoteMessage => {
+            console.log('FCM Notification tapped (background):', remoteMessage);
+            handleNotificationNavigation(remoteMessage);
+        });
+
+        // Check if app was opened from notification (app was QUIT)
+        messaging()
+            .getInitialNotification()
+            .then(remoteMessage => {
+                if (remoteMessage) {
+                    console.log('FCM App opened from notification (quit state):', remoteMessage);
+                    handleNotificationNavigation(remoteMessage);
+                }
+            });
+
+        // Listen for token refresh
+        const unsubscribeTokenRefresh = messaging().onTokenRefresh(newToken => {
+            console.log('FCM Token refreshed:', newToken);
+            setFcmToken(newToken);
+            setTokenChanged(true);
+            savePushToken(newToken);
         });
 
         return () => {
-            if (notificationListener.current) {
-                notificationListener.current.remove();
+            if (unsubscribeRef.current) {
+                unsubscribeRef.current();
             }
-            if (responseListener.current) {
-                responseListener.current.remove();
-            }
+            unsubscribeOnNotificationOpenedApp();
+            unsubscribeTokenRefresh();
         };
     }, []);
 
     return {
-        expoPushToken,
+        /** FCM Token - gửi lên Backend để nhận notification cá nhân */
+        fcmToken,
+        /** Notification vừa nhận được */
         notification,
         /**
          * Return true if token has changed compared to the last saved token
@@ -106,6 +150,56 @@ export function usePushNotifications() {
     };
 }
 
+/**
+ * Handle navigation when user taps on notification
+ */
+function handleNotificationNavigation(remoteMessage: FirebaseMessagingTypes.RemoteMessage) {
+    const data = remoteMessage.data;
+    console.log('Notification data:', data);
+
+    // TODO: Handle navigation based on data
+    // Example: router.push(data?.screen as string);
+
+    if (data?.orderId) {
+        // Navigate to order detail
+        // router.push(`/orders/${data.orderId}`);
+    }
+
+    if (data?.productId) {
+        // Navigate to product detail
+        // router.push(`/products/${data.productId}`);
+    }
+}
+
+/**
+ * Subscribe to FCM topics for broadcast notifications
+ */
+async function subscribeToTopics(): Promise<void> {
+    try {
+        // Subscribe to all_users topic for general broadcasts
+        await messaging().subscribeToTopic(FCM_TOPICS.ALL_USERS);
+        console.log('Subscribed to topic:', FCM_TOPICS.ALL_USERS);
+
+        // Subscribe to promotions topic (user có thể unsubscribe sau)
+        await messaging().subscribeToTopic(FCM_TOPICS.PROMOTIONS);
+        console.log('Subscribed to topic:', FCM_TOPICS.PROMOTIONS);
+    } catch (error) {
+        console.error('Error subscribing to topics:', error);
+    }
+}
+
+/**
+ * Unsubscribe from a topic (when user turns off notification settings)
+ */
+export async function unsubscribeFromTopic(topic: string): Promise<void> {
+    try {
+        await messaging().unsubscribeFromTopic(topic);
+        console.log('Unsubscribed from topic:', topic);
+    } catch (error) {
+        console.error('Error unsubscribing from topic:', error);
+    }
+}
+
 async function registerForPushNotificationsAsync(): Promise<string | null> {
     // Push notifications only work on physical devices
     if (!Device.isDevice) {
@@ -113,7 +207,7 @@ async function registerForPushNotificationsAsync(): Promise<string | null> {
         return null;
     }
 
-    // Configure channels for Android
+    // Configure channels for Android (vẫn dùng expo-notifications)
     if (Platform.OS === 'android') {
         // Channel mặc định
         await Notifications.setNotificationChannelAsync('default', {
@@ -128,38 +222,52 @@ async function registerForPushNotificationsAsync(): Promise<string | null> {
             name: 'Đơn hàng',
             description: 'Thông báo về tình trạng đơn hàng của bạn',
             importance: Notifications.AndroidImportance.MAX,
-            vibrationPattern: [0, 500, 200, 500], // Rung mạnh hơn cho đơn hàng
-            lightColor: '#FFD700', // Màu vàng Gold
+            vibrationPattern: [0, 500, 200, 500],
+            lightColor: '#FFD700',
+        });
+
+        // Channel cho Khuyến mãi
+        await Notifications.setNotificationChannelAsync('promotions', {
+            name: 'Khuyến mãi',
+            description: 'Thông báo về khuyến mãi và ưu đãi',
+            importance: Notifications.AndroidImportance.HIGH,
         });
     }
 
     // Request permission
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
+    let hasPermission = false;
 
-    if (existingStatus !== 'granted') {
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
+    if (Platform.OS === 'ios') {
+        // iOS: Dùng FCM requestPermission
+        const authStatus = await messaging().requestPermission();
+        hasPermission =
+            authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+            authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+    } else if (Platform.OS === 'android') {
+        // Android 13+: Cần xin quyền POST_NOTIFICATIONS
+        if (Platform.Version >= 33) {
+            const granted = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+            );
+            hasPermission = granted === PermissionsAndroid.RESULTS.GRANTED;
+        } else {
+            // Android < 13: Tự động có quyền
+            hasPermission = true;
+        }
     }
 
-    if (finalStatus !== 'granted') {
+    if (!hasPermission) {
         console.log('Permission for push notifications was denied');
         return null;
     }
 
-    // Get Expo Push Token
+    // Get FCM Token
     try {
-        const projectId = Constants.expoConfig?.extra?.eas?.projectId;
-        if (!projectId) {
-            console.error('Project ID not found in app config');
-            return null;
-        }
-        const token = await Notifications.getExpoPushTokenAsync({
-            projectId,
-        });
-        return token.data;
+        const token = await messaging().getToken();
+        console.log('FCM Token:', token);
+        return token;
     } catch (error) {
-        console.error('Error getting push token:', error);
+        console.error('Error getting FCM token:', error);
         return null;
     }
 }

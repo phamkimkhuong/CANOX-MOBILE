@@ -41,6 +41,8 @@ module.exports = {
             "expo-router",
             "expo-video",
             "expo-localization",
+            "@react-native-firebase/app",
+            "@react-native-firebase/messaging",
             [
                 "@react-native-google-signin/google-signin",
                 {

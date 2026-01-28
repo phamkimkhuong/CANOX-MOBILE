@@ -82,11 +82,11 @@ export default function RootLayout() {
   // Layer 1: Token refresh when app returns to foreground
   useTokenRefreshOnForeground();
 
-  // Push Notifications - Get push token
-  const { expoPushToken, tokenChanged } = usePushNotifications();
+  // Push Notifications - Get FCM token
+  const { fcmToken, tokenChanged } = usePushNotifications();
 
   // Sync push token with backend (auto register/unregister)
-  usePushTokenSync(expoPushToken, tokenChanged);
+  usePushTokenSync(fcmToken, tokenChanged);
 
   // Sync persisted language with i18next on startup
   const persistedLanguage = useAppStore((state) => state.language);

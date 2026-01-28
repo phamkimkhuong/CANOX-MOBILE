@@ -21,7 +21,7 @@ const ENABLE_PUSH_TOKEN_SYNC = true;
  * Usage: Call this in _layout.tsx after usePushNotifications
  */
 export function usePushTokenSync(
-    expoPushToken: string | null,
+    fcmToken: string | null,
     tokenChanged: boolean
 ) {
     const isAuthenticated = useIsAuthenticated();
@@ -30,7 +30,7 @@ export function usePushTokenSync(
 
     // Register token when user is authenticated and token is available
     const registerToken = useCallback(async () => {
-        if (!expoPushToken) return;
+        if (!fcmToken) return;
 
         if (!ENABLE_PUSH_TOKEN_SYNC) {
             logger.push.info('[PushToken] Sync disabled - Backend not ready');
@@ -38,16 +38,16 @@ export function usePushTokenSync(
         }
 
         try {
-            const payload = await buildPushTokenPayload(expoPushToken);
+            const payload = await buildPushTokenPayload(fcmToken);
             logger.push.info('[PushToken] Registering token', payload);
             await registerPushToken(payload);
             hasRegisteredRef.current = true;
-            lastTokenRef.current = expoPushToken;
+            lastTokenRef.current = fcmToken;
             logger.push.info('[PushToken] Registered successfully');
         } catch (error) {
             logger.push.error('[PushToken] Failed to register:', error);
         }
-    }, [expoPushToken]);
+    }, [fcmToken]);
 
     // Unregister token when user logs out
     const unregisterToken = useCallback(async () => {
@@ -71,17 +71,17 @@ export function usePushTokenSync(
 
     // Effect: Register token when authenticated
     useEffect(() => {
-        if (isAuthenticated && expoPushToken) {
+        if (isAuthenticated && fcmToken) {
             const shouldRegister =
                 !hasRegisteredRef.current ||
                 tokenChanged ||
-                lastTokenRef.current !== expoPushToken;
+                lastTokenRef.current !== fcmToken;
 
             if (shouldRegister) {
                 registerToken();
             }
         }
-    }, [isAuthenticated, expoPushToken, tokenChanged, registerToken]);
+    }, [isAuthenticated, fcmToken, tokenChanged, registerToken]);
 
     // Effect: Cleanup when user logs out
     useEffect(() => {

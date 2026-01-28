@@ -1077,6 +1077,34 @@ export interface MyReviewTranslation {
         error: string;
         submitError: string;
     };
+    tags: {
+        fast_delivery: string;
+        good_packaging: string;
+        great_quality: string;
+        true_to_description: string;
+        good_value: string;
+        friendly_seller: string;
+        will_rebuy: string;
+        wrong_color: string;
+        defective: string;
+        slow_delivery: string;
+        bad_packaging: string;
+        not_as_described: string;
+        wrong_size: string;
+        poor_quality: string;
+        no_response: string;
+        average: string;
+        ok_quality: string;
+        acceptable: string;
+    };
+    ratingLabels: {
+        none: string;
+        rating_1: string;
+        rating_2: string;
+        rating_3: string;
+        rating_4: string;
+        rating_5: string;
+    };
 }
 
 /**
