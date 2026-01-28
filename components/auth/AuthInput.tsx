@@ -101,7 +101,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         overflow: 'hidden',
     },
     inputFocused: {
-        borderColor: theme.colors.primary,
+        borderColor: theme.colors.buttonActive,
         backgroundColor: theme.colors.surface,
     },
     inputError: {

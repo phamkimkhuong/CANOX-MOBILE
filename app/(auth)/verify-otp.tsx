@@ -240,7 +240,7 @@ export default function VerifyOtpScreen() {
                             <MaterialIcons
                                 name={otpType === 'forgot-password' ? 'lock-outline' : 'mail-outline'}
                                 size={48}
-                                color={theme.colors.primary}
+                                color={theme.colors.buttonActive}
                             />
                         </View>
                         <Text style={styles.title}>{content.title}</Text>
@@ -273,7 +273,7 @@ export default function VerifyOtpScreen() {
                         {/* Verifying indicator */}
                         {isVerifying && (
                             <View style={styles.loadingContainer}>
-                                <ActivityIndicator size="small" color={theme.colors.primary} />
+                                <ActivityIndicator size="small" color={theme.colors.buttonActive} />
                                 <Text style={styles.loadingText}>Đang xác thực...</Text>
                             </View>
                         )}
@@ -296,10 +296,10 @@ export default function VerifyOtpScreen() {
                                     disabled={isResending}
                                 >
                                     {isResending ? (
-                                        <ActivityIndicator size="small" color={theme.colors.primary} />
+                                        <ActivityIndicator size="small" color={theme.colors.buttonActive} />
                                     ) : (
                                         <>
-                                            <MaterialIcons name="refresh" size={18} color={theme.colors.primary} />
+                                            <MaterialIcons name="refresh" size={18} color={theme.colors.buttonActive} />
                                             <Text style={styles.resendBtnText}>Gửi lại mã</Text>
                                         </>
                                     )}
@@ -365,7 +365,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         width: 100,
         height: 100,
         borderRadius: 50,
-        backgroundColor: theme.colors.primaryMuted,
+        backgroundColor: theme.colors.activeSubtle,
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: theme.margins.lg,
@@ -384,7 +384,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     emailText: {
         fontSize: 14,
         fontWeight: '600',
-        color: theme.colors.primary,
+        color: theme.colors.buttonActive,
         marginTop: theme.margins.sm,
     },
     card: {
@@ -417,7 +417,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     loadingText: {
         fontSize: 14,
-        color: theme.colors.primary,
+        color: theme.colors.buttonActive,
     },
     resendSection: {
         alignItems: 'center',
@@ -451,7 +451,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     resendBtnText: {
         fontSize: 14,
         fontWeight: '600',
-        color: theme.colors.primary,
+        color: theme.colors.buttonActive,
     },
     helpSection: {
         flexDirection: 'row',
@@ -473,7 +473,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     changeEmailText: {
         fontSize: 14,
-        color: theme.colors.primary,
+        color: theme.colors.buttonActive,
         fontWeight: '500',
     },
 }));

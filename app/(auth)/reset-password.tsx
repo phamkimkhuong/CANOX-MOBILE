@@ -143,7 +143,7 @@ export default function ResetPasswordScreen() {
                     {/* Welcome Section */}
                     <View style={styles.welcomeSection}>
                         <View style={styles.iconCircle}>
-                            <IconSymbol name="lock" size={36} color={theme.colors.primary} />
+                            <IconSymbol name="lock" size={36} color={theme.colors.buttonActive} />
                         </View>
                         <Text style={styles.welcomeTitle}>{t('resetPassword.title')}</Text>
                         <Text style={styles.welcomeSubtitle}>
@@ -270,7 +270,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         width: 70,
         height: 70,
         borderRadius: 35,
-        backgroundColor: theme.colors.primarySoft,
+        backgroundColor: theme.colors.activeSoft,
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: theme.margins.md,
@@ -321,12 +321,12 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.typographySecondary,
     },
     submitBtn: {
-        backgroundColor: theme.colors.primary,
+        backgroundColor: theme.colors.buttonActive,
         height: 50,
         borderRadius: theme.radius.full,
         justifyContent: 'center',
         alignItems: 'center',
-        shadowColor: theme.colors.primary,
+        shadowColor: theme.colors.buttonActive,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 8,
@@ -356,7 +356,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: 14,
     },
     footerLink: {
-        color: theme.colors.primary,
+        color: theme.colors.buttonActive,
         fontWeight: 'bold',
         fontSize: 14,
     },

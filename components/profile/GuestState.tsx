@@ -47,7 +47,7 @@ export const GuestState: React.FC<GuestStateProps> = memo(({ onLogin, onRegister
                 style={styles.illustrationContainer}
             >
                 <View style={styles.iconCircle}>
-                    <IconSymbol name="person" size={64} color={theme.colors.primary} />
+                    <IconSymbol name="person" size={64} color={theme.colors.buttonActive} />
                 </View>
                 <View style={styles.decorCircle1} />
                 <View style={styles.decorCircle2} />
@@ -115,7 +115,7 @@ const BenefitItem: React.FC<{ icon: string; text: string }> = memo(
         return (
             <View style={styles.benefitItem}>
                 <View style={styles.benefitIcon}>
-                    <IconSymbol name={icon as keyof typeof IconSymbol} size={16} color={theme.colors.primary} />
+                    <IconSymbol name={icon as keyof typeof IconSymbol} size={16} color={theme.colors.buttonActive} />
                 </View>
                 <Text style={styles.benefitText}>{text}</Text>
             </View>
@@ -140,7 +140,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         width: 120,
         height: 120,
         borderRadius: 60,
-        backgroundColor: theme.colors.primaryMuted,
+        backgroundColor: theme.colors.activeSubtle,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -189,10 +189,10 @@ const stylesheet = StyleSheet.create((theme) => ({
         width: '100%',
         height: 52,
         borderRadius: 26,
-        backgroundColor: theme.colors.primary,
+        backgroundColor: theme.colors.buttonActive,
         justifyContent: 'center',
         alignItems: 'center',
-        shadowColor: theme.colors.primary,
+        shadowColor: theme.colors.buttonActive,
         shadowOffset: { width: 0, height: 8 },
         shadowOpacity: 0.25,
         shadowRadius: 16,
@@ -209,14 +209,14 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderRadius: 26,
         backgroundColor: 'transparent',
         borderWidth: 1.5,
-        borderColor: theme.colors.primary,
+        borderColor: theme.colors.buttonActive,
         justifyContent: 'center',
         alignItems: 'center',
     },
     registerBtnText: {
         fontSize: 16,
         fontWeight: '600',
-        color: theme.colors.primary,
+        color: theme.colors.buttonActive,
     },
     benefits: {
         width: '100%',
@@ -247,7 +247,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         width: 32,
         height: 32,
         borderRadius: 10,
-        backgroundColor: theme.colors.primaryMuted,
+        backgroundColor: theme.colors.activeSubtle,
         justifyContent: 'center',
         alignItems: 'center',
     },

@@ -712,7 +712,7 @@ export default function CheckoutScreen() {
                     availableVouchers={availablePlatformVouchers}
                     selectedDiscountVoucherId={selectedPlatformDiscountVoucher}
                     selectedShippingVoucherId={selectedPlatformShippingVoucher}
-                    discountAmount={calculation.platformVoucherDiscount}
+                    discountAmount={calculation.platformVoucherDiscount + calculation.shippingDiscount}
                     isInvalid={!isPlatformVoucherValid}
                     warningMessage={platformVoucherWarning}
                     onApply={handlePlatformVoucherApply}

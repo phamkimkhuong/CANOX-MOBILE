@@ -52,7 +52,7 @@ const ProductItemRow: React.FC<{ item: OrderItemUI }> = ({ item }) => {
                 </Text>
                 {item.variantAttributes && (
                     <Text style={styles.variantText} numberOfLines={1}>
-                        Phân loại: {item.variantAttributes}
+                        {item.variantAttributes}
                     </Text>
                 )}
                 <View style={styles.priceRow}>

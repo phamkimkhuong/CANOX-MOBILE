@@ -110,7 +110,7 @@ export default function RegisterScreen() {
 					{/* Welcome Section */}
 					<View style={styles.welcomeSection}>
 						<View style={styles.iconCircle}>
-							<IconSymbol name="bag" size={32} color={theme.colors.primary} />
+							<IconSymbol name="bag" size={32} color={theme.colors.buttonActive} />
 						</View>
 						<Text style={styles.welcomeTitle}>{t('register.welcome')}</Text>
 						<Text style={styles.welcomeSubtitle}>
@@ -255,7 +255,7 @@ const stylesheet = StyleSheet.create((theme) => ({
 		width: 60,
 		height: 60,
 		borderRadius: 30,
-		backgroundColor: theme.colors.primarySoft,
+		backgroundColor: theme.colors.activeSoft,
 		justifyContent: 'center',
 		alignItems: 'center',
 		marginBottom: theme.margins.md,
@@ -301,8 +301,8 @@ const stylesheet = StyleSheet.create((theme) => ({
 		alignItems: 'center',
 	},
 	checkboxChecked: {
-		backgroundColor: theme.colors.primary,
-		borderColor: theme.colors.primary,
+		backgroundColor: theme.colors.buttonActive,
+		borderColor: theme.colors.buttonActive,
 	},
 	termsText: {
 		flex: 1,
@@ -311,16 +311,16 @@ const stylesheet = StyleSheet.create((theme) => ({
 		lineHeight: 20,
 	},
 	termsLink: {
-		color: theme.colors.primary,
+		color: theme.colors.buttonActive,
 		fontWeight: '600',
 	},
 	submitBtn: {
-		backgroundColor: theme.colors.primary,
+		backgroundColor: theme.colors.buttonActive,
 		height: 50,
 		borderRadius: theme.radius.full,
 		justifyContent: 'center',
 		alignItems: 'center',
-		shadowColor: theme.colors.primary,
+		shadowColor: theme.colors.buttonActive,
 		shadowOffset: { width: 0, height: 4 },
 		shadowOpacity: 0.3,
 		shadowRadius: 8,
@@ -360,7 +360,7 @@ const stylesheet = StyleSheet.create((theme) => ({
 		fontSize: 14,
 	},
 	footerLink: {
-		color: theme.colors.primary,
+		color: theme.colors.buttonActive,
 		fontWeight: 'bold',
 		fontSize: 14,
 	},

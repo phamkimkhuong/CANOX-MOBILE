@@ -16,10 +16,10 @@
 
 import { IconSymbol } from '@/components/ui/Icon';
 import { formatCurrency } from '@/utils/format';
-import { Navigator } from '@/utils/navigation';
+import { Image } from 'expo-image';
 import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { CheckoutItem } from './CheckoutItem';
@@ -113,38 +113,31 @@ export const CheckoutShopGroup: React.FC<CheckoutShopGroupProps> = ({ shop }) =>
         [shop.shopId, setShopNote]
     );
 
-    const handleShopPress = useCallback(() => {
-        Navigator.push(`/shop/${shop.shopId}`);
-    }, [shop.shopId]);
 
     return (
         <View style={styles.container}>
             {/* Shop Header */}
-            <Pressable
-                style={({ pressed }) => [
-                    styles.shopHeader,
-                    pressed && styles.shopHeaderPressed,
-                ]}
-                onPress={handleShopPress}
-                accessibilityRole="button"
-                accessibilityLabel={t('shopGroup.viewShop', { shopName: shop.shopName })}
-            >
+            <View style={styles.shopHeader}>
                 <View style={styles.shopIcon}>
-                    <IconSymbol
-                        name="store"
-                        size={16}
-                        color={theme.colors.primary}
-                    />
+                    {shop.shopLogo ? (
+                        <Image
+                            source={{ uri: shop.shopLogo }}
+                            style={styles.shopLogoImage}
+                            contentFit="cover"
+                            transition={200}
+                        />
+                    ) : (
+                        <IconSymbol
+                            name="store"
+                            size={16}
+                            color={theme.colors.buttonActive}
+                        />
+                    )}
                 </View>
                 <Text style={styles.shopName} numberOfLines={1}>
                     {shop.shopName}
                 </Text>
-                <IconSymbol
-                    name="chevron-right"
-                    size={18}
-                    color={theme.colors.typographySecondary}
-                />
-            </Pressable>
+            </View>
 
             {/* Divider */}
             {/* <View style={styles.divider} /> */}
@@ -216,24 +209,24 @@ const stylesheet = StyleSheet.create((theme) => ({
         paddingVertical: theme.margins.sm,
         paddingHorizontal: theme.margins.md,
     },
-
-    shopHeaderPressed: {
-        backgroundColor: theme.colors.background,
-    },
-
     shopIcon: {
-        width: 32,
-        height: 32,
+        width: 28,
+        height: 28,
         borderRadius: 10,
-        backgroundColor: `${theme.colors.primary}12`,
+        backgroundColor: theme.colors.activeSoft,
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: theme.margins.smd,
+        overflow: 'hidden',
+    },
+    shopLogoImage: {
+        width: '100%',
+        height: '100%',
     },
 
     shopName: {
         flex: 1,
-        fontSize: 15,
+        fontSize: 13,
         fontWeight: '600',
         color: theme.colors.typography,
     },

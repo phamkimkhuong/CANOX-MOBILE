@@ -68,7 +68,7 @@ const VariantTag = memo<{ attributes: string }>(({ attributes }) => {
 
     return (
         <View style={variantStyles.container}>
-            <Text style={variantStyles.text}>Phân loại: {attributes}</Text>
+            <Text style={variantStyles.text}>{attributes}</Text>
         </View>
     );
 });
@@ -170,7 +170,6 @@ const mediaStyles = StyleSheet.create((theme) => ({
         alignItems: 'center',
     },
     duration: {
-        position: 'absolute',
         bottom: 4,
         right: 4,
         fontSize: 10,

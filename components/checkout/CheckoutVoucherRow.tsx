@@ -373,7 +373,7 @@ const stylesheet = StyleSheet.create((theme) => ({
 
     modalTitle: {
         fontSize: 17,
-        fontWeight: '600',
+        fontWeight: '500',
         color: theme.colors.typography,
     },
 

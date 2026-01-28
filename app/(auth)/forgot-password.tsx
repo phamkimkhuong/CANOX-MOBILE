@@ -109,7 +109,7 @@ export default function ForgotPasswordScreen() {
                     {/* Welcome Section */}
                     <View style={styles.welcomeSection}>
                         <View style={styles.iconCircle}>
-                            <IconSymbol name="lock" size={32} color={theme.colors.primary} />
+                            <IconSymbol name="lock" size={32} color={theme.colors.buttonActive} />
                         </View>
                         <Text style={styles.welcomeTitle}>{t('forgotPassword.title')}</Text>
                         <Text style={styles.welcomeSubtitle}>
@@ -133,7 +133,7 @@ export default function ForgotPasswordScreen() {
 
                         {/* Info Box */}
                         <View style={styles.infoBox}>
-                            <IconSymbol name="info" size={20} color={theme.colors.primary} />
+                            <IconSymbol name="info" size={20} color={theme.colors.buttonActive} />
                             <Text style={styles.infoText}>
                                 {t('forgotPassword.infoBox')}
                             </Text>
@@ -214,7 +214,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         width: 60,
         height: 60,
         borderRadius: 30,
-        backgroundColor: theme.colors.primarySoft,
+        backgroundColor: theme.colors.activeSoft,
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: theme.margins.md,
@@ -245,7 +245,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     infoBox: {
         flexDirection: 'row',
         alignItems: 'flex-start',
-        backgroundColor: `${theme.colors.primary}10`,
+        backgroundColor: `${theme.colors.buttonActive}10`,
         borderRadius: theme.radius.m,
         padding: theme.margins.md,
         marginBottom: theme.margins.lg,
@@ -258,12 +258,12 @@ const stylesheet = StyleSheet.create((theme) => ({
         lineHeight: 20,
     },
     submitBtn: {
-        backgroundColor: theme.colors.primary,
+        backgroundColor: theme.colors.buttonActive,
         height: 50,
         borderRadius: theme.radius.full,
         justifyContent: 'center',
         alignItems: 'center',
-        shadowColor: theme.colors.primary,
+        shadowColor: theme.colors.buttonActive,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 8,
@@ -293,7 +293,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: 14,
     },
     footerLink: {
-        color: theme.colors.primary,
+        color: theme.colors.buttonActive,
         fontWeight: 'bold',
         fontSize: 14,
     },

@@ -19,7 +19,7 @@ export const CHECKOUT_STRINGS: CheckoutTranslation = {
     },
     item: {
         productImage: 'Ảnh sản phẩm {{name}}',
-        variation: 'Phân loại: {{attributes}}',
+        variation: '{{attributes}}',
     },
     voucher: {
         shopTitle: 'Voucher của Shop',

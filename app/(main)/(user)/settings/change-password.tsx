@@ -165,7 +165,7 @@ export default function ChangePasswordScreen() {
                     {/* Icon Section */}
                     <View style={styles.iconSection}>
                         <View style={styles.iconCircle}>
-                            <IconSymbol name="lock-reset" size={36} color={theme.colors.primary} />
+                            <IconSymbol name="lock-reset" size={36} color={theme.colors.buttonActive} />
                         </View>
                         <Text style={styles.sectionTitle}>{t('profile:changePassword.subtitle')}</Text>
                         <Text style={styles.sectionSubtitle}>
@@ -245,7 +245,7 @@ export default function ChangePasswordScreen() {
                     {/* Security Tips */}
                     <View style={styles.tipsCard}>
                         <View style={styles.tipHeader}>
-                            <IconSymbol name="info" size={18} color={theme.colors.info} />
+                            <IconSymbol name="info" size={18} color={theme.colors.buttonActive} />
                             <Text style={styles.tipTitle}>{t('profile:changePassword.tips.title')}</Text>
                         </View>
                         <View style={styles.tipItem}>
@@ -321,7 +321,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         width: 72,
         height: 72,
         borderRadius: 36,
-        backgroundColor: theme.colors.primarySoft,
+        backgroundColor: theme.colors.activeSoft,
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: theme.margins.sm,
@@ -376,11 +376,11 @@ const stylesheet = StyleSheet.create((theme) => ({
         alignItems: 'center',
         justifyContent: 'center',
         gap: 8,
-        backgroundColor: theme.colors.primary,
+        backgroundColor: theme.colors.buttonActive,
         height: 52,
         borderRadius: theme.radius.full,
         marginTop: theme.margins.sm,
-        shadowColor: theme.colors.primary,
+        shadowColor: theme.colors.buttonActive,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 8,
@@ -397,13 +397,13 @@ const stylesheet = StyleSheet.create((theme) => ({
 
     // Tips Card
     tipsCard: {
-        backgroundColor: theme.colors.infoSubtle,
+        backgroundColor: theme.colors.activeSubtle,
         marginHorizontal: theme.margins.md,
         marginTop: theme.margins.md,
         borderRadius: theme.radius.l,
         padding: theme.margins.sm,
         borderWidth: 1,
-        borderColor: theme.colors.infoLight,
+        borderColor: theme.colors.activeLight,
     },
     tipHeader: {
         flexDirection: 'row',
@@ -414,7 +414,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     tipTitle: {
         fontSize: 14,
         fontWeight: '600',
-        color: theme.colors.info,
+        color: theme.colors.buttonActive,
     },
     tipItem: {
         flexDirection: 'row',

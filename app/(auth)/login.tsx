@@ -59,7 +59,7 @@ export default function LoginScreen() {
                     {/* Welcome Section */}
                     <View style={styles.welcomeSection}>
                         <View style={styles.iconCircle}>
-                            <IconSymbol name="login" size={32} color={theme.colors.primary} />
+                            <IconSymbol name="login" size={32} color={theme.colors.buttonActive} />
                         </View>
                         <Text style={styles.welcomeTitle}>{t('login.welcome')}</Text>
                         <Text style={styles.welcomeSubtitle}>
@@ -172,7 +172,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         width: 60,
         height: 60,
         borderRadius: 30,
-        backgroundColor: theme.colors.primarySoft,
+        backgroundColor: theme.colors.activeSoft,
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: theme.margins.md,
@@ -206,17 +206,17 @@ const stylesheet = StyleSheet.create((theme) => ({
         marginBottom: theme.margins.lg,
     },
     forgotPassText: {
-        color: theme.colors.primary,
+        color: theme.colors.buttonActive,
         fontWeight: '600',
         fontSize: 14,
     },
     loginBtn: {
-        backgroundColor: theme.colors.primary,
+        backgroundColor: theme.colors.buttonActive,
         height: 50,
         borderRadius: theme.radius.full,
         justifyContent: 'center',
         alignItems: 'center',
-        shadowColor: theme.colors.primary,
+        shadowColor: theme.colors.buttonActive,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 8,
@@ -256,7 +256,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: 14,
     },
     registerLink: {
-        color: theme.colors.primary,
+        color: theme.colors.buttonActive,
         fontWeight: 'bold',
         fontSize: 14,
     },

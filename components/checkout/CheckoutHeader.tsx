@@ -98,7 +98,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     title: {
         flex: 1,
         fontSize: 18,
-        fontWeight: '600',
+        fontWeight: '500',
         color: theme.colors.typography,
         textAlign: 'center',
     },

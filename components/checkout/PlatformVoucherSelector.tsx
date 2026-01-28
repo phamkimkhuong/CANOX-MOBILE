@@ -159,17 +159,6 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
                                     {getSelectedSummary()}
                                 </Text>
                             </View>
-                            <Text
-                                style={[
-                                    styles.voucherCode,
-                                    isInvalid && styles.voucherCodeInvalid,
-                                ]}
-                                numberOfLines={1}
-                            >
-                                {selectedShippingVoucher ? (selectedShippingVoucher.maxDiscountDisplay || selectedShippingVoucher.title) : ''}
-                                {selectedShippingVoucher && selectedDiscountVoucher ? ', ' : ''}
-                                {selectedDiscountVoucher ? (selectedDiscountVoucher.maxDiscountDisplay || selectedDiscountVoucher.title) : ''}
-                            </Text>
                             {discountAmount > 0 && !isInvalid && (
                                 <Text style={styles.discountText}>
                                     -{formatCurrency(discountAmount)}
@@ -471,6 +460,7 @@ const styles = StyleSheet.create((theme, rt) => {
             flex: 1,
             flexDirection: 'row',
             alignItems: 'center',
+            justifyContent: 'space-between',
             gap: theme.margins.sm,
         },
 
@@ -485,18 +475,6 @@ const styles = StyleSheet.create((theme, rt) => {
             fontSize: f(theme.fontSizes.xs),
             fontWeight: '700',
             color: '#FFFFFF',
-        },
-
-        voucherCode: {
-            flex: 1,
-            fontSize: f(theme.fontSizes.md),
-            fontWeight: '600',
-            color: theme.colors.typography,
-        },
-
-        voucherCodeInvalid: {
-            textDecorationLine: 'line-through',
-            color: theme.colors.typographySecondary,
         },
 
         discountText: {

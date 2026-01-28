@@ -285,7 +285,7 @@ const stylesheet = StyleSheet.create((theme) => ({
 
     methodName: {
         fontSize: 14,
-        fontWeight: '600',
+        fontWeight: '500',
         color: theme.colors.typography,
     },
 
@@ -454,7 +454,7 @@ const stylesheet = StyleSheet.create((theme) => ({
 
     optionNameSelected: {
         color: theme.colors.primary,
-        fontWeight: '600',
+        fontWeight: '500',
     },
 
     freeBadge: {
