@@ -22,6 +22,7 @@ import type { MyReviewUI, RatingFilter } from '@/types/review';
 import { Navigator } from '@/utils/navigation';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -33,6 +34,7 @@ export default function ReviewsScreen() {
     const { filterOrderId } = useLocalSearchParams<{ filterOrderId?: string }>();
     const insets = useSafeAreaInsets();
     const styles = stylesheet;
+    const { t } = useTranslation(['myReviews']);
 
     // Reset filter when navigating back or manually
     const handleClearFilter = useCallback(() => {
@@ -117,7 +119,7 @@ export default function ReviewsScreen() {
                             color={theme.colors.typography}
                         />
                     </Pressable>
-                    <Text style={styles.title}>Đánh giá của tôi</Text>
+                    <Text style={styles.title}>{t('title')}</Text>
                     <View style={styles.placeholder} />
                 </View>
 
@@ -136,7 +138,7 @@ export default function ReviewsScreen() {
                                 activeTab === 'pending' && styles.tabTextActive,
                             ]}
                         >
-                            Chưa đánh giá
+                            {t('tabs.pending')}
                         </Text>
                         {pendingCount > 0 && (
                             <View style={styles.badge}>
@@ -159,7 +161,7 @@ export default function ReviewsScreen() {
                                 activeTab === 'history' && styles.tabTextActive,
                             ]}
                         >
-                            Đã đánh giá
+                            {t('tabs.history')}
                         </Text>
                     </Pressable>
                 </View>

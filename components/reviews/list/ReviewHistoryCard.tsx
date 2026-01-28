@@ -11,6 +11,7 @@ import type { MyReviewUI } from '@/types/review';
 import { formatRelativeDate } from '@/utils/date';
 import { Image } from 'expo-image';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { SellerResponseCard } from '../shared/SellerResponseCard';
@@ -31,6 +32,7 @@ export const ReviewHistoryCard: React.FC<ReviewHistoryCardProps> = ({
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+    const { t } = useTranslation(['myReviews']);
 
     // Check if review can be edited (within 7 days and no seller response)
     const canEdit = !review.hasSellerResponse && review.status === 'APPROVED';
@@ -139,7 +141,7 @@ export const ReviewHistoryCard: React.FC<ReviewHistoryCardProps> = ({
                     onPress={onEdit}
                 >
                     <IconSymbol name="pencil" size={14} color={theme.colors.primary} />
-                    <Text style={styles.editButtonText}>Chỉnh sửa</Text>
+                    <Text style={styles.editButtonText}>{t('card.editReview')}</Text>
                 </Pressable>
             )}
         </View>

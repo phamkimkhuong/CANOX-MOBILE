@@ -9,6 +9,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import type { ReviewMediaItem } from '@/types/review';
 import { REVIEW_MEDIA_LIMITS } from '@/utils/adapter/review/reviewIncentives';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { MediaThumbnail } from './MediaThumbnail';
@@ -47,6 +48,7 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+    const { t } = useTranslation(['myReviews']);
 
     const canAddImages = imageCount < REVIEW_MEDIA_LIMITS.MAX_IMAGES;
     const canAddVideo = videoCount < REVIEW_MEDIA_LIMITS.MAX_VIDEOS;
@@ -56,7 +58,10 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({
         <View style={styles.container}>
             {/* Hint text */}
             <Text style={styles.hint}>
-                Thêm tối đa {REVIEW_MEDIA_LIMITS.MAX_IMAGES} ảnh & {REVIEW_MEDIA_LIMITS.MAX_VIDEOS} video
+                {t('form.mediaHint', {
+                    maxImages: REVIEW_MEDIA_LIMITS.MAX_IMAGES,
+                    maxVideos: REVIEW_MEDIA_LIMITS.MAX_VIDEOS
+                })}
             </Text>
 
             {/* Media grid */}
@@ -87,7 +92,7 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({
                             size={24}
                             color={theme.colors.primary}
                         />
-                        <Text style={styles.addButtonText}>Ảnh</Text>
+                        <Text style={styles.addButtonText}>{t('alerts.addPhoto').split(' ')[1] || t('alerts.addPhoto')}</Text>
                         <Text style={styles.countText}>
                             {imageCount}/{REVIEW_MEDIA_LIMITS.MAX_IMAGES}
                         </Text>
@@ -108,7 +113,7 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({
                             size={24}
                             color={theme.colors.primary}
                         />
-                        <Text style={styles.addButtonText}>Video</Text>
+                        <Text style={styles.addButtonText}>{t('alerts.addVideo').split(' ')[1] || t('alerts.addVideo')}</Text>
                         <Text style={styles.countText}>
                             {videoCount}/{REVIEW_MEDIA_LIMITS.MAX_VIDEOS}
                         </Text>

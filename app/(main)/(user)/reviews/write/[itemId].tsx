@@ -18,6 +18,7 @@ import { useLocalSearchParams, useNavigation } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import {
     KeyboardAvoidingView,
     Modal,
@@ -59,13 +60,14 @@ export default function WriteReviewScreen() {
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
+    const { t } = useTranslation(['myReviews']);
 
     // Get params from URL
     const params = useLocalSearchParams();
     const _itemId = params.itemId as string;
     const orderId = (params.orderId as string) || '';
     const productId = (params.productId as string) || '';
-    const productName = (params.productName as string) || 'Sản phẩm';
+    const productName = (params.productName as string) || t('card.productSnapshot', { id: '' }).replace(' #', '');
     const productImage = (params.productImage as string) || '';
     const variantAttributes = (params.variantAttributes as string) || '';
     const formattedPrice = (params.formattedPrice as string) || '';
@@ -167,11 +169,11 @@ export default function WriteReviewScreen() {
 
             // Show confirmation alert
             Alert.show({
-                title: 'Hủy bỏ đánh giá?',
-                message: 'Nội dung bạn đã nhập sẽ không được lưu. Bạn có chắc chắn muốn thoát?',
+                title: t('alerts.cancelTitle'),
+                message: t('alerts.cancelMessage'),
                 type: 'warning',
-                confirmText: 'Rời trang',
-                cancelText: 'Ở lại',
+                confirmText: t('alerts.cancelConfirm'),
+                cancelText: t('alerts.cancelStay'),
                 showCancel: true,
                 onConfirm: () => {
                     // Manually trigger the navigation after confirmation
@@ -181,7 +183,7 @@ export default function WriteReviewScreen() {
         });
 
         return unsubscribe;
-    }, [navigation, isDirty, isSubmitting]);
+    }, [navigation, isDirty, isSubmitting, t]);
 
     // Handle quick tag toggle
     const handleTagToggle = (tagId: string, tagLabel: string) => {
@@ -206,12 +208,12 @@ export default function WriteReviewScreen() {
      */
     const handleAddImages = () => {
         Alert.show({
-            title: 'Thêm hình ảnh',
-            message: 'Chọn nguồn ảnh bạn muốn sử dụng',
+            title: t('alerts.addPhoto'),
+            message: t('alerts.addPhotoSource'),
             buttons: [
-                { text: 'Chụp ảnh mới', onPress: takePhoto },
-                { text: 'Chọn từ thư viện', onPress: pickImages },
-                { text: 'Hủy', style: 'cancel' },
+                { text: t('alerts.takePhoto'), onPress: takePhoto },
+                { text: t('alerts.chooseGallery'), onPress: pickImages },
+                { text: t('alerts.cancel'), style: 'cancel' },
             ]
         });
     };
@@ -221,12 +223,12 @@ export default function WriteReviewScreen() {
      */
     const handleAddVideo = () => {
         Alert.show({
-            title: 'Thêm video',
-            message: 'Chọn nguồn video bạn muốn sử dụng',
+            title: t('alerts.addVideo'),
+            message: t('alerts.addVideoSource'),
             buttons: [
-                { text: 'Quay video mới', onPress: takeVideo },
-                { text: 'Chọn từ thư viện', onPress: pickVideo },
-                { text: 'Hủy', style: 'cancel' },
+                { text: t('alerts.takeVideo'), onPress: takeVideo },
+                { text: t('alerts.chooseGallery'), onPress: pickVideo },
+                { text: t('alerts.cancel'), style: 'cancel' },
             ]
         });
     };
@@ -258,8 +260,8 @@ export default function WriteReviewScreen() {
     const onSubmit = async (data: ReviewFormValues) => {
         if (hasPendingUploads()) {
             Alert.show({
-                title: 'Đang tải lên',
-                message: 'Vui lòng chờ tải lên hoàn tất trước khi gửi đánh giá.',
+                title: t('alerts.uploading'),
+                message: t('alerts.uploadWait'),
                 type: 'warning',
             });
             return;
@@ -277,8 +279,8 @@ export default function WriteReviewScreen() {
                 });
                 Toast.show({
                     type: 'success',
-                    text1: 'Cập nhật thành công',
-                    text2: 'Đánh giá của bạn đã được cập nhật.',
+                    text1: t('toast.updateSuccess'),
+                    text2: t('toast.updateSuccessDetail'),
                 });
             } else {
                 // Create new review
@@ -293,8 +295,8 @@ export default function WriteReviewScreen() {
                 await createMutation.mutateAsync(payload);
                 Toast.show({
                     type: 'success',
-                    text1: 'Đánh giá thành công',
-                    text2: 'Cảm ơn bạn đã chia sẻ trải nghiệm!',
+                    text1: t('toast.createSuccess'),
+                    text2: t('toast.createSuccessDetail'),
                 });
             }
 
@@ -304,8 +306,8 @@ export default function WriteReviewScreen() {
             log.error('Submit review failed:', error);
             Toast.show({
                 type: 'error',
-                text1: 'Lỗi',
-                text2: 'Không thể gửi đánh giá. Vui lòng thử lại.',
+                text1: t('toast.error'),
+                text2: t('toast.submitError'),
             });
         }
     };
@@ -337,7 +339,7 @@ export default function WriteReviewScreen() {
                         />
                     </Pressable>
                     <Text style={styles.headerTitle}>
-                        {isEditMode ? 'Chỉnh sửa đánh giá' : 'Viết đánh giá'}
+                        {isEditMode ? t('form.editTitle') : t('form.createTitle')}
                     </Text>
                     <View style={styles.headerPlaceholder} />
                 </View>
@@ -383,7 +385,7 @@ export default function WriteReviewScreen() {
                         {/* Star Rating */}
                         <View style={styles.ratingSection}>
                             <Text style={styles.sectionLabel}>
-                                Chất lượng sản phẩm
+                                {t('form.productQuality')}
                             </Text>
                             <Controller
                                 control={control}
@@ -425,7 +427,7 @@ export default function WriteReviewScreen() {
                                     <ReviewTextInput
                                         value={value}
                                         onChange={onChange}
-                                        placeholder="Chia sẻ thêm cảm nhận của bạn về sản phẩm này nhé..."
+                                        placeholder={t('form.commentPlaceholder')}
                                         maxLength={1000}
                                     />
                                 )}
@@ -437,7 +439,7 @@ export default function WriteReviewScreen() {
                     {!isEditMode && (
                         <View style={styles.card}>
                             <Text style={styles.sectionLabel}>
-                                Hình ảnh & Video thực tế
+                                {t('form.mediaTitle')}
                             </Text>
                             <MediaUploader
                                 mediaItems={mediaItems}
@@ -483,11 +485,11 @@ export default function WriteReviewScreen() {
                 >
                     {isSubmitting ? (
                         <Text style={styles.submitButtonText}>
-                            Đang gửi...
+                            {t('form.submitting')}
                         </Text>
                     ) : (
                         <Text style={styles.submitButtonText}>
-                            {isEditMode ? 'Cập nhật đánh giá' : 'Gửi đánh giá'}
+                            {isEditMode ? t('card.editReview') : t('form.submit')}
                         </Text>
                     )}
                 </Pressable>

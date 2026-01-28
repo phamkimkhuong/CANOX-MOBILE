@@ -997,6 +997,89 @@ export interface NotificationTranslation {
 }
 
 /**
+ * My Reviews module translations
+ */
+export interface MyReviewTranslation {
+    title: string;
+    tabs: {
+        pending: string;
+        history: string;
+    };
+    filter: {
+        all: string;
+        rating: string;
+        withMedia: string;
+        withResponse: string;
+        viewingOrder: string;
+        viewAll: string;
+    };
+    empty: {
+        pendingTitle: string;
+        pendingDesc: string;
+        pendingBtn: string;
+        historyTitle: string;
+        historyDesc: string;
+        historyBtn: string;
+        refresh: string;
+    };
+    card: {
+        orderNumber: string;
+        productCount: string;
+        rewardHint: string;
+        rewardCoins: string;
+        writeReview: string;
+        editReview: string;
+        productSnapshot: string;
+    };
+    form: {
+        createTitle: string;
+        editTitle: string;
+        productQuality: string;
+        tagHint: string;
+        commentPlaceholder: string;
+        mediaTitle: string;
+        mediaHint: string;
+        anonymousTitle: string;
+        anonymousMasked: string;
+        anonymousVisible: string;
+        submit: string;
+        updating: string;
+        submitting: string;
+    };
+    incentive: {
+        maxRewardSuccess: string;
+        rewardTitle: string;
+        totalReward: string;
+        photoBonus: string;
+        videoBonus: string;
+    };
+    alerts: {
+        cancelTitle: string;
+        cancelMessage: string;
+        cancelConfirm: string;
+        cancelStay: string;
+        addPhoto: string;
+        addPhotoSource: string;
+        takePhoto: string;
+        chooseGallery: string;
+        addVideo: string;
+        addVideoSource: string;
+        takeVideo: string;
+        uploading: string;
+        uploadWait: string;
+        cancel: string;
+    };
+    toast: {
+        updateSuccess: string;
+        updateSuccessDetail: string;
+        createSuccess: string;
+        createSuccessDetail: string;
+        error: string;
+        submitError: string;
+    };
+}
+
+/**
  * Global I18n Resources
  */
 export interface I18nResources {
@@ -1013,4 +1096,5 @@ export interface I18nResources {
     search: SearchTranslation;
     notification: NotificationTranslation;
     checkout: CheckoutTranslation;
+    myReviews: MyReviewTranslation;
 }

@@ -7,7 +7,8 @@
 
 import { IconSymbol } from '@/components/ui/Icon';
 import type { RatingFilter } from '@/types/review';
-import React from 'react';
+import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -20,21 +21,6 @@ interface RatingFilterBarProps {
     counts?: Record<RatingFilter, number>;
 }
 
-interface FilterOption {
-    value: RatingFilter;
-    label: string;
-    icon?: string;
-}
-
-const FILTER_OPTIONS: FilterOption[] = [
-    { value: 'all', label: 'Tất cả' },
-    { value: 5, label: '5 sao', icon: 'star.fill' },
-    { value: 4, label: '4 sao', icon: 'star.fill' },
-    { value: 3, label: '3 sao', icon: 'star.fill' },
-    { value: 2, label: '2 sao', icon: 'star.fill' },
-    { value: 1, label: '1 sao', icon: 'star.fill' },
-];
-
 /**
  * RatingFilterBar - Horizontal scrollable filter chips
  */
@@ -45,6 +31,16 @@ export const RatingFilterBar: React.FC<RatingFilterBarProps> = ({
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+    const { t } = useTranslation(['myReviews']);
+
+    const filterOptions: { value: RatingFilter; label: string; icon?: string }[] = useMemo(() => [
+        { value: 'all', label: t('filter.all') },
+        { value: 5, label: t('filter.rating', { count: 5 }), icon: 'star.fill' },
+        { value: 4, label: t('filter.rating', { count: 4 }), icon: 'star.fill' },
+        { value: 3, label: t('filter.rating', { count: 3 }), icon: 'star.fill' },
+        { value: 2, label: t('filter.rating', { count: 2 }), icon: 'star.fill' },
+        { value: 1, label: t('filter.rating', { count: 1 }), icon: 'star.fill' },
+    ], [t]);
 
     return (
         <View style={styles.container}>
@@ -53,7 +49,7 @@ export const RatingFilterBar: React.FC<RatingFilterBarProps> = ({
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.scrollContent}
             >
-                {FILTER_OPTIONS.map((option) => {
+                {filterOptions.map((option) => {
                     const isActive = activeFilter === option.value;
                     const count = counts?.[option.value];
 
@@ -64,11 +60,11 @@ export const RatingFilterBar: React.FC<RatingFilterBarProps> = ({
                                 styles.chip,
                                 isActive && styles.chipActive,
                             ]}
-                            onPress={() => onFilterChange(option.value)}
+                            onPress={() => onFilterChange(option.value as RatingFilter)}
                         >
                             {option.icon && (
                                 <IconSymbol
-                                    name={option.icon}
+                                    name={option.icon as any}
                                     size={12}
                                     color={isActive ? '#FFFFFF' : '#FFB800'}
                                 />

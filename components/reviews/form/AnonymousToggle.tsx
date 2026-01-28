@@ -9,6 +9,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -38,14 +39,15 @@ const maskUsername = (name: string): string => {
  * TODO: Enable when API supports isAnonymous field
  */
 export const AnonymousToggle: React.FC<AnonymousToggleProps> = ({
-    value: _value,
-    onChange: _onChange,
+    value,
+    onChange,
     displayName = 'Người dùng',
 }) => {
-    const { theme: _theme } = useUnistyles();
+    const { theme } = useUnistyles();
     const styles = stylesheet;
+    const { t } = useTranslation(['myReviews']);
 
-    const _maskedName = maskUsername(displayName);
+    const maskedName = maskUsername(displayName);
 
     // ============================================
     // TEMPORARILY DISABLED - API NOT READY
@@ -69,11 +71,11 @@ export const AnonymousToggle: React.FC<AnonymousToggleProps> = ({
                 </View>
 
                 <View style={styles.textWrapper}>
-                    <Text style={styles.label}>Đánh giá ẩn danh</Text>
+                    <Text style={styles.label}>{t('form.anonymousTitle')}</Text>
                     <Text style={styles.hint}>
                         {value
-                            ? `Hiển thị: ${maskedName}`
-                            : `Hiển thị: ${displayName}`}
+                            ? t('form.anonymousMasked', { name: maskedName })
+                            : t('form.anonymousVisible', { name: displayName })}
                     </Text>
                 </View>
             </View>

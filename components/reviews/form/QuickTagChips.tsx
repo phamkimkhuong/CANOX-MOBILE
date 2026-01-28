@@ -7,6 +7,7 @@
 
 import { getReviewTagsForRating } from '@/utils/adapter/review/reviewAdapter';
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 import { QuickTagChip } from './QuickTagChip';
@@ -29,6 +30,7 @@ export const QuickTagChips: React.FC<QuickTagChipsProps> = ({
     onTagToggle,
 }) => {
     const styles = stylesheet;
+    const { t } = useTranslation(['myReviews']);
 
     // Get tags for current rating
     const availableTags = useMemo(() => {
@@ -42,7 +44,7 @@ export const QuickTagChips: React.FC<QuickTagChipsProps> = ({
 
     return (
         <View style={styles.container}>
-            <Text style={styles.hint}>Chọn để thêm vào nhận xét:</Text>
+            <Text style={styles.hint}>{t('form.tagHint')}</Text>
             <View style={styles.chipsContainer}>
                 {availableTags.map((tag) => (
                     <QuickTagChip

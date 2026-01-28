@@ -13,6 +13,7 @@ import { getMaxReviewReward as getMaxReward } from '@/utils/adapter/review/revie
 import { Navigator } from '@/utils/navigation';
 import { Image } from 'expo-image';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -36,6 +37,7 @@ export const PendingReviewCard: React.FC<PendingReviewCardProps> = ({
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+    const { t } = useTranslation(['myReviews', 'order']);
 
     const handlePress = () => {
         if (onPress) {
@@ -69,11 +71,11 @@ export const PendingReviewCard: React.FC<PendingReviewCardProps> = ({
             <View style={styles.orderInfoRow}>
                 <IconSymbol name="shippingbox" size={12} color={theme.colors.secondary} />
                 <Text style={styles.orderNumberText}>
-                    Đơn hàng #{item.orderNumber}
+                    {t('card.orderNumber', { orderNumber: item.orderNumber })}
                 </Text>
                 {itemCount !== undefined && (
                     <Text style={styles.itemCountText}>
-                        {itemCount} sản phẩm
+                        {t('card.productCount', { count: itemCount })}
                     </Text>
                 )}
             </View>
@@ -110,7 +112,10 @@ export const PendingReviewCard: React.FC<PendingReviewCardProps> = ({
                         <View style={styles.incentiveRow}>
                             <IconSymbol name="star.fill" size={12} color="#FFB800" />
                             <Text style={styles.incentiveText}>
-                                Nhận đến {maxReward} xu khi đánh giá
+                                {t('card.rewardHint', {
+                                    amount: maxReward,
+                                    unit: t('card.rewardCoins')
+                                })}
                             </Text>
                         </View>
                     </View>
@@ -118,7 +123,7 @@ export const PendingReviewCard: React.FC<PendingReviewCardProps> = ({
                     {/* Action Button */}
                     <View style={styles.buttonWrapper}>
                         <View style={styles.writeButton}>
-                            <Text style={styles.writeButtonText}>Viết đánh giá</Text>
+                            <Text style={styles.writeButtonText}>{t('card.writeReview')}</Text>
                         </View>
                     </View>
                 </View>

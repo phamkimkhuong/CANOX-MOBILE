@@ -9,6 +9,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import type { PendingReviewGroup, PendingReviewItem } from '@/types/review';
 import { FlashList, ListRenderItem } from '@shopify/flash-list';
 import React, { useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, RefreshControl, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { EmptyReviewState } from './EmptyReviewState';
@@ -53,6 +54,7 @@ export const PendingReviewList: React.FC<PendingReviewListProps> = ({
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+    const { t } = useTranslation(['myReviews']);
 
     // Filter groups based on orderId context
     const filteredGroups = useMemo(() => {
@@ -120,11 +122,13 @@ export const PendingReviewList: React.FC<PendingReviewListProps> = ({
                     <View style={styles.filterInfo}>
                         <IconSymbol name="info.circle.fill" size={14} color={theme.colors.newPrimary} />
                         <Text style={styles.filterText}>
-                            Đang xem đơn hàng #{filteredGroups[0]?.items[0]?.orderNumber || filterOrderId.slice(0, 8)}
+                            {t('filter.viewingOrder', {
+                                orderNumber: filteredGroups[0]?.items[0]?.orderNumber || filterOrderId.slice(0, 8)
+                            })}
                         </Text>
                     </View>
                     <Pressable onPress={onClearFilter} style={styles.clearButton}>
-                        <Text style={styles.clearText}>Xem tất cả</Text>
+                        <Text style={styles.clearText}>{t('filter.viewAll')}</Text>
                     </Pressable>
                 </View>
             )}

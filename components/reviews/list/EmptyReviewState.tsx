@@ -8,6 +8,7 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { useRouter } from 'expo-router';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -28,26 +29,25 @@ export const EmptyReviewState: React.FC<EmptyReviewStateProps> = ({
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const router = useRouter();
+    const { t } = useTranslation(['myReviews']);
 
     const isPending = type === 'pending';
 
     const config = isPending
         ? {
-              icon: 'checkmark.circle' as const,
-              title: 'Bạn đã đánh giá tất cả sản phẩm!',
-              description:
-                  'Mua thêm sản phẩm để nhận xu thưởng khi đánh giá nhé.',
-              buttonText: 'Khám phá sản phẩm',
-              onButtonPress: () => router.push('/'),
-          }
+            icon: 'checkmark.circle' as const,
+            title: t('empty.pendingTitle'),
+            description: t('empty.pendingDesc'),
+            buttonText: t('empty.pendingBtn'),
+            onButtonPress: () => router.push('/'),
+        }
         : {
-              icon: 'star' as const,
-              title: 'Chưa có đánh giá nào',
-              description:
-                  'Hãy mua sắm và chia sẻ trải nghiệm của bạn để nhận xu thưởng.',
-              buttonText: 'Bắt đầu mua sắm',
-              onButtonPress: () => router.push('/'),
-          };
+            icon: 'star' as const,
+            title: t('empty.historyTitle'),
+            description: t('empty.historyDesc'),
+            buttonText: t('empty.historyBtn'),
+            onButtonPress: () => router.push('/'),
+        };
 
     return (
         <View style={styles.container}>
@@ -86,7 +86,7 @@ export const EmptyReviewState: React.FC<EmptyReviewStateProps> = ({
                             size={14}
                             color={theme.colors.primary}
                         />
-                        <Text style={styles.refreshText}>Làm mới</Text>
+                        <Text style={styles.refreshText}>{t('empty.refresh')}</Text>
                     </Pressable>
                 )}
             </View>

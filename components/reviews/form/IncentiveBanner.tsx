@@ -13,6 +13,7 @@ import {
 } from '@/utils/adapter/review/reviewAdapter';
 import { REVIEW_INCENTIVE } from '@/utils/adapter/review/reviewIncentives';
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -65,6 +66,7 @@ export const IncentiveBanner: React.FC<IncentiveBannerProps> = ({
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+    const { t } = useTranslation(['myReviews']);
 
     const hasPhotos = photoCount > 0;
     const maxReward = getMaxReward();
@@ -91,11 +93,14 @@ export const IncentiveBanner: React.FC<IncentiveBannerProps> = ({
                 <View style={styles.textContainer}>
                     <Text style={styles.title}>
                         {isMaxReward
-                            ? 'Tuyệt vời! Bạn nhận được tối đa xu'
-                            : `Viết đánh giá để nhận đến ${maxReward} ${rewardLabel}`}
+                            ? t('incentive.maxRewardSuccess')
+                            : t('incentive.rewardTitle', {
+                                amount: maxReward,
+                                unit: t(`card.rewardCoins`)
+                            })}
                     </Text>
                     <Text style={styles.rewardText}>
-                        Tổng cộng: <Text style={styles.highlightText}>{estimatedReward} {rewardLabel}</Text>
+                        {t('incentive.totalReward')} <Text style={styles.highlightText}>{estimatedReward} {rewardLabel}</Text>
                     </Text>
                 </View>
             </View>
@@ -125,7 +130,7 @@ export const IncentiveBanner: React.FC<IncentiveBannerProps> = ({
                         color={hasPhotoBonus ? theme.colors.success : theme.colors.secondary}
                     />
                     <Text style={[styles.progressText, hasPhotoBonus && styles.progressTextActive]}>
-                        +{REVIEW_INCENTIVE.bonusWithPhoto} Có ảnh
+                        {t('incentive.photoBonus', { amount: REVIEW_INCENTIVE.bonusWithPhoto })}
                     </Text>
                 </View>
 
@@ -137,7 +142,7 @@ export const IncentiveBanner: React.FC<IncentiveBannerProps> = ({
                         color={hasVideoBonus ? theme.colors.success : theme.colors.secondary}
                     />
                     <Text style={[styles.progressText, hasVideoBonus && styles.progressTextActive]}>
-                        +{REVIEW_INCENTIVE.bonusWithVideo} Có video
+                        {t('incentive.videoBonus', { amount: REVIEW_INCENTIVE.bonusWithVideo })}
                     </Text>
                 </View>
             </View>
