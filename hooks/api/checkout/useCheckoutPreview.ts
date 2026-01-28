@@ -8,6 +8,7 @@ import type { CheckoutPreviewRequest } from '@/types/checkout/checkoutPreview';
 import { CheckoutPreviewResponseSchema } from '@/types/checkout/checkoutPreview';
 import {
     CheckoutPreviewUI,
+    toCheckoutPreviewAPIRequestBody,
     toCheckoutPreviewUI,
 } from '@/utils/adapter/checkoutPreviewAdapter';
 import { logger } from '@/utils/logger';
@@ -40,12 +41,13 @@ export const useCheckoutPreview = () => {
          */
         mutationFn: async (requestBody: CheckoutPreviewRequest): Promise<CheckoutPreviewUI> => {
             const idempotencyKey = uuidv4();
-            logger.checkout.debug('Checkout Preview Request Body:', requestBody);
+            const apiBody = toCheckoutPreviewAPIRequestBody(requestBody);
+            logger.checkout.debug('Checkout Preview Request Body:', apiBody);
             const response = await request(
                 {
                     url: API_ROUTES.CART.CHECKOUT_PREVIEW,
                     method: 'POST',
-                    data: requestBody,
+                    data: apiBody,
                     headers: {
                         'Idempotency-Key': idempotencyKey,
                     },

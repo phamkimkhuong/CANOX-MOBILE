@@ -18,7 +18,9 @@ import type {
     CheckoutOrderSummaryDTO,
     CheckoutPreviewDataDTO,
     CheckoutPreviewItemDTO,
+    CheckoutPreviewRequest,
     CheckoutPreviewShopDTO,
+    CheckoutPreviewShopRequest,
     CheckoutShippingOptionDTO,
     CheckoutShopSummaryDTO,
     CheckoutVoucherDetailDTO,
@@ -338,6 +340,44 @@ export const toCheckoutPreviewUI = (dto: CheckoutPreviewDataDTO): CheckoutPrevie
         warnings: dto.warnings,
     };
 };
+
+// ============================================
+// HELPER: Chuẩn hóa body gửi lên POST /api/v1/cart/checkout
+// ============================================
+
+/**
+ * Chuẩn hóa request nội bộ thành body gửi lên POST /api/v1/cart/checkout.
+ *
+ * Lần đầu (chưa chọn voucher, shipping, payment): chỉ gửi
+ * { shops: [{ shopId, items: [{ itemId, quantity }] }], shippingAddress: { addressId } }.
+ *
+ * Các lần sau (user đã chọn): thêm vouchers, serviceCode, globalVouchers khi có giá trị.
+ * Không gửi: allSelectedItemIds, previewAllSelected, addressChanged, paymentMethod,
+ * itemIds, shippingFee và mọi field undefined
+ */
+export function toCheckoutPreviewAPIRequestBody(req: CheckoutPreviewRequest): Record<string, unknown> {
+    const shops: Record<string, unknown>[] = req.shops.map((s: CheckoutPreviewShopRequest) => {
+        const shop: Record<string, unknown> = {
+            shopId: s.shopId,
+            items: s.items ?? (s.itemIds?.map((id) => ({ itemId: id, quantity: 1 })) ?? []),
+        };
+        if (s.vouchers && s.vouchers.length > 0) shop.vouchers = s.vouchers;
+        if (s.serviceCode != null) shop.serviceCode = s.serviceCode;
+        return shop;
+    });
+
+    const body: Record<string, unknown> = { shops };
+
+    if (req.shippingAddress?.addressId) {
+        body.shippingAddress = { addressId: req.shippingAddress.addressId };
+    }
+
+    if (req.globalVouchers && req.globalVouchers.length > 0) {
+        body.globalVouchers = req.globalVouchers;
+    }
+
+    return body;
+}
 
 // ============================================
 // HELPER: Build Request from Cart
