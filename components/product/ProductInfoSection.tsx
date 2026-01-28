@@ -1,7 +1,7 @@
-import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import type { FlashSaleInfo, PriceDisplay } from '@/types/product/productDetail';
 import { formatCurrency } from '@/utils/format';
 import React, { memo, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { IconSymbol } from '../ui/Icon';
@@ -90,6 +90,7 @@ const StatsRow = memo<{
     totalReviews: number;
     totalSold: number;
 }>(({ rating, totalReviews, totalSold }) => {
+    const { t } = useTranslation('product');
     // Memoize formatted values
     const formattedRating = useMemo(() => rating.toFixed(1), [rating]);
     const formattedReviews = useMemo(() => formatSoldCount(totalReviews), [totalReviews]);
@@ -108,7 +109,7 @@ const StatsRow = memo<{
 
             {/* Sold */}
             <View style={styles.statItem}>
-                <Text style={styles.statLabel}>{PRODUCT_STRINGS.info.sold}</Text>
+                <Text style={styles.statLabel}>{t('info.sold')}</Text>
                 <Text style={styles.statValue}>{formattedSold}</Text>
             </View>
         </View>
@@ -142,30 +143,31 @@ export const ProductInfoSection = memo<ProductInfoSectionProps>(({
     onFlashSaleExpired,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('product');
 
     const badgesContent = useMemo(() => (
         <View style={styles.badgeRow}>
             {isMall && (
                 <View style={[styles.badge, styles.mallBadge]}>
-                    <Text style={styles.mallText}>{PRODUCT_STRINGS.badges.mall}</Text>
+                    <Text style={styles.mallText}>{t('badges.mall')}</Text>
                 </View>
             )}
             {isInternational && (
                 <View style={[styles.badge, styles.internationalBadge]}>
                     <IconSymbol name="globe" size={12} color={theme.colors.primary} />
-                    <Text style={styles.internationalText}>{PRODUCT_STRINGS.badges.international}</Text>
+                    <Text style={styles.internationalText}>{t('badges.international')}</Text>
                 </View>
             )}
             {priceDisplay.voucherDiscount != null && priceDisplay.voucherDiscount > 0 && (
                 <View style={[styles.badge, styles.voucherBadge]}>
                     <IconSymbol name="ticket" size={12} color={theme.colors.success} />
                     <Text style={styles.voucherText}>
-                        {PRODUCT_STRINGS.info.discount} {formatCurrency(priceDisplay.voucherDiscount)}
+                        {t('info.discount')} {formatCurrency(priceDisplay.voucherDiscount)}
                     </Text>
                 </View>
             )}
         </View>
-    ), [isMall, isInternational, priceDisplay.voucherDiscount, theme.colors.primary, theme.colors.success]);
+    ), [isMall, isInternational, priceDisplay.voucherDiscount, theme.colors.primary, theme.colors.success, t]);
 
     return (
         <View style={[styles.container, flashSale?.isActive && styles.flashSaleActive]}>

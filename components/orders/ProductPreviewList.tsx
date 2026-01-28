@@ -13,6 +13,7 @@ import { OrderItemUI } from '@/types/order/order';
 import { formatCurrency } from '@/utils/format';
 import { Image } from 'expo-image';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -71,6 +72,7 @@ export const ProductPreviewList: React.FC<ProductPreviewListProps> = ({
     maxDisplay = 1,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('order');
     const styles = stylesheet;
 
     // Số items cần hiển thị
@@ -125,7 +127,7 @@ export const ProductPreviewList: React.FC<ProductPreviewListProps> = ({
                     {/* Text hint */}
                     <View style={styles.moreTextWrapper}>
                         <Text style={styles.moreText}>
-                            Xem thêm {remainingCount} sản phẩm khác
+                            {t('list.viewMore', { count: remainingCount })}
                             {remainingNames && (
                                 <Text style={styles.moreHint}> ({remainingNames}...)</Text>
                             )}

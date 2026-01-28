@@ -30,6 +30,8 @@ export const CART_STRINGS: CartTranslation = {
         syncing: 'Đang cập nhật giá mới nhất...',
         rebuySuccess: 'Mua lại thành công',
         rebuySuccessDetail: 'Sản phẩm đã được thêm vào giỏ hàng của bạn',
+        addSuccess: 'Đã thêm vào giỏ hàng',
+        addFailed: 'Thêm vào giỏ thất bại',
     },
     error: {
         loadFailed: 'Không thể tải giỏ hàng',

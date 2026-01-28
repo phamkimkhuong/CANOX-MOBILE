@@ -61,6 +61,13 @@ export const PRODUCT_STRINGS: ProductTranslation = {
         soldOut: 'Almost sold out',
         selling: 'Selling fast',
         soldPrefix: 'Sold',
+        campaigns: {
+            flashSale: 'FLASH SALE',
+            megaSale: 'MEGA SALE',
+            dailyDeal: '🎁 DAILY DEAL',
+            shopSale: 'SHOP SALE',
+            shopPromotion: 'SHOP PROMOTION',
+        },
     },
 
     // === Reviews ===

@@ -4,4 +4,7 @@ export const EN_MAP: Record<number, string> = {
     6001: "Internal Server Error",
     6005: "Something went wrong. Please try again later!",
     6006: "Something went wrong. Please try again later!",
+
+    // CART & STOCK (9400-9499)
+    9402: "Product is out of stock or insufficient quantity!",
 };

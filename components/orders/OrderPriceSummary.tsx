@@ -7,6 +7,7 @@
 
 import { formatCurrency } from '@/utils/format';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -22,17 +23,16 @@ export const OrderPriceSummary: React.FC<OrderPriceSummaryProps> = ({
     totalQuantity,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('order');
     const styles = stylesheet;
 
     // Xác định text hiển thị số lượng
-    const quantityText = totalQuantity > 1
-        ? `${totalQuantity} sản phẩm`
-        : '1 sản phẩm';
+    const quantityText = t('list.itemCount', { count: totalQuantity });
 
     return (
         <View style={styles.container}>
             <View style={styles.row}>
-                <Text style={styles.label}>Thành tiền ({quantityText}):</Text>
+                <Text style={styles.label}>{t('list.totalLabel')} ({quantityText}):</Text>
                 <Text style={styles.amount}>{formatCurrency(grandTotal)}</Text>
             </View>
         </View>

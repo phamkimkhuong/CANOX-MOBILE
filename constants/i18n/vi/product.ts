@@ -77,6 +77,13 @@ export const PRODUCT_STRINGS: ProductTranslation = {
         soldOut: 'Sắp hết hàng',
         selling: 'Đang bán chạy',
         soldPrefix: 'Đã bán',
+        campaigns: {
+            flashSale: 'FLASH SALE',
+            megaSale: 'MEGA SALE',
+            dailyDeal: '🎁 DEAL HÀNG NGÀY',
+            shopSale: 'SHOP SALE',
+            shopPromotion: 'SHOP PROMOTION',
+        },
     },
 
     // === Reviews ===

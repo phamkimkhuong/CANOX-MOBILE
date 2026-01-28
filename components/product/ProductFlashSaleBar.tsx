@@ -1,12 +1,11 @@
 import { CountdownDigits } from '@/components/ui/CountdownDigits';
 import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
-import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import { useCountdown } from '@/hooks/useCountdown';
 import type { FlashSaleInfo } from '@/types/product/productDetail';
 import React, { memo, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-
 
 interface ProductFlashSaleBarProps {
     /** Flash Sale info từ ProductDetailUI */
@@ -15,30 +14,12 @@ interface ProductFlashSaleBarProps {
     onExpired?: () => void;
 }
 
-/**
- * ProductFlashSaleBar - Flash Sale banner cho Product Detail
- * 
- * Features:
- * - Sử dụng useCountdown (Single Source of Truth)
- * - Sử dụng CountdownDigits (Atomic Component)
- * - Progress bar hiển thị "Đã bán / Sắp hết"
- * - Auto hide khi expired
- * 
- * @example
- * ```tsx
- * {flashSale?.isActive && (
- *   <ProductFlashSaleBar 
- *     flashSale={flashSale} 
- *     onExpired={refetch}
- *   />
- * )}
- * ```
- */
 export const ProductFlashSaleBar = memo<ProductFlashSaleBarProps>(({
     flashSale,
     onExpired,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('product');
 
     // Mapping UI theo campaignType
     const campaignTheme = useMemo(() => {
@@ -46,7 +27,7 @@ export const ProductFlashSaleBar = memo<ProductFlashSaleBarProps>(({
         switch (type) {
             case 'FLASH_SALE':
                 return {
-                    label: 'FLASH SALE',
+                    label: t('flashSale.campaigns.flashSale'),
                     icon: 'flash' as IconSymbolName,
                     iconColor: '#FFD700',
                     bgColor: '#FFF5F5',
@@ -56,7 +37,7 @@ export const ProductFlashSaleBar = memo<ProductFlashSaleBarProps>(({
                 };
             case 'MEGA_SALE':
                 return {
-                    label: 'MEGA SALE',
+                    label: t('flashSale.campaigns.megaSale'),
                     icon: 'flame' as IconSymbolName,
                     iconColor: '#FFD700',
                     bgColor: '#F3E5F5', // Purple light
@@ -66,7 +47,7 @@ export const ProductFlashSaleBar = memo<ProductFlashSaleBarProps>(({
                 };
             case 'DAILY_DEAL':
                 return {
-                    label: 'DEAL DAILY',
+                    label: t('flashSale.campaigns.dailyDeal'),
                     icon: 'gift' as IconSymbolName,
                     iconColor: '#2196F3',
                     bgColor: '#E3F2FD', // Blue light
@@ -76,7 +57,7 @@ export const ProductFlashSaleBar = memo<ProductFlashSaleBarProps>(({
                 };
             case 'SHOP_SALE':
                 return {
-                    label: 'SHOP SALE',
+                    label: t('flashSale.campaigns.shopSale'),
                     icon: 'tag' as IconSymbolName,
                     iconColor: '#FF9800',
                     bgColor: '#FFF8E1', // Amber light
@@ -86,7 +67,7 @@ export const ProductFlashSaleBar = memo<ProductFlashSaleBarProps>(({
                 };
             case 'SHOP_PROMOTION':
                 return {
-                    label: 'SHOP PROMOTION',
+                    label: t('flashSale.campaigns.shopPromotion'),
                     icon: 'gift' as IconSymbolName,
                     iconColor: '#E91E63',
                     bgColor: '#FCE4EC', // Pink light
@@ -96,7 +77,7 @@ export const ProductFlashSaleBar = memo<ProductFlashSaleBarProps>(({
                 };
             default:
                 return {
-                    label: 'FLASH SALE',
+                    label: t('flashSale.campaigns.flashSale'),
                     icon: 'flash' as IconSymbolName,
                     iconColor: '#FFD700',
                     bgColor: '#FFF5F5',
@@ -105,7 +86,7 @@ export const ProductFlashSaleBar = memo<ProductFlashSaleBarProps>(({
                     badgeColor: theme.colors.error,
                 };
         }
-    }, [flashSale.campaignType, theme]);
+    }, [flashSale.campaignType, theme, t]);
 
     // Sử dụng useCountdown - Ưu tiên secondsRemaining để tránh drift timezone
     const { duration, isExpired } = useCountdown({
@@ -128,10 +109,10 @@ export const ProductFlashSaleBar = memo<ProductFlashSaleBarProps>(({
     // Xác định trạng thái hiển thị
     const isAlmostSoldOut = soldPercentage >= 80;
     const statusText = isAlmostSoldOut
-        ? PRODUCT_STRINGS.flashSale.soldOut
+        ? t('flashSale.soldOut')
         : flashSale.quantitySold && flashSale.quantitySold > 0
-            ? `${PRODUCT_STRINGS.flashSale.soldPrefix} ${flashSale.quantitySold}`
-            : PRODUCT_STRINGS.flashSale.selling;
+            ? `${t('flashSale.soldPrefix')} ${flashSale.quantitySold}`
+            : t('flashSale.selling');
 
     return (
         <View style={[

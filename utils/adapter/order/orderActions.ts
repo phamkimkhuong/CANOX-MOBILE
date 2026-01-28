@@ -20,79 +20,79 @@ import { OrderAction, OrderStatus, OrderUI } from '@/types/order/order';
 const ACTION_MATRIX: Record<OrderStatus, OrderAction[]> = {
     // Created - Can cancel
     CREATED: [
-        { label: 'Liên hệ Shop', type: 'secondary', action: 'contact', icon: 'chat-dots' },
-        { label: 'Hủy đơn', type: 'danger', action: 'cancel', icon: 'close-circle' },
+        { labelKey: 'order:actions.contact', type: 'secondary', action: 'contact', icon: 'chat-dots' },
+        { labelKey: 'order:actions.cancel', type: 'danger', action: 'cancel', icon: 'close-circle' },
     ],
     // Awaiting Payment
     AWAITING_PAYMENT: [
-        { label: 'Thanh toán ngay', type: 'primary', action: 'pay', icon: 'card' },
-        { label: 'Hủy đơn', type: 'danger', action: 'cancel', icon: 'close-circle' },
+        { labelKey: 'order:actions.pay', type: 'primary', action: 'pay', icon: 'card' },
+        { labelKey: 'order:actions.cancel', type: 'danger', action: 'cancel', icon: 'close-circle' },
     ],
     // Paid
     PAID: [
-        { label: 'Liên hệ Shop', type: 'secondary', action: 'contact', icon: 'chat-dots' },
+        { labelKey: 'order:actions.contact', type: 'secondary', action: 'contact', icon: 'chat-dots' },
     ],
     // Rejected
     REJECTED: [
-        { label: 'Mua lại', type: 'primary', action: 'rebuy', icon: 'cart' },
+        { labelKey: 'order:actions.rebuy', type: 'primary', action: 'rebuy', icon: 'cart' },
     ],
     // Processing/Packing
     FULFILLING: [
-        { label: 'Liên hệ Shop', type: 'secondary', action: 'contact', icon: 'chat-dots' },
+        { labelKey: 'order:actions.contact', type: 'secondary', action: 'contact', icon: 'chat-dots' },
     ],
     // Ready for pickup
     READY_FOR_PICKUP: [
-        { label: 'Đã nhận hàng', type: 'primary', action: 'received', icon: 'cube' },
+        { labelKey: 'order:actions.received', type: 'primary', action: 'received', icon: 'cube' },
     ],
     // Shipped
     SHIPPED: [
-        { label: 'Theo dõi', type: 'primary', action: 'track', icon: 'truck-fast' },
+        { labelKey: 'order:actions.track', type: 'primary', action: 'track', icon: 'truck-fast' },
     ],
     // Out for delivery
     OUT_FOR_DELIVERY: [
-        { label: 'Theo dõi', type: 'secondary', action: 'track', icon: 'truck-fast' },
-        { label: 'Đã nhận hàng', type: 'primary', action: 'received', icon: 'cube' },
+        { labelKey: 'order:actions.track', type: 'secondary', action: 'track', icon: 'truck-fast' },
+        { labelKey: 'order:actions.received', type: 'primary', action: 'received', icon: 'cube' },
     ],
     // Delivered - Physics delivered, but user needs to confirm or request return
     DELIVERED: [
-        { label: 'Trả hàng/Hoàn tiền', type: 'secondary', action: 'return', icon: 'cube' },
-        { label: 'Đã nhận hàng', type: 'primary', action: 'received', icon: 'cube' },
+        { labelKey: 'order:actions.return', type: 'secondary', action: 'return', icon: 'cube' },
+        { labelKey: 'order:actions.received', type: 'primary', action: 'received', icon: 'cube' },
     ],
     // Completed - Transaction final
     COMPLETED: [
-        { label: 'Mua lại', type: 'secondary', action: 'rebuy', icon: 'cart' },
-        { label: 'Đánh giá', type: 'primary', action: 'review', icon: 'star-outline' },
+        { labelKey: 'order:actions.rebuy', type: 'secondary', action: 'rebuy', icon: 'cart' },
+        { labelKey: 'order:actions.review', type: 'primary', action: 'review', icon: 'star-outline' },
     ],
     // Delivery failed
     DELIVERY_FAILED: [
-        { label: 'Liên hệ Shop', type: 'secondary', action: 'contact', icon: 'chat-dots' },
-        { label: 'Mua lại', type: 'primary', action: 'rebuy', icon: 'cart' },
+        { labelKey: 'order:actions.contact', type: 'secondary', action: 'contact', icon: 'chat-dots' },
+        { labelKey: 'order:actions.rebuy', type: 'primary', action: 'rebuy', icon: 'cart' },
     ],
     // Return statuses
     RETURNING_TO_SENDER: [
-        { label: 'Theo dõi', type: 'primary', action: 'track', icon: 'truck-step' },
+        { labelKey: 'order:actions.track', type: 'primary', action: 'track', icon: 'truck-step' },
     ],
     RETURNED_TO_SENDER: [
-        { label: 'Mua lại', type: 'primary', action: 'rebuy', icon: 'cart' },
+        { labelKey: 'order:actions.rebuy', type: 'primary', action: 'rebuy', icon: 'cart' },
     ],
     RETURN_REQUESTED: [
-        { label: 'Liên hệ Shop', type: 'secondary', action: 'contact', icon: 'chat-dots' },
+        { labelKey: 'order:actions.contact', type: 'secondary', action: 'contact', icon: 'chat-dots' },
     ],
     RETURN_APPROVED: [
-        { label: 'Theo dõi', type: 'primary', action: 'track', icon: 'truck-step' },
+        { labelKey: 'order:actions.track', type: 'primary', action: 'track', icon: 'truck-step' },
     ],
     RETURN_REJECTED: [
-        { label: 'Liên hệ Shop', type: 'secondary', action: 'contact', icon: 'chat-dots' },
+        { labelKey: 'order:actions.contact', type: 'secondary', action: 'contact', icon: 'chat-dots' },
     ],
     RETURNING: [
-        { label: 'Theo dõi', type: 'primary', action: 'track', icon: 'truck-step' },
+        { labelKey: 'order:actions.track', type: 'primary', action: 'track', icon: 'truck-step' },
     ],
     RETURNED: [
-        { label: 'Mua lại', type: 'primary', action: 'rebuy', icon: 'cart' },
+        { labelKey: 'order:actions.rebuy', type: 'primary', action: 'rebuy', icon: 'cart' },
     ],
     // Cancelled
     CANCELLED: [
-        { label: 'Mua lại', type: 'primary', action: 'rebuy', icon: 'cart' },
+        { labelKey: 'order:actions.rebuy', type: 'primary', action: 'rebuy', icon: 'cart' },
     ],
 };
 
@@ -111,7 +111,7 @@ export const getOrderActions = (orderOrStatus: OrderUI | OrderStatus): OrderActi
         if (allReviewed) {
             // If all reviewed, remove review button and make Rebuy primary
             return [
-                { label: 'Mua lại', type: 'primary', action: 'rebuy', icon: 'cart' },
+                { labelKey: 'order:actions.rebuy', type: 'primary', action: 'rebuy', icon: 'cart' },
             ];
         }
     }

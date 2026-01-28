@@ -148,8 +148,6 @@ export const OrderDetailFooter: React.FC<OrderDetailFooterProps> = ({
             let onPress = () => { };
             let loading = false;
 
-            const translationKey = `order:actions.${action.action}`;
-
             switch (action.action) {
                 case 'cancel':
                     onPress = onCancel || (() => { });
@@ -181,7 +179,7 @@ export const OrderDetailFooter: React.FC<OrderDetailFooterProps> = ({
 
             return {
                 key: action.action,
-                label: (t(translationKey as any) || action.label) as string,
+                label: t(action.labelKey as any),
                 icon: action.icon || '',
                 variant: action.type,
                 onPress,

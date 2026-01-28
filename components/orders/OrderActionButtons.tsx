@@ -10,6 +10,7 @@ import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import { OrderAction, OrderUI } from '@/types/order/order';
 import { getOrderActions } from '@/utils/adapter/order/orderActions';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -23,6 +24,7 @@ export const OrderActionButtons: React.FC<OrderActionButtonsProps> = ({
     onAction,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('order');
     const styles = stylesheet;
     const actions = getOrderActions(order);
 
@@ -81,7 +83,7 @@ export const OrderActionButtons: React.FC<OrderActionButtonsProps> = ({
                         />
                     )}
                     <Text style={[styles.buttonText, getTextStyle(action.type)]}>
-                        {action.label}
+                        {t(action.labelKey as any)}
                     </Text>
                 </Pressable>
             ))}

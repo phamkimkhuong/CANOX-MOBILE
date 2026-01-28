@@ -100,4 +100,62 @@ export const ORDER_STRINGS: OrderTranslation = {
             voucherWarning: 'Mã giảm giá bạn đã dùng sẽ không được hoàn lại sau khi huỷ.',
         },
     },
+    review: {
+        reviewed: 'Đã đánh giá',
+        pending: 'Đánh giá',
+        notReviewed: 'Chưa đánh giá',
+    },
+    list: {
+        totalLabel: 'Thành tiền',
+        itemCount: '{{count}} sản phẩm',
+        viewMore: 'Xem thêm {{count}} sản phẩm khác',
+        emptyState: {
+            awaitingPayment: {
+                title: 'Chưa có đơn hàng chờ thanh toán',
+                description: 'Các đơn hàng cần thanh toán sẽ hiển thị ở đây',
+            },
+            created: {
+                title: 'Chưa có đơn hàng chờ xác nhận',
+                description: 'Các đơn hàng mới đặt sẽ hiển thị ở đây',
+            },
+            fulfilling: {
+                title: 'Không có đơn hàng nào',
+                description: 'Các đơn hàng đang được xử lý sẽ hiển thị ở đây',
+            },
+            delivered: {
+                title: 'Chưa có đơn hàng đã giao',
+                description: 'Đơn hàng đã giao thành công sẽ hiển thị ở đây',
+            },
+            completed: {
+                title: 'Chưa có đơn hàng hoàn thành',
+                description: 'Đơn hàng đã hoàn tất sẽ hiển thị ở đây',
+            },
+            cancelled: {
+                title: 'Không có đơn hàng đã hủy',
+                description: 'Đơn hàng bị hủy sẽ hiển thị ở đây',
+            },
+            shopNow: 'Mua sắm ngay',
+        },
+    },
+    statusLabel: {
+        created: 'Chờ xác nhận',
+        awaitingPayment: 'Chờ thanh toán',
+        paid: 'Đã thanh toán',
+        rejected: 'Bị từ chối',
+        fulfilling: 'Đang xử lý',
+        readyForPickup: 'Sẵn sàng lấy',
+        shipped: 'Đã gửi hàng',
+        outForDelivery: 'Đang giao',
+        delivered: 'Đã giao',
+        completed: 'Hoàn thành',
+        deliveryFailed: 'Giao thất bại',
+        returningToSender: 'Đang hoàn',
+        returnedToSender: 'Đã hoàn',
+        returnRequested: 'Yêu cầu trả',
+        returnApproved: 'Đã duyệt trả',
+        returnRejected: 'Từ chối trả',
+        returning: 'Đang trả hàng',
+        returned: 'Đã trả hàng',
+        cancelled: 'Đã hủy',
+    },
 };

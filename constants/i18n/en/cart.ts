@@ -30,6 +30,8 @@ export const CART_STRINGS: CartTranslation = {
         syncing: 'Updating latest prices...',
         rebuySuccess: 'Rebuy successful',
         rebuySuccessDetail: 'Products have been added to your cart',
+        addSuccess: 'Added to cart',
+        addFailed: 'Add to cart failed',
     },
     error: {
         loadFailed: 'Could not load cart',

@@ -1,4 +1,3 @@
-import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import type { GalleryItem } from '@/types/product/productDetail';
 import { Image } from 'expo-image';
 import { StatusBar } from 'expo-status-bar';
@@ -12,6 +11,7 @@ import React, {
     useRef,
     useState,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal, Pressable, Text, useWindowDimensions, View, ViewToken } from 'react-native';
 import Gallery, { RenderItemInfo } from 'react-native-awesome-gallery';
 import Animated, {
@@ -228,6 +228,7 @@ export const ProductGallery = memo(forwardRef<ProductGalleryRef, ProductGalleryP
     initialIndex = 0,
 }, ref) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('product');
     const insets = useSafeAreaInsets();
 
     const { width: screenWidth } = useWindowDimensions();
@@ -418,7 +419,7 @@ export const ProductGallery = memo(forwardRef<ProductGalleryRef, ProductGalleryP
                     size={48}
                     color={theme.colors.secondary}
                 />
-                <Text style={styles.emptyText}>{PRODUCT_STRINGS.gallery.noImages}</Text>
+                <Text style={styles.emptyText}>{t('gallery.noImages')}</Text>
             </View>
         );
     }

@@ -51,6 +51,13 @@ export interface ProductTranslation {
         soldOut: string;
         selling: string;
         soldPrefix: string;
+        campaigns: {
+            flashSale: string;
+            megaSale: string;
+            dailyDeal: string;
+            shopSale: string;
+            shopPromotion: string;
+        };
     };
     reviews: {
         title: string;
@@ -390,6 +397,8 @@ export interface CartTranslation {
         syncing: string;
         rebuySuccess: string;
         rebuySuccessDetail: string;
+        addSuccess: string;
+        addFailed: string;
     };
     error: {
         loadFailed: string;
@@ -609,6 +618,46 @@ export interface OrderTranslation {
             refundInfo: string;
             voucherWarning: string;
         };
+    };
+    review: {
+        reviewed: string;
+        pending: string;
+        notReviewed: string;
+    };
+    list: {
+        totalLabel: string;
+        itemCount: string;
+        viewMore: string;
+        emptyState: {
+            awaitingPayment: { title: string; description: string };
+            created: { title: string; description: string };
+            fulfilling: { title: string; description: string };
+            delivered: { title: string; description: string };
+            completed: { title: string; description: string };
+            cancelled: { title: string; description: string };
+            shopNow: string;
+        };
+    };
+    statusLabel: {
+        created: string;
+        awaitingPayment: string;
+        paid: string;
+        rejected: string;
+        fulfilling: string;
+        readyForPickup: string;
+        shipped: string;
+        outForDelivery: string;
+        delivered: string;
+        completed: string;
+        deliveryFailed: string;
+        returningToSender: string;
+        returnedToSender: string;
+        returnRequested: string;
+        returnApproved: string;
+        returnRejected: string;
+        returning: string;
+        returned: string;
+        cancelled: string;
     };
 }
 

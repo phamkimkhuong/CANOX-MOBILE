@@ -1,11 +1,6 @@
-/**
- * ==============================================
- * EMPTY ORDER STATE - Khi không có đơn hàng
- * ==============================================
- */
-
 import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -14,37 +9,13 @@ interface EmptyOrderStateProps {
     onShopNow?: () => void;
 }
 
-const STATUS_MESSAGES: Record<string, { title: string; description: string; icon: IconSymbolName }> = {
-    AWAITING_PAYMENT: {
-        title: 'Chưa có đơn hàng chờ thanh toán',
-        description: 'Các đơn hàng cần thanh toán sẽ hiển thị ở đây',
-        icon: 'card',
-    },
-    CREATED: {
-        title: 'Chưa có đơn hàng chờ xác nhận',
-        description: 'Các đơn hàng mới đặt sẽ hiển thị ở đây',
-        icon: 'time',
-    },
-    FULFILLING: {
-        title: 'Không có đơn hàng đang giao',
-        description: 'Đơn hàng đang được xử lý sẽ hiển thị ở đây',
-        icon: 'truck-step',
-    },
-    DELIVERED: {
-        title: 'Chưa có đơn hàng đã giao',
-        description: 'Đơn hàng đã giao thành công sẽ hiển thị ở đây',
-        icon: 'cube',
-    },
-    COMPLETED: {
-        title: 'Chưa có đơn hàng hoàn thành',
-        description: 'Đơn hàng đã hoàn tất sẽ hiển thị ở đây',
-        icon: 'checkmark-done',
-    },
-    CANCELLED: {
-        title: 'Không có đơn hàng đã hủy',
-        description: 'Đơn hàng bị hủy sẽ hiển thị ở đây',
-        icon: 'close-circle',
-    },
+const STATUS_ICONS: Record<string, IconSymbolName> = {
+    AWAITING_PAYMENT: 'card',
+    CREATED: 'time',
+    FULFILLING: 'truck-step',
+    DELIVERED: 'cube',
+    COMPLETED: 'checkmark-done',
+    CANCELLED: 'close-circle',
 };
 
 export const EmptyOrderState: React.FC<EmptyOrderStateProps> = ({
@@ -52,21 +23,37 @@ export const EmptyOrderState: React.FC<EmptyOrderStateProps> = ({
     onShopNow,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('order');
     const styles = stylesheet;
 
-    const message = STATUS_MESSAGES[status] || STATUS_MESSAGES.CREATED;
+    const icon = STATUS_ICONS[status] || STATUS_ICONS.CREATED;
+
+    // Map status key to i18n path
+    const getI18nPath = (key: string) => {
+        const pathMap: Record<string, string> = {
+            AWAITING_PAYMENT: 'awaitingPayment',
+            CREATED: 'created',
+            FULFILLING: 'fulfilling',
+            DELIVERED: 'delivered',
+            COMPLETED: 'completed',
+            CANCELLED: 'cancelled',
+        };
+        return pathMap[key] || 'created';
+    };
+
+    const i18nPath = getI18nPath(status);
 
     return (
         <View style={styles.container}>
             <View style={styles.iconWrapper}>
                 <IconSymbol
-                    name={message.icon}
+                    name={icon}
                     size={64}
                     color={theme.colors.secondary}
                 />
             </View>
-            <Text style={styles.title}>{message.title}</Text>
-            <Text style={styles.description}>{message.description}</Text>
+            <Text style={styles.title}>{t(`list.emptyState.${i18nPath}.title` as any)}</Text>
+            <Text style={styles.description}>{t(`list.emptyState.${i18nPath}.description` as any)}</Text>
 
             {onShopNow && (
                 <Pressable
@@ -81,7 +68,7 @@ export const EmptyOrderState: React.FC<EmptyOrderStateProps> = ({
                         size={18}
                         color={theme.colors.onPrimary}
                     />
-                    <Text style={styles.buttonText}>Mua sắm ngay</Text>
+                    <Text style={styles.buttonText}>{t('list.emptyState.shopNow')}</Text>
                 </Pressable>
             )}
         </View>

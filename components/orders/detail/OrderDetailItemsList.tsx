@@ -14,6 +14,7 @@ import { formatCurrency } from '@/utils/format';
 import { Navigator } from '@/utils/navigation';
 import { Image } from 'expo-image';
 import React, { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -29,6 +30,7 @@ const OrderItemRow: React.FC<OrderItemRowProps> = ({
     onPressReview,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('order');
     const styles = stylesheet;
 
     const hasVariants = item.variantAttributes && item.variantAttributes.length > 0;
@@ -86,7 +88,7 @@ const OrderItemRow: React.FC<OrderItemRowProps> = ({
                                         color={theme.colors.success}
                                     />
                                     <Text style={styles.reviewedText}>
-                                        Đã đánh giá
+                                        {t('review.reviewed')}
                                     </Text>
                                 </View>
                             ) : canReview && onPressReview ? (
@@ -101,12 +103,12 @@ const OrderItemRow: React.FC<OrderItemRowProps> = ({
                                         color={theme.colors.warning}
                                     />
                                     <Text style={styles.reviewButtonText}>
-                                        Đánh giá
+                                        {t('review.pending')}
                                     </Text>
                                 </TouchableOpacity>
                             ) : (
                                 <Text style={styles.notReviewedText}>
-                                    Chưa đánh giá
+                                    {t('review.notReviewed')}
                                 </Text>
                             )}
                         </View>

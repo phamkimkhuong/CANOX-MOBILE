@@ -8,6 +8,7 @@ import { transformCart } from '@/utils/adapter/cartAdapter';
 import { logger } from '@/utils/logger';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import 'react-native-get-random-values';
 import Toast from 'react-native-toast-message';
 import { v4 as uuidv4 } from 'uuid';
@@ -109,6 +110,7 @@ export const useAddToCart = () => {
     const queryClient = useQueryClient();
     const incrementCart = useCartStore((state) => state.increment);
     const setTotalQuantity = useCartStore((state) => state.setTotalQuantity);
+    const { t } = useTranslation('cart');
 
     return useMutation({
         mutationFn: async ({ variantId, quantity }: AddToCartInput): Promise<AddToCartResponse | null> => {
@@ -152,10 +154,10 @@ export const useAddToCart = () => {
             // Invalidate to refetch correct data from server
             queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
 
-            const errorMessage = error instanceof Error ? error.message : 'Không thể thêm vào giỏ hàng';
+            const errorMessage = error instanceof Error ? error.message : t('status.addFailed');
             Toast.show({
                 type: 'error',
-                text1: 'Thêm vào giỏ thất bại',
+                text1: t('status.addFailed'),
                 text2: errorMessage,
                 position: 'top',
                 visibilityTime: 3000,
@@ -174,7 +176,7 @@ export const useAddToCart = () => {
             if (!variables.hideToast) {
                 Toast.show({
                     type: 'success',
-                    text1: 'Đã thêm vào giỏ hàng',
+                    text1: t('status.addSuccess'),
                     position: 'top',
                     visibilityTime: 2000,
                 });

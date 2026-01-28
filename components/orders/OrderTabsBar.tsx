@@ -8,6 +8,7 @@
 import { OrderTabStatus } from '@/types/order/order';
 import { ORDER_TABS } from '@/utils/adapter/order/orderStatusMapper';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LayoutChangeEvent, Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import Animated, {
     Easing,
@@ -27,6 +28,7 @@ export const OrderTabsBar: React.FC<OrderTabsBarProps> = ({
     onTabChange,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('order');
     const { width: screenWidth } = useWindowDimensions();
     const styles = stylesheet;
     const scrollViewRef = useRef<ScrollView>(null);
@@ -162,7 +164,7 @@ export const OrderTabsBar: React.FC<OrderTabsBarProps> = ({
                                     isActive && styles.tabTextActive,
                                 ]}
                             >
-                                {tab.label}
+                                {t(tab.labelKey as any)}
                             </Text>
                         </Pressable>
                     );

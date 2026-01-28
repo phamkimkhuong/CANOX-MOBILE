@@ -1,10 +1,4 @@
-/**
- * ==============================================
- * ORDER STATUS MAPPER - UI Display Logic
- * ==============================================
- * Chuyển đổi status từ API sang text + màu sắc hiển thị
- */
-
+import i18n from '@/constants/i18n';
 import { OrderStatus, OrderTabStatus } from '@/types/order/order';
 
 export interface StatusDisplay {
@@ -16,122 +10,119 @@ export interface StatusDisplay {
 
 /**
  * Map trạng thái đơn hàng sang hiển thị UI
- * - label: Text tiếng Việt
- * - color: Màu chữ/icon
- * - bgColor: Màu nền badge
- * - icon: MaterialCommunityIcons name
+ * - labelKey: Key trong i18n
  */
-export const ORDER_STATUS_MAP: Record<OrderStatus, StatusDisplay> = {
+export const ORDER_STATUS_MAP: Record<OrderStatus, Omit<StatusDisplay, 'label'> & { labelKey: string }> = {
     CREATED: {
-        label: 'Chờ xác nhận',
+        labelKey: 'order:statusLabel.created',
         color: '#f59e0b',
         bgColor: 'rgba(245, 158, 11, 0.1)',
         icon: 'time',
     },
     AWAITING_PAYMENT: {
-        label: 'Chờ thanh toán',
+        labelKey: 'order:statusLabel.awaitingPayment',
         color: '#f59e0b',
         bgColor: 'rgba(245, 158, 11, 0.1)',
         icon: 'card',
     },
     PAID: {
-        label: 'Đã thanh toán',
+        labelKey: 'order:statusLabel.paid',
         color: '#10b981',
         bgColor: 'rgba(16, 185, 129, 0.1)',
         icon: 'check-circle',
     },
     REJECTED: {
-        label: 'Bị từ chối',
+        labelKey: 'order:statusLabel.rejected',
         color: '#ef4444',
         bgColor: 'rgba(239, 68, 68, 0.1)',
         icon: 'close-circle',
     },
     FULFILLING: {
-        label: 'Đang xử lý',
+        labelKey: 'order:statusLabel.fulfilling',
         color: '#0088cc',
         bgColor: 'rgba(0, 136, 204, 0.1)',
         icon: 'cube',
     },
     READY_FOR_PICKUP: {
-        label: 'Sẵn sàng lấy',
+        labelKey: 'order:statusLabel.readyForPickup',
         color: '#0088cc',
         bgColor: 'rgba(0, 136, 204, 0.1)',
         icon: 'store',
     },
     SHIPPED: {
-        label: 'Đã gửi hàng',
+        labelKey: 'order:statusLabel.shipped',
         color: '#0088cc',
         bgColor: 'rgba(0, 136, 204, 0.1)',
         icon: 'truck-step',
     },
     OUT_FOR_DELIVERY: {
-        label: 'Đang giao',
+        labelKey: 'order:statusLabel.outForDelivery',
         color: '#f59e0b',
         bgColor: 'rgba(245, 158, 11, 0.1)',
         icon: 'truck-fast',
     },
     DELIVERED: {
-        label: 'Đã giao',
+        labelKey: 'order:statusLabel.delivered',
         color: '#10b981',
         bgColor: 'rgba(16, 185, 129, 0.1)',
         icon: 'cube',
     },
     COMPLETED: {
-        label: 'Đã mua',
+        labelKey: 'order:statusLabel.completed',
         color: '#6b7280',
         bgColor: 'rgba(107, 114, 128, 0.1)',
         icon: 'checkmark-done',
     },
     DELIVERY_FAILED: {
-        label: 'Giao thất bại',
+        labelKey: 'order:statusLabel.deliveryFailed',
         color: '#ef4444',
         bgColor: 'rgba(239, 68, 68, 0.1)',
         icon: 'warning',
     },
     RETURNING_TO_SENDER: {
-        label: 'Đang hoàn',
+        labelKey: 'order:statusLabel.returningToSender',
         color: '#f59e0b',
         bgColor: 'rgba(245, 158, 11, 0.1)',
         icon: 'truck-step',
     },
     RETURNED_TO_SENDER: {
-        label: 'Đã hoàn',
+        labelKey: 'order:statusLabel.returnedToSender',
         color: '#6b7280',
         bgColor: 'rgba(107, 114, 128, 0.1)',
         icon: 'cube',
     },
     RETURN_REQUESTED: {
-        label: 'Yêu cầu trả',
+        labelKey: 'order:statusLabel.returnRequested',
         color: '#f59e0b',
         bgColor: 'rgba(245, 158, 11, 0.1)',
         icon: 'cube',
     },
     RETURN_APPROVED: {
-        label: 'Đã duyệt trả',
+        labelKey: 'order:statusLabel.returnApproved',
         color: '#10b981',
         bgColor: 'rgba(16, 185, 129, 0.1)',
         icon: 'cube',
     },
     RETURN_REJECTED: {
-        label: 'Từ chối trả',
+        labelKey: 'order:statusLabel.returnRejected',
         color: '#ef4444',
         bgColor: 'rgba(239, 68, 68, 0.1)',
         icon: 'cube',
     },
     RETURNING: {
-        label: 'Đang trả hàng',
+        labelKey: 'order:statusLabel.returning',
         color: '#f59e0b',
         bgColor: 'rgba(245, 158, 11, 0.1)',
         icon: 'truck-step',
     },
     RETURNED: {
-        label: 'Đã trả hàng',
+        labelKey: 'order:statusLabel.returned',
         color: '#6b7280',
         bgColor: 'rgba(107, 114, 128, 0.1)',
         icon: 'cube',
     },
     CANCELLED: {
-        label: 'Đã hủy',
+        labelKey: 'order:statusLabel.cancelled',
         color: '#ef4444',
         bgColor: 'rgba(239, 68, 68, 0.1)',
         icon: 'close-circle',
@@ -142,24 +133,27 @@ export const ORDER_STATUS_MAP: Record<OrderStatus, StatusDisplay> = {
  * Lấy thông tin hiển thị cho status
  */
 export const getStatusDisplay = (status: OrderStatus): StatusDisplay => {
-    return ORDER_STATUS_MAP[status] || ORDER_STATUS_MAP.CREATED;
+    const config = ORDER_STATUS_MAP[status] || ORDER_STATUS_MAP.CREATED;
+    return {
+        ...config,
+        label: i18n.t(config.labelKey as any),
+    };
 };
 
 /**
  * Tab configuration cho Order History screen
- * - Không có tab "All" theo yêu cầu
  */
 export const ORDER_TABS: Array<{
     key: OrderTabStatus;
-    label: string;
+    labelKey: string;
     apiStatus: string;
 }> = [
-        { key: 'AWAITING_PAYMENT', label: 'Chờ thanh toán', apiStatus: 'AWAITING_PAYMENT' },
-        { key: 'CREATED', label: 'Chờ xác nhận', apiStatus: 'CREATED' },
-        { key: 'FULFILLING', label: 'Đang giao', apiStatus: 'FULFILLING' },
-        { key: 'DELIVERED', label: 'Đã giao', apiStatus: 'DELIVERED' },
-        { key: 'COMPLETED', label: 'Đã mua', apiStatus: 'COMPLETED' },
-        { key: 'CANCELLED', label: 'Đã hủy', apiStatus: 'CANCELLED' },
+        { key: 'AWAITING_PAYMENT', labelKey: 'order:tabs.awaitingPayment', apiStatus: 'AWAITING_PAYMENT' },
+        { key: 'CREATED', labelKey: 'order:tabs.created', apiStatus: 'CREATED' },
+        { key: 'FULFILLING', labelKey: 'order:tabs.processing', apiStatus: 'FULFILLING' },
+        { key: 'DELIVERED', labelKey: 'order:tabs.delivered', apiStatus: 'DELIVERED' },
+        { key: 'COMPLETED', labelKey: 'order:tabs.completed', apiStatus: 'COMPLETED' },
+        { key: 'CANCELLED', labelKey: 'order:tabs.cancelled', apiStatus: 'CANCELLED' },
     ];
 
 /**

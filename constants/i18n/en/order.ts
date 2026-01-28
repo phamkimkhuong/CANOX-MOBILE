@@ -100,4 +100,62 @@ export const ORDER_STRINGS: OrderTranslation = {
             voucherWarning: 'The used voucher will not be refunded after cancellation.',
         },
     },
+    review: {
+        reviewed: 'Reviewed',
+        pending: 'Rate',
+        notReviewed: 'Not Reviewed',
+    },
+    list: {
+        totalLabel: 'Order Total',
+        itemCount: '{{count}} items',
+        viewMore: 'View {{count}} more products',
+        emptyState: {
+            awaitingPayment: {
+                title: 'No orders awaiting payment',
+                description: 'Orders that need payment will be displayed here',
+            },
+            created: {
+                title: 'No orders awaiting confirmation',
+                description: 'Newly placed orders will be displayed here',
+            },
+            fulfilling: {
+                title: 'No orders being processed',
+                description: 'Orders being processed will be displayed here',
+            },
+            delivered: {
+                title: 'No delivered orders yet',
+                description: 'Successfully delivered orders will be displayed here',
+            },
+            completed: {
+                title: 'No completed orders yet',
+                description: 'Completed orders will be displayed here',
+            },
+            cancelled: {
+                title: 'No cancelled orders',
+                description: 'Cancelled orders will be displayed here',
+            },
+            shopNow: 'Shop Now',
+        },
+    },
+    statusLabel: {
+        created: 'Pending Confirmation',
+        awaitingPayment: 'To Pay',
+        paid: 'Paid',
+        rejected: 'Rejected',
+        fulfilling: 'Processing',
+        readyForPickup: 'Ready for Pickup',
+        shipped: 'Shipped',
+        outForDelivery: 'Out for Delivery',
+        delivered: 'Delivered',
+        completed: 'Completed',
+        deliveryFailed: 'Delivery Failed',
+        returningToSender: 'Returning',
+        returnedToSender: 'Returned',
+        returnRequested: 'Return Requested',
+        returnApproved: 'Return Approved',
+        returnRejected: 'Return Rejected',
+        returning: 'Returning',
+        returned: 'Returned',
+        cancelled: 'Cancelled',
+    },
 };

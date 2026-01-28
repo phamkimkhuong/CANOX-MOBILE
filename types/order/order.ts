@@ -196,7 +196,7 @@ export interface OrdersApiResponse {
 
 // Action Button Configuration
 export interface OrderAction {
-    label: string;
+    labelKey: string;
     type: 'primary' | 'secondary' | 'danger';
     action: 'cancel' | 'track' | 'received' | 'review' | 'return' | 'rebuy' | 'contact' | 'pay';
     icon?: string;
