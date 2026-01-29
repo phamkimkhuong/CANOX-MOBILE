@@ -16,7 +16,6 @@ export interface CheckoutPreviewItemRequest {
 
 export interface CheckoutPreviewShopRequest {
     shopId: string;
-    itemIds?: string[]; // Legacy, items is preferred
     items?: CheckoutPreviewItemRequest[];
     vouchers?: string[];
     serviceCode?: number;
@@ -40,8 +39,6 @@ export interface CheckoutPreviewRequest {
     paymentMethod?: string;
     usingSavedAddress?: boolean;
     allDiscountCodes?: string[];
-    previewAllSelected?: boolean;
-    allSelectedItemIds?: string[];
 }
 
 // ============================================

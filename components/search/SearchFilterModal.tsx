@@ -35,6 +35,12 @@ interface SearchFilterModalProps {
 
 const RATING_OPTIONS = [5, 4, 3, 2, 1];
 
+const PRICE_PRESETS = [
+    { label: '0 - 100k', min: 0, max: 100000 },
+    { label: '100k - 300k', min: 100000, max: 300000 },
+    { label: '300k - 500k', min: 300000, max: 500000 },
+];
+
 export const SearchFilterModal = React.memo(({
     visible,
     onClose,
@@ -95,7 +101,7 @@ export const SearchFilterModal = React.memo(({
     return (
         <Modal
             visible={visible}
-            animationType="slide"
+            animationType="fade"
             transparent
             onRequestClose={onClose}
         >
@@ -108,11 +114,8 @@ export const SearchFilterModal = React.memo(({
 
                 {/* Modal Content */}
                 <View style={[styles.modalContent, { paddingBottom: insets.bottom + 16 }]}>
-                    {/* Handle */}
-                    <View style={styles.handle} />
-
                     {/* Header */}
-                    <View style={styles.header}>
+                    <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
                         <Text style={styles.headerTitle}>{t('filterModal.title')}</Text>
                         <Pressable
                             style={({ pressed }) => [
@@ -135,6 +138,43 @@ export const SearchFilterModal = React.memo(({
                     {/* Price Range Section */}
                     <View style={styles.section}>
                         <Text style={styles.sectionTitle}>{t('filterModal.priceRange')}</Text>
+
+                        {/* Presets */}
+                        <View style={styles.presetsRow}>
+                            {PRICE_PRESETS.map((preset) => (
+                                <Pressable
+                                    key={preset.label}
+                                    style={({ pressed }) => [
+                                        styles.presetChip,
+                                        minPrice === preset.min.toString() &&
+                                        maxPrice === preset.max.toString() &&
+                                        styles.presetChipActive,
+                                        pressed && styles.buttonPressed,
+                                    ]}
+                                    onPress={() => {
+                                        const isActive = minPrice === preset.min.toString() &&
+                                            maxPrice === preset.max.toString();
+                                        if (isActive) {
+                                            setMinPrice('');
+                                            setMaxPrice('');
+                                        } else {
+                                            setMinPrice(preset.min.toString());
+                                            setMaxPrice(preset.max.toString());
+                                        }
+                                    }}
+                                >
+                                    <Text style={[
+                                        styles.presetChipText,
+                                        minPrice === preset.min.toString() &&
+                                        maxPrice === preset.max.toString() &&
+                                        styles.presetChipTextActive,
+                                    ]}>
+                                        {preset.label}
+                                    </Text>
+                                </Pressable>
+                            ))}
+                        </View>
+
                         <View style={styles.priceInputRow}>
                             <View style={styles.priceInputWrapper}>
                                 <Text style={styles.inputLabel}>{t('filterModal.priceMin')}</Text>
@@ -206,6 +246,9 @@ export const SearchFilterModal = React.memo(({
                             {t('filterModal.apply')}
                         </Text>
                     </Pressable>
+
+                    {/* Content Handle (moved to bottom) */}
+                    <View style={styles.handle} />
                 </View>
             </KeyboardAvoidingView>
         </Modal>
@@ -217,7 +260,7 @@ SearchFilterModal.displayName = 'SearchFilterModal';
 const styles = StyleSheet.create((theme) => ({
     overlay: {
         flex: 1,
-        justifyContent: 'flex-end',
+        justifyContent: 'flex-start',
     },
     backdrop: {
         ...StyleSheet.absoluteFillObject,
@@ -225,9 +268,9 @@ const styles = StyleSheet.create((theme) => ({
     },
     modalContent: {
         backgroundColor: theme.colors.surface,
-        borderTopLeftRadius: theme.radius.xl,
-        borderTopRightRadius: theme.radius.xl,
-        paddingTop: theme.margins.sm,
+        borderBottomLeftRadius: theme.radius.xl,
+        borderBottomRightRadius: theme.radius.xl,
+        paddingBottom: theme.margins.md,
         paddingHorizontal: theme.margins.md,
         maxHeight: '80%',
     },
@@ -237,7 +280,8 @@ const styles = StyleSheet.create((theme) => ({
         backgroundColor: theme.colors.borderMuted,
         borderRadius: 2,
         alignSelf: 'center',
-        marginBottom: theme.margins.md,
+        marginTop: theme.margins.md,
+        marginBottom: theme.margins.sm,
     },
     header: {
         flexDirection: 'row',
@@ -276,6 +320,31 @@ const styles = StyleSheet.create((theme) => ({
         fontWeight: '600',
         color: theme.colors.typography,
         marginBottom: theme.margins.smd,
+    },
+    presetsRow: {
+        flexDirection: 'row',
+        gap: theme.margins.sm,
+        marginBottom: theme.margins.md,
+    },
+    presetChip: {
+        paddingHorizontal: theme.margins.smd,
+        paddingVertical: theme.margins.sm,
+        borderRadius: theme.radius.m,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        backgroundColor: theme.colors.background,
+    },
+    presetChipActive: {
+        borderColor: theme.colors.primary,
+        backgroundColor: theme.colors.primarySubtle,
+    },
+    presetChipText: {
+        fontSize: 13,
+        color: theme.colors.typographySecondary,
+    },
+    presetChipTextActive: {
+        color: theme.colors.primary,
+        fontWeight: '600',
     },
     priceInputRow: {
         flexDirection: 'row',

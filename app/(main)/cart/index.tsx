@@ -339,14 +339,13 @@ export default function CartScreen() {
 
                 return {
                     shopId: shop.shopId,
-                    itemIds: selectedItems.map((item) => item.id),
                     items: selectedItems.map((item) => ({
                         itemId: item.id,
                         quantity: item.quantity,
                     })),
                 };
             })
-            .filter((shop) => shop.itemIds.length > 0);
+            .filter((shop) => shop.items.length > 0);
 
         useCheckoutStore.getState().initSession([...selectedItemIds], selectedShops);
 

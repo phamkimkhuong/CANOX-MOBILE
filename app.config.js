@@ -39,6 +39,13 @@ module.exports = {
 
         "plugins": [
             "./plugins/withNotifee",
+            [
+                "./plugins/withNotificationIcon",
+                {
+                    "iconPath": "./assets/images/notification-icon.png",
+                    "iconColor": "#ef4444"
+                }
+            ],
             "expo-router",
             "expo-video",
             "expo-localization",

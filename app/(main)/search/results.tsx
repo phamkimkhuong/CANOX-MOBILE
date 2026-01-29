@@ -100,14 +100,17 @@ export default function SearchResultsScreen() {
     const insets = useSafeAreaInsets();
     const { t } = useTranslation('search');
 
-    // Get search params from URL
-    const params = useLocalSearchParams<{ q?: string }>();
-    const keyword = params.q ?? '';
+    // Get search params (global search only - shop search is separate)
+    const { q: keyword = '' } = useLocalSearchParams<{ q: string }>();
 
-    // Search state
+    // ========================================
+    // STATE & REFS
+    // ========================================
     const [sortBy, setSortBy] = useState<SearchSortField>('RELEVANCE');
     const [quickFilters, setQuickFilters] = useState<QuickFilterType[]>([]);
-    const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>({});
+    const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>({
+        validPriceRange: true,
+    });
     const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
 
     // Search query
@@ -141,9 +144,12 @@ export default function SearchResultsScreen() {
     // Calculate active filter count for badge
     const activeFilterCount = useMemo(() => {
         let count = quickFilters.length;
-        if (advancedFilters.minPrice !== undefined) count++;
-        if (advancedFilters.maxPrice !== undefined) count++;
-        if (advancedFilters.minRating !== undefined) count++;
+        if (advancedFilters.minPrice !== undefined || advancedFilters.maxPrice !== undefined) {
+            count++;
+        }
+        if (advancedFilters.minRating !== undefined && advancedFilters.minRating > 0) {
+            count++;
+        }
         return count;
     }, [quickFilters, advancedFilters]);
 
@@ -156,9 +162,8 @@ export default function SearchResultsScreen() {
     }, []);
 
     const handleSearchPress = useCallback(() => {
-        // Navigate back to search entry to edit keyword
-        Navigator.push(searchRoutes.entry());
-    }, []);
+        Navigator.push(searchRoutes.entry({ q: keyword }));
+    }, [keyword]);
 
     const handleFilterPress = useCallback(() => {
         Keyboard.dismiss();
@@ -351,6 +356,7 @@ export default function SearchResultsScreen() {
 
     return (
         <View style={styles.container}>
+            {/* Search Header */}
             <SearchResultHeader
                 keyword={keyword}
                 onSearchPress={handleSearchPress}

@@ -4,6 +4,7 @@ export const ORDER_STRINGS: OrderTranslation = {
     tabs: {
         all: 'All',
         awaitingPayment: 'To Pay',
+        created: 'To Confirm',
         processing: 'To Ship',
         shipping: 'To Receive',
         delivered: 'Delivered',

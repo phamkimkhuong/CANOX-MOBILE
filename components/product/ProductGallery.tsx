@@ -171,7 +171,7 @@ const ThumbnailItem = memo<ThumbnailItemProps>(({
                 contentFit="cover"
                 transition={150}
                 cachePolicy="memory-disk"
-                recyclingKey={`thumb-${item.id}`}
+                recyclingKey={`thumb - ${item.id} `}
             />
             {item.type === 'VIDEO' && (
                 <View style={thumbnailStyles.videoIcon}>

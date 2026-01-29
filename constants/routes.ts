@@ -20,6 +20,7 @@ export const ROUTES = {
         CATEGORY: '/(tabs)/category' as const,
         NOTIFY: '/(tabs)/notify' as const,
         ME: '/(tabs)/me' as const,
+        CHAT: '/(main)/chat' as const,
     },
 
     // ============ AUTH ============
@@ -360,10 +361,36 @@ export const reviewRoutes = {
 } as const;
 
 export const searchRoutes = {
-    entry: (): Href => '/(main)/search' as Href,
-    results: (query: string): Href => ({
+    entry: (params?: { q?: string }): Href => ({
+        pathname: '/(main)/search',
+        params: {
+            ...(params?.q && { q: params.q }),
+        },
+    } as unknown as Href),
+    results: (params: { q: string }): Href => ({
         pathname: '/(main)/search/results',
-        params: { q: query },
+        params: { q: params.q },
+    } as unknown as Href),
+} as const;
+
+export const shopSearchRoutes = {
+    /**
+     * Shop search screen - search within a specific shop
+     * @param shopId - Required shop ID
+     * @param categoryId - Optional category filter
+     * @param categoryName - Optional category name for placeholder display
+     */
+    search: (params: {
+        shopId: string;
+        categoryId?: string;
+        categoryName?: string;
+    }): Href => ({
+        pathname: '/(main)/(shop)/shop/search',
+        params: {
+            shopId: params.shopId,
+            ...(params.categoryId && { categoryId: params.categoryId }),
+            ...(params.categoryName && { categoryName: params.categoryName }),
+        },
     } as unknown as Href),
 } as const;
 

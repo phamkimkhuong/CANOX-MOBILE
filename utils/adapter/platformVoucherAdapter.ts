@@ -8,8 +8,6 @@ import type { VoucherUI } from '@/types/cart';
 import type { RecommendedPlatformVoucherDTO } from '@/types/checkout/platformVoucherRecommendation';
 import { formatCurrency } from '@/utils/format';
 
-const DEFAULT_IMAGE = 'https://via.placeholder.com/96';
-
 /**
  * Transform a recommended platform voucher DTO to UI type.
  * Maps to the simplified VoucherUI used in checkout.

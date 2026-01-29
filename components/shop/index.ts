@@ -4,55 +4,66 @@
  * ==============================================
  * 
  * Central export for all shop-related components
+ * Organized by subdirectory for better maintainability
  */
 
-export { ShopBanner } from './ShopBanner';
-export { ShopHeaderInfo } from './ShopHeaderInfo';
-export { ShopHeaderSkeleton } from './ShopHeaderSkeleton';
-
 // ============================================
-// NAVIGATION COMPONENTS
+// HEADER COMPONENTS
 // ============================================
-
-export { ShopNavBar } from './ShopNavBar';
-export type { ShopNavBarProps } from './ShopNavBar';
-export { ShopTabs } from './ShopTabs';
-// Re-export tab types from types/shop for convenience
-export { SHOP_TABS } from '@/types/shop';
-export type { ShopTabType } from '@/types/shop';
+export {
+    ShopBanner,
+    ShopHeaderInfo,
+    ShopHeaderSkeleton,
+    ShopNavBar,
+    ShopTabs
+} from './header';
+export type { ShopNavBarProps } from './header';
 
 // ============================================
 // PRODUCT COMPONENTS
 // ============================================
-
-export { ShopProductItem } from './ShopProductItem';
-export { ShopProductSkeleton } from './ShopProductSkeleton';
+export {
+    ShopEmptyState,
+    ShopProductItem,
+    ShopProductSkeleton
+} from './product';
 
 // ============================================
-// STATE COMPONENTS
+// SEARCH COMPONENTS
 // ============================================
-
-export { ShopEmptyState } from './ShopEmptyState';
+export {
+    ShopCategoriesTab,
+    ShopSearchEmptyState,
+    ShopSearchHeader
+} from './search';
+export type { ShopSearchHeaderRef } from './search';
 
 // ============================================
 // VOUCHER COMPONENTS
 // ============================================
-
-export { ShopVoucherCard } from './ShopVoucherCard';
-export { ShopVoucherSection } from './ShopVoucherSection';
-export { ShopVoucherSkeleton } from './ShopVoucherSkeleton';
+export {
+    ShopVoucherCard,
+    ShopVoucherSection,
+    ShopVoucherSkeleton
+} from './voucher';
 
 // ============================================
 // PROFILE COMPONENTS (Brand-First Strategy)
 // ============================================
-
 export {
-    ShopProfileTab,
-    ShopProfileHero,
-    ShopTrustBadges,
-    ShopCommitments,
     ShopBrandStory,
-    ShopGallery,
     ShopBusinessInfo,
+    ShopCommitments,
+    ShopGallery,
     ShopPlatformGuarantees,
+    ShopProfileHero,
+    ShopProfileTab,
+    ShopTrustBadges
 } from './profile';
+
+// ============================================
+// RE-EXPORTS FROM TYPES
+// ============================================
+export { SHOP_TABS } from '@/types/shop';
+export type { ShopTabType } from '@/types/shop';
+

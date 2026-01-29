@@ -6,13 +6,13 @@ import { z } from 'zod';
 export interface CreateOrderItemRequest {
     itemId: string;
     expectedUnitPrice: number;
+    quantity: number;
     promotionId?: string | null;
 }
 
 export interface CreateOrderShopRequest {
     shopId: string;
     items: CreateOrderItemRequest[];
-    itemIds: string[];
     vouchers?: string[];
     serviceCode: number;
     shippingFee: number;
@@ -25,16 +25,10 @@ export interface CreateOrderRequest {
     buyerAddressData: {
         addressId: string;
         buyerAddressId: string;
-        addressType: number | null;
-        taxAddress: string | null;
     };
     loyaltyPoints: number;
     paymentMethod: 'COD' | 'BANK_TRANSFER' | 'PAYOS';
-    previewId: string;
-    previewAt: string;
     customerNote: string;
-    confirmAllSelected: boolean;
-    allSelectedItemIds: string[];
 }
 
 // ============================================

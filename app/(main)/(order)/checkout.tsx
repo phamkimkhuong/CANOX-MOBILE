@@ -193,7 +193,6 @@ export default function CheckoutScreen() {
                 // Initialize checkout session with just this item
                 initSession([addedItemId], [{
                     shopId: addedShopId,
-                    itemIds: [addedItemId],
                     items: [{
                         itemId: addedItemId,
                         quantity: parsedQuantity,
@@ -294,7 +293,6 @@ export default function CheckoutScreen() {
                 return {
                     shopId: shop.shopId,
                     items: shop.items,
-                    itemIds: shop.itemIds,
                     vouchers: voucherCode ? [voucherCode] : undefined,
                     // Use distributed global vouchers inside each shop
                     globalVouchers: globalVouchersArray.length > 0 ? globalVouchersArray : undefined,
@@ -302,8 +300,6 @@ export default function CheckoutScreen() {
                     shippingFee: undefined,
                 };
             }),
-            allSelectedItemIds: [...selectedItemIds],
-            previewAllSelected: true,
             paymentMethod: paymentMethod === 'cod' ? 'COD' : 'PAYOS',
         };
 
@@ -513,9 +509,9 @@ export default function CheckoutScreen() {
                         items: shop.items.map(item => ({
                             itemId: item.id,
                             expectedUnitPrice: item.unitPrice,
+                            quantity: item.quantity,
                             promotionId: item.promotionId,
                         })),
-                        itemIds: shop.items.map(i => i.id),
                         vouchers: shopVouchers,
                         serviceCode: Number(shop.shippingOptions.selectedMethodId) || 0,
                         shippingFee: shop.shippingOptions.methods.find(m => m.id === shop.shippingOptions.selectedMethodId)?.fee || 0,
@@ -526,16 +522,10 @@ export default function CheckoutScreen() {
                 buyerAddressData: {
                     addressId: previewData.addressId,
                     buyerAddressId: previewData.addressId,
-                    addressType: previewData.addressType ?? 0,
-                    taxAddress: previewData.taxAddress,
                 },
                 loyaltyPoints: calculation.loyaltyPoints,
                 paymentMethod: paymentMethod === 'cod' ? 'COD' : 'PAYOS',
-                previewId: previewData.previewId ?? '',
-                previewAt: previewData.previewAt,
                 customerNote: Array.from(store.shopNotes.values()).filter(Boolean).join('; ') || '',
-                confirmAllSelected: true,
-                allSelectedItemIds: [...selectedItemIds],
             };
 
             const response = await placeOrder(request);
@@ -616,7 +606,6 @@ export default function CheckoutScreen() {
         paymentMethod,
         selectedPlatformDiscountVoucher,
         selectedPlatformShippingVoucher,
-        selectedItemIds,
         placeOrder,
         resetSession,
         calculation.loyaltyPoints,

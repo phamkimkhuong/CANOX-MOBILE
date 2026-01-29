@@ -4,6 +4,7 @@ export const ORDER_STRINGS: OrderTranslation = {
     tabs: {
         all: 'Tất cả',
         awaitingPayment: 'Chờ thanh toán',
+        created: 'Chờ xác nhận',
         processing: 'Đang xử lý',
         shipping: 'Đang giao',
         delivered: 'Đã giao',

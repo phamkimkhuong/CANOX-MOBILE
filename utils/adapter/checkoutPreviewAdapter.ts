@@ -359,7 +359,7 @@ export function toCheckoutPreviewAPIRequestBody(req: CheckoutPreviewRequest): Re
     const shops: Record<string, unknown>[] = req.shops.map((s: CheckoutPreviewShopRequest) => {
         const shop: Record<string, unknown> = {
             shopId: s.shopId,
-            items: s.items ?? (s.itemIds?.map((id) => ({ itemId: id, quantity: 1 })) ?? []),
+            items: s.items || [],
         };
 
         // Add shop-specific vouchers
@@ -416,15 +416,14 @@ export const buildInitialPreviewRequest = (
 
     // Build request
     return {
-        shops: Array.from(shopItemsMap.entries()).map(([shopId, itemIds]) => ({
+        shops: Array.from(shopItemsMap.entries()).map(([shopId, ids]) => ({
             shopId,
-            itemIds,
+            items: ids.map(id => ({ itemId: id, quantity: 1 })),
             vouchers: [],
         })),
         ...(addressId && {
             shippingAddress: { addressId },
             usingSavedAddress: true,
         }),
-        allSelectedItemIds: selectedItemIds,
     };
 };

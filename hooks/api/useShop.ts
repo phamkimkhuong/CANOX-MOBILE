@@ -12,6 +12,10 @@ import { API_ROUTES } from '@/constants/apiRoutes';
 import { useSmartRefresh } from '@/hooks/useSmartRefresh';
 import { request } from '@/services/api/client';
 import {
+    CategoryListResponseSchema,
+    CategoryNode,
+} from '@/types/category';
+import {
     ShopDetailResponse,
     ShopDetailResponseSchema,
     ShopHeaderUI,
@@ -37,6 +41,7 @@ export const shopKeys = {
     products: (shopId: string, filters?: ShopProductFilterParams) =>
         [...shopKeys.all, 'products', shopId, filters] as const,
     vouchers: (shopId: string) => [...shopKeys.all, 'vouchers', shopId] as const,
+    categories: (shopId: string) => [...shopKeys.all, 'categories', shopId] as const,
 };
 
 // ============================================
@@ -233,5 +238,38 @@ export const useShopVouchers = (shopId: string | undefined) => {
         },
         staleTime: 1000 * 60 * 5, // 5 minutes
         gcTime: 1000 * 60 * 30,   // Keep in cache 30 minutes
+    });
+};
+// ============================================
+// SHOP CATEGORIES HOOK
+// ============================================
+
+/**
+ * Fetch shop categories for "Danh Mục" tab
+ * 
+ * Features:
+ * - Zod validation using CategoryListResponseSchema
+ * - 1 hour cache (shop categories are very static)
+ * 
+ * @param shopId - Shop UUID
+ * @returns Query result with CategoryNode array
+ */
+export const useShopCategories = (shopId: string | undefined) => {
+    return useQuery({
+        queryKey: shopKeys.categories(shopId ?? ''),
+        enabled: !!shopId,
+        queryFn: async (): Promise<CategoryNode[]> => {
+            const response = await request<any>(
+                {
+                    url: API_ROUTES.SHOPS.CATEGORIES(shopId!),
+                    method: 'GET',
+                },
+                CategoryListResponseSchema
+            );
+
+            return response.data || [];
+        },
+        staleTime: 1000 * 60 * 60, // 1 hour
+        gcTime: 1000 * 60 * 60 * 2, // 2 hours
     });
 };

@@ -24,6 +24,7 @@ import { useTrackSearch } from '@/hooks/api/search';
 import { useSearchHistory } from '@/hooks/api/search/useSearchHistory';
 import { SearchSuggestionUI } from '@/types/search';
 import { Navigator } from '@/utils/navigation';
+import { useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useRef, useState } from 'react';
 import {
     Keyboard,
@@ -43,10 +44,11 @@ type SearchState = 'idle' | 'typing';
 export default function SearchScreen() {
     const insets = useSafeAreaInsets();
     const headerRef = useRef<SearchHeaderRef>(null);
+    const params = useLocalSearchParams<{ q?: string }>();
 
     // State
-    const [query, setQuery] = useState('');
-    const [searchState, setSearchState] = useState<SearchState>('idle');
+    const [query, setQuery] = useState(params.q ?? '');
+    const [searchState, setSearchState] = useState<SearchState>(params.q ? 'typing' : 'idle');
 
     // Hooks
     const { addSearch } = useSearchHistory();
@@ -76,7 +78,7 @@ export default function SearchScreen() {
 
         // Dismiss keyboard
         Keyboard.dismiss();
-        Navigator.push(searchRoutes.results(trimmedKeyword));
+        Navigator.push(searchRoutes.results({ q: trimmedKeyword }));
     }, [trackSearch, addSearch]);
 
     /**

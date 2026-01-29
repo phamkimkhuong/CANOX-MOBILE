@@ -9,7 +9,6 @@ import { create } from 'zustand';
 
 interface CheckoutShopMinimal {
     shopId: string;
-    itemIds: string[];
     items: CheckoutPreviewItemRequest[];
 }
 

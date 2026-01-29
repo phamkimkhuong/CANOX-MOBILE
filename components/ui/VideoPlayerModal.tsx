@@ -114,7 +114,7 @@ export function VideoPlayerModal({
             onRequestClose={handleClose}
             statusBarTranslucent
         >
-            <View style={styles.container}>
+            <View style={[styles.container, { paddingBottom: insets.bottom }]}>
                 {/* Video View */}
                 <VideoView
                     player={player}

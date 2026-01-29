@@ -8,6 +8,7 @@ import '@/constants/unistyles';
 
 import {
     ShopBanner,
+    ShopCategoriesTab,
     ShopHeaderInfo,
     ShopHeaderSkeleton,
     ShopNavBar,
@@ -19,9 +20,9 @@ import {
 import { IconSymbol } from '@/components/ui/Icon';
 import { ProductCard } from '@/components/ui/product/ProductCard';
 import { CHAT_STRINGS } from '@/constants/i18n/vi/chat';
-import { chatRoutes, productRoutes } from '@/constants/routes';
+import { chatRoutes, productRoutes, shopSearchRoutes } from '@/constants/routes';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
-import { useRefreshShopProducts, useShopDetail, useShopProducts, useShopVouchers } from '@/hooks/api/useShop';
+import { useRefreshShopProducts, useShopCategories, useShopDetail, useShopProducts, useShopVouchers } from '@/hooks/api/useShop';
 import { MINIMUM_SKELETON_DURATION_MS } from '@/hooks/usePrefetchTiming';
 import { getMockShopProfile } from '@/services/api/mocks/shopProfile';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -59,6 +60,7 @@ type FlatListItem =
     | { type: 'voucher-section' }
     | { type: 'tab-spacer' }
     | { type: 'profile-content' }
+    | { type: 'categories-content' }
     | { type: 'product'; data: ShopProductItemUI };
 
 const ListFooterComponent: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
@@ -115,6 +117,7 @@ export default function ShopDetailScreen() {
     const { data: shop, isLoading: isLoadingShop, isError: isShopError, refetch: refetchShop } = useShopDetail(shopId);
     const { data: productsData, isLoading: isLoadingProducts, isRefetching: isRefetchingProducts, isFetchingNextPage, hasNextPage, fetchNextPage } = useShopProducts(shopId, filters);
     const { data: vouchers = [], isLoading: isLoadingVouchers } = useShopVouchers(shopId);
+    const { data: categories = [], isLoading: isLoadingCategories } = useShopCategories(shopId);
 
     // Minimum skeleton duration for instant nav (prevents flash)
     const [minSkeletonComplete, setMinSkeletonComplete] = useState(!isInstantNav);
@@ -178,7 +181,12 @@ export default function ShopDetailScreen() {
             return [...baseItems, ...productItems];
         }
 
-        // Categories tab: placeholder for now
+        // Categories tab
+        if (activeTab === 'categories') {
+            baseItems.push({ type: 'categories-content' });
+            return baseItems;
+        }
+
         return baseItems;
     }, [activeTab, products, hasVouchers]);
 
@@ -229,6 +237,14 @@ export default function ShopDetailScreen() {
 
     const handleFollowPress = useCallback(() => { }, []);
     const handleProductPress = useCallback((product: ShopProductItemUI) => Navigator.push(productRoutes.detail(product.id)), []);
+    const handleCategoryPress = useCallback((category: any) => {
+        Navigator.push(shopSearchRoutes.search({
+            shopId,
+            categoryId: category.id,
+            categoryName: category.name,
+        }));
+    }, [shopId]);
+
     const handleLoadMore = useCallback(() => hasNextPage && !isFetchingNextPage && activeTab === 'products' && fetchNextPage(), [hasNextPage, isFetchingNextPage, activeTab, fetchNextPage]);
     const handleRefresh = useCallback(() => { refetchShop(); smartRefreshProducts(); }, [refetchShop, smartRefreshProducts]);
 
@@ -282,6 +298,16 @@ export default function ShopDetailScreen() {
                             shop={shop}
                             profile={shopProfile}
                             products={products}
+                        />
+                    </View>
+                );
+            case 'categories-content':
+                return (
+                    <View style={styles.fullWidthItem}>
+                        <ShopCategoriesTab
+                            categories={categories}
+                            isLoading={isLoadingCategories}
+                            onCategoryPress={handleCategoryPress}
                         />
                     </View>
                 );
@@ -346,7 +372,7 @@ export default function ShopDetailScreen() {
                 optimizeItemArrangement
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 overrideItemLayout={(layout: any, item: any) => {
-                    layout.span = (item.type === 'header' || item.type === 'voucher-section' || item.type === 'tab-spacer' || item.type === 'profile-content') ? NUM_COLUMNS : 1;
+                    layout.span = (item.type === 'header' || item.type === 'voucher-section' || item.type === 'tab-spacer' || item.type === 'profile-content' || item.type === 'categories-content') ? NUM_COLUMNS : 1;
                 }}
                 onEndReached={handleLoadMore}
                 onEndReachedThreshold={0.5}

@@ -97,12 +97,14 @@ export const CategoryNodeSchema: z.ZodType<CategoryNode> = z.lazy(() =>
         name: z.string(),
         slug: z.string(),
         active: z.boolean(),
-        parentId: z.string().nullable(),
+        description: z.string().nullable().optional(),
+        parentId: z.string().nullable().optional(),
+        parent: z.lazy(() => CategoryNodeSchema.nullable().optional()),
         imagePath: z.string().nullable().optional(),
         imageAssetId: z.string().nullable().optional(),
         imageBasePath: z.string().nullable().optional(),
         imageExtension: z.string().nullable().optional(),
-        children: z.array(CategoryNodeSchema).nullable(), // Đệ quy
+        children: z.array(z.lazy(() => CategoryNodeSchema)).nullable().optional(), // Đệ quy
     })
 );
 
@@ -111,15 +113,21 @@ export type CategoryNode = {
     name: string;
     slug: string;
     active: boolean;
-    parentId: string | null;
+    description?: string | null;
+    parentId?: string | null;
+    parent?: CategoryNode | null;
     imagePath?: string | null;
     imageAssetId?: string | null;
     imageBasePath?: string | null;
     imageExtension?: string | null;
-    children: CategoryNode[] | null;
+    children?: CategoryNode[] | null;
 };
 
 export const CategoryTreeResponseSchema = ResponseDefaultSchema.extend({
     message: z.string(),
+    data: z.array(CategoryNodeSchema),
+});
+
+export const CategoryListResponseSchema = ResponseDefaultSchema.extend({
     data: z.array(CategoryNodeSchema),
 });

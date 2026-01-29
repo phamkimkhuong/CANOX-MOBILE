@@ -36,6 +36,8 @@ export const searchProductsKeys = {
         sortBy: SearchSortField;
         quickFilters: QuickFilterType[];
         advancedFilters: AdvancedFilters;
+        shopId?: string;
+        categoryId?: string;
     }) => [...searchProductsKeys.all, params] as const,
 };
 
@@ -125,6 +127,8 @@ export interface UseSearchProductsOptions {
     advancedFilters?: AdvancedFilters;
     pageSize?: number;
     enabled?: boolean;
+    shopId?: string;
+    categoryId?: string;
 }
 
 // ============================================
@@ -142,12 +146,14 @@ export interface UseSearchProductsOptions {
  * @param options.enabled - Enable/disable query
  */
 export const useSearchProducts = ({
-    keyword,
+    keyword = '',
     sortBy = 'RELEVANCE',
     quickFilters = [],
     advancedFilters = {},
     pageSize = 20,
     enabled = true,
+    shopId,
+    categoryId,
 }: UseSearchProductsOptions) => {
     // AbortController ref for race condition handling
     const abortControllerRef = useRef<AbortController | null>(null);
@@ -160,12 +166,14 @@ export const useSearchProducts = ({
         sortBy,
         quickFilters,
         advancedFilters,
+        shopId,
+        categoryId,
     });
 
     const query = useInfiniteQuery({
         queryKey,
         initialPageParam: 0,
-        enabled: enabled && keyword.trim().length > 0,
+        enabled: enabled && (keyword.trim().length > 0 || !!categoryId || !!shopId),
         queryFn: async ({ pageParam = 0, signal }) => {
             // Cancel previous request
             if (abortControllerRef.current) {
@@ -175,33 +183,36 @@ export const useSearchProducts = ({
             // Create new abort controller
             abortControllerRef.current = new AbortController();
 
-            // Build request body
-            const requestBody = {
+            // Build final params object
+            const params: Record<string, any> = {
                 keyword: keyword.trim(),
-                ...(advancedFilters.categoryId && { categoryId: advancedFilters.categoryId }),
-                ...(advancedFilters.shopId && { shopId: advancedFilters.shopId }),
-                ...(advancedFilters.minPrice !== undefined && { minPrice: advancedFilters.minPrice }),
-                ...(advancedFilters.maxPrice !== undefined && { maxPrice: advancedFilters.maxPrice }),
-                validPriceRange: advancedFilters.validPriceRange ?? true,
-                // Quick Filters Mapping
-                ...(quickFilters.includes('RATING_4PLUS') && { averageRating: 4 }),
-            };
-
-            // Build pageable params
-            const pageableParams = {
                 page: pageParam,
                 size: pageSize,
-                sort: getSortParams(sortBy),
+                validPriceRange: advancedFilters.validPriceRange ?? true,
+                ...(shopId && { shopId }),
+                ...(categoryId && { categoryId }),
             };
+
+            // Add sorting only if not RELEVANCE
+            const sortParams = getSortParams(sortBy);
+            if (sortParams.length > 0) {
+                params.sort = sortParams;
+            }
+
+            // Add Advanced Filters (Price Range)
+            if (advancedFilters.minPrice !== undefined) params.minPrice = advancedFilters.minPrice;
+            if (advancedFilters.maxPrice !== undefined) params.maxPrice = advancedFilters.maxPrice;
+
+            // Add Quick Filters Mapping
+            if (quickFilters.includes('RATING_4PLUS')) {
+                params.averageRating = 4;
+            }
 
             const response = await request<SearchProductsResponse>(
                 {
                     url: API_ROUTES.PUBLIC_PRODUCTS.SEARCH,
                     method: 'GET',
-                    params: {
-                        ...requestBody,
-                        ...pageableParams,
-                    },
+                    params,
                     signal: abortControllerRef.current.signal,
                 },
                 SearchProductsResponseSchema

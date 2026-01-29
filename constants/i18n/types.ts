@@ -531,6 +531,7 @@ export interface OrderTranslation {
     tabs: {
         all: string;
         awaitingPayment: string;
+        created: string;
         processing: string;
         shipping: string;
         delivered: string;
