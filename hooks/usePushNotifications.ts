@@ -1,23 +1,12 @@
 import { mmkvStorage } from '@/store/storage';
+import notifee, { AndroidImportance, AndroidVisibility, EventType } from '@notifee/react-native';
 import messaging, { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
 import * as Device from 'expo-device';
-import * as Notifications from 'expo-notifications';
 import { useEffect, useRef, useState } from 'react';
-import { PermissionsAndroid, Platform } from 'react-native';
+import { Platform } from 'react-native';
 
 // Key save push token on MMKV
 const FCM_TOKEN_KEY = 'fcm_push_token';
-
-// Config notification when app is open (vẫn dùng expo-notifications cho local notifications)
-Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: true,
-        shouldShowBanner: true,
-        shouldShowList: true,
-    }),
-});
 
 /**
  * Get FCM token saved on MMKV
@@ -68,39 +57,59 @@ export function usePushNotifications() {
     const unsubscribeRef = useRef<(() => void) | null>(null);
 
     useEffect(() => {
-        // Register for push token
-        registerForPushNotificationsAsync().then(token => {
+        // Register for push token and setup notifications
+        const setup = async () => {
+            const token = await registerForPushNotificationsAsync();
             if (token) {
                 setFcmToken(token);
-
                 // Check if token has changed
                 const changed = hasTokenChanged(token);
                 setTokenChanged(changed);
-
                 // Always save the latest token
                 savePushToken(token);
             }
-        });
 
-        // Subscribe to topics for broadcast notifications
-        subscribeToTopics();
+            // Subscribe to topics
+            await subscribeToTopics();
+        };
+
+        setup();
 
         // Listen when notification received (app is FOREGROUND)
-        // FCM không tự hiển thị notification khi app đang mở, cần xử lý thủ công
+        // Dùng Notifee để hiển thị Heads-up notification
         unsubscribeRef.current = messaging().onMessage(async remoteMessage => {
             console.log('FCM Notification received (foreground):', remoteMessage);
             setNotification(remoteMessage);
 
-            // Hiển thị local notification khi app đang mở
+            // Nếu là tin nhắn chat, hiện Banner (Heads-up)
+            // Nếu là quảng cáo, chỉ cập nhật badge (Notifee hỗ trợ tốt việc này)
+            // Nếu đang ở màn hình Checkout, có thể lọc không hiện tin quảng cáo
+
             if (remoteMessage.notification) {
-                await Notifications.scheduleNotificationAsync({
-                    content: {
-                        title: remoteMessage.notification.title ?? '',
-                        body: remoteMessage.notification.body ?? '',
-                        data: remoteMessage.data,
+                // Hiển thị notification qua Notifee
+                await notifee.displayNotification({
+                    title: remoteMessage.notification.title,
+                    body: remoteMessage.notification.body,
+                    android: {
+                        channelId: remoteMessage.data?.channelId as string || 'default',
+                        // Giúp hiện banner ngay cả khi đang mở app
+                        importance: AndroidImportance.HIGH,
+                        pressAction: {
+                            id: 'default',
+                        },
                     },
-                    trigger: null, // Hiển thị ngay lập tức
+                    data: remoteMessage.data,
                 });
+            }
+        });
+
+        // Notifee Foreground Event Listener (Khi user bấm vào banner lúc app đang mở)
+        const unsubscribeNotifeeForeground = notifee.onForegroundEvent(({ type, detail }) => {
+            if (type === EventType.PRESS) {
+                console.log('User pressed notification in foreground', detail.notification);
+                if (detail.notification?.data) {
+                    handleNotificationNavigation(detail.notification as any);
+                }
             }
         });
 
@@ -132,6 +141,7 @@ export function usePushNotifications() {
             if (unsubscribeRef.current) {
                 unsubscribeRef.current();
             }
+            unsubscribeNotifeeForeground();
             unsubscribeOnNotificationOpenedApp();
             unsubscribeTokenRefresh();
         };
@@ -151,36 +161,26 @@ export function usePushNotifications() {
 }
 
 /**
- * Handle navigation when user taps on notification
+ * Handle navigation khi user bấm vào notification
  */
-function handleNotificationNavigation(remoteMessage: FirebaseMessagingTypes.RemoteMessage) {
-    const data = remoteMessage.data;
-    console.log('Notification data:', data);
+function handleNotificationNavigation(message: FirebaseMessagingTypes.RemoteMessage) {
+    const data = message.data;
+    if (!data) return;
 
-    // TODO: Handle navigation based on data
-    // Example: router.push(data?.screen as string);
+    console.log('Handling navigation for notification data:', data);
 
-    if (data?.orderId) {
-        // Navigate to order detail
-        // router.push(`/orders/${data.orderId}`);
-    }
-
-    if (data?.productId) {
-        // Navigate to product detail
-        // router.push(`/products/${data.productId}`);
-    }
+    // TODO: Thực hiện điều hướng dựa trên data.screen, data.productId, v.v.
+    // Ví dụ: router.push(data.screen);
 }
 
 /**
- * Subscribe to FCM topics for broadcast notifications
+ * Subscribe to FCM topics
  */
 async function subscribeToTopics(): Promise<void> {
     try {
-        // Subscribe to all_users topic for general broadcasts
         await messaging().subscribeToTopic(FCM_TOPICS.ALL_USERS);
         console.log('Subscribed to topic:', FCM_TOPICS.ALL_USERS);
 
-        // Subscribe to promotions topic (user có thể unsubscribe sau)
         await messaging().subscribeToTopic(FCM_TOPICS.PROMOTIONS);
         console.log('Subscribed to topic:', FCM_TOPICS.PROMOTIONS);
     } catch (error) {
@@ -189,7 +189,7 @@ async function subscribeToTopics(): Promise<void> {
 }
 
 /**
- * Unsubscribe from a topic (when user turns off notification settings)
+ * Unsubscribe from a topic
  */
 export async function unsubscribeFromTopic(topic: string): Promise<void> {
     try {
@@ -201,64 +201,52 @@ export async function unsubscribeFromTopic(topic: string): Promise<void> {
 }
 
 async function registerForPushNotificationsAsync(): Promise<string | null> {
-    // Push notifications only work on physical devices
     if (!Device.isDevice) {
         console.log('Push notifications only work on physical devices');
         return null;
     }
 
-    // Configure channels for Android (vẫn dùng expo-notifications)
-    if (Platform.OS === 'android') {
-        // Channel mặc định
-        await Notifications.setNotificationChannelAsync('default', {
-            name: 'Thông báo chung',
-            importance: Notifications.AndroidImportance.MAX,
-            vibrationPattern: [0, 250, 250, 250],
-            lightColor: '#FF231F7C',
-        });
-
-        // Channel riêng cho Đơn hàng
-        await Notifications.setNotificationChannelAsync('orders', {
-            name: 'Đơn hàng',
-            description: 'Thông báo về tình trạng đơn hàng của bạn',
-            importance: Notifications.AndroidImportance.MAX,
-            vibrationPattern: [0, 500, 200, 500],
-            lightColor: '#FFD700',
-        });
-
-        // Channel cho Khuyến mãi
-        await Notifications.setNotificationChannelAsync('promotions', {
-            name: 'Khuyến mãi',
-            description: 'Thông báo về khuyến mãi và ưu đãi',
-            importance: Notifications.AndroidImportance.HIGH,
-        });
-    }
-
-    // Request permission
-    let hasPermission = false;
-
+    // iOS: Request permission qua messaging()
     if (Platform.OS === 'ios') {
-        // iOS: Dùng FCM requestPermission
         const authStatus = await messaging().requestPermission();
-        hasPermission =
+        const enabled =
             authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
             authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-    } else if (Platform.OS === 'android') {
-        // Android 13+: Cần xin quyền POST_NOTIFICATIONS
-        if (Platform.Version >= 33) {
-            const granted = await PermissionsAndroid.request(
-                PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
-            );
-            hasPermission = granted === PermissionsAndroid.RESULTS.GRANTED;
-        } else {
-            // Android < 13: Tự động có quyền
-            hasPermission = true;
+
+        if (!enabled) {
+            console.log('Permission for push notifications was denied on iOS');
+            return null;
         }
     }
 
-    if (!hasPermission) {
-        console.log('Permission for push notifications was denied');
-        return null;
+    // Android: Create channels and request permission
+    if (Platform.OS === 'android') {
+        // Request permission cho Android 13+
+        await notifee.requestPermission();
+
+        // Channel Mặc định
+        await notifee.createChannel({
+            id: 'default',
+            name: 'Thông báo chung',
+            importance: AndroidImportance.HIGH,
+            visibility: AndroidVisibility.PUBLIC,
+        });
+
+        // Channel Đơn hàng
+        await notifee.createChannel({
+            id: 'orders',
+            name: 'Đơn hàng',
+            importance: AndroidImportance.HIGH,
+            sound: 'default',
+            vibration: true,
+        });
+
+        // Channel Khuyến mãi
+        await notifee.createChannel({
+            id: 'promotions',
+            name: 'Khuyến mãi',
+            importance: AndroidImportance.DEFAULT,
+        });
     }
 
     // Get FCM Token

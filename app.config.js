@@ -48,14 +48,6 @@ module.exports = {
                 {
                     "iosUrlScheme": "com.googleusercontent.apps.521840324498-qqjs0eje1gl67opcksp8e7rtsvs338d6"
                 }
-            ],
-            [
-                "expo-notifications",
-                {
-                    "icon": "./assets/images/notification-icon.png",
-                    "color": "#ef4444",
-                    "defaultChannel": "default"
-                }
             ]
         ],
         "experiments": {
