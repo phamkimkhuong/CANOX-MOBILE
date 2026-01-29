@@ -38,6 +38,7 @@ module.exports = {
         },
 
         "plugins": [
+            "./plugins/withNotifee",
             "expo-router",
             "expo-video",
             "expo-localization",

@@ -98,8 +98,10 @@ export const CategoryNodeSchema: z.ZodType<CategoryNode> = z.lazy(() =>
         slug: z.string(),
         active: z.boolean(),
         parentId: z.string().nullable(),
-        imageBasePath: z.string().nullable(),
-        imageExtension: z.string().nullable(),
+        imagePath: z.string().nullable().optional(),
+        imageAssetId: z.string().nullable().optional(),
+        imageBasePath: z.string().nullable().optional(),
+        imageExtension: z.string().nullable().optional(),
         children: z.array(CategoryNodeSchema).nullable(), // Đệ quy
     })
 );
@@ -110,8 +112,10 @@ export type CategoryNode = {
     slug: string;
     active: boolean;
     parentId: string | null;
-    imageBasePath: string | null;
-    imageExtension: string | null;
+    imagePath?: string | null;
+    imageAssetId?: string | null;
+    imageBasePath?: string | null;
+    imageExtension?: string | null;
     children: CategoryNode[] | null;
 };
 

@@ -127,8 +127,10 @@ export interface OrderItem {
     variantId: string;
     sku: string;
     productName: string;
-    imageBasePath: string | null;
-    imageExtension: string | null;
+    imagePath?: string | null;      // New field: template path with '*'
+    imageAssetId?: string | null;   // New field: asset identifier
+    imageBasePath?: string | null;  // Legacy
+    imageExtension?: string | null; // Legacy
     variantAttributes: string | null;
     unitPrice: number;
     quantity: number;

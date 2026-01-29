@@ -287,7 +287,6 @@ export default function CheckoutScreen() {
                     addressChanged: false,
                 }
                 : undefined,
-            globalVouchers: globalVouchersArray.length > 0 ? globalVouchersArray : undefined,
             shops: checkoutShops.map((shop) => {
                 const voucherCode = selectedShopVouchers.get(shop.shopId);
                 const userShippingCode = selectedShipping.get(shop.shopId);
@@ -297,6 +296,7 @@ export default function CheckoutScreen() {
                     items: shop.items,
                     itemIds: shop.itemIds,
                     vouchers: voucherCode ? [voucherCode] : undefined,
+                    // Use distributed global vouchers inside each shop
                     globalVouchers: globalVouchersArray.length > 0 ? globalVouchersArray : undefined,
                     serviceCode: userShippingCode ? Number(userShippingCode) : undefined,
                     shippingFee: undefined,
@@ -327,21 +327,22 @@ export default function CheckoutScreen() {
         // Check Address
         if (req.shippingAddress?.addressId !== preview.addressId) return false;
 
-        // Check Global Vouchers
-        const reqGlobals = req.globalVouchers || [];
-        const previewGlobals: string[] = [];
-        if (preview.calculation.appliedPlatformVoucherId) previewGlobals.push(preview.calculation.appliedPlatformVoucherId);
-        if (preview.calculation.appliedShippingVoucherId) previewGlobals.push(preview.calculation.appliedShippingVoucherId);
-
-        if (reqGlobals.length !== previewGlobals.length) return false;
-        if (!reqGlobals.every(v => previewGlobals.includes(v))) return false;
-
-        //  Check Shop Vouchers & Items
+        // Check Global Vouchers at Shop Level (since it's distributed)
         for (const reqShop of req.shops) {
             const previewShop = preview.shops.find((s: CheckoutShopUI) => s.shopId === reqShop.shopId);
             if (!previewShop) return false;
 
-            // Check applied voucher
+            // Check global vouchers inside each shop
+            const reqGlobals = reqShop.globalVouchers || [];
+            const previewGlobals: string[] = [];
+            if (preview.calculation.appliedPlatformVoucherId) previewGlobals.push(preview.calculation.appliedPlatformVoucherId);
+            if (preview.calculation.appliedShippingVoucherId) previewGlobals.push(preview.calculation.appliedShippingVoucherId);
+
+            if (reqGlobals.length !== previewGlobals.length) return false;
+            // Use local variable to avoid implicit 'any' lint or just use type-safe comparison
+            if (!reqGlobals.every((v: string) => previewGlobals.includes(v))) return false;
+
+            // Check applied shop-specific voucher
             const reqVoucher = reqShop.vouchers?.[0] || null;
             const previewVoucher = previewShop.appliedVoucherId;
             if (reqVoucher !== previewVoucher) return false;

@@ -41,8 +41,10 @@ export interface WishlistItemDTO {
     sku: string;
     productId: string;
     productName: string;
-    imageBasePath?: string | null;
-    imageExtension?: string | null;
+    imagePath?: string | null;      // New
+    imageAssetId?: string | null;   // New
+    imageBasePath?: string | null;  // Legacy
+    imageExtension?: string | null; // Legacy
     productImage?: string | null;
     productPrice: number;
     productDescription: string;
@@ -71,8 +73,10 @@ export interface WishlistSummaryDTO {
     itemCount: number;
     createdDate: string;
     lastModifiedDate: string;
-    imageBasePath?: string | null;
-    imageExtension?: string | null;
+    imagePath?: string | null;      // New
+    imageAssetId?: string | null;   // New
+    imageBasePath?: string | null;  // Legacy
+    imageExtension?: string | null; // Legacy
 }
 
 /**

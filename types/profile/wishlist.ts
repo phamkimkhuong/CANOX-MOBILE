@@ -33,6 +33,8 @@ export const WishlistDTOSchema = z.object({
     itemCount: z.coerce.number().nullish().transform((val) => val ?? 0),
     createdDate: z.string().nullish().transform((val) => val ?? new Date().toISOString()),
     lastModifiedDate: z.string().nullish().transform((val) => val ?? new Date().toISOString()),
+    imagePath: z.string().nullable().optional(),
+    imageAssetId: z.string().nullable().optional(),
     imageBasePath: z.string().nullable().optional(),
     imageExtension: z.string().nullable().optional(),
 });

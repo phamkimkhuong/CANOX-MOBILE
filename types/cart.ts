@@ -14,8 +14,10 @@ export const CartItemSchema = z.object({
     productName: z.string().nullable().optional().default(''),
     variantAttributes: z.string().nullable().optional().default(''),
     shopId: z.string().nullable().optional(),
-    imageBasePath: z.string().nullable().optional(),
-    imageExtension: z.string().nullable().optional(),
+    imagePath: z.string().nullable().optional(),      // New
+    imageAssetId: z.string().nullable().optional(),   // New
+    imageBasePath: z.string().nullable().optional(),  // Legacy
+    imageExtension: z.string().nullable().optional(), // Legacy
 
     // Pricing
     priceBeforeDiscount: z.number().nullable().optional().default(0),

@@ -26,7 +26,7 @@ export const toWishlistUI = (dto: WishlistDTO): WishlistUI => {
         isDefault: dto.isDefault,
         itemCount: dto.itemCount,
         createdAt: dto.createdDate,
-        thumbnailUrl: toSizedImageUrl(dto.imageBasePath, dto.imageExtension) ?? null,
+        thumbnailUrl: toSizedImageUrl(dto.imagePath || dto.imageBasePath, dto.imageExtension, 'thumb') ?? null,
     };
 };
 

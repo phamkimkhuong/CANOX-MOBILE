@@ -61,6 +61,9 @@ export type ShopDetailResponse = z.infer<typeof ShopDetailResponseSchema>;
  */
 export const ShopProductMediaSchema = z.object({
     id: z.string(),
+    imagePath: z.string().nullable().optional(),
+    mediaAssetId: z.string().nullable().optional(),
+    imageAssetId: z.string().nullable().optional(),
     basePath: z.string().nullable().optional(),
     extension: z.string().nullable().optional(),
     url: z.string().nullable().optional().default(''),
@@ -77,6 +80,8 @@ export type ShopProductMedia = z.infer<typeof ShopProductMediaSchema>;
 export const ShopProductVariantSchema = z.object({
     id: z.string(),
     sku: z.string().nullable().optional(),
+    imagePath: z.string().nullable().optional(),
+    imageAssetId: z.string().nullable().optional(),
     price: z.number().nullable().optional().default(0),
     corePrice: z.number().nullable().optional().default(0),
     imageUrl: z.string().nullable().optional(),
@@ -256,6 +261,8 @@ export const ShopVoucherDTOSchema = z.object({
     sponsorType: z.string().nullable().optional().default('SHOP'),
     applyToAllProducts: z.boolean().nullable().optional().default(true),
     active: z.boolean().nullable().optional().default(true),
+    imagePath: z.string().nullable().optional(),
+    imageAssetId: z.string().nullable().optional(),
     imageBasePath: z.string().nullable().optional(),
     imageExtension: z.string().nullable().optional(),
 });

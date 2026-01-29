@@ -20,6 +20,7 @@ interface ChatHeaderProps {
     onFilterChange: (filter: ChatFilter) => void;
     searchQuery: string;
     onSearchChange: (query: string) => void;
+    showBack?: boolean;
 }
 
 export const ChatHeader: React.FC<ChatHeaderProps> = ({
@@ -27,6 +28,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
     onFilterChange,
     searchQuery,
     onSearchChange,
+    showBack = true,
 }) => {
     const { theme } = useUnistyles();
     const { t } = useTranslation(['chat', 'common']);
@@ -44,15 +46,17 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
         <View style={[styles.container, { paddingTop: insets.top }]}>
             {/* Title Row */}
             <View style={styles.titleRow}>
-                {/* Nút Back - UX: Tăng hitSlop để dễ bấm */}
-                <TouchableOpacity
-                    onPress={() => Navigator.back()}
-                    style={styles.backBtn}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    accessibilityLabel={t('common:actions.back')}
-                >
-                    <IconSymbol name="arrow-back" size={24} color={theme.colors.typography} />
-                </TouchableOpacity>
+                {showBack && (
+                    /* Nút Back - UX: Tăng hitSlop để dễ bấm */
+                    <TouchableOpacity
+                        onPress={() => Navigator.back()}
+                        style={styles.backBtn}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                        accessibilityLabel={t('common:actions.back')}
+                    >
+                        <IconSymbol name="arrow-back" size={24} color={theme.colors.typography} />
+                    </TouchableOpacity>
+                )}
                 <Text style={styles.title}>{t('list.title')}</Text>
             </View>
 

@@ -36,7 +36,6 @@ export interface CheckoutPreviewRequest {
     };
     addressId?: string;
     effectiveAddressId?: string;
-    globalVouchers?: string[];
     loyaltyPoints?: number;
     paymentMethod?: string;
     usingSavedAddress?: boolean;
@@ -67,8 +66,10 @@ export interface CheckoutPreviewItemDTO {
     variantId: string;
     productName: string;
     sku?: string | null;
-    basePath?: string | null;
-    extension?: string | null;
+    imagePath?: string | null;      // New template path
+    imageAssetId?: string | null;   // New asset ID
+    basePath?: string | null;       // Legacy
+    extension?: string | null;      // Legacy
     variantAttributes?: string | null;
     unitPrice?: number | null;
     quantity?: number | null;
@@ -204,6 +205,8 @@ const CheckoutPreviewItemSchema = z.object({
     productId: z.string(),
     variantId: z.string(),
     productName: z.string(),
+    imagePath: z.string().nullable().optional(),
+    imageAssetId: z.string().nullable().optional(),
     basePath: z.string().nullable().optional(),
     extension: z.string().nullable().optional(),
     variantAttributes: z.string().nullable().optional(),

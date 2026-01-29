@@ -18,7 +18,6 @@ export const ROUTES = {
         HOME: '/(tabs)' as const,
         INDEX: '/(tabs)/' as const,
         CATEGORY: '/(tabs)/category' as const,
-        CHAT: '/(tabs)/chat' as const,
         NOTIFY: '/(tabs)/notify' as const,
         ME: '/(tabs)/me' as const,
     },
@@ -147,7 +146,7 @@ export const productRoutes = {
             ...(params?.instantNav && { instantNav: 'true' }),
         },
     }),
-    
+
     /**
      * All reviews screen for a product
      */
@@ -161,6 +160,11 @@ export const productRoutes = {
  * Chat routes
  */
 export const chatRoutes = {
+    /**
+     * Chat list / Inbox (pushed screen in (main) stack)
+     */
+    list: (): Href => '/(main)/chat' as Href,
+
     /**
      * Chat detail/message screen
      */

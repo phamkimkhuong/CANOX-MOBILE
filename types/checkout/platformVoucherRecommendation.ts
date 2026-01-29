@@ -73,6 +73,8 @@ export const RecommendedVoucherDetailDTOSchema = z.object({
     active: z.boolean().nullable().optional(),
     createdDate: z.string().nullable().optional(),
     lastModifiedDate: z.string().nullable().optional(),
+    imagePath: z.string().nullable().optional(),
+    imageAssetId: z.string().nullable().optional(),
     imageBasePath: z.string().nullable().optional(),
     imageExtension: z.string().nullable().optional(),
 });

@@ -21,7 +21,11 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 /** Debounce delay for search input (ms) */
 const SEARCH_DEBOUNCE_MS = 300;
 
-export default function ChatScreen() {
+interface ChatListScreenProps {
+    isTab?: boolean;
+}
+
+export function ChatListScreen({ isTab = false }: ChatListScreenProps) {
     const { theme } = useUnistyles();
     const { t } = useTranslation('chat');
     const styles = stylesheet;
@@ -29,20 +33,14 @@ export default function ChatScreen() {
     const [activeFilter, setActiveFilter] = useState<ChatFilter>(ChatFilter.ALL);
     const [searchQuery, setSearchQuery] = useState('');
 
-    // Debounce search query to avoid excessive API calls
     const debouncedSearchQuery = useDebounce(searchQuery, SEARCH_DEBOUNCE_MS);
-
-    // Track which row is currently swiped open (mutual exclusion)
     const [openedRowId, setOpenedRowId] = useState<string | null>(null);
-
-    // Flag to stop render UI nặng cho đến khi kết thúc chuyển màn hình
     const [isReady, setIsReady] = useState(false);
 
     useEffect(() => {
         const handle = requestIdleCallback(() => {
             setIsReady(true);
         }, { timeout: 500 });
-
         return () => cancelIdleCallback(handle);
     }, []);
 
@@ -55,21 +53,17 @@ export default function ChatScreen() {
         fetchNextPage,
     } = useChatList(activeFilter, debouncedSearchQuery);
 
-    // Smart refresh: only fetch page 0 instead of all loaded pages
     const { refresh: smartRefresh } = useRefreshChatList();
-    // Initialize socket connection for realtime updates
     useChatSocket();
 
     const { pinConversation, muteConversation, deleteConversation } = useConversationActions();
 
     const handleFilterChange = useCallback((filter: ChatFilter) => {
         setActiveFilter(filter);
-        // Close any open swipe when changing filter
         setOpenedRowId(null);
     }, []);
 
     const handleConversationPress = useCallback((item: Conversation) => {
-        // Close any open swipe on press
         setOpenedRowId(null);
         Navigator.push(chatRoutes.detail(item.id, {
             partnerName: item.partner.name,
@@ -84,34 +78,23 @@ export default function ChatScreen() {
         setOpenedRowId(id);
     }, []);
 
-    const handlePin = useCallback(
-        (item: Conversation) => {
-            // Toggle pin state
-            pinConversation.mutate({
-                conversationId: item.id,
-                isPinned: !item.isPinned,
-            });
-        },
-        [pinConversation]
-    );
+    const handlePin = useCallback((item: Conversation) => {
+        pinConversation.mutate({
+            conversationId: item.id,
+            isPinned: !item.isPinned,
+        });
+    }, [pinConversation]);
 
-    const handleMute = useCallback(
-        (item: Conversation) => {
-            // Toggle mute state
-            muteConversation.mutate({
-                conversationId: item.id,
-                isMuted: !item.isMuted,
-            });
-        },
-        [muteConversation]
-    );
+    const handleMute = useCallback((item: Conversation) => {
+        muteConversation.mutate({
+            conversationId: item.id,
+            isMuted: !item.isMuted,
+        });
+    }, [muteConversation]);
 
-    const handleDelete = useCallback(
-        (item: Conversation) => {
-            deleteConversation.mutate(item.id);
-        },
-        [deleteConversation]
-    );
+    const handleDelete = useCallback((item: Conversation) => {
+        deleteConversation.mutate(item.id);
+    }, [deleteConversation]);
 
     const handleLoadMore = useCallback(() => {
         if (hasNextPage && !isFetchingNextPage) {
@@ -119,31 +102,25 @@ export default function ChatScreen() {
         }
     }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-    const renderItem = useCallback(
-        ({ item }: { item: Conversation }) => (
-            <ConversationItem
-                item={item}
-                openedRowId={openedRowId}
-                onSwipeOpen={handleSwipeOpen}
-                onPress={handleConversationPress}
-                onPin={handlePin}
-                onMute={handleMute}
-                onDelete={handleDelete}
-            />
-        ),
-        [handleConversationPress, handlePin, handleMute, handleDelete, handleSwipeOpen]
-    );
+    const renderItem = useCallback(({ item }: { item: Conversation }) => (
+        <ConversationItem
+            item={item}
+            openedRowId={openedRowId}
+            onSwipeOpen={handleSwipeOpen}
+            onPress={handleConversationPress}
+            onPin={handlePin}
+            onMute={handleMute}
+            onDelete={handleDelete}
+        />
+    ), [handleConversationPress, handlePin, handleMute, handleDelete, handleSwipeOpen, openedRowId]);
 
-    const renderHeader = useCallback(
-        () => (
-            <PromoBanner
-                subtitle={t('promo.subtitle')}
-                title={t('promo.title')}
-                icon="shipping"
-            />
-        ),
-        [t]
-    );
+    const renderHeader = useCallback(() => (
+        <PromoBanner
+            subtitle={t('promo.subtitle')}
+            title={t('promo.title')}
+            icon="shipping"
+        />
+    ), [t]);
 
     const renderFooter = useCallback(() => {
         if (!isFetchingNextPage) return null;
@@ -152,11 +129,10 @@ export default function ChatScreen() {
                 <ActivityIndicator size="small" color={theme.colors.buttonActive} />
             </View>
         );
-    }, [isFetchingNextPage, styles.loadingFooter, theme.colors.primary]);
+    }, [isFetchingNextPage, styles.loadingFooter, theme.colors.buttonActive]);
 
     const renderEmpty = useCallback(() => <ChatEmptyState />, []);
 
-    // Show skeleton on initial load or during transition
     if (isLoading || !isReady) {
         return (
             <View style={styles.container}>
@@ -165,6 +141,7 @@ export default function ChatScreen() {
                     onFilterChange={handleFilterChange}
                     searchQuery={searchQuery}
                     onSearchChange={setSearchQuery}
+                    showBack={!isTab}
                 />
                 <ChatSkeleton count={8} />
             </View>
@@ -178,6 +155,7 @@ export default function ChatScreen() {
                 onFilterChange={handleFilterChange}
                 searchQuery={searchQuery}
                 onSearchChange={setSearchQuery}
+                showBack={!isTab}
             />
 
             <FlashList

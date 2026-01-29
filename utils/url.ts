@@ -26,38 +26,60 @@ export const toPublicUrl = (
 
 /**
  * Create image URL with size suffix
- * Example: path = "public/image/123", extension = ".png", size = "_thumb"
- * → "https://cdn.../public/image/123_thumb.png"
+ * Supports two formats:
+ * 1. Legacy: basePath + extension (size is appended to basePath)
+ * 2. New: template string with '*' placeholder (e.g. "path_*.png")
  */
 export const toSizedImageUrl = (
-    basePath: string | null | undefined,
-    extension: string | null | undefined,
-    size: string = '' // '_thumb', '_medium', '_large', or '' for original
+    basePathOrTemplate: string | null | undefined,
+    extension?: string | null | undefined,
+    size: string = '' // 'thumb', 'medium', 'large', or ''
 ): string | undefined => {
-    if (!basePath || !extension) return undefined;
+    if (!basePathOrTemplate) return undefined;
 
-    // If basePath is already a full URL, return it as is
-    if (basePath.startsWith('http://') || basePath.startsWith('https://')) {
-        return basePath;
+    // If it's already a full URL, return as is
+    if (basePathOrTemplate.startsWith('http://') || basePathOrTemplate.startsWith('https://')) {
+        return basePathOrTemplate;
     }
 
     const base = (CDN_BASE_URL || '').replace(/\/$/, '');
-
-    // If no CDN_BASE_URL, cannot build URL from relative path
     if (!base) return undefined;
 
-    const cleanPath = basePath.replace(/^\/+/, '');
-    const cleanExt = extension.startsWith('.') ? extension : `.${extension}`;
-    // console.log("Xem đường dẫn có đúng không", `${base}/${cleanPath}${size}${cleanExt}`);
-    return `${base}/${cleanPath}${size}${cleanExt}`;
+    let finalPath = basePathOrTemplate.replace(/^\/+/, '');
+
+    // Template with '*'
+    if (finalPath.includes('*')) {
+        // If size is empty (original), we might need to remove the separator before '*'
+        // Example: "image_*.jpg" -> original should be "image.jpg"
+        if (!size) {
+            finalPath = finalPath.replace(/_?\*/, '');
+        } else {
+            // Remove leading underscore from size if the template already has one before '*'
+            // New logic: just replace '*' with the size string
+            const cleanSize = size.startsWith('_') ? size.substring(1) : size;
+            finalPath = finalPath.replace('*', cleanSize);
+        }
+    }
+    // Legacy Format: basePath + extension
+    else if (extension) {
+        const cleanExt = extension.startsWith('.') ? extension : `.${extension}`;
+        // In legacy, size usually starts with '_' (e.g. '_thumb')
+        const legacySize = size && !size.startsWith('_') ? `_${size}` : size;
+        finalPath = `${finalPath}${legacySize}${cleanExt}`;
+    }
+
+    return `${base}/${finalPath}`;
 };
+
 /**
  * Alias for buildImageUrl to maintain compatibility with existing code
  */
 export const buildImageUrl = (
-    basePath: string | null | undefined,
-    extension: string | null | undefined,
-    size: string = '_thumb'
+    path: string | null | undefined,
+    extension: string | null | undefined = null,
+    size: string = 'thumb'
 ): string => {
-    return toSizedImageUrl(basePath, extension, size) ?? 'https://via.placeholder.com/300';
+    // Standardize sizes: if user passes '_thumb', we treat it as 'thumb'
+    const cleanSize = size.startsWith('_') ? size.substring(1) : size;
+    return toSizedImageUrl(path, extension, cleanSize) ?? 'https://via.placeholder.com/300';
 };

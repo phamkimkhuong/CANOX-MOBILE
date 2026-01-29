@@ -1,6 +1,18 @@
 import { mmkvStorage } from '@/store/storage';
 import notifee, { AndroidImportance, AndroidVisibility, EventType } from '@notifee/react-native';
-import messaging, { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
+import {
+    AuthorizationStatus,
+    unsubscribeFromTopic as fcmUnsubscribeFromTopic,
+    FirebaseMessagingTypes,
+    getInitialNotification,
+    getMessaging,
+    getToken,
+    onMessage,
+    onNotificationOpenedApp,
+    onTokenRefresh,
+    requestPermission,
+    subscribeToTopic,
+} from '@react-native-firebase/messaging';
 import * as Device from 'expo-device';
 import { useEffect, useRef, useState } from 'react';
 import { Platform } from 'react-native';
@@ -75,9 +87,11 @@ export function usePushNotifications() {
 
         setup();
 
+        const messaging = getMessaging();
+
         // Listen when notification received (app is FOREGROUND)
         // Dùng Notifee để hiển thị Heads-up notification
-        unsubscribeRef.current = messaging().onMessage(async remoteMessage => {
+        unsubscribeRef.current = onMessage(messaging, async remoteMessage => {
             console.log('FCM Notification received (foreground):', remoteMessage);
             setNotification(remoteMessage);
 
@@ -114,14 +128,13 @@ export function usePushNotifications() {
         });
 
         // Listen when user tap on notification (app is BACKGROUND)
-        const unsubscribeOnNotificationOpenedApp = messaging().onNotificationOpenedApp(remoteMessage => {
+        const unsubscribeOnNotificationOpenedApp = onNotificationOpenedApp(messaging, remoteMessage => {
             console.log('FCM Notification tapped (background):', remoteMessage);
             handleNotificationNavigation(remoteMessage);
         });
 
         // Check if app was opened from notification (app was QUIT)
-        messaging()
-            .getInitialNotification()
+        getInitialNotification(messaging)
             .then(remoteMessage => {
                 if (remoteMessage) {
                     console.log('FCM App opened from notification (quit state):', remoteMessage);
@@ -130,7 +143,7 @@ export function usePushNotifications() {
             });
 
         // Listen for token refresh
-        const unsubscribeTokenRefresh = messaging().onTokenRefresh(newToken => {
+        const unsubscribeTokenRefresh = onTokenRefresh(messaging, newToken => {
             console.log('FCM Token refreshed:', newToken);
             setFcmToken(newToken);
             setTokenChanged(true);
@@ -178,10 +191,11 @@ function handleNotificationNavigation(message: FirebaseMessagingTypes.RemoteMess
  */
 async function subscribeToTopics(): Promise<void> {
     try {
-        await messaging().subscribeToTopic(FCM_TOPICS.ALL_USERS);
+        const messaging = getMessaging();
+        await subscribeToTopic(messaging, FCM_TOPICS.ALL_USERS);
         console.log('Subscribed to topic:', FCM_TOPICS.ALL_USERS);
 
-        await messaging().subscribeToTopic(FCM_TOPICS.PROMOTIONS);
+        await subscribeToTopic(messaging, FCM_TOPICS.PROMOTIONS);
         console.log('Subscribed to topic:', FCM_TOPICS.PROMOTIONS);
     } catch (error) {
         console.error('Error subscribing to topics:', error);
@@ -193,7 +207,8 @@ async function subscribeToTopics(): Promise<void> {
  */
 export async function unsubscribeFromTopic(topic: string): Promise<void> {
     try {
-        await messaging().unsubscribeFromTopic(topic);
+        const messaging = getMessaging();
+        await fcmUnsubscribeFromTopic(messaging, topic);
         console.log('Unsubscribed from topic:', topic);
     } catch (error) {
         console.error('Error unsubscribing from topic:', error);
@@ -208,10 +223,11 @@ async function registerForPushNotificationsAsync(): Promise<string | null> {
 
     // iOS: Request permission qua messaging()
     if (Platform.OS === 'ios') {
-        const authStatus = await messaging().requestPermission();
+        const messaging = getMessaging();
+        const authStatus = await requestPermission(messaging);
         const enabled =
-            authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-            authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+            authStatus === AuthorizationStatus.AUTHORIZED ||
+            authStatus === AuthorizationStatus.PROVISIONAL;
 
         if (!enabled) {
             console.log('Permission for push notifications was denied on iOS');
@@ -251,7 +267,8 @@ async function registerForPushNotificationsAsync(): Promise<string | null> {
 
     // Get FCM Token
     try {
-        const token = await messaging().getToken();
+        const messaging = getMessaging();
+        const token = await getToken(messaging);
         console.log('FCM Token:', token);
         return token;
     } catch (error) {

@@ -99,6 +99,8 @@ export interface OrderItemDTO {
     variantId?: string | null;
     sku?: string | null;
     productName?: string | null;
+    imagePath?: string | null;
+    imageAssetId?: string | null;
     imageBasePath?: string | null;
     imageExtension?: string | null;
     variantAttributes?: string | null;
@@ -236,6 +238,8 @@ const OrderItemSchema = z.object({
     variantId: z.string().optional().nullable(),
     sku: z.string().optional().nullable(),
     productName: z.string().optional().nullable(),
+    imagePath: z.string().optional().nullable(),
+    imageAssetId: z.string().optional().nullable(),
     imageBasePath: z.string().optional().nullable(),
     imageExtension: z.string().optional().nullable(),
     variantAttributes: z.string().optional().nullable(),

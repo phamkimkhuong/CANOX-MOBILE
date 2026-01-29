@@ -25,7 +25,7 @@ import {
 } from '@/components/reviews/product';
 import { IconSymbol } from '@/components/ui/Icon';
 import { SmartNavButton } from '@/components/ui/navigation/SmartNavButton';
-import { ROUTES } from '@/constants/routes';
+import { chatRoutes, ROUTES } from '@/constants/routes';
 import { usePrefetchCart } from '@/hooks/api/cart/useCart';
 import { useUnreadMessageCount } from '@/hooks/api/chat';
 import { usePrefetchChat } from '@/hooks/api/chat/useChatList';
@@ -157,7 +157,7 @@ export default function ProductReviewsScreen() {
     const prefetchChat = usePrefetchChat();
 
     const cartRoute = useMemo(() => (isAuthenticated ? ROUTES.CART.INDEX : ROUTES.AUTH.LOGIN), [isAuthenticated]);
-    const chatRoute = useMemo(() => (isAuthenticated ? ROUTES.TABS.CHAT : ROUTES.AUTH.LOGIN), [isAuthenticated]);
+    const chatRoute = useMemo(() => (isAuthenticated ? chatRoutes.list() : ROUTES.AUTH.LOGIN), [isAuthenticated]);
 
     // ============================================
     // DATA FETCHING

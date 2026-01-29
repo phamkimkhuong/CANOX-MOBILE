@@ -55,8 +55,8 @@ export const adaptWishlistItem = (item: WishlistItemDTO): WishlistItemUI => {
         productId: item.productId,
         variantId: item.variantId,
         productName: item.productName,
-        // Use existing URL utility with '_thumb' for list view optimization
-        imageUrl: toSizedImageUrl(item.imageBasePath, item.imageExtension, '_thumb') ?? null,
+        // Prioritize new imagePath, fallback to legacy
+        imageUrl: toSizedImageUrl(item.imagePath || item.imageBasePath, item.imageExtension, 'thumb') ?? null,
         price: item.productPrice,
         // Use existing currency formatter
         formattedPrice: formatCurrency(item.productPrice),
@@ -89,8 +89,8 @@ export const adaptWishlistCard = (wishlist: WishlistSummaryDTO): WishlistCardUI 
         isPublic: wishlist.isPublic,
         isDefault: wishlist.isDefault,
         itemCount: wishlist.itemCount,
-        // Use existing URL utility with '_medium' for card cover
-        coverImageUrl: toSizedImageUrl(wishlist.imageBasePath, wishlist.imageExtension, '_medium') ?? null,
+        // Prioritize new imagePath, fallback to legacy
+        coverImageUrl: toSizedImageUrl(wishlist.imagePath || wishlist.imageBasePath, wishlist.imageExtension, 'medium') ?? null,
         buyerName: wishlist.buyerName,
         // Use existing date formatter - outputs "DD/MM/YYYY"
         formattedDate: formatDate(wishlist.createdDate),

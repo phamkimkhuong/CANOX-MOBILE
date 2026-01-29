@@ -25,10 +25,10 @@ const DEFAULT_IMAGE = 'https://via.placeholder.com/96';
  * Build full image URL using centralized URL utility
  */
 export const buildImageUrl = (
-    basePath: string | null | undefined,
-    extension: string | null | undefined
+    path: string | null | undefined,
+    extension: string | null | undefined = null
 ): string => {
-    return toSizedImageUrl(basePath, extension, '_thumb') ?? DEFAULT_IMAGE;
+    return toSizedImageUrl(path, extension, 'thumb') ?? DEFAULT_IMAGE;
 };
 
 // ============================================
@@ -92,7 +92,7 @@ export const transformCartItem = (item: CartItem): CartItemUI => {
         variantId: item.variantId,
         productName: item.productName ?? '',
         variantAttributes: item.variantAttributes || '',
-        imageUrl: buildImageUrl(item.imageBasePath, item.imageExtension),
+        imageUrl: buildImageUrl(item.imagePath || item.imageBasePath, item.imageExtension),
         unitPrice,
         quantity: item.quantity ?? 1,
         totalPrice: item.totalPrice ?? 0,

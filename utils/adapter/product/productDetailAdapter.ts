@@ -16,9 +16,9 @@ import type {
     Voucher,
     VoucherUI,
 } from '@/types/product/productDetail';
+import { toSizedImageUrl } from '@/utils/url';
 
-
-const IMAGE_BASE_URL = process.env.EXPO_PUBLIC_IMAGE_BASE_URL ?? 'https://pub-5341c10461574a539df355b9fbe87197.r2.dev/';
+const DEFAULT_IMAGE = 'https://via.placeholder.com/300';
 
 
 /**
@@ -148,9 +148,9 @@ export const buildVariantMatrix = (
             isAvailable: (variant.inventory?.available ?? variant.inventory?.stock ?? 0) > 0,
             sku: variant.sku ?? undefined,
             // Variant can have own image
-            media: variant.imageUrl ? [{
+            media: (variant.imagePath || variant.imageUrl) ? [{
                 id: `variant-${variant.id}`,
-                url: getFullImageUrl(variant.imageUrl),
+                url: toSizedImageUrl(variant.imagePath || variant.imageUrl, '', 'medium') ?? DEFAULT_IMAGE,
                 type: 'IMAGE' as const,
                 isPrimary: false,
                 variantId: variant.id,
@@ -161,28 +161,6 @@ export const buildVariantMatrix = (
     }
 
     return matrix;
-};
-
-/**
- * Get full image URL
- * Handle both relative path and full URL
- */
-export const getFullImageUrl = (
-    url: string,
-    baseUrl: string = IMAGE_BASE_URL
-): string => {
-    if (!url) return '';
-
-    // If already full URL
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-        return url;
-    }
-
-    // Append to base URL, ensuring no duplicate slash
-    const cleanBase = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
-    const cleanPath = url.startsWith('/') ? url : `/${url}`;
-
-    return `${cleanBase}${cleanPath}`;
 };
 
 /**
@@ -206,9 +184,13 @@ export const buildGallery = (
 
     for (const media of sortedProductMedia) {
         if (!seenIds.has(media.id)) {
+            // Priority: imagePath (new template) > basePath + extension (legacy) > url (legacy full URL)
+            const imageUrl = toSizedImageUrl(media.imagePath || media.basePath || media.url, media.extension, 'large')
+                || DEFAULT_IMAGE;
+
             gallery.push({
                 id: media.id,
-                url: getFullImageUrl(media.url ?? ''),
+                url: imageUrl,
                 type: (media.type as 'IMAGE' | 'VIDEO') ?? 'IMAGE',
                 isPrimary: media.isPrimary ?? false,
                 variantId: null,
@@ -218,12 +200,12 @@ export const buildGallery = (
     }
 
     for (const variant of variants) {
-        if (variant.imageUrl) {
+        if (variant.imagePath || variant.imageUrl) {
             const variantMediaId = `variant-img-${variant.id}`;
             if (!seenIds.has(variantMediaId)) {
                 gallery.push({
                     id: variantMediaId,
-                    url: getFullImageUrl(variant.imageUrl),
+                    url: toSizedImageUrl(variant.imagePath || variant.imageUrl, '', 'large') ?? DEFAULT_IMAGE,
                     type: 'IMAGE',
                     isPrimary: false,
                     variantId: variant.id,

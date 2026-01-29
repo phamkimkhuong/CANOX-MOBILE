@@ -46,7 +46,7 @@ export const toCheckoutItemUI = (dto: CheckoutPreviewItemDTO): CheckoutItemUI =>
     variantId: dto.variantId,
     productName: dto.productName,
     variantAttributes: dto.variantAttributes || '',
-    imageUrl: toSizedImageUrl(dto.basePath, dto.extension) ?? DEFAULT_IMAGE,
+    imageUrl: toSizedImageUrl(dto.imagePath || dto.basePath, dto.extension) ?? DEFAULT_IMAGE,
     unitPrice: dto.unitPrice ?? 0,
     quantity: dto.quantity ?? 1,
     lineTotal: dto.lineTotal ?? 0,
@@ -361,8 +361,21 @@ export function toCheckoutPreviewAPIRequestBody(req: CheckoutPreviewRequest): Re
             shopId: s.shopId,
             items: s.items ?? (s.itemIds?.map((id) => ({ itemId: id, quantity: 1 })) ?? []),
         };
-        if (s.vouchers && s.vouchers.length > 0) shop.vouchers = s.vouchers;
-        if (s.serviceCode != null) shop.serviceCode = s.serviceCode;
+
+        // Add shop-specific vouchers
+        if (s.vouchers && s.vouchers.length > 0) {
+            shop.vouchers = s.vouchers;
+        }
+
+        // Add global/platform vouchers inside each shop (distributed level)
+        if (s.globalVouchers && s.globalVouchers.length > 0) {
+            shop.globalVouchers = s.globalVouchers;
+        }
+
+        if (s.serviceCode != null) {
+            shop.serviceCode = s.serviceCode;
+        }
+
         return shop;
     });
 
@@ -372,10 +385,7 @@ export function toCheckoutPreviewAPIRequestBody(req: CheckoutPreviewRequest): Re
         body.shippingAddress = { addressId: req.shippingAddress.addressId };
     }
 
-    if (req.globalVouchers && req.globalVouchers.length > 0) {
-        body.globalVouchers = req.globalVouchers;
-    }
-
+    // globalVouchers is now strictly distributed into shops
     return body;
 }
 

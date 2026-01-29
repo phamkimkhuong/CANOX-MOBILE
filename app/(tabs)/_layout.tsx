@@ -3,7 +3,6 @@ import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 import { ROUTES } from '@/constants/routes';
 import { useScrollToTopContext } from '@/contexts/ScrollToTopContext';
 import { useCart } from '@/hooks/api/cart/useCart';
-import { useUnreadMessageCount } from '@/hooks/api/chat';
 import { useUnreadNotificationCount } from '@/hooks/api/notification/useNotifications';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Navigator } from '@/utils/navigation';
@@ -32,9 +31,6 @@ export default function TabLayout() {
 
   // Fetch unread notification count for badge
   const { data: unreadNotificationCount } = useUnreadNotificationCount();
-
-  // Fetch unread message count for chat badge
-  const { data: unreadMessageCount } = useUnreadMessageCount();
 
   // Scroll to top context
   const { triggerScrollToTop } = useScrollToTopContext();
@@ -104,17 +100,6 @@ export default function TabLayout() {
           title: t('bottomTab.notify'),
           tabBarIcon: ({ color }) => <TabBarIcon name="notifications" color={color} />,
           tabBarBadge: unreadNotificationCount && unreadNotificationCount > 0 ? unreadNotificationCount : undefined,
-          headerShown: false,
-        }}
-        listeners={createProtectedTabListener}
-      />
-      {/* 5. Tin nhắn/Chat ( app/(tabs)/chat.tsx) */}
-      <Tabs.Screen
-        name="chat"
-        options={{
-          title: t('bottomTab.chat'),
-          tabBarIcon: ({ color }) => <TabBarIcon name="chat-bubble" color={color} />,
-          tabBarBadge: unreadMessageCount && unreadMessageCount > 0 ? unreadMessageCount : undefined,
           headerShown: false,
         }}
         listeners={createProtectedTabListener}

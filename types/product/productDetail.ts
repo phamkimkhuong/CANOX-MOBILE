@@ -43,9 +43,11 @@ export type Promotion = z.infer<typeof PromotionSchema>;
 
 export const ProductMediaSchema = z.object({
     id: z.string(),
+    imagePath: z.string().nullable().optional(),
+    mediaAssetId: z.string().nullable().optional(),
+    imageAssetId: z.string().nullable().optional(),
     basePath: z.string().nullable().optional(),
     extension: z.string().nullable().optional(),
-    mediaAssetId: z.string().nullable().optional(),
     url: z.string().nullable().optional().default(''),
     type: z.string().nullable().optional().default('IMAGE'),
     title: z.string().nullable().optional(),
@@ -101,7 +103,9 @@ export type VariantInventory = z.infer<typeof VariantInventorySchema>;
 export const ProductVariantSchema = z.object({
     id: z.string(),
     sku: z.string().nullable().optional(),
-    imageUrl: z.string().nullable().optional(),
+    imagePath: z.string().nullable().optional(),
+    imageAssetId: z.string().nullable().optional(),
+    imageUrl: z.string().nullable().optional(), // Legacy full URL
     // Price
     price: z.number().nullable().optional().default(0),
     priceBeforeDiscount: z.number().nullable().optional().default(0),
@@ -150,6 +154,8 @@ export const CategorySchema = z.object({
     slug: z.string(),
     description: z.string().nullable().optional(),
     active: z.boolean().optional(),
+    imagePath: z.string().nullable().optional(),
+    imageAssetId: z.string().nullable().optional(),
     imageBasePath: z.string().nullable().optional(),
     imageExtension: z.string().nullable().optional(),
     parent: z.object({
