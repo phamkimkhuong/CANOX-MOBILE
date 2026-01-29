@@ -18,6 +18,14 @@ export const CART_STRINGS: CartTranslation = {
         checkout: 'Mua hàng',
         savings: 'Tiết kiệm {{amount}}',
         checkoutWithCount: 'Mua hàng ({{count}})',
+        moveToWishlist: 'Lưu vào Yêu thích',
+        deleteSelected: 'Xóa',
+    },
+    confirmations: {
+        deleteSelected: {
+            title: 'Xóa sản phẩm',
+            message: 'Bạn có chắc chắn muốn xóa {{count}} sản phẩm đã chọn?',
+        },
     },
     item: {
         variation: 'Phân loại',

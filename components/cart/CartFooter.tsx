@@ -45,6 +45,12 @@ interface CartFooterProps {
     appliedPlatformVoucher?: VoucherUI | null;
     /** Height of tab bar (for proper positioning) */
     tabBarHeight?: number;
+    /** Whether the cart is in edit mode */
+    isEditMode?: boolean;
+    /** Callback for deleting selected items */
+    onDeleteSelected?: () => void;
+    /** Callback for moving selected items to wishlist */
+    onMoveToWishlist?: () => void;
 }
 
 const CHECKOUT_BAR_HEIGHT = 56;
@@ -116,6 +122,9 @@ export const CartFooter: React.FC<CartFooterProps> = memo(({
     onVoucherPress,
     appliedPlatformVoucher,
     tabBarHeight = 0,
+    isEditMode = false,
+    onDeleteSelected,
+    onMoveToWishlist,
 }) => {
     const { theme } = useUnistyles();
     const { t } = useTranslation('cart');
@@ -143,42 +152,6 @@ export const CartFooter: React.FC<CartFooterProps> = memo(({
                 styles.dynamicBottom(tabBarHeight),
             ]}
         >
-            {/* TEMPORARILY HIDDEN - Platform Voucher Bar */}
-            {/* {showVoucherBar && (
-                <Pressable
-                    onPress={onVoucherPress}
-                    style={styles.voucherBar}
-                    accessibilityLabel="Chọn voucher nền tảng"
-                    accessibilityRole="button"
-                >
-                    <View style={styles.voucherLeft}>
-                        <IconSymbol
-                            name="local-activity"
-                            size={20}
-                            color={theme.colors.newPrimary}
-                        />
-                        <Text style={styles.voucherLabel}>
-                            {appliedPlatformVoucher
-                                ? appliedPlatformVoucher.title
-                                : 'Shop Voucher'}
-                        </Text>
-                    </View>
-                    <View style={styles.voucherRight}>
-                        <Text style={styles.voucherPrompt}>
-                            {appliedPlatformVoucher
-                                ? appliedPlatformVoucher.discountDisplay
-                                : 'Chọn hoặc nhập mã'}
-                        </Text>
-                        <IconSymbol
-                            name="chevron-right"
-                            size={18}
-                            color={theme.colors.secondary}
-                        />
-                    </View>
-                </Pressable>
-            )} */}
-
-
             {/* Main Checkout Bar */}
             <View style={styles.checkoutBar}>
                 {/* Select All */}
@@ -190,43 +163,75 @@ export const CartFooter: React.FC<CartFooterProps> = memo(({
                     <Text style={styles.selectAllText}>{t('footer.selectAll')}</Text>
                 </View>
 
-                {/* Price & Checkout */}
+                {/* Price & Checkout OR Edit Actions */}
                 <View style={styles.checkoutRight}>
-                    {/* Price Info */}
-                    <View style={styles.priceContainer}>
-                        <AnimatedPrice
-                            value={totalAmount}
-                            isCalculating={calculation.isCalculating}
-                        />
-                        {totalSavings > 0 && (
-                            <Text style={styles.savingsText}>
-                                {t('footer.savings', { amount: formatCurrency(totalSavings) })}
-                            </Text>
-                        )}
-                    </View>
+                    {!isEditMode ? (
+                        <>
+                            {/* Price Info */}
+                            <View style={styles.priceContainer}>
+                                <AnimatedPrice
+                                    value={totalAmount}
+                                    isCalculating={calculation.isCalculating}
+                                />
+                                {totalSavings > 0 && (
+                                    <Text style={styles.savingsText}>
+                                        {t('footer.savings', { amount: formatCurrency(totalSavings) })}
+                                    </Text>
+                                )}
+                            </View>
 
-                    {/* Checkout Button */}
-                    <Pressable
-                        onPress={onCheckout}
-                        disabled={!hasSelection}
-                        style={[
-                            styles.checkoutButton,
-                            !hasSelection && styles.checkoutButtonDisabled,
-                        ]}
-                        accessibilityLabel={t('footer.checkoutWithCount', { count: selectedCount })}
-                        accessibilityRole="button"
-                    >
-                        <Text
-                            style={styles.checkoutButtonText}
-                            numberOfLines={1}
-                            adjustsFontSizeToFit
-                            minimumFontScale={0.8}
-                        >
-                            {hasSelection
-                                ? t('footer.checkoutWithCount', { count: selectedCount })
-                                : t('footer.checkout')}
-                        </Text>
-                    </Pressable>
+                            {/* Checkout Button */}
+                            <Pressable
+                                onPress={onCheckout}
+                                disabled={!hasSelection}
+                                style={[
+                                    styles.checkoutButton,
+                                    !hasSelection && styles.checkoutButtonDisabled,
+                                ]}
+                                accessibilityLabel={t('footer.checkoutWithCount', { count: selectedCount })}
+                                accessibilityRole="button"
+                            >
+                                <Text
+                                    style={styles.checkoutButtonText}
+                                    numberOfLines={1}
+                                    adjustsFontSizeToFit
+                                    minimumFontScale={0.8}
+                                >
+                                    {hasSelection
+                                        ? t('footer.checkoutWithCount', { count: selectedCount })
+                                        : t('footer.checkout')}
+                                </Text>
+                            </Pressable>
+                        </>
+                    ) : (
+                        <>
+                            <Pressable
+                                onPress={onMoveToWishlist}
+                                disabled={!hasSelection}
+                                style={[
+                                    styles.wishlistButton,
+                                    !hasSelection && styles.editButtonDisabled,
+                                ]}
+                            >
+                                <Text style={styles.wishlistButtonText}>
+                                    {t('footer.moveToWishlist' as any)}
+                                </Text>
+                            </Pressable>
+
+                            <Pressable
+                                onPress={onDeleteSelected}
+                                disabled={!hasSelection}
+                                style={[
+                                    styles.deleteButton,
+                                    !hasSelection && styles.deleteButtonDisabled,
+                                ]}
+                            >
+                                <Text style={styles.deleteButtonText}>
+                                    {t('footer.deleteSelected' as any)}
+                                </Text>
+                            </Pressable>
+                        </>
+                    )}
                 </View>
             </View>
         </View>
@@ -355,6 +360,38 @@ const styles = StyleSheet.create((theme, rt) => {
         },
         checkoutButtonText: {
             fontSize: f(theme.fontSizes.md),
+            fontWeight: '700',
+            color: theme.colors.onPrimary,
+        },
+        editButtonDisabled: {
+            opacity: 0.5,
+            borderColor: theme.colors.border,
+        },
+        wishlistButton: {
+            paddingHorizontal: theme.margins.md,
+            paddingVertical: theme.margins.smd,
+            borderRadius: theme.radius.m,
+            borderWidth: 1,
+            borderColor: theme.colors.newPrimary,
+            backgroundColor: theme.colors.surface,
+        },
+        wishlistButtonText: {
+            fontSize: f(theme.fontSizes.sm),
+            fontWeight: '600',
+            color: theme.colors.newPrimary,
+        },
+        deleteButton: {
+            paddingHorizontal: theme.margins.lg,
+            paddingVertical: theme.margins.smd,
+            borderRadius: theme.radius.m,
+            backgroundColor: theme.colors.error,
+        },
+        deleteButtonDisabled: {
+            backgroundColor: theme.colors.secondary,
+            opacity: 0.5,
+        },
+        deleteButtonText: {
+            fontSize: f(theme.fontSizes.sm),
             fontWeight: '700',
             color: theme.colors.onPrimary,
         },

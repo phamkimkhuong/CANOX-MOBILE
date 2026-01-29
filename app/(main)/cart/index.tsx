@@ -27,6 +27,7 @@ import {
 import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES, shopRoutes } from '@/constants/routes';
 import {
+    useBatchRemoveCartItems,
     useCart,
     useCartCalculations,
     useRemoveCartItem,
@@ -38,6 +39,7 @@ import { useCartStore } from '@/store/useCartStore';
 import { useCheckoutStore } from '@/store/useCheckoutStore';
 import type { CartShopUI } from '@/types/cart';
 import { getShopCheckboxState } from '@/utils/adapter/cartAdapter';
+import { Alert as CustomAlert } from '@/utils/AlertHelper';
 import { logger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
 import { FlashList } from '@shopify/flash-list';
@@ -147,7 +149,7 @@ const EmptyCart: React.FC<EmptyCartProps> = ({ onRefresh, refreshing }) => {
 
 export default function CartScreen() {
     const { theme } = useUnistyles();
-    const { t } = useTranslation('cart');
+    const { t } = useTranslation(['cart', 'common']);
 
     const { rebuySuccess } = useLocalSearchParams<{ rebuySuccess?: string }>();
 
@@ -161,6 +163,7 @@ export default function CartScreen() {
     // API Mutations
     const { mutate: updateQuantity, isPending: isUpdating } = useUpdateCartItemQuantity();
     const { mutate: removeItem, isPending: isRemoving } = useRemoveCartItem();
+    const { mutate: batchRemove, isPending: isBatchRemoving } = useBatchRemoveCartItems();
 
     // Prefetch hook for shop navigation (Hybrid Pattern)
     const prefetchShopDetail = usePrefetchShopDetail();
@@ -260,18 +263,25 @@ export default function CartScreen() {
     // API mutation: Remove item
     const handleDeleteItem = useCallback(
         (itemId: string) => {
-            setUserInteracted(true);
-            logger.cart.info('Delete item', { itemId });
+            CustomAlert.show({
+                title: t('cart:confirmations.deleteSelected.title'),
+                message: t('cart:confirmations.deleteSelected.message', { count: 1 }),
+                type: 'warning',
+                onConfirm: () => {
+                    setUserInteracted(true);
+                    logger.cart.info('Delete item', { itemId });
 
-            // Remove from client selection
-            if (selectedItemIds.has(itemId)) {
-                toggleItemSelection(itemId);
-            }
+                    // Remove from client selection
+                    if (selectedItemIds.has(itemId)) {
+                        toggleItemSelection(itemId);
+                    }
 
-            // Call API to remove
-            removeItem({ itemId });
+                    // Call API to remove
+                    removeItem({ itemId });
+                }
+            });
         },
-        [removeItem, selectedItemIds, toggleItemSelection]
+        [removeItem, selectedItemIds, toggleItemSelection, t]
     );
 
     /**
@@ -342,6 +352,30 @@ export default function CartScreen() {
 
         Navigator.push(ROUTES.CHECKOUT.INDEX);
     }, [calculation.selectedCount, cartData, selectedItemIds]);
+
+    const handleDeleteSelected = useCallback(() => {
+        if (selectedItemIds.size === 0) return;
+
+        CustomAlert.show({
+            title: t('cart:confirmations.deleteSelected.title'),
+            message: t('cart:confirmations.deleteSelected.message', { count: selectedItemIds.size }),
+            type: 'warning',
+            onConfirm: () => {
+                setUserInteracted(true);
+                batchRemove({ itemIds: Array.from(selectedItemIds) });
+            }
+        });
+    }, [selectedItemIds, batchRemove, t]);
+
+    const handleMoveToWishlist = useCallback(() => {
+        if (selectedItemIds.size === 0) return;
+
+        Toast.show({
+            type: 'info',
+            text1: 'Tính năng đang phát triển',
+            text2: 'Vui lòng xóa sản phẩm hoặc chỉnh sửa số lượng.',
+        });
+    }, [selectedItemIds]);
 
     // ========================================
     // RENDER HELPERS
@@ -435,7 +469,7 @@ export default function CartScreen() {
                         {/*
                           * Price Sync Bar
                         */}
-                        {(isFetching && userInteracted || isUpdating || isRemoving) && (
+                        {(isFetching && userInteracted || isUpdating || isRemoving || isBatchRemoving) && (
                             <View style={styles.syncBar}>
                                 <ActivityIndicator size="small" color={theme.colors.buttonActive} />
                                 <Text style={styles.syncText}>{t('status.syncing')}</Text>
@@ -470,6 +504,9 @@ export default function CartScreen() {
                             onVoucherPress={handlePlatformVoucherPress}
                             appliedPlatformVoucher={appliedPlatformVoucher}
                             tabBarHeight={0}
+                            isEditMode={isEditMode}
+                            onDeleteSelected={handleDeleteSelected}
+                            onMoveToWishlist={handleMoveToWishlist}
                         />
                     </Animated.View>
                 )}

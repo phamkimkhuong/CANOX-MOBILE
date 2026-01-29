@@ -18,6 +18,14 @@ export const CART_STRINGS: CartTranslation = {
         checkout: 'Checkout',
         savings: 'Save {{amount}}',
         checkoutWithCount: 'Checkout ({{count}})',
+        moveToWishlist: 'Move to Wishlist',
+        deleteSelected: 'Delete',
+    },
+    confirmations: {
+        deleteSelected: {
+            title: 'Remove items',
+            message: 'Are you sure you want to remove {{count}} selected items?',
+        },
     },
     item: {
         variation: 'Variation',

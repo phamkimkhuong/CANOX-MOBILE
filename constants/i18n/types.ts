@@ -385,6 +385,14 @@ export interface CartTranslation {
         checkout: string;
         savings: string;
         checkoutWithCount: string;
+        moveToWishlist: string;
+        deleteSelected: string;
+    };
+    confirmations: {
+        deleteSelected: {
+            title: string;
+            message: string;
+        };
     };
     item: {
         variation: string;

@@ -56,6 +56,7 @@ export const API_ROUTES = {
         UPDATE: (itemId: string) => `${API_PREFIX}/cart/items/${itemId}`,
         REMOVE: (itemId: string) => `${API_PREFIX}/cart/items/${itemId}`,
         CLEAR: `${API_PREFIX}/cart`,
+        BATCH_REMOVE: `${API_PREFIX}/cart/items/batch`,
         CHECKOUT_PREVIEW: `${API_PREFIX}/cart/checkout`,
     },
     CHAT: {

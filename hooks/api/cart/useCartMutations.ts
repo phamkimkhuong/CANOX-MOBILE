@@ -303,3 +303,93 @@ export const useClearCart = () => {
         },
     });
 };
+
+// ==============================================
+// MUTATION: Batch Remove Items
+// ==============================================
+
+interface BatchRemoveParams {
+    itemIds: string[];
+}
+
+/**
+ * Remove multiple items from cart via API
+ */
+export const useBatchRemoveCartItems = () => {
+    const queryClient = useQueryClient();
+    const { setSelectedItemIds } = useCartStore();
+
+    return useMutation({
+        mutationFn: async ({ itemIds }: BatchRemoveParams): Promise<void> => {
+            logger.cart.info('Removing multiple items', { count: itemIds.length });
+
+            const idempotencyKey = uuidv4();
+
+            await request(
+                {
+                    url: API_ROUTES.CART.BATCH_REMOVE,
+                    method: 'DELETE',
+                    data: { itemIds },
+                    headers: {
+                        'Idempotency-Key': idempotencyKey,
+                        'If-Match': '0',
+                    },
+                },
+                ResponseDefaultSchema
+            );
+        },
+
+        // Optimistic update
+        onMutate: async ({ itemIds }) => {
+            await queryClient.cancelQueries({ queryKey: CART_QUERY_KEY });
+
+            const previousCart = queryClient.getQueryData<CartUI>(CART_QUERY_KEY);
+
+            if (previousCart) {
+                const itemIdsSet = new Set(itemIds);
+                const optimisticCart: CartUI = {
+                    ...previousCart,
+                    shops: previousCart.shops
+                        .map(shop => ({
+                            ...shop,
+                            items: shop.items.filter(item => !itemIdsSet.has(item.id)),
+                        }))
+                        .filter(shop => shop.items.length > 0),
+                };
+
+                queryClient.setQueryData(CART_QUERY_KEY, optimisticCart);
+            }
+
+            return { previousCart };
+        },
+
+        onError: (error, variables, context) => {
+            logger.cart.warn('Batch removal failed, rolling back', { error });
+            if (context?.previousCart) {
+                queryClient.setQueryData(CART_QUERY_KEY, context.previousCart);
+            }
+            const errorMessage = error instanceof Error ? error.message : 'Không thể xóa các sản phẩm đã chọn';
+            Toast.show({
+                type: 'error',
+                text1: 'Xóa thất bại',
+                text2: errorMessage,
+                position: 'top',
+                visibilityTime: 3000,
+            });
+        },
+
+        onSuccess: () => {
+            logger.cart.info('Items removed successfully');
+            queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
+            // Clear selection after successful removal
+            setSelectedItemIds(new Set());
+
+            Toast.show({
+                type: 'success',
+                text1: 'Đã xóa các sản phẩm được chọn',
+                position: 'top',
+                visibilityTime: 2000,
+            });
+        },
+    });
+};
