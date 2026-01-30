@@ -38,6 +38,7 @@ module.exports = {
         },
 
         "plugins": [
+            "./plugins/withAndroid16KB",
             "./plugins/withNotifee",
             [
                 "./plugins/withNotificationIcon",
