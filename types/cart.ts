@@ -36,6 +36,7 @@ export const CartItemSchema = z.object({
     // Stock Management
     availableStock: z.number().nullable().optional().default(0),
     stockStatus: z.string().nullable().optional().default('IN_STOCK'),
+    stockMessage: z.string().nullable().optional().default(''),
 });
 
 // Schema cho Shop trong giỏ
@@ -66,6 +67,8 @@ export const VoucherSchema = z.object({
     discountValue: z.number().nullable().optional().default(0),
     minOrderAmount: z.number().nullable().optional().default(0),
     isApplicable: z.boolean().nullable().optional().default(true),
+    discountType: z.string().nullable().optional(),
+    expiresAt: z.string().nullable().optional(),
 });
 
 // Schema cho toàn bộ Giỏ hàng (Root - từ API)

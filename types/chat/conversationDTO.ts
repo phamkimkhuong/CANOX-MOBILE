@@ -155,7 +155,9 @@ export interface ConversationListResponse {
 const UserDTOSchema = z.object({
     userId: z.string(),
     username: z.string(),
+    email: z.string().optional().default(''),
     image: z.string().nullable().optional(),
+    roles: z.array(z.string()).optional().default([]),
     fullNameBuyer: z.string().nullable().optional(),
     shopId: z.string().nullable().optional(),
     shopName: z.string().nullable().optional(),
@@ -165,6 +167,7 @@ const UserDTOSchema = z.object({
 const ParticipantDTOSchema = z.object({
     id: z.string(),
     user: UserDTOSchema,
+    role: z.string().optional().default('MEMBER') as z.ZodType<ParticipantRole>,
     unreadCount: z.number(),
     isMuted: z.boolean(),
     isPinned: z.boolean(),
@@ -172,6 +175,12 @@ const ParticipantDTOSchema = z.object({
     isActive: z.boolean(),
     joinedAt: z.string(),
     isOnline: z.boolean().nullable().optional(),
+    createdBy: z.string().optional().default('system'),
+    createdDate: z.string().optional().default(new Date().toISOString()),
+    lastModifiedBy: z.string().optional().default('system'),
+    lastModifiedDate: z.string().optional().default(new Date().toISOString()),
+    deleted: z.boolean().optional().default(false),
+    version: z.number().optional().default(0),
 });
 
 const ConversationDTOSchema = z.object({
@@ -197,10 +206,12 @@ const ConversationDTOSchema = z.object({
     isPinned: z.boolean().nullable().optional(),
     isArchived: z.boolean().nullable().optional(),
     participants: z.array(ParticipantDTOSchema),
-    createdBy: z.string().optional(),
-    createdDate: z.string().optional(),
-    lastModifiedBy: z.string().optional(),
-    lastModifiedDate: z.string().optional(),
+    createdBy: z.string().optional().default('system'),
+    createdDate: z.string().optional().default(new Date().toISOString()),
+    lastModifiedBy: z.string().optional().default('system'),
+    lastModifiedDate: z.string().optional().default(new Date().toISOString()),
+    deleted: z.boolean().optional().default(false),
+    version: z.number().optional().default(0),
 });
 
 const ConversationPageDTOSchema = z.object({

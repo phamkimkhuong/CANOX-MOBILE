@@ -63,7 +63,7 @@ const mapSlugToIcon = (slug: string): IconSymbolName => {
 const mapNodeToItem = (node: CategoryNode): CategoryItem => ({
     id: node.id,
     name: node.name,
-    image: toSizedImageUrl(node.imagePath || node.imageBasePath, node.imageExtension, 'thumb'),
+    image: toSizedImageUrl(node.imagePath, node.imageExtension, 'thumb'),
 });
 
 /**
@@ -126,7 +126,7 @@ export const transformToSmartContent = (parentNode: CategoryNode): SubCategory[]
                 {
                     id: parentNode.id,
                     name: `Tất cả ${parentNode.name}`,
-                    image: toSizedImageUrl(parentNode.imagePath || parentNode.imageBasePath, parentNode.imageExtension, 'thumb'),
+                    image: toSizedImageUrl(parentNode.imagePath, parentNode.imageExtension, 'thumb'),
                 },
             ],
         },

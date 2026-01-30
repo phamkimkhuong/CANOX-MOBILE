@@ -21,7 +21,7 @@ import type {
     SearchSortField,
 } from '@/types/search-results';
 import { SearchProductsResponseSchema } from '@/types/search-results';
-import { toPublicUrl } from '@/utils/url';
+import { toSizedImageUrl } from '@/utils/url';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useRef } from 'react';
 
@@ -78,7 +78,7 @@ const transformSearchProduct = (raw: NonNullable<SearchProductsResponse['data']>
     return {
         id: raw.id,
         title: raw.name ?? '',
-        thumbnail: toPublicUrl(primaryMedia?.url ?? ''),
+        thumbnail: toSizedImageUrl(primaryMedia?.imagePath || primaryMedia?.url, '', 'thumb') ?? '',
         price: displayPrice,
         originalPrice,
         discountPercentage: discount > 0 ? discount : undefined,

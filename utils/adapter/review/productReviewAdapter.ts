@@ -66,7 +66,7 @@ export const formatReviewCount = (count: number): string => {
  */
 const getDisplayName = (dto: ProductReviewDTO): string => {
     // Prioritize buyerName as it's the more direct field for the reviewer
-    return maskUsername(dto.buyerName || dto.username || dto.createdBy || null);
+    return maskUsername(dto.buyerName || dto.username || null);
 };
 
 // ============================================

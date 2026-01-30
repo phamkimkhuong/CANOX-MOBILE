@@ -210,6 +210,12 @@ const CheckoutPreviewItemSchema = z.object({
     lineTotal: z.number().nullable().optional().default(0),
     promotion: z.object({
         promotionId: z.string(),
+        campaignId: z.string().optional().default(''),
+        campaignName: z.string().optional().default(''),
+        campaignType: z.string().optional().default(''),
+        originalPrice: z.number().optional().default(0),
+        salePrice: z.number().optional().default(0),
+        discountPercent: z.number().optional().default(0),
     }).nullable().optional(),
 });
 

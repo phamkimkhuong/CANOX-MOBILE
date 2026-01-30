@@ -1,4 +1,5 @@
 import {
+    PriceBreakdownBottomSheet,
     ProductDescription,
     ProductDetailSkeleton,
     ProductGallery,
@@ -15,7 +16,6 @@ import {
 import type { ProductGalleryRef } from '@/components/product/ProductGallery';
 import { IconSymbol } from '@/components/ui/Icon';
 import { ProductCard } from '@/components/ui/product/ProductCard';
-import { CHAT_STRINGS } from '@/constants/i18n/vi/chat';
 import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import { ROUTES, chatRoutes, checkoutRoutes, productRoutes, shopRoutes } from '@/constants/routes';
 import { useAddToCart } from '@/hooks/api/cart';
@@ -57,10 +57,13 @@ export default function ProductDetailScreen() {
     const { id, instantNav } = useLocalSearchParams<{ id: string; instantNav?: string }>();
     const { theme } = useUnistyles();
     const { t } = useTranslation(['product', 'chat', 'common']);
+
+    // === UI State ===
     const [variantSheetVisible, setVariantSheetVisible] = useState(false);
-    /** Tracks how the variant sheet was opened - determines button text and action */
     const [variantSheetMode, setVariantSheetMode] = useState<VariantSheetMode>('select');
     const [quantity, setQuantity] = useState(1);
+    const [priceBreakdownVisible, setPriceBreakdownVisible] = useState(false);
+
     const myShopId = useAuthStore((s) => s.shopId);
     const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
@@ -91,7 +94,7 @@ export default function ProductDetailScreen() {
         selectOption,
         resetSelection,
         getOptionsWithAvailability,
-    } = useProductVariant(product);
+    } = useProductVariant(product, { autoSelectFirst: true });
 
     // === Add to Cart Mutation ===
     const { mutate: addToCart } = useAddToCart();
@@ -122,11 +125,6 @@ export default function ProductDetailScreen() {
     const [minSkeletonComplete, setMinSkeletonComplete] = React.useState(!isInstantNav);
 
     React.useEffect(() => {
-        if (!isInstantNav) {
-            setMinSkeletonComplete(true);
-            return;
-        }
-        // Minimum skeleton duration for instant tap navigation (prevents flash)
         const timer = setTimeout(() => setMinSkeletonComplete(true), MINIMUM_SKELETON_DURATION_MS);
         return () => clearTimeout(timer);
     }, [isInstantNav]);
@@ -137,7 +135,7 @@ export default function ProductDetailScreen() {
     const listRef = useRef<FlashListRef<ProductDetailListItem>>(null);
 
     // ============================================
-    // MEMOIZED VALUES - Tránh tính toán lại mỗi render
+    // MEMOIZED VALUES
     // ============================================
 
     const optionsWithAvailability = useMemo(() => {
@@ -165,8 +163,7 @@ export default function ProductDetailScreen() {
     }, [selectedVariantMedia, productGallery]);
 
     /**
-     * Open variant sheet with specified mode
-     * Mode determines what action the confirm button performs
+     * Bottom Sheet Handlers
      */
     const handleOpenVariantSheet = useCallback((mode: VariantSheetMode = 'select') => {
         setVariantSheetMode(mode);
@@ -175,16 +172,13 @@ export default function ProductDetailScreen() {
 
     const handleCloseVariantSheet = useCallback(() => {
         setVariantSheetVisible(false);
-        // Reset mode to default after close
         setVariantSheetMode('select');
     }, []);
 
-    /**
-     * Handle variant sheet confirm action based on current mode:
-     * - 'select': Just close the sheet (user was selecting variant)
-     * - 'add-to-cart': Add to cart then close sheet
-     * - 'buy-now': Add to cart then navigate to checkout
-     */
+    const handleOpenPriceBreakdown = useCallback(() => {
+        setPriceBreakdownVisible(true);
+    }, []);
+
     const handleConfirmVariant = useCallback(() => {
         if (!isAuthenticated && (variantSheetMode === 'add-to-cart' || variantSheetMode === 'buy-now')) {
             setVariantSheetVisible(false);
@@ -203,34 +197,18 @@ export default function ProductDetailScreen() {
             return;
         }
 
-        // Action based on mode
         if (variantSheetMode === 'add-to-cart') {
             setVariantSheetVisible(false);
-            setVariantSheetMode('select');
-
-            log.info('Add to cart from sheet:', { variantId: selectedVariantId, quantity });
             addToCart(
                 { variantId: selectedVariantId, quantity },
-                {
-                    onSuccess: () => {
-                        setQuantity(1);
-                    },
-                }
+                { onSuccess: () => setQuantity(1) }
             );
         } else if (variantSheetMode === 'buy-now') {
-            // Buy Now: Navigate to checkout with variant info
-            // Checkout screen will handle adding to cart and preview
-            log.info('Buy now from sheet:', { variantId: selectedVariantId, quantity });
             setVariantSheetVisible(false);
-            setVariantSheetMode('select');
             setQuantity(1);
             Navigator.push(checkoutRoutes.buyNow(selectedVariantId, quantity));
         } else {
-            // Default 'select' mode: just close and scroll to variant image
             setVariantSheetVisible(false);
-            setVariantSheetMode('select');
-
-            // Scroll gallery to variant image if exists
             if (selectedVariantMedia?.[0] && productGallery && selectedVariantId) {
                 const index = findGalleryIndexByVariant(productGallery, selectedVariantId);
                 galleryRef.current?.scrollToIndex(index);
@@ -239,31 +217,21 @@ export default function ProductDetailScreen() {
     }, [variantSheetMode, canAddToCart, selectedVariantId, quantity, addToCart, selectedVariantMedia, productGallery, isAuthenticated, t]);
 
     /**
-     * Ghost Loading/Prefetch cho Chat
+     * Chat Handlers
      */
     const handlePrefetchChat = useCallback(() => {
-        if (!isAuthenticated) return;
-        if (shopId === myShopId) return;
+        if (!isAuthenticated || shopId === myShopId) return;
         if (shopUserId && shopName) {
             prefetchShopChat(shopUserId, shopName, shopLogoUrl, shopId);
         }
     }, [shopUserId, shopName, shopLogoUrl, prefetchShopChat, shopId, myShopId, isAuthenticated]);
 
-    /**
-     * Handle Chat with Shop - Pure 0ms Navigation
-     * All heavy logic is pushed to handlePrefetchChat (onPressIn)
-     */
     const handleChatPress = useCallback(() => {
         if (!isAuthenticated) {
             Navigator.push(ROUTES.AUTH.LOGIN);
             return;
         }
-
-        if (!shopUserId || !shopName) {
-            log.warn(CHAT_STRINGS.error.missingShopInfo);
-            return;
-        }
-
+        if (!shopUserId || !shopName) return;
         if (shopId === myShopId) {
             Toast.show({
                 type: 'info',
@@ -272,27 +240,17 @@ export default function ProductDetailScreen() {
             });
             return;
         }
-
-        // Use Cache (if done), otherwise use Ghost ID (instant, no await)
         const cachedId = getCachedConversationId(shopUserId);
-
         Navigator.push(chatRoutes.detail(cachedId || `ghost_${shopUserId}`, {
             partnerName: shopName,
             partnerAvatar: shopLogoUrl,
             shopUserId: shopUserId,
             shopId: shopId,
         }));
-
-        // Log after to prevent Push delay
-        requestAnimationFrame(() => {
-            log.info('Instant navigation triggered');
-        });
     }, [shopUserId, shopName, shopLogoUrl, isAuthenticated, myShopId, shopId, t]);
 
     const handleShopPress = useCallback(() => {
-        if (shopId) {
-            Navigator.push(shopRoutes.detail(shopId));
-        }
+        if (shopId) Navigator.push(shopRoutes.detail(shopId));
     }, [shopId]);
 
     /**
@@ -301,14 +259,9 @@ export default function ProductDetailScreen() {
     const handleRefresh = useCallback(() => {
         refetch();
         resetSelection();
+        setPriceBreakdownVisible(false);
     }, [refetch, resetSelection]);
 
-
-    /**
-     * Handle Add to Cart action
-     * - If variant not selected: open variant sheet in add-to-cart mode
-     * - If variant selected: call addToCart mutation directly
-     */
     const handleAddToCart = useCallback(() => {
         if (!isAuthenticated) {
             Toast.show({
@@ -319,36 +272,9 @@ export default function ProductDetailScreen() {
             Navigator.push(ROUTES.AUTH.LOGIN);
             return;
         }
+        handleOpenVariantSheet('add-to-cart');
+    }, [isAuthenticated, handleOpenVariantSheet, t]);
 
-        if (!canAddToCart || !selectedVariantId) {
-            // Open sheet with 'add-to-cart' mode - button will say "Thêm vào giỏ"
-            handleOpenVariantSheet('add-to-cart');
-            return;
-        }
-
-        // Variant already selected, add to cart directly
-        log.info('Add to cart:', {
-            variantId: selectedVariantId,
-            quantity,
-        });
-
-        addToCart(
-            { variantId: selectedVariantId, quantity },
-            {
-                onSuccess: () => {
-                    // Reset quantity to 1 for next add
-                    setQuantity(1);
-                },
-            }
-        );
-    }, [isAuthenticated, canAddToCart, selectedVariantId, quantity, handleOpenVariantSheet, addToCart, t]);
-
-
-    /**
-     * Handle Buy Now action
-     * - If variant not selected: open variant sheet in buy-now mode
-     * - If variant selected: add to cart and navigate to checkout
-     */
     const handleBuyNow = useCallback(() => {
         if (!isAuthenticated) {
             Toast.show({
@@ -359,99 +285,43 @@ export default function ProductDetailScreen() {
             Navigator.push(ROUTES.AUTH.LOGIN);
             return;
         }
+        handleOpenVariantSheet('buy-now');
+    }, [isAuthenticated, handleOpenVariantSheet, t]);
 
-        if (!canAddToCart || !selectedVariantId) {
-            // Open sheet with 'buy-now' mode - button will say "Mua ngay"
-            handleOpenVariantSheet('buy-now');
-            return;
-        }
-
-        // Buy Now: Navigate to checkout with variant info
-        // Checkout screen will handle adding to cart and preview
-        log.info('Buy now:', { variantId: selectedVariantId, quantity });
-        setQuantity(1);
-        Navigator.push(checkoutRoutes.buyNow(selectedVariantId, quantity));
-    }, [isAuthenticated, canAddToCart, selectedVariantId, quantity, handleOpenVariantSheet, t]);
-
-    const handleCartPress = useCallback(() => {
-        Navigator.push(ROUTES.CART.INDEX);
-    }, []);
-
-    const handleSharePress = useCallback(() => {
-        // TODO: Implement share functionality
-        log.info('Share product:', productId);
-    }, [productId]);
-
-    /**
-     * Memoized callback cho image press
-     */
-    const handleImagePress = useCallback((index: number) => {
-        // TODO: Open fullscreen image viewer
-        log.info('View image:', index);
-    }, []);
-
-    /**
-     * Handle view all reviews
-     */
+    const handleCartPress = useCallback(() => Navigator.push(ROUTES.CART.INDEX), []);
+    const handleSharePress = useCallback(() => log.info('Share product:', productId), [productId]);
+    const handleImagePress = useCallback((index: number) => log.info('View image:', index), []);
     const handleViewAllReviews = useCallback(() => {
-        if (productId) {
-            Navigator.push(productRoutes.reviews(productId));
-        }
+        if (productId) Navigator.push(productRoutes.reviews(productId));
     }, [productId]);
 
     /**
-     * Build List Data for Masonry/ZigZag layout
+     * UI Builders
      */
     const listData = useMemo((): ProductDetailListItem[] => {
         if (!product) return [];
-
         const items: ProductDetailListItem[] = [
             { type: 'gallery', id: 'gallery' },
             { type: 'info', id: 'info' },
         ];
-
-        if (product.hasVariants) {
-            items.push({ type: 'variants', id: 'variants' });
-        }
-
-        items.push({ type: 'reviews', id: 'reviews' });
-        items.push({ type: 'shop', id: 'shop' });
-
-        if (product.specifications?.length > 0) {
-            items.push({ type: 'specs', id: 'specs' });
-        }
-
-        if (product.description) {
-            items.push({ type: 'description', id: 'description' });
-        }
-
+        if (product.hasVariants) items.push({ type: 'variants', id: 'variants' });
+        items.push({ type: 'reviews', id: 'reviews' }, { type: 'shop', id: 'shop' });
+        if (product.specifications?.length > 0) items.push({ type: 'specs', id: 'specs' });
+        if (product.description) items.push({ type: 'description', id: 'description' });
         if (relatedProducts.length > 0) {
             items.push({ type: 'related_header', id: 'related_header' });
-            items.push(...relatedProducts.map(p => ({
-                type: 'related_product' as const,
-                id: `related_${p.id}`,
-                data: p
-            })));
+            items.push(...relatedProducts.map(p => ({ type: 'related_product' as const, id: `related_${p.id}`, data: p })));
         }
-
         return items;
     }, [product, relatedProducts]);
 
-    /**
-     * Render Item for FlashList
-     */
     const renderItem = useCallback(({ item }: ListRenderItemInfo<ProductDetailListItem>) => {
         if (!product) return null;
-
         switch (item.type) {
             case 'gallery':
                 return (
                     <View style={styles.fullWidthSection}>
-                        <ProductGallery
-                            ref={galleryRef}
-                            gallery={product.gallery}
-                            onImagePress={handleImagePress}
-                        />
+                        <ProductGallery ref={galleryRef} gallery={product.gallery} onImagePress={handleImagePress} />
                     </View>
                 );
             case 'info':
@@ -464,6 +334,7 @@ export default function ProductDetailScreen() {
                             totalReviews={product.totalReviews}
                             totalSold={product.totalSold}
                             flashSale={product.flashSale}
+                            onShowPriceBreakdown={handleOpenPriceBreakdown}
                         />
                     </View>
                 );
@@ -493,10 +364,7 @@ export default function ProductDetailScreen() {
             case 'shop':
                 return (
                     <View style={styles.fullWidthSection}>
-                        <ShopInfoCard
-                            shop={product.shop}
-                            onViewShopPress={handleShopPress}
-                        />
+                        <ShopInfoCard shop={product.shop} onViewShopPress={handleShopPress} />
                     </View>
                 );
             case 'specs':
@@ -530,41 +398,19 @@ export default function ProductDetailScreen() {
                         location={item.data.location}
                         discount={item.data.discountPercentage}
                         isMall={item.data.isMall}
-                        onPress={() => {
-                            Navigator.push(productRoutes.detail(item.data.id));
-                        }}
+                        onPress={() => Navigator.push(productRoutes.detail(item.data.id))}
                         route={productRoutes.detail(item.data.id)}
                     />
                 );
             default:
                 return null;
         }
-    }, [
-        product,
-        selectionResult,
-        selectedOptions,
-        handleImagePress,
-        handleOpenVariantSheet,
-        handleViewAllReviews,
-        handleChatPress,
-        handlePrefetchChat,
-        handleShopPress,
-        t,
-    ]);
+    }, [product, selectionResult, selectedOptions, handleImagePress, handleOpenVariantSheet, handleOpenPriceBreakdown, handleViewAllReviews, handleShopPress, t]);
 
-    /**
-     * Override item layout to make top sections full-width
-     */
-    const overrideItemLayout = useCallback((
-        layout: { span?: number; size?: number },
-        item: ProductDetailListItem,
-    ) => {
-        if (item.type !== 'related_product') {
-            layout.span = 2;
-        }
+    const overrideItemLayout = useCallback((layout: { span?: number }, item: ProductDetailListItem) => {
+        if (item.type !== 'related_product') layout.span = 2;
     }, []);
 
-    // List footer for loading or spacing
     const renderListFooter = useCallback(() => {
         if (isLoadingRelated) {
             return (
@@ -576,10 +422,8 @@ export default function ProductDetailScreen() {
         return <View style={styles.footerSpacer} />;
     }, [isLoadingRelated, theme]);
 
-
-
     // ============================================
-    // EARLY RETURNS - Loading & Error States
+    // EARLY RETURNS
     // ============================================
 
     if (shouldShowSkeleton) {
@@ -589,33 +433,23 @@ export default function ProductDetailScreen() {
     if (isError || !product) {
         return (
             <View style={styles.container}>
-                {/* NavBar vẫn cho phép quay lại */}
                 <ProductNavBar scrollY={scrollY} title={PRODUCT_STRINGS.navigation.title} />
-
                 <View style={styles.flex1}>
                     <ProductDetailSkeleton />
                     <View style={styles.errorOverlay}>
                         <View style={styles.errorCard}>
                             <View style={styles.errorIconCircle}>
-                                <IconSymbol
-                                    name="error"
-                                    size={40}
-                                    color={theme.colors.error}
-                                />
+                                <IconSymbol name="error" size={40} color={theme.colors.error} />
                             </View>
                             <Text style={styles.errorTitle}>{PRODUCT_STRINGS.error.notFound}</Text>
                             <Text style={styles.errorMessage}>
                                 {error instanceof Error ? error.message : PRODUCT_STRINGS.error.notFoundDetail}
                             </Text>
-
                             <View style={styles.errorActions}>
                                 <Pressable style={styles.retryButton} onPress={() => refetch()}>
                                     <Text style={styles.retryText}>{PRODUCT_STRINGS.error.retry}</Text>
                                 </Pressable>
-                                <Pressable
-                                    style={[styles.retryButton, styles.homeButton]}
-                                    onPress={() => Navigator.replace(ROUTES.TABS.HOME)}
-                                >
+                                <Pressable style={[styles.retryButton, styles.homeButton]} onPress={() => Navigator.replace(ROUTES.TABS.HOME)}>
                                     <Text style={styles.homeButtonText}>{PRODUCT_STRINGS.error.home}</Text>
                                 </Pressable>
                             </View>
@@ -640,7 +474,6 @@ export default function ProductDetailScreen() {
                 onSharePress={handleSharePress}
             />
 
-            {/* Main Content Area */}
             {!isTransitionFinished ? (
                 <ProductDetailSkeleton />
             ) : (
@@ -670,7 +503,6 @@ export default function ProductDetailScreen() {
                 </View>
             )}
 
-            {/* Sticky Bottom Bar - Luôn render để user thấy nút Mua Ngay */}
             <StickyBottomBar
                 isFullySelected={selectionResult.isFullySelected}
                 inventoryStatus={selectionResult.inventoryStatus}
@@ -681,7 +513,6 @@ export default function ProductDetailScreen() {
                 onBuyNowPress={handleBuyNow}
             />
 
-            {/* Variant Bottom Sheet */}
             {product.hasVariants && (
                 <VariantBottomSheet
                     visible={variantSheetVisible}
@@ -700,6 +531,12 @@ export default function ProductDetailScreen() {
                     isConfirmDisabled={!selectionResult.canAddToCart}
                 />
             )}
+
+            <PriceBreakdownBottomSheet
+                visible={priceBreakdownVisible}
+                onClose={() => setPriceBreakdownVisible(false)}
+                breakdown={selectionResult.displayPrice.breakdown}
+            />
         </View>
     );
 }
@@ -769,46 +606,45 @@ const styles = StyleSheet.create((theme) => ({
     },
     errorTitle: {
         fontSize: 18,
-        fontWeight: '600',
+        fontWeight: '700',
         color: theme.colors.typography,
+        marginBottom: 8,
     },
     errorMessage: {
         fontSize: 14,
-        color: theme.colors.typographySecondary,
+        color: theme.colors.secondary,
         textAlign: 'center',
+        lineHeight: 20,
     },
     retryButton: {
-        marginTop: theme.margins.md,
+        backgroundColor: theme.colors.newPrimary,
         paddingHorizontal: theme.margins.lg,
-        paddingVertical: theme.margins.smd,
-        backgroundColor: theme.colors.primary,
+        paddingVertical: theme.margins.sm,
         borderRadius: theme.radius.m,
     },
     retryText: {
+        color: theme.colors.surface,
         fontSize: 14,
         fontWeight: '600',
-        color: theme.colors.surface,
-    },
-    listContent: {
-        paddingHorizontal: theme.margins.sm,
-        paddingBottom: theme.margins.lg,
     },
     fullWidthSection: {
-        marginHorizontal: -theme.margins.sm,
+        width: '100%',
     },
-    relatedHeader: {
-        paddingHorizontal: theme.margins.lg,
-        paddingVertical: theme.margins.md,
-        backgroundColor: theme.colors.background,
-    },
-    relatedTitle: {
-        fontSize: 16,
-        fontWeight: '700',
-        color: theme.colors.typography,
-        textTransform: 'uppercase',
+    listContent: {
+        paddingBottom: 100, // Account for bottom bar
     },
     listFooter: {
         paddingVertical: theme.margins.lg,
         alignItems: 'center',
+    },
+    relatedHeader: {
+        paddingTop: theme.margins.xl,
+        paddingBottom: theme.margins.md,
+        paddingHorizontal: theme.margins.md,
+    },
+    relatedTitle: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: theme.colors.typography,
     },
 }));

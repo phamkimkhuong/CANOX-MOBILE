@@ -9,7 +9,7 @@
  */
 
 import { WishlistDTO, WishlistUI } from '@/types/profile/wishlist';
-import { toSizedImageUrl } from '@/utils/url';
+import { toPublicUrl } from '@/utils/url';
 
 /**
  * Transform WishlistDTO → WishlistUI
@@ -26,7 +26,7 @@ export const toWishlistUI = (dto: WishlistDTO): WishlistUI => {
         isDefault: dto.isDefault,
         itemCount: dto.itemCount,
         createdAt: dto.createdDate,
-        thumbnailUrl: toSizedImageUrl(dto.imagePath || dto.imageBasePath, dto.imageExtension, 'thumb') ?? null,
+        thumbnailUrl: toPublicUrl(dto.imagePath) || null,
     };
 };
 

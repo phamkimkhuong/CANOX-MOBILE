@@ -4,6 +4,7 @@ import { createPaginatedResponseSchema } from '../responseSchema';
 // 1. Media Schema & Type
 export const ProductMediaRawSchema = z.object({
     id: z.string(),
+    imagePath: z.string().nullable().optional(),
     url: z.string().nullable().optional().default(''),
     isPrimary: z.boolean().nullable().optional().default(false),
 });
@@ -59,6 +60,7 @@ export interface BaseProductDTO {
     priceBeforeDiscount?: number | null;
     priceAfterBestVoucher?: number | null;
     media?: {
+        imagePath?: string | null;
         url?: string | null;
         isPrimary?: boolean | null;
     }[] | null;

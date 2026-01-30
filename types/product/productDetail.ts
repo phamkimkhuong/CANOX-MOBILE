@@ -135,7 +135,6 @@ export const ShopSchema = z.object({
     description: z.string().nullable().optional(),
     logoUrl: z.string().nullable().optional(),
     logoPath: z.string().nullable().optional(),
-    logoAssetId: z.string().nullable().optional(),
     bannerPath: z.string().nullable().optional(),
     verifyBy: z.string().nullable().optional(),
     userId: z.string().nullable().optional(),
@@ -160,12 +159,12 @@ export const VoucherSchema = z.object({
     code: z.string().nullable().optional().default(''),
     name: z.string().nullable().optional(),
     description: z.string().nullable().optional(),
-    discountType: z.string().nullable().optional().default('PERCENTAGE'),
+    discountType: z.enum(['PERCENTAGE', 'FIXED_AMOUNT']).nullable().optional().default('PERCENTAGE'),
     discountValue: z.number().nullable().optional().default(0),
     maxDiscount: z.number().nullable().optional(),
     minOrderValue: z.number().nullable().optional(),
     voucherScope: z.string().nullable().optional(),
-    sponsorType: z.string().nullable().optional(),
+    sponsorType: z.enum(['PLATFORM', 'SHOP']).nullable().optional(),
     discountAmount: z.number().nullable().optional(),
     endDate: z.string().nullable().optional(),
 });
@@ -333,6 +332,30 @@ export interface SelectedOptions {
 }
 
 /**
+ * Price Breakdown Info for BottomSheet
+ */
+export interface PriceBreakdown {
+    basePrice: number;
+    shopVoucher?: {
+        id: string;
+        name: string;
+        amount: number;
+        discountType?: 'PERCENTAGE' | 'FIXED_AMOUNT';
+        discountValue?: number | null;
+        maxDiscount?: number | null;
+    };
+    platformVoucher?: {
+        id: string;
+        name: string;
+        amount: number;
+        discountType?: 'PERCENTAGE' | 'FIXED_AMOUNT';
+        discountValue?: number | null;
+        maxDiscount?: number | null;
+    };
+    finalPrice: number;
+}
+
+/**
  * Price Display Info
  */
 export interface PriceDisplay {
@@ -346,6 +369,7 @@ export interface PriceDisplay {
     isRange: boolean;
     voucherDiscount?: number;
     priceAfterVoucher?: number;
+    breakdown?: PriceBreakdown;
 }
 
 /**

@@ -46,7 +46,6 @@ yarn-error.*
 .agent
 CLAUDE.md
 thietke
-swagger*.json
 stitch_ebay_th_ng_m_i_i_n_t
 .github
 docs

@@ -1,3 +1,4 @@
+export { PriceBreakdownBottomSheet } from './PriceBreakdownBottomSheet';
 export { ProductDescription } from './ProductDescription';
 export { ProductDetailSkeleton } from './ProductDetailSkeleton';
 export { ProductGallery } from './ProductGallery';

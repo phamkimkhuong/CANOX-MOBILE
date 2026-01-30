@@ -2,7 +2,7 @@ import type { FlashSaleInfo, PriceDisplay } from '@/types/product/productDetail'
 import { formatCurrency } from '@/utils/format';
 import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { IconSymbol } from '../ui/Icon';
 import { ProductFlashSaleBar } from './ProductFlashSaleBar';
@@ -18,10 +18,12 @@ interface ProductInfoSectionProps {
     isInternational?: boolean;
     /** Callback khi flash sale hết hạn - có thể dùng để refetch data */
     onFlashSaleExpired?: () => void;
+    /** Callback to show price breakdown bottom sheet */
+    onShowPriceBreakdown?: () => void;
 }
 
 // ============================================
-// HELPER FUNCTIONS - Đặt ngoài component
+// HELPER FUNCTIONS
 // ============================================
 
 /**
@@ -35,46 +37,51 @@ const formatSoldCount = (count: number): string => {
 };
 
 // ============================================
-// SUB-COMPONENTS - Tách riêng để optimize re-render
+// SUB-COMPONENTS
 // ============================================
 
 /**
- * PriceSection - Hiển thị giá
- * Memo riêng vì chỉ phụ thuộc priceDisplay
+ * PriceSection - Hiển thị giá và cho phép nhấn để xem chi tiết
  */
-const PriceSection = memo<{ priceDisplay: PriceDisplay }>(({ priceDisplay }) => {
-    // Memoize price rendering để tránh re-calculate mỗi render
-    const priceContent = useMemo(() => {
-        if (priceDisplay.isRange && priceDisplay.priceRange) {
-            return (
-                <View style={styles.priceContainer}>
-                    <Text style={styles.priceRange}>
-                        {formatCurrency(priceDisplay.priceRange.min)} - {formatCurrency(priceDisplay.priceRange.max)}
-                    </Text>
-                </View>
-            );
-        }
+const PriceSection = memo<{
+    priceDisplay: PriceDisplay;
+    onPress?: () => void;
+}>(({ priceDisplay, onPress }) => {
+    const { theme } = useUnistyles();
 
+    // Memoize price rendering to avoid re-calculation
+    const priceContent = useMemo(() => {
         return (
-            <View style={styles.priceContainer}>
-                <Text style={styles.currentPrice}>
-                    {formatCurrency(priceDisplay.currentPrice)}
-                </Text>
-                {priceDisplay.originalPrice != null && priceDisplay.originalPrice > 0 && (
-                    <Text style={styles.originalPrice}>
-                        {formatCurrency(priceDisplay.originalPrice)}
+            <Pressable
+                style={styles.priceContainer}
+                onPress={onPress}
+                android_ripple={{ color: 'rgba(0,0,0,0.05)' }}
+            >
+                <View style={styles.priceMainRow}>
+                    <Text style={styles.currentPrice}>
+                        {formatCurrency(priceDisplay.currentPrice)}
                     </Text>
-                )}
-                {priceDisplay.discountPercentage != null && priceDisplay.discountPercentage > 0 && (
-                    <View style={styles.discountBadge}>
-                        <Text style={styles.discountText}>
-                            -{priceDisplay.discountPercentage}%
+                    {priceDisplay.originalPrice != null && priceDisplay.originalPrice > 0 && (
+                        <Text style={styles.originalPrice}>
+                            {formatCurrency(priceDisplay.originalPrice)}
                         </Text>
-                    </View>
-                )}
-            </View>
+                    )}
+                    {priceDisplay.discountPercentage != null && priceDisplay.discountPercentage > 0 && (
+                        <View style={styles.discountBadge}>
+                            <Text style={styles.discountText}>
+                                -{priceDisplay.discountPercentage}%
+                            </Text>
+                        </View>
+                    )}
+                </View>
+
+                {/* Info icon hint - Small indicator that this is clickable */}
+                <View style={styles.infoIconWrapper}>
+                    <IconSymbol name="info" size={12} color={theme.colors.secondary} />
+                </View>
+            </Pressable>
         );
-    }, [priceDisplay]);
+    }, [priceDisplay, onPress, theme.colors.secondary]);
 
     return priceContent;
 });
@@ -83,7 +90,6 @@ PriceSection.displayName = 'PriceSection';
 
 /**
  * StatsRow - Hiển thị rating, reviews, sold count
- * Memo riêng vì ít khi thay đổi
  */
 const StatsRow = memo<{
     rating: number;
@@ -124,12 +130,6 @@ StatsRow.displayName = 'StatsRow';
 
 /**
  * ProductInfoSection - Hiển thị thông tin chính sản phẩm
- * 
- * Performance Optimizations:
- * 1. React.memo - tránh re-render khi parent thay đổi (timer FlashSale)
- * 2. Tách PriceSection, StatsRow thành sub-components với memo riêng
- * 3. useMemo cho badges rendering
- * 4. ProductFlashSaleBar đã được memo sẵn
  */
 export const ProductInfoSection = memo<ProductInfoSectionProps>(({
     name,
@@ -141,6 +141,7 @@ export const ProductInfoSection = memo<ProductInfoSectionProps>(({
     isMall = false,
     isInternational = false,
     onFlashSaleExpired,
+    onShowPriceBreakdown,
 }) => {
     const { theme } = useUnistyles();
     const { t } = useTranslation('product');
@@ -180,9 +181,12 @@ export const ProductInfoSection = memo<ProductInfoSectionProps>(({
             )}
 
             {/* Price Section */}
-            <PriceSection priceDisplay={priceDisplay} />
+            <PriceSection
+                priceDisplay={priceDisplay}
+                onPress={onShowPriceBreakdown}
+            />
 
-            {/* Badges & Stats Row - Combined horizontally to save space */}
+            {/* Badges & Stats Row */}
             <View style={styles.badgesAndStatsRow}>
                 <View style={styles.badgesWrapper}>
                     {badgesContent}
@@ -215,18 +219,20 @@ const styles = StyleSheet.create((theme) => ({
     },
     priceContainer: {
         flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 4,
+        marginBottom: 2,
+    },
+    priceMainRow: {
+        flexDirection: 'row',
         alignItems: 'baseline',
         flexWrap: 'wrap',
         gap: theme.margins.sm,
-        marginBottom: theme.margins.sm,
+        flex: 1,
     },
     currentPrice: {
         fontSize: 24,
-        fontWeight: '700',
-        color: theme.colors.error,
-    },
-    priceRange: {
-        fontSize: 20,
         fontWeight: '700',
         color: theme.colors.error,
     },
@@ -245,6 +251,9 @@ const styles = StyleSheet.create((theme) => ({
         fontSize: 12,
         fontWeight: '700',
         color: theme.colors.error,
+    },
+    infoIconWrapper: {
+        padding: 4,
     },
     badgeRow: {
         flexDirection: 'row',

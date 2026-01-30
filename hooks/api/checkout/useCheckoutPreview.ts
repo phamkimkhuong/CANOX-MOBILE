@@ -56,7 +56,7 @@ export const useCheckoutPreview = () => {
             );
 
             // Check API success flag
-            if (!response.success) {
+            if (!response.success || !response.data) {
                 throw new Error(response.message || 'Checkout preview failed');
             }
             logger.checkout.debug('Checkout preview response:', response);

@@ -9,7 +9,7 @@ import { clearPushToken } from './usePushNotifications';
  * Feature flag to enable/disable push token sync
  * Set to true when Backend has implemented /api/v1/push-tokens endpoint
  */
-const ENABLE_PUSH_TOKEN_SYNC = true;
+const ENABLE_PUSH_TOKEN_SYNC = false;
 
 /**
  * Hook to sync push token with backend

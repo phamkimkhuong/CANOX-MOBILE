@@ -20,6 +20,7 @@ export const CampaignSlotProductResponseSchema = z.object({
     stockSold: z.number().nullable().optional().default(0),
     stockRemaining: z.number().nullable().optional().default(0),
     isSoldOut: z.boolean().nullable().optional().default(false),
+    purchaseLimitPerUser: z.number().nullable().optional(),
 });
 
 export type CampaignSlotProductResponse = z.infer<typeof CampaignSlotProductResponseSchema>;

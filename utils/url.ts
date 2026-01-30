@@ -32,12 +32,14 @@ export const toPublicUrl = (
  */
 export const toSizedImageUrl = (
     basePathOrTemplate: string | null | undefined,
-    extension?: string | null | undefined,
+    extension: string | null | undefined = null,
     size: string = '' // 'thumb', 'medium', 'large', or ''
 ): string | undefined => {
-    if (!basePathOrTemplate) return undefined;
+    if (!basePathOrTemplate) {
+        return undefined;
+    }
 
-    // If it's already a full URL, return as is
+    // Handle full URLs
     if (basePathOrTemplate.startsWith('http://') || basePathOrTemplate.startsWith('https://')) {
         return basePathOrTemplate;
     }

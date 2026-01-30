@@ -29,7 +29,7 @@ export const toReviewUI = (dto: ReviewDTO): ReviewUI => {
         verifiedPurchase: dto.verifiedPurchase ?? false,
         createdDate: dto.createdDate || new Date().toISOString(),
         media: (dto.media || []).map(toReviewMediaUI),
-        sellerResponse: dto.hasResponse && dto.sellerResponse ? {
+        sellerResponse: dto.sellerResponse ? {
             comment: dto.sellerResponse,
             date: dto.sellerResponseDate || '',
         } : null,

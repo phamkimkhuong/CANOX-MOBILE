@@ -244,6 +244,7 @@ export interface MessageDateGroup {
 const MessageUserDTOSchema = z.object({
     userId: z.string(),
     username: z.string().optional().nullable(),
+    email: z.string().optional().nullable(),
     image: z.string().nullable().optional(),
     roles: z.array(z.string()).optional().nullable().default([]),
     fullNameBuyer: z.string().nullable().optional(),
@@ -302,6 +303,12 @@ const MessageDTOSchema = z.object({
     deliveredAt: z.string().nullable().optional(),
     readAt: z.string().nullable().optional(),
     editedAt: z.string().nullable().optional(),
+    createdBy: z.string().optional().default('system'),
+    createdDate: z.string().optional().default(new Date().toISOString()),
+    lastModifiedBy: z.string().optional().default('system'),
+    lastModifiedDate: z.string().optional().default(new Date().toISOString()),
+    deleted: z.boolean().optional().default(false),
+    version: z.number().optional().default(0),
 });
 
 const MessagePageDTOSchema = z.object({

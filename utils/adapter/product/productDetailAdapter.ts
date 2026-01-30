@@ -2,6 +2,7 @@ import type {
     FlashSaleInfo,
     GalleryItem,
     NormalizedOptionValue,
+    PriceBreakdown,
     PriceDisplay,
     ProductDetailResponse,
     ProductDetailUI,
@@ -225,94 +226,124 @@ export const calculatePriceDisplay = (
     data: ProductDetailResponse,
     selectedVariant?: VariantMatrixValue | null
 ): PriceDisplay => {
-    // Safe defaults for nullable fields
-    const priceMin = data.priceMin ?? 0;
-    const priceMax = data.priceMax ?? 0;
-    const priceBeforeDiscount = data.priceBeforeDiscount ?? 0;
-
-    // If specific variant selected
+    //  If specific variant is selected
     if (selectedVariant) {
         let finalPrice = selectedVariant.price;
-        let discountAmount = 0;
-        // 1. Get best available voucher (Platform or Shop)
-        const bestVoucher = data.bestPlatformVoucher || data.bestShopVoucher;
+        let totalDiscountAmount = 0;
 
-        // 2. Re-calculate discount amount for this Variant
-        if (bestVoucher) {
-            const discountValue = bestVoucher.discountValue ?? 0;
-            if (bestVoucher.discountType === 'PERCENTAGE') {
-                // Calc % discount: Variant Price * % / 100
+        const breakdown: PriceBreakdown = {
+            basePrice: selectedVariant.originalPrice ?? selectedVariant.price,
+            finalPrice: 0,
+        };
+
+        // Use stackable vouchers (Platform + Shop)
+        const vouchers = [
+            { v: data.bestPlatformVoucher, key: 'platformVoucher' },
+            { v: data.bestShopVoucher, key: 'shopVoucher' }
+        ].filter(item => !!item.v);
+
+        vouchers.forEach(item => {
+            const v = item.v!;
+            const discountValue = v.discountValue ?? 0;
+            let currentVoucherDiscount = 0;
+
+            if (v.discountType === 'PERCENTAGE') {
                 const rawDiscount = (selectedVariant.price * discountValue) / 100;
-
-                // Apply cap (Max Discount) if exists
-                // Example: 5% off 8,570,000 = 428,500, but max is 250,000 -> Take 250,000
-                discountAmount = bestVoucher.maxDiscount
-                    ? Math.min(rawDiscount, bestVoucher.maxDiscount)
+                currentVoucherDiscount = v.maxDiscount
+                    ? Math.min(rawDiscount, v.maxDiscount)
                     : rawDiscount;
             } else {
-                // Fixed cash discount (FIXED)
-                discountAmount = discountValue;
+                currentVoucherDiscount = discountValue;
             }
-        }
 
-        // 3. Final Price = Variant Price - Discount
-        finalPrice = selectedVariant.price - discountAmount;
+            totalDiscountAmount += currentVoucherDiscount;
 
-        // 4. Calculate total % discount (to show badge -XX%)
-        // Compare final price (8.32m) with variant original price (8.57m)
-        const totalDiscountPercent = Math.round(
-            ((selectedVariant.price - finalPrice) / selectedVariant.price) * 100
-        );
+            // Populate breakdown entry
+            if (item.key === 'platformVoucher') {
+                breakdown.platformVoucher = {
+                    id: v.voucherId || '',
+                    name: v.name || 'CanoX Voucher',
+                    amount: currentVoucherDiscount,
+                    discountType: v.discountType ?? undefined,
+                    discountValue: v.discountValue,
+                    maxDiscount: v.maxDiscount,
+                };
+            } else {
+                breakdown.shopVoucher = {
+                    id: v.voucherId || '',
+                    name: v.name || 'Shop Voucher',
+                    amount: currentVoucherDiscount,
+                    discountType: v.discountType ?? undefined,
+                    discountValue: v.discountValue,
+                    maxDiscount: v.maxDiscount,
+                };
+            }
+        });
+
+        finalPrice = selectedVariant.price - totalDiscountAmount;
+        breakdown.finalPrice = finalPrice;
+
+        // Base for discount calculation: prefers originalPrice from promotion/campaign
+        const basePrice = selectedVariant.originalPrice ?? selectedVariant.price;
+        const totalDiscountPercent = basePrice > finalPrice
+            ? Math.round(((basePrice - finalPrice) / basePrice) * 100)
+            : 0;
+
         return {
             currentPrice: finalPrice,
-            originalPrice: (selectedVariant.originalPrice && selectedVariant.originalPrice > finalPrice)
-                ? selectedVariant.originalPrice
-                : (selectedVariant.price > finalPrice ? selectedVariant.price : undefined),
+            originalPrice: basePrice > finalPrice ? basePrice : undefined,
             discountPercentage: totalDiscountPercent > 0 ? totalDiscountPercent : undefined,
             isRange: false,
-            voucherDiscount: discountAmount,
+            voucherDiscount: totalDiscountAmount,
             priceAfterVoucher: finalPrice,
+            breakdown,
         };
     }
 
-    // ========================================
-    // VARIANT NOT SELECTED
-    // ========================================
-    const priceAfterBestVoucher = data.priceAfterBestVoucher ?? 0;
-    const hasBestVoucher = priceAfterBestVoucher > 0 && priceAfterBestVoucher < priceMin;
-    const displayPrice: number = hasBestVoucher ? priceAfterBestVoucher : priceMin;
-    const effectiveOriginalPrice = priceBeforeDiscount > displayPrice ? priceBeforeDiscount : 0;
-    // Tính discount percentage
-    const discountPercentage = effectiveOriginalPrice > displayPrice
-        ? Math.round(((effectiveOriginalPrice - displayPrice) / effectiveOriginalPrice) * 100)
-        : undefined;
+    // 2. Default state (No variant selected)
+    // We use representative prices from the outer layer of the product response
+    const originalPrice = data.priceBeforeDiscount ?? 0;
+    const currentPrice = data.priceAfterBestVoucher ?? data.priceMin ?? 0;
 
-    const hasRange = priceMin !== priceMax;
+    const discountPercentage = (originalPrice > currentPrice && originalPrice > 0)
+        ? Math.round(((originalPrice - currentPrice) / originalPrice) * 100)
+        : 0;
 
-    if (hasRange) {
-        // Has price range (multiple variants with different prices)
-        return {
-            currentPrice: displayPrice,
-            originalPrice: effectiveOriginalPrice || (hasBestVoucher ? priceMin : undefined),
-            priceRange: {
-                min: displayPrice,
-                max: priceMax,
-            },
-            discountPercentage,
-            isRange: true,
-            voucherDiscount: (data.bestPlatformVoucher?.discountAmount ?? undefined),
-            priceAfterVoucher: priceAfterBestVoucher || undefined,
+    // Default breakdown
+    const defaultBreakdown: PriceBreakdown = {
+        basePrice: originalPrice || currentPrice,
+        finalPrice: currentPrice,
+    };
+
+    if (data.bestPlatformVoucher) {
+        defaultBreakdown.platformVoucher = {
+            id: data.bestPlatformVoucher.voucherId || '',
+            name: data.bestPlatformVoucher.name || 'CanoX Voucher',
+            amount: data.bestPlatformVoucher.discountAmount ?? 0,
+            discountType: data.bestPlatformVoucher.discountType ?? undefined,
+            discountValue: data.bestPlatformVoucher.discountValue,
+            maxDiscount: data.bestPlatformVoucher.maxDiscount,
+        };
+    }
+    if (data.bestShopVoucher) {
+        defaultBreakdown.shopVoucher = {
+            id: data.bestShopVoucher.voucherId || '',
+            name: data.bestShopVoucher.name || 'Shop Voucher',
+            amount: data.bestShopVoucher.discountAmount ?? 0,
+            discountType: data.bestShopVoucher.discountType ?? undefined,
+            discountValue: data.bestShopVoucher.discountValue,
+            maxDiscount: data.bestShopVoucher.maxDiscount,
         };
     }
 
-    // Fixed price (no variant or all variants same price)
     return {
-        currentPrice: displayPrice,
-        originalPrice: effectiveOriginalPrice || (hasBestVoucher ? priceMin : undefined),
-        discountPercentage,
+        currentPrice,
+        originalPrice: originalPrice > currentPrice ? originalPrice : undefined,
+        discountPercentage: discountPercentage > 0 ? discountPercentage : undefined,
         isRange: false,
-        voucherDiscount: (data.bestPlatformVoucher?.discountAmount ?? undefined),
-        priceAfterVoucher: priceAfterBestVoucher || undefined,
+        voucherDiscount: data.priceAfterBestVoucher ? (originalPrice - currentPrice) : undefined,
+        priceAfterVoucher: data.priceAfterBestVoucher || undefined,
+        breakdown: defaultBreakdown,
     };
 };
 

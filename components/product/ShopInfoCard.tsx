@@ -141,11 +141,6 @@ export const ShopInfoCard = memo<ShopInfoCardProps>(({
                     >
                         {({ pressed }) => (
                             <View style={[styles.viewShopInner, pressed && styles.pressedOpacity]}>
-                                <IconSymbol
-                                    name="storefront-outline"
-                                    size={18}
-                                    color={theme.colors.newPrimary}
-                                />
                                 <Text style={styles.viewShopText}>{PRODUCT_STRINGS.shop.viewShop}</Text>
                             </View>
                         )}
@@ -261,8 +256,7 @@ const styles = StyleSheet.create((theme) => ({
     viewShopInner: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
-        paddingHorizontal: 12,
+        paddingHorizontal: 16,
         paddingVertical: 8,
     },
     viewShopText: {

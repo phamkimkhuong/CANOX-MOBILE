@@ -166,6 +166,7 @@ export const SearchProductItemSchema = z.object({
     }).nullable().optional(),
     // Media
     media: z.array(z.object({
+        imagePath: z.string().nullable().optional(),
         url: z.string().nullable().optional().default(''),
         isPrimary: z.boolean().nullable().optional().default(false),
     })).nullable().optional().default([]),
