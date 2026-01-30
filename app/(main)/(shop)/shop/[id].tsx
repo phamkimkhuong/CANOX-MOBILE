@@ -24,9 +24,10 @@ import { chatRoutes, productRoutes, shopSearchRoutes } from '@/constants/routes'
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
 import { useRefreshShopProducts, useShopCategories, useShopDetail, useShopProducts, useShopVouchers } from '@/hooks/api/useShop';
 import { MINIMUM_SKELETON_DURATION_MS } from '@/hooks/usePrefetchTiming';
-import { getMockShopProfile } from '@/services/api/mocks/shopProfile';
+import { getMockShopIdentity } from '@/services/api/mocks/shopIdentity';
 import { useAuthStore } from '@/store/useAuthStore';
-import type { ShopProductFilterParams, ShopProductItemUI, ShopProfileUI, ShopTabType } from '@/types/shop';
+import type { ShopProductFilterParams, ShopProductItemUI, ShopTabType } from '@/types/shop';
+import type { ShopIdentityResponseData } from '@/types/shop/shopIdentity';
 import { Navigator } from '@/utils/navigation';
 import { FlashList, ListRenderItem } from '@shopify/flash-list';
 import { Stack, useLocalSearchParams } from 'expo-router';
@@ -87,8 +88,8 @@ export default function ShopDetailScreen() {
     const [statusBarStyle, setStatusBarStyle] = useState<'light-content' | 'dark-content'>('light-content');
     const scrollY = useSharedValue(0);
 
-    // Mock profile data - will be replaced with API call
-    const [shopProfile, setShopProfile] = useState<ShopProfileUI | null>(null);
+    // Mock identity data - will be replaced with API call
+    const [identityData, setIdentityData] = useState<ShopIdentityResponseData | null>(null);
 
     const HEADER_HEIGHT = 56 + insets.top;
     const STATUS_BAR_THRESHOLD = 100; // Switch at this scroll position
@@ -135,11 +136,11 @@ export default function ShopDetailScreen() {
     // Show skeleton if: loading OR (instant nav AND minimum duration not complete)
     const shouldShowSkeleton = isLoadingShop || (isInstantNav && !minSkeletonComplete);
 
-    // Load mock profile data when shop is loaded
+    // Load mock identity data when shop is loaded
     React.useEffect(() => {
         if (shop?.id) {
-            const profile = getMockShopProfile(shop.id);
-            setShopProfile(profile);
+            const identity = getMockShopIdentity(shop.id);
+            setIdentityData(identity);
         }
     }, [shop?.id]);
 
@@ -296,7 +297,7 @@ export default function ShopDetailScreen() {
                     <View style={styles.fullWidthItem}>
                         <ShopProfileTab
                             shop={shop}
-                            profile={shopProfile}
+                            identityData={identityData}
                             products={products}
                         />
                     </View>
@@ -334,7 +335,7 @@ export default function ShopDetailScreen() {
             }
             default: return null;
         }
-    }, [shouldShowSkeleton, shop, shopProfile, activeTab, totalProductCount, vouchers, isLoadingVouchers, hasVouchers, handleChatPress, handleFollowPress, handleTabChange, handleCollectVoucher, handlePrefetchChat, handleProductPress]);
+    }, [shouldShowSkeleton, shop, identityData, activeTab, totalProductCount, vouchers, isLoadingVouchers, hasVouchers, handleChatPress, handleFollowPress, handleTabChange, handleCollectVoucher, handlePrefetchChat, handleProductPress]);
 
     if (isShopError) {
         return (

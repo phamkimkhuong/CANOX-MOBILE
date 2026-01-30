@@ -4,12 +4,18 @@
  * ==============================================
  */
 
-export { ShopProfileHero } from './ShopProfileHero';
-export { ShopTrustBadges } from './ShopTrustBadges';
-export { ShopCommitments } from './ShopCommitments';
 export { ShopBrandStory } from './ShopBrandStory';
-export { ShopGallery } from './ShopGallery';
 export { ShopBusinessInfo } from './ShopBusinessInfo';
-export { ShopPlatformGuarantees } from './ShopPlatformGuarantees';
+export { ShopCommitments } from './ShopCommitments';
 export { ShopFeaturedProducts } from './ShopFeaturedProducts';
+export { ShopGallery } from './ShopGallery';
+export { ShopPlatformGuarantees } from './ShopPlatformGuarantees';
+export { ShopProfileHero } from './ShopProfileHero';
 export { ShopProfileTab } from './ShopProfileTab';
+export { ShopTrustBadges } from './ShopTrustBadges';
+
+// New API Spec v1.0.0 components
+export { BrandStorySections } from './BrandStorySections';
+export { ShopLegalInfo } from './ShopLegalInfo';
+export { ShopSupportInfo } from './ShopSupportInfo';
+

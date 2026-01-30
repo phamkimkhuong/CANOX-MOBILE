@@ -10,6 +10,9 @@
 import { z } from 'zod';
 import { ProductFeedItem } from './product/product';
 import { createPaginatedResponseSchema, ResponseDefaultSchema } from './responseSchema';
+
+// Re-export Shop Identity types (API Spec v1.0.0)
+export * from './shop/shopIdentity';
 /**
  * Shop Statistics Schema
  */

@@ -3,54 +3,105 @@
  * SHOP PROFILE TAB - Main Container Component
  * ==============================================
  *
- * Renders different layouts based on shop profile type:
- * - 'brand': Full profile with video, gallery, certifications
- * - 'verified': Business verification info + platform guarantees
- * - 'new': Platform guarantees only (onboarding template)
+ * Renders shop identity content based on API Spec v1.0.0:
+ * - identity: Visual branding
+ * - legal: Business verification
+ * - brandStory: Widget-based sections (VIDEO_INTRO, RICH_TEXT, etc.)
+ * - support: Customer service info
+ *
+ * @see shopHomeDesign/SHOP_IDENTITY_API_SPEC.md
  */
 
-import type { ShopHeaderUI, ShopProductItemUI, ShopProfileUI } from '@/types/shop';
-import React, { memo } from 'react';
-import { View } from 'react-native';
+import type { ShopHeaderUI, ShopProductItemUI } from '@/types/shop';
+import type { ShopIdentityResponseData } from '@/types/shop/shopIdentity';
+import React, { memo, useCallback } from 'react';
+import { Linking, View } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { StyleSheet } from 'react-native-unistyles';
 
-import { ShopBrandStory } from './ShopBrandStory';
-import { ShopBusinessInfo } from './ShopBusinessInfo';
-import { ShopCommitments } from './ShopCommitments';
+import { BrandStorySections } from './BrandStorySections';
 import { ShopFeaturedProducts } from './ShopFeaturedProducts';
-import { ShopGallery } from './ShopGallery';
+import ShopLegalInfo from './ShopLegalInfo';
 import { ShopPlatformGuarantees } from './ShopPlatformGuarantees';
 import { ShopProfileHero } from './ShopProfileHero';
-import { ShopTrustBadges } from './ShopTrustBadges';
+import ShopSupportInfo from './ShopSupportInfo';
 
 interface ShopProfileTabProps {
     shop: ShopHeaderUI;
-    profile: ShopProfileUI | null;
+    /** New API Spec identity data */
+    identityData: ShopIdentityResponseData | null;
     products?: ShopProductItemUI[];
-    onVideoPress?: () => void;
+    onVideoPress?: (url: string) => void;
 }
 
 export const ShopProfileTab = memo(({
     shop,
-    profile,
+    identityData,
     products = [],
     onVideoPress,
 }: ShopProfileTabProps) => {
     const styles = stylesheet;
+
+    // Handle opening URLs
+    const handleOpenUrl = useCallback((url: string) => {
+        Linking.openURL(url).catch(() => {
+            Toast.show({
+                type: 'error',
+                text1: 'Không thể mở liên kết',
+            });
+        });
+    }, []);
+
+    // Handle video press
+    const handleVideoPress = useCallback((url: string) => {
+        if (onVideoPress) {
+            onVideoPress(url);
+        } else {
+            // Default: open in browser
+            handleOpenUrl(url);
+        }
+    }, [onVideoPress, handleOpenUrl]);
+
+    // Handle image press (open lightbox or browser)
+    const handleImagePress = useCallback((url: string) => {
+        // TODO: Implement image lightbox
+        console.log('Open image:', url);
+    }, []);
+
+    // Handle gallery item press
+    const handleGalleryItemPress = useCallback((item: any) => {
+        if (item.clickAction) {
+            const action = item.clickAction;
+            switch (action.type) {
+                case 'EXTERNAL_WEB':
+                    handleOpenUrl(action.payload.url);
+                    break;
+                case 'VIEW_IMAGE':
+                    handleImagePress(action.payload.imageUrl);
+                    break;
+                case 'INTERNAL_ROUTE':
+                    // TODO: Implement internal navigation
+                    console.log('Navigate to:', action.payload.screen, action.payload.params);
+                    break;
+            }
+        } else if (item.originalUrl) {
+            handleImagePress(item.originalUrl);
+        }
+    }, [handleOpenUrl, handleImagePress]);
 
     // Common footer (Featured Products) for all shop types
     const renderFeaturedProducts = () => (
         products.length > 0 && <ShopFeaturedProducts products={products} />
     );
 
-    // No profile data - show new shop template
-    if (!profile || profile.type === 'new') {
+    // No identity data - show basic template with platform guarantees
+    if (!identityData) {
         return (
             <View style={styles.container}>
                 <ShopProfileHero
                     shopName={shop.name}
                     videoUrl={null}
-                    imageUrl={null}
+                    imageUrl={shop.bannerUrl}
                 />
                 <ShopPlatformGuarantees shopName={shop.name} />
                 {renderFeaturedProducts()}
@@ -58,71 +109,45 @@ export const ShopProfileTab = memo(({
         );
     }
 
-    // Verified shop - show business info + guarantees
-    if (profile.type === 'verified') {
-        return (
-            <View style={styles.container}>
-                <ShopProfileHero
-                    shopName={shop.name}
-                    videoUrl={profile.heroVideoUrl}
-                    imageUrl={profile.heroImageUrl}
-                    tagline={profile.tagline}
-                    onVideoPress={onVideoPress}
-                />
+    const { identity, legal, brandStory, support } = identityData;
 
-                {profile.businessInfo && (
-                    <ShopBusinessInfo info={profile.businessInfo} />
-                )}
+    // Check if this is an official/mall shop
+    const isOfficial = legal?.isOfficial || legal?.isMall;
 
-                {profile.trustBadges.length > 0 && (
-                    <ShopTrustBadges badges={profile.trustBadges} />
-                )}
-
-                {profile.commitments.length > 0 && (
-                    <ShopCommitments commitments={profile.commitments} />
-                )}
-
-                <ShopPlatformGuarantees shopName={shop.name} />
-                {renderFeaturedProducts()}
-            </View>
-        );
-    }
-
-    // Brand shop - full profile
     return (
         <View style={styles.container}>
-            {/* Hero Section */}
+            {/* Hero Section - Cover Image & Tagline */}
             <ShopProfileHero
-                shopName={shop.name}
-                videoUrl={profile.heroVideoUrl}
-                imageUrl={profile.heroImageUrl}
-                tagline={profile.tagline}
-                onVideoPress={onVideoPress}
+                shopName={identity.shopName}
+                videoUrl={null}
+                imageUrl={identity.coverMobileUrl || identity.coverDesktopUrl || shop.bannerUrl}
+                tagline={identity.tagline}
             />
 
-            {/* Brand Story */}
-            {profile.brandStory && (
-                <ShopBrandStory
-                    story={profile.brandStory}
-                    foundedYear={profile.foundedYear}
+            {/* Brand Story Sections (Widget-based) */}
+            {brandStory && brandStory.sections.length > 0 && (
+                <BrandStorySections
+                    brandStory={brandStory}
+                    onVideoPress={handleVideoPress}
+                    onImagePress={handleImagePress}
+                    onGalleryItemPress={handleGalleryItemPress}
                 />
             )}
 
-            {/* Trust Badges */}
-            {profile.trustBadges.length > 0 && (
-                <ShopTrustBadges badges={profile.trustBadges} />
+            {/* Legal & Company Info (for Official/Mall shops) */}
+            {isOfficial && legal && (
+                <ShopLegalInfo legal={legal} />
             )}
 
-            {/* Gallery */}
-            {profile.gallery.length > 0 && (
-                <ShopGallery items={profile.gallery} />
+            {/* Support & Contact Info */}
+            {support && (support.hotline || support.supportEmail) && (
+                <ShopSupportInfo support={support} />
             )}
 
-            {/* Commitments */}
-            {profile.commitments.length > 0 && (
-                <ShopCommitments commitments={profile.commitments} />
-            )}
+            {/* Platform Guarantees (always shown) */}
+            <ShopPlatformGuarantees shopName={shop.name} />
 
+            {/* Featured Products */}
             {renderFeaturedProducts()}
         </View>
     );

@@ -1,12 +1,17 @@
 /**
  * ==============================================
- * SHOP PROFILE MOCK DATA
+ * SHOP PROFILE MOCK DATA (DEPRECATED)
  * ==============================================
  *
- * Mock data for shop profiles with 3 scenarios:
- * 1. Big Brand (Full profile)
- * 2. Verified Distributor
- * 3. New Shop (No profile data)
+ * @deprecated This mock file uses the old flat structure.
+ * Use `shopIdentity.ts` instead which follows the new API Spec v1.0.0
+ * with proper structure: identity, legal, brandStory (widget-based), support
+ *
+ * @see shopIdentity.ts - New mock data following SHOP_IDENTITY_API_SPEC.md
+ * @see shopHomeDesign/SHOP_IDENTITY_API_SPEC.md - API specification
+ *
+ * This file is kept for backward compatibility during migration.
+ * Will be removed in future versions.
  */
 
 import type { ShopProfileUI } from '@/types/shop';
