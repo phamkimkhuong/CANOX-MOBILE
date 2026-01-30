@@ -28,15 +28,10 @@ export const WishlistDTOSchema = z.object({
     description: z.string().nullable().optional(),
     isPublic: z.coerce.boolean().nullish().transform(val => val ?? false),
     isDefault: z.coerce.boolean().nullish().transform(val => val ?? false),
-    buyerId: z.string().nullish().transform((val) => val ?? ''),
-    buyerName: z.string().nullable().optional(),
     itemCount: z.coerce.number().nullish().transform((val) => val ?? 0),
     createdDate: z.string().nullish().transform((val) => val ?? new Date().toISOString()),
-    lastModifiedDate: z.string().nullish().transform((val) => val ?? new Date().toISOString()),
     imagePath: z.string().nullable().optional(),
     imageAssetId: z.string().nullable().optional(),
-    imageBasePath: z.string().nullable().optional(),
-    imageExtension: z.string().nullable().optional(),
 });
 
 export type WishlistDTO = z.infer<typeof WishlistDTOSchema>;

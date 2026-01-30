@@ -11,10 +11,13 @@ import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { CategoryBanner } from './CategoryBanner';
 
 interface CategoryContentProps {
     data: CategoryContentData | null | undefined;
     isLoading?: boolean;
+    /** Category ID để hiển thị banner targeted */
+    categoryId?: string | null;
 }
 
 // Constants
@@ -31,6 +34,7 @@ const NUM_COLUMNS = 3;
 export const CategoryContent: React.FC<CategoryContentProps> = ({
     data,
     isLoading = false,
+    categoryId,
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
@@ -44,6 +48,15 @@ export const CategoryContent: React.FC<CategoryContentProps> = ({
         if (!data) return [];
 
         const items: FlattenedCategoryItem[] = [];
+
+        // Banner item
+        if (categoryId) {
+            items.push({
+                type: 'banner',
+                id: 'category-banner',
+                categoryId,
+            });
+        }
 
         // 2. SubCategories với items
         data.subCategories.forEach((subCategory: SubCategory) => {
@@ -76,7 +89,7 @@ export const CategoryContent: React.FC<CategoryContentProps> = ({
         }
 
         return items;
-    }, [data]);
+    }, [data, categoryId]);
 
 
 
@@ -148,9 +161,23 @@ export const CategoryContent: React.FC<CategoryContentProps> = ({
         [styles]
     );
 
+    const renderBanner = useCallback(
+        (catId: string) => (
+            <View style={styles.bannerContainer}>
+                <CategoryBanner
+                    categoryId={catId}
+                    marginHorizontal={0}
+                />
+            </View>
+        ),
+        [styles]
+    );
+
     const renderItem = useCallback(
         ({ item }: { item: FlattenedCategoryItem }) => {
             switch (item.type) {
+                case 'banner':
+                    return renderBanner(item.categoryId!);
                 case 'section-header':
                     return renderSectionHeader(item.title, item.showSeeAll);
                 case 'grid-item':
@@ -161,7 +188,7 @@ export const CategoryContent: React.FC<CategoryContentProps> = ({
                     return null;
             }
         },
-        [renderSectionHeader, renderGridItem, renderBrands]
+        [renderBanner, renderSectionHeader, renderGridItem, renderBrands]
     );
 
     const keyExtractor = useCallback((item: FlattenedCategoryItem) => item.id, []);
@@ -255,6 +282,11 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     listContent: {
         paddingBottom: 80, // Safe area cho bottom tab
+    },
+    bannerContainer: {
+        paddingHorizontal: theme.margins.smd,
+        paddingTop: theme.margins.sm,
+        paddingBottom: theme.margins.xs,
     },
     emptyContainer: {
         flex: 1,

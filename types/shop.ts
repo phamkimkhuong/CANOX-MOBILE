@@ -18,13 +18,8 @@ export * from './shop/shopIdentity';
  */
 export const ShopStatisticsSchema = z.object({
     totalProducts: z.number().catch(0),
-    activeProducts: z.number().catch(0),
     averageRating: z.number().catch(0),
     totalReviews: z.number().catch(0),
-    totalOrdersCompleted: z.number().catch(0),
-    totalRevenue: z.number().catch(0),
-    ratingDistribution: z.record(z.string(), z.number()).nullable().optional(),
-    shopAge: z.number().catch(0),
 });
 
 /**
@@ -38,7 +33,6 @@ export const ShopDetailDTOSchema = z.object({
     description: z.string().nullable().optional(),
     logoUrl: z.string().nullable().optional(),
     bannerUrl: z.string().nullable().optional(),
-    status: z.string().nullable().optional().default('ACTIVE'),
     onVacation: z.boolean().nullable().optional().default(false),
     createdAt: z.string().nullable().optional().default(''),
     statistics: ShopStatisticsSchema.nullable().optional(),
@@ -64,50 +58,12 @@ export type ShopDetailResponse = z.infer<typeof ShopDetailResponseSchema>;
  */
 export const ShopProductMediaSchema = z.object({
     id: z.string(),
-    imagePath: z.string().nullable().optional(),
-    mediaAssetId: z.string().nullable().optional(),
     imageAssetId: z.string().nullable().optional(),
-    basePath: z.string().nullable().optional(),
-    extension: z.string().nullable().optional(),
     url: z.string().nullable().optional().default(''),
-    type: z.string().nullable().optional().default('IMAGE'),
     isPrimary: z.boolean().nullable().optional().default(false),
-    sortOrder: z.number().nullable().optional().default(0),
 });
 
 export type ShopProductMedia = z.infer<typeof ShopProductMediaSchema>;
-
-/**
- * Product Variant Schema (for price calculation)
- */
-export const ShopProductVariantSchema = z.object({
-    id: z.string(),
-    sku: z.string().nullable().optional(),
-    imagePath: z.string().nullable().optional(),
-    imageAssetId: z.string().nullable().optional(),
-    price: z.number().nullable().optional().default(0),
-    corePrice: z.number().nullable().optional().default(0),
-    imageUrl: z.string().nullable().optional(),
-    inventory: z.object({
-        id: z.string().nullable().optional(),
-        stock: z.number().nullable().optional().default(0),
-    }).nullable().optional(),
-    optionValues: z.array(z.object({
-        id: z.string().nullable().optional(),
-        name: z.string().nullable().optional(),
-    })).nullable().optional(),
-});
-
-export type ShopProductVariant = z.infer<typeof ShopProductVariantSchema>;
-
-/**
- * Product Category Schema (minimal)
- */
-export const ShopProductCategorySchema = z.object({
-    id: z.string(),
-    name: z.string(),
-    slug: z.string(),
-});
 
 /**
  * Product Review Statistics Schema
@@ -126,24 +82,14 @@ export const ShopProductReviewStatisticsSchema = z.object({
 export const ShopProductDTOSchema = z.object({
     id: z.string(),
     name: z.string().nullable().optional().default(''),
-    slug: z.string().nullable().optional().default(''),
-    description: z.string().nullable().optional(),
-    basePrice: z.number().nullable().optional().default(0),
-    priceMin: z.number().nullable().optional(),
-    priceMax: z.number().nullable().optional(),
-    priceAfterBestVoucher: z.number().nullable().optional(),
-    active: z.boolean().nullable().optional().default(true),
-    approvalStatus: z.string().nullable().optional().default('APPROVED'),
-    category: ShopProductCategorySchema.nullable().optional(),
+    priceMin: z.number().nullable().optional().default(0),
+    priceBeforeDiscount: z.number().nullable().optional().default(0),
+    priceAfterBestVoucher: z.number().nullable().optional().default(0),
     shop: z.object({
-        shopId: z.string().nullable().optional(),
-        shopName: z.string().nullable().optional().default(''),
-        logoUrl: z.string().nullable().optional(),
+        shop_location: z.string().nullable().optional().default(''),
     }).nullable().optional(),
-    variants: z.array(ShopProductVariantSchema).nullable().optional().default([]),
     media: z.array(ShopProductMediaSchema).nullable().optional().default([]),
     reviewStatistics: ShopProductReviewStatisticsSchema,
-    createdDate: z.string().nullable().optional(),
 });
 
 export type ShopProductDTO = z.infer<typeof ShopProductDTOSchema>;
@@ -263,11 +209,7 @@ export const ShopVoucherDTOSchema = z.object({
     maxUsage: z.number().nullable().optional().default(0),
     sponsorType: z.string().nullable().optional().default('SHOP'),
     applyToAllProducts: z.boolean().nullable().optional().default(true),
-    active: z.boolean().nullable().optional().default(true),
-    imagePath: z.string().nullable().optional(),
     imageAssetId: z.string().nullable().optional(),
-    imageBasePath: z.string().nullable().optional(),
-    imageExtension: z.string().nullable().optional(),
 });
 
 export type ShopVoucherDTO = z.infer<typeof ShopVoucherDTOSchema>;

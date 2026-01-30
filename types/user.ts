@@ -48,19 +48,11 @@ export const UserMeDataSchema = z.object({
     username: z.string(),
     email: z.string().email(),
     image: z.string().nullable().optional(),
-    reason: z.string().nullable().optional(),
     status: z.enum(['ACTIVE', 'INACTIVE', 'SUSPENDED']),
-    isDeleted: z.boolean().nullable().optional(),
     roleName: z.string(),
-    roles: z.array(z.string()),
-    lockedAt: z.string().nullable().optional(),
     buyerId: z.string().nullable().optional(),
     shopId: z.string().nullable().optional(),
-    employeeId: z.string().nullable().optional(),
     buyer: BuyerInfoSchema.nullable().optional(),
-    shop: ShopInfoSchema.nullable().optional(),
-    employee: z.any().nullable().optional(),
-    emailVerified: z.boolean().nullable().optional(),
 });
 
 export type UserMeData = z.infer<typeof UserMeDataSchema>;

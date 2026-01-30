@@ -155,11 +155,8 @@ export interface ConversationListResponse {
 const UserDTOSchema = z.object({
     userId: z.string(),
     username: z.string(),
-    email: z.string(),
     image: z.string().nullable().optional(),
-    roles: z.array(z.string()),
     fullNameBuyer: z.string().nullable().optional(),
-    fullNameEmployee: z.string().nullable().optional(),
     shopId: z.string().nullable().optional(),
     shopName: z.string().nullable().optional(),
     logoUrl: z.string().nullable().optional(),
@@ -168,26 +165,13 @@ const UserDTOSchema = z.object({
 const ParticipantDTOSchema = z.object({
     id: z.string(),
     user: UserDTOSchema,
-    role: z.enum(['ADMIN', 'MEMBER']),
-    nickname: z.string().nullable().optional(),
     unreadCount: z.number(),
     isMuted: z.boolean(),
     isPinned: z.boolean(),
     isArchived: z.boolean(),
     isActive: z.boolean(),
-    lastReadAt: z.string().nullable().optional(),
     joinedAt: z.string(),
-    leftAt: z.string().nullable().optional(),
-    addedByUserId: z.string().nullable().optional(),
     isOnline: z.boolean().nullable().optional(),
-    presenceStatus: z.string().nullable().optional(),
-    lastSeen: z.string().nullable().optional(),
-    createdBy: z.string(),
-    createdDate: z.string(),
-    lastModifiedBy: z.string(),
-    lastModifiedDate: z.string(),
-    deleted: z.boolean(),
-    version: z.number(),
 });
 
 const ConversationDTOSchema = z.object({
@@ -213,13 +197,10 @@ const ConversationDTOSchema = z.object({
     isPinned: z.boolean().nullable().optional(),
     isArchived: z.boolean().nullable().optional(),
     participants: z.array(ParticipantDTOSchema),
-    metadata: z.string().nullable().optional(),
-    createdBy: z.string(),
-    createdDate: z.string(),
-    lastModifiedBy: z.string(),
-    lastModifiedDate: z.string(),
-    deleted: z.boolean(),
-    version: z.number(),
+    createdBy: z.string().optional(),
+    createdDate: z.string().optional(),
+    lastModifiedBy: z.string().optional(),
+    lastModifiedDate: z.string().optional(),
 });
 
 const ConversationPageDTOSchema = z.object({

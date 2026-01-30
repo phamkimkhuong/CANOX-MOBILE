@@ -273,6 +273,9 @@ export interface CommonTranslation {
         notify: string;
         me: string;
     };
+    popup: {
+        skipToday: string;
+    };
 }
 
 /**

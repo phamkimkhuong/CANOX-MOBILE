@@ -82,6 +82,7 @@ export default function CategoryScreen() {
                     <CategoryContent
                         data={categoryContent}
                         isLoading={isContentLoading}
+                        categoryId={selectedCategoryId}
                     />
                 </View>
             </View>

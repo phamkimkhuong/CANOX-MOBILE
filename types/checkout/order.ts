@@ -179,27 +179,18 @@ const OrderPricingSchema = z.object({
     shopDiscount: z.number().optional().nullable().default(0),
     platformDiscount: z.number().optional().nullable().default(0),
     shippingDiscount: z.number().optional().nullable().default(0),
-    originalShippingFee: z.number().optional().nullable().default(0),
-    appliedVoucherCodes: z.string().optional().nullable(),
     totalDiscount: z.number().optional().nullable().default(0),
-    taxAmount: z.number().optional().nullable().default(0),
     shippingFee: z.number().optional().nullable().default(0),
     grandTotal: z.number().optional().nullable().default(0),
 });
 
 const OrderPaymentSchema = z.object({
     paymentMethod: z.string().optional().nullable(),
-    amount: z.number().optional().nullable(),
-    currency: z.string().optional().nullable(),
     success: z.boolean().optional().nullable(),
     paymentLink: z.string().optional().nullable(),
-    qrCode: z.string().optional().nullable(),
     orderCode: z.string().optional().nullable(),
     expiredAt: z.number().optional().nullable(),
-    accountName: z.string().optional().nullable(),
-    accountNumber: z.string().optional().nullable(),
     description: z.string().optional().nullable(),
-    errorMessage: z.string().optional().nullable(),
     depositId: z.string().optional().nullable(),
 });
 
@@ -211,13 +202,9 @@ const OrderShipmentSchema = z.object({
 const OrderShippingAddressSchema = z.object({
     recipientName: z.string().optional().nullable(),
     phoneNumber: z.string().optional().nullable(),
-    email: z.string().optional().nullable(),
     addressLine1: z.string().optional().nullable(),
-    addressLine2: z.string().optional().nullable(),
     city: z.string().optional().nullable(),
     province: z.string().optional().nullable(),
-    country: z.string().optional().nullable(),
-    postalCode: z.string().optional().nullable(),
 });
 
 const OrderLoyaltySchema = z.object({
@@ -227,19 +214,16 @@ const OrderLoyaltySchema = z.object({
 });
 
 const OrderItemSchema = z.object({
-    itemId: z.string().optional().nullable(), // Nullable to bypass error if missing
+    itemId: z.string().optional().nullable(),
     productId: z.string(),
     variantId: z.string().optional().nullable(),
     sku: z.string().optional().nullable(),
     productName: z.string().optional().nullable(),
     imagePath: z.string().optional().nullable(),
     imageAssetId: z.string().optional().nullable(),
-    imageBasePath: z.string().optional().nullable(),
-    imageExtension: z.string().optional().nullable(),
     variantAttributes: z.string().optional().nullable(),
     unitPrice: z.number().optional().nullable().default(0),
     quantity: z.number().optional().nullable().default(1),
-    discountAmount: z.number().optional().nullable().default(0),
     lineTotal: z.number().optional().nullable().default(0),
     reviewed: z.boolean().optional().nullable().default(false),
 });
@@ -247,13 +231,7 @@ const OrderItemSchema = z.object({
 const OrderShopInfoSchema = z.object({
     shopId: z.string(),
     shopName: z.string().optional().nullable(),
-    description: z.string().optional().nullable(),
     logoUrl: z.string().optional().nullable(),
-    bannerUrl: z.string().optional().nullable(),
-    status: z.string().optional().nullable(),
-    rejectedReason: z.string().optional().nullable(),
-    verifyBy: z.string().optional().nullable(),
-    verifyDate: z.string().optional().nullable(),
     userId: z.string().optional().nullable(),
     username: z.string().optional().nullable(),
 });

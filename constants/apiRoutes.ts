@@ -157,4 +157,12 @@ export const API_ROUTES = {
         UPCOMING: `${API_PREFIX}/campaigns/upcoming`,
         FEATURED: `${API_PREFIX}/campaigns/featured`,
     },
+    BANNERS: {
+        /** GET - Get banner active with filters (categoryId, displayLocation, device) */
+        ACTIVE: `${API_PREFIX}/homepage/banners/active`,
+        /** GET - Get banner by page prefix (HOMEPAGE, CATEGORY_PAGE, etc.) */
+        BY_PAGE: `${API_PREFIX}/homepage/banners/page`,
+        /** GET - Get banner detail by ID */
+        DETAIL: (bannerId: string) => `${API_PREFIX}/homepage/banners/${bannerId}`,
+    },
 } as const;  // <--- as const for TS to understand these are readonly values

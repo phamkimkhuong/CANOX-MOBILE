@@ -5,7 +5,6 @@ import { createPaginatedResponseSchema } from '../responseSchema';
 export const ProductMediaRawSchema = z.object({
     id: z.string(),
     url: z.string().nullable().optional().default(''),
-    type: z.string().nullable().optional().default('IMAGE'),
     isPrimary: z.boolean().nullable().optional().default(false),
 });
 export type ProductMediaRaw = z.infer<typeof ProductMediaRawSchema>;
@@ -52,14 +51,11 @@ export interface ProductFeedItem {
 
 /**
  * BASE DTO interface for transformation logic
- * Both ProductResponseItem (Home) and ShopProductDTO (Shop) satisfy this
  */
 export interface BaseProductDTO {
     id: string;
     name?: string | null;
-    basePrice?: number | null;
     priceMin?: number | null;
-    priceMax?: number | null;
     priceBeforeDiscount?: number | null;
     priceAfterBestVoucher?: number | null;
     media?: {
@@ -72,7 +68,6 @@ export interface BaseProductDTO {
         verifiedPurchaseCount?: number | null;
     } | null;
     shop?: {
-        shopName?: string | null;
         shop_location?: string | null;
     } | null;
 }

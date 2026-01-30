@@ -9,7 +9,6 @@ export const CampaignSlotProductResponseSchema = z.object({
     id: z.string(),
     productId: z.string(),
     productName: z.string().nullable().optional().default(''),
-    productSlug: z.string().nullable().optional(),
     productThumbnail: z.string().nullable().optional().default(''),
     variantId: z.string().nullable().optional(),
     shopId: z.string().nullable().optional(),
@@ -21,7 +20,6 @@ export const CampaignSlotProductResponseSchema = z.object({
     stockSold: z.number().nullable().optional().default(0),
     stockRemaining: z.number().nullable().optional().default(0),
     isSoldOut: z.boolean().nullable().optional().default(false),
-    purchaseLimitPerUser: z.number().nullable().optional(),
 });
 
 export type CampaignSlotProductResponse = z.infer<typeof CampaignSlotProductResponseSchema>;

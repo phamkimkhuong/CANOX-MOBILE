@@ -20,16 +20,12 @@ export type ReviewMediaDTO = z.infer<typeof ReviewMediaSchema>;
 
 export const ReviewDTOSchema = z.object({
     id: z.string(),
-    reviewType: z.enum(['PRODUCT', 'SHOP', 'ORDER']),
-    reviewableId: z.string(),
     rating: z.number(),
     comment: z.string(),
     username: z.string().optional(),
     userAvatar: z.string().nullable().optional(),
     buyerName: z.string().optional(),
     verifiedPurchase: z.boolean().optional(),
-    orderId: z.string().optional(),
-    hasResponse: z.boolean().optional(),
     sellerResponse: z.string().nullable().optional(),
     sellerResponseDate: z.string().nullable().optional(),
     media: z.array(ReviewMediaSchema).optional().default([]),

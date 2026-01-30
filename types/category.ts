@@ -85,10 +85,20 @@ export interface CategoryBrandSection {
     brands: FeaturedBrand[];
 }
 
+/**
+ * Banner item for displaying targeted category banner
+ */
+export interface CategoryBannerItem {
+    type: 'banner';
+    id: string;
+    categoryId: string;
+}
+
 export type FlattenedCategoryItem =
     | CategorySectionHeader
     | CategoryGridItem
-    | CategoryBrandSection;
+    | CategoryBrandSection
+    | CategoryBannerItem;
 
 
 export const CategoryNodeSchema: z.ZodType<CategoryNode> = z.lazy(() =>
@@ -96,15 +106,10 @@ export const CategoryNodeSchema: z.ZodType<CategoryNode> = z.lazy(() =>
         id: z.string(),
         name: z.string(),
         slug: z.string(),
-        active: z.boolean(),
-        description: z.string().nullable().optional(),
-        parentId: z.string().nullable().optional(),
-        parent: z.lazy(() => CategoryNodeSchema.nullable().optional()),
         imagePath: z.string().nullable().optional(),
         imageAssetId: z.string().nullable().optional(),
-        imageBasePath: z.string().nullable().optional(),
         imageExtension: z.string().nullable().optional(),
-        children: z.array(z.lazy(() => CategoryNodeSchema)).nullable().optional(), // Đệ quy
+        children: z.array(z.lazy(() => CategoryNodeSchema)).nullable().optional(),
     })
 );
 
@@ -112,13 +117,8 @@ export type CategoryNode = {
     id: string;
     name: string;
     slug: string;
-    active: boolean;
-    description?: string | null;
-    parentId?: string | null;
-    parent?: CategoryNode | null;
     imagePath?: string | null;
     imageAssetId?: string | null;
-    imageBasePath?: string | null;
     imageExtension?: string | null;
     children?: CategoryNode[] | null;
 };

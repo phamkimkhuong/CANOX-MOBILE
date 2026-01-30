@@ -13,8 +13,6 @@ const IMAGE_PLACEHOLDER = 'L6PZfSi_.AyE_3t7t7R**0o#DgR4';
 
 interface ShopInfoCardProps {
     shop: ShopUI;
-    onChatPress?: () => void;
-    onPrefetchChat?: () => void;
     onViewShopPress?: () => void;
 }
 
@@ -43,8 +41,6 @@ const formatCount = (count?: number): string => {
  */
 export const ShopInfoCard = memo<ShopInfoCardProps>(({
     shop,
-    onChatPress,
-    onPrefetchChat,
     onViewShopPress,
 }) => {
     const { theme } = useUnistyles();
@@ -139,30 +135,12 @@ export const ShopInfoCard = memo<ShopInfoCardProps>(({
                 {/* Action Buttons */}
                 <View style={styles.actions}>
                     <SmartNavButton
-                        route={onChatPress ? undefined : '/(tabs)/chat'}
-                        onPress={onChatPress}
-                        prefetchAction={onPrefetchChat}
-                        style={styles.chatButton}
-                    >
-                        {({ pressed }) => (
-                            <View style={[styles.chatButtonInner, pressed && styles.pressedOpacity]}>
-                                <IconSymbol
-                                    name="chat"
-                                    size={18}
-                                    color={theme.colors.newPrimary}
-                                />
-                                <Text style={styles.chatButtonText}>{PRODUCT_STRINGS.bottomBar.chat}</Text>
-                            </View>
-                        )}
-                    </SmartNavButton>
-
-                    <SmartNavButton
                         route={onViewShopPress ? undefined : shopRoutes.detail(shop.id)}
                         onPress={handleViewShop}
                         style={styles.viewShopButton}
                     >
                         {({ pressed }) => (
-                            <View style={[styles.chatButtonInner, pressed && styles.pressedOpacity]}>
+                            <View style={[styles.viewShopInner, pressed && styles.pressedOpacity]}>
                                 <IconSymbol
                                     name="storefront-outline"
                                     size={18}
@@ -274,26 +252,26 @@ const styles = StyleSheet.create((theme) => ({
         gap: 8,
         marginLeft: theme.margins.sm,
     },
-    chatButton: {
+    viewShopButton: {
         borderRadius: theme.radius.m,
         borderWidth: 1,
         borderColor: theme.colors.newPrimary,
         overflow: 'hidden',
     },
-    chatButtonInner: {
+    viewShopInner: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 4,
         paddingHorizontal: 12,
         paddingVertical: 8,
     },
-    pressedOpacity: {
-        opacity: 0.7,
-    },
-    chatButtonText: {
+    viewShopText: {
         fontSize: 13,
         fontWeight: '600',
         color: theme.colors.newPrimary,
+    },
+    pressedOpacity: {
+        opacity: 0.7,
     },
     statsRow: {
         flexDirection: 'row',
@@ -324,17 +302,6 @@ const styles = StyleSheet.create((theme) => ({
         width: 1,
         height: 24,
         backgroundColor: theme.colors.border,
-    },
-    viewShopButton: {
-        borderRadius: theme.radius.m,
-        borderWidth: 1,
-        borderColor: theme.colors.newPrimary,
-        overflow: 'hidden',
-    },
-    viewShopText: {
-        fontSize: 13,
-        fontWeight: '600',
-        color: theme.colors.newPrimary,
     },
 }));
 

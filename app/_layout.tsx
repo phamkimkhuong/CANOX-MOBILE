@@ -21,6 +21,7 @@ import { enableFreeze } from 'react-native-screens';
 // This prevents background screens from re-rendering, saving CPU for the active screen.
 enableFreeze(true);
 
+import { IntroPopupProvider } from '@/components/IntroPopupProvider';
 import CustomAlert from '@/components/ui/feedback/CustomAlert';
 import { toastConfig } from '@/components/ui/feedback/CustomToast';
 import GlobalLoadingOverlay from '@/components/ui/feedback/GlobalLoadingOverlay';
@@ -121,25 +122,27 @@ export default function RootLayout() {
               <BottomSheetModalProvider>
                 <ThemeProvider value={NavigationTheme}>
                   <UserSyncProvider>
-                    <Stack screenOptions={{ headerShown: false }}>
-                      {/* Tab Navigator - Has Tab Bar */}
-                      <Stack.Screen name="(tabs)" />
+                    <IntroPopupProvider>
+                      <Stack screenOptions={{ headerShown: false }}>
+                        {/* Tab Navigator - Has Tab Bar */}
+                        <Stack.Screen name="(tabs)" />
 
-                      {/* Auth Flow - No Tab Bar */}
-                      <Stack.Screen name="(auth)" />
+                        {/* Auth Flow - No Tab Bar */}
+                        <Stack.Screen name="(auth)" />
 
-                      {/* Main Stack - All pushed screens (No Tab Bar) */}
-                      <Stack.Screen name="(main)" />
+                        {/* Main Stack - All pushed screens (No Tab Bar) */}
+                        <Stack.Screen name="(main)" />
 
-                      {/* Global Modal */}
-                      <Stack.Screen
-                        name="modal"
-                        options={{
-                          presentation: 'modal',
-                          headerShown: true,
-                        }}
-                      />
-                    </Stack>
+                        {/* Global Modal */}
+                        <Stack.Screen
+                          name="modal"
+                          options={{
+                            presentation: 'modal',
+                            headerShown: true,
+                          }}
+                        />
+                      </Stack>
+                    </IntroPopupProvider>
                   </UserSyncProvider>
                   <CustomAlert ref={alertRef} />
                   <Toast

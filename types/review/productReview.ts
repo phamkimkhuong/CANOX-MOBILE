@@ -47,14 +47,10 @@ export const SellerResponseSchema = z.object({
  */
 export const ProductReviewDTOSchema = z.object({
     id: z.string(),
-    reviewType: z.enum(['PRODUCT', 'SHOP', 'ORDER']).default('PRODUCT'),
     reviewableId: z.string(),
 
-    // Audit fields (Matches JSON)
-    createdBy: z.string().optional().nullable(),
+    // Audit fields
     createdDate: z.string().optional().nullable(),
-    lastModifiedBy: z.string().optional().nullable(),
-    lastModifiedDate: z.string().optional().nullable(),
 
     // User info
     userId: z.string().optional().nullable(),
@@ -73,13 +69,8 @@ export const ProductReviewDTOSchema = z.object({
     variantId: z.string().optional().nullable(),
     variantAttributes: z.string().optional().nullable(),
 
-    // Status
-    status: z.string().optional().nullable(),
-    rejectionReason: z.string().optional().nullable(),
-
     // Purchase verification
     verifiedPurchase: z.boolean().optional().default(false),
-    orderId: z.string().optional().nullable(),
 
     // Media
     media: z.array(ProductReviewMediaSchema).optional().default([]),
@@ -88,7 +79,6 @@ export const ProductReviewDTOSchema = z.object({
     hasResponse: z.boolean().optional().default(false),
     sellerResponse: z.string().optional().nullable(),
     sellerResponseDate: z.string().optional().nullable(),
-    sellerResponseBy: z.string().optional().nullable(),
 
     // Engagement
     helpfulCount: z.number().optional().default(0),

@@ -49,10 +49,10 @@ export const toSizedImageUrl = (
 
     // Template with '*'
     if (finalPath.includes('*')) {
-        // If size is empty (original), we might need to remove the separator before '*'
-        // Example: "image_*.jpg" -> original should be "image.jpg"
-        if (!size) {
-            finalPath = finalPath.replace(/_?\*/, '');
+        // If size is empty (original), use 'orig' suffix
+        // Example: "image_*.jpg" -> original should be "image_orig.jpg"
+        if (!size || size === 'orig') {
+            finalPath = finalPath.replace('*', 'orig');
         } else {
             // Remove leading underscore from size if the template already has one before '*'
             // New logic: just replace '*' with the size string

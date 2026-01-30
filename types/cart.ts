@@ -14,10 +14,10 @@ export const CartItemSchema = z.object({
     productName: z.string().nullable().optional().default(''),
     variantAttributes: z.string().nullable().optional().default(''),
     shopId: z.string().nullable().optional(),
-    imagePath: z.string().nullable().optional(),      // New
-    imageAssetId: z.string().nullable().optional(),   // New
-    imageBasePath: z.string().nullable().optional(),  // Legacy
-    imageExtension: z.string().nullable().optional(), // Legacy
+    imagePath: z.string().nullable().optional(),
+    imageBasePath: z.string().nullable().optional(),
+    imageExtension: z.string().nullable().optional(),
+    imageAssetId: z.string().nullable().optional(),
 
     // Pricing
     priceBeforeDiscount: z.number().nullable().optional().default(0),
@@ -25,6 +25,7 @@ export const CartItemSchema = z.object({
     quantity: z.number().nullable().optional().default(1),
     totalPrice: z.number().nullable().optional().default(0),
     discountAmount: z.number().nullable().optional().default(0),
+    promotionPercent: z.number().nullable().optional(),
     promotion: z.object({
         discountPercent: z.number().nullable().optional(),
     }).nullable().optional(),
@@ -35,7 +36,6 @@ export const CartItemSchema = z.object({
     // Stock Management
     availableStock: z.number().nullable().optional().default(0),
     stockStatus: z.string().nullable().optional().default('IN_STOCK'),
-    stockMessage: z.string().nullable().optional().default(''),
 });
 
 // Schema cho Shop trong giỏ
@@ -45,7 +45,7 @@ export const CartShopSchema = z.object({
     shopLogo: z.string().nullable().optional(),
     items: z.array(CartItemSchema).default([]),
 
-    // Shop-level aggregates (from API)
+    // Shop totals (from API)
     itemCount: z.number().nullable().optional().default(0),
     totalQuantity: z.number().nullable().optional().default(0),
     subtotal: z.number().nullable().optional().default(0),
@@ -63,10 +63,8 @@ export const VoucherSchema = z.object({
     code: z.string().nullable().optional().default(''),
     title: z.string().nullable().optional().default(''),
     description: z.string().nullable().optional().default(''),
-    discountType: z.string().nullable().optional().default('fixed'),
     discountValue: z.number().nullable().optional().default(0),
     minOrderAmount: z.number().nullable().optional().default(0),
-    expiresAt: z.string().nullable().optional(),
     isApplicable: z.boolean().nullable().optional().default(true),
 });
 
@@ -227,7 +225,6 @@ export interface CartCalculationResult {
     shopVoucherDiscount: number;
     /** Giảm giá từ Platform Voucher */
     platformVoucherDiscount: number;
-    /** Tổng tiền phải trả */
     totalAmount: number;
     /** Số tiền tiết kiệm được */
     totalSavings: number;

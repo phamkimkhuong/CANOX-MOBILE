@@ -94,16 +94,10 @@ export interface BuyerAddressDTO {
     phone: string;
     detailAddress: string;
     ward: string;
-    district: string;
     province: string;
-    country: string;
     type: AddressTypeAPI;
-    createdBy: string;
     createdDate: string;
-    lastModifiedBy: string;
     lastModifiedDate: string;
-    deleted: boolean;
-    version: number;
     isDefault: boolean;
 }
 

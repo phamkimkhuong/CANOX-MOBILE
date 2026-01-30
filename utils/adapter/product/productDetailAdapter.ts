@@ -16,7 +16,7 @@ import type {
     Voucher,
     VoucherUI,
 } from '@/types/product/productDetail';
-import { toSizedImageUrl } from '@/utils/url';
+import { toPublicUrl, toSizedImageUrl } from '@/utils/url';
 
 const DEFAULT_IMAGE = 'https://via.placeholder.com/300';
 
@@ -185,7 +185,7 @@ export const buildGallery = (
     for (const media of sortedProductMedia) {
         if (!seenIds.has(media.id)) {
             // Priority: imagePath (new template) > basePath + extension (legacy) > url (legacy full URL)
-            const imageUrl = toSizedImageUrl(media.imagePath || media.basePath || media.url, media.extension, 'large')
+            const imageUrl = toSizedImageUrl(media.imagePath || media.basePath || media.url, media.extension, 'orig')
                 || DEFAULT_IMAGE;
 
             gallery.push({
@@ -205,7 +205,7 @@ export const buildGallery = (
             if (!seenIds.has(variantMediaId)) {
                 gallery.push({
                     id: variantMediaId,
-                    url: toSizedImageUrl(variant.imagePath || variant.imageUrl, '', 'large') ?? DEFAULT_IMAGE,
+                    url: toSizedImageUrl(variant.imagePath || variant.imageUrl, '', 'orig') ?? DEFAULT_IMAGE,
                     type: 'IMAGE',
                     isPrimary: false,
                     variantId: variant.id,
@@ -353,13 +353,15 @@ export const transformShop = (shop: ProductDetailResponse['shop']): ShopUI => {
             isVerified: false,
         };
     }
+    const shopLogo = shop.logoPath ? toPublicUrl(shop.logoPath) : (shop.logoUrl || null);
+
     return {
         id: shop.shopId ?? '',
         userId: shop.userId ?? '',
         shopName: shop.shopName ?? '',
         username: shop.username ?? '',
-        avatar: shop.logoUrl ?? undefined,
-        logoUrl: shop.logoUrl ?? undefined,
+        avatar: shopLogo ?? undefined,
+        logoUrl: shopLogo ?? undefined,
         description: shop.description ?? undefined,
         isVerified: shop.verifyBy !== null && shop.verifyBy !== undefined,
         rating: shop.rating ?? undefined,
@@ -367,7 +369,7 @@ export const transformShop = (shop: ProductDetailResponse['shop']): ShopUI => {
         responseTime: shop.responseTime ?? undefined,
         followerCount: shop.followerCount ?? undefined,
         productCount: shop.productCount ?? undefined,
-        location: shop.location ?? undefined,
+        location: shop.shop_location || shop.location || undefined,
         lastOnline: shop.lastOnline ?? undefined,
     };
 };

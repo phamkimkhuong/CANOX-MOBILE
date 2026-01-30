@@ -112,7 +112,6 @@ export const VoucherResponseSchema = z.object({
     discountValue: z.number(),
     maxDiscount: z.number().nullable().optional(),
     minOrderValue: z.number().nullable().optional(),
-    sponsorType: z.enum(['PLATFORM', 'SHOP']).nullable().optional(),
     startDate: z.string().nullable().optional(),
     endDate: z.string().nullable().optional(),
     // Usage tracking

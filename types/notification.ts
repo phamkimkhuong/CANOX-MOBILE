@@ -136,29 +136,16 @@ export const NOTIFICATION_TYPE_CONFIG: Record<NotificationType, NotificationType
  */
 export const NotificationResponseItemSchema = z.object({
     id: z.string(),
-    userId: z.string(),
-    recipientRole: z.string(), // BUYER, SHOP, ADMIN, SYSTEM, EMPLOYEE
     type: z.string(), // SYSTEM, ORDER, etc.
-    priority: z.string(), // HIGH, NORMAL, LOW
     title: z.string(),
     content: z.string(),
     readStatus: z.string(), // READ, UNREAD
     redirectUrl: z.string().nullable(),
-    redirectType: z.string().nullable(), // INTERNAL_PAGE, EXTERNAL_URL, DEEP_LINK
     relatedEntityType: z.string().nullable(),
     relatedEntityId: z.string().nullable(),
     category: z.string().nullable(), // ORDER, PROMO...
     imageUrl: z.string().nullable(),
-    groupId: z.string().nullable(),
-    campaignId: z.string().nullable(),
-    traceId: z.string().nullable(),
-    expiresAt: z.string().nullable(),
-    scheduledAt: z.string().nullable(),
-    metadata: z.record(z.string(), z.unknown()).nullable(),
     createdDate: z.string(),
-    updatedDate: z.string().nullable(),
-    isExpired: z.boolean(),
-    isVisible: z.boolean(),
 }).passthrough(); // Allow extra fields
 
 export type NotificationResponseItem = z.infer<typeof NotificationResponseItemSchema>;

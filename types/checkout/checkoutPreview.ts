@@ -204,20 +204,12 @@ const CheckoutPreviewItemSchema = z.object({
     productName: z.string(),
     imagePath: z.string().nullable().optional(),
     imageAssetId: z.string().nullable().optional(),
-    basePath: z.string().nullable().optional(),
-    extension: z.string().nullable().optional(),
     variantAttributes: z.string().nullable().optional(),
     unitPrice: z.number().nullable().optional().default(0),
     quantity: z.number().int().positive().nullable().optional().default(1),
     lineTotal: z.number().nullable().optional().default(0),
     promotion: z.object({
         promotionId: z.string(),
-        campaignId: z.string().optional().default(''),
-        campaignName: z.string().optional().default(''),
-        campaignType: z.string().optional().default(''),
-        originalPrice: z.number().optional().default(0),
-        salePrice: z.number().optional().default(0),
-        discountPercent: z.number().optional().default(0),
     }).nullable().optional(),
 });
 
@@ -241,33 +233,17 @@ const CheckoutVoucherDetailSchema = z.object({
 
 const CheckoutVoucherResultSchema = z.object({
     shopId: z.string().nullable().optional(),
-    validVouchers: z.array(z.string()).nullable().optional().default([]),
-    invalidVouchers: z.array(z.string()).nullable().optional().default([]),
-    totalDiscount: z.number().nullable().optional(),
     discountDetails: z.array(CheckoutVoucherDetailSchema).nullable().optional().default([]),
-    hasValidVouchers: z.boolean().nullable().optional(),
 });
 
 const CheckoutLoyaltyInfoSchema = z.object({
-    availablePoints: z.number().nullable().optional(),
     pointsToRedeem: z.number().nullable().optional(),
-    discountAmount: z.number().nullable().optional(),
-    maxPointsAllowed: z.number().nullable().optional(),
-    maxDiscountPercent: z.number().nullable().optional(),
-    expectedPointsEarned: z.number().nullable().optional(),
-    canRedeem: z.boolean().nullable().optional(),
-    message: z.string().nullable().optional(),
 });
 
 const CheckoutShopSummarySchema = z.object({
     itemCount: z.number().int().nullable().optional().default(0),
-    totalQuantity: z.number().int().nullable().optional().default(0),
     subtotal: z.number().nullable().optional().default(0),
-    productDiscount: z.number().nullable().optional().default(0),
-    shippingDiscount: z.number().nullable().optional().default(0),
-    totalDiscount: z.number().nullable().optional().default(0),
     shippingFee: z.number().nullable().optional().default(0),
-    taxAmount: z.number().nullable().optional().default(0),
     shopTotal: z.number().nullable().optional().default(0),
 });
 
@@ -279,8 +255,6 @@ const CheckoutPreviewShopSchema = z.object({
     summary: CheckoutShopSummarySchema,
     selectedShippingMethod: z.string().nullable(),
     availableShippingOptions: z.array(CheckoutShippingOptionSchema).nullable().optional().default([]),
-    validationErrors: z.array(z.string()).nullable().optional().default([]),
-    warnings: z.array(z.string()).nullable().optional().default([]),
     loyaltyInfo: CheckoutLoyaltyInfoSchema.nullable().optional(),
     voucherResult: CheckoutVoucherResultSchema.optional(),
 });
@@ -291,7 +265,6 @@ const CheckoutOrderSummarySchema = z.object({
     totalDiscount: z.number().nullable().optional().default(0),
     shippingDiscount: z.number().nullable().optional().default(0),
     totalShippingFee: z.number().nullable().optional().default(0),
-    totalTaxAmount: z.number().nullable().optional().default(0),
     grandTotal: z.number().nullable().optional().default(0),
 });
 
@@ -314,7 +287,6 @@ const CheckoutPreviewDataSchema = z.object({
         totalDiscount: 0,
         shippingDiscount: 0,
         totalShippingFee: 0,
-        totalTaxAmount: 0,
         grandTotal: 0,
     }),
     isValid: z.boolean().optional().default(true),

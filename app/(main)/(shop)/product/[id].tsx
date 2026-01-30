@@ -495,8 +495,6 @@ export default function ProductDetailScreen() {
                     <View style={styles.fullWidthSection}>
                         <ShopInfoCard
                             shop={product.shop}
-                            onChatPress={handleChatPress}
-                            onPrefetchChat={handlePrefetchChat}
                             onViewShopPress={handleShopPress}
                         />
                     </View>

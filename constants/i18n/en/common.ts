@@ -32,4 +32,7 @@ export const COMMON_STRINGS: CommonTranslation = {
         notify: 'Notice',
         me: 'Me',
     },
+    popup: {
+        skipToday: "Don't show again today",
+    },
 };

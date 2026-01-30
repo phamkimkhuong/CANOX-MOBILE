@@ -244,11 +244,9 @@ export interface MessageDateGroup {
 const MessageUserDTOSchema = z.object({
     userId: z.string(),
     username: z.string().optional().nullable(),
-    email: z.string().optional().nullable(),
     image: z.string().nullable().optional(),
     roles: z.array(z.string()).optional().nullable().default([]),
     fullNameBuyer: z.string().nullable().optional(),
-    fullNameEmployee: z.string().nullable().optional(),
     shopId: z.string().nullable().optional(),
     shopName: z.string().nullable().optional(),
     logoUrl: z.string().nullable().optional(),
@@ -299,19 +297,11 @@ const MessageDTOSchema = z.object({
     metadata: z.string().nullable().optional(),
     isDeleted: z.boolean().nullable().optional().transform(v => v ?? false),
     deletedType: z.string().nullable().optional(),
-    deletedBy: z.string().nullable().optional(),
-    deletedAt: z.string().nullable().optional(),
     isEdited: z.boolean().optional().nullable().transform(v => v ?? false),
     sentAt: z.string().optional().nullable().transform(v => v || new Date().toISOString()),
     deliveredAt: z.string().nullable().optional(),
     readAt: z.string().nullable().optional(),
     editedAt: z.string().nullable().optional(),
-    createdBy: z.string().optional().nullable().transform(v => v || ''),
-    createdDate: z.string().optional().nullable().transform(v => v || ''),
-    lastModifiedBy: z.string().optional().nullable().transform(v => v || ''),
-    lastModifiedDate: z.string().optional().nullable().transform(v => v || ''),
-    deleted: z.boolean().optional().nullable().transform(v => v ?? false),
-    version: z.number().optional().nullable().transform(v => v ?? 1),
 });
 
 const MessagePageDTOSchema = z.object({

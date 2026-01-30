@@ -151,46 +151,23 @@ export const initialSearchResultState: SearchResultState = {
 export const SearchProductItemSchema = z.object({
     id: z.string(),
     name: z.string().nullable().optional().default(''),
-    slug: z.string().nullable().optional().default(''),
-    description: z.string().nullable().optional().default(''),
     priceMin: z.number().nullable().optional().default(0),
-    priceMax: z.number().nullable().optional().default(0),
     priceBeforeDiscount: z.number().nullable().optional().default(0),
     showDiscount: z.number().nullable().optional().default(0),
-    active: z.boolean().nullable().optional().default(true),
-    isFeatured: z.boolean().nullable().optional().default(false),
     priceAfterBestVoucher: z.number().nullable().optional().default(0),
-    priceAfterBestShopVoucher: z.number().nullable().optional().default(0),
-    priceAfterBestPlatformVoucher: z.number().nullable().optional().default(0),
     // Category
     category: z.object({
-        id: z.string(),
         name: z.string().nullable().optional().default(''),
-        slug: z.string().nullable().optional().default(''),
     }).nullable().optional(),
     // Shop
     shop: z.object({
         shopId: z.string().nullable().optional(),
         shopName: z.string().nullable().optional().default(''),
-        logoUrl: z.string().nullable().optional().default(''),
-        status: z.string().nullable().optional(),
     }).nullable().optional(),
     // Media
     media: z.array(z.object({
-        id: z.string().nullable().optional(),
         url: z.string().nullable().optional().default(''),
-        type: z.string().nullable().optional().default('IMAGE'),
         isPrimary: z.boolean().nullable().optional().default(false),
-    })).nullable().optional().default([]),
-    // Variants (for price calculation)
-    variants: z.array(z.object({
-        id: z.string().nullable().optional(),
-        price: z.number().nullable().optional().default(0),
-        priceBeforeDiscount: z.number().nullable().optional().default(0),
-        hasStock: z.boolean().nullable().optional().default(true),
-        inventory: z.object({
-            available: z.number().nullable().optional().default(0),
-        }).nullable().optional(),
     })).nullable().optional().default([]),
     // Review stats
     reviewStatistics: z.object({
@@ -200,15 +177,11 @@ export const SearchProductItemSchema = z.object({
     }).nullable().optional(),
     // Active campaigns (for flash sale badge)
     activeCampaigns: z.array(z.object({
-        campaignId: z.string(),
         campaignType: z.string(),
-        campaignName: z.string().nullable().optional(),
     })).nullable().optional().default([]),
     // Best voucher info
     bestShopVoucher: z.object({
         voucherId: z.string(),
-        discountValue: z.number().nullable().optional(),
-        discountType: z.string().nullable().optional(),
     }).nullable().optional(),
 });
 
