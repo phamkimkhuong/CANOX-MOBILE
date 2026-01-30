@@ -45,7 +45,7 @@ const getDirectorySizeAsync = async (dirUri: string): Promise<number> => {
         }
 
         return totalSize;
-    } catch (err) {
+    } catch {
         return 0;
     }
 };

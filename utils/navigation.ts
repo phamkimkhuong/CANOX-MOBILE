@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import { Href, router } from 'expo-router';
 
 /**
@@ -9,9 +10,9 @@ let lastClickTimestamp = 0;
 const CLICK_THRESHOLD = 1000; // 1s
 
 // DEV-only logging that doesn't block navigation
-const logNav = __DEV__
-    ? (msg: string) => setTimeout(() => console.log(msg), 0)
-    : () => { };
+const logNav = (msg: string) => {
+    logger.nav.log(msg);
+};
 
 export const Navigator = {
     push: (route: Href | string) => {

@@ -1,43 +1,41 @@
-const { withDangerousMod, withAndroidManifest } = require('@expo/config-plugins');
+const { withDangerousMod, withAndroidManifest, withAndroidColors } = require('@expo/config-plugins');
 const fs = require('fs');
 const path = require('path');
 
-/**
- * Add metadata for Firebase Notification Icon and Color
- */
 const withNotificationMetadata = (config, { iconColor }) => {
     return withAndroidManifest(config, (config) => {
         const manifest = config.modResults.manifest;
         const mainApplication = manifest.application[0];
 
-        // Ensure xmlns:tools is present in the manifest tag
+        // Đảm bảo namespace tools tồn tại để dùng tools:replace
         if (!manifest.$['xmlns:tools']) {
             manifest.$['xmlns:tools'] = 'http://schemas.android.com/tools';
         }
 
-        // Add icon metadata
         const iconMetadataName = 'com.google.firebase.messaging.default_notification_icon';
-        const iconMetadataValue = '@drawable/notification_icon';
+        const colorMetadataName = 'com.google.firebase.messaging.default_notification_color';
 
-        // Remove old if any to avoid duplication
-        mainApplication['meta-data'] = mainApplication['meta-data'] || [];
+        // Đảm bảo meta-data là một mảng
+        if (!mainApplication['meta-data']) {
+            mainApplication['meta-data'] = [];
+        }
+
+        // Loại bỏ các entry cũ để tránh trùng lặp nội bộ
         mainApplication['meta-data'] = mainApplication['meta-data'].filter(
-            (m) => m.$['android:name'] !== iconMetadataName
+            (m) => m.$['android:name'] !== iconMetadataName && m.$['android:name'] !== colorMetadataName
         );
 
+        // Thêm meta-data cho Icon (Dùng tools:replace để đè lên giá trị của Firebase library)
         mainApplication['meta-data'].push({
             $: {
                 'android:name': iconMetadataName,
-                'android:resource': iconMetadataValue,
+                'android:resource': '@drawable/notification_icon',
+                'tools:replace': 'android:resource',
             },
         });
 
-        // Add color metadata
-        const colorMetadataName = 'com.google.firebase.messaging.default_notification_color';
+        // Thêm meta-data cho Color (Dùng tools:replace)
         if (iconColor) {
-            mainApplication['meta-data'] = mainApplication['meta-data'].filter(
-                (m) => m.$['android:name'] !== colorMetadataName
-            );
             mainApplication['meta-data'].push({
                 $: {
                     'android:name': colorMetadataName,
@@ -52,7 +50,7 @@ const withNotificationMetadata = (config, { iconColor }) => {
 };
 
 /**
- * Copy file icon to drawable folder of Android
+ * Copy Asset: Đưa file PNG vào thư mục drawable của Android
  */
 const withNotificationAssets = (config, { iconPath }) => {
     return withDangerousMod(config, [
@@ -60,8 +58,8 @@ const withNotificationAssets = (config, { iconPath }) => {
         async (config) => {
             const projectRoot = config.modRequest.projectRoot;
             const resDir = path.join(projectRoot, 'android/app/src/main/res');
-            // Copy icon sang drawable-mdpi
             const drawableDir = path.join(resDir, 'drawable');
+
             if (!fs.existsSync(drawableDir)) {
                 fs.mkdirSync(drawableDir, { recursive: true });
             }
@@ -71,6 +69,8 @@ const withNotificationAssets = (config, { iconPath }) => {
 
             if (fs.existsSync(sourcePath)) {
                 fs.copyFileSync(sourcePath, destPath);
+            } else {
+                console.warn(`[withNotificationIcon] Source icon not found at: ${sourcePath}`);
             }
 
             return config;
@@ -79,49 +79,37 @@ const withNotificationAssets = (config, { iconPath }) => {
 };
 
 /**
- * Define color in strings.xml or colors.xml
+ * Tạo Color Resource: Thêm mã màu vào colors.xml
  */
-const withNotificationColorResource = (config, { iconColor }) => {
-    return withDangerousMod(config, [
-        'android',
-        async (config) => {
-            if (!iconColor) return config;
-
-            const projectRoot = config.modRequest.projectRoot;
-            const resDir = path.join(projectRoot, 'android/app/src/main/res/values');
-            const colorsXmlPath = path.join(resDir, 'colors.xml');
-
-            if (!fs.existsSync(resDir)) {
-                fs.mkdirSync(resDir, { recursive: true });
+const withNotificationColor = (config, { iconColor }) => {
+    return withAndroidColors(config, (config) => {
+        if (iconColor) {
+            // Đảm bảo cấu trúc XML JSON chuẩn
+            if (!config.modResults.resources) {
+                config.modResults.resources = { color: [] };
+            }
+            if (!config.modResults.resources.color) {
+                config.modResults.resources.color = [];
             }
 
-            let colorsXml = '';
-            if (fs.existsSync(colorsXmlPath)) {
-                colorsXml = fs.readFileSync(colorsXmlPath, 'utf8');
-            } else {
-                colorsXml = '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n</resources>';
-            }
+            // Xóa mã màu cũ nếu có
+            config.modResults.resources.color = config.modResults.resources.color.filter(
+                (c) => c.$.name !== 'notification_icon_color'
+            );
 
-            const colorTag = `<color name="notification_icon_color">${iconColor}</color>`;
-
-            if (!colorsXml.includes('name="notification_icon_color"')) {
-                colorsXml = colorsXml.replace('</resources>', `    ${colorTag}\n</resources>`);
-                fs.writeFileSync(colorsXmlPath, colorsXml);
-            } else {
-                // Update existing color if needed
-                const regex = /<color name="notification_icon_color">.*?<\/color>/;
-                colorsXml = colorsXml.replace(regex, colorTag);
-                fs.writeFileSync(colorsXmlPath, colorsXml);
-            }
-
-            return config;
+            // Thêm mã màu mới
+            config.modResults.resources.color.push({
+                _: iconColor,
+                $: { name: 'notification_icon_color' },
+            });
         }
-    ]);
+        return config;
+    });
 };
 
 module.exports = (config, props) => {
     config = withNotificationMetadata(config, props);
     config = withNotificationAssets(config, props);
-    config = withNotificationColorResource(config, props);
+    config = withNotificationColor(config, props);
     return config;
 };

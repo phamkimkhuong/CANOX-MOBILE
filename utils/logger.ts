@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * ==============================================
  * LOGGER UTILITY - Development-Only Logging
@@ -11,8 +12,6 @@
 // ============================================
 // TYPES
 // ============================================
-
-type LogLevel = 'log' | 'info' | 'warn' | 'error' | 'debug';
 
 interface ScopedLogger {
     /** General log (same as console.log) */

@@ -38,7 +38,11 @@ module.exports = {
         },
 
         "plugins": [
+<<<<<<< HEAD
             "./plugins/withDisableLint",
+=======
+            "./plugins/withAndroid16KB",
+>>>>>>> dev
             "./plugins/withNotifee",
             [
                 "./plugins/withNotificationIcon",
