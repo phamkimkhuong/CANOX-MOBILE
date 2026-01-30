@@ -13,7 +13,6 @@ export const PROFILE_STRINGS: ProfileTranslation = {
     stats: {
         favorites: 'Favorites',
         followed: 'Followed',
-        recent: 'Views',
         coins: 'Coins',
         vouchers: 'Voucher',
         orders: 'Orders',
@@ -50,6 +49,7 @@ export const PROFILE_STRINGS: ProfileTranslation = {
         wallet: 'Calatha Wallet',
         rewards: 'Member Rewards',
         affiliate: 'Affiliate Program',
+        favorites: 'Favorites',
         support: 'Help Center',
         settings: 'Account Settings',
         coins: 'My Coins',

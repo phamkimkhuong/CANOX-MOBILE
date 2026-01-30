@@ -1,8 +1,7 @@
 import defaultAvatar from '@/assets/images/default_avatar.png';
 import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
-import { useWishlists } from '@/hooks/api/profile/useWishlists';
-import { MEMBER_LEVEL_CONFIG, OrderStats, QUICK_STATS_CONFIG, UserProfile } from '@/types/profile/profile';
+import { MEMBER_LEVEL_CONFIG, UserProfile } from '@/types/profile/profile';
 import { Navigator } from '@/utils/navigation';
 import { Image } from 'expo-image';
 import React, { memo, useCallback, useMemo } from 'react';
@@ -12,59 +11,26 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface UserInfoCardProps {
     profile: UserProfile | undefined;
-    stats: OrderStats | undefined;
     isLoading?: boolean;
 }
 
 /**
- * User info card with avatar, name, level and quick stats
+ * User info card with avatar, name, and level
  */
 export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
     profile,
-    stats,
     isLoading = false,
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const { t } = useTranslation(['profile', 'common']);
 
-    // Fetch wishlist data for favorites count
-    const { data: wishlistData, isLoading: isLoadingWishlists } = useWishlists();
-
     const levelConfig = profile?.memberLevel
         ? MEMBER_LEVEL_CONFIG[profile.memberLevel]
         : MEMBER_LEVEL_CONFIG.BRONZE;
 
-    // Memoized stats values with wishlist data
-    const statsWithWishlist = useMemo(() => {
-        if (!profile) return {};
-
-        // Total items across all wishlists (default 0 if API fails/loading)
-        const wishlistItemCount = wishlistData?.items?.reduce(
-            (sum, wishlist) => sum + wishlist.itemCount,
-            0
-        ) ?? 0;
-
-        return {
-            orders: stats?.total ?? 0,
-            favorites: wishlistItemCount,
-            recent: profile.recentViewCount,
-        };
-    }, [profile, stats, wishlistData]);
-
     const handleEditProfile = useCallback(() => {
         Navigator.push(ROUTES.USER.EDIT_PROFILE);
-    }, []);
-
-    const handleStatPress = useCallback((route: string, key: string) => {
-        if (key === 'orders') {
-            Navigator.push({
-                pathname: ROUTES.ORDERS.LIST,
-                params: { tab: 'completed' },
-            });
-            return;
-        }
-        Navigator.push(route as never);
     }, []);
 
     // Skeleton loading state
@@ -77,11 +43,6 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
                         <View style={styles.nameSkeleton} />
                         <View style={styles.badgeSkeleton} />
                     </View>
-                </View>
-                <View style={styles.statsRow}>
-                    {[1, 2, 3].map((i) => (
-                        <View key={i} style={styles.statSkeleton} />
-                    ))}
                 </View>
             </View>
         );
@@ -151,44 +112,6 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
                         </TouchableOpacity>
                     </View>
                 </View>
-            </View>
-
-            {/* Quick Stats Row */}
-            <View style={styles.statsRow}>
-                {QUICK_STATS_CONFIG.map((stat) => (
-                    <TouchableOpacity
-                        key={stat.key}
-                        style={[styles.statCard, { backgroundColor: stat.bgColor }]}
-                        onPress={() => handleStatPress(stat.route, stat.key)}
-                        activeOpacity={0.8}
-                    >
-                        {/* Background icon */}
-                        <View style={styles.statBgIcon}>
-                            <IconSymbol
-                                name={stat.icon as keyof typeof IconSymbol}
-                                size={50}
-                                color={stat.iconColor}
-                                style={styles.statBgIconInner}
-                            />
-                        </View>
-
-                        {/* Icon */}
-                        <View style={[styles.statIconContainer, { backgroundColor: theme.colors.surface }]}>
-                            <IconSymbol
-                                name={stat.icon as keyof typeof IconSymbol}
-                                size={20}
-                                color={stat.iconColor}
-                            />
-                        </View>
-
-
-                        {/* Value & Label */}
-                        <Text style={styles.statValue}>
-                            {statsWithWishlist[stat.key as keyof typeof statsWithWishlist] ?? 0}
-                        </Text>
-                        <Text style={styles.statLabel}>{t(`stats.${stat.key}`)}</Text>
-                    </TouchableOpacity>
-                ))}
             </View>
         </View>
     );

@@ -728,7 +728,6 @@ export interface ProfileTranslation {
     stats: {
         favorites: string;
         followed: string;
-        recent: string;
         coins: string;
         vouchers: string;
         orders: string;
@@ -765,6 +764,7 @@ export interface ProfileTranslation {
         wallet: string;
         rewards: string;
         affiliate: string;
+        favorites: string;
         support: string;
         settings: string;
         coins: string;

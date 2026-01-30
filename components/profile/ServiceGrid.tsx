@@ -12,6 +12,7 @@ interface ServiceGridProps {
     coinsBalance?: number;
     voucherCount?: number;
     reviewCount?: number;
+    favoriteCount?: number;
     isLoading?: boolean;
 }
 
@@ -23,6 +24,7 @@ export const ServiceGrid: React.FC<ServiceGridProps> = memo(({
     coinsBalance = 0,
     voucherCount = 0,
     reviewCount = 0,
+    favoriteCount = 0,
     isLoading = false,
 }) => {
     const { theme } = useUnistyles();
@@ -48,12 +50,14 @@ export const ServiceGrid: React.FC<ServiceGridProps> = memo(({
                 return voucherCount > 0 ? `${voucherCount} ${t('stats.units.vouchers')}` : t('common:actions.viewNow');
             case 'reviews':
                 return reviewCount > 0 ? `${reviewCount} ${t('stats.units.reviews')}` : t('stats.units.pending');
+            case 'favorites':
+                return favoriteCount > 0 ? `${favoriteCount} ${t('product.info.reviews', { defaultValue: 'Sản phẩm' })}` : t('common:status.empty');
             case 'shipping':
                 return t('stats.units.buyNow');
             default:
                 return '';
         }
-    }, [walletBalance, coinsBalance, voucherCount, reviewCount, t]);
+    }, [walletBalance, coinsBalance, voucherCount, reviewCount, favoriteCount, t]);
 
     // Loading skeleton
     if (isLoading) {

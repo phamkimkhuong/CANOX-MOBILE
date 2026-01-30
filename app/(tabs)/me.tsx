@@ -12,8 +12,9 @@ import {
     useOrderStats,
     useRefreshProfile,
     useUserProfile,
-    useWalletBalance
+    useWalletBalance,
 } from '@/hooks/api/profile/useProfile';
+import { useWishlists } from '@/hooks/api/profile/useWishlists';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Navigator } from '@/utils/navigation';
 import React, { useCallback, useMemo } from 'react';
@@ -48,6 +49,18 @@ export default function MeScreen() {
         data: walletBalance,
         isLoading: isLoadingWallet,
     } = useWalletBalance();
+
+    const {
+        data: wishlistData,
+    } = useWishlists();
+
+    // Total items across all wishlists
+    const favoriteCount = useMemo(() => {
+        return wishlistData?.items?.reduce(
+            (sum, wishlist) => sum + wishlist.itemCount,
+            0
+        ) ?? 0;
+    }, [wishlistData]);
 
     // TODO: Enable when BE has follow shop API
     // const {
@@ -119,7 +132,6 @@ export default function MeScreen() {
                 {/* User Info Card */}
                 <UserInfoCard
                     profile={userProfile}
-                    stats={orderStats}
                     isLoading={isLoadingProfile}
                 />
 
@@ -145,6 +157,7 @@ export default function MeScreen() {
                     coinsBalance={walletBalance?.coins ?? 0}
                     voucherCount={walletBalance?.vouchers ?? 0}
                     reviewCount={orderStats?.review ?? 0}
+                    favoriteCount={favoriteCount}
                     isLoading={isLoadingWallet}
                 />
 

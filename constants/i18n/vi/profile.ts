@@ -13,7 +13,6 @@ export const PROFILE_STRINGS: ProfileTranslation = {
     stats: {
         favorites: 'Yêu thích',
         followed: 'Đang theo dõi',
-        recent: 'Đã xem gần đây',
         coins: 'Xu',
         vouchers: 'Voucher',
         orders: 'Đơn hàng',
@@ -47,9 +46,10 @@ export const PROFILE_STRINGS: ProfileTranslation = {
         total: 'Tất cả',
     },
     menu: {
-        wallet: 'Ví Calatha',
+        wallet: 'Ví CanoX',
         rewards: 'Ưu đãi thành viên',
         affiliate: 'Tiếp thị liên kết',
+        favorites: 'Yêu thích',
         support: 'Trung tâm hỗ trợ',
         settings: 'Thiết lập tài khoản',
         coins: 'Xu Tích Lũy',

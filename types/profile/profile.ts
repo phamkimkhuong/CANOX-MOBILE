@@ -194,60 +194,31 @@ export const ORDER_STATUS_CONFIG: OrderStatusItem[] = [
  * Quick stats card config
  */
 export interface QuickStatCard {
-    key: 'orders' | 'favorites' | 'recent';
+    key: string;
     icon: string;
     label: string;
     bgColor: string;
     iconColor: string;
-    valueKey: 'totalOrders' | 'favoriteCount' | 'recentViewCount';
+    valueKey: string;
     route: string;
 }
 
-export const QUICK_STATS_CONFIG: QuickStatCard[] = [
-    {
-        key: 'orders',
-        icon: 'receipt',
-        label: 'Đơn hàng',
-        bgColor: 'rgba(59, 130, 246, 0.08)',
-        iconColor: '#3b82f6',
-        valueKey: 'totalOrders',
-        route: QUICK_STATS_ROUTES.orders,
-    },
-    {
-        key: 'favorites',
-        icon: 'favorite',
-        label: 'Yêu thích',
-        bgColor: 'rgba(244, 63, 94, 0.08)',
-        iconColor: '#f43f5e',
-        valueKey: 'favoriteCount',
-        route: ROUTES.WISHLIST.INDEX,
-    },
-    {
-        key: 'recent',
-        icon: 'time',
-        label: 'Xem gần đây',
-        bgColor: 'rgba(245, 158, 11, 0.08)',
-        iconColor: '#f59e0b',
-        valueKey: 'recentViewCount',
-        route: QUICK_STATS_ROUTES.recent,
-    },
-];
+export const QUICK_STATS_CONFIG: QuickStatCard[] = [];
 
 /**
  * Service menu items
  */
 export const SERVICE_MENU_CONFIG: ProfileMenuItem[] = [
-    // {
-    //     id: 'wallet',
-    //     key: 'wallet',
-    //     icon: 'bank',
-    //     label: 'Ví GlobalPay',
-    //     route: SERVICE_MENU_ROUTES.wallet,
-    //     badge: 'new',
-    //     iconBgColor: 'rgba(59, 130, 246, 0.1)',
-    //     backgroundColor: 'rgba(59, 130, 246, 0.1)',
-    //     iconColor: '#3b82f6',
-    // },
+    {
+        id: 'favorites',
+        key: 'favorites',
+        icon: 'heart',
+        label: 'Yêu thích',
+        route: ROUTES.WISHLIST.INDEX,
+        iconBgColor: 'rgba(244, 63, 94, 0.1)',
+        backgroundColor: 'rgba(244, 63, 94, 0.1)',
+        iconColor: '#f43f5e',
+    },
     {
         id: 'coins',
         key: 'coins',

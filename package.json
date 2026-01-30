@@ -88,6 +88,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
+    "@ivotoby/openapi-mcp-server": "^1.12.4",
     "@react-native/eslint-config": "^0.83.1",
     "@types/react": "~19.1.0",
     "@types/sockjs-client": "^1.5.4",

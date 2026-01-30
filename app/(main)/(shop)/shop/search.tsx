@@ -64,8 +64,9 @@ export default function ShopSearchScreen() {
     // Refs
     const headerRef = useRef<ShopSearchHeaderRef>(null);
 
-    // State
-    const [keyword, setKeyword] = useState('');
+    // State - Separate input value from search keyword
+    const [inputValue, setInputValue] = useState('');      // What user is typing
+    const [searchKeyword, setSearchKeyword] = useState(''); // Actual search trigger
     const [sortBy, setSortBy] = useState<SearchSortField>('RELEVANCE');
 
     // Search products within shop
@@ -79,7 +80,7 @@ export default function ShopSearchScreen() {
         fetchNextPage,
         refetch,
     } = useSearchProducts({
-        keyword: keyword.trim(),
+        keyword: searchKeyword.trim(),  // Only changes on submit
         shopId,
         categoryId,
         sortBy,
@@ -100,12 +101,12 @@ export default function ShopSearchScreen() {
     }, []);
 
     const handleTextChange = useCallback((text: string) => {
-        setKeyword(text);
+        setInputValue(text);  // Only update input display, don't trigger search
     }, []);
 
     const handleSubmit = useCallback((text: string) => {
         Keyboard.dismiss();
-        // Search is already reactive, just dismiss keyboard
+        setSearchKeyword(text.trim());  // Trigger API call on submit
     }, []);
 
     const handleSortChange = useCallback((newSort: SearchSortField) => {
@@ -177,7 +178,7 @@ export default function ShopSearchScreen() {
         if (isEmpty) {
             return (
                 <ShopSearchEmptyState
-                    keyword={keyword.trim() || undefined}
+                    keyword={searchKeyword.trim() || undefined}
                     categoryName={categoryName}
                     onViewAllProducts={handleViewAllProducts}
                     onBack={handleBack}
@@ -186,7 +187,7 @@ export default function ShopSearchScreen() {
         }
 
         return null;
-    }, [isLoading, isEmpty, keyword, categoryName, handleViewAllProducts, handleBack]);
+    }, [isLoading, isEmpty, searchKeyword, categoryName, handleViewAllProducts, handleBack]);
 
     // ========================================
     // LIST FOOTER
@@ -230,7 +231,7 @@ export default function ShopSearchScreen() {
             {/* Header with Search Input */}
             <ShopSearchHeader
                 ref={headerRef}
-                value={keyword}
+                value={inputValue}
                 onChangeText={handleTextChange}
                 onSubmit={handleSubmit}
                 onBack={handleBack}
