@@ -7,7 +7,13 @@ const path = require('path');
  */
 const withNotificationMetadata = (config, { iconColor }) => {
     return withAndroidManifest(config, (config) => {
-        const mainApplication = config.modResults.manifest.application[0];
+        const manifest = config.modResults.manifest;
+        const mainApplication = manifest.application[0];
+
+        // Ensure xmlns:tools is present in the manifest tag
+        if (!manifest.$['xmlns:tools']) {
+            manifest.$['xmlns:tools'] = 'http://schemas.android.com/tools';
+        }
 
         // Add icon metadata
         const iconMetadataName = 'com.google.firebase.messaging.default_notification_icon';
@@ -36,6 +42,7 @@ const withNotificationMetadata = (config, { iconColor }) => {
                 $: {
                     'android:name': colorMetadataName,
                     'android:resource': '@color/notification_icon_color',
+                    'tools:replace': 'android:resource',
                 },
             });
         }
@@ -78,18 +85,35 @@ const withNotificationColorResource = (config, { iconColor }) => {
     return withDangerousMod(config, [
         'android',
         async (config) => {
+            if (!iconColor) return config;
+
             const projectRoot = config.modRequest.projectRoot;
-            const colorsXmlPath = path.join(projectRoot, 'android/app/src/main/res/values/colors.xml');
+            const resDir = path.join(projectRoot, 'android/app/src/main/res/values');
+            const colorsXmlPath = path.join(resDir, 'colors.xml');
 
-            if (fs.existsSync(colorsXmlPath) && iconColor) {
-                let colorsXml = fs.readFileSync(colorsXmlPath, 'utf8');
-                const colorTag = `<color name="notification_icon_color">${iconColor}</color>`;
-
-                if (!colorsXml.includes('name="notification_icon_color"')) {
-                    colorsXml = colorsXml.replace('</resources>', `    ${colorTag}\n</resources>`);
-                    fs.writeFileSync(colorsXmlPath, colorsXml);
-                }
+            if (!fs.existsSync(resDir)) {
+                fs.mkdirSync(resDir, { recursive: true });
             }
+
+            let colorsXml = '';
+            if (fs.existsSync(colorsXmlPath)) {
+                colorsXml = fs.readFileSync(colorsXmlPath, 'utf8');
+            } else {
+                colorsXml = '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n</resources>';
+            }
+
+            const colorTag = `<color name="notification_icon_color">${iconColor}</color>`;
+
+            if (!colorsXml.includes('name="notification_icon_color"')) {
+                colorsXml = colorsXml.replace('</resources>', `    ${colorTag}\n</resources>`);
+                fs.writeFileSync(colorsXmlPath, colorsXml);
+            } else {
+                // Update existing color if needed
+                const regex = /<color name="notification_icon_color">.*?<\/color>/;
+                colorsXml = colorsXml.replace(regex, colorTag);
+                fs.writeFileSync(colorsXmlPath, colorsXml);
+            }
+
             return config;
         }
     ]);

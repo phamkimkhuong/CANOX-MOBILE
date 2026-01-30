@@ -38,6 +38,7 @@ module.exports = {
         },
 
         "plugins": [
+            "./plugins/withDisableLint",
             "./plugins/withNotifee",
             [
                 "./plugins/withNotificationIcon",
