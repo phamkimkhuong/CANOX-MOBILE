@@ -73,7 +73,7 @@ export async function collectDeviceInfo(): Promise<DeviceInfo> {
     return {
         deviceId,
         deviceName: getDeviceName(),
-        platform: Platform.OS as 'android' | 'ios',
+        platform: (Platform.OS.toUpperCase()) as 'ANDROID' | 'IOS',
         appVersion: getAppVersion(),
         osVersion: getOsVersion(),
         locale: getLocale(),
@@ -85,12 +85,12 @@ export async function collectDeviceInfo(): Promise<DeviceInfo> {
  * Combines push token with device info
  */
 export async function buildPushTokenPayload(
-    pushToken: string
+    token: string
 ): Promise<PushTokenPayload> {
     const deviceInfo = await collectDeviceInfo();
 
     return {
-        pushToken,
         ...deviceInfo,
+        token,
     };
 }

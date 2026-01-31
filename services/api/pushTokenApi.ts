@@ -1,10 +1,12 @@
+import { API_ROUTES } from '@/constants/apiRoutes';
 import type {
     RegisterPushTokenRequest,
     UserDevicesResponse
 } from '@/types/pushToken';
 import { apiClient } from './client';
 
-const PUSH_TOKEN_ENDPOINT = '/api/v1/push-tokens';
+
+const PUSH_TOKEN_ENDPOINT = API_ROUTES.NOTIFICATIONS.DEVICE_TOKENS;
 
 /**
  * Register or update push token for current device
@@ -22,8 +24,8 @@ export async function registerPushToken(
  * Unregister push token for current device
  * Call this when user logs out
  */
-export async function unregisterPushToken(deviceId: string): Promise<void> {
-    await apiClient.delete(`${PUSH_TOKEN_ENDPOINT}/${deviceId}`);
+export async function unregisterPushToken(token: string): Promise<void> {
+    await apiClient.delete(API_ROUTES.NOTIFICATIONS.UNREGISTER_DEVICE_TOKEN(token));
 }
 
 /**

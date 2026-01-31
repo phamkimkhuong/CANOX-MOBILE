@@ -78,6 +78,8 @@ export const API_ROUTES = {
         COUNT_UNREAD: `${API_PREFIX}/notifications/count-unread`,
         MARK_ALL_AS_READ: `${API_PREFIX}/notifications/read-all`,
         CHECK_NEW: `${API_PREFIX}/notifications/check-new`,
+        DEVICE_TOKENS: `${API_PREFIX}/notifications/device-tokens`,
+        UNREGISTER_DEVICE_TOKEN: (token: string) => `${API_PREFIX}/notifications/device-tokens/${token}`,
     },
     ADDRESS: {
         COUNTRY: `${API_PREFIX}/address/country`,

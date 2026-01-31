@@ -9,10 +9,11 @@ import { z } from 'zod';
  * FE sends this to BE when user logs in
  */
 export const RegisterPushTokenRequestSchema = z.object({
-    pushToken: z.string().min(1, 'Push token is required'),
-    deviceId: z.string().min(1, 'Device ID is required'),
+    token: z.string().min(1, 'Token is required'),
+    platform: z.enum(['ANDROID', 'IOS', 'WEB']),
     deviceName: z.string().nullable().optional(),
-    platform: z.enum(['android', 'ios']),
+    // Keep these as optional if they are still useful for analytics
+    deviceId: z.string().optional(),
     appVersion: z.string().nullable().optional(),
     osVersion: z.string().nullable().optional(),
     locale: z.string().nullable().optional(),
@@ -62,7 +63,7 @@ export type UserDevicesResponse = z.infer<typeof UserDevicesResponseSchema>;
 export interface DeviceInfo {
     deviceId: string;
     deviceName: string | null;
-    platform: 'android' | 'ios';
+    platform: 'ANDROID' | 'IOS';
     appVersion: string | null;
     osVersion: string | null;
     locale: string | null;
@@ -72,8 +73,9 @@ export interface DeviceInfo {
  * Full payload to send to BE
  * Combines push token with device info
  */
-export interface PushTokenPayload extends DeviceInfo {
-    pushToken: string;
+export interface PushTokenPayload extends Omit<DeviceInfo, 'platform'> {
+    token: string;
+    platform: 'ANDROID' | 'IOS' | 'WEB';
 }
 
 // ============================================

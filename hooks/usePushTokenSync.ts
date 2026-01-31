@@ -1,6 +1,6 @@
 import { registerPushToken, unregisterPushToken } from '@/services/api/pushTokenApi';
 import { useIsAuthenticated } from '@/store/useAuthStore';
-import { buildPushTokenPayload, collectDeviceInfo } from '@/utils/deviceInfo';
+import { buildPushTokenPayload } from '@/utils/deviceInfo';
 import { logger } from '@/utils/logger';
 import { useCallback, useEffect, useRef } from 'react';
 import { clearPushToken } from './usePushNotifications';
@@ -9,7 +9,7 @@ import { clearPushToken } from './usePushNotifications';
  * Feature flag to enable/disable push token sync
  * Set to true when Backend has implemented /api/v1/push-tokens endpoint
  */
-const ENABLE_PUSH_TOKEN_SYNC = false;
+const ENABLE_PUSH_TOKEN_SYNC = true;
 
 /**
  * Hook to sync push token with backend
@@ -51,23 +51,24 @@ export function usePushTokenSync(
 
     // Unregister token when user logs out
     const unregisterToken = useCallback(async () => {
+        const tokenToUnregister = fcmToken || lastTokenRef.current;
+
         // Always clear local storage
         clearPushToken();
         hasRegisteredRef.current = false;
         lastTokenRef.current = null;
 
-        if (!ENABLE_PUSH_TOKEN_SYNC) {
+        if (!ENABLE_PUSH_TOKEN_SYNC || !tokenToUnregister) {
             return;
         }
 
         try {
-            const deviceInfo = await collectDeviceInfo();
-            await unregisterPushToken(deviceInfo.deviceId);
+            await unregisterPushToken(tokenToUnregister);
             logger.push.info('[PushToken] Unregistered successfully');
         } catch (error) {
             logger.push.error('[PushToken] Failed to unregister:', error);
         }
-    }, []);
+    }, [fcmToken]);
 
     // Effect: Register token when authenticated
     useEffect(() => {

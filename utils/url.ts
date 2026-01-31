@@ -51,13 +51,10 @@ export const toSizedImageUrl = (
 
     // Template with '*'
     if (finalPath.includes('*')) {
-        // If size is empty (original), use 'orig' suffix
-        // Example: "image_*.jpg" -> original should be "image_orig.jpg"
-        if (!size || size === 'orig') {
+        const isWebP = finalPath.toLowerCase().endsWith('.webp');
+        if (!size || size === 'orig' || isWebP) {
             finalPath = finalPath.replace('*', 'orig');
         } else {
-            // Remove leading underscore from size if the template already has one before '*'
-            // New logic: just replace '*' with the size string
             const cleanSize = size.startsWith('_') ? size.substring(1) : size;
             finalPath = finalPath.replace('*', cleanSize);
         }
