@@ -35,4 +35,11 @@ export const COMMON_STRINGS: CommonTranslation = {
     popup: {
         skipToday: "Don't show again today",
     },
+    maintenance: {
+        title: 'System Under Maintenance',
+        description: 'We are currently upgrading our system to provide you with the best experience. Please come back in a few minutes.',
+        retryButton: 'Try Again Now',
+        contactSupport: 'Contact Support',
+        support: '@CANOX E-Commerce Support',
+    },
 };

@@ -1,3 +1,4 @@
+import { MaintenanceScreen } from '@/components/common/MaintenanceScreen';
 import '@/constants/i18n';
 import i18n from '@/constants/i18n';
 import '@/constants/unistyles';
@@ -73,6 +74,9 @@ export const unstable_settings = {
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const isSystemDown = useAppStore((state) => state.isSystemDown);
+  const setSystemDown = useAppStore((state) => state.setSystemDown);
+
   const [loaded, error] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     ...FontAwesome.font,
@@ -107,6 +111,17 @@ export default function RootLayout() {
       SplashScreen.hideAsync();
     }
   }, [loaded]);
+
+  // HANDLE MAINTENANCE MODE
+  if (isSystemDown) {
+    return (
+      <GestureHandlerRootView style={styles.container}>
+        <ThemeProvider value={NavigationTheme}>
+          <MaintenanceScreen onRetry={() => setSystemDown(false)} />
+        </ThemeProvider>
+      </GestureHandlerRootView>
+    );
+  }
 
   if (!loaded) {
     // return null;

@@ -11,6 +11,7 @@
 
 import { getErrorMessageByCode } from '@/constants/errorCodes';
 import i18n from '@/constants/i18n';
+import { useAppStore } from '@/store/useAppStore';
 import { logger } from '@/utils/logger';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { z } from 'zod';
@@ -22,6 +23,7 @@ import {
     performTokenRefresh,
     waitForTokenRefresh
 } from '../auth/tokenManager';
+import { queryClient } from './queryClient';
 
 // ============================================
 // CONFIGURATION
@@ -224,9 +226,25 @@ apiClient.interceptors.response.use(
 
         // For PUBLIC endpoints, don't attempt token refresh - just pass the error through
         if (isPublicEndpoint(error.config?.url)) {
+            // Global check for 502 (Server Down)
+            if (statusCode === 502) {
+                logger.api.error('CRITICAL: Gateway 502 detected on Public endpoint. Triggering Maintenance Mode.');
+                useAppStore.getState().setSystemDown(true);
+                queryClient.cancelQueries();
+                throw new ApiError(i18n.t('common:maintenance.title'), 502, 502);
+            }
+
             logger.api.warn(`Public endpoint returned ${statusCode}:`, error.config?.url);
             const customError = new ApiError(finalMessage, statusCode, errorCode);
             return Promise.reject(customError);
+        }
+
+        // Global check for 502 (Server Down) for AUTH endpoints
+        if (statusCode === 502) {
+            logger.api.error('CRITICAL: Gateway 502 detected on Auth endpoint. Triggering Maintenance Mode.');
+            useAppStore.getState().setSystemDown(true);
+            queryClient.cancelQueries();
+            throw new ApiError(i18n.t('common:maintenance.title'), 502, 502);
         }
 
         // Handle 401 Unauthorized - Token expired or invalid access (AUTH endpoints only)

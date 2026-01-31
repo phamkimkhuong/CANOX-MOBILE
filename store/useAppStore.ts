@@ -34,6 +34,10 @@ interface AppState {
     // Language - Uses SupportedLanguage type for type safety
     language: SupportedLanguage;
     setLanguage: (lang: SupportedLanguage) => void;
+
+    // Maintenance / System Down state
+    isSystemDown: boolean;
+    setSystemDown: (status: boolean) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -61,10 +65,22 @@ export const useAppStore = create<AppState>()(
             // Language - Default to device language
             language: getDeviceLanguage(),
             setLanguage: (lang) => set({ language: lang }),
+
+            // Maintenance
+            isSystemDown: false,
+            setSystemDown: (status) => set({ isSystemDown: status }),
         }),
         {
             name: 'app-settings',
             storage: zustandMMKVStorage,
+            // Only persist UI preferences, exclude runtime states like isSystemDown
+            partialize: (state) => ({
+                themeMode: state.themeMode,
+                darkModeEnabled: state.darkModeEnabled,
+                biometricsEnabled: state.biometricsEnabled,
+                hasSeenOnboarding: state.hasSeenOnboarding,
+                language: state.language,
+            }),
         }
     )
 );

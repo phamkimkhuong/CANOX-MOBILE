@@ -276,6 +276,13 @@ export interface CommonTranslation {
     popup: {
         skipToday: string;
     };
+    maintenance: {
+        title: string;
+        description: string;
+        retryButton: string;
+        contactSupport: string;
+        support: string;
+    };
 }
 
 /**
