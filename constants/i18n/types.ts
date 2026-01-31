@@ -249,6 +249,7 @@ export interface CommonTranslation {
         save: string;
         delete: string;
         edit: string;
+        add: string;
         done: string;
         next: string;
         retry: string;

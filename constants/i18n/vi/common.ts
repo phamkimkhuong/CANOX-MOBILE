@@ -8,6 +8,7 @@ export const COMMON_STRINGS: CommonTranslation = {
         save: 'Lưu',
         delete: 'Xóa',
         edit: 'Chỉnh sửa',
+        add: 'Thêm',
         done: 'Xong',
         next: 'Tiếp theo',
         retry: 'Thử lại',

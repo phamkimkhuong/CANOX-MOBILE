@@ -57,7 +57,7 @@ export function ProfileInput<T extends FieldValues>({
                             <IconSymbol
                                 name={icon}
                                 size={20}
-                                color={disabled ? theme.colors.secondary : theme.colors.primary}
+                                color={disabled ? theme.colors.secondary : theme.colors.newPrimary}
                             />
                         </View>
 
@@ -128,7 +128,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         height: 48,
     },
     inputFocused: {
-        borderColor: theme.colors.primary,
+        borderColor: theme.colors.newPrimary,
         backgroundColor: theme.colors.surface,
     },
     inputError: {

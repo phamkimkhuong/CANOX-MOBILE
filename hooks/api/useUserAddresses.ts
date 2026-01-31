@@ -2,12 +2,13 @@
  * useUserAddresses - TanStack Query hooks for User's saved addresses
  */
 
-import { createBuyerAddress, deleteBuyerAddress, getBuyerAddresses, getCountry, updateBuyerAddress } from '@/services/api/addressApi';
-import { isSessionExpiredError } from '@/services/api/client';
+import { createBuyerAddress, deleteBuyerAddress, getBuyerAddresses, getCountry, setDefaultBuyerAddress, updateBuyerAddress } from '@/services/api/addressApi';
+import { isSessionExpiredError } from '@/services/api/errors';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useUserAddressStore } from '@/store/useUserAddressStore';
 import type {
     AddressFormData,
+    Country,
     CreateBuyerAddressRequest,
     ShippingAddress,
 } from '@/types/address';
@@ -35,18 +36,13 @@ const DEFAULT_COUNTRY_NAME = 'Việt Nam';
  * Hook fetch danh sách địa chỉ của user
  */
 export const useUserAddresses = () => {
-    const buyerId = useAuthStore((state) => state.buyerId);
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     const setAddresses = useUserAddressStore((s) => s.setAddresses);
 
     const query = useQuery({
         queryKey: USER_ADDRESS_KEYS.all,
         queryFn: async (): Promise<ShippingAddress[]> => {
-            if (!buyerId) {
-                throw new Error('User not authenticated or buyerId not found');
-            }
-
-            const response = await getBuyerAddresses(buyerId);
+            const response = await getBuyerAddresses();
 
             if (!response.success) {
                 throw new Error(response.message ?? 'Failed to fetch addresses');
@@ -54,7 +50,7 @@ export const useUserAddresses = () => {
 
             return toBuyerAddressListUI(response.data);
         },
-        enabled: isAuthenticated && !!buyerId,
+        enabled: isAuthenticated,
         staleTime: 1000 * 60 * 5,
     });
 
@@ -125,15 +121,14 @@ export const checkAddressLimitAndShowToast = (
 const toCreateRequest = (data: AddressFormData, countryName: string): CreateBuyerAddressRequest => ({
     recipientName: data.recipientName,
     phone: data.phone,
-    detailAddress: data.streetAddress,
-    ward: data.wardName,
-    district: '',
-    province: data.provinceName,
-    country: countryName,
-    districtNameOld: '',
-    provinceNameOld: data.provinceName,
-    wardNameOld: data.wardName,
-    type: data.label.toUpperCase() as 'HOME' | 'WORK' | 'OTHER',
+    address: {
+        detail: data.streetAddress,
+        ward: data.wardName,
+        district: '', // District logic not yet fully implemented in form
+        province: data.provinceName,
+        country: countryName,
+    },
+    type: data.label.toUpperCase(),
     isDefault: data.isDefault,
 });
 
@@ -148,9 +143,9 @@ export const useCountry = () => {
             if (!response.success) {
                 throw new Error(response.message ?? 'Failed to fetch country');
             }
-            return response.data;
+            return response.data; // Now returns Country[]
         },
-        staleTime: 1000 * 60 * 60 * 24, // 24 hours - country rarely changes
+        staleTime: 1000 * 60 * 60 * 24, // 24 hours
         gcTime: 1000 * 60 * 60 * 24 * 7, // 7 days
     });
 };
@@ -172,13 +167,16 @@ export const useAddAddress = () => {
             // Get country name from cache or fetch
             let countryName = DEFAULT_COUNTRY_NAME;
             try {
-                const cachedCountry = queryClient.getQueryData<{ name: string }>(COUNTRY_KEY);
-                if (cachedCountry?.name) {
-                    countryName = cachedCountry.name;
+                const cachedCountries = queryClient.getQueryData<Country[]>(COUNTRY_KEY);
+                const vnCountry = cachedCountries?.find(c => c.code === 'VN' || c.name === 'Vietnam');
+
+                if (vnCountry?.name) {
+                    countryName = vnCountry.name;
                 } else {
                     const countryResponse = await getCountry();
-                    if (countryResponse.success) {
-                        countryName = countryResponse.data.name;
+                    if (countryResponse.success && countryResponse.data.length > 0) {
+                        const firstCountry = countryResponse.data.find(c => c.code === 'VN') || countryResponse.data[0];
+                        countryName = firstCountry.name;
                         queryClient.setQueryData(COUNTRY_KEY, countryResponse.data);
                     }
                 }
@@ -187,7 +185,7 @@ export const useAddAddress = () => {
             }
 
             const requestData = toCreateRequest(data, countryName);
-            const response = await createBuyerAddress(buyerId, requestData);
+            const response = await createBuyerAddress(requestData);
 
             if (!response.success) {
                 throw new Error(response.message ?? 'Failed to create address');
@@ -225,13 +223,16 @@ export const useUpdateAddress = () => {
             // Get country name from cache or fetch
             let countryName = DEFAULT_COUNTRY_NAME;
             try {
-                const cachedCountry = queryClient.getQueryData<{ name: string }>(COUNTRY_KEY);
-                if (cachedCountry?.name) {
-                    countryName = cachedCountry.name;
+                const cachedCountries = queryClient.getQueryData<Country[]>(COUNTRY_KEY);
+                const vnCountry = cachedCountries?.find(c => c.code === 'VN' || c.name === 'Vietnam');
+
+                if (vnCountry?.name) {
+                    countryName = vnCountry.name;
                 } else {
                     const countryResponse = await getCountry();
-                    if (countryResponse.success) {
-                        countryName = countryResponse.data.name;
+                    if (countryResponse.success && countryResponse.data.length > 0) {
+                        const firstCountry = countryResponse.data.find(c => c.code === 'VN') || countryResponse.data[0];
+                        countryName = firstCountry.name;
                         queryClient.setQueryData(COUNTRY_KEY, countryResponse.data);
                     }
                 }
@@ -241,12 +242,11 @@ export const useUpdateAddress = () => {
 
             const requestData = toCreateRequest(params.data, countryName);
 
-            const response = await updateBuyerAddress(buyerId, params.id, requestData);
+            const response = await updateBuyerAddress(params.id, requestData);
 
             if (!response.success) {
                 throw new Error(response.message ?? 'Failed to update address');
             }
-
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: USER_ADDRESS_KEYS.all });
@@ -272,7 +272,7 @@ export const useDeleteAddress = () => {
                 throw new Error('User not authenticated');
             }
 
-            const response = await deleteBuyerAddress(buyerId, addressId);
+            const response = await deleteBuyerAddress(addressId);
 
             if (!response.success) {
                 throw new Error(response.message ?? 'Failed to delete address');
@@ -291,17 +291,30 @@ export const useDeleteAddress = () => {
 
 /**
  * Hook set địa chỉ mặc định
- * TODO: Implement when SET_DEFAULT API is ready
  */
 export const useSetDefaultAddress = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async (_id: string): Promise<string> => {
-            throw new Error('Set default address API not implemented yet');
+        mutationFn: async (addressId: string): Promise<void> => {
+            const response = await setDefaultBuyerAddress(addressId);
+
+            if (!response.success) {
+                throw new Error(response.message ?? 'Failed to set default address');
+            }
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: USER_ADDRESS_KEYS.all });
+            Toast.show({
+                type: 'success',
+                text1: 'Thành công',
+                text2: 'Đã thiết lập địa chỉ mặc định',
+            });
+        },
+        onError: (error) => {
+            const message = error instanceof Error ? error.message : 'Lỗi không xác định';
+            if (isSessionExpiredError(error)) return;
+            Toast.show({ type: 'error', text1: 'Thiết lập thất bại', text2: message });
         },
     });
 };

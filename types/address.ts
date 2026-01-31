@@ -8,7 +8,7 @@
  */
 
 import { z } from 'zod';
-import { ResponseDefaultSchema, createPaginatedResponseSchema } from './responseSchema';
+import { ResponseDefaultSchema } from './responseSchema';
 
 // ============================================
 // PROVINCE & WARD TYPES (Location Picker)
@@ -59,8 +59,9 @@ export interface ApiResponse<T> {
 }
 
 // Typed responses cho từng endpoint
-export type ProvinceListResponse = ApiResponse<PagedContent<Province>>;
-export type WardListResponse = ApiResponse<PagedContent<Ward>>;
+export type ProvinceListResponse = ApiResponse<Province[]>;
+export type ProvinceDetailResponse = ApiResponse<Province>;
+export type WardListResponse = ApiResponse<Ward[]>;
 export type WardDetailResponse = ApiResponse<Ward>;
 
 // ============================================
@@ -74,7 +75,7 @@ export interface Country {
     totalProvinces: number;
 }
 
-export type CountryResponse = ApiResponse<Country>;
+export type CountryResponse = ApiResponse<Country[]>;
 
 // ============================================
 // BUYER ADDRESS DTO (API Response)
@@ -86,18 +87,24 @@ export type CountryResponse = ApiResponse<Country>;
 export type AddressTypeAPI = 'HOME' | 'WORK' | 'OTHER';
 
 /**
- * Buyer Address DTO - Raw API response from GET /buyers/{buyerId}/address
+ * Buyer Address DTO - Raw API response from GET /api/v1/buyer/addresses
  */
 export interface BuyerAddressDTO {
     addressId: string;
     recipientName: string;
     phone: string;
-    detailAddress: string;
-    ward: string;
-    province: string;
+    address: {
+        country: string;
+        province: string;
+        ward: string;
+        detail: string | null;
+        district?: string;
+        zipCode?: string | null;
+        isInternational?: boolean;
+    };
     type: AddressTypeAPI;
-    createdDate: string;
-    lastModifiedDate: string;
+    createdDate?: string;
+    lastModifiedDate?: string;
     isDefault: boolean;
 }
 
@@ -117,15 +124,16 @@ export interface BuyerAddressListResponse {
 export interface CreateBuyerAddressRequest {
     recipientName: string;
     phone: string;
-    detailAddress: string;
-    ward: string;
-    district: string;
-    province: string;
-    country: string;
-    districtNameOld?: string;
-    provinceNameOld?: string;
-    wardNameOld?: string;
-    type: AddressTypeAPI;
+    address: {
+        country: string;
+        province: string;
+        district: string;
+        ward: string;
+        detail: string;
+        zipCode?: string;
+        geoinfo?: any;
+    };
+    type: AddressTypeAPI | string;
     isDefault: boolean;
 }
 
@@ -221,9 +229,20 @@ export const WardSchema = z.object({
     province: ProvinceSchema.nullable(),
 });
 
-export const ProvinceListResponseSchema = createPaginatedResponseSchema(ProvinceSchema);
+export const ProvinceListResponseSchema = ResponseDefaultSchema.extend({
+    message: z.string(),
+    data: z.array(ProvinceSchema),
+});
 
-export const WardListResponseSchema = createPaginatedResponseSchema(WardSchema);
+export const ProvinceDetailResponseSchema = ResponseDefaultSchema.extend({
+    message: z.string(),
+    data: ProvinceSchema,
+});
+
+export const WardListResponseSchema = ResponseDefaultSchema.extend({
+    message: z.string(),
+    data: z.array(WardSchema),
+});
 
 export const WardDetailResponseSchema = ResponseDefaultSchema.extend({
     message: z.string(),

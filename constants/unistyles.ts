@@ -110,7 +110,7 @@ const lightTheme = {
         secondaryLight: 'rgba(148, 163, 184, 0.30)',
         surfaceTranslucent: 'rgba(255, 255, 255, 0.6)',
         surfaceOverlay: 'rgba(255, 255, 255, 0.8)',
-        backgroundInput: 'rgba(238, 248, 255, 0.8)',
+        backgroundInput: '#ffffff',
         backgroundSurface: 'rgba(0, 136, 204, 0.06)',
         secondarySoft: 'rgba(148, 163, 184, 0.15)',
         textOnOverlay: 'rgba(255, 255, 255, 0.8)',

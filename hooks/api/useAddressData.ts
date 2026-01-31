@@ -2,16 +2,15 @@
  * useAddressData - TanStack Query hooks for Address location data
  * 
  * Features:
- * - useInfiniteQuery for pagination + search
+ * - useQuery for non-paginated data (BE updated)
  * - Debounced search để tránh spam API
  * - Smart caching với staleTime
  * - enabled flag để control fetch timing
  */
 
 import { useDebounce } from '@/hooks/useDebounce';
-import { getProvinces, getWardsByProvince } from '@/services/api/addressApi';
-import type { Province, Ward } from '@/types/address';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { getProvinceDetail, getProvinces, getWardsByProvince } from '@/services/api/addressApi';
+import { useQuery } from '@tanstack/react-query';
 
 // ============================================
 // QUERY KEYS
@@ -19,6 +18,7 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 
 export const ADDRESS_QUERY_KEYS = {
     provinces: (search: string) => ['provinces', search] as const,
+    provinceDetail: (code: string) => ['province', code] as const,
     wards: (provinceCode: string, search: string) =>
         ['wards', provinceCode, search] as const,
 } as const;
@@ -38,35 +38,33 @@ interface UseProvincesOptions {
 }
 
 /**
- * Hook fetch danh sách Tỉnh/Thành phố với infinite scroll + search
+ * Hook fetch danh sách Tỉnh/Thành phố
  */
 export const useProvinces = (options: UseProvincesOptions = {}) => {
     const { search = '', enabled = true } = options;
-
-    // Debounce search để user gõ xong mới gọi API
     const debouncedSearch = useDebounce(search, DEBOUNCE_DELAY);
 
-    return useInfiniteQuery({
+    return useQuery({
         queryKey: ADDRESS_QUERY_KEYS.provinces(debouncedSearch),
-        queryFn: async ({ pageParam = 0 }) => {
-            const response = await getProvinces({
-                page: pageParam,
-                search: debouncedSearch || undefined,
-            });
-            return response;
-        },
-        initialPageParam: 0,
-        getNextPageParam: (lastPage) => {
-            // Trả về page tiếp theo nếu còn data, undefined nếu hết
-            if (lastPage.data.hasNext) {
-                return lastPage.data.nextPage;
-            }
-            return undefined;
-        },
+        queryFn: () => getProvinces({ search: debouncedSearch || undefined }),
         enabled,
         staleTime: STALE_TIME,
-        // Cache tỉnh lâu hơn vì ít thay đổi
         gcTime: 1000 * 60 * 60, // 1 giờ
+    });
+};
+
+/**
+ * Hook fetch chi tiết Tỉnh/Thành phố
+ */
+export const useProvinceDetail = (code: string | null, enabled = true) => {
+    return useQuery({
+        queryKey: ADDRESS_QUERY_KEYS.provinceDetail(code ?? ''),
+        queryFn: () => {
+            if (!code) throw new Error('Province code is required');
+            return getProvinceDetail(code);
+        },
+        enabled: enabled && !!code,
+        staleTime: STALE_TIME,
     });
 };
 
@@ -78,37 +76,19 @@ interface UseWardsOptions {
 }
 
 /**
- * Hook fetch danh sách Phường/Xã với infinite scroll + search
+ * Hook fetch danh sách Phường/Xã
  * Chỉ fetch khi có provinceCode (cascading dependency)
  */
 export const useWards = (options: UseWardsOptions) => {
     const { provinceCode, search = '', enabled = true } = options;
-
-    // Debounce search
     const debouncedSearch = useDebounce(search, DEBOUNCE_DELAY);
-
-    // Chỉ enable khi có provinceCode
     const isEnabled = enabled && !!provinceCode;
 
-    return useInfiniteQuery({
+    return useQuery({
         queryKey: ADDRESS_QUERY_KEYS.wards(provinceCode ?? '', debouncedSearch),
-        queryFn: async ({ pageParam = 0 }) => {
-            if (!provinceCode) {
-                throw new Error('Province code is required');
-            }
-
-            const response = await getWardsByProvince(provinceCode, {
-                page: pageParam,
-                search: debouncedSearch || undefined,
-            });
-            return response;
-        },
-        initialPageParam: 0,
-        getNextPageParam: (lastPage) => {
-            if (lastPage.data.hasNext) {
-                return lastPage.data.nextPage;
-            }
-            return undefined;
+        queryFn: () => {
+            if (!provinceCode) throw new Error('Province code is required');
+            return getWardsByProvince(provinceCode, { search: debouncedSearch || undefined });
         },
         enabled: isEnabled,
         staleTime: STALE_TIME,
@@ -117,37 +97,33 @@ export const useWards = (options: UseWardsOptions) => {
 };
 
 // ============================================
-// HELPER HOOKS
+// HELPER HOOKS (Maintain compatibility)
 // ============================================
 
 /**
- * Flatten provinces từ infinite query pages
+ * Provides flattened provinces array (Legacy support)
  */
 export const useFlattenedProvinces = (options: UseProvincesOptions = {}) => {
     const query = useProvinces(options);
-
-    const provinces: Province[] =
-        query.data?.pages.flatMap((page) => page.data.content) ?? [];
+    const provinces = query.data?.data ?? [];
 
     return {
         ...query,
         provinces,
-        totalCount: query.data?.pages[0]?.data.totalElements ?? 0,
+        totalCount: provinces.length,
     };
 };
 
 /**
- * Flatten wards từ infinite query pages
+ * Provides flattened wards array (Legacy support)
  */
 export const useFlattenedWards = (options: UseWardsOptions) => {
     const query = useWards(options);
-
-    const wards: Ward[] =
-        query.data?.pages.flatMap((page) => page.data.content) ?? [];
+    const wards = query.data?.data ?? [];
 
     return {
         ...query,
         wards,
-        totalCount: query.data?.pages[0]?.data.totalElements ?? 0,
+        totalCount: wards.length,
     };
 };

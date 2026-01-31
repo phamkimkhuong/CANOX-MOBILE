@@ -127,8 +127,8 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderBottomRightRadius: theme.radius.m - 1,
     },
     segmentSelected: {
-        backgroundColor: theme.colors.primary,
-        borderRightColor: theme.colors.primary,
+        backgroundColor: theme.colors.newPrimary,
+        borderRightColor: theme.colors.newPrimary,
     },
     segmentText: {
         fontSize: 14,

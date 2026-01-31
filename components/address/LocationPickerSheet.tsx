@@ -15,13 +15,12 @@ import type { Province, Ward } from '@/types/address';
 import { FlashList } from '@shopify/flash-list';
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import {
-    ActivityIndicator,
     Keyboard,
     Modal,
     Pressable,
     Text,
     TextInput,
-    View,
+    View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -101,12 +100,10 @@ export const LocationPickerSheet: React.FC<LocationPickerSheetProps> = memo(({
         [onSelect, onClose]
     );
 
-    // Handle load more
+    // Handle load more (No longer needed for non-paginated data)
     const handleEndReached = useCallback(() => {
-        if (query.hasNextPage && !query.isFetchingNextPage) {
-            query.fetchNextPage();
-        }
-    }, [query]);
+        // No-op
+    }, []);
 
     // Render item
     const renderItem = useCallback(
@@ -143,14 +140,8 @@ export const LocationPickerSheet: React.FC<LocationPickerSheetProps> = memo(({
 
     // Render footer (loading indicator)
     const renderFooter = useCallback(() => {
-        if (!query.isFetchingNextPage) return null;
-
-        return (
-            <View style={styles.footer}>
-                <ActivityIndicator size="small" color={theme.colors.primary} />
-            </View>
-        );
-    }, [query.isFetchingNextPage, styles.footer, theme.colors.primary]);
+        return null;
+    }, []);
 
     // Key extractor
     const keyExtractor = useCallback(

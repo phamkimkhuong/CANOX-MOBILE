@@ -27,6 +27,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { AddressSection } from './AddressSection';
 import { AvatarEditView } from './AvatarEditView';
 import { DatePickerField } from './DatePickerField';
 import { GenderSelector } from './GenderSelector';
@@ -288,7 +289,8 @@ export default function EditProfileScreen() {
                 <ScrollView
                     style={styles.scrollView}
                     contentContainerStyle={[
-                        styles.scrollContent
+                        styles.scrollContent,
+                        { paddingBottom: isDirty && !isKeyboardVisible ? insets.bottom + 100 : insets.bottom + 20 }
                     ]}
                     showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps="handled"
@@ -362,14 +364,17 @@ export default function EditProfileScreen() {
                             disabled={true}
                             rightText={t('profile:editProfile.form.verified')}
                         />
-                    </View>
 
-                    {/* Info Notice */}
-                    <View style={styles.noticeContainer}>
-                        <IconSymbol name="info" size={20} color={theme.colors.secondary} />
-                        <Text style={styles.noticeText}>
-                            {t('profile:editProfile.form.emailLockNotice')}
-                        </Text>
+                        {/* Info Notice for Email */}
+                        <View style={styles.noticeContainer}>
+                            <IconSymbol name="info" size={16} color={theme.colors.secondary} />
+                            <Text style={styles.noticeText}>
+                                {t('profile:editProfile.form.emailLockNotice')}
+                            </Text>
+                        </View>
+
+                        {/* Address Section */}
+                        <AddressSection />
                     </View>
                 </ScrollView>
             </KeyboardAvoidingView>
@@ -425,7 +430,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     saveButton: {
         fontSize: 16,
         fontWeight: '600',
-        color: theme.colors.primary,
+        color: theme.colors.newPrimary,
     },
     saveButtonDisabled: {
         color: theme.colors.secondary,
@@ -444,9 +449,12 @@ const stylesheet = StyleSheet.create((theme) => ({
     noticeContainer: {
         flexDirection: 'row',
         alignItems: 'flex-start',
-        backgroundColor: theme.colors.backgroundInput,
+        backgroundColor: 'rgba(0,0,0,0.03)',
         borderRadius: theme.radius.m,
-        gap: theme.margins.sm,
+        padding: theme.margins.sm,
+        gap: theme.margins.xs,
+        marginTop: -theme.margins.xs,
+        marginBottom: theme.margins.sm,
     },
     noticeText: {
         flex: 1,
@@ -466,7 +474,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: theme.colors.primary,
+        backgroundColor: theme.colors.newPrimary,
         paddingVertical: 16,
         borderRadius: theme.radius.m,
         gap: 8,

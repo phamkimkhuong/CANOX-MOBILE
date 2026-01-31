@@ -38,11 +38,11 @@ export const toBuyerAddressUI = (dto: BuyerAddressDTO): ShippingAddress => ({
     id: dto.addressId,
     recipientName: dto.recipientName,
     phone: dto.phone,
-    streetAddress: dto.detailAddress,
+    streetAddress: dto.address?.detail ?? '',
     wardCode: '',
-    wardName: dto.ward,
+    wardName: dto.address?.ward ?? '',
     provinceCode: '',
-    provinceName: dto.province,
+    provinceName: dto.address?.province ?? '',
     label: mapAddressType(dto.type),
     isDefault: dto.isDefault,
     createdAt: dto.createdDate,
@@ -59,11 +59,14 @@ export const toBuyerAddressListUI = (dtos: BuyerAddressDTO[]): ShippingAddress[]
  * Get full address string for display
  */
 export const formatShippingAddress = (address: ShippingAddress): string => {
+    if (!address) return '';
     const parts = [
         address.streetAddress,
         address.wardName,
         address.provinceName,
-    ].filter(Boolean);
+    ]
+        .map(p => p?.trim())
+        .filter(p => !!p && p !== 'null' && p !== 'undefined');
     return parts.join(', ');
 };
 

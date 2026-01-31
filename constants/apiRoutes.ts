@@ -82,15 +82,17 @@ export const API_ROUTES = {
     ADDRESS: {
         COUNTRY: `${API_PREFIX}/address/country`,
         PROVINCES: `${API_PREFIX}/address/provinces`,
+        PROVINCE_DETAIL: (code: string) => `${API_PREFIX}/address/provinces/${code}`,
         WARDS_BY_PROVINCE: (provinceCode: string) => `${API_PREFIX}/address/provinces/${provinceCode}/wards`,
         WARD_DETAIL: (wardCode: string) => `${API_PREFIX}/address/wards/${wardCode}`,
     },
     BUYER_ADDRESS: {
-        LIST: (buyerId: string) => `${API_PREFIX}/buyers/${buyerId}/address`,
-        CREATE: (buyerId: string) => `${API_PREFIX}/buyers/${buyerId}/address`,
-        UPDATE: (buyerId: string, addressId: string) => `${API_PREFIX}/buyers/${buyerId}/address/${addressId}`,
-        DELETE: (buyerId: string, addressId: string) => `${API_PREFIX}/buyers/${buyerId}/address/${addressId}`,
-        SET_DEFAULT: (buyerId: string, addressId: string) => `${API_PREFIX}/buyers/${buyerId}/address/${addressId}/default`,
+        LIST: `${API_PREFIX}/buyer/addresses`,
+        CREATE: `${API_PREFIX}/buyer/addresses`,
+        UPDATE: (addressId: string) => `${API_PREFIX}/buyer/addresses/${addressId}`,
+        DELETE: (addressId: string) => `${API_PREFIX}/buyer/addresses/${addressId}`,
+        SET_DEFAULT: (addressId: string) => `${API_PREFIX}/buyer/addresses/${addressId}/default`,
+        DETAIL: (addressId: string) => `${API_PREFIX}/buyer/addresses/${addressId}`,
     },
     SHOPS: {
         DETAIL: (shopId: string) => `${API_PREFIX}/public/shops/${shopId}`,

@@ -8,6 +8,7 @@ export const COMMON_STRINGS: CommonTranslation = {
         save: 'Save',
         delete: 'Delete',
         edit: 'Edit',
+        add: 'Add',
         done: 'Done',
         next: 'Next',
         retry: 'Retry',

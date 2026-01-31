@@ -23,7 +23,6 @@ import {
     performTokenRefresh,
     waitForTokenRefresh
 } from '../auth/tokenManager';
-import { queryClient } from './queryClient';
 
 // ============================================
 // CONFIGURATION
@@ -71,46 +70,8 @@ const isPublicEndpoint = (url?: string): boolean => {
 // CUSTOM ERROR CLASSES
 // ============================================
 
-/**
- * Generic API Error for consistent error handling across the app
- */
-export class ApiError extends Error {
-    constructor(
-        public message: string,
-        public status?: number,
-        public code?: number
-    ) {
-        super(message);
-        this.name = 'ApiError';
-    }
-}
-
-/**
- * Special error for session expiry
- * 
- * Purpose:
- * - Prevents React Query from retrying (pointless when session expired)
- * - Prevents Toast spam (UI should stay silent, logout is happening)
- * - Separates Auth logic from UI logic
- * 
- * Usage in QueryClient:
- * - retry: (count, error) => !(error instanceof SessionExpiredError)
- * - onError: (error) => { if (error instanceof SessionExpiredError) return; }
- */
-export class SessionExpiredError extends Error {
-    constructor(message: string = 'Phiên đăng nhập đã hết hạn') {
-        super(message);
-        this.name = 'SessionExpiredError';
-    }
-}
-
-/**
- * Type guard to check if error is SessionExpiredError
- * Use this in components to conditionally handle session expiry
- */
-export const isSessionExpiredError = (error: unknown): error is SessionExpiredError => {
-    return error instanceof SessionExpiredError;
-};
+import { ApiError, SessionExpiredError } from './errors';
+import { queryClient } from './queryClient';
 
 // ============================================
 // AXIOS INSTANCE

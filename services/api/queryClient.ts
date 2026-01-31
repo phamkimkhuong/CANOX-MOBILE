@@ -9,7 +9,7 @@ import { logger } from '@/utils/logger';
  */
 
 import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query';
-import { isSessionExpiredError } from './client';
+import { isSessionExpiredError } from './errors';
 
 /**
  * Global retry logic for queries

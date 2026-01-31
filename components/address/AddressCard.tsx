@@ -10,6 +10,7 @@
 
 import { IconSymbol } from '@/components/ui/Icon';
 import type { AddressLabel, AddressListMode, ShippingAddress } from '@/types/address';
+import { formatShippingAddress } from '@/utils/adapter/addressAdapter';
 import { formatPhoneNumber } from '@/utils/format';
 import React, { memo, useCallback } from 'react';
 import { Pressable, Text, View } from 'react-native';
@@ -52,13 +53,7 @@ export const AddressCard: React.FC<AddressCardProps> = memo(({
     const labelConfig = LABEL_CONFIG[address.label];
 
     // Format full address string
-    const fullAddress = [
-        address.streetAddress,
-        address.wardName,
-        address.provinceName,
-    ]
-        .filter(Boolean)
-        .join(', ');
+    const fullAddress = formatShippingAddress(address);
 
     const handlePress = useCallback(() => {
         onPress?.(address);
@@ -139,20 +134,19 @@ export const AddressCard: React.FC<AddressCardProps> = memo(({
                 </View>
             </View>
 
-            {/* Right: Edit Button */}
-            {onEdit && (
+            {/* Right: Edit Button - Only show in selection mode (management mode uses card press) */}
+            {onEdit && mode !== 'management' && (
                 <Pressable
                     onPress={handleEdit}
-                    style={styles.editButton}
-                    hitSlop={8}
+                    style={({ pressed }) => [
+                        styles.editButton,
+                        pressed && styles.editButtonPressed
+                    ]}
+                    hitSlop={12}
                     accessibilityRole="button"
                     accessibilityLabel="Sửa địa chỉ"
                 >
-                    <IconSymbol
-                        name="edit"
-                        size={20}
-                        color={theme.colors.primary}
-                    />
+                    <Text style={styles.editButtonText}>Sửa</Text>
                 </Pressable>
             )}
         </Pressable>
@@ -256,8 +250,24 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
 
     editButton: {
-        padding: theme.margins.sm,
-        marginRight: -theme.margins.sm,
-        marginTop: -theme.margins.sm,
+        paddingHorizontal: theme.margins.md,
+        paddingVertical: 6,
+        borderRadius: theme.radius.m,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        backgroundColor: theme.colors.background,
+        justifyContent: 'center',
+        alignItems: 'center',
+        alignSelf: 'flex-start',
+        minWidth: 60,
+    },
+    editButtonPressed: {
+        backgroundColor: theme.colors.backgroundNewSurface || 'rgba(0,0,0,0.05)',
+        borderColor: theme.colors.secondary,
+    },
+    editButtonText: {
+        fontSize: 13,
+        fontWeight: '600',
+        color: theme.colors.newPrimary || theme.colors.primary,
     },
 }));

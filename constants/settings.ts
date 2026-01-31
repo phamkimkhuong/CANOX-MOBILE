@@ -76,7 +76,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
                 label: 'Hồ sơ & Địa chỉ',
                 icon: 'badge',
                 iconColor: 'blue',
-                route: ROUTES.SETTINGS.PROFILE,
+                route: ROUTES.USER.EDIT_PROFILE,
             },
             {
                 id: 'change-password',

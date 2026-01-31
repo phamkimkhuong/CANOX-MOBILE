@@ -31,6 +31,7 @@ import {
     TextInput,
     View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { z } from 'zod';
 import { LocationPickerSheet } from './LocationPickerSheet';
@@ -107,6 +108,7 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+    const insets = useSafeAreaInsets();
 
     // Picker state
     const [showProvincePicker, setShowProvincePicker] = useState(false);
@@ -228,7 +230,10 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
         >
             <ScrollView
                 style={styles.scrollView}
-                contentContainerStyle={styles.scrollContent}
+                contentContainerStyle={[
+                    styles.scrollContent,
+                    { paddingBottom: 10 }
+                ]}
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
             >
@@ -454,7 +459,7 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
             </ScrollView>
 
             {/* Footer Buttons */}
-            <View style={styles.footer}>
+            <View style={[styles.footer, { paddingBottom: insets.bottom + theme.margins.md }]}>
                 <View style={styles.footerButtonRow}>
                     {/* Delete Button - Only show in edit mode */}
                     {initialData && onDelete && (
