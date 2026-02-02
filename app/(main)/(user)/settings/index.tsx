@@ -54,6 +54,15 @@ export default function SettingsScreen() {
 
     const { logout } = useLogout();
 
+    const handleHelp = useCallback(() => {
+        CustomAlert.show({
+            title: t('settings.helpTitle'),
+            message: t('settings.helpMessage'),
+            type: 'info',
+            confirmText: t('common:actions.done')
+        });
+    }, [t]);
+
     // Handle navigation for link items
     const handleNavigation = useCallback((route: any) => {
         Navigator.push(route);
@@ -239,7 +248,7 @@ export default function SettingsScreen() {
 
     return (
         <View style={styles.container}>
-            <SettingsHeader />
+            <SettingsHeader onHelpPress={handleHelp} />
 
             <ScrollView
                 style={styles.scrollView}

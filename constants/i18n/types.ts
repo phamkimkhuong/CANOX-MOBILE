@@ -899,6 +899,8 @@ export interface ProfileTranslation {
             deleteAccountHint: string;
             deleteAccountAccessibility: string;
         };
+        helpTitle: string;
+        helpMessage: string;
     };
 }
 

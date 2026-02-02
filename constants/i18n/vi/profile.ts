@@ -172,5 +172,7 @@ export const PROFILE_STRINGS: ProfileTranslation = {
             deleteAccountHint: 'Xóa vĩnh viễn tài khoản và dữ liệu của bạn',
             deleteAccountAccessibility: 'Yêu cầu xóa tài khoản',
         },
+        helpTitle: 'Thiết lập tài khoản',
+        helpMessage: '• Bạn có thể quản lý thông tin cá nhân, địa chỉ và bảo mật.\n• Cài đặt ứng dụng giúp tùy chỉnh giao diện và ngôn ngữ.\n• Bộ nhớ đệm giúp ứng dụng chạy nhanh hơn, nhưng bạn có thể xóa để giải phóng dung lượng.',
     },
 };
