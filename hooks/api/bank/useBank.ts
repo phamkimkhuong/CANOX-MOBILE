@@ -10,6 +10,8 @@ import {
 import { BankSupportedUI, UserBankAccountUI } from '@/types/bank/ui';
 import { transformSupportedBank, transformUserBankAccount } from '@/utils/adapter/bankAdapter';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
+import Toast from 'react-native-toast-message';
 
 // ============================================
 // QUERY KEYS
@@ -108,6 +110,8 @@ export const useDefaultBankAccount = () => {
  * Start bank verification (sends OTP)
  */
 export const useInitBankVerification = () => {
+    const { t } = useTranslation(['bank', 'common']);
+
     return useMutation({
         mutationFn: async (data: {
             bankName: string;
@@ -127,6 +131,14 @@ export const useInitBankVerification = () => {
             );
             return response.data;
         },
+        onError: (error) => {
+            Toast.show({
+                type: 'error',
+                text1: t('bank:status.initVerifyFailed'),
+                text2: error instanceof Error ? error.message : t('common:status.error'),
+            });
+        },
+        meta: { handledLocally: true },
     });
 };
 
@@ -135,6 +147,7 @@ export const useInitBankVerification = () => {
  */
 export const useVerifyAndCreateBank = () => {
     const queryClient = useQueryClient();
+    const { t } = useTranslation(['bank', 'common']);
 
     return useMutation({
         mutationFn: async (data: {
@@ -155,7 +168,19 @@ export const useVerifyAndCreateBank = () => {
             // Refresh bank lists
             queryClient.invalidateQueries({ queryKey: bankQueryKeys.myAccounts() });
             queryClient.invalidateQueries({ queryKey: bankQueryKeys.default() });
+            Toast.show({
+                type: 'success',
+                text1: t('bank:status.addSuccess'),
+            });
         },
+        onError: (error) => {
+            Toast.show({
+                type: 'error',
+                text1: t('bank:status.addFailed'),
+                text2: error instanceof Error ? error.message : t('common:status.error'),
+            });
+        },
+        meta: { handledLocally: true },
     });
 };
 
@@ -164,6 +189,7 @@ export const useVerifyAndCreateBank = () => {
  */
 export const useSetDefaultBank = () => {
     const queryClient = useQueryClient();
+    const { t } = useTranslation(['bank', 'common']);
 
     return useMutation({
         mutationFn: async (bankAccountId: string) => {
@@ -172,13 +198,72 @@ export const useSetDefaultBank = () => {
                     url: API_ROUTES.BANKS.SET_DEFAULT(bankAccountId),
                     method: 'PATCH',
                 },
-                BankAccountResponseSchema
+                BankAccountResponseSchema.partial() // Use partial as it might only return message
             );
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: bankQueryKeys.myAccounts() });
             queryClient.invalidateQueries({ queryKey: bankQueryKeys.default() });
+            Toast.show({
+                type: 'success',
+                text1: t('bank:status.setDefaultSuccess'),
+            });
         },
+        onError: (error) => {
+            Toast.show({
+                type: 'error',
+                text1: t('bank:status.setDefaultFailed'),
+                text2: error instanceof Error ? error.message : t('common:status.error'),
+            });
+        },
+        meta: { handledLocally: true },
+    });
+};
+
+/**
+ * Update a bank account
+ */
+export const useUpdateBank = () => {
+    const queryClient = useQueryClient();
+    const { t } = useTranslation(['bank', 'common']);
+
+    return useMutation({
+        mutationFn: async ({ id, data }: {
+            id: string;
+            data: {
+                bankName?: string;
+                bankAccountNumber?: string;
+                bankAccountHolder?: string;
+                branch?: string;
+                isDefault?: boolean;
+            }
+        }) => {
+            const response = await request(
+                {
+                    url: API_ROUTES.BANKS.DETAIL(id),
+                    method: 'PUT',
+                    data,
+                },
+                BankAccountResponseSchema
+            );
+            return response.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: bankQueryKeys.myAccounts() });
+            queryClient.invalidateQueries({ queryKey: bankQueryKeys.default() });
+            Toast.show({
+                type: 'success',
+                text1: t('bank:status.updateSuccess'),
+            });
+        },
+        onError: (error) => {
+            Toast.show({
+                type: 'error',
+                text1: t('bank:status.updateFailed'),
+                text2: error instanceof Error ? error.message : t('common:status.error'),
+            });
+        },
+        meta: { handledLocally: true },
     });
 };
 
@@ -187,6 +272,7 @@ export const useSetDefaultBank = () => {
  */
 export const useDeleteBank = () => {
     const queryClient = useQueryClient();
+    const { t } = useTranslation(['bank', 'common']);
 
     return useMutation({
         mutationFn: async (bankAccountId: string) => {
@@ -195,12 +281,24 @@ export const useDeleteBank = () => {
                     url: API_ROUTES.BANKS.DELETE(bankAccountId),
                     method: 'DELETE',
                 },
-                BankAccountResponseSchema
+                BankAccountListResponseSchema.partial() // Use partial as delete doesn't return data
             );
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: bankQueryKeys.myAccounts() });
             queryClient.invalidateQueries({ queryKey: bankQueryKeys.default() });
+            Toast.show({
+                type: 'success',
+                text1: t('bank:status.deleteSuccess'),
+            });
         },
+        onError: (error) => {
+            Toast.show({
+                type: 'error',
+                text1: t('bank:status.deleteFailed'),
+                text2: error instanceof Error ? error.message : t('common:status.error'),
+            });
+        },
+        meta: { handledLocally: true },
     });
 };

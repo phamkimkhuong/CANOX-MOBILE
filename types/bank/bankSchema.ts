@@ -28,11 +28,11 @@ export const BankInitVerificationSchema = z.object({
  */
 export const AddBankFormSchema = z.object({
     bankAccountNumber: z.string()
-        .min(6, 'Số tài khoản ít nhất 6 ký tự')
-        .regex(/^[0-9]+$/, 'Số tài khoản chỉ được chứa số'),
+        .min(6, 'bank:validation.accountMin')
+        .regex(/^[0-9]+$/, 'bank:validation.accountNumbersOnly'),
     bankAccountHolder: z.string()
-        .min(2, 'Tên chủ tài khoản quá ngắn')
-        .regex(/^[A-Z\s]+$/, 'Vui lòng nhập tên in hoa không dấu'),
+        .min(2, 'bank:validation.holderMin')
+        .regex(/^[A-Z\s]+$/, 'bank:validation.holderUppercase'),
 });
 
 export type AddBankFormData = z.infer<typeof AddBankFormSchema>;

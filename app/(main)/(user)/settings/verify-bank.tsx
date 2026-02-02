@@ -45,11 +45,11 @@ export default function VerifyBankScreen() {
 
     // API Hooks
     const { mutate: verifyOtp, isPending } = useVerifyAndCreateBank();
-    const countdown = useCountdown({ duration: 60, autoStart: true });
+    const countdown = useCountdown({ duration: 120, autoStart: true });
 
     // Handlers
-    const handleVerify = useCallback(() => {
-        if (otp.length !== 6) {
+    const performVerification = useCallback((code: string) => {
+        if (code.length !== 6) {
             setError(t('bank:verify.errorInvalid'));
             return;
         }
@@ -57,11 +57,10 @@ export default function VerifyBankScreen() {
         verifyOtp(
             {
                 verificationId: params.verificationId || '',
-                otpCode: otp,
+                otpCode: code,
             },
             {
                 onSuccess: () => {
-                    // Success! Navigate back to list
                     Navigator.replace(ROUTES.SETTINGS.BANK_CARDS);
                 },
                 onError: (err: any) => {
@@ -69,7 +68,10 @@ export default function VerifyBankScreen() {
                 }
             }
         );
-    }, [otp, params.verificationId, verifyOtp, t]);
+    }, [params.verificationId, verifyOtp, t]);
+
+    const handleVerify = () => performVerification(otp);
+    const handleVerifyAuto = (code: string) => performVerification(code);
 
     const handleResend = useCallback(() => {
         if (!countdown.isExpired) return;
@@ -128,6 +130,7 @@ export default function VerifyBankScreen() {
                         { paddingBottom: insets.bottom + 40 }
                     ]}
                     showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="handled"
                 >
                     <Animated.View entering={FadeInUp.duration(600)} style={styles.content}>
                         {/* Premium Glass Card */}
@@ -146,15 +149,26 @@ export default function VerifyBankScreen() {
                                 {/* OTP Input Area - Clickable to focus hidden input */}
                                 <Pressable
                                     style={styles.inputArea}
-                                    onPress={() => inputRef.current?.focus()}
+                                    onPress={() => {
+                                        // Ensure keyboard pops up even if already focused
+                                        if (inputRef.current?.isFocused()) {
+                                            inputRef.current.blur();
+                                        }
+                                        setTimeout(() => inputRef.current?.focus(), 50);
+                                    }}
                                 >
                                     {renderOtpBoxes()}
                                     <TextInput
                                         ref={inputRef}
                                         value={otp}
                                         onChangeText={(val) => {
-                                            setOtp(val.replace(/[^0-9]/g, '').slice(0, 6));
+                                            const cleaned = val.replace(/[^0-9]/g, '').slice(0, 6);
+                                            setOtp(cleaned);
                                             setError(null);
+
+                                            if (cleaned.length === 6) {
+                                                handleVerifyAuto(cleaned);
+                                            }
                                         }}
                                         keyboardType="numeric"
                                         maxLength={6}
@@ -196,7 +210,8 @@ export default function VerifyBankScreen() {
                                     ]}
                                 >
                                     <LinearGradient
-                                        colors={[theme.colors.buttonActive, '#6366f1']}
+                                        colors={[theme.colors.buttonActive, theme.colors.buttonActive, theme.colors.accent]}
+                                        locations={[0, 0.6, 1]}
                                         start={{ x: 0, y: 0 }}
                                         end={{ x: 1, y: 0 }}
                                         style={styles.gradient}
@@ -363,10 +378,8 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.typography,
     },
     hiddenInput: {
-        position: 'absolute',
+        ...StyleSheet.absoluteFillObject,
         opacity: 0,
-        width: 1,
-        height: 1,
     },
     errorContainer: {
         flexDirection: 'row',

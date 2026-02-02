@@ -10,6 +10,7 @@ import { devLog } from '@/utils/logger';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
 import { useCallback, useState } from 'react';
+import Toast from 'react-native-toast-message';
 import { profileQueryKeys } from './useProfile';
 
 /**
@@ -113,7 +114,13 @@ export const useAvatarUpload = () => {
         onError: (error) => {
             devLog('[useAvatarUpload] Error:', error);
             setUploadProgress(0);
+            Toast.show({
+                type: 'error',
+                text1: 'Upload ảnh thất bại',
+                text2: error instanceof Error ? error.message : 'Vui lòng thử lại sau',
+            });
         },
+        meta: { handledLocally: true },
     });
 
     /**

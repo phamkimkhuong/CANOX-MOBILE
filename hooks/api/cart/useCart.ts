@@ -147,22 +147,25 @@ export const useAddToCart = () => {
         },
 
         // On error: Rollback, hide loading, and show error message
-        onError: (error) => {
+        onError: (error, variables) => {
             hideGlobalLoading();
 
             logger.cart.warn('Add to cart failed', { error });
             // Invalidate to refetch correct data from server
             queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
 
-            const errorMessage = error instanceof Error ? error.message : t('status.addFailed');
-            Toast.show({
-                type: 'error',
-                text1: t('status.addFailed'),
-                text2: errorMessage,
-                position: 'top',
-                visibilityTime: 3000,
-            });
+            if (!variables.hideToast) {
+                const errorMessage = error instanceof Error ? error.message : t('status.addFailed');
+                Toast.show({
+                    type: 'error',
+                    text1: t('status.addFailed'),
+                    text2: errorMessage,
+                    position: 'top',
+                    visibilityTime: 3000,
+                });
+            }
         },
+        meta: { handledLocally: true },
 
         // On success: Hide loading, update cache, and show success message
         onSuccess: (data, variables) => {

@@ -47,6 +47,7 @@ export const useTrackSearch = () => {
             // Silent fail - don't disrupt user experience for analytics
             logger.api.warn('Failed to track search:', error);
         },
+        meta: { handledLocally: true },
     });
 };
 

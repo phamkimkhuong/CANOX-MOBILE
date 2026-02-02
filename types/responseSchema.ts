@@ -5,7 +5,7 @@ export const ResponseDefaultSchema = z.object({
     code: z.number().nullable().optional().default(0),
     success: z.boolean().nullable().optional().default(true),
     message: z.string().nullable().optional().default(''),
-    data: z.any()
+    data: z.any().optional()
 });
 
 export interface PaginatedResponse<T> {

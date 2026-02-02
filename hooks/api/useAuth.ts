@@ -57,6 +57,7 @@ export const useLogin = () => {
                 text2: error.message || 'Vui lòng kiểm tra lại thông tin.',
             });
         },
+        meta: { handledLocally: true },
     });
 };
 
@@ -83,6 +84,7 @@ export const useRegister = () => {
                 });
             }
         },
+        meta: { handledLocally: true },
     });
 };
 
@@ -117,6 +119,7 @@ export const useLogout = () => {
                 text2: message,
             });
         },
+        meta: { handledLocally: true },
     });
 };
 

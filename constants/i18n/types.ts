@@ -1137,6 +1137,17 @@ export interface BankTranslation {
         emptySubtitle: string;
         defaultBadge: string;
         securityHint: string;
+        updateSuccess: string;
+        deleteTitle: string;
+        deleteConfirm: string;
+        deleteSuccess: string;
+        helpTitle: string;
+        helpMessage: string;
+    };
+    edit: {
+        title: string;
+        helpTitle: string;
+        helpMessage: string;
     };
     add: {
         title: string;
@@ -1177,6 +1188,17 @@ export interface BankTranslation {
         accountNumbersOnly: string;
         holderMin: string;
         holderUppercase: string;
+    };
+    status: {
+        initVerifyFailed: string;
+        addSuccess: string;
+        addFailed: string;
+        setDefaultSuccess: string;
+        setDefaultFailed: string;
+        updateSuccess: string;
+        updateFailed: string;
+        deleteSuccess: string;
+        deleteFailed: string;
     };
 }
 

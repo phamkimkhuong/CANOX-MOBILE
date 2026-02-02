@@ -201,6 +201,7 @@ export const useAddAddress = () => {
             if (isSessionExpiredError(error)) return;
             Toast.show({ type: 'error', text1: 'Thêm địa chỉ thất bại', text2: message });
         },
+        meta: { handledLocally: true },
     });
 };
 
@@ -256,6 +257,7 @@ export const useUpdateAddress = () => {
             if (isSessionExpiredError(error)) return;
             Toast.show({ type: 'error', text1: 'Cập nhật địa chỉ thất bại', text2: message });
         },
+        meta: { handledLocally: true },
     });
 };
 
@@ -286,6 +288,7 @@ export const useDeleteAddress = () => {
             if (isSessionExpiredError(error)) return;
             Toast.show({ type: 'error', text1: 'Xóa địa chỉ thất bại', text2: message });
         },
+        meta: { handledLocally: true },
     });
 };
 
@@ -316,5 +319,6 @@ export const useSetDefaultAddress = () => {
             if (isSessionExpiredError(error)) return;
             Toast.show({ type: 'error', text1: 'Thiết lập thất bại', text2: message });
         },
+        meta: { handledLocally: true },
     });
 };

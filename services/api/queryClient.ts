@@ -8,8 +8,9 @@ import { logger } from '@/utils/logger';
  * - Individual hooks handle their own error toasts
  */
 
-import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query';
-import { isSessionExpiredError } from './errors';
+import { Mutation, MutationCache, QueryCache, QueryClient } from '@tanstack/react-query';
+import Toast from 'react-native-toast-message';
+import { ApiError, isSessionExpiredError } from './errors';
 
 /**
  * Global retry logic for queries
@@ -55,14 +56,43 @@ const handleQueryError = (error: unknown): void => {
  * Logs errors but doesn't show UI - individual hooks handle that
  * This is called AFTER the individual hook's onError
  */
-const handleMutationError = (error: unknown): void => {
+const handleMutationError = (
+    error: unknown,
+    _variables: unknown,
+    _context: unknown,
+    mutation: Mutation<any, any, any, any>
+): void => {
     // SessionExpiredError: Silently ignore (logout is happening)
     if (isSessionExpiredError(error)) {
         return;
     }
+    if (mutation.options.meta?.handledLocally) {
+        return;
+    }
 
-    // Log for debugging (individual hooks show UI feedback)
+    // Log for debugging
     logger.api.error('[MutationCache] Error:', error);
+
+    // Show global toast for mutation errors
+    if (error instanceof ApiError) {
+        Toast.show({
+            type: 'error',
+            text1: 'Lỗi',
+            text2: error.message,
+        });
+    } else if (error instanceof Error) {
+        Toast.show({
+            type: 'error',
+            text1: 'Lỗi',
+            text2: error.message,
+        });
+    } else {
+        Toast.show({
+            type: 'error',
+            text1: 'Lỗi',
+            text2: 'Đã xảy ra lỗi. Vui lòng thử lại sau!',
+        });
+    }
 };
 
 export const queryClient = new QueryClient({

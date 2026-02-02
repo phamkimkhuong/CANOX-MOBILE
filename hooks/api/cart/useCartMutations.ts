@@ -115,6 +115,7 @@ export const useUpdateCartItemQuantity = () => {
                 visibilityTime: 3000,
             });
         },
+        meta: { handledLocally: true },
 
         onSuccess: (cartUI) => {
             logger.cart.info('Quantity updated successfully');
@@ -204,7 +205,7 @@ export const useRemoveCartItem = () => {
                 visibilityTime: 3000,
             });
         },
-
+        meta: { handledLocally: true },
 
         onSuccess: () => {
             logger.cart.info('Item removed successfully');
@@ -289,6 +290,7 @@ export const useClearCart = () => {
                 visibilityTime: 3000,
             });
         },
+        meta: { handledLocally: true },
 
         onSuccess: () => {
             logger.cart.info('Cart cleared successfully');
@@ -377,6 +379,7 @@ export const useBatchRemoveCartItems = () => {
                 visibilityTime: 3000,
             });
         },
+        meta: { handledLocally: true },
 
         onSuccess: () => {
             logger.cart.info('Items removed successfully');

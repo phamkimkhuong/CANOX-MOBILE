@@ -2,7 +2,8 @@ import { BankCardItem, BankListSkeleton, EmptyBankState } from '@/components/ban
 import { SettingsHeader } from '@/components/settings';
 import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
-import { useMyBankAccounts } from '@/hooks/api/bank/useBank';
+import { useDeleteBank, useMyBankAccounts } from '@/hooks/api/bank/useBank';
+import { Alert } from '@/utils/AlertHelper';
 import { Navigator } from '@/utils/navigation';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack } from 'expo-router';
@@ -22,6 +23,16 @@ export default function BankCardsScreen() {
 
     // API Hooks
     const { data: accounts, isLoading, refetch, isRefetching } = useMyBankAccounts();
+    const { mutate: deleteBank } = useDeleteBank();
+
+    const handleHelp = useCallback(() => {
+        Alert.show({
+            title: t('bank:cards.helpTitle'),
+            message: t('bank:cards.helpMessage'),
+            type: 'info',
+            confirmText: t('common:actions.done')
+        });
+    }, [t]);
 
     // Handlers
     const handleAddBank = useCallback(() => {
@@ -29,8 +40,25 @@ export default function BankCardsScreen() {
     }, []);
 
     const handleCardPress = useCallback((card: any) => {
-        // TODO: Show card bottom sheet options
+        Navigator.push({
+            pathname: ROUTES.SETTINGS.EDIT_BANK,
+            params: { id: card.id },
+        });
     }, []);
+
+    const handleDeleteCard = useCallback((card: any) => {
+        Alert.show({
+            title: t('bank:cards.deleteTitle'),
+            message: t('bank:cards.deleteConfirm'),
+            type: 'warning',
+            showCancel: true,
+            confirmText: t('common:actions.delete'),
+            cancelText: t('common:actions.cancel'),
+            onConfirm: () => {
+                deleteBank(card.id);
+            }
+        });
+    }, [deleteBank, t]);
 
     return (
         <View style={styles.container}>
@@ -40,7 +68,10 @@ export default function BankCardsScreen() {
             <View style={styles.bgGlow1} />
             <View style={styles.bgGlow2} />
 
-            <SettingsHeader title={t('profile:settings.items.bank-cards')} showHelpButton={false} />
+            <SettingsHeader
+                title={t('profile:settings.items.bank-cards')}
+                onHelpPress={handleHelp}
+            />
 
             <ScrollView
                 style={styles.scrollView}
@@ -72,6 +103,7 @@ export default function BankCardsScreen() {
                                 card={card}
                                 index={index}
                                 onPress={handleCardPress}
+                                onDelete={handleDeleteCard}
                             />
                         ))
                     ) : (
@@ -87,7 +119,8 @@ export default function BankCardsScreen() {
                         style={styles.addBtnWrapper}
                     >
                         <LinearGradient
-                            colors={[theme.colors.buttonActive, '#6366f1']}
+                            colors={[theme.colors.buttonActive, theme.colors.buttonActive, theme.colors.accent]}
+                            locations={[0, 0.6, 1]}
                             start={{ x: 0, y: 0 }}
                             end={{ x: 1, y: 0 }}
                             style={styles.addBtnGradient}
@@ -119,7 +152,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     scrollContent: {
         padding: 20,
-        paddingBottom: 40,
+        paddingBottom: 60,
     },
     // Background Glow Effects (Liquid Style)
     bgGlow1: {
@@ -155,7 +188,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         lineHeight: 20,
     },
     listContainer: {
-        marginBottom: 32,
+        marginBottom: 24,
     },
     addBtnWrapper: {
         borderRadius: 18,

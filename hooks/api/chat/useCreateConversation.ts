@@ -122,6 +122,7 @@ export const useCreateConversation = () => {
         onError: (error) => {
             logger.chat.error('Failed to create conversation', { error });
         },
+        meta: { handledLocally: true },
     });
 };
 

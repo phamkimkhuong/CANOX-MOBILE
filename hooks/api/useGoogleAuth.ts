@@ -65,6 +65,7 @@ export const useGoogleLogin = () => {
                 text2: error.message || 'Không thể xác thực với máy chủ.',
             });
         },
+        meta: { handledLocally: true },
     });
 
     const handleGoogleSignIn = useCallback(async () => {

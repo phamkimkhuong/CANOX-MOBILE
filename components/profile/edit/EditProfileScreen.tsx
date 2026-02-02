@@ -139,12 +139,8 @@ export default function EditProfileScreen() {
                 });
                 Navigator.back();
             },
-            onError: (error) => {
-                Toast.show({
-                    type: 'error',
-                    text1: t('common:status.error'),
-                    text2: error.message || t('profile:editProfile.messages.updateError'),
-                });
+            onError: () => {
+                // Handled in useUpdateProfile
             },
         });
     };
@@ -172,13 +168,9 @@ export default function EditProfileScreen() {
                                     });
                                     setAvatarPreview(null);
                                 },
-                                onError: (error) => {
-                                    Toast.show({
-                                        type: 'error',
-                                        text1: t('common:status.error'),
-                                        text2: error.message || t('profile:editProfile.messages.uploadError'),
-                                    });
+                                onError: () => {
                                     setAvatarPreview(null);
+                                    // Toast handled in useAvatarUpload
                                 },
                             });
                         }
@@ -199,13 +191,9 @@ export default function EditProfileScreen() {
                                     });
                                     setAvatarPreview(null);
                                 },
-                                onError: (error) => {
-                                    Toast.show({
-                                        type: 'error',
-                                        text1: t('common:status.error'),
-                                        text2: error.message || t('profile:editProfile.messages.uploadError'),
-                                    });
+                                onError: () => {
                                     setAvatarPreview(null);
+                                    // Toast handled in useAvatarUpload
                                 },
                             });
                         }

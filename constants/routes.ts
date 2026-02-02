@@ -98,6 +98,7 @@ export const ROUTES = {
         LINKED_ACCOUNTS: '/settings/linked-accounts' as const,
         BANK_CARDS: '/settings/bank-cards' as const,
         ADD_BANK: '/settings/add-bank' as const,
+        EDIT_BANK: '/settings/edit-bank' as const,
         VERIFY_BANK: '/settings/verify-bank' as const,
         NOTIFICATIONS: '/settings/notifications' as const,
         LANGUAGE: '/settings/language' as const,

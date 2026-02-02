@@ -186,6 +186,7 @@ export const useMarkAsRead = () => {
             // Invalidate để khi user quay lại, data đã được cập nhật
             queryClient.invalidateQueries({ queryKey: ['notifications'] });
         },
+        meta: { handledLocally: true },
         // Không cần onError vì đây là fire-and-forget
         // User đã ở trang khác, không cần hiện Toast
     });
@@ -257,6 +258,7 @@ export const useMarkAllAsRead = () => {
                 text2: t('errors.tryAgain'),
             });
         },
+        meta: { handledLocally: true },
         onSuccess: () => {
             // Toast.show({
             //     type: 'success',

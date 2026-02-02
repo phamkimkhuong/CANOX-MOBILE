@@ -9,6 +9,7 @@ import {
 } from '@/types/user';
 import { devLog } from '@/utils/logger';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import Toast from 'react-native-toast-message';
 import { profileQueryKeys } from './useProfile';
 
 /**
@@ -49,7 +50,13 @@ export const useUpdateProfile = () => {
         },
         onError: (error) => {
             devLog('[useUpdateProfile] Error:', error);
+            Toast.show({
+                type: 'error',
+                text1: 'Cập nhật thất bại',
+                text2: error.message || 'Vui lòng kiểm tra lại thông tin và thử lại.',
+            });
         },
+        meta: { handledLocally: true },
     });
 };
 

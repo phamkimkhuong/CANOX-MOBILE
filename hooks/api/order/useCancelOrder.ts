@@ -111,5 +111,6 @@ export const useCancelOrder = (options: UseCancelOrderOptions = {}) => {
             // Call custom onError
             options.onError?.(error);
         },
+        meta: { handledLocally: true },
     });
 };

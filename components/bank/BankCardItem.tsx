@@ -33,8 +33,8 @@ export const BankCardItem: React.FC<BankCardItemProps> = memo(({
 
     // Simulate card color based on bank name if no specific color is provided
     const cardGradient = card.isDefault
-        ? ['rgba(79, 70, 229, 0.8)', 'rgba(99, 102, 241, 0.4)'] // Indigo/Blue for default
-        : ['rgba(30, 41, 59, 0.7)', 'rgba(15, 23, 42, 0.5)'];  // Slate for others
+        ? ['rgba(239, 68, 68, 0.85)', 'rgba(255, 122, 0, 0.7)'] // Red/Orange for default (matches brand)
+        : ['rgba(30, 41, 59, 0.8)', 'rgba(15, 23, 42, 0.6)'];   // Premium Dark Slate for others
 
     return (
         <Animated.View
@@ -67,9 +67,11 @@ export const BankCardItem: React.FC<BankCardItemProps> = memo(({
 
                             <Pressable
                                 style={styles.moreBtn}
-                                onPress={() => onSetDefault?.(card)} // Simplified for now
+                                onPress={() => {
+                                    onDelete?.(card);
+                                }}
                             >
-                                <IconSymbol name="more-horiz" size={24} color="rgba(255, 255, 255, 0.8)" />
+                                <IconSymbol name="delete" size={24} color="rgba(255, 255, 255, 0.8)" />
                             </Pressable>
                         </View>
 
@@ -108,7 +110,7 @@ BankCardItem.displayName = 'BankCardItem';
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
         width: '100%',
-        marginBottom: theme.margins.md,
+        marginBottom: theme.margins.lg,
     },
     cardWrapper: {
         borderRadius: 24,
@@ -118,9 +120,9 @@ const stylesheet = StyleSheet.create((theme) => ({
 
         elevation: 8,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 12 },
-        shadowOpacity: 0.2,
-        shadowRadius: 16,
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.15,
+        shadowRadius: 12,
     },
     pressed: {
         transform: [{ scale: 0.98 }],
@@ -132,7 +134,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     blurContent: {
         flex: 1,
-        padding: 20,
+        padding: 30,
         justifyContent: 'space-between',
     },
     header: {

@@ -18,11 +18,6 @@ export const transformSupportedBank = (raw: Record<string, string>): BankSupport
  * Transform UserBankAccountDTO -> UI
  */
 export const transformUserBankAccount = (dto: UserBankAccountDTO): UserBankAccountUI => {
-    // Mask account number: e.g. "0987123456" -> "****3456"
-    const maskedNumber = dto.bankAccountNumber.length > 4
-        ? `****${dto.bankAccountNumber.slice(-4)}`
-        : dto.bankAccountNumber;
-
     return {
         id: dto.bankAccountId,
         accountNumber: dto.bankAccountNumber,
@@ -31,7 +26,7 @@ export const transformUserBankAccount = (dto: UserBankAccountDTO): UserBankAccou
         bankDisplayName: dto.bankName, // Could be mapped to full name if we have the list
         branch: dto.branch || undefined,
         isDefault: dto.default,
-        formattedInfo: `${dto.bankName} - ${maskedNumber}`,
-        maskedNumber,
+        formattedInfo: `${dto.bankName} - ${dto.bankAccountNumber}`,
+        maskedNumber: dto.bankAccountNumber,
     };
 };

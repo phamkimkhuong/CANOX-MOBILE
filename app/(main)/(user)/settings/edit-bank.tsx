@@ -1,15 +1,16 @@
 import { BankSelectModal } from '@/components/bank';
 import { SettingsHeader } from '@/components/settings';
 import { IconSymbol } from '@/components/ui/Icon';
-import { ROUTES } from '@/constants/routes';
-import { useInitBankVerification } from '@/hooks/api/bank/useBank';
+import { bankQueryKeys, useUpdateBank } from '@/hooks/api/bank/useBank';
 import { AddBankFormData, AddBankFormSchema } from '@/types/bank/bankSchema';
-import { BankSupportedUI } from '@/types/bank/ui';
+import { BankSupportedUI, UserBankAccountUI } from '@/types/bank/ui';
 import { Alert } from '@/utils/AlertHelper';
 import { Navigator } from '@/utils/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useQueryClient } from '@tanstack/react-query';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useCallback, useState } from 'react';
+import { useLocalSearchParams } from 'expo-router';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import {
@@ -22,40 +23,35 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
-import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 /**
- * AddBankScreen - Step 1: Input Bank Information
+ * EditBankScreen - Edit existing bank account information
  */
-export default function AddBankScreen() {
+export default function EditBankScreen() {
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
     const { t } = useTranslation(['bank', 'common']);
-
-    const handleHelp = useCallback(() => {
-        Alert.show({
-            title: t('bank:add.helpTitle'),
-            message: t('bank:add.helpMessage'),
-            type: 'info',
-            confirmText: t('common:actions.done')
-        });
-    }, [t]);
+    const queryClient = useQueryClient();
+    const params = useLocalSearchParams<{ id: string }>();
 
     // State
     const [selectedBank, setSelectedBank] = useState<BankSupportedUI | null>(null);
     const [showBankModal, setShowBankModal] = useState(false);
     const [isDefault, setIsDefault] = useState(false);
+    const [originalCard, setOriginalCard] = useState<UserBankAccountUI | null>(null);
 
     // API Hooks
-    const { mutate: initVerification, isPending } = useInitBankVerification();
+    const { mutate: updateBank, isPending } = useUpdateBank();
 
     // Form
     const {
         control,
         handleSubmit,
+        reset,
         formState: { errors },
     } = useForm<AddBankFormData>({
         resolver: zodResolver(AddBankFormSchema),
@@ -65,27 +61,53 @@ export default function AddBankScreen() {
         },
     });
 
-    const onSubmit = (data: AddBankFormData) => {
-        if (!selectedBank) return;
+    // Load initial data
+    useEffect(() => {
+        if (params.id) {
+            const accounts = queryClient.getQueryData<UserBankAccountUI[]>(bankQueryKeys.myAccounts());
+            const card = accounts?.find(a => a.id === params.id);
 
-        initVerification(
+            if (card) {
+                setOriginalCard(card);
+                setSelectedBank({
+                    id: card.bankName, // Map bankName to id as per implementation
+                    shortName: card.bankName,
+                    fullName: card.bankDisplayName,
+                });
+                setIsDefault(card.isDefault);
+                reset({
+                    bankAccountNumber: card.accountNumber,
+                    bankAccountHolder: card.accountHolder,
+                });
+            }
+        }
+    }, [params.id, queryClient, reset]);
+
+    const handleHelp = useCallback(() => {
+        Alert.show({
+            title: t('bank:edit.helpTitle'),
+            message: t('bank:edit.helpMessage'),
+            type: 'info',
+            confirmText: t('common:actions.done')
+        });
+    }, [t]);
+
+    const onSubmit = (data: AddBankFormData) => {
+        if (!selectedBank || !params.id) return;
+
+        updateBank(
             {
-                bankName: selectedBank.shortName,
-                bankAccountNumber: data.bankAccountNumber,
-                bankAccountHolder: data.bankAccountHolder,
-                accountType: 'BUYER',
-                isDefault,
+                id: params.id,
+                data: {
+                    bankName: selectedBank.shortName,
+                    bankAccountNumber: data.bankAccountNumber,
+                    bankAccountHolder: data.bankAccountHolder,
+                    isDefault,
+                },
             },
             {
-                onSuccess: (res) => {
-                    Navigator.push({
-                        pathname: ROUTES.SETTINGS.VERIFY_BANK,
-                        params: {
-                            verificationId: res.verificationId,
-                            bankName: selectedBank.shortName,
-                            accountNumber: data.bankAccountNumber,
-                        },
-                    });
+                onSuccess: () => {
+                    Navigator.back();
                 },
             }
         );
@@ -94,7 +116,7 @@ export default function AddBankScreen() {
     return (
         <View style={styles.container}>
             <SettingsHeader
-                title={t('bank:add.title')}
+                title={t('bank:edit.title')}
                 onHelpPress={handleHelp}
             />
 
@@ -109,18 +131,7 @@ export default function AddBankScreen() {
                     ]}
                     showsVerticalScrollIndicator={false}
                 >
-                    {/* Progress Indicator */}
-                    <View style={styles.progressContainer}>
-                        <View style={[styles.step, styles.stepActive]}>
-                            <Text style={styles.stepTextActive}>1</Text>
-                        </View>
-                        <View style={styles.stepLine} />
-                        <View style={styles.step}>
-                            <Text style={styles.stepText}>2</Text>
-                        </View>
-                    </View>
-
-                    {/* Form Card with Liquid Glass Elements */}
+                    {/* Form Card */}
                     <Animated.View entering={FadeInUp.duration(600)} style={styles.card}>
                         {/* Bank Selection */}
                         <Text style={styles.label}>{t('bank:add.bankLabel')}</Text>
@@ -201,20 +212,17 @@ export default function AddBankScreen() {
                             style={styles.checkboxRow}
                             onPress={() => setIsDefault(!isDefault)}
                             activeOpacity={0.7}
+                            disabled={originalCard?.isDefault} // Cannot unset default if it's already default
                         >
-                            <View style={[styles.checkbox, isDefault && styles.checkboxActive]}>
+                            <View style={[
+                                styles.checkbox,
+                                isDefault && styles.checkboxActive,
+                                originalCard?.isDefault && styles.checkboxDisabled
+                            ]}>
                                 {isDefault && <IconSymbol name="check" size={16} color="#FFF" />}
                             </View>
                             <Text style={styles.checkboxLabel}>{t('bank:add.defaultLabel')}</Text>
                         </TouchableOpacity>
-                    </Animated.View>
-
-                    {/* Stability Info Card */}
-                    <Animated.View entering={FadeInDown.delay(200).duration(600)} style={styles.infoCard}>
-                        <IconSymbol name="shield" size={18} color={theme.colors.success} />
-                        <Text style={styles.infoText}>
-                            {t('bank:add.infoMessage')}
-                        </Text>
                     </Animated.View>
 
                     {/* Action Button */}
@@ -238,7 +246,7 @@ export default function AddBankScreen() {
                                 {isPending ? (
                                     <ActivityIndicator color="#FFF" size="small" />
                                 ) : (
-                                    <Text style={styles.submitText}>{t('bank:add.submit')}</Text>
+                                    <Text style={styles.submitText}>{t('common:actions.save')}</Text>
                                 )}
                             </LinearGradient>
                         </TouchableOpacity>
@@ -267,41 +275,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         padding: 20,
         paddingBottom: 40,
     },
-    progressContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: 32,
-        marginTop: 10,
-    },
-    step: {
-        width: 32,
-        height: 32,
-        borderRadius: 16,
-        backgroundColor: theme.colors.backgroundNewInput,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: theme.colors.border,
-    },
-    stepActive: {
-        backgroundColor: theme.colors.buttonActive,
-        borderColor: theme.colors.buttonActive,
-    },
-    stepText: {
-        fontSize: 14,
-        fontWeight: '700',
-        color: theme.colors.typographySecondary,
-    },
-    stepTextActive: {
-        color: '#FFF',
-    },
-    stepLine: {
-        width: 60,
-        height: 2,
-        backgroundColor: theme.colors.border,
-        marginHorizontal: 8,
-    },
     card: {
         backgroundColor: theme.colors.surface,
         borderRadius: 24,
@@ -313,6 +286,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         shadowOpacity: 0.05,
         shadowRadius: 20,
         elevation: 4,
+        marginTop: 10,
     },
     label: {
         fontSize: 14,
@@ -331,14 +305,11 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderWidth: 1,
         borderColor: theme.colors.border,
     },
-    inputFocused: {
-        borderColor: theme.colors.buttonActive,
+    inputEmpty: {
+        opacity: 0.8,
     },
     inputError: {
         borderColor: theme.colors.error,
-    },
-    inputEmpty: {
-        opacity: 0.8,
     },
     iconBox: {
         width: 32,
@@ -362,6 +333,13 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     placeholderText: {
         color: theme.colors.typographySecondary,
+    },
+    hintText: {
+        fontSize: 12,
+        color: theme.colors.typographySecondary,
+        marginTop: 4,
+        marginLeft: 4,
+        fontStyle: 'italic',
     },
     errorText: {
         fontSize: 12,
@@ -388,25 +366,12 @@ const stylesheet = StyleSheet.create((theme) => ({
         backgroundColor: theme.colors.buttonActive,
         borderColor: theme.colors.buttonActive,
     },
+    checkboxDisabled: {
+        opacity: 0.5,
+    },
     checkboxLabel: {
         fontSize: 14,
         color: theme.colors.typography,
-    },
-    infoCard: {
-        flexDirection: 'row',
-        backgroundColor: 'rgba(34, 197, 94, 0.05)',
-        borderRadius: 16,
-        padding: 16,
-        marginTop: 24,
-        gap: 12,
-        borderWidth: 1,
-        borderColor: 'rgba(34, 197, 94, 0.1)',
-    },
-    infoText: {
-        flex: 1,
-        fontSize: 13,
-        color: theme.colors.typographySecondary,
-        lineHeight: 18,
     },
     actionContainer: {
         marginTop: 40,
