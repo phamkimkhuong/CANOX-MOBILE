@@ -129,6 +129,7 @@ export const API_ROUTES = {
         CREATE: `${API_PREFIX}/wishlists`,
         UPDATE: (wishlistId: string) => `${API_PREFIX}/wishlists/${wishlistId}`,
         DELETE: (wishlistId: string) => `${API_PREFIX}/wishlists/${wishlistId}`,
+        SET_DEFAULT: (wishlistId: string) => `${API_PREFIX}/wishlists/${wishlistId}/set-default`,
         /** GET - Get default wishlist */
         DEFAULT: `${API_PREFIX}/wishlists/default`,
         POPULAR: `${API_PREFIX}/wishlists/popular`,
@@ -137,8 +138,13 @@ export const API_ROUTES = {
         /** GET - Items that met price target */
         PRICE_TARGET_MET: `${API_PREFIX}/wishlists/price-target-met`,
         ADD_ITEM: (wishlistId: string) => `${API_PREFIX}/wishlists/${wishlistId}/items`,
+        ADD_ITEM_DEFAULT: `${API_PREFIX}/wishlists/default/items`,
         UPDATE_ITEM: (wishlistId: string, itemId: string) => `${API_PREFIX}/wishlists/${wishlistId}/items/${itemId}`,
-        REMOVE_ITEM: (wishlistId: string, itemId: string) => `${API_PREFIX}/wishlists/${wishlistId}/items/${itemId}`,
+        REMOVE_ITEM: (wishlistId: string, variantId: string) => `${API_PREFIX}/wishlists/${wishlistId}/items/${variantId}`,
+        CHECK_VARIANTS: `${API_PREFIX}/wishlists/check-variants`,
+        REGENERATE_TOKEN: (wishlistId: string) => `${API_PREFIX}/wishlists/${wishlistId}/regenerate-token`,
+        SHARED_DETAIL: (token: string) => `${API_PREFIX}/wishlists/shared/${token}`,
+        SHARED_OG: (token: string) => `${API_PREFIX}/wishlists/shared/${token}/og`,
     },
     STORAGE: {
         PRESIGN_UPLOAD: `${API_PREFIX}/storage/presign-upload`,
@@ -168,5 +174,35 @@ export const API_ROUTES = {
         BY_PAGE: `${API_PREFIX}/homepage/banners/page`,
         /** GET - Get banner detail by ID */
         DETAIL: (bannerId: string) => `${API_PREFIX}/homepage/banners/${bannerId}`,
+    },
+    WALLET: {
+        ME: `${API_PREFIX}/wallets/me`,
+        ME_TRANSACTIONS: `${API_PREFIX}/wallets/me/transactions`,
+        BALANCE: (userId: string) => `${API_PREFIX}/wallets/user/${userId}`,
+        TRANSACTIONS: (userId: string) => `${API_PREFIX}/wallets/user/${userId}/transactions`,
+        TRANSACTION_DETAIL: (txId: string) => `${API_PREFIX}/wallets/transactions/${txId}`,
+        WITHDRAW: `${API_PREFIX}/wallets/withdraw`,
+        WITHDRAWAL_REQUESTS: `${API_PREFIX}/wallets/withdrawal-requests`,
+        FORGOT_PASSWORD: `${API_PREFIX}/wallets/password/forgot`,
+        RESET_PASSWORD: `${API_PREFIX}/wallets/password/reset`,
+        CHANGE_PASSWORD: `${API_PREFIX}/wallets/password`,
+    },
+    PAYMENTS: {
+        STATUS: (paymentId: string) => `${API_PREFIX}/payments/${paymentId}/status`,
+        ORDER_STATUS: (orderId: string) => `${API_PREFIX}/payments/order/${orderId}/status`,
+        ORDER_PAYOS: (orderId: string) => `${API_PREFIX}/payments/order/${orderId}/payos`,
+        VERIFY_ORDER: (orderId: string) => `${API_PREFIX}/payments/order/${orderId}/verify`,
+        RENEW: (paymentId: string) => `${API_PREFIX}/payments/${paymentId}/renew`,
+        CANCEL: (paymentId: string) => `${API_PREFIX}/payments/${paymentId}/cancel`,
+    },
+    SHIPMENT: {
+        COSTS: `${API_PREFIX}/shipment/costs-shipments`,
+        LABEL: `${API_PREFIX}/shipment/label`,
+    },
+    LOYALTY: {
+        POINTS: (shopId: string) => `${API_PREFIX}/buyer/loyalty/points/${shopId}`,
+        POINTS_DETAILS: (shopId: string) => `${API_PREFIX}/buyer/loyalty/points/${shopId}/details`,
+        POINTS_BATCHES: (shopId: string) => `${API_PREFIX}/buyer/loyalty/points/${shopId}/batches`,
+        CONSUME_POINTS: `${API_PREFIX}/buyer/loyalty/points/consume`,
     },
 } as const;  // <--- as const for TS to understand these are readonly values

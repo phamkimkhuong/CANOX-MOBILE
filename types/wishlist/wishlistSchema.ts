@@ -39,6 +39,8 @@ export const WishlistItemSchema = z.object({
     sku: z.string().nullish().transform((val) => val ?? ''),
     productId: z.string().nullish().transform((val) => val ?? ''),
     productName: z.string().nullish().transform((val) => val ?? ''),
+    imagePath: z.string().nullish(),
+    imageAssetId: z.string().nullish(),
     imageBasePath: z.string().nullish(),
     imageExtension: z.string().nullish(),
     productImage: z.string().nullish(),
@@ -70,6 +72,8 @@ export const WishlistSummarySchema = z.object({
     itemCount: numberOrDefault(0),
     createdDate: z.string().nullish().transform((val) => val ?? new Date().toISOString()),
     lastModifiedDate: z.string().nullish().transform((val) => val ?? new Date().toISOString()),
+    imagePath: z.string().nullish(),
+    imageAssetId: z.string().nullish(),
     imageBasePath: z.string().nullish(),
     imageExtension: z.string().nullish(),
 });

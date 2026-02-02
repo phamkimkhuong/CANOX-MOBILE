@@ -130,6 +130,42 @@ export const VoucherResponseSchema = z.object({
     tags: z.array(z.string()).nullable().optional(),
 });
 
+/**
+ * Request for voucher recommendations (V2)
+ */
+export const CartItemInfoSchema = z.object({
+    productId: z.string().optional(),
+    shopId: z.string().optional(),
+    unitPrice: z.number().optional(),
+    quantity: z.number().optional(),
+    lineTotal: z.number().optional(),
+});
+
+export const VoucherPreferencesSchema = z.object({
+    scopes: z.array(z.string()).optional(),
+    limit: z.number().optional(),
+});
+
+export const VoucherRecommendationRequestSchema = z.object({
+    shopId: z.string().optional(),
+    totalAmount: z.number(),
+    shopIds: z.array(z.string()).optional(),
+    productIds: z.array(z.string()).optional(),
+    items: z.array(CartItemInfoSchema).optional(),
+    shippingFee: z.number().optional(),
+    shippingMethod: z.string().optional(),
+    shippingProvince: z.string().optional(),
+    shippingDistrict: z.string().optional(),
+    shippingWard: z.string().optional(),
+    cartId: z.string().optional(),
+    failedVoucherCodes: z.array(z.string()).optional(),
+    preferences: VoucherPreferencesSchema.optional(),
+});
+
+export type VoucherRecommendationRequest = z.infer<typeof VoucherRecommendationRequestSchema>;
+export type CartItemInfo = z.infer<typeof CartItemInfoSchema>;
+export type VoucherPreferences = z.infer<typeof VoucherPreferencesSchema>;
+
 export type VoucherResponse = z.infer<typeof VoucherResponseSchema>;
 
 /**
