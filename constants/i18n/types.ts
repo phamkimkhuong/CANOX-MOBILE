@@ -270,6 +270,7 @@ export interface CommonTranslation {
     bottomTab: {
         home: string;
         category: string;
+        video: string;
         chat: string;
         notify: string;
         me: string;

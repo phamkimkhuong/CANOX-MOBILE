@@ -93,6 +93,15 @@ export default function TabLayout() {
           headerShown: false,
         }}
       />
+      {/* 3. Video ( app/(tabs)/video.tsx) */}
+      <Tabs.Screen
+        name="video"
+        options={{
+          title: t('bottomTab.video'),
+          tabBarIcon: ({ color }) => <TabBarIcon name="video" color={color} />,
+          headerShown: false,
+        }}
+      />
       {/* 4. Thông báo/Notifications ( app/(tabs)/notify.tsx) */}
       <Tabs.Screen
         name="notify"

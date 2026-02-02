@@ -23,6 +23,7 @@ import {
     performTokenRefresh,
     waitForTokenRefresh
 } from '../auth/tokenManager';
+import { queryClient } from './queryClient';
 
 // ============================================
 // CONFIGURATION
@@ -70,8 +71,8 @@ const isPublicEndpoint = (url?: string): boolean => {
 // CUSTOM ERROR CLASSES
 // ============================================
 
-import { ApiError, SessionExpiredError } from './errors';
-import { queryClient } from './queryClient';
+import { ApiError, SessionExpiredError, isSessionExpiredError } from './errors';
+export { ApiError, SessionExpiredError, isSessionExpiredError };
 
 // ============================================
 // AXIOS INSTANCE

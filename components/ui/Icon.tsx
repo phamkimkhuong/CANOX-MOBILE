@@ -212,10 +212,15 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     coin: { ios: 'cash-outline', android: 'cash-outline' },
     'checkmark.circle': { ios: 'checkmark-circle', android: 'checkmark-circle' },
     'arrow.clockwise': { ios: 'refresh', android: 'refresh' },
+    'speaker.wave.2.fill': { ios: 'volume-high', android: 'volume-high' },
+    'speaker.slash.fill': { ios: 'volume-mute', android: 'volume-mute' },
+    'heart.fill': { ios: 'heart', android: 'heart' },
+    'play.fill': { ios: 'play', android: 'play' },
 
     // === Error State Icons (for StateView/DataGuard) ===
-    wifi: { ios: 'wifi-outline', android: 'wifi-outline' },
+    wifi: { ios: 'wifi', android: 'wifi' },
     'wifi-off': { ios: 'cloud-offline-outline', android: 'cloud-offline-outline' },
+    'wifi-exclamationmark': { ios: 'alert-circle-outline', android: 'alert-circle-outline' },
     'cloud-offline-outline': { ios: 'cloud-offline-outline', android: 'cloud-offline-outline' },
     'folder-open-outline': { ios: 'folder-open-outline', android: 'folder-open-outline' },
     refresh: { ios: 'refresh', android: 'refresh' },

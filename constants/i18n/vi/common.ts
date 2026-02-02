@@ -29,6 +29,7 @@ export const COMMON_STRINGS: CommonTranslation = {
     bottomTab: {
         home: 'Trang chủ',
         category: 'Danh mục',
+        video: 'Video',
         chat: 'Chat',
         notify: 'Thông báo',
         me: 'Tôi',
