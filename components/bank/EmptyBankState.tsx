@@ -1,5 +1,6 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import React, { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -9,15 +10,16 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 export const EmptyBankState: React.FC = memo(() => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+    const { t } = useTranslation(['bank']);
 
     return (
         <View style={styles.container}>
             <View style={styles.iconCircle}>
                 <IconSymbol name="account-balance-wallet" size={48} color={theme.colors.typographySecondary} />
             </View>
-            <Text style={styles.title}>Chưa có tài khoản ngân hàng</Text>
+            <Text style={styles.title}>{t('bank:cards.emptyTitle')}</Text>
             <Text style={styles.subtitle}>
-                Hãy liên kết tài khoản ngân hàng để thực hiện rút tiền và thanh toán dễ dàng hơn.
+                {t('bank:cards.emptySubtitle')}
             </Text>
         </View>
     );

@@ -1,0 +1,53 @@
+import { BankTranslation } from '../types';
+
+export const BANK_STRINGS: BankTranslation = {
+    cards: {
+        title: 'Tài khoản ngân hàng',
+        subtitle: 'Quản lý các tài khoản ngân hàng để thực hiện giao dịch an toàn.',
+        addAccount: 'Thêm tài khoản',
+        emptyTitle: 'Chưa có tài khoản',
+        emptySubtitle: 'Bạn chưa liên kết tài khoản ngân hàng nào',
+        defaultBadge: 'Mặc định',
+        securityHint: 'Thông tin ngân hàng của bạn được mã hóa và bảo mật tuyệt đối.',
+    },
+    add: {
+        title: 'Thêm tài khoản ngân hàng',
+        step1: 'Thông tin',
+        step2: 'Xác thực',
+        bankLabel: 'Ngân hàng',
+        bankPlaceholder: 'Chọn ngân hàng',
+        holderLabel: 'Tên chủ tài khoản',
+        holderPlaceholder: 'VD: NGUYEN VAN A',
+        accountLabel: 'Số tài khoản',
+        accountPlaceholder: 'Nhập số tài khoản',
+        defaultLabel: 'Đặt làm tài khoản mặc định',
+        infoTitle: 'Xác thực Email',
+        infoMessage: 'Hệ thống sẽ gửi mã OTP đến Email của bạn để xác thực chủ sở hữu tài khoản này.',
+        submit: 'Tiếp tục',
+        helpTitle: 'Hướng dẫn liên kết',
+        helpMessage: '• Chọn ngân hàng trong danh sách hỗ trợ.\n• Nhập số tài khoản chính xác.\n• Tên chủ tài khoản phải viết HOA KHÔNG DẤU (VD: NGUYEN VAN A).\n• Một mã OTP sẽ được gửi đến Email của bạn để xác thực.',
+    },
+    verify: {
+        title: 'Xác thực OTP',
+        subtitle: 'Nhập mã xác thực',
+        message: 'Mã OTP đã được gửi đến email đăng ký của bạn. Vui lòng nhập mã để liên kết tài khoản {{bankName}}.',
+        otpPlaceholder: 'Nhập 6 số',
+        resendLabel: 'Gửi lại mã sau ',
+        resendCountdown: 'Gửi lại mã sau ',
+        submit: 'Xác nhận & Liên kết',
+        errorInvalid: 'Vui lòng nhập đầy đủ mã OTP 6 số',
+        errorExpired: 'Mã OTP không chính xác hoặc đã hết hạn',
+        footerInfo: 'Mã xác thực giúp bảo vệ tài khoản ngân hàng của bạn khỏi các truy cập trái phép.',
+    },
+    modal: {
+        title: 'Chọn ngân hàng',
+        searchPlaceholder: 'Tìm kiếm ngân hàng...',
+        emptyResults: 'Không tìm thấy ngân hàng nào',
+    },
+    validation: {
+        accountMin: 'Số tài khoản ít nhất 6 ký tự',
+        accountNumbersOnly: 'Số tài khoản chỉ được chứa số',
+        holderMin: 'Tên chủ tài khoản quá ngắn',
+        holderUppercase: 'Vui lòng nhập tên in hoa không dấu',
+    },
+};

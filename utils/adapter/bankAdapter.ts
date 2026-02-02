@@ -7,9 +7,9 @@ import { BankSupportedUI, UserBankAccountUI } from '@/types/bank/ui';
  */
 export const transformSupportedBank = (raw: Record<string, string>): BankSupportedUI => {
     return {
-        id: raw.name || '',
-        shortName: raw.name || '',
-        fullName: raw.fullname || '',
+        id: raw.code || raw.name || '',
+        shortName: raw.shortName || raw.name || '',
+        fullName: raw.fullName || raw.fullname || '',
         // Logo can be constructed or mapped later
     };
 };
@@ -32,5 +32,6 @@ export const transformUserBankAccount = (dto: UserBankAccountDTO): UserBankAccou
         branch: dto.branch || undefined,
         isDefault: dto.default,
         formattedInfo: `${dto.bankName} - ${maskedNumber}`,
+        maskedNumber,
     };
 };

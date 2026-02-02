@@ -63,7 +63,11 @@ export const useMyBankAccounts = () => {
                 },
                 BankAccountListResponseSchema
             );
-            return response.data.map(transformUserBankAccount);
+
+            // Filter: Only BUYER accounts and NOT deleted
+            return response.data
+                .filter(item => item.accountType === 'BUYER' && !item.deleted)
+                .map(transformUserBankAccount);
         },
         enabled: isAuthenticated,
     });

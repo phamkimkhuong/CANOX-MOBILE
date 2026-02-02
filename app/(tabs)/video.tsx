@@ -9,8 +9,8 @@ import { StyleSheet } from 'react-native-unistyles';
 const MOCK_VIDEOS: VideoData[] = [
     {
         id: '1',
-        videoUrl: 'https://media.khuongblog.tech/cdn-cgi/media/fit=scale-down,width=720/video-optimized2.mp4',
-        posterUrl: 'https://media.khuongblog.tech/cdn-cgi/media/mode=frame,time=1s,format=jpg/video-optimized2.mp4',
+        videoUrl: 'https://media.khuongblog.tech/cdn-cgi/media/fit=scale-down,width=720/video1.mp4',
+        posterUrl: 'https://media.khuongblog.tech/cdn-cgi/media/mode=frame,time=1s,format=jpg/video1.mp4',
         shopName: 'FashionStore',
         caption: 'Váy trắng tinh khôi cho mùa hè này! 🔥 #thoitrang #vayxinh',
         likes: 1240,
@@ -25,8 +25,8 @@ const MOCK_VIDEOS: VideoData[] = [
     },
     {
         id: '2',
-        videoUrl: 'https://media.khuongblog.tech/cdn-cgi/media/fit=scale-down,width=720/video-optimized.mp4',
-        posterUrl: 'https://media.khuongblog.tech/cdn-cgi/media/mode=frame,time=1s,format=jpg/video-optimized.mp4',
+        videoUrl: 'https://media.khuongblog.tech/cdn-cgi/media/fit=scale-down,width=720/video2.mp4',
+        posterUrl: 'https://media.khuongblog.tech/cdn-cgi/media/mode=frame,time=1s,format=jpg/video2.mp4',
         shopName: 'TechGadget',
         caption: 'Deal sập sàn cho iPhone 15 Pro Max hôm nay 📱 #apple #iphone',
         likes: 5600,
@@ -41,8 +41,8 @@ const MOCK_VIDEOS: VideoData[] = [
     },
     {
         id: '3',
-        videoUrl: 'https://media.khuongblog.tech/cdn-cgi/media/fit=scale-down,width=720/video-optimized2.mp4',
-        posterUrl: 'https://media.khuongblog.tech/cdn-cgi/media/mode=frame,time=1s,format=jpg/video-optimized2.mp4',
+        videoUrl: 'https://media.khuongblog.tech/cdn-cgi/media/fit=scale-down,width=720/video1.mp4',
+        posterUrl: 'https://media.khuongblog.tech/cdn-cgi/media/mode=frame,time=1s,format=jpg/vide1.mp4',
         shopName: 'CoffeeHouse',
         caption: 'Cà phê nguyên chất Arabica thơm ngon đậm vị ☕ #cafe #chill',
         likes: 890,
@@ -57,8 +57,8 @@ const MOCK_VIDEOS: VideoData[] = [
     },
     {
         id: "4",
-        videoUrl: 'https://media.khuongblog.tech/cdn-cgi/media/fit=scale-down,width=720/video-optimized2.mp4',
-        posterUrl: 'https://media.khuongblog.tech/cdn-cgi/media/mode=frame,time=1s,format=jpg/video-optimized2.mp4',
+        videoUrl: 'https://media.khuongblog.tech/cdn-cgi/media/fit=scale-down,width=720/video2.mp4',
+        posterUrl: 'https://media.khuongblog.tech/cdn-cgi/media/mode=frame,time=1s,format=jpg/video2.mp4',
         shopName: 'CoffeeHouse',
         caption: 'Cà phê nguyên chất Arabica thơm ngon đậm vị ☕ #cafe #chill',
         likes: 890,

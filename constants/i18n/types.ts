@@ -1128,6 +1128,58 @@ export interface MyReviewTranslation {
     };
 }
 
+export interface BankTranslation {
+    cards: {
+        title: string;
+        subtitle: string;
+        addAccount: string;
+        emptyTitle: string;
+        emptySubtitle: string;
+        defaultBadge: string;
+        securityHint: string;
+    };
+    add: {
+        title: string;
+        step1: string;
+        step2: string;
+        bankLabel: string;
+        bankPlaceholder: string;
+        holderLabel: string;
+        holderPlaceholder: string;
+        accountLabel: string;
+        accountPlaceholder: string;
+        defaultLabel: string;
+        infoTitle: string;
+        infoMessage: string;
+        submit: string;
+        helpTitle: string;
+        helpMessage: string;
+    };
+    verify: {
+        title: string;
+        subtitle: string;
+        message: string;
+        otpPlaceholder: string;
+        resendLabel: string;
+        resendCountdown: string;
+        submit: string;
+        errorInvalid: string;
+        errorExpired: string;
+        footerInfo: string;
+    };
+    modal: {
+        title: string;
+        searchPlaceholder: string;
+        emptyResults: string;
+    };
+    validation: {
+        accountMin: string;
+        accountNumbersOnly: string;
+        holderMin: string;
+        holderUppercase: string;
+    };
+}
+
 /**
  * Global I18n Resources
  */
@@ -1146,4 +1198,5 @@ export interface I18nResources {
     notification: NotificationTranslation;
     checkout: CheckoutTranslation;
     myReviews: MyReviewTranslation;
+    bank: BankTranslation;
 }

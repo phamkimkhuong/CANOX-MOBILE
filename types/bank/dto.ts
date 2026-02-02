@@ -20,6 +20,7 @@ export interface UserBankAccountDTO {
     bankAccountHolder: string;
     branch?: string | null;
     default: boolean;
+    deleted: boolean;
     createdDate?: string | null;
 }
 

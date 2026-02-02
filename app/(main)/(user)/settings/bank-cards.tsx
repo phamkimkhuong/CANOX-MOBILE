@@ -7,6 +7,7 @@ import { Navigator } from '@/utils/navigation';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack } from 'expo-router';
 import React, { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -17,6 +18,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 export default function BankCardsScreen() {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+    const { t } = useTranslation(['bank', 'common', 'profile']);
 
     // API Hooks
     const { data: accounts, isLoading, refetch, isRefetching } = useMyBankAccounts();
@@ -38,7 +40,7 @@ export default function BankCardsScreen() {
             <View style={styles.bgGlow1} />
             <View style={styles.bgGlow2} />
 
-            <SettingsHeader title="Tài khoản / Thẻ ngân hàng" showHelpButton={false} />
+            <SettingsHeader title={t('profile:settings.items.bank-cards')} showHelpButton={false} />
 
             <ScrollView
                 style={styles.scrollView}
@@ -52,11 +54,10 @@ export default function BankCardsScreen() {
                     />
                 }
             >
-                {/* Header Section */}
                 <Animated.View entering={FadeInDown.duration(600)} style={styles.headerSection}>
-                    <Text style={styles.sectionTitle}>Phương thức thanh toán</Text>
+                    <Text style={styles.sectionTitle}>{t('bank:cards.title')}</Text>
                     <Text style={styles.sectionSubtitle}>
-                        Quản lý các tài khoản ngân hàng để thực hiện giao dịch an toàn.
+                        {t('bank:cards.subtitle')}
                     </Text>
                 </Animated.View>
 
@@ -93,7 +94,7 @@ export default function BankCardsScreen() {
                         >
                             <View style={styles.addBtnInner}>
                                 <IconSymbol name="add-circle" size={24} color="#FFF" />
-                                <Text style={styles.addBtnText}>Thêm tài khoản ngân hàng</Text>
+                                <Text style={styles.addBtnText}>{t('bank:cards.addAccount')}</Text>
                             </View>
                         </LinearGradient>
                     </TouchableOpacity>
@@ -101,7 +102,7 @@ export default function BankCardsScreen() {
 
                 <View style={styles.footerInfo}>
                     <IconSymbol name="shield" size={16} color={theme.colors.success} />
-                    <Text style={styles.footerText}>Thông tin ngân hàng của bạn được mã hóa và bảo mật tuyệt đối.</Text>
+                    <Text style={styles.footerText}>{t('bank:cards.securityHint')}</Text>
                 </View>
             </ScrollView>
         </View>

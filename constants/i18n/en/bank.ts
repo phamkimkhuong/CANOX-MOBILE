@@ -1,0 +1,53 @@
+import { BankTranslation } from '../types';
+
+export const BANK_STRINGS: BankTranslation = {
+    cards: {
+        title: 'Bank Accounts',
+        subtitle: 'Manage your bank accounts for secure transactions.',
+        addAccount: 'Add Account',
+        emptyTitle: 'No accounts yet',
+        emptySubtitle: 'You haven\'t linked any bank accounts yet',
+        defaultBadge: 'Default',
+        securityHint: 'Your bank information is encrypted and completely secure.',
+    },
+    add: {
+        title: 'Add Bank Account',
+        step1: 'Information',
+        step2: 'Verification',
+        bankLabel: 'Bank',
+        bankPlaceholder: 'Select bank',
+        holderLabel: 'Account Holder',
+        holderPlaceholder: 'E.g., NGUYEN VAN A',
+        accountLabel: 'Account Number',
+        accountPlaceholder: 'Enter account number',
+        defaultLabel: 'Set as default account',
+        infoTitle: 'Email Verification',
+        infoMessage: 'The system will send an OTP to your email to verify account ownership.',
+        submit: 'Continue',
+        helpTitle: 'Linking Guide',
+        helpMessage: '• Select a bank from the supported list.\n• Enter the correct account number.\n• The account holder\'s name must be in uppercase without accents (e.g., NGUYEN VAN A).\n• An OTP will be sent to your email for verification.',
+    },
+    verify: {
+        title: 'OTP Verification',
+        subtitle: 'Enter verification code',
+        message: 'An OTP has been sent to your registered email. Please enter the code to link your {{bankName}} account.',
+        otpPlaceholder: 'Enter 6 digits',
+        resendLabel: 'Resend after ',
+        resendCountdown: 'Resend after ',
+        submit: 'Confirm & Link',
+        errorInvalid: 'Please enter the full 6-digit OTP',
+        errorExpired: 'Incorrect or expired OTP code',
+        footerInfo: 'Verification codes help protect your bank account from unauthorized access.',
+    },
+    modal: {
+        title: 'Select Bank',
+        searchPlaceholder: 'Search banks...',
+        emptyResults: 'No banks found',
+    },
+    validation: {
+        accountMin: 'Account number must be at least 6 characters',
+        accountNumbersOnly: 'Account number must contain only digits',
+        holderMin: 'Account holder name is too short',
+        holderUppercase: 'Please enter name in uppercase without accents',
+    },
+};

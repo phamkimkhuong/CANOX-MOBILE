@@ -20,4 +20,5 @@ export interface UserBankAccountUI {
     branch?: string;
     isDefault: boolean;
     formattedInfo: string; // e.g., "VCB - ****1234"
+    maskedNumber: string;  // e.g., "****1234"
 }
