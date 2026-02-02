@@ -22,7 +22,6 @@ interface ShopHeaderInfoProps {
 }
 
 const AVATAR_SIZE = 64;
-const AVATAR_BORDER_WIDTH = 2;
 
 /**
  * ShopHeaderInfo - Display shop info with premium layout
@@ -74,7 +73,7 @@ export const ShopHeaderInfo: React.FC<ShopHeaderInfoProps> = ({
                                 {shop.name}
                             </Text>
                             {shop.isVerified && (
-                                <IconSymbol name="verified" size={16} color={theme.colors.primary} />
+                                <IconSymbol name="verified" size={16} color={theme.colors.vibrantRed} />
                             )}
                         </View>
 
@@ -114,7 +113,7 @@ export const ShopHeaderInfo: React.FC<ShopHeaderInfoProps> = ({
                             onPressIn={onPrefetchChat}
                             onPress={handleChat}
                         >
-                            <IconSymbol name="chat-bubble-outline" size={14} color={theme.colors.primary} />
+                            <IconSymbol name="chat-bubble-outline" size={14} color={theme.colors.forestGreen} />
                             <Text style={styles.chatBtnText}>Chat</Text>
                         </Pressable>
 
@@ -176,30 +175,44 @@ export const ShopHeaderInfo: React.FC<ShopHeaderInfoProps> = ({
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
-        backgroundColor: theme.colors.surface,
+        backgroundColor: theme.colors.surfaceGlass,
+        marginHorizontal: theme.margins.md,
         paddingHorizontal: theme.margins.md,
-        paddingBottom: theme.margins.sm,
-        borderBottomLeftRadius: theme.radius.l,
-        borderBottomRightRadius: theme.radius.l,
+        paddingBottom: theme.margins.md,
+        borderRadius: theme.radius.xl,
+        borderWidth: 1,
+        borderColor: theme.colors.borderGlass,
+        marginTop: -15,
+        marginBottom: 5,
+        // Premium Shadow for depth
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.08,
+        shadowRadius: 15,
+        elevation: 100,
     },
     containerNoRadius: {
-        borderBottomLeftRadius: 0,
-        borderBottomRightRadius: 0,
+        borderBottomLeftRadius: theme.radius.xl,
+        borderBottomRightRadius: theme.radius.xl,
     },
     topSection: {
         flexDirection: 'row',
-        paddingTop: theme.margins.sm,
+        paddingTop: theme.margins.md,
     },
     avatarContainer: {
-        marginTop: -28, // Negative overlap with banner
+        // marginTop: -35, // Negative overlap with banner
     },
     avatar: {
         width: AVATAR_SIZE,
         height: AVATAR_SIZE,
         borderRadius: AVATAR_SIZE / 2,
-        borderWidth: AVATAR_BORDER_WIDTH,
+        borderWidth: 3,
         borderColor: '#FFF',
-        backgroundColor: theme.colors.background,
+        backgroundColor: theme.colors.surface,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 6,
     },
     mainContent: {
         flex: 1,
@@ -218,9 +231,10 @@ const stylesheet = StyleSheet.create((theme) => ({
         gap: 6,
     },
     shopName: {
-        fontSize: 16,
-        fontWeight: '700',
-        color: theme.colors.typography,
+        fontSize: 17,
+        fontWeight: '600',
+        color: theme.colors.vibrantRed, // Subtle brand recognition
+        letterSpacing: -0.3,
     },
     statusRow: {
         flexDirection: 'row',
@@ -235,7 +249,9 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     statusText: {
         fontSize: 11,
-        fontWeight: '600',
+        fontWeight: '700',
+        textTransform: 'uppercase',
+        letterSpacing: 0.2,
     },
     metaRow: {
         flexDirection: 'row',
@@ -246,79 +262,92 @@ const stylesheet = StyleSheet.create((theme) => ({
     metaText: {
         fontSize: 11,
         color: theme.colors.typographySecondary,
+        fontWeight: '500',
     },
     buttonColumn: {
         flexDirection: 'column',
-        gap: 6,
+        gap: 8,
     },
     btn: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         gap: 4,
-        paddingVertical: 5,
-        paddingHorizontal: 8,
-        borderRadius: 6,
-        borderWidth: 1,
-        minWidth: 90,
+        paddingVertical: 6,
+        paddingHorizontal: 10,
+        borderRadius: 8,
+        minWidth: 85,
     },
+    // Green Button for Trust/Communication
     chatBtn: {
-        backgroundColor: '#FFF',
-        borderColor: theme.colors.primary,
+        backgroundColor: theme.colors.greenSoft,
+        borderWidth: 1,
+        borderColor: 'rgba(46, 125, 50, 0.2)',
     },
     chatBtnText: {
         fontSize: 12,
-        fontWeight: '600',
-        color: theme.colors.primary,
+        fontWeight: '700',
+        color: theme.colors.forestGreen,
     },
+    // Primary Red Button (Polished)
     followBtn: {
-        backgroundColor: theme.colors.primary,
-        borderColor: theme.colors.primary,
+        backgroundColor: theme.colors.vibrantRed,
+        shadowColor: theme.colors.vibrantRed,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
     },
     btnText: {
         fontSize: 12,
-        fontWeight: '600',
+        fontWeight: '700',
         color: '#FFF',
     },
     followingBtn: {
-        backgroundColor: theme.colors.background,
-        borderColor: theme.colors.border,
+        backgroundColor: 'rgba(0,0,0,0.05)',
+        borderWidth: 0,
     },
     followingBtnText: {
         color: theme.colors.typographySecondary,
     },
     btnPressed: {
-        opacity: 0.7,
+        opacity: 0.8,
+        transform: [{ scale: 0.98 }],
     },
     descriptionRow: {
-
-        // paddingTop: theme.margins.sm,
+        marginTop: 10,
+        paddingTop: 8,
+        borderTopWidth: 1,
+        borderTopColor: 'rgba(0,0,0,0.03)',
     },
     description: {
         fontSize: 12,
         color: theme.colors.typographySecondary,
-        lineHeight: 16,
+        lineHeight: 18,
+        fontStyle: 'italic',
     },
     statsRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 6,
-        paddingTop: 3,
+        marginTop: 12,
+        paddingTop: 12,
         borderTopWidth: 1,
-        borderTopColor: theme.colors.border,
+        borderTopColor: 'rgba(0,0,0,0.05)',
     },
     statItem: {
         flex: 1,
         alignItems: 'center',
     },
     statValue: {
-        fontSize: 15,
-        fontWeight: '700',
-        color: theme.colors.typography,
+        fontSize: 16,
+        fontWeight: '800',
+        color: theme.colors.inkBlack,
     },
     statLabel: {
-        fontSize: 11,
+        fontSize: 10,
+        fontWeight: '600',
         color: theme.colors.typographySecondary,
+        textTransform: 'uppercase',
+        marginTop: 2,
     },
     ratingBox: {
         flexDirection: 'row',
@@ -327,8 +356,8 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     vDivider: {
         width: 1,
-        height: 20,
-        backgroundColor: theme.colors.border,
+        height: 15,
+        backgroundColor: 'rgba(0,0,0,0.05)',
     },
 }));
 

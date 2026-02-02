@@ -105,11 +105,18 @@ ShopVoucherSection.displayName = 'ShopVoucherSection';
 const styles = StyleSheet.create((theme) => ({
     container: {
         backgroundColor: theme.colors.surface,
-        marginTop: theme.margins.sm,
-        marginBottom: theme.margins.sm,
-        paddingTop: theme.margins.sm,
-        paddingBottom: theme.margins.md,
-        borderRadius: theme.radius.l,
+        marginTop: 8,
+        marginBottom: 8,
+        paddingTop: 16,
+        paddingBottom: 20,
+        borderRadius: 24,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.5)',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.03,
+        shadowRadius: 10,
+        elevation: 2,
     },
 
     // Header
@@ -118,28 +125,31 @@ const styles = StyleSheet.create((theme) => ({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: theme.margins.md,
-        marginBottom: theme.margins.smd,
+        marginBottom: 16,
     },
     headerLeft: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: 8,
     },
     headerTitle: {
-        fontSize: 14,
-        fontWeight: '500',
+        fontSize: 16,
+        fontWeight: '700',
         color: theme.colors.typography,
+        letterSpacing: -0.5,
     },
     badge: {
-        backgroundColor: theme.colors.errorSoft,
-        paddingHorizontal: 6,
+        backgroundColor: theme.colors.activeSoft,
+        paddingHorizontal: 8,
         paddingVertical: 2,
         borderRadius: 10,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.8)',
     },
     badgeText: {
-        fontSize: 10,
+        fontSize: 11,
         fontWeight: '700',
-        color: theme.colors.error,
+        color: theme.colors.buttonActive,
     },
     viewAllButton: {
         flexDirection: 'row',
@@ -150,15 +160,15 @@ const styles = StyleSheet.create((theme) => ({
         opacity: 0.7,
     },
     viewAllText: {
-        fontSize: 12,
-        fontWeight: '600',
-        color: theme.colors.primary,
+        fontSize: 13,
+        fontWeight: '700',
+        color: theme.colors.buttonActive,
     },
 
     // Scroll Content
     scrollContent: {
         paddingHorizontal: theme.margins.md,
-        gap: theme.margins.md,
+        gap: 12,
     },
 }));
 

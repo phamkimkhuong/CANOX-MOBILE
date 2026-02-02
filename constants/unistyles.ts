@@ -133,6 +133,19 @@ const lightTheme = {
         border: '#e8e8e8',
         borderMuted: '#f1f1f1',
         notification: '#ef4444',
+
+        // --- LIQUID GLASS TOKENS ---
+        vibrantRed: '#E31B23',      // Modern Premium Red
+        forestGreen: '#2E7D32',     // Green for Trust/Success
+        sunsetOrange: '#FF6D00',    // For Flash Sale/Promo
+        inkBlack: '#121212',        // Deep neutral text
+
+        surfaceGlass: 'rgba(255, 255, 255, 0.70)',
+        borderGlass: 'rgba(255, 255, 255, 0.4)',
+        surfaceGlassOverlay: 'rgba(255, 255, 255, 0.85)',
+
+        redSoft: 'rgba(227, 27, 35, 0.08)',
+        greenSoft: 'rgba(46, 125, 50, 0.08)',
     },
     margins: {
         zero: 0,

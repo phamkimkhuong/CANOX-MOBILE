@@ -64,9 +64,8 @@ const styles = StyleSheet.create((theme) => ({
         flexDirection: 'row',
         height: CARD_HEIGHT,
         backgroundColor: theme.colors.surface,
-        borderRadius: theme.radius.m,
+        borderRadius: 16,
         overflow: 'hidden',
-        ...theme.shadows.small,
     },
 
     leftSection: {

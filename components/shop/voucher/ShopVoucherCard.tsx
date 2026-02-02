@@ -77,9 +77,9 @@ export const ShopVoucherCard = memo<ShopVoucherCardProps>(({
                 <View style={styles.separatorWrapper}>
                     <TicketSeparator
                         height={CARD_HEIGHT}
-                        separatorBgColor={accentBgColor}
+                        separatorBgColor={theme.colors.surface}
                         dashedLineColor={`${accentColor}40`}
-                        circleRadius={8}
+                        circleRadius={6}
                         width={16}
                     />
                 </View>
@@ -89,7 +89,7 @@ export const ShopVoucherCard = memo<ShopVoucherCardProps>(({
             <View style={styles.rightSection}>
                 {/* Title Row with Scope Badge */}
                 <View style={styles.titleRow}>
-                    <Text style={styles.titleText} numberOfLines={1}>
+                    <Text style={styles.titleText}>
                         {voucher.titleDisplay}
                     </Text>
                     <View style={[styles.scopeBadge, { backgroundColor: accentBgColor }]}>
@@ -102,19 +102,27 @@ export const ShopVoucherCard = memo<ShopVoucherCardProps>(({
                 {/* Min Order Condition */}
                 <Text
                     style={styles.minOrderText}
-                    numberOfLines={1}
-                    adjustsFontSizeToFit={true}
-                    minimumFontScale={0.7}
                 >
                     {voucher.minOrderDisplay}
                 </Text>
 
-                {/* Bottom Row: Expiry */}
-                <View style={styles.bottomRow}>
+                {/* Bottom Row: Expiry + Action */}
+                {/* <View style={styles.bottomRow}>
                     <Text style={styles.expiryText} numberOfLines={1}>
                         HSD: {voucher.endDate}
                     </Text>
-                </View>
+
+                    <Pressable
+                        style={({ pressed }) => [
+                            styles.collectButton,
+                            { backgroundColor: accentColor },
+                            pressed && styles.collectButtonPressed,
+                        ]}
+                        onPress={handleCollect}
+                    >
+                        <Text style={styles.collectButtonText}>Lưu</Text>
+                    </Pressable>
+                </View> */}
             </View>
         </Pressable>
     );
@@ -125,55 +133,58 @@ ShopVoucherCard.displayName = 'ShopVoucherCard';
 const styles = StyleSheet.create((theme) => ({
     container: {
         flexDirection: 'row',
-        height: CARD_HEIGHT,
+        minHeight: CARD_HEIGHT,
         backgroundColor: theme.colors.surface,
-        borderRadius: theme.radius.l,
+        borderRadius: 16,
         borderWidth: 1,
-        borderColor: theme.colors.border,
+        borderColor: 'rgba(255,255,255,0.6)',
         overflow: 'hidden',
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.03,
-        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.04,
+        shadowRadius: 10,
         elevation: 2,
     },
     containerPressed: {
-        transform: [{ scale: 0.98 }],
+        transform: [{ scale: 0.97 }],
         opacity: 0.9,
     },
 
     // Left Section
     leftSection: {
-        width: 80,
+        width: 85,
         alignItems: 'center',
         justifyContent: 'center',
         position: 'relative',
-        paddingRight: 8,
+        paddingRight: 4,
     },
     discountText: {
         fontSize: 14,
-        fontWeight: '800',
+        fontWeight: '700',
         textAlign: 'center',
-        lineHeight: 18,
+        letterSpacing: -0.5,
     },
     separatorWrapper: {
         position: 'absolute',
         right: -8,
         top: 0,
         bottom: 0,
+        zIndex: 10,
     },
 
     // Right Section
     rightSection: {
         flex: 1,
         backgroundColor: theme.colors.surface,
-        paddingVertical: theme.margins.sm,
-        paddingHorizontal: theme.margins.smd,
-        justifyContent: 'space-between',
+        paddingVertical: 10,
+        paddingHorizontal: 16,
+        justifyContent: 'center',
+        gap: 2,
     },
     titleRow: {
         flexDirection: 'row',
-        alignItems: 'center',
+        alignItems: 'flex-start',
+        justifyContent: 'space-between',
         gap: 6,
     },
     titleText: {
@@ -181,20 +192,24 @@ const styles = StyleSheet.create((theme) => ({
         fontWeight: '700',
         color: theme.colors.typography,
         flex: 1,
+        letterSpacing: -0.2,
     },
     scopeBadge: {
         paddingHorizontal: 6,
         paddingVertical: 2,
-        borderRadius: theme.radius.s,
+        borderRadius: 6,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.5)',
     },
     scopeBadgeText: {
         fontSize: 9,
-        fontWeight: '600',
+        fontWeight: '700',
+        textTransform: 'uppercase',
     },
     minOrderText: {
         fontSize: 11,
         color: theme.colors.typographySecondary,
-        marginTop: 2,
+        fontWeight: '600',
     },
     bottomRow: {
         flexDirection: 'row',
@@ -204,20 +219,27 @@ const styles = StyleSheet.create((theme) => ({
     },
     expiryText: {
         fontSize: 10,
-        color: theme.colors.secondary,
+        color: theme.colors.typographySecondary,
+        fontWeight: '500',
     },
     collectButton: {
-        paddingHorizontal: 12,
+        paddingHorizontal: 10,
         paddingVertical: 4,
-        borderRadius: theme.radius.s,
+        borderRadius: 12,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
     },
     collectButtonPressed: {
         opacity: 0.8,
+        transform: [{ scale: 0.95 }],
     },
     collectButtonText: {
         fontSize: 11,
         fontWeight: '700',
-        color: theme.colors.onPrimary,
+        color: '#FFF',
     },
 }));
 

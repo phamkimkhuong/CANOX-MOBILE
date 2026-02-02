@@ -401,40 +401,45 @@ BrandStorySections.displayName = 'BrandStorySections';
 // ============================================
 const sectionStyles = StyleSheet.create((theme) => ({
     container: {
-        gap: theme.margins.md,
+        gap: 20,
     },
 
     // Common
     sectionTitle: {
-        fontSize: 15,
+        fontSize: 16,
         fontWeight: '700',
         color: theme.colors.typography,
         marginBottom: theme.margins.sm,
+        letterSpacing: -0.5,
     },
     expandText: {
         fontSize: 14,
-        fontWeight: '600',
-        color: theme.colors.primary,
+        fontWeight: '700',
+        color: theme.colors.buttonActive,
         marginTop: theme.margins.xs,
     },
 
     // TEXT_BLOCK
     textBlock: {
         backgroundColor: theme.colors.surface,
-        borderRadius: theme.radius.m,
+        borderRadius: 24,
         padding: theme.margins.md,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.5)',
     },
     textContent: {
         fontSize: 14,
         color: theme.colors.typographySecondary,
-        lineHeight: 20,
+        lineHeight: 22,
     },
 
     // RICH_TEXT
     richText: {
         backgroundColor: theme.colors.surface,
-        borderRadius: theme.radius.m,
+        borderRadius: 24,
         padding: theme.margins.md,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.5)',
     },
     richTextContainer: {
         flexDirection: 'row',
@@ -444,8 +449,10 @@ const sectionStyles = StyleSheet.create((theme) => ({
     // IMAGE_HERO
     imageHero: {
         width: '100%',
-        borderRadius: theme.radius.m,
+        borderRadius: 24,
         overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
     },
     heroImage: {
         width: '100%',
@@ -455,9 +462,11 @@ const sectionStyles = StyleSheet.create((theme) => ({
     // VIDEO_INTRO
     videoIntro: {
         width: '100%',
-        borderRadius: theme.radius.m,
+        borderRadius: 24,
         overflow: 'hidden',
         position: 'relative',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
     },
     videoPoster: {
         width: '100%',
@@ -467,74 +476,82 @@ const sectionStyles = StyleSheet.create((theme) => ({
         ...StyleSheet.absoluteFillObject,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0,0,0,0.3)',
+        backgroundColor: 'rgba(0,0,0,0.2)',
     },
     playButton: {
-        width: 64,
-        height: 64,
-        borderRadius: 32,
-        backgroundColor: 'rgba(0,0,0,0.6)',
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        backgroundColor: 'rgba(255,255,255,0.2)',
         justifyContent: 'center',
         alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.4)',
     },
     durationBadge: {
         position: 'absolute',
         bottom: theme.margins.sm,
         right: theme.margins.sm,
-        backgroundColor: 'rgba(0,0,0,0.7)',
-        paddingHorizontal: theme.margins.sm,
-        paddingVertical: 2,
-        borderRadius: theme.radius.s,
+        backgroundColor: 'rgba(0,0,0,0.6)',
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 8,
     },
     durationText: {
         color: '#FFF',
         fontSize: 11,
-        fontWeight: '600',
+        fontWeight: '700',
     },
 
     // GALLERY_GRID
     galleryGrid: {
         backgroundColor: theme.colors.surface,
-        borderRadius: theme.radius.m,
+        borderRadius: 24,
         padding: theme.margins.md,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.5)',
     },
     galleryContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        marginHorizontal: -2,
+        marginHorizontal: -4,
     },
     galleryItem: {
-        padding: 2,
+        padding: 4,
         aspectRatio: 1,
     },
     galleryImage: {
         width: '100%',
         height: '100%',
-        borderRadius: theme.radius.s,
+        borderRadius: 16,
     },
 
     // TIMELINE
     timeline: {
         backgroundColor: theme.colors.surface,
-        borderRadius: theme.radius.m,
+        borderRadius: 24,
         padding: theme.margins.md,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.5)',
     },
     timelineContainer: {
         paddingLeft: theme.margins.xs,
     },
     timelineItem: {
         flexDirection: 'row',
-        marginBottom: theme.margins.md,
+        marginBottom: 20,
     },
     timelineDot: {
         alignItems: 'center',
         width: 20,
-        marginRight: theme.margins.sm,
+        marginRight: theme.margins.md,
     },
     dot: {
         width: 10,
         height: 10,
         borderRadius: 5,
+        borderWidth: 2,
+        borderColor: '#FFF',
     },
     line: {
         width: 2,
@@ -546,21 +563,21 @@ const sectionStyles = StyleSheet.create((theme) => ({
         paddingBottom: theme.margins.sm,
     },
     timelineYear: {
-        fontSize: 12,
+        fontSize: 13,
         fontWeight: '700',
-        color: theme.colors.primary,
-        marginBottom: 2,
+        color: theme.colors.buttonActive,
+        marginBottom: 4,
     },
     timelineTitle: {
-        fontSize: 14,
-        fontWeight: '600',
+        fontSize: 15,
+        fontWeight: '700',
         color: theme.colors.typography,
-        marginBottom: 2,
+        marginBottom: 4,
     },
     timelineDesc: {
         fontSize: 13,
         color: theme.colors.typographySecondary,
-        lineHeight: 18,
+        lineHeight: 20,
     },
 }));
 

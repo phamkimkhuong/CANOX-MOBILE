@@ -43,17 +43,17 @@ export const ShopNavBar: React.FC<ShopNavBarProps> = ({
     const insets = useSafeAreaInsets();
     const styles = stylesheet;
 
-    // Header background: transparent → surface
+    // Header background: transparent → surfaceGlass
     const animatedHeaderStyle = useAnimatedStyle(() => {
         const backgroundColor = interpolateColor(
             scrollY.value,
             [0, SCROLL_THRESHOLD],
-            ['transparent', theme.colors.surface]
+            ['transparent', theme.colors.surfaceGlass]
         );
         const borderBottomColor = interpolateColor(
             scrollY.value,
             [SCROLL_THRESHOLD - 10, SCROLL_THRESHOLD],
-            ['transparent', theme.colors.border]
+            ['transparent', theme.colors.borderGlass]
         );
         return {
             backgroundColor,
@@ -62,22 +62,22 @@ export const ShopNavBar: React.FC<ShopNavBarProps> = ({
         };
     });
 
-    // Search bar background: translucent dark → solid background on scroll
+    // Search bar background: translucent dark → surfaceGlassOverlay on scroll
     const animatedSearchStyle = useAnimatedStyle(() => {
         const backgroundColor = interpolateColor(
             scrollY.value,
             [0, SCROLL_THRESHOLD],
-            ['rgba(0, 0, 0, 0.25)', theme.colors.background]
+            ['rgba(0, 0, 0, 0.2)', theme.colors.surfaceGlassOverlay]
         );
-        return { backgroundColor };
+        return { backgroundColor, borderWidth: 1, borderColor: theme.colors.borderGlass };
     });
 
-    // Icon/Text color: white → typography
+    // Icon/Text color: white → vibrantRed
     const animatedContentStyle = useAnimatedStyle(() => {
         const color = interpolateColor(
             scrollY.value,
             [0, SCROLL_THRESHOLD],
-            ['#FFFFFF', theme.colors.typography]
+            ['#FFFFFF', theme.colors.vibrantRed]
         );
         return { color };
     });
@@ -87,7 +87,7 @@ export const ShopNavBar: React.FC<ShopNavBarProps> = ({
         const color = interpolateColor(
             scrollY.value,
             [0, SCROLL_THRESHOLD],
-            ['rgba(255, 255, 255, 0.9)', theme.colors.typographySecondary]
+            ['rgba(255, 255, 255, 0.8)', theme.colors.typographySecondary]
         );
         return { color };
     });
