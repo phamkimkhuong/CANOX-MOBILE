@@ -97,6 +97,8 @@ export const ROUTES = {
         CHANGE_PASSWORD: '/settings/change-password' as const,
         LINKED_ACCOUNTS: '/settings/linked-accounts' as const,
         BANK_CARDS: '/settings/bank-cards' as const,
+        ADD_BANK: '/settings/add-bank' as const,
+        VERIFY_BANK: '/settings/verify-bank' as const,
         NOTIFICATIONS: '/settings/notifications' as const,
         LANGUAGE: '/settings/language' as const,
         PRIVACY_POLICY: '/settings/privacy-policy' as const,
@@ -464,7 +466,7 @@ export const SERVICE_MENU_ROUTES = {
  */
 export const SETTINGS_MENU_ROUTES = {
     support: ROUTES.PROFILE.SUPPORT,
-    security: ROUTES.PROFILE.SETTINGS_SECURITY,
+    security: ROUTES.SETTINGS.INDEX,
 } as const;
 
 // ============================================

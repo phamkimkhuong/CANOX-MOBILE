@@ -120,7 +120,7 @@ export default function MeScreen() {
     return (
         <View style={styles.container}>
             {/* Header */}
-            <ProfileHeader />
+            <ProfileHeader showSettings={false} />
 
             {/* Scrollable content */}
             <ScrollView

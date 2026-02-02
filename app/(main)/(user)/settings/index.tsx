@@ -227,6 +227,10 @@ export default function SettingsScreen() {
                     if (item.id === 'biometrics' && !biometricsSupported && !biometricsLoading) {
                         return false;
                     }
+                    // Hide notifications if not authenticated (guest mode)
+                    if (item.id === 'notifications' && !isAuthenticated) {
+                        return false;
+                    }
                     return true;
                 }),
             }))

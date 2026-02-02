@@ -193,6 +193,8 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     'headset-mic': { ios: 'headset-outline', android: 'headset-outline' },
     'notifications-none': { ios: 'notifications-outline', android: 'notifications-outline' },
     'more-vert': { ios: 'ellipsis-vertical', android: 'ellipsis-vertical' },
+    'more-horiz': { ios: 'ellipsis-horizontal', android: 'ellipsis-horizontal' },
+    'add-circle': { ios: 'add-circle', android: 'add-circle' },
     'verified': { ios: 'checkmark-circle', android: 'checkmark-circle' },
 
     // === Wishlist Icons ===
