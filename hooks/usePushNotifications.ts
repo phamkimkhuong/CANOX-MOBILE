@@ -1,4 +1,5 @@
 import { mmkvStorage } from '@/store/storage';
+import { useAuthStore } from '@/store/useAuthStore';
 import notifee, { AndroidImportance, AndroidVisibility, EventType } from '@notifee/react-native';
 import {
     AuthorizationStatus,
@@ -63,12 +64,18 @@ export const FCM_TOPICS = {
 } as const;
 
 export function usePushNotifications() {
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     const [fcmToken, setFcmToken] = useState<string | null>(null);
     const [notification, setNotification] = useState<FirebaseMessagingTypes.RemoteMessage | null>(null);
     const [tokenChanged, setTokenChanged] = useState(false);
     const unsubscribeRef = useRef<(() => void) | null>(null);
 
     useEffect(() => {
+        if (!isAuthenticated) {
+            setFcmToken(null);
+            return;
+        }
+
         // Register for push token and setup notifications
         const setup = async () => {
             const token = await registerForPushNotificationsAsync();
@@ -94,10 +101,6 @@ export function usePushNotifications() {
         unsubscribeRef.current = onMessage(messaging, async remoteMessage => {
             console.log('FCM Notification received (foreground):', remoteMessage);
             setNotification(remoteMessage);
-
-            // Nếu là tin nhắn chat, hiện Banner (Heads-up)
-            // Nếu là quảng cáo, chỉ cập nhật badge (Notifee hỗ trợ tốt việc này)
-            // Nếu đang ở màn hình Checkout, có thể lọc không hiện tin quảng cáo
 
             if (remoteMessage.notification) {
                 // Hiển thị notification qua Notifee
@@ -154,11 +157,11 @@ export function usePushNotifications() {
             if (unsubscribeRef.current) {
                 unsubscribeRef.current();
             }
-            unsubscribeNotifeeForeground();
-            unsubscribeOnNotificationOpenedApp();
-            unsubscribeTokenRefresh();
+            if (unsubscribeNotifeeForeground) unsubscribeNotifeeForeground();
+            if (unsubscribeOnNotificationOpenedApp) unsubscribeOnNotificationOpenedApp();
+            if (unsubscribeTokenRefresh) unsubscribeTokenRefresh();
         };
-    }, []);
+    }, [isAuthenticated]);
 
     return {
         /** FCM Token - gửi lên Backend để nhận notification cá nhân */

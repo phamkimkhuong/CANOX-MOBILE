@@ -51,6 +51,11 @@ const PUBLIC_ENDPOINTS = [
     '/public/**',
     '/categories/tree',
     '/reviews/PRODUCT/**',
+    '/search/hot',
+    '/campaigns/slots/**',
+    '/homepage/**',
+    '/address/**',
+    '/products/**',
 ];
 
 /**
@@ -142,16 +147,20 @@ apiClient.interceptors.request.use(
                 return config;
             }
 
-            // Token is healthy - attach it normally
             const token = await getAccessToken();
-            if (token && config.headers) {
+            if (!token) {
+                logger.auth.warn(`Blocking attempt to call AUTH endpoint without token: ${config.url}`);
+                throw new SessionExpiredError('Authentication required');
+            }
+
+            if (config.headers) {
                 config.headers.Authorization = `Bearer ${token}`;
             }
+            return config;
         } catch (error) {
             logger.api.error('Error in Request Interceptor:', error);
+            return Promise.reject(error);
         }
-
-        return config;
     },
     (error) => Promise.reject(error)
 );

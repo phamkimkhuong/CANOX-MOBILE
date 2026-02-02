@@ -183,9 +183,23 @@ export const API_ROUTES = {
         TRANSACTION_DETAIL: (txId: string) => `${API_PREFIX}/wallets/transactions/${txId}`,
         WITHDRAW: `${API_PREFIX}/wallets/withdraw`,
         WITHDRAWAL_REQUESTS: `${API_PREFIX}/wallets/withdrawal-requests`,
+        CREATE: `${API_PREFIX}/wallets`,
         FORGOT_PASSWORD: `${API_PREFIX}/wallets/password/forgot`,
         RESET_PASSWORD: `${API_PREFIX}/wallets/password/reset`,
         CHANGE_PASSWORD: `${API_PREFIX}/wallets/password`,
+    },
+    BANKS: {
+        LIST: `${API_PREFIX}/banks`,
+        ACCOUNTS: `${API_PREFIX}/banks/accounts`,
+        ME_ACCOUNTS: `${API_PREFIX}/banks/accounts/me`,
+        DEFAULT_ACCOUNT: `${API_PREFIX}/banks/accounts/default`,
+        DETAIL: (id: string) => `${API_PREFIX}/banks/accounts/${id}`,
+        DELETE: (id: string) => `${API_PREFIX}/banks/accounts/${id}`,
+        SET_DEFAULT: (id: string) => `${API_PREFIX}/banks/accounts/${id}/set-default`,
+        /** POST - Start bank verification (sends OTP) */
+        INIT_VERIFICATION: `${API_PREFIX}/banks/accounts/init-verification`,
+        /** POST - Verify OTP and create account */
+        VERIFY_CREATE: `${API_PREFIX}/banks/accounts/verify-and-create`,
     },
     PAYMENTS: {
         STATUS: (paymentId: string) => `${API_PREFIX}/payments/${paymentId}/status`,

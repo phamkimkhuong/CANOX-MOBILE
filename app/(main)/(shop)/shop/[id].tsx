@@ -20,7 +20,7 @@ import {
 import { IconSymbol } from '@/components/ui/Icon';
 import { ProductCard } from '@/components/ui/product/ProductCard';
 import { CHAT_STRINGS } from '@/constants/i18n/vi/chat';
-import { chatRoutes, productRoutes, shopSearchRoutes } from '@/constants/routes';
+import { ROUTES, chatRoutes, productRoutes, shopSearchRoutes } from '@/constants/routes';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
 import { useRefreshShopProducts, useShopCategories, useShopDetail, useShopProducts, useShopVouchers } from '@/hooks/api/useShop';
 import { MINIMUM_SKELETON_DURATION_MS } from '@/hooks/usePrefetchTiming';
@@ -147,7 +147,7 @@ export default function ShopDetailScreen() {
     // Smart refresh for products infinite query
     const { refresh: smartRefreshProducts } = useRefreshShopProducts(shopId, filters);
 
-    // Auth info for chat validation
+    const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
     const myShopId = useAuthStore((s) => s.shopId);
 
     // Prefetch hook for ghost loading
@@ -204,15 +204,20 @@ export default function ShopDetailScreen() {
      * Reused from Product Detail pattern
      */
     const handlePrefetchChat = useCallback(() => {
-        if (!shop || !shop.userId || shop.userId === myShopId) return;
+        if (!isAuthenticated || !shop || !shop.userId || shop.userId === myShopId) return;
         prefetchShopChat(shop.userId, shop.name, shop.logoUrl, shop.id);
-    }, [shop, myShopId, prefetchShopChat]);
+    }, [isAuthenticated, shop, myShopId, prefetchShopChat]);
 
     /**
      * Handle Chat with Shop - Pure 0ms Navigation
      * Reused from Product Detail pattern
      */
     const handleChatPress = useCallback(() => {
+        if (!isAuthenticated) {
+            Navigator.push(ROUTES.AUTH.LOGIN);
+            return;
+        }
+
         if (!shop || !shop.userId) return;
 
         // Prevent chatting with own shop
@@ -234,7 +239,7 @@ export default function ShopDetailScreen() {
             shopUserId: shop.userId,
             shopId: shop.id,
         }));
-    }, [shop, myShopId]);
+    }, [isAuthenticated, shop, myShopId]);
 
     const handleFollowPress = useCallback(() => { }, []);
     const handleProductPress = useCallback((product: ShopProductItemUI) => Navigator.push(productRoutes.detail(product.id)), []);
