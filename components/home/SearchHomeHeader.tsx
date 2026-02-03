@@ -47,6 +47,16 @@ export const HomeHeader = () => {
         Navigator.push(searchRoutes.entry());
     }, []);
 
+    // Navigate to cart screen with double-tap protection
+    const handleCartPress = useCallback(() => {
+        Navigator.push(isAuthenticated ? ROUTES.CART.INDEX : ROUTES.AUTH.LOGIN);
+    }, [isAuthenticated]);
+
+    // Navigate to chat screen with double-tap protection
+    const handleChatPress = useCallback(() => {
+        Navigator.push(isAuthenticated ? ROUTES.TABS.CHAT : ROUTES.AUTH.LOGIN);
+    }, [isAuthenticated]);
+
     return (
         <View style={styles.headerContainer}>
             {/* 1. Thanh tìm kiếm - Rolling Keywords */}
@@ -73,6 +83,7 @@ export const HomeHeader = () => {
             <View style={styles.actions}>
                 <SmartNavButton
                     route={isAuthenticated ? ROUTES.CART.INDEX : ROUTES.AUTH.LOGIN}
+                    onPress={handleCartPress}
                     style={styles.iconBtn}
                     onPressIn={prefetchCart}
                 >
@@ -93,6 +104,7 @@ export const HomeHeader = () => {
                 {/* {Router to chat.tsx} */}
                 <SmartNavButton
                     route={isAuthenticated ? ROUTES.TABS.CHAT : ROUTES.AUTH.LOGIN}
+                    onPress={handleChatPress}
                     style={styles.iconBtn}
                     onPressIn={prefetchChat}
                 >
