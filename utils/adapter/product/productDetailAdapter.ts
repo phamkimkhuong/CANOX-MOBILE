@@ -148,6 +148,10 @@ export const buildVariantMatrix = (
             stock: variant.inventory?.available ?? variant.inventory?.stock ?? 0,
             isAvailable: (variant.inventory?.available ?? variant.inventory?.stock ?? 0) > 0,
             sku: variant.sku ?? undefined,
+            promotionId: promo?.promotionId ?? undefined,
+            promotionName: promo?.campaignName ?? undefined,
+            promotionPercentage: promo?.discountPercent ?? undefined,
+            campaignType: promo?.campaignType ?? undefined,
             // Variant can have own image
             media: (variant.imagePath || variant.imageUrl) ? [{
                 id: `variant-${variant.id}`,
@@ -309,11 +313,21 @@ export const calculatePriceDisplay = (
         ? Math.round(((originalPrice - currentPrice) / originalPrice) * 100)
         : 0;
 
-    // Default breakdown
     const defaultBreakdown: PriceBreakdown = {
         basePrice: originalPrice || currentPrice,
         finalPrice: currentPrice,
     };
+
+    // Add product promotion discount for default view
+    if (originalPrice > (data.priceMin ?? 0)) {
+        defaultBreakdown.productDiscount = {
+            id: 'product-promo',
+            name: 'Giảm giá sản phẩm',
+            amount: originalPrice - (data.priceMin ?? 0),
+            percentage: data.showDiscount ?? undefined,
+            campaignType: data.activeCampaigns?.[0]?.campaignType ?? undefined,
+        };
+    }
 
     if (data.bestPlatformVoucher) {
         defaultBreakdown.platformVoucher = {

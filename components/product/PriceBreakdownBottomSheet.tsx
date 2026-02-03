@@ -85,6 +85,25 @@ export const PriceBreakdownBottomSheet = memo<PriceBreakdownBottomSheetProps>(({
                             <Text style={styles.value}>{formatCurrency(breakdown.basePrice)}</Text>
                         </View>
 
+                        {/* Product Discount (Promotion/Flash Sale) */}
+                        {breakdown.productDiscount && breakdown.productDiscount.amount > 0 && (
+                            <View style={styles.voucherRow}>
+                                <View style={styles.voucherHeader}>
+                                    <View style={styles.voucherLabelContainer}>
+                                        <Text style={styles.voucherLabel}>{breakdown.productDiscount.name}</Text>
+                                    </View>
+                                    <View style={styles.discountValueContainer}>
+                                        <Text style={styles.minus}>-</Text>
+                                        <Text style={styles.discountValue}>{formatCurrency(breakdown.productDiscount.amount)}</Text>
+                                    </View>
+                                </View>
+                                <Text style={styles.shopVoucherDesc}>
+                                    {breakdown.productDiscount.campaignType ? breakdown.productDiscount.campaignType.replace('_', ' ') : ''}
+                                    {breakdown.productDiscount.percentage ? ` giảm ${breakdown.productDiscount.percentage}%` : ''}
+                                </Text>
+                            </View>
+                        )}
+
                         {/* Shop Voucher */}
                         {breakdown.shopVoucher && breakdown.shopVoucher.amount > 0 && (
                             <View style={styles.voucherRow}>

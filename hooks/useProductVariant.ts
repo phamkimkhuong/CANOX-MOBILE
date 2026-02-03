@@ -7,6 +7,7 @@ import type {
     SelectedOptions,
     VariantMatrixValue,
     VariantSelectionResult,
+    VoucherUI,
 } from '@/types/product/productDetail';
 import { createKeyFromSelection } from '@/utils/adapter/product/productDetailAdapter';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -261,62 +262,108 @@ export const useProductVariant = (
                 finalPrice: currentVariant.price, // Initial before vouchers
             };
 
+            // Add product promotion discount to breakdown (e.g., Shop Sale, Flash Sale)
+            if (currentVariant.originalPrice && currentVariant.originalPrice > currentVariant.price) {
+                breakdown.productDiscount = {
+                    id: currentVariant.promotionId || 'product-discount',
+                    name: currentVariant.promotionName || 'Giảm giá sản phẩm',
+                    amount: currentVariant.originalPrice - currentVariant.price,
+                    percentage: currentVariant.promotionPercentage,
+                    campaignType: currentVariant.campaignType,
+                };
+            }
+
             if (product.vouchers && product.vouchers.length > 0) {
-                product.vouchers.forEach(voucher => {
+                // Find single best voucher for each sponsor type to match stacking rules
+                let bestPlatformVoucher: VoucherUI | null = null;
+                let bestPlatformAmount = 0;
+                let bestShopVoucher: VoucherUI | null = null;
+                let bestShopAmount = 0;
+
+                for (const voucher of product.vouchers) {
                     const discountValue = voucher.discountValue ?? 0;
-                    let currentVoucherDiscount = 0;
+                    let amount = 0;
 
                     if (voucher.discountType === 'PERCENTAGE') {
                         const rawDiscount = (currentVariant.price * discountValue) / 100;
-                        currentVoucherDiscount = voucher.maxDiscount
+                        amount = voucher.maxDiscount
                             ? Math.min(rawDiscount, voucher.maxDiscount)
                             : rawDiscount;
                     } else {
-                        currentVoucherDiscount = discountValue;
+                        amount = discountValue;
                     }
-                    totalDiscountAmount += currentVoucherDiscount;
 
-                    // Populate breakdown
-                    if (voucher.sponsorType === 'PLATFORM') {
-                        breakdown.platformVoucher = {
-                            id: voucher.id,
-                            name: voucher.name || 'CanoX Voucher',
-                            amount: currentVoucherDiscount,
-                            discountType: voucher.discountType,
-                            discountValue: voucher.discountValue,
-                            maxDiscount: voucher.maxDiscount,
-                        };
-                    } else {
-                        // Default to shop voucher if not specified or SHOP
-                        breakdown.shopVoucher = {
-                            id: voucher.id,
-                            name: voucher.name || 'Shop Voucher',
-                            amount: currentVoucherDiscount,
-                            discountType: voucher.discountType,
-                            discountValue: voucher.discountValue,
-                            maxDiscount: voucher.maxDiscount,
-                        };
+                    // Simple eligibility check (minOrderValue)
+                    // Currently checks against 1 unit (matching standard product detail behavior)
+                    const isEligible = !voucher.minOrderValue || currentVariant.price >= voucher.minOrderValue;
+
+                    if (isEligible) {
+                        if (voucher.sponsorType === 'PLATFORM') {
+                            if (amount > bestPlatformAmount) {
+                                bestPlatformAmount = amount;
+                                bestPlatformVoucher = voucher;
+                            }
+                        } else {
+                            // Default to SHOP if not specified
+                            if (amount > bestShopAmount) {
+                                bestShopAmount = amount;
+                                bestShopVoucher = voucher;
+                            }
+                        }
                     }
-                });
+                }
+
+                // Apply stacking: 1 Platform + 1 Shop
+                if (bestPlatformVoucher) {
+                    totalDiscountAmount += bestPlatformAmount;
+                    breakdown.platformVoucher = {
+                        id: bestPlatformVoucher.id,
+                        name: bestPlatformVoucher.name || 'CanoX Voucher',
+                        amount: bestPlatformAmount,
+                        discountType: bestPlatformVoucher.discountType,
+                        discountValue: bestPlatformVoucher.discountValue,
+                        maxDiscount: bestPlatformVoucher.maxDiscount,
+                    };
+                }
+
+                if (bestShopVoucher) {
+                    totalDiscountAmount += bestShopAmount;
+                    breakdown.shopVoucher = {
+                        id: bestShopVoucher.id,
+                        name: bestShopVoucher.name || 'Shop Voucher',
+                        amount: bestShopAmount,
+                        discountType: bestShopVoucher.discountType,
+                        discountValue: bestShopVoucher.discountValue,
+                        maxDiscount: bestShopVoucher.maxDiscount,
+                    };
+                }
 
                 finalPrice -= totalDiscountAmount;
             }
 
             breakdown.finalPrice = finalPrice;
 
-            // Base for discount calculation: prefers originalPrice from promotion/campaign
-            const basePrice = currentVariant.originalPrice ?? currentVariant.price;
-            const totalDiscountPercent = basePrice > finalPrice
-                ? Math.round(((basePrice - finalPrice) / basePrice) * 100)
-                : 0;
+            // ===== LAYERED PRICE LOGIC =====
+            //  Base Price (Original)
+            const baseOriginalPrice = currentVariant.originalPrice ?? currentVariant.price;
+
+            //Public Price (After Promotion, Before Voucher)
+            const publicPrice = currentVariant.price;
+
+            // Variant has a Promotion/Vouchers
+            const totalDiscountPercent = baseOriginalPrice > finalPrice
+                ? Math.round(((baseOriginalPrice - finalPrice) / baseOriginalPrice) * 100)
+                : undefined;
 
             return {
-                currentPrice: finalPrice,
-                originalPrice: basePrice > finalPrice ? basePrice : undefined,
-                discountPercentage: totalDiscountPercent > 0 ? totalDiscountPercent : undefined,
-                voucherDiscount: totalDiscountAmount > 0 ? totalDiscountAmount : undefined,
-                isRange: false,
+                currentPrice: finalPrice, // Shows 45,075 (Final Price)
+                originalPrice: baseOriginalPrice > finalPrice ? baseOriginalPrice : undefined, // Shows 75,000
+                discountPercentage: totalDiscountPercent, // Total discount % (e.g., 40%)
+                voucherDiscount: totalDiscountAmount,
+                shopVoucherDiscount: breakdown.shopVoucher?.amount,
+                platformVoucherDiscount: breakdown.platformVoucher?.amount,
                 priceAfterVoucher: finalPrice,
+                isRange: false,
                 breakdown,
             };
         }

@@ -75,11 +75,13 @@ const PriceSection = memo<{
                     )}
                 </View>
 
+
+
                 {/* Info icon hint - Small indicator that this is clickable */}
                 <View style={styles.infoIconWrapper}>
                     <IconSymbol name="info" size={12} color={theme.colors.secondary} />
                 </View>
-            </Pressable>
+            </Pressable >
         );
     }, [priceDisplay, onPress, theme.colors.secondary]);
 
@@ -159,16 +161,24 @@ export const ProductInfoSection = memo<ProductInfoSectionProps>(({
                     <Text style={styles.internationalText}>{t('badges.international')}</Text>
                 </View>
             )}
-            {priceDisplay.voucherDiscount != null && priceDisplay.voucherDiscount > 0 && (
+            {priceDisplay.shopVoucherDiscount != null && priceDisplay.shopVoucherDiscount > 0 && (
                 <View style={[styles.badge, styles.voucherBadge]}>
                     <IconSymbol name="ticket" size={12} color={theme.colors.success} />
-                    <Text style={styles.voucherText}>
-                        {t('info.discount')} {formatCurrency(priceDisplay.voucherDiscount)}
+                    <Text style={styles.voucherText}> Giảm
+                        -{formatCurrency(priceDisplay.shopVoucherDiscount)}
+                    </Text>
+                </View>
+            )}
+            {priceDisplay.platformVoucherDiscount != null && priceDisplay.platformVoucherDiscount > 0 && (
+                <View style={[styles.badge, styles.voucherBadge]}>
+                    <IconSymbol name="ticket" size={12} color={theme.colors.success} />
+                    <Text style={styles.voucherText}> Giảm
+                        -{formatCurrency(priceDisplay.platformVoucherDiscount)}
                     </Text>
                 </View>
             )}
         </View>
-    ), [isMall, isInternational, priceDisplay.voucherDiscount, theme.colors.primary, theme.colors.success, t]);
+    ), [isMall, isInternational, priceDisplay.shopVoucherDiscount, priceDisplay.platformVoucherDiscount, theme.colors.success, t]);
 
     return (
         <View style={[styles.container, flashSale?.isActive && styles.flashSaleActive]}>

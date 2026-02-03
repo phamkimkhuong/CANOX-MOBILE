@@ -18,7 +18,9 @@ export const CampaignSchema = z.object({
 export type Campaign = z.infer<typeof CampaignSchema>;
 
 export const PromotionSchema = z.object({
+    promotionId: z.string().nullable().optional(),
     campaignId: z.string().nullable().optional(),
+    campaignName: z.string().nullable().optional(),
     campaignType: z.string().nullable().optional(),
     originalPrice: z.number().nullable().optional(),
     salePrice: z.number().nullable().optional(),
@@ -245,6 +247,7 @@ export const ProductDetailResponseSchema = z.object({
     priceMin: z.number().nullable().optional().default(0),
     priceMax: z.number().nullable().optional().default(0),
     priceBeforeDiscount: z.number().nullable().optional().default(0),
+    showDiscount: z.number().nullable().optional(),
     priceAfterBestVoucher: z.number().nullable().optional(),
 
     // Status 
@@ -317,6 +320,10 @@ export interface VariantMatrixValue {
     isAvailable: boolean;
     media?: GalleryItem[];
     sku?: string;
+    promotionId?: string;
+    promotionName?: string;
+    promotionPercentage?: number;
+    campaignType?: string;
 }
 
 /**
@@ -336,6 +343,13 @@ export interface SelectedOptions {
  */
 export interface PriceBreakdown {
     basePrice: number;
+    productDiscount?: {
+        id: string;
+        name: string;
+        amount: number;
+        percentage?: number;
+        campaignType?: string;
+    };
     shopVoucher?: {
         id: string;
         name: string;
@@ -368,6 +382,8 @@ export interface PriceDisplay {
     };
     isRange: boolean;
     voucherDiscount?: number;
+    shopVoucherDiscount?: number;
+    platformVoucherDiscount?: number;
     priceAfterVoucher?: number;
     breakdown?: PriceBreakdown;
 }
