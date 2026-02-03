@@ -363,6 +363,7 @@ export default function ShopDetailScreen() {
             <StatusBar translucent backgroundColor="transparent" barStyle={statusBarStyle} />
             <Stack.Screen options={{ headerShown: false }} />
 
+
             <ShopNavBar scrollY={scrollY} onBackPress={handleBackPress} onSearchPress={handleSearchPress} onMorePress={handleMorePress} />
 
             <AnimatedFlashList
@@ -396,6 +397,7 @@ export default function ShopDetailScreen() {
 
 const styles = StyleSheet.create((theme) => ({
     container: { flex: 1, backgroundColor: theme.colors.background },
+
 
     fullWidthItem: {
         marginHorizontal: -theme.margins.sm,

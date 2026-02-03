@@ -60,7 +60,7 @@ export const ShopProductSkeleton: React.FC<ShopProductSkeletonProps> = ({
                         <SkeletonBox
                             width={itemWidth}
                             height={imageHeight}
-                            borderRadius={20}
+                            borderRadius={24}
                         />
 
                         {/* Content */}
@@ -103,12 +103,17 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     itemContainer: {
         backgroundColor: theme.colors.surface,
-        borderRadius: 20,
-        marginBottom: theme.margins.sm,
+        borderRadius: 24,
+        marginBottom: 12,
         overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: 'rgba(0,0,0,0.05)',
     },
     content: {
-        padding: 10,
+        padding: 12,
+    },
+    SkeletonBox: {
+        borderRadius: 24,
     },
     titleLine2: {
         marginTop: theme.margins.sm / 2,

@@ -1,14 +1,9 @@
-/**
- * ==============================================
- * SHOP HEADER INFO - Avatar, Name, Stats, Actions
- * ==============================================
- */
-
 import { IconSymbol } from '@/components/ui/Icon';
-import { ShopHeaderUI } from '@/types/shop';
+import type { ShopHeaderUI } from '@/types/shop';
 import { Navigator } from '@/utils/navigation';
 import { Image } from 'expo-image';
-import React from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
+import React, { memo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -24,9 +19,9 @@ interface ShopHeaderInfoProps {
 const AVATAR_SIZE = 64;
 
 /**
- * ShopHeaderInfo - Display shop info with premium layout
+ * ShopHeaderInfo - Premium Shop Header with Bank Card influence
  */
-export const ShopHeaderInfo: React.FC<ShopHeaderInfoProps> = ({
+export const ShopHeaderInfo: React.FC<ShopHeaderInfoProps> = memo(({
     shop,
     onChatPress,
     onPrefetchChat,
@@ -35,41 +30,31 @@ export const ShopHeaderInfo: React.FC<ShopHeaderInfoProps> = ({
     hasVouchers = false,
 }) => {
     const { theme } = useUnistyles();
-    const styles = stylesheet;
 
     const handleChat = () => {
         if (onChatPress) onChatPress();
         else Navigator.push(`/chat/${shop.id}`);
     };
 
-    const dynamicStatusBg = (onVacation: boolean) => ({
-        backgroundColor: onVacation ? theme.colors.error : theme.colors.success
-    });
-
-    const dynamicStatusColor = (onVacation: boolean) => ({
-        color: onVacation ? theme.colors.error : theme.colors.success
-    });
-
     return (
-        <View style={[styles.container, hasVouchers && styles.containerNoRadius]}>
-            {/* Top Section: Avatar & Basic Info & Buttons */}
-            <View style={styles.topSection}>
-                {/* Avatar with offset */}
-                <View style={styles.avatarContainer}>
+        <View style={[stylesheet.container, hasVouchers && stylesheet.containerNoRadius]}>
+            <View style={stylesheet.highlight} />
+
+            {/* Top Section */}
+            <View style={stylesheet.topSection}>
+                <View style={stylesheet.avatarWrapper}>
                     <Image
                         source={{ uri: shop.logoUrl }}
-                        style={styles.avatar}
+                        style={stylesheet.avatar}
                         contentFit="cover"
                         transition={200}
                     />
                 </View>
 
-                {/* Right Content */}
-                <View style={styles.mainContent}>
-                    {/* Left: Name & Meta */}
-                    <View style={styles.textContainer}>
-                        <View style={styles.nameRow}>
-                            <Text style={styles.shopName} numberOfLines={1}>
+                <View style={stylesheet.mainContent}>
+                    <View style={stylesheet.textContainer}>
+                        <View style={stylesheet.nameRow}>
+                            <Text style={stylesheet.shopName} numberOfLines={1}>
                                 {shop.name}
                             </Text>
                             {shop.isVerified && (
@@ -77,153 +62,174 @@ export const ShopHeaderInfo: React.FC<ShopHeaderInfoProps> = ({
                             )}
                         </View>
 
-                        {/* Status Badge */}
-                        <View style={styles.statusRow}>
+                        <View style={stylesheet.statusRow}>
                             <View style={[
-                                styles.statusDot,
-                                dynamicStatusBg(!!shop.onVacation)
+                                stylesheet.statusDot,
+                                { backgroundColor: shop.onVacation ? theme.colors.error : theme.colors.success }
                             ]} />
                             <Text style={[
-                                styles.statusText,
-                                dynamicStatusColor(!!shop.onVacation)
+                                stylesheet.statusText,
+                                { color: shop.onVacation ? theme.colors.error : theme.colors.success }
                             ]}>
                                 {shop.onVacation ? 'Tạm nghỉ' : 'Đang hoạt động'}
                             </Text>
                         </View>
-
                         {/* Meta info */}
-                        <View style={styles.metaRow}>
+                        <View style={stylesheet.metaRow}>
                             <IconSymbol name="time-outline" size={12} color={theme.colors.typographySecondary} />
-                            <Text style={styles.metaText}>Tham gia: {shop.joinDate}</Text>
+                            <Text style={stylesheet.metaText}>Tham gia: {shop.joinDate}</Text>
                         </View>
                         {shop.location && (
-                            <View style={[styles.metaRow, { marginTop: 2 }]}>
+                            <View style={[stylesheet.metaRow, { marginTop: 2 }]}>
                                 <IconSymbol name="location-outline" size={12} color={theme.colors.typographySecondary} />
-                                <Text style={styles.metaText}>{shop.location}</Text>
+                                <Text style={stylesheet.metaText}>{shop.location}</Text>
                             </View>
                         )}
                     </View>
 
-                    {/* Right: Stacked Buttons */}
-                    <View style={styles.buttonColumn}>
+                    <View style={stylesheet.actionColumn}>
                         <Pressable
                             style={({ pressed }) => [
-                                styles.btn, styles.chatBtn, pressed && styles.btnPressed
+                                stylesheet.chatBtn,
+                                pressed && stylesheet.btnPressed
                             ]}
                             onPressIn={onPrefetchChat}
                             onPress={handleChat}
                         >
                             <IconSymbol name="chat-bubble-outline" size={14} color={theme.colors.forestGreen} />
-                            <Text style={styles.chatBtnText}>Chat</Text>
+                            <Text style={stylesheet.chatBtnText}>Chat</Text>
                         </Pressable>
 
                         <Pressable
-                            style={({ pressed }) => [
-                                styles.btn,
-                                isFollowing ? styles.followingBtn : styles.followBtn,
-                                pressed && styles.btnPressed
-                            ]}
                             onPress={onFollowPress}
+                            style={stylesheet.followBtnWrapper}
                         >
-                            <IconSymbol
-                                name={isFollowing ? 'check' : 'add'}
-                                size={14}
-                                color={isFollowing ? theme.colors.typographySecondary : '#FFF'}
-                            />
-                            <Text style={[styles.btnText, isFollowing && styles.followingBtnText]}>
-                                {isFollowing ? 'Hủy' : 'Theo dõi'}
-                            </Text>
+                            {({ pressed }) => (
+                                <LinearGradient
+                                    colors={isFollowing
+                                        ? ['rgba(0,0,0,0.05)', 'rgba(0,0,0,0.1)']
+                                        : [theme.colors.buttonActive, theme.colors.accent]}
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 0 }}
+                                    style={[
+                                        stylesheet.followGradient,
+                                        pressed && stylesheet.btnPressed
+                                    ]}
+                                >
+                                    <IconSymbol
+                                        name={isFollowing ? 'check' : 'add'}
+                                        size={14}
+                                        color={isFollowing ? theme.colors.typographySecondary : '#FFF'}
+                                    />
+                                    <Text style={[
+                                        stylesheet.btnText,
+                                        isFollowing && stylesheet.followingText
+                                    ]}>
+                                        {isFollowing ? 'Hủy' : 'Theo dõi'}
+                                    </Text>
+                                </LinearGradient>
+                            )}
                         </Pressable>
                     </View>
                 </View>
             </View>
 
-            {/* Middle Section: Description */}
+            {/* Description */}
             {shop.description && (
-                <View style={styles.descriptionRow}>
-                    <Text style={styles.description} numberOfLines={2}>
+                <View style={stylesheet.descriptionRow}>
+                    <Text style={stylesheet.description} numberOfLines={2}>
                         {shop.description}
                     </Text>
                 </View>
             )}
 
-            {/* Bottom Section: Stats */}
-            <View style={styles.statsRow}>
-                <View style={styles.statItem}>
-                    <Text style={styles.statValue}>{shop.stats.productCount ?? 0}</Text>
-                    <Text style={styles.statLabel}>Sản phẩm</Text>
+            {/* Stats */}
+            <View style={stylesheet.statsRow}>
+                <View style={stylesheet.statItem}>
+                    <Text style={stylesheet.statValue}>{shop.stats.productCount ?? 0}</Text>
+                    <Text style={stylesheet.statLabel}>Sản phẩm</Text>
                 </View>
-                <View style={styles.vDivider} />
-                <View style={styles.statItem}>
-                    <Text style={styles.statValue}>{shop.stats.rating?.toFixed(1) ?? '5.0'}</Text>
-                    <View style={styles.ratingBox}>
+                <View style={stylesheet.vDivider} />
+                <View style={stylesheet.statItem}>
+                    <Text style={stylesheet.statValue}>{shop.stats.rating?.toFixed(1) ?? '5.0'}</Text>
+                    <View style={stylesheet.ratingBox}>
                         <IconSymbol name="star" size={10} color="#facc15" />
-                        <Text style={styles.statLabel}>
-                            Đánh giá {shop.stats.reviewCount !== null ? `(${shop.stats.reviewCount})` : ''}
+                        <Text style={stylesheet.statLabel}>
+                            Đánh giá {shop.stats.reviewCount != null ? `(${shop.stats.reviewCount})` : ''}
                         </Text>
                     </View>
                 </View>
-                <View style={styles.vDivider} />
-                <View style={styles.statItem}>
-                    <Text style={styles.statValue}>{shop.stats.followerCount ?? 0}</Text>
-                    <Text style={styles.statLabel}>Người theo dõi</Text>
+                <View style={stylesheet.vDivider} />
+                <View style={stylesheet.statItem}>
+                    <Text style={stylesheet.statValue}>{shop.stats.followerCount ?? 0}</Text>
+                    <Text style={stylesheet.statLabel}>Người theo dõi</Text>
                 </View>
             </View>
         </View>
     );
-};
+});
+
+ShopHeaderInfo.displayName = 'ShopHeaderInfo';
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
-        backgroundColor: theme.colors.surfaceGlass,
-        marginHorizontal: theme.margins.md,
-        paddingHorizontal: theme.margins.md,
-        paddingBottom: theme.margins.md,
-        borderRadius: theme.radius.xl,
+        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+        marginHorizontal: 16,
+        paddingHorizontal: 16,
+        paddingBottom: 16,
+        borderRadius: 24,
         borderWidth: 1,
-        borderColor: theme.colors.borderGlass,
+        borderColor: 'rgba(255, 255, 255, 0.4)',
         marginTop: -15,
         marginBottom: 5,
-        // Premium Shadow for depth
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.08,
+        shadowOpacity: 0.1,
         shadowRadius: 15,
-        elevation: 100,
+        elevation: 10,
     },
     containerNoRadius: {
-        borderBottomLeftRadius: theme.radius.xl,
-        borderBottomRightRadius: theme.radius.xl,
+        borderBottomLeftRadius: 24,
+        borderBottomRightRadius: 24,
+    },
+    highlight: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 1,
+        backgroundColor: 'rgba(255, 255, 255, 0.4)',
+        zIndex: 10,
     },
     topSection: {
         flexDirection: 'row',
-        paddingTop: theme.margins.md,
+        paddingTop: 16,
     },
-    avatarContainer: {
-        // marginTop: -35, // Negative overlap with banner
+    avatarWrapper: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 6,
+        elevation: 4,
     },
     avatar: {
         width: AVATAR_SIZE,
         height: AVATAR_SIZE,
         borderRadius: AVATAR_SIZE / 2,
-        borderWidth: 3,
+        borderWidth: 2,
         borderColor: '#FFF',
-        backgroundColor: theme.colors.surface,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 6,
+        backgroundColor: '#FFF',
     },
     mainContent: {
         flex: 1,
-        marginLeft: theme.margins.md,
+        marginLeft: 12,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
     },
     textContainer: {
         flex: 1,
-        marginRight: theme.margins.sm,
+        marginRight: 8,
     },
     nameRow: {
         flexDirection: 'row',
@@ -232,8 +238,8 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     shopName: {
         fontSize: 17,
-        fontWeight: '600',
-        color: theme.colors.vibrantRed, // Subtle brand recognition
+        fontWeight: '700',
+        color: theme.colors.typography,
         letterSpacing: -0.3,
     },
     statusRow: {
@@ -248,10 +254,10 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderRadius: 3,
     },
     statusText: {
-        fontSize: 11,
-        fontWeight: '700',
+        fontSize: 10,
+        fontWeight: '800',
         textTransform: 'uppercase',
-        letterSpacing: 0.2,
+        letterSpacing: 0.5,
     },
     metaRow: {
         flexDirection: 'row',
@@ -262,51 +268,47 @@ const stylesheet = StyleSheet.create((theme) => ({
     metaText: {
         fontSize: 11,
         color: theme.colors.typographySecondary,
-        fontWeight: '500',
+        fontWeight: '600',
     },
-    buttonColumn: {
-        flexDirection: 'column',
+    actionColumn: {
         gap: 8,
     },
-    btn: {
+    chatBtn: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         gap: 4,
         paddingVertical: 6,
-        paddingHorizontal: 10,
-        borderRadius: 8,
-        minWidth: 85,
-    },
-    // Green Button for Trust/Communication
-    chatBtn: {
+        paddingHorizontal: 12,
+        borderRadius: 10,
         backgroundColor: theme.colors.greenSoft,
         borderWidth: 1,
-        borderColor: 'rgba(46, 125, 50, 0.2)',
+        borderColor: 'rgba(46, 125, 50, 0.1)',
     },
     chatBtnText: {
         fontSize: 12,
         fontWeight: '700',
         color: theme.colors.forestGreen,
     },
-    // Primary Red Button (Polished)
-    followBtn: {
-        backgroundColor: theme.colors.vibrantRed,
-        shadowColor: theme.colors.vibrantRed,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
+    followBtnWrapper: {
+        borderRadius: 10,
+        overflow: 'hidden',
+    },
+    followGradient: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 4,
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+        minWidth: 90,
     },
     btnText: {
         fontSize: 12,
         fontWeight: '700',
         color: '#FFF',
     },
-    followingBtn: {
-        backgroundColor: 'rgba(0,0,0,0.05)',
-        borderWidth: 0,
-    },
-    followingBtnText: {
+    followingText: {
         color: theme.colors.typographySecondary,
     },
     btnPressed: {
@@ -323,7 +325,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: 12,
         color: theme.colors.typographySecondary,
         lineHeight: 18,
-        fontStyle: 'italic',
     },
     statsRow: {
         flexDirection: 'row',
@@ -340,11 +341,11 @@ const stylesheet = StyleSheet.create((theme) => ({
     statValue: {
         fontSize: 16,
         fontWeight: '800',
-        color: theme.colors.inkBlack,
+        color: theme.colors.typography,
     },
     statLabel: {
-        fontSize: 10,
-        fontWeight: '600',
+        fontSize: 9,
+        fontWeight: '700',
         color: theme.colors.typographySecondary,
         textTransform: 'uppercase',
         marginTop: 2,

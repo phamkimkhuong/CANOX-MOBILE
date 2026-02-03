@@ -17,6 +17,7 @@ import { ShopProductItemUI } from '@/types/shop';
 import { formatCurrency, formatSoldCount } from '@/utils/format';
 import { Navigator } from '@/utils/navigation';
 import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useCallback } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -31,14 +32,13 @@ interface ShopProductItemProps {
 const IMAGE_ASPECT_RATIO = 1;
 
 /**
- * ShopProductItem - Product card for shop grid
+ * ShopProductItem - Premium product card for shop grid
  */
 export const ShopProductItem: React.FC<ShopProductItemProps> = ({
     product,
     onAddToCart,
 }) => {
     const { theme } = useUnistyles();
-    const styles = stylesheet;
 
     const handlePress = useCallback(() => {
         Navigator.push(productRoutes.detail(product.id));
@@ -47,9 +47,7 @@ export const ShopProductItem: React.FC<ShopProductItemProps> = ({
     const handleAddToCart = useCallback(
         (e: any) => {
             e.stopPropagation();
-            if (onAddToCart) {
-                onAddToCart(product.id);
-            }
+            if (onAddToCart) onAddToCart(product.id);
         },
         [onAddToCart, product.id]
     );
@@ -57,78 +55,89 @@ export const ShopProductItem: React.FC<ShopProductItemProps> = ({
     return (
         <Pressable
             style={({ pressed }) => [
-                styles.container,
-                pressed && styles.containerPressed,
+                stylesheet.container,
+                pressed && stylesheet.containerPressed,
             ]}
             onPress={handlePress}
         >
-            {/* Image Section */}
-            <View style={styles.imageContainer}>
-                <Image
-                    source={{ uri: product.thumbnail }}
-                    style={styles.image}
-                    contentFit="cover"
-                    transition={200}
-                />
+            <View
+                style={stylesheet.shadowWrapper}
+                shouldRasterizeIOS={true}
+                renderToHardwareTextureAndroid={true}
+            >
+                <View style={stylesheet.surfaceLayer}>
+                    {/* Specular Highlight */}
+                    <View style={stylesheet.highlight} />
 
-                {/* Discount Badge */}
-                {product.discountPercentage && product.discountPercentage > 0 && (
-                    <View style={styles.discountBadge}>
-                        <Text style={styles.discountText}>-{product.discountPercentage}%</Text>
+                    {/* Image Section */}
+                    <View style={stylesheet.imageContainer}>
+                        <Image
+                            source={{ uri: product.thumbnail }}
+                            style={stylesheet.image}
+                            contentFit="cover"
+                            transition={200}
+                        />
+
+                        {/* Badges */}
+                        <View style={stylesheet.badgeContainer}>
+                            {product.discountPercentage != null && product.discountPercentage > 0 && (
+                                <View style={stylesheet.discountBadge}>
+                                    <Text style={stylesheet.discountText}>-{product.discountPercentage}%</Text>
+                                </View>
+                            )}
+                            {product.isMall && (
+                                <View style={stylesheet.mallBadge}>
+                                    <Text style={stylesheet.mallText}>MALL</Text>
+                                </View>
+                            )}
+                        </View>
                     </View>
-                )}
-            </View>
 
-            {/* Content Section */}
-            <View style={styles.content}>
-                {/* Product Name (title) */}
-                <Text style={styles.productName} numberOfLines={2}>
-                    {product.title}
-                </Text>
+                    {/* Content Section */}
+                    <View style={stylesheet.content}>
+                        <Text style={stylesheet.productName} numberOfLines={2}>
+                            {product.title}
+                        </Text>
 
-                {/* Info Row: Rating & Sold */}
-                <View style={styles.infoRow}>
-                    <View style={styles.ratingBox}>
-                        <IconSymbol name="star" size={10} color="#facc15" />
-                        <Text style={styles.ratingText}>{Number(product.rating || 0).toFixed(1)}</Text>
-                    </View>
-                    <View style={styles.divider} />
-                    <Text style={styles.soldText}>Đã bán {formatSoldCount(product.sold || 0)}</Text>
-                </View>
-
-                {/* Price Display */}
-                <View style={styles.priceRow}>
-                    <Text style={styles.priceText}>
-                        {formatCurrency(product.price)}
-                    </Text>
-                </View>
-
-                {/* Original Price Row (Handle crash by safe check) */}
-                {typeof product.originalPrice === 'number' && (
-                    <Text style={styles.originalPriceText}>
-                        {formatCurrency(product.originalPrice)}
-                    </Text>
-                )}
-
-                {/* Action Row */}
-                <View style={styles.actionRow}>
-                    <View style={styles.locationContainer}>
-                        {product.isMall && (
-                            <View style={styles.mallBadge}>
-                                <Text style={styles.mallText}>Mall</Text>
+                        <View style={stylesheet.infoRow}>
+                            <View style={stylesheet.ratingBox}>
+                                <IconSymbol name="star" size={10} color="#facc15" />
+                                <Text style={stylesheet.ratingText}>{Number(product.rating || 0).toFixed(1)}</Text>
                             </View>
-                        )}
-                    </View>
+                            <View style={stylesheet.divider} />
+                            <Text style={stylesheet.soldText}>Đã bán {formatSoldCount(product.sold || 0)}</Text>
+                        </View>
 
-                    <Pressable
-                        style={({ pressed }) => [
-                            styles.cartBtn,
-                            pressed && styles.cartBtnPressed
-                        ]}
-                        onPress={handleAddToCart}
-                    >
-                        <IconSymbol name="cart-outline" size={16} color={theme.colors.onPrimary} />
-                    </Pressable>
+                        <View style={stylesheet.priceRow}>
+                            <Text style={stylesheet.priceText}>
+                                {formatCurrency(product.price)}
+                            </Text>
+                            {typeof product.originalPrice === 'number' && product.originalPrice > product.price && (
+                                <Text style={stylesheet.originalPriceText}>
+                                    {formatCurrency(product.originalPrice)}
+                                </Text>
+                            )}
+                        </View>
+
+                        {/* Action Row */}
+                        <View style={stylesheet.actionRow}>
+                            <View style={{ flex: 1 }} />
+
+                            <Pressable
+                                onPress={handleAddToCart}
+                                style={stylesheet.cartBtnWrapper}
+                            >
+                                {({ pressed }) => (
+                                    <LinearGradient
+                                        colors={[theme.colors.buttonActive, theme.colors.accent]}
+                                        style={[stylesheet.cartBtn, pressed && stylesheet.cartBtnPressed]}
+                                    >
+                                        <IconSymbol name="cart-outline" size={14} color="#FFF" />
+                                    </LinearGradient>
+                                )}
+                            </Pressable>
+                        </View>
+                    </View>
                 </View>
             </View>
         </Pressable>
@@ -137,55 +146,91 @@ export const ShopProductItem: React.FC<ShopProductItemProps> = ({
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
+        marginBottom: 8,
+    },
+    shadowWrapper: {
         backgroundColor: theme.colors.surface,
-        borderRadius: theme.radius.m,
+        borderRadius: 24,
+        // Premium Shadow
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+        elevation: 6,
+    },
+    surfaceLayer: {
+        borderRadius: 24,
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: theme.colors.border,
-        marginBottom: 8,
+        borderColor: 'rgba(0,0,0,0.05)',
+        backgroundColor: theme.colors.surface,
+    },
+    highlight: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 1,
+        backgroundColor: 'rgba(255, 255, 255, 0.4)',
+        zIndex: 10,
     },
     containerPressed: {
         transform: [{ scale: 0.98 }],
-        opacity: 0.85,
+        opacity: 0.9,
     },
     imageContainer: {
         width: '100%',
         backgroundColor: theme.colors.background,
         position: 'relative',
         aspectRatio: IMAGE_ASPECT_RATIO,
+        overflow: 'hidden',
     },
     image: {
         width: '100%',
         height: '100%',
     },
-    discountBadge: {
+    badgeContainer: {
         position: 'absolute',
-        top: 6,
-        left: 6,
+        top: 8,
+        left: 8,
+        flexDirection: 'column',
+        gap: 4,
+    },
+    discountBadge: {
         backgroundColor: theme.colors.error,
-        paddingHorizontal: 4,
-        paddingVertical: 1,
-        borderRadius: 4,
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 8,
     },
     discountText: {
         fontSize: 10,
-        fontWeight: '700',
+        fontWeight: '800',
+        color: '#fff',
+    },
+    mallBadge: {
+        backgroundColor: theme.colors.inkBlack,
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 4,
+    },
+    mallText: {
+        fontSize: 8,
+        fontWeight: '900',
         color: '#fff',
     },
     content: {
-        padding: 8,
+        padding: 12,
     },
     productName: {
         fontSize: 12,
-        fontWeight: '500',
+        fontWeight: '600',
         color: theme.colors.typography,
-        height: 34,
-        lineHeight: 17,
+        lineHeight: 18,
     },
     infoRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 6,
+        marginTop: 8,
     },
     ratingBox: {
         flexDirection: 'row',
@@ -194,59 +239,58 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     ratingText: {
         fontSize: 11,
-        fontWeight: '600',
+        fontWeight: '700',
         color: theme.colors.typography,
     },
     divider: {
         width: 1,
-        height: 10,
-        backgroundColor: theme.colors.border,
-        marginHorizontal: 6,
+        height: 8,
+        backgroundColor: theme.colors.borderMuted,
+        marginHorizontal: 8,
     },
     soldText: {
         fontSize: 11,
         color: theme.colors.typographySecondary,
+        fontWeight: '500',
     },
     priceRow: {
-        marginTop: 6,
+        flexDirection: 'row',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: 6,
+        marginTop: 8,
     },
     priceText: {
-        fontSize: 14,
-        fontWeight: '700',
-        color: theme.colors.error,
+        fontSize: 16,
+        fontWeight: '800',
+        color: theme.colors.vibrantRed,
     },
     originalPriceText: {
         fontSize: 11,
         color: theme.colors.typographySecondary,
         textDecorationLine: 'line-through',
-        marginTop: 1,
+        fontWeight: '500',
     },
     actionRow: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginTop: 8,
+        marginTop: 10,
     },
-    locationContainer: {
+    locationText: {
+        fontSize: 10,
+        color: theme.colors.typographySecondary,
+        fontWeight: '600',
         flex: 1,
+        marginRight: 8,
     },
-    mallBadge: {
-        backgroundColor: theme.colors.error,
-        paddingHorizontal: 4,
-        paddingVertical: 0,
-        borderRadius: 2,
-        alignSelf: 'flex-start',
-    },
-    mallText: {
-        fontSize: 9,
-        fontWeight: 'bold',
-        color: '#fff',
+    cartBtnWrapper: {
+        borderRadius: 10,
+        overflow: 'hidden',
     },
     cartBtn: {
-        width: 28,
-        height: 28,
-        borderRadius: 14,
-        backgroundColor: theme.colors.primary,
+        width: 30,
+        height: 30,
         alignItems: 'center',
         justifyContent: 'center',
     },

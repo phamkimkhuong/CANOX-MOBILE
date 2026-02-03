@@ -54,79 +54,88 @@ export const ProductCard = ({
             style={styles.container}
         >
             {({ pressed }) => (
-                <View style={[styles.surface, pressed && styles.pressedOpacity]}>
-                    {/* Image Container */}
-                    <View style={styles.imageWrapper}>
-                        <Image source={{ uri: image }} style={styles.image} contentFit="cover" />
+                <View
+                    style={[styles.shadowWrapper, pressed && styles.pressedOpacity]}
+                    shouldRasterizeIOS={true}
+                    renderToHardwareTextureAndroid={true}
+                >
+                    <View style={styles.surface}>
+                        {/* Specular Highlight (Liquid Feel) */}
+                        <View style={styles.specularHighlight} />
 
-                        {/* Discount Badge */}
-                        {discount != null && discount > 0 && (
-                            <View style={styles.discountBadge}>
-                                <Text style={styles.discountText}>-{discount}%</Text>
-                            </View>
-                        )}
+                        {/* Image Container */}
+                        <View style={styles.imageWrapper}>
+                            <Image source={{ uri: image }} style={styles.image} contentFit="cover" />
 
-                        {/* Mall Badge */}
-                        {isMall && (
-                            <View style={styles.mallBadge}>
-                                <Text style={styles.mallText}>Mall</Text>
-                            </View>
-                        )}
-
-                        {/* Favorite Button */}
-                        <Pressable
-                            style={styles.favoriteBtn}
-                            onPress={(e) => {
-                                e.stopPropagation();
-                                log.info('Toggle favorite');
-                            }}
-                        >
-                            <IconSymbol name="favorite-border" size={18} color={theme.colors.secondary} />
-                        </Pressable>
-                    </View>
-
-                    {/* Content */}
-                    <View style={styles.content}>
-                        <Text numberOfLines={2} style={styles.title}>
-                            {title}
-                        </Text>
-
-                        {/* Rating */}
-                        <View style={styles.ratingRow}>
-                            {[1, 2, 3, 4, 5].map((star) => (
-                                <IconSymbol
-                                    key={star}
-                                    name={star <= Math.floor(rating) ? 'star' : 'star-border'}
-                                    size={12}
-                                    color="#facc15"
-                                />
-                            ))}
-                            {reviews > 0 && (
-                                <Text style={styles.reviewsText}>
-                                    ({reviews >= 1000 ? `${(reviews / 1000).toFixed(1)}k` : reviews})
-                                </Text>
-                            )}
-                        </View>
-
-                        {/* Price Row */}
-                        <View style={styles.priceRow}>
-                            <Text style={styles.price}>{priceDisplay || formatCurrency(price)}</Text>
-                            {originalPrice != null && originalPrice > price && (
-                                <Text style={styles.originalPrice}>{formatCurrency(originalPrice)}</Text>
-                            )}
-                        </View>
-
-                        {/* Sold & Location Row */}
-                        <View style={styles.metaRow}>
-                            {sold != null && (
-                                <Text style={styles.soldText}>Đã bán {formatSoldCount(sold)}</Text>
-                            )}
-                            {location && (
-                                <View style={styles.locationRow}>
-                                    <IconSymbol name="location-outline" size={12} color={theme.colors.secondary} />
-                                    <Text style={styles.location} numberOfLines={1}>{location}</Text>
+                            {/* Discount Badge */}
+                            {discount != null && discount > 0 && (
+                                <View style={styles.discountBadge}>
+                                    <Text style={styles.discountText}>-{discount}%</Text>
                                 </View>
                             )}
+
+                            {/* Mall Badge */}
+                            {isMall && (
+                                <View style={styles.mallBadge}>
+                                    <Text style={styles.mallText}>Mall</Text>
+                                </View>
+                            )}
+
+                            {/* Favorite Button */}
+                            <Pressable
+                                style={styles.favoriteBtn}
+                                onPress={(e) => {
+                                    e.stopPropagation();
+                                    log.info('Toggle favorite');
+                                }}
+                            >
+                                <IconSymbol name="favorite-border" size={18} color="#333" />
+                            </Pressable>
+                        </View>
+
+                        {/* Content */}
+                        <View style={styles.content}>
+                            <Text numberOfLines={2} style={styles.title}>
+                                {title}
+                            </Text>
+
+                            {/* Rating */}
+                            <View style={styles.ratingRow}>
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                    <IconSymbol
+                                        key={star}
+                                        name={star <= Math.floor(rating) ? 'star' : 'star-border'}
+                                        size={10}
+                                        color="#facc15"
+                                    />
+                                ))}
+                                {reviews > 0 && (
+                                    <Text style={styles.reviewsText}>
+                                        ({reviews >= 1000 ? `${(reviews / 1000).toFixed(1)}k` : reviews})
+                                    </Text>
+                                )}
+                            </View>
+
+                            {/* Price Row */}
+                            <View style={styles.priceRow}>
+                                <Text style={stylesheet.price}>{priceDisplay || formatCurrency(price)}</Text>
+                                {originalPrice != null && originalPrice > price && (
+                                    <Text style={stylesheet.originalPrice}>{formatCurrency(originalPrice)}</Text>
+                                )}
+                            </View>
+
+                            {/* Sold & Location Row */}
+                            <View style={styles.metaRow}>
+                                {sold != null && (
+                                    <Text style={styles.soldText}>Đã bán {formatSoldCount(sold)}</Text>
+                                )}
+                                {location && (
+                                    <View style={styles.locationRow}>
+                                        <IconSymbol name="location-outline" size={10} color={theme.colors.typographySecondary} />
+                                        <Text style={styles.location} numberOfLines={1}>{location}</Text>
+                                    </View>
+                                )}
+                            </View>
                         </View>
                     </View>
                 </View>
@@ -140,17 +149,31 @@ const stylesheet = StyleSheet.create((theme) => ({
         flex: 1,
         padding: 4,
     },
+    shadowWrapper: {
+        borderRadius: 24,
+        backgroundColor: theme.colors.surface,
+        // Premium Shadow
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.1,
+        shadowRadius: 12,
+        elevation: 6,
+    },
     surface: {
-        borderRadius: 20,
+        borderRadius: 24,
         backgroundColor: theme.colors.surface,
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.6)',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.03,
-        shadowRadius: 10,
-        elevation: 2,
+        borderColor: 'rgba(0,0,0,0.05)',
+    },
+    specularHighlight: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 1,
+        backgroundColor: 'rgba(255, 255, 255, 0.4)',
+        zIndex: 10,
     },
     pressedOpacity: {
         opacity: 0.9,
@@ -220,7 +243,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         lineHeight: 18,
         color: theme.colors.typography,
         fontWeight: '500',
-        height: 36,
         letterSpacing: -0.2,
     },
     ratingRow: {
