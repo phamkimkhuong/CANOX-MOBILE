@@ -1205,6 +1205,106 @@ export interface BankTranslation {
 }
 
 /**
+ * Address module translations
+ */
+export interface AddressTranslation {
+    list: {
+        title: string;
+        titleSelection: string;
+        addTitle: string;
+        emptyTitle: string;
+        emptySubtitle: string;
+        deleteSuccess: string;
+        addSuccess: string;
+        updateSuccess: string;
+        limitError: string;
+        defaultBadge: string;
+        cannotDeleteDefault: string;
+    };
+    form: {
+        addTitle: string;
+        editTitle: string;
+        recipientName: {
+            label: string;
+            placeholder: string;
+            error: string;
+        };
+        phone: {
+            label: string;
+            placeholder: string;
+            error: string;
+        };
+        province: {
+            label: string;
+            placeholder: string;
+            error: string;
+        };
+        district: {
+            label: string;
+            placeholder: string;
+            error: string;
+        };
+        ward: {
+            label: string;
+            placeholder: string;
+            error: string;
+            hint: string;
+        };
+        streetAddress: {
+            label: string;
+            placeholder: string;
+            error: string;
+        };
+        label: {
+            title: string;
+            home: string;
+            work: string;
+            other: string;
+        };
+        isDefault: {
+            label: string;
+            description: string;
+        };
+        messages: {
+            loading: string;
+            updateSuccess: string;
+            updateError: string;
+            addError: string;
+            addSuccess: string;
+            uploadSuccess: string;
+            uploadError: string;
+            unsavedChangesTitle: string;
+            unsavedChangesMessage: string;
+            stay: string;
+            exit: string;
+        };
+        actions: {
+            submitAdd: string;
+            submitUpdate: string;
+            submitting: string;
+            delete: string;
+            deleting: string;
+        };
+    };
+    picker: {
+        provinceTitle: string;
+        wardTitle: string;
+        provincePlaceholder: string;
+        wardPlaceholder: string;
+        results: string;
+        emptyText: string;
+        notFound: string;
+    };
+    deleteAlert: {
+        title: string;
+        message: string;
+        confirm: string;
+        cancel: string;
+        error: string;
+    };
+}
+
+/**
  * Global I18n Resources
  */
 export interface I18nResources {
@@ -1223,4 +1323,5 @@ export interface I18nResources {
     checkout: CheckoutTranslation;
     myReviews: MyReviewTranslation;
     bank: BankTranslation;
+    address: AddressTranslation;
 }

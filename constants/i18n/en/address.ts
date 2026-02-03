@@ -1,0 +1,98 @@
+import { AddressTranslation } from '../types';
+
+export const ADDRESS_STRINGS: AddressTranslation = {
+    list: {
+        title: 'Address Management',
+        titleSelection: 'Select Shipping Address',
+        addTitle: 'Add New Address',
+        emptyTitle: 'No addresses found',
+        emptySubtitle: 'Add a new address to continue',
+        deleteSuccess: 'Address deleted successfully',
+        addSuccess: 'Address added successfully',
+        updateSuccess: 'Address updated successfully',
+        limitError: 'You have reached the limit of {{max}} addresses',
+        defaultBadge: 'Default',
+        cannotDeleteDefault: 'Please select another default address before deleting this one.',
+    },
+    form: {
+        addTitle: 'Add New Address',
+        editTitle: 'Edit Address',
+        recipientName: {
+            label: 'Recipient Name *',
+            placeholder: 'Enter recipient name',
+            error: 'Recipient name must be at least 2 characters',
+        },
+        phone: {
+            label: 'Phone Number *',
+            placeholder: 'Enter phone number',
+            error: 'Invalid phone number',
+        },
+        province: {
+            label: 'Province/City *',
+            placeholder: 'Select Province/City',
+            error: 'Please select a province/city',
+        },
+        district: {
+            label: 'District *',
+            placeholder: 'Enter district',
+            error: 'Please enter a district',
+        },
+        ward: {
+            label: 'Ward/Commune *',
+            placeholder: 'Select Ward/Commune',
+            error: 'Please select a ward/commune',
+            hint: 'Please select a province/city first',
+        },
+        streetAddress: {
+            label: 'Street Address *',
+            placeholder: 'House number, street name, building...',
+            error: 'Street address must be at least 5 characters',
+        },
+        label: {
+            title: 'Address Type',
+            home: 'Home',
+            work: 'Office',
+            other: 'Other',
+        },
+        isDefault: {
+            label: 'Set as default address',
+            description: 'This address will be automatically selected for orders',
+        },
+        messages: {
+            loading: 'Loading information...',
+            updateSuccess: 'Address updated successfully',
+            updateError: 'Could not update address. Please try again.',
+            addError: 'Could not add address. Please try again.',
+            addSuccess: 'Address added successfully',
+            uploadSuccess: 'Update success',
+            uploadError: 'Update failed',
+            unsavedChangesTitle: 'Discard changes?',
+            unsavedChangesMessage: 'You have unsaved changes. Are you sure you want to exit?',
+            stay: 'Stay',
+            exit: 'Exit',
+        },
+        actions: {
+            submitAdd: 'Add Address',
+            submitUpdate: 'Update',
+            submitting: 'Saving...',
+            delete: 'Delete',
+            deleting: 'Deleting...',
+        },
+    },
+    picker: {
+        provinceTitle: 'Select Province/City',
+        wardTitle: 'Select Ward/Commune',
+        provincePlaceholder: 'Search province/city...',
+        wardPlaceholder: 'Search ward/commune...',
+        results: 'results',
+        emptyText: 'No data found',
+        notFound: 'Could not find "{{search}}"',
+    },
+    deleteAlert: {
+        title: 'Delete Address',
+        message: 'Are you sure you want to delete {{name}}\'s address?',
+        confirm: 'Delete Now',
+        cancel: 'Cancel',
+        error: 'Could not delete address. Please try again.',
+    },
+};

@@ -84,7 +84,7 @@ export type CountryResponse = ApiResponse<Country[]>;
 /**
  * Address type from API - matches backend AddressType enum
  */
-export type AddressTypeAPI = 'HOME' | 'WORK' | 'OTHER';
+export type AddressTypeAPI = 'HOME' | 'OFFICE' | 'OTHER';
 
 /**
  * Buyer Address DTO - Raw API response from GET /api/v1/buyer/addresses
@@ -174,6 +174,7 @@ export interface ShippingAddress {
     wardName: string;
     provinceCode: string;
     provinceName: string;
+    districtName: string;
     label: AddressLabel;
     isDefault: boolean;
     createdAt?: string;
@@ -189,6 +190,7 @@ export interface AddressFormData {
     streetAddress: string;
     provinceCode: string;
     provinceName: string;
+    districtName: string;
     wardCode: string;
     wardName: string;
     label: AddressLabel;

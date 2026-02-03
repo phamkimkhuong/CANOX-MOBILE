@@ -5,7 +5,7 @@ import { Href, router } from 'expo-router';
  * Navigator - High Performance Navigation Utility
  * Optimized for React Native 0.81 Fabric Architecture
  */
-const NAV_LOCK_DURATION = 3000;
+const NAV_LOCK_DURATION = 2000;
 
 // ============================================
 // GLOBAL STATE INITIALIZATION

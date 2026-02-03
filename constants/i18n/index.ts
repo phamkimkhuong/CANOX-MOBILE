@@ -3,6 +3,7 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
 // Import resources - EN
+import { ADDRESS_STRINGS as addressEn } from './en/address';
 import { AUTH_STRINGS as authEn } from './en/auth';
 import { BANK_STRINGS as bankEn } from './en/bank';
 import { CART_STRINGS as cartEn } from './en/cart';
@@ -20,6 +21,7 @@ import { SEARCH_STRINGS as searchEn } from './en/search';
 import { VOUCHER_STRINGS as voucherEn } from './en/voucher';
 
 // Import resources - VI
+import { ADDRESS_STRINGS as addressVi } from './vi/address';
 import { AUTH_STRINGS as authVi } from './vi/auth';
 import { BANK_STRINGS as bankVi } from './vi/bank';
 import { CART_STRINGS as cartVi } from './vi/cart';
@@ -53,6 +55,7 @@ const resources = {
         checkout: checkoutVi,
         myReviews: myReviewsVi,
         bank: bankVi,
+        address: addressVi,
     },
     en: {
         common: commonEn,
@@ -70,6 +73,7 @@ const resources = {
         checkout: checkoutEn,
         myReviews: myReviewsEn,
         bank: bankEn,
+        address: addressEn,
     },
 } as const;
 
@@ -77,7 +81,7 @@ i18n.use(initReactI18next).init({
     resources,
     lng: getDeviceLanguage(),
     fallbackLng: 'en',
-    ns: ['common', 'auth', 'product', 'voucher', 'cart', 'order', 'chat', 'profile', 'home', 'category', 'search', 'notification', 'checkout', 'myReviews', 'bank'],
+    ns: ['common', 'auth', 'product', 'voucher', 'cart', 'order', 'chat', 'profile', 'home', 'category', 'search', 'notification', 'checkout', 'myReviews', 'bank', 'address'],
     defaultNS: 'common',
     interpolation: {
         escapeValue: false,

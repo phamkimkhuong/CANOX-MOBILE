@@ -13,6 +13,7 @@ import type { AddressLabel, AddressListMode, ShippingAddress } from '@/types/add
 import { formatShippingAddress } from '@/utils/adapter/addressAdapter';
 import { formatPhoneNumber } from '@/utils/format';
 import React, { memo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -29,16 +30,6 @@ interface AddressCardProps {
     onEdit?: (address: ShippingAddress) => void;
 }
 
-const LABEL_CONFIG: Record<AddressLabel, { text: string; icon: string }> = {
-    home: { text: 'Nhà riêng', icon: 'home' },
-    work: { text: 'Văn phòng', icon: 'work' },
-    other: { text: 'Khác', icon: 'location-outline' },
-};
-
-// ============================================
-// COMPONENT
-// ============================================
-
 export const AddressCard: React.FC<AddressCardProps> = memo(({
     address,
     mode,
@@ -46,11 +37,18 @@ export const AddressCard: React.FC<AddressCardProps> = memo(({
     onPress,
     onEdit,
 }) => {
+    const { t } = useTranslation(['address']);
     const { theme } = useUnistyles();
     const styles = stylesheet;
 
+    const labels: Record<AddressLabel, { text: string; icon: string }> = {
+        home: { text: t('address:form.label.home'), icon: 'home' },
+        work: { text: t('address:form.label.work'), icon: 'work' },
+        other: { text: t('address:form.label.other'), icon: 'location-outline' },
+    };
+
     const isSelected = mode === 'selection' && selectedId === address.id;
-    const labelConfig = LABEL_CONFIG[address.label];
+    const labelConfig = labels[address.label];
 
     // Format full address string
     const fullAddress = formatShippingAddress(address);
@@ -125,13 +123,14 @@ export const AddressCard: React.FC<AddressCardProps> = memo(({
                 <View style={styles.badgeRow}>
                     {address.isDefault && (
                         <View style={[styles.badge, styles.badgeDefault]}>
-                            <Text style={styles.badgeTextDefault}>Mặc định</Text>
+                            <Text style={styles.badgeTextDefault}>{t('address:list.defaultBadge')}</Text>
                         </View>
                     )}
                     <View style={styles.badge}>
                         <Text style={styles.badgeText}>{labelConfig.text}</Text>
                     </View>
                 </View>
+
             </View>
 
             {/* Right: Edit Button - Only show in selection mode (management mode uses card press) */}
@@ -146,8 +145,9 @@ export const AddressCard: React.FC<AddressCardProps> = memo(({
                     accessibilityRole="button"
                     accessibilityLabel="Sửa địa chỉ"
                 >
-                    <Text style={styles.editButtonText}>Sửa</Text>
+                    <Text style={styles.editButtonText}>{t('address:form.actions.submitUpdate')}</Text>
                 </Pressable>
+
             )}
         </Pressable>
     );

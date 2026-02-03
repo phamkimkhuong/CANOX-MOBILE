@@ -18,12 +18,14 @@ import type { AddressListMode, ShippingAddress } from '@/types/address';
 import { Navigator } from '@/utils/navigation';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 export default function AddressListScreen() {
+    const { t } = useTranslation(['address', 'common']);
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
@@ -66,24 +68,26 @@ export default function AddressListScreen() {
             let message = '';
             switch (pendingSuccessMessage) {
                 case 'add':
-                    message = 'Đã thêm địa chỉ mới';
+                    message = t('address:list.addSuccess');
                     break;
                 case 'update':
-                    message = 'Đã cập nhật địa chỉ';
+                    message = t('address:list.updateSuccess');
                     break;
                 case 'delete':
-                    message = 'Đã xóa địa chỉ';
+                    message = t('address:list.deleteSuccess');
                     break;
             }
+
 
             if (message) {
                 Toast.show({
                     type: 'success',
-                    text1: 'Thành công',
+                    text1: t('common:status.success'),
                     text2: message,
                     visibilityTime: 3000,
                 });
             }
+
 
             // Clear the message after showing
             clearPendingSuccessMessage();
@@ -146,16 +150,17 @@ export default function AddressListScreen() {
      * Check limit before navigating
      */
     const handleAddNew = useCallback(() => {
-        if (checkAddressLimitAndShowToast(currentCount, maxCount)) {
+        if (checkAddressLimitAndShowToast(currentCount, maxCount, t)) {
             Navigator.push({
                 pathname: ROUTES.ADDRESS.ADD,
                 params: { mode },
             } as any);
         }
-    }, [currentCount, maxCount, mode]);
+    }, [currentCount, maxCount, mode, t]);
+
 
     // Header title
-    const headerTitle = mode === 'selection' ? 'Chọn địa chỉ nhận hàng' : 'Quản lý địa chỉ';
+    const headerTitle = mode === 'selection' ? t('address:list.titleSelection') : t('address:list.title');
 
     return (
         <View style={styles.container}>
@@ -190,8 +195,9 @@ export default function AddressListScreen() {
                     ]}
                 >
                     <IconSymbol name="add" size={20} color={theme.colors.onPrimary} />
-                    <Text style={styles.addButtonText}>Thêm địa chỉ mới</Text>
+                    <Text style={styles.addButtonText}>{t('address:list.addTitle')}</Text>
                 </Pressable>
+
             </View>
         </View>
     );

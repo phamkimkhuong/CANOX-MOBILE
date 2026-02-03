@@ -16,14 +16,17 @@ import {
 } from '@/hooks/api/useUserAddresses';
 import { useUserAddressStore } from '@/store/useUserAddressStore';
 import type { AddressFormData } from '@/types/address';
+import { Alert } from '@/utils/AlertHelper';
 import { Navigator } from '@/utils/navigation';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo } from 'react';
-import { Alert, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { StyleSheet } from 'react-native-unistyles';
 
 export default function AddAddressScreen() {
+    const { t } = useTranslation(['address', 'common']);
     const styles = stylesheet;
 
     // Get id from params
@@ -60,14 +63,14 @@ export default function AddAddressScreen() {
             } catch {
                 Toast.show({
                     type: 'error',
-                    text1: 'Lỗi',
+                    text1: t('common:status.error'),
                     text2: isEditMode
-                        ? 'Không thể cập nhật địa chỉ. Vui lòng thử lại.'
-                        : 'Không thể thêm địa chỉ. Vui lòng thử lại.',
+                        ? t('address:form.messages.updateError') // I'll use a generic error if not specific
+                        : t('address:form.messages.addError'),
                 });
             }
         },
-        [isEditMode, id, addAddress, updateAddress, setPendingSuccessMessage]
+        [isEditMode, id, addAddress, updateAddress, setPendingSuccessMessage, t]
     );
 
     /**
@@ -81,20 +84,24 @@ export default function AddAddressScreen() {
         if (existingAddress.isDefault) {
             Toast.show({
                 type: 'error',
-                text1: 'Không thể xóa',
-                text2: 'Vui lòng chọn địa chỉ mặc định khác trước khi xóa địa chỉ này.',
+                text1: t('common:status.error'),
+                text2: t('address:list.cannotDeleteDefault'),
             });
             return;
         }
 
-        // Confirmation dialog
-        Alert.alert(
-            'Xóa địa chỉ',
-            `Bạn có chắc muốn xóa địa chỉ của ${existingAddress.recipientName}?`,
-            [
-                { text: 'Hủy', style: 'cancel' },
+        // Custom Confirmation dialog
+        Alert.show({
+            title: t('address:deleteAlert.title'),
+            message: t('address:deleteAlert.message', { name: existingAddress.recipientName }),
+            type: 'warning',
+            buttons: [
                 {
-                    text: 'Xóa',
+                    text: t('address:deleteAlert.cancel'),
+                    style: 'cancel',
+                },
+                {
+                    text: t('address:deleteAlert.confirm'),
                     style: 'destructive',
                     onPress: async () => {
                         try {
@@ -102,16 +109,17 @@ export default function AddAddressScreen() {
                             setPendingSuccessMessage('delete');
                             Navigator.back();
                         } catch {
-                            Alert.alert('Lỗi', 'Không thể xóa địa chỉ. Vui lòng thử lại.');
+                            // Use custom alert for error too
+                            Alert.error(t('address:deleteAlert.error'));
                         }
                     },
                 },
-            ]
-        );
-    }, [id, existingAddress, deleteAddress, setPendingSuccessMessage]);
+            ],
+        });
+    }, [id, existingAddress, deleteAddress, setPendingSuccessMessage, t]);
 
     // Header title
-    const headerTitle = isEditMode ? 'Sửa địa chỉ' : 'Thêm địa chỉ mới';
+    const headerTitle = isEditMode ? t('address:form.editTitle') : t('address:form.addTitle');
 
     return (
         <View style={styles.container}>

@@ -2,6 +2,7 @@
  * useUserAddresses - TanStack Query hooks for User's saved addresses
  */
 
+import i18n from '@/constants/i18n';
 import { createBuyerAddress, deleteBuyerAddress, getBuyerAddresses, getCountry, setDefaultBuyerAddress, updateBuyerAddress } from '@/services/api/addressApi';
 import { isSessionExpiredError } from '@/services/api/errors';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -102,13 +103,15 @@ export const useCanAddAddress = () => {
  */
 export const checkAddressLimitAndShowToast = (
     currentCount: number,
-    maxCount: number = MAX_ADDRESSES
+    maxCount: number = MAX_ADDRESSES,
+    t?: any
 ): boolean => {
+    const translate = t || i18n.t.bind(i18n);
     if (currentCount >= maxCount) {
         Toast.show({
             type: 'error',
-            text1: 'Đã đạt giới hạn địa chỉ',
-            text2: `Bạn chỉ có thể lưu tối đa ${maxCount} địa chỉ. Vui lòng xóa bớt để thêm mới.`,
+            text1: translate('common:status.error'),
+            text2: translate('address:list.limitError', { max: maxCount }),
         });
         return false;
     }
@@ -124,11 +127,11 @@ const toCreateRequest = (data: AddressFormData, countryName: string): CreateBuye
     address: {
         detail: data.streetAddress,
         ward: data.wardName,
-        district: '', // District logic not yet fully implemented in form
+        district: data.districtName,
         province: data.provinceName,
         country: countryName,
     },
-    type: data.label.toUpperCase(),
+    type: data.label === 'work' ? 'OFFICE' : data.label.toUpperCase(),
     isDefault: data.isDefault,
 });
 
@@ -197,9 +200,13 @@ export const useAddAddress = () => {
             queryClient.invalidateQueries({ queryKey: USER_ADDRESS_KEYS.all });
         },
         onError: (error) => {
-            const message = error instanceof Error ? error.message : 'Lỗi không xác định';
+            const message = error instanceof Error ? error.message : i18n.t('common:status.error');
             if (isSessionExpiredError(error)) return;
-            Toast.show({ type: 'error', text1: 'Thêm địa chỉ thất bại', text2: message });
+            Toast.show({
+                type: 'error',
+                text1: i18n.t('address:form.messages.addError'),
+                text2: message
+            });
         },
         meta: { handledLocally: true },
     });
@@ -253,9 +260,13 @@ export const useUpdateAddress = () => {
             queryClient.invalidateQueries({ queryKey: USER_ADDRESS_KEYS.all });
         },
         onError: (error) => {
-            const message = error instanceof Error ? error.message : 'Lỗi không xác định';
+            const message = error instanceof Error ? error.message : i18n.t('common:status.error');
             if (isSessionExpiredError(error)) return;
-            Toast.show({ type: 'error', text1: 'Cập nhật địa chỉ thất bại', text2: message });
+            Toast.show({
+                type: 'error',
+                text1: i18n.t('address:form.messages.updateError'),
+                text2: message
+            });
         },
         meta: { handledLocally: true },
     });
@@ -284,9 +295,13 @@ export const useDeleteAddress = () => {
             queryClient.invalidateQueries({ queryKey: USER_ADDRESS_KEYS.all });
         },
         onError: (error) => {
-            const message = error instanceof Error ? error.message : 'Lỗi không xác định';
+            const message = error instanceof Error ? error.message : i18n.t('common:status.error');
             if (isSessionExpiredError(error)) return;
-            Toast.show({ type: 'error', text1: 'Xóa địa chỉ thất bại', text2: message });
+            Toast.show({
+                type: 'error',
+                text1: i18n.t('address:deleteAlert.error'),
+                text2: message
+            });
         },
         meta: { handledLocally: true },
     });
@@ -310,14 +325,18 @@ export const useSetDefaultAddress = () => {
             queryClient.invalidateQueries({ queryKey: USER_ADDRESS_KEYS.all });
             Toast.show({
                 type: 'success',
-                text1: 'Thành công',
-                text2: 'Đã thiết lập địa chỉ mặc định',
+                text1: i18n.t('common:status.success'),
+                text2: i18n.t('address:list.updateSuccess'),
             });
         },
         onError: (error) => {
-            const message = error instanceof Error ? error.message : 'Lỗi không xác định';
+            const message = error instanceof Error ? error.message : i18n.t('common:status.error');
             if (isSessionExpiredError(error)) return;
-            Toast.show({ type: 'error', text1: 'Thiết lập thất bại', text2: message });
+            Toast.show({
+                type: 'error',
+                text1: i18n.t('address:form.messages.updateError'),
+                text2: message
+            });
         },
         meta: { handledLocally: true },
     });

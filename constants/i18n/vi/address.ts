@@ -1,0 +1,98 @@
+import { AddressTranslation } from '../types';
+
+export const ADDRESS_STRINGS: AddressTranslation = {
+    list: {
+        title: 'Quản lý địa chỉ',
+        titleSelection: 'Chọn địa chỉ nhận hàng',
+        addTitle: 'Thêm địa chỉ mới',
+        emptyTitle: 'Bạn chưa có địa chỉ nào',
+        emptySubtitle: 'Thêm địa chỉ mới để tiếp tục',
+        deleteSuccess: 'Đã xóa địa chỉ',
+        addSuccess: 'Đã thêm địa chỉ mới',
+        updateSuccess: 'Đã cập nhật địa chỉ',
+        limitError: 'Bạn đã đạt giới hạn {{max}} địa chỉ',
+        defaultBadge: 'Mặc định',
+        cannotDeleteDefault: 'Vui lòng chọn địa chỉ mặc định khác trước khi xóa địa chỉ này.',
+    },
+    form: {
+        addTitle: 'Thêm địa chỉ mới',
+        editTitle: 'Sửa địa chỉ',
+        recipientName: {
+            label: 'Họ và tên người nhận *',
+            placeholder: 'Nhập họ tên người nhận',
+            error: 'Tên người nhận tối thiểu 2 ký tự',
+        },
+        phone: {
+            label: 'Số điện thoại *',
+            placeholder: 'Nhập số điện thoại',
+            error: 'Số điện thoại không hợp lệ',
+        },
+        province: {
+            label: 'Tỉnh/Thành phố *',
+            placeholder: 'Chọn Tỉnh/Thành phố',
+            error: 'Vui lòng chọn Tỉnh/Thành phố',
+        },
+        district: {
+            label: 'Quận/Huyện *',
+            placeholder: 'Nhập Quận/Huyện',
+            error: 'Vui lòng nhập Quận/Huyện',
+        },
+        ward: {
+            label: 'Phường/Xã *',
+            placeholder: 'Chọn Phường/Xã',
+            error: 'Vui lòng chọn Phường/Xã',
+            hint: 'Vui lòng chọn Tỉnh/Thành phố trước',
+        },
+        streetAddress: {
+            label: 'Địa chỉ chi tiết *',
+            placeholder: 'Số nhà, tên đường, tòa nhà...',
+            error: 'Địa chỉ chi tiết tối thiểu 5 ký tự',
+        },
+        label: {
+            title: 'Loại địa chỉ',
+            home: 'Nhà riêng',
+            work: 'Văn phòng',
+            other: 'Khác',
+        },
+        isDefault: {
+            label: 'Đặt làm địa chỉ mặc định',
+            description: 'Địa chỉ này sẽ được chọn tự động khi đặt hàng',
+        },
+        messages: {
+            loading: 'Đang tải thông tin...',
+            updateSuccess: 'Cập nhật địa chỉ thành công',
+            updateError: 'Không thể cập nhật địa chỉ. Vui lòng thử lại.',
+            addError: 'Không thể thêm địa chỉ. Vui lòng thử lại.',
+            addSuccess: 'Thêm địa chỉ thành công',
+            uploadSuccess: 'Cập nhật thành công',
+            uploadError: 'Cập nhật thất bại',
+            unsavedChangesTitle: 'Hủy thay đổi?',
+            unsavedChangesMessage: 'Bạn có những thay đổi chưa lưu. Bạn có chắc muốn thoát?',
+            stay: 'Ở lại',
+            exit: 'Thoát',
+        },
+        actions: {
+            submitAdd: 'Thêm địa chỉ',
+            submitUpdate: 'Cập nhật',
+            submitting: 'Đang lưu...',
+            delete: 'Xóa',
+            deleting: 'Đang xóa...',
+        },
+    },
+    picker: {
+        provinceTitle: 'Chọn Tỉnh/Thành phố',
+        wardTitle: 'Chọn Phường/Xã',
+        provincePlaceholder: 'Tìm kiếm tỉnh/thành phố...',
+        wardPlaceholder: 'Tìm kiếm phường/xã...',
+        results: 'kết quả',
+        emptyText: 'Không có dữ liệu',
+        notFound: 'Không tìm thấy "{{search}}"',
+    },
+    deleteAlert: {
+        title: 'Xóa địa chỉ',
+        message: 'Bạn có chắc muốn xóa địa chỉ của {{name}}?',
+        confirm: 'Xóa ngay',
+        cancel: 'Hủy',
+        error: 'Không thể xóa địa chỉ. Vui lòng thử lại.',
+    },
+};

@@ -10,6 +10,7 @@
  */
 
 import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
+import { useProvinces, useWards } from '@/hooks/api/useAddressData';
 import type {
     AddressFormData,
     AddressLabel,
@@ -18,8 +19,9 @@ import type {
     Ward,
 } from '@/types/address';
 import { zodResolver } from '@hookform/resolvers/zod';
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import {
     Keyboard,
     KeyboardAvoidingView,
@@ -52,6 +54,7 @@ const addressFormSchema = z.object({
         .regex(/^(0|\+84)[0-9]{9,10}$/, 'Số điện thoại không hợp lệ'),
     provinceCode: z.string().min(1, 'Vui lòng chọn Tỉnh/Thành phố'),
     provinceName: z.string(),
+    districtName: z.string().min(1, 'Vui lòng nhập Quận/Huyện'),
     wardCode: z.string().min(1, 'Vui lòng chọn Phường/Xã'),
     wardName: z.string(),
     streetAddress: z
@@ -85,15 +88,6 @@ interface LabelOption {
     icon: IconSymbolName;
 }
 
-// ============================================
-// CONSTANTS
-// ============================================
-
-const LABEL_OPTIONS: LabelOption[] = [
-    { value: 'home', label: 'Nhà riêng', icon: 'home' },
-    { value: 'work', label: 'Văn phòng', icon: 'work' },
-    { value: 'other', label: 'Khác', icon: 'location-outline' },
-];
 
 // ============================================
 // COMPONENT
@@ -106,24 +100,34 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
     isSubmitting = false,
     isDeleting = false,
 }) => {
+    const { t } = useTranslation(['address', 'common']);
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
+
+    const LABEL_OPTIONS: LabelOption[] = [
+        { value: 'home', label: t('address:form.label.home'), icon: 'home' },
+        { value: 'work', label: t('address:form.label.work'), icon: 'work' },
+        { value: 'other', label: t('address:form.label.other'), icon: 'location-outline' },
+    ];
+
+    /**
+     * PREFETCHING & DATA LOGIC
+     * Kick off province fetching as soon as the form mounts.
+     */
+    const { data: provincesResponse } = useProvinces({ enabled: true });
+    const provincesList = provincesResponse?.data ?? [];
 
     // Picker state
     const [showProvincePicker, setShowProvincePicker] = useState(false);
     const [showWardPicker, setShowWardPicker] = useState(false);
 
-    /**
-     * Selected location state
-     */
-    const hasValidProvinceCode = initialData?.provinceCode && initialData.provinceCode.length > 0;
-
+    // Selected location state initialization
     const [selectedProvince, setSelectedProvince] = useState<Province | null>(
-        initialData && hasValidProvinceCode
+        initialData?.provinceName
             ? {
                 id: '',
-                code: initialData.provinceCode,
+                code: initialData.provinceCode || '',
                 fullName: initialData.provinceName,
                 totalWards: 0,
             }
@@ -131,12 +135,12 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
     );
 
     const [selectedWard, setSelectedWard] = useState<Ward | null>(
-        initialData && hasValidProvinceCode
+        initialData?.wardName
             ? {
                 id: '',
-                code: initialData.wardCode,
+                code: initialData.wardCode || '',
                 fullName: initialData.wardName,
-                provinceCode: initialData.provinceCode,
+                provinceCode: initialData.provinceCode || '',
                 province: null,
             }
             : null
@@ -157,6 +161,7 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
                 phone: initialData.phone,
                 provinceCode: initialData.provinceCode,
                 provinceName: initialData.provinceName,
+                districtName: initialData.districtName,
                 wardCode: initialData.wardCode,
                 wardName: initialData.wardName,
                 streetAddress: initialData.streetAddress,
@@ -168,6 +173,7 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
                 phone: '',
                 provinceCode: '',
                 provinceName: '',
+                districtName: '',
                 wardCode: '',
                 wardName: '',
                 streetAddress: '',
@@ -177,6 +183,46 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
     });
 
     const selectedLabel = watch('label');
+
+    /**
+     * AUTO-RESOLUTION LOGIC (EDIT MODE)
+     * If we have names but no codes (common with current BE), 
+     * search the API response to find the matching codes.
+     */
+    useEffect(() => {
+        // 1. Resolve Province Code
+        if (initialData && !selectedProvince?.code && provincesList.length > 0) {
+            const matchedProvince = provincesList.find(
+                (p: Province) => p.fullName.toLowerCase().trim() === initialData.provinceName.toLowerCase().trim()
+            );
+
+            if (matchedProvince) {
+                setSelectedProvince(matchedProvince);
+                setValue('provinceCode', matchedProvince.code);
+            }
+        }
+    }, [initialData, provincesList, selectedProvince?.code, setValue]);
+
+    // Fetch wards automatically once province code is resolved to find ward code
+    const { data: wardsResponse } = useWards({
+        provinceCode: selectedProvince?.code || null,
+        enabled: !!selectedProvince?.code && !!initialData // Only auto-fetch in edit mode
+    });
+    const wardsList = wardsResponse?.data ?? [];
+
+    useEffect(() => {
+        // 2. Resolve Ward Code
+        if (initialData && !selectedWard?.code && wardsList.length > 0) {
+            const matchedWard = wardsList.find(
+                (w: Ward) => w.fullName.toLowerCase().trim() === initialData.wardName.toLowerCase().trim()
+            );
+
+            if (matchedWard) {
+                setSelectedWard(matchedWard);
+                setValue('wardCode', matchedWard.code);
+            }
+        }
+    }, [initialData, wardsList, selectedWard?.code, setValue]);
 
     /**
      * Handle province selection
@@ -239,7 +285,8 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
             >
                 {/* Recipient Name */}
                 <View style={styles.field}>
-                    <Text style={styles.label}>Họ và tên người nhận *</Text>
+                    <Text style={styles.label}>{t('address:form.recipientName.label')}</Text>
+
                     <Controller
                         control={control}
                         name="recipientName"
@@ -249,8 +296,9 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
                                     styles.input,
                                     errors.recipientName && styles.inputError,
                                 ]}
-                                placeholder="Nhập họ tên người nhận"
+                                placeholder={t('address:form.recipientName.placeholder')}
                                 placeholderTextColor={theme.colors.secondary}
+
                                 value={value}
                                 onChangeText={onChange}
                                 onBlur={onBlur}
@@ -260,22 +308,25 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
                     />
                     {errors.recipientName && (
                         <Text style={styles.errorText}>
-                            {errors.recipientName.message}
+                            {t('address:form.recipientName.error')}
                         </Text>
                     )}
+
                 </View>
 
                 {/* Phone */}
                 <View style={styles.field}>
-                    <Text style={styles.label}>Số điện thoại *</Text>
+                    <Text style={styles.label}>{t('address:form.phone.label')}</Text>
+
                     <Controller
                         control={control}
                         name="phone"
                         render={({ field: { onChange, onBlur, value } }) => (
                             <TextInput
                                 style={[styles.input, errors.phone && styles.inputError]}
-                                placeholder="Nhập số điện thoại"
+                                placeholder={t('address:form.phone.placeholder')}
                                 placeholderTextColor={theme.colors.secondary}
+
                                 value={value}
                                 onChangeText={onChange}
                                 onBlur={onBlur}
@@ -285,13 +336,15 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
                         )}
                     />
                     {errors.phone && (
-                        <Text style={styles.errorText}>{errors.phone.message}</Text>
+                        <Text style={styles.errorText}>{t('address:form.phone.error')}</Text>
                     )}
+
                 </View>
 
                 {/* Province Picker */}
                 <View style={styles.field}>
-                    <Text style={styles.label}>Tỉnh/Thành phố *</Text>
+                    <Text style={styles.label}>{t('address:form.province.label')}</Text>
+
                     <Pressable
                         onPress={() => setShowProvincePicker(true)}
                         style={[
@@ -305,8 +358,9 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
                                 !selectedProvince && styles.pickerPlaceholder,
                             ]}
                         >
-                            {selectedProvince?.fullName || 'Chọn Tỉnh/Thành phố'}
+                            {selectedProvince?.fullName || t('address:form.province.placeholder')}
                         </Text>
+
                         <IconSymbol
                             name="chevron-down"
                             size={20}
@@ -315,14 +369,47 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
                     </Pressable>
                     {errors.provinceCode && (
                         <Text style={styles.errorText}>
-                            {errors.provinceCode.message}
+                            {t('address:form.province.error')}
                         </Text>
                     )}
+
+                </View>
+
+                {/* District Name */}
+                <View style={styles.field}>
+                    <Text style={styles.label}>{t('address:form.district.label')}</Text>
+
+                    <Controller
+                        control={control}
+                        name="districtName"
+                        render={({ field: { onChange, onBlur, value } }) => (
+                            <TextInput
+                                style={[
+                                    styles.input,
+                                    errors.districtName && styles.inputError,
+                                ]}
+                                placeholder={t('address:form.district.placeholder')}
+                                placeholderTextColor={theme.colors.secondary}
+
+                                value={value}
+                                onChangeText={onChange}
+                                onBlur={onBlur}
+                                maxLength={50}
+                            />
+                        )}
+                    />
+                    {errors.districtName && (
+                        <Text style={styles.errorText}>
+                            {t('address:form.district.error')}
+                        </Text>
+                    )}
+
                 </View>
 
                 {/* Ward Picker */}
                 <View style={styles.field}>
-                    <Text style={styles.label}>Phường/Xã *</Text>
+                    <Text style={styles.label}>{t('address:form.ward.label')}</Text>
+
                     <Pressable
                         onPress={() => {
                             if (!selectedProvince || !selectedProvince.code) {
@@ -345,9 +432,10 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
                         >
                             {selectedWard?.fullName ||
                                 (selectedProvince
-                                    ? 'Chọn Phường/Xã'
-                                    : 'Vui lòng chọn Tỉnh/Thành phố trước')}
+                                    ? t('address:form.ward.placeholder')
+                                    : t('address:form.ward.hint'))}
                         </Text>
+
                         <IconSymbol
                             name="chevron-down"
                             size={20}
@@ -355,13 +443,15 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
                         />
                     </Pressable>
                     {errors.wardCode && (
-                        <Text style={styles.errorText}>{errors.wardCode.message}</Text>
+                        <Text style={styles.errorText}>{t('address:form.ward.error')}</Text>
                     )}
+
                 </View>
 
                 {/* Street Address */}
                 <View style={styles.field}>
-                    <Text style={styles.label}>Địa chỉ chi tiết *</Text>
+                    <Text style={styles.label}>{t('address:form.streetAddress.label')}</Text>
+
                     <Controller
                         control={control}
                         name="streetAddress"
@@ -372,8 +462,9 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
                                     styles.inputMultiline,
                                     errors.streetAddress && styles.inputError,
                                 ]}
-                                placeholder="Số nhà, tên đường, tòa nhà..."
+                                placeholder={t('address:form.streetAddress.placeholder')}
                                 placeholderTextColor={theme.colors.secondary}
+
                                 value={value}
                                 onChangeText={onChange}
                                 onBlur={onBlur}
@@ -386,14 +477,16 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
                     />
                     {errors.streetAddress && (
                         <Text style={styles.errorText}>
-                            {errors.streetAddress.message}
+                            {t('address:form.streetAddress.error')}
                         </Text>
                     )}
+
                 </View>
 
                 {/* Address Label */}
                 <View style={styles.field}>
-                    <Text style={styles.label}>Loại địa chỉ</Text>
+                    <Text style={styles.label}>{t('address:form.label.title')}</Text>
+
                     <View style={styles.labelOptions}>
                         {LABEL_OPTIONS.map((option) => (
                             <Pressable
@@ -436,12 +529,13 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
                         <View style={styles.switchRow}>
                             <View style={styles.switchTextContainer}>
                                 <Text style={styles.switchLabel}>
-                                    Đặt làm địa chỉ mặc định
+                                    {t('address:form.isDefault.label')}
                                 </Text>
                                 <Text style={styles.switchDescription}>
-                                    Địa chỉ này sẽ được chọn tự động khi đặt hàng
+                                    {t('address:form.isDefault.description')}
                                 </Text>
                             </View>
+
                             <Switch
                                 value={value}
                                 onValueChange={onChange}
@@ -478,9 +572,10 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
                                 color={theme.colors.error}
                             />
                             <Text style={styles.deleteButtonText}>
-                                {isDeleting ? 'Đang xóa...' : 'Xóa'}
+                                {isDeleting ? t('address:form.actions.deleting') : t('address:form.actions.delete')}
                             </Text>
                         </Pressable>
+
                     )}
 
                     {/* Submit Button */}
@@ -497,11 +592,12 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
                     >
                         <Text style={styles.submitButtonText}>
                             {isSubmitting
-                                ? 'Đang lưu...'
+                                ? t('address:form.actions.submitting')
                                 : initialData
-                                    ? 'Cập nhật'
-                                    : 'Thêm địa chỉ'}
+                                    ? t('address:form.actions.submitUpdate')
+                                    : t('address:form.actions.submitAdd')}
                         </Text>
+
                     </Pressable>
                 </View>
             </View>

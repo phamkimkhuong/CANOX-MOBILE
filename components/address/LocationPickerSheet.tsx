@@ -14,6 +14,7 @@ import { useFlattenedProvinces, useFlattenedWards } from '@/hooks/api/useAddress
 import type { Province, Ward } from '@/types/address';
 import { FlashList } from '@shopify/flash-list';
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     Keyboard,
     Modal,
@@ -49,6 +50,7 @@ export const LocationPickerSheet: React.FC<LocationPickerSheetProps> = memo(({
     onClose,
     onSelect,
 }) => {
+    const { t } = useTranslation(['address']);
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const searchInputRef = useRef<TextInput>(null);
@@ -84,11 +86,11 @@ export const LocationPickerSheet: React.FC<LocationPickerSheetProps> = memo(({
     const items = type === 'province' ? provincesQuery.provinces : wardsQuery.wards;
 
     // Title based on type
-    const title = type === 'province' ? 'Chọn Tỉnh/Thành phố' : 'Chọn Phường/Xã';
+    const title = type === 'province' ? t('address:picker.provinceTitle') : t('address:picker.wardTitle');
     const placeholder =
         type === 'province'
-            ? 'Tìm kiếm tỉnh/thành phố...'
-            : 'Tìm kiếm phường/xã...';
+            ? t('address:picker.provincePlaceholder')
+            : t('address:picker.wardPlaceholder');
 
     // Handle item selection
     const handleSelect = useCallback(
@@ -208,9 +210,10 @@ export const LocationPickerSheet: React.FC<LocationPickerSheetProps> = memo(({
                 {/* Results count */}
                 {!query.isLoading && items.length > 0 && (
                     <Text style={styles.resultCount}>
-                        {query.totalCount} kết quả
+                        {query.totalCount} {t('address:picker.results')}
                     </Text>
                 )}
+
 
                 {/* List */}
                 <View style={styles.listContainer}>
@@ -225,8 +228,8 @@ export const LocationPickerSheet: React.FC<LocationPickerSheetProps> = memo(({
                             />
                             <Text style={styles.emptyText}>
                                 {searchText
-                                    ? `Không tìm thấy "${searchText}"`
-                                    : 'Không có dữ liệu'}
+                                    ? t('address:picker.notFound', { search: searchText })
+                                    : t('address:picker.emptyText')}
                             </Text>
                         </View>
                     ) : (

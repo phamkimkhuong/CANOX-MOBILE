@@ -6,6 +6,7 @@
 import type { AddressListMode, ShippingAddress } from '@/types/address';
 import { FlashList } from '@shopify/flash-list';
 import React, { memo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { RefreshControl, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { AddressCard } from './AddressCard';
@@ -34,6 +35,7 @@ export const AddressList: React.FC<AddressListProps> = memo(({
     onEdit,
     contentContainerStyle,
 }) => {
+    const { t } = useTranslation(['address']);
     const { theme } = useUnistyles();
     const styles = stylesheet;
 
@@ -67,13 +69,14 @@ export const AddressList: React.FC<AddressListProps> = memo(({
         return (
             <View style={styles.emptyContainer}>
                 <Text style={styles.emptyText}>
-                    Bạn chưa có địa chỉ nào
+                    {t('address:list.emptyTitle')}
                 </Text>
                 <Text style={styles.emptySubtext}>
-                    Thêm địa chỉ mới để tiếp tục
+                    {t('address:list.emptySubtitle')}
                 </Text>
             </View>
         );
+
     }
 
     return (

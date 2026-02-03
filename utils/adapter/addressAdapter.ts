@@ -18,7 +18,7 @@ import type {
 const mapAddressType = (apiType: AddressTypeAPI): AddressLabel => {
     const typeMap: Record<AddressTypeAPI, AddressLabel> = {
         HOME: 'home',
-        WORK: 'work',
+        OFFICE: 'work',
         OTHER: 'other',
     };
     return typeMap[apiType] ?? 'other';
@@ -41,6 +41,7 @@ export const toBuyerAddressUI = (dto: BuyerAddressDTO): ShippingAddress => ({
     streetAddress: dto.address?.detail ?? '',
     wardCode: '',
     wardName: dto.address?.ward ?? '',
+    districtName: dto.address?.district ?? '',
     provinceCode: '',
     provinceName: dto.address?.province ?? '',
     label: mapAddressType(dto.type),
@@ -63,6 +64,7 @@ export const formatShippingAddress = (address: ShippingAddress): string => {
     const parts = [
         address.streetAddress,
         address.wardName,
+        address.districtName,
         address.provinceName,
     ]
         .map(p => p?.trim())
