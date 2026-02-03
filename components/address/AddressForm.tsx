@@ -10,10 +10,12 @@
  */
 
 import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
-import { useProvinces, useWards } from '@/hooks/api/useAddressData';
+import i18n from '@/constants/i18n';
+import { useCountries, useProvinces, useWards } from '@/hooks/api/useAddressData';
 import type {
     AddressFormData,
     AddressLabel,
+    Country,
     Province,
     ShippingAddress,
     Ward,
@@ -52,17 +54,37 @@ const addressFormSchema = z.object({
         .min(10, 'Số điện thoại không hợp lệ')
         .max(11, 'Số điện thoại không hợp lệ')
         .regex(/^(0|\+84)[0-9]{9,10}$/, 'Số điện thoại không hợp lệ'),
-    provinceCode: z.string().min(1, 'Vui lòng chọn Tỉnh/Thành phố'),
-    provinceName: z.string(),
+    countryCode: z.string().min(1, 'Vui lòng chọn Quốc gia'),
+    countryName: z.string(),
+    provinceCode: z.string().optional(),
+    provinceName: z.string().min(1, 'Vui lòng nhập Tỉnh/Thành phố'),
     districtName: z.string().min(1, 'Vui lòng nhập Quận/Huyện'),
-    wardCode: z.string().min(1, 'Vui lòng chọn Phường/Xã'),
-    wardName: z.string(),
+    wardCode: z.string().optional(),
+    wardName: z.string().min(1, 'Vui lòng nhập Phường/Xã'),
     streetAddress: z
         .string()
         .min(5, 'Địa chỉ chi tiết tối thiểu 5 ký tự')
         .max(200, 'Địa chỉ chi tiết tối đa 200 ký tự'),
     label: z.enum(['home', 'work', 'other']),
     isDefault: z.boolean(),
+}).superRefine((data, ctx) => {
+    // If country is Vietnam, provinceCode and wardCode are required for cascading pickers
+    if (data.countryCode === 'VN') {
+        if (!data.provinceCode) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: 'Vui lòng chọn Tỉnh/Thành phố',
+                path: ['provinceCode'],
+            });
+        }
+        if (!data.wardCode) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: 'Vui lòng chọn Phường/Xã',
+                path: ['wardCode'],
+            });
+        }
+    }
 });
 
 // ============================================
@@ -89,6 +111,15 @@ interface LabelOption {
 }
 
 
+/**
+ * Helper to detect Vietnam from various country name formats
+ */
+const isVietnamName = (name?: string) => {
+    if (!name) return false;
+    const n = name.toLowerCase().trim();
+    return n === 'vietnam' || n === 'viet nam' || n === 'việt nam';
+};
+
 // ============================================
 // COMPONENT
 // ============================================
@@ -113,16 +144,41 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
 
     /**
      * PREFETCHING & DATA LOGIC
-     * Kick off province fetching as soon as the form mounts.
      */
+    const { data: countriesResponse } = useCountries({ enabled: true });
+    const countriesList = countriesResponse?.data ?? [];
+
     const { data: provincesResponse } = useProvinces({ enabled: true });
     const provincesList = provincesResponse?.data ?? [];
 
     // Picker state
+    const [showCountryPicker, setShowCountryPicker] = useState(false);
     const [showProvincePicker, setShowProvincePicker] = useState(false);
     const [showWardPicker, setShowWardPicker] = useState(false);
 
     // Selected location state initialization
+    const [selectedCountry, setSelectedCountry] = useState<Country | null>(() => {
+        if (initialData?.countryName) {
+            const isVN = isVietnamName(initialData.countryName);
+            return {
+                code: isVN ? 'VN' : 'INTL', // Use placeholder if not VN to pass min(1) validation during loading
+                name: initialData.countryName,
+                fullName: initialData.countryName,
+                totalProvinces: isVN ? 34 : 0,
+            };
+        }
+        // Smart default: If language is VI, default to Viet Nam
+        if (i18n.language === 'vi') {
+            return {
+                code: 'VN',
+                name: 'Vietnam',
+                fullName: 'Vietnam',
+                totalProvinces: 34,
+            };
+        }
+        return null;
+    });
+
     const [selectedProvince, setSelectedProvince] = useState<Province | null>(
         initialData?.provinceName
             ? {
@@ -159,6 +215,8 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
             ? {
                 recipientName: initialData.recipientName,
                 phone: initialData.phone,
+                countryCode: isVietnamName(initialData.countryName) ? 'VN' : 'INTL',
+                countryName: initialData.countryName,
                 provinceCode: initialData.provinceCode,
                 provinceName: initialData.provinceName,
                 districtName: initialData.districtName,
@@ -171,6 +229,8 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
             : {
                 recipientName: '',
                 phone: '',
+                countryCode: selectedCountry?.code || '',
+                countryName: selectedCountry?.name || '',
                 provinceCode: '',
                 provinceName: '',
                 districtName: '',
@@ -183,15 +243,32 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
     });
 
     const selectedLabel = watch('label');
+    const watchingCountryCode = watch('countryCode');
+    const isVietnam = watchingCountryCode === 'VN';
 
     /**
      * AUTO-RESOLUTION LOGIC (EDIT MODE)
-     * If we have names but no codes (common with current BE), 
-     * search the API response to find the matching codes.
      */
+
+    // 0. Resolve Country Code from list if missing or placeholder used
+    useEffect(() => {
+        if (initialData?.countryName && countriesList.length > 0) {
+            const matched = countriesList.find(
+                (c: Country) =>
+                    c.name.toLowerCase() === initialData.countryName.toLowerCase() ||
+                    c.fullName?.toLowerCase() === initialData.countryName.toLowerCase() ||
+                    (isVietnamName(initialData.countryName) && c.code === 'VN')
+            );
+
+            if (matched && matched.code !== watchingCountryCode) {
+                setSelectedCountry(matched);
+                setValue('countryCode', matched.code);
+            }
+        }
+    }, [countriesList, initialData, setValue, watchingCountryCode]);
     useEffect(() => {
         // 1. Resolve Province Code
-        if (initialData && !selectedProvince?.code && provincesList.length > 0) {
+        if (isVietnam && initialData && !selectedProvince?.code && provincesList.length > 0) {
             const matchedProvince = provincesList.find(
                 (p: Province) => p.fullName.toLowerCase().trim() === initialData.provinceName.toLowerCase().trim()
             );
@@ -201,18 +278,18 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
                 setValue('provinceCode', matchedProvince.code);
             }
         }
-    }, [initialData, provincesList, selectedProvince?.code, setValue]);
+    }, [isVietnam, initialData, provincesList, selectedProvince?.code, setValue]);
 
     // Fetch wards automatically once province code is resolved to find ward code
     const { data: wardsResponse } = useWards({
         provinceCode: selectedProvince?.code || null,
-        enabled: !!selectedProvince?.code && !!initialData // Only auto-fetch in edit mode
+        enabled: isVietnam && !!selectedProvince?.code && !!initialData // Only auto-fetch in edit mode
     });
     const wardsList = wardsResponse?.data ?? [];
 
     useEffect(() => {
         // 2. Resolve Ward Code
-        if (initialData && !selectedWard?.code && wardsList.length > 0) {
+        if (isVietnam && initialData && !selectedWard?.code && wardsList.length > 0) {
             const matchedWard = wardsList.find(
                 (w: Ward) => w.fullName.toLowerCase().trim() === initialData.wardName.toLowerCase().trim()
             );
@@ -222,13 +299,35 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
                 setValue('wardCode', matchedWard.code);
             }
         }
-    }, [initialData, wardsList, selectedWard?.code, setValue]);
+    }, [isVietnam, initialData, wardsList, selectedWard?.code, setValue]);
+
+    /**
+     * Handle country selection
+     */
+    const handleCountrySelect = useCallback(
+        (country: Country | Province | Ward) => {
+            const c = country as Country;
+            setSelectedCountry(c);
+            setValue('countryCode', c.code, { shouldValidate: true });
+            setValue('countryName', c.name);
+
+            // Reset other fields when country changes
+            setSelectedProvince(null);
+            setSelectedWard(null);
+            setValue('provinceCode', '');
+            setValue('provinceName', '');
+            setValue('districtName', '');
+            setValue('wardCode', '');
+            setValue('wardName', '');
+        },
+        [setValue]
+    );
 
     /**
      * Handle province selection
      */
     const handleProvinceSelect = useCallback(
-        (province: Province | Ward) => {
+        (province: Country | Province | Ward) => {
             const prov = province as Province;
             setSelectedProvince(prov);
             setValue('provinceCode', prov.code, { shouldValidate: true });
@@ -236,7 +335,7 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
 
             // Reset ward when province changes
             setSelectedWard(null);
-            setValue('wardCode', '', { shouldValidate: false }); // Don't validate yet
+            setValue('wardCode', '', { shouldValidate: false });
             setValue('wardName', '');
         },
         [setValue]
@@ -246,7 +345,7 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
      * Handle ward selection
      */
     const handleWardSelect = useCallback(
-        (ward: Province | Ward) => {
+        (ward: Country | Province | Ward) => {
             const w = ward as Ward;
             setSelectedWard(w);
             setValue('wardCode', w.code, { shouldValidate: true });
@@ -283,6 +382,39 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
             >
+                {/* Country Picker */}
+                <View style={styles.field}>
+                    <Text style={styles.label}>{t('address:form.country.label')}</Text>
+
+                    <Pressable
+                        onPress={() => setShowCountryPicker(true)}
+                        style={[
+                            styles.picker,
+                            errors.countryCode && styles.inputError,
+                        ]}
+                    >
+                        <Text
+                            style={[
+                                styles.pickerText,
+                                !selectedCountry && styles.pickerPlaceholder,
+                            ]}
+                        >
+                            {selectedCountry?.name || t('address:form.country.placeholder')}
+                        </Text>
+
+                        <IconSymbol
+                            name="chevron-down"
+                            size={20}
+                            color={theme.colors.secondary}
+                        />
+                    </Pressable>
+                    {errors.countryCode && (
+                        <Text style={styles.errorText}>
+                            {t('address:form.country.error')}
+                        </Text>
+                    )}
+                </View>
+
                 {/* Recipient Name */}
                 <View style={styles.field}>
                     <Text style={styles.label}>{t('address:form.recipientName.label')}</Text>
@@ -298,7 +430,6 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
                                 ]}
                                 placeholder={t('address:form.recipientName.placeholder')}
                                 placeholderTextColor={theme.colors.secondary}
-
                                 value={value}
                                 onChangeText={onChange}
                                 onBlur={onBlur}
@@ -311,7 +442,6 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
                             {t('address:form.recipientName.error')}
                         </Text>
                     )}
-
                 </View>
 
                 {/* Phone */}
@@ -326,7 +456,6 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
                                 style={[styles.input, errors.phone && styles.inputError]}
                                 placeholder={t('address:form.phone.placeholder')}
                                 placeholderTextColor={theme.colors.secondary}
-
                                 value={value}
                                 onChangeText={onChange}
                                 onBlur={onBlur}
@@ -338,63 +467,71 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
                     {errors.phone && (
                         <Text style={styles.errorText}>{t('address:form.phone.error')}</Text>
                     )}
-
                 </View>
 
-                {/* Province Picker */}
+                {/* Province / City */}
                 <View style={styles.field}>
                     <Text style={styles.label}>{t('address:form.province.label')}</Text>
 
-                    <Pressable
-                        onPress={() => setShowProvincePicker(true)}
-                        style={[
-                            styles.picker,
-                            errors.provinceCode && styles.inputError,
-                        ]}
-                    >
-                        <Text
+                    {isVietnam ? (
+                        <Pressable
+                            onPress={() => setShowProvincePicker(true)}
                             style={[
-                                styles.pickerText,
-                                !selectedProvince && styles.pickerPlaceholder,
+                                styles.picker,
+                                errors.provinceCode && styles.inputError,
                             ]}
                         >
-                            {selectedProvince?.fullName || t('address:form.province.placeholder')}
-                        </Text>
-
-                        <IconSymbol
-                            name="chevron-down"
-                            size={20}
-                            color={theme.colors.secondary}
+                            <Text
+                                style={[
+                                    styles.pickerText,
+                                    !selectedProvince && styles.pickerPlaceholder,
+                                ]}
+                            >
+                                {selectedProvince?.fullName || t('address:form.province.placeholder')}
+                            </Text>
+                            <IconSymbol
+                                name="chevron-down"
+                                size={20}
+                                color={theme.colors.secondary}
+                            />
+                        </Pressable>
+                    ) : (
+                        <Controller
+                            control={control}
+                            name="provinceName"
+                            render={({ field: { onChange, onBlur, value } }) => (
+                                <TextInput
+                                    style={[styles.input, errors.provinceName && styles.inputError]}
+                                    placeholder={t('address:form.province.placeholder')}
+                                    placeholderTextColor={theme.colors.secondary}
+                                    value={value}
+                                    onChangeText={onChange}
+                                    onBlur={onBlur}
+                                />
+                            )}
                         />
-                    </Pressable>
-                    {errors.provinceCode && (
+                    )}
+                    {(errors.provinceCode || errors.provinceName) && (
                         <Text style={styles.errorText}>
                             {t('address:form.province.error')}
                         </Text>
                     )}
-
                 </View>
 
-                {/* District Name */}
+                {/* District */}
                 <View style={styles.field}>
                     <Text style={styles.label}>{t('address:form.district.label')}</Text>
-
                     <Controller
                         control={control}
                         name="districtName"
                         render={({ field: { onChange, onBlur, value } }) => (
                             <TextInput
-                                style={[
-                                    styles.input,
-                                    errors.districtName && styles.inputError,
-                                ]}
+                                style={[styles.input, errors.districtName && styles.inputError]}
                                 placeholder={t('address:form.district.placeholder')}
                                 placeholderTextColor={theme.colors.secondary}
-
                                 value={value}
                                 onChangeText={onChange}
                                 onBlur={onBlur}
-                                maxLength={50}
                             />
                         )}
                     />
@@ -403,49 +540,63 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
                             {t('address:form.district.error')}
                         </Text>
                     )}
-
                 </View>
 
-                {/* Ward Picker */}
+                {/* Ward / Commune */}
                 <View style={styles.field}>
                     <Text style={styles.label}>{t('address:form.ward.label')}</Text>
 
-                    <Pressable
-                        onPress={() => {
-                            if (!selectedProvince || !selectedProvince.code) {
-                                setShowProvincePicker(true);
-                            } else {
-                                setShowWardPicker(true);
-                            }
-                        }}
-                        style={[
-                            styles.picker,
-                            errors.wardCode && styles.inputError,
-                            !selectedProvince && styles.pickerDisabled,
-                        ]}
-                    >
-                        <Text
+                    {isVietnam ? (
+                        <Pressable
+                            onPress={() => {
+                                if (!selectedProvince || !selectedProvince.code) {
+                                    setShowProvincePicker(true);
+                                } else {
+                                    setShowWardPicker(true);
+                                }
+                            }}
                             style={[
-                                styles.pickerText,
-                                !selectedWard && styles.pickerPlaceholder,
+                                styles.picker,
+                                (errors.wardCode || errors.wardName) && styles.inputError,
+                                !selectedProvince && styles.pickerDisabled,
                             ]}
                         >
-                            {selectedWard?.fullName ||
-                                (selectedProvince
-                                    ? t('address:form.ward.placeholder')
-                                    : t('address:form.ward.hint'))}
-                        </Text>
-
-                        <IconSymbol
-                            name="chevron-down"
-                            size={20}
-                            color={theme.colors.secondary}
+                            <Text
+                                style={[
+                                    styles.pickerText,
+                                    !selectedWard && styles.pickerPlaceholder,
+                                ]}
+                            >
+                                {selectedWard?.fullName ||
+                                    (selectedProvince
+                                        ? t('address:form.ward.placeholder')
+                                        : t('address:form.ward.hint'))}
+                            </Text>
+                            <IconSymbol
+                                name="chevron-down"
+                                size={20}
+                                color={theme.colors.secondary}
+                            />
+                        </Pressable>
+                    ) : (
+                        <Controller
+                            control={control}
+                            name="wardName"
+                            render={({ field: { onChange, onBlur, value } }) => (
+                                <TextInput
+                                    style={[styles.input, errors.wardName && styles.inputError]}
+                                    placeholder={t('address:form.ward.placeholder')}
+                                    placeholderTextColor={theme.colors.secondary}
+                                    value={value}
+                                    onChangeText={onChange}
+                                    onBlur={onBlur}
+                                />
+                            )}
                         />
-                    </Pressable>
-                    {errors.wardCode && (
+                    )}
+                    {(errors.wardCode || errors.wardName) && (
                         <Text style={styles.errorText}>{t('address:form.ward.error')}</Text>
                     )}
-
                 </View>
 
                 {/* Street Address */}
@@ -603,6 +754,14 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
             </View>
 
             {/* Location Pickers */}
+            <LocationPickerSheet
+                type="country"
+                visible={showCountryPicker}
+                selectedValue={selectedCountry}
+                onClose={() => setShowCountryPicker(false)}
+                onSelect={handleCountrySelect}
+            />
+
             <LocationPickerSheet
                 type="province"
                 visible={showProvincePicker}

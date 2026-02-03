@@ -9,7 +9,7 @@
  */
 
 import { useDebounce } from '@/hooks/useDebounce';
-import { getProvinceDetail, getProvinces, getWardsByProvince } from '@/services/api/addressApi';
+import { getCountry, getProvinceDetail, getProvinces, getWardsByProvince } from '@/services/api/addressApi';
 import { useQuery } from '@tanstack/react-query';
 
 // ============================================
@@ -17,6 +17,7 @@ import { useQuery } from '@tanstack/react-query';
 // ============================================
 
 export const ADDRESS_QUERY_KEYS = {
+    countries: (search: string) => ['countries', search] as const,
     provinces: (search: string) => ['provinces', search] as const,
     provinceDetail: (code: string) => ['province', code] as const,
     wards: (provinceCode: string, search: string) =>
@@ -36,6 +37,22 @@ interface UseProvincesOptions {
     /** Enable/disable query */
     enabled?: boolean;
 }
+
+/**
+ * Hook fetch danh sách Quốc gia
+ */
+export const useCountries = (options: UseProvincesOptions = {}) => {
+    const { search = '', enabled = true } = options;
+    const debouncedSearch = useDebounce(search, DEBOUNCE_DELAY);
+
+    return useQuery({
+        queryKey: ADDRESS_QUERY_KEYS.countries(debouncedSearch),
+        queryFn: getCountry,
+        enabled,
+        staleTime: STALE_TIME,
+        gcTime: 1000 * 60 * 60 * 24, // 24 giờ
+    });
+};
 
 /**
  * Hook fetch danh sách Tỉnh/Thành phố
@@ -111,6 +128,20 @@ export const useFlattenedProvinces = (options: UseProvincesOptions = {}) => {
         ...query,
         provinces,
         totalCount: provinces.length,
+    };
+};
+
+/**
+ * Provides flattened countries array
+ */
+export const useFlattenedCountries = (options: UseProvincesOptions = {}) => {
+    const query = useCountries(options);
+    const countries = query.data?.data ?? [];
+
+    return {
+        ...query,
+        countries,
+        totalCount: countries.length,
     };
 };
 

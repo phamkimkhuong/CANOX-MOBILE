@@ -10,8 +10,8 @@
 
 import { IconSymbol } from '@/components/ui/Icon';
 import { SkeletonBox } from '@/components/ui/feedback/Skeleton';
-import { useFlattenedProvinces, useFlattenedWards } from '@/hooks/api/useAddressData';
-import type { Province, Ward } from '@/types/address';
+import { useFlattenedCountries, useFlattenedProvinces, useFlattenedWards } from '@/hooks/api/useAddressData';
+import type { Country, Province, Ward } from '@/types/address';
 import { FlashList } from '@shopify/flash-list';
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -26,16 +26,16 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-type PickerType = 'province' | 'ward';
+type PickerType = 'country' | 'province' | 'ward';
 
 interface LocationPickerSheetProps {
     type: PickerType;
     provinceCode?: string | null;
     /** Currently selected value */
-    selectedValue?: Province | Ward | null;
+    selectedValue?: Country | Province | Ward | null;
     visible: boolean;
     onClose: () => void;
-    onSelect: (item: Province | Ward) => void;
+    onSelect: (item: Country | Province | Ward) => void;
 }
 
 // ============================================
@@ -70,6 +70,11 @@ export const LocationPickerSheet: React.FC<LocationPickerSheetProps> = memo(({
     }, [visible]);
 
     // Fetch data based on type
+    const countriesQuery = useFlattenedCountries({
+        search: searchText,
+        enabled: visible && type === 'country',
+    });
+
     const provincesQuery = useFlattenedProvinces({
         search: searchText,
         enabled: visible && type === 'province',
@@ -82,19 +87,40 @@ export const LocationPickerSheet: React.FC<LocationPickerSheetProps> = memo(({
     });
 
     // Select the right query based on type
-    const query = type === 'province' ? provincesQuery : wardsQuery;
-    const items = type === 'province' ? provincesQuery.provinces : wardsQuery.wards;
+    const getQueryData = () => {
+        switch (type) {
+            case 'country': return { query: countriesQuery, items: countriesQuery.countries };
+            case 'province': return { query: provincesQuery, items: provincesQuery.provinces };
+            case 'ward': return { query: wardsQuery, items: wardsQuery.wards };
+            default: return { query: provincesQuery, items: [] };
+        }
+    };
+
+    const { query, items } = getQueryData();
 
     // Title based on type
-    const title = type === 'province' ? t('address:picker.provinceTitle') : t('address:picker.wardTitle');
-    const placeholder =
-        type === 'province'
-            ? t('address:picker.provincePlaceholder')
-            : t('address:picker.wardPlaceholder');
+    const getTitle = () => {
+        switch (type) {
+            case 'country': return t('address:picker.countryTitle');
+            case 'province': return t('address:picker.provinceTitle');
+            case 'ward': return t('address:picker.wardTitle');
+        }
+    };
+
+    const getPlaceholder = () => {
+        switch (type) {
+            case 'country': return t('address:form.country.placeholder');
+            case 'province': return t('address:picker.provincePlaceholder');
+            case 'ward': return t('address:picker.wardPlaceholder');
+        }
+    };
+
+    const title = getTitle();
+    const placeholder = getPlaceholder();
 
     // Handle item selection
     const handleSelect = useCallback(
-        (item: Province | Ward) => {
+        (item: Country | Province | Ward) => {
             Keyboard.dismiss();
             onSelect(item);
             onClose();
@@ -109,8 +135,10 @@ export const LocationPickerSheet: React.FC<LocationPickerSheetProps> = memo(({
 
     // Render item
     const renderItem = useCallback(
-        ({ item }: { item: Province | Ward }) => {
+        ({ item }: { item: Country | Province | Ward }) => {
             const isSelected = selectedValue?.code === item.code;
+
+            const name = (item as Country).name || (item as Province | Ward).fullName;
 
             return (
                 <Pressable
@@ -125,7 +153,7 @@ export const LocationPickerSheet: React.FC<LocationPickerSheetProps> = memo(({
                         style={[styles.itemText, isSelected && styles.itemTextSelected]}
                         numberOfLines={1}
                     >
-                        {item.fullName}
+                        {name}
                     </Text>
                     {isSelected && (
                         <IconSymbol
@@ -147,7 +175,7 @@ export const LocationPickerSheet: React.FC<LocationPickerSheetProps> = memo(({
 
     // Key extractor
     const keyExtractor = useCallback(
-        (item: Province | Ward) => item.code,
+        (item: Country | Province | Ward) => item.code,
         []
     );
 

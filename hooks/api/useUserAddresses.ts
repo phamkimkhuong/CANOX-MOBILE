@@ -9,9 +9,8 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { useUserAddressStore } from '@/store/useUserAddressStore';
 import type {
     AddressFormData,
-    Country,
     CreateBuyerAddressRequest,
-    ShippingAddress,
+    ShippingAddress
 } from '@/types/address';
 import { MAX_ADDRESSES } from '@/types/address';
 import { toBuyerAddressListUI, toBuyerAddressUI } from '@/utils/adapter/addressAdapter';
@@ -121,7 +120,7 @@ export const checkAddressLimitAndShowToast = (
 /**
  * Transform AddressFormData (UI) → CreateBuyerAddressRequest (API)
  */
-const toCreateRequest = (data: AddressFormData, countryName: string): CreateBuyerAddressRequest => ({
+const toCreateRequest = (data: AddressFormData): CreateBuyerAddressRequest => ({
     recipientName: data.recipientName,
     phone: data.phone,
     address: {
@@ -129,9 +128,9 @@ const toCreateRequest = (data: AddressFormData, countryName: string): CreateBuye
         ward: data.wardName,
         district: data.districtName,
         province: data.provinceName,
-        country: countryName,
+        country: data.countryName,
     },
-    type: data.label === 'work' ? 'OFFICE' : data.label.toUpperCase(),
+    type: (data.label === 'work' ? 'OFFICE' : data.label.toUpperCase()) as 'HOME' | 'OFFICE' | 'OTHER',
     isDefault: data.isDefault,
 });
 
@@ -167,27 +166,7 @@ export const useAddAddress = () => {
                 throw new Error('User not authenticated');
             }
 
-            // Get country name from cache or fetch
-            let countryName = DEFAULT_COUNTRY_NAME;
-            try {
-                const cachedCountries = queryClient.getQueryData<Country[]>(COUNTRY_KEY);
-                const vnCountry = cachedCountries?.find(c => c.code === 'VN' || c.name === 'Vietnam');
-
-                if (vnCountry?.name) {
-                    countryName = vnCountry.name;
-                } else {
-                    const countryResponse = await getCountry();
-                    if (countryResponse.success && countryResponse.data.length > 0) {
-                        const firstCountry = countryResponse.data.find(c => c.code === 'VN') || countryResponse.data[0];
-                        countryName = firstCountry.name;
-                        queryClient.setQueryData(COUNTRY_KEY, countryResponse.data);
-                    }
-                }
-            } catch {
-                // Use default if country fetch fails
-            }
-
-            const requestData = toCreateRequest(data, countryName);
+            const requestData = toCreateRequest(data);
             const response = await createBuyerAddress(requestData);
 
             if (!response.success) {
@@ -228,27 +207,7 @@ export const useUpdateAddress = () => {
                 throw new Error('User not authenticated');
             }
 
-            // Get country name from cache or fetch
-            let countryName = DEFAULT_COUNTRY_NAME;
-            try {
-                const cachedCountries = queryClient.getQueryData<Country[]>(COUNTRY_KEY);
-                const vnCountry = cachedCountries?.find(c => c.code === 'VN' || c.name === 'Vietnam');
-
-                if (vnCountry?.name) {
-                    countryName = vnCountry.name;
-                } else {
-                    const countryResponse = await getCountry();
-                    if (countryResponse.success && countryResponse.data.length > 0) {
-                        const firstCountry = countryResponse.data.find(c => c.code === 'VN') || countryResponse.data[0];
-                        countryName = firstCountry.name;
-                        queryClient.setQueryData(COUNTRY_KEY, countryResponse.data);
-                    }
-                }
-            } catch {
-                // Use default if country fetch fails
-            }
-
-            const requestData = toCreateRequest(params.data, countryName);
+            const requestData = toCreateRequest(params.data);
 
             const response = await updateBuyerAddress(params.id, requestData);
 

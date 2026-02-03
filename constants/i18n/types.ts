@@ -1224,6 +1224,11 @@ export interface AddressTranslation {
     form: {
         addTitle: string;
         editTitle: string;
+        country: {
+            label: string;
+            placeholder: string;
+            error: string;
+        };
         recipientName: {
             label: string;
             placeholder: string;
@@ -1289,6 +1294,7 @@ export interface AddressTranslation {
     picker: {
         provinceTitle: string;
         wardTitle: string;
+        countryTitle: string;
         provincePlaceholder: string;
         wardPlaceholder: string;
         results: string;

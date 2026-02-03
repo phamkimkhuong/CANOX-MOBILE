@@ -17,6 +17,11 @@ export const ADDRESS_STRINGS: AddressTranslation = {
     form: {
         addTitle: 'Thêm địa chỉ mới',
         editTitle: 'Sửa địa chỉ',
+        country: {
+            label: 'Quốc gia *',
+            placeholder: 'Chọn quốc gia',
+            error: 'Vui lòng chọn quốc gia',
+        },
         recipientName: {
             label: 'Họ và tên người nhận *',
             placeholder: 'Nhập họ tên người nhận',
@@ -82,6 +87,7 @@ export const ADDRESS_STRINGS: AddressTranslation = {
     picker: {
         provinceTitle: 'Chọn Tỉnh/Thành phố',
         wardTitle: 'Chọn Phường/Xã',
+        countryTitle: 'Chọn Quốc gia',
         provincePlaceholder: 'Tìm kiếm tỉnh/thành phố...',
         wardPlaceholder: 'Tìm kiếm phường/xã...',
         results: 'kết quả',

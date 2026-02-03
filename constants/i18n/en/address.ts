@@ -17,6 +17,11 @@ export const ADDRESS_STRINGS: AddressTranslation = {
     form: {
         addTitle: 'Add New Address',
         editTitle: 'Edit Address',
+        country: {
+            label: 'Country *',
+            placeholder: 'Select country',
+            error: 'Please select a country',
+        },
         recipientName: {
             label: 'Recipient Name *',
             placeholder: 'Enter recipient name',
@@ -82,6 +87,7 @@ export const ADDRESS_STRINGS: AddressTranslation = {
     picker: {
         provinceTitle: 'Select Province/City',
         wardTitle: 'Select Ward/Commune',
+        countryTitle: 'Select Country',
         provincePlaceholder: 'Search province/city...',
         wardPlaceholder: 'Search ward/commune...',
         results: 'results',

@@ -44,6 +44,7 @@ export const toBuyerAddressUI = (dto: BuyerAddressDTO): ShippingAddress => ({
     districtName: dto.address?.district ?? '',
     provinceCode: '',
     provinceName: dto.address?.province ?? '',
+    countryName: dto.address?.country ?? '',
     label: mapAddressType(dto.type),
     isDefault: dto.isDefault,
     createdAt: dto.createdDate,

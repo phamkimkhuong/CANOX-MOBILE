@@ -170,11 +170,12 @@ export interface ShippingAddress {
     recipientName: string;
     phone: string;
     streetAddress: string;
-    wardCode: string;
+    wardCode?: string;
     wardName: string;
-    provinceCode: string;
+    provinceCode?: string;
     provinceName: string;
     districtName: string;
+    countryName: string;
     label: AddressLabel;
     isDefault: boolean;
     createdAt?: string;
@@ -188,11 +189,13 @@ export interface AddressFormData {
     recipientName: string;
     phone: string;
     streetAddress: string;
-    provinceCode: string;
+    provinceCode?: string;
     provinceName: string;
     districtName: string;
-    wardCode: string;
+    wardCode?: string;
     wardName: string;
+    countryCode: string;
+    countryName: string;
     label: AddressLabel;
     isDefault: boolean;
 }
@@ -247,8 +250,21 @@ export const WardListResponseSchema = ResponseDefaultSchema.extend({
 });
 
 export const WardDetailResponseSchema = ResponseDefaultSchema.extend({
+    // ... skipping existing schemas for brevity in prompt but I should probably add Country schema
     message: z.string(),
     data: WardSchema,
+});
+
+export const CountrySchema = z.object({
+    code: z.string(),
+    name: z.string(),
+    fullName: z.string(),
+    totalProvinces: z.number(),
+});
+
+export const CountryResponseSchema = ResponseDefaultSchema.extend({
+    message: z.string(),
+    data: z.array(CountrySchema),
 });
 
 // ============================================
