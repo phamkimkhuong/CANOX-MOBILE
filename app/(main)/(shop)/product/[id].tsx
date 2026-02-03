@@ -21,6 +21,7 @@ import { ROUTES, chatRoutes, checkoutRoutes, productRoutes, shopRoutes } from '@
 import { useAddToCart } from '@/hooks/api/cart';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
 import { useProductDetail, useRelatedProducts } from '@/hooks/api/product/useProductDetail';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { MINIMUM_SKELETON_DURATION_MS } from '@/hooks/usePrefetchTiming';
 import { useProductVariant } from '@/hooks/useProductVariant';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -54,7 +55,11 @@ type ProductDetailListItem =
 
 
 export default function ProductDetailScreen() {
+    // Unlock navigation when screen gains focus (for faster subsequent navigations)
+    useNavigationUnlockOnFocus();
+
     const { id, instantNav } = useLocalSearchParams<{ id: string; instantNav?: string }>();
+
     const { theme } = useUnistyles();
     const { t } = useTranslation(['product', 'chat', 'common']);
 

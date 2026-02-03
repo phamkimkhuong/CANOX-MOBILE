@@ -22,6 +22,7 @@ import {
 import { searchRoutes } from '@/constants/routes';
 import { useTrackSearch } from '@/hooks/api/search';
 import { useSearchHistory } from '@/hooks/api/search/useSearchHistory';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { SearchSuggestionUI } from '@/types/search';
 import { Navigator } from '@/utils/navigation';
 import { useLocalSearchParams } from 'expo-router';
@@ -42,7 +43,11 @@ type SearchState = 'idle' | 'typing';
  * Search Screen Component
  */
 export default function SearchScreen() {
+    // Unlock navigation when screen gains focus (for faster subsequent navigations)
+    useNavigationUnlockOnFocus();
+
     const insets = useSafeAreaInsets();
+
     const headerRef = useRef<SearchHeaderRef>(null);
     const params = useLocalSearchParams<{ q?: string }>();
 

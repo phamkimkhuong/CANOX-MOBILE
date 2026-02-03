@@ -34,6 +34,7 @@ import {
     useUpdateCartItemQuantity,
 } from '@/hooks/api/cart';
 import { usePrefetchShopDetail } from '@/hooks/api/useShop';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { PREFETCH_GRACE_PERIOD_MS } from '@/hooks/usePrefetchTiming';
 import { useCartStore } from '@/store/useCartStore';
 import { useCheckoutStore } from '@/store/useCheckoutStore';
@@ -50,6 +51,7 @@ import { ActivityIndicator, Pressable, RefreshControl, Text, View } from 'react-
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+
 
 interface CartHeaderProps {
     onEditPress: () => void;
@@ -150,6 +152,9 @@ const EmptyCart: React.FC<EmptyCartProps> = ({ onRefresh, refreshing }) => {
 export default function CartScreen() {
     const { theme } = useUnistyles();
     const { t } = useTranslation(['cart', 'common']);
+
+    // Safety mechanism: unlock navigation when this screen gains focus
+    useNavigationUnlockOnFocus();
 
     const { rebuySuccess } = useLocalSearchParams<{ rebuySuccess?: string }>();
 
