@@ -60,7 +60,7 @@ const MOCK_VIDEOS: VideoData[] = [
         videoUrl: 'https://media.khuongblog.tech/cdn-cgi/media/fit=scale-down,width=720/video2.mp4',
         posterUrl: 'https://media.khuongblog.tech/cdn-cgi/media/mode=frame,time=1s,format=jpg/video2.mp4',
         shopName: 'CoffeeHouse',
-        caption: 'Cà phê nguyên chất Arabica thơm ngon đậm vị ☕ #cafe #chill',
+        caption: 'Cà phê nguyên chất Arabica thơm ngon đậm vị tươi mới tuyệt vời ☕ #cafe #chill',
         likes: 890,
         comments: 12,
         shares: 34,

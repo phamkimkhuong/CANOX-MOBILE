@@ -115,6 +115,10 @@ export const ROUTES = {
         /** Search results with products */
         RESULTS: '/(main)/search/results' as const,
     },
+    // ============ CREATOR ============
+    CREATOR: {
+        DETAIL: '/(main)/(user)/creator/[id]' as const,
+    },
 } as const;
 
 /**
@@ -314,6 +318,16 @@ export const authRoutes = {
         pathname: '/(auth)/reset-password',
         params,
     }),
+} as const;
+
+/**
+ * Creator routes
+ */
+export const creatorRoutes = {
+    detail: (id: string): Href => ({
+        pathname: '/(main)/(user)/creator/[id]',
+        params: { id },
+    } as unknown as Href),
 } as const;
 
 /**

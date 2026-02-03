@@ -12,9 +12,10 @@ interface ProductCardProps {
     price: number;
     imageUrl: string;
     onPress?: () => void;
+    onClose?: () => void;
 }
 
-export const ProductCard = ({ id, name, price, imageUrl, onPress }: ProductCardProps) => {
+export const ProductCard = ({ id, name, price, imageUrl, onPress, onClose }: ProductCardProps) => {
     const { theme } = useUnistyles();
 
     return (
@@ -31,13 +32,26 @@ export const ProductCard = ({ id, name, price, imageUrl, onPress }: ProductCardP
                 </View>
 
                 <LinearGradient
-                    colors={[theme.colors.newPrimary, '#ff4b6e']} // Tạo dải gradient từ Primary sang màu nhạt hơn
+                    colors={[theme.colors.newPrimary, '#ff4b6e']}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                     style={styles.buyButton}
                 >
                     <IconSymbol name="shopping-cart" size={16} color="#fff" />
                 </LinearGradient>
+
+                {onClose && (
+                    <TouchableOpacity
+                        style={styles.closeButton}
+                        onPress={(e) => {
+                            e.stopPropagation();
+                            onClose();
+                        }}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                        <IconSymbol name="close" size={12} color="rgba(255,255,255,0.6)" />
+                    </TouchableOpacity>
+                )}
             </BlurView>
         </TouchableOpacity>
     );
@@ -45,7 +59,7 @@ export const ProductCard = ({ id, name, price, imageUrl, onPress }: ProductCardP
 
 const styles = StyleSheet.create((theme) => ({
     outerContainer: {
-        width: 230, // Tăng nhẹ để chứa border
+        width: 260,
         marginBottom: 12,
         borderRadius: 12,
         overflow: 'hidden',
@@ -62,9 +76,9 @@ const styles = StyleSheet.create((theme) => ({
         alignItems: 'center',
     },
     image: {
-        width: 46,
-        height: 46,
-        borderRadius: 6,
+        width: 60,
+        height: 60,
+        borderRadius: 8,
         backgroundColor: '#333',
     },
     info: {
@@ -73,22 +87,22 @@ const styles = StyleSheet.create((theme) => ({
     },
     name: {
         color: '#fff',
-        fontSize: 13,
-        fontWeight: '600',
+        fontSize: 14,
+        fontWeight: '700',
         textShadowColor: 'rgba(0,0,0,0.5)',
         textShadowOffset: { width: 0, height: 1 },
         textShadowRadius: 2,
     },
     price: {
         color: theme.colors.newPrimary,
-        fontSize: 13,
-        fontWeight: '800',
+        fontSize: 15,
+        fontWeight: '700',
         marginTop: 2,
     },
     buyButton: {
-        width: 32,
-        height: 32,
-        borderRadius: 16,
+        width: 35,
+        height: 35,
+        borderRadius: 17,
         justifyContent: 'center',
         alignItems: 'center',
         marginLeft: 4,
@@ -97,5 +111,16 @@ const styles = StyleSheet.create((theme) => ({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.5,
         shadowRadius: 4,
+    },
+    closeButton: {
+        position: 'absolute',
+        top: 4,
+        right: 4,
+        width: 18,
+        height: 18,
+        borderRadius: 9,
+        backgroundColor: 'rgba(0,0,0,0.2)',
+        justifyContent: 'center',
+        alignItems: 'center',
     }
 }));

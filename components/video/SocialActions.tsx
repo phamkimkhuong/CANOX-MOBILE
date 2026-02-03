@@ -11,6 +11,7 @@ interface SocialActionsProps {
     isLiked?: boolean;
     onLike?: () => void;
     onComment?: () => void;
+    onProfilePress?: () => void;
 }
 
 export const SocialActions = ({
@@ -19,7 +20,8 @@ export const SocialActions = ({
     shares,
     isLiked,
     onLike,
-    onComment
+    onComment,
+    onProfilePress
 }: SocialActionsProps) => {
     const scale = useSharedValue(1);
 
@@ -47,7 +49,7 @@ export const SocialActions = ({
     return (
         <View style={styles.container}>
             {/* Profile */}
-            <TouchableOpacity style={styles.actionItem}>
+            <TouchableOpacity style={styles.actionItem} onPress={onProfilePress}>
                 <View style={styles.avatarContainer}>
                     <IconSymbol name="person-filled" size={32} color="#fff" />
                     <View style={styles.plusIcon}>
@@ -60,7 +62,7 @@ export const SocialActions = ({
             <TouchableOpacity style={styles.actionItem} onPress={handleLike}>
                 <Animated.View style={[styles.iconContainer, animatedStyle]}>
                     <IconSymbol
-                        name={isLiked ? "favorite" : "favorite-border"}
+                        name="favorite"
                         size={32}
                         color={isLiked ? "#ff2d55" : "#fff"}
                     />

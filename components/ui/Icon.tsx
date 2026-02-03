@@ -19,7 +19,7 @@ export type IconSymbolName = keyof typeof ICON_MAP | keyof typeof Ionicons.glyph
 // Định nghĩa map icon với platform-specific variants
 const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: keyof typeof Ionicons.glyphMap }> = {
     // === Navigation Icons ===
-    share: { ios: 'share-outline', android: 'share-social-outline' },
+    share: { ios: 'arrow-redo', android: 'arrow-redo' },
     more: { ios: 'ellipsis-horizontal', android: 'ellipsis-vertical' },
     back: { ios: 'chevron-back', android: 'arrow-back' },
     forward: { ios: 'chevron-forward', android: 'arrow-forward' },

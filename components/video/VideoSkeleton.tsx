@@ -52,12 +52,10 @@ export const VideoSkeleton = () => {
     return (
         <View style={StyleSheet.absoluteFill}>
             <View style={styles.bottomSkeleton}>
+                <Shimmer width={260} height={70} style={{ borderRadius: 12, marginBottom: 16 }} />
                 <Shimmer width={120} height={18} style={{ marginBottom: 8, borderRadius: 4 }} />
-
                 <Shimmer width={240} height={14} style={{ marginBottom: 6, borderRadius: 4 }} />
                 <Shimmer width={180} height={14} style={{ marginBottom: 16, borderRadius: 4 }} />
-
-                <Shimmer width={220} height={56} style={{ borderRadius: 8 }} />
             </View>
 
 
@@ -80,13 +78,13 @@ export const VideoSkeleton = () => {
 const styles = StyleSheet.create({
     bottomSkeleton: {
         position: 'absolute',
-        bottom: 40,
-        left: 16,
+        bottom: 25,
+        left: 12,
         right: 80,
     },
     rightSkeleton: {
         position: 'absolute',
-        bottom: 100,
+        bottom: 40,
         right: 12,
         alignItems: 'center',
     }

@@ -1,11 +1,12 @@
 import { IconSymbol } from '@/components/ui/Icon';
+import { useIsFocused } from '@react-navigation/native';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import React, { memo, useCallback, useEffect, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { LayoutAnimation, Pressable, Text, TouchableOpacity, View } from 'react-native';
 import Animated, {
     runOnJS,
     useAnimatedStyle,
@@ -16,7 +17,9 @@ import Animated, {
 } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { creatorRoutes, productRoutes } from '@/constants/routes';
 import { useVideoStore } from '@/store/useVideoStore';
+import { Navigator } from '@/utils/navigation';
 import { ProductCard } from './ProductCard';
 import { SocialActions } from './SocialActions';
 import { VideoSkeleton } from './VideoSkeleton';
@@ -49,6 +52,7 @@ const VideoPlayerLayer = memo(({
     mode,
     isPaused,
     isMuted,
+    isFocused,
     onPlayerReady,
     onStatusChange
 }: {
@@ -56,6 +60,7 @@ const VideoPlayerLayer = memo(({
     mode: 'active' | 'preload';
     isPaused: boolean;
     isMuted: boolean;
+    isFocused?: boolean;
     onPlayerReady: (player: any) => void;
     onStatusChange: (status: string) => void;
 }) => {
@@ -76,12 +81,12 @@ const VideoPlayerLayer = memo(({
     }, [mode, player, onPlayerReady, onStatusChange]);
 
     useEffect(() => {
-        if (mode === 'active' && !isPaused) {
+        if (mode === 'active' && !isPaused && isFocused) {
             player.play();
         } else {
             player.pause();
         }
-    }, [mode, isPaused, player]);
+    }, [mode, isPaused, player, isFocused]);
 
     return (
         <VideoView
@@ -160,6 +165,21 @@ export const VideoItem = memo(({ item, mode }: VideoItemProps) => {
     const [playerStatus, setPlayerStatus] = useState<string>('idle');
     const [hearts, setHearts] = useState<{ id: number, x: number, y: number }[]>([]);
     const [isExpanded, setIsExpanded] = useState(false);
+    const [isProductVisible, setIsProductVisible] = useState(true);
+    const isFocused = useIsFocused();
+
+    const handleProfilePress = useCallback(() => {
+        Navigator.push(creatorRoutes.detail(item.id));
+    }, [item.id]);
+
+    const handleProductPress = useCallback(() => {
+        Navigator.push(productRoutes.detail(item.product.id));
+    }, [item.product.id]);
+
+    const toggleProductVisible = (visible: boolean) => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        setIsProductVisible(visible);
+    };
 
     let lastTap = 0;
 
@@ -218,6 +238,7 @@ export const VideoItem = memo(({ item, mode }: VideoItemProps) => {
                         mode={mode}
                         isPaused={isPaused}
                         isMuted={isMuted}
+                        isFocused={isFocused}
                         onPlayerReady={setActivePlayer}
                         onStatusChange={setPlayerStatus}
                     />
@@ -252,7 +273,27 @@ export const VideoItem = memo(({ item, mode }: VideoItemProps) => {
 
             <LinearGradient colors={['transparent', 'rgba(0,0,0,0.9)']} style={styles.bottomOverlay}>
                 <View style={styles.content}>
-                    <Text style={styles.shopName}>@{item.shopName}</Text>
+                    {isProductVisible ? (
+                        <ProductCard
+                            {...item.product}
+                            onPress={handleProductPress}
+                            onClose={() => toggleProductVisible(false)}
+                        />
+                    ) : (
+                        <TouchableOpacity
+                            style={styles.recallHandle}
+                            onPress={() => toggleProductVisible(true)}
+                            activeOpacity={0.8}
+                        >
+                            <BlurView intensity={30} tint="dark" style={styles.recallBlur}>
+                                <IconSymbol name="shopping-cart" size={14} color="#fff" />
+                                <Text style={styles.recallText}>Xem lại sản phẩm</Text>
+                            </BlurView>
+                        </TouchableOpacity>
+                    )}
+                    <Pressable onPress={handleProfilePress}>
+                        <Text style={styles.shopName}>@{item.shopName}</Text>
+                    </Pressable>
                     <Pressable onPress={() => setIsExpanded(!isExpanded)}>
                         <Text
                             style={styles.caption}
@@ -264,7 +305,6 @@ export const VideoItem = memo(({ item, mode }: VideoItemProps) => {
                             <Text style={styles.moreText}>Xem thêm</Text>
                         )}
                     </Pressable>
-                    <ProductCard {...item.product} />
                 </View>
             </LinearGradient>
 
@@ -278,6 +318,7 @@ export const VideoItem = memo(({ item, mode }: VideoItemProps) => {
                         setIsLiked(!isLiked);
                         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                     }}
+                    onProfilePress={handleProfilePress}
                 />
 
                 <Pressable onPress={toggleMute} style={styles.muteButtonContainer}>
@@ -333,8 +374,8 @@ const styles = StyleSheet.create((theme, rt) => ({
         bottom: 0,
         left: 0,
         right: 0,
-        paddingHorizontal: 16,
-        paddingBottom: 40,
+        paddingHorizontal: 12,
+        paddingBottom: 25,
         paddingTop: 100,
     },
     content: {
@@ -367,7 +408,7 @@ const styles = StyleSheet.create((theme, rt) => ({
     },
     rightActionsContainer: {
         position: 'absolute',
-        bottom: 100,
+        bottom: 40,
         right: 12,
         alignItems: 'center',
         gap: 20,
@@ -379,6 +420,7 @@ const styles = StyleSheet.create((theme, rt) => ({
         overflow: 'hidden',
         borderWidth: 0.5,
         borderColor: 'rgba(255,255,255,0.2)',
+        backgroundColor: 'rgba(255,255,255,0.7)',
     },
     muteButtonBlur: {
         flex: 1,
@@ -425,5 +467,25 @@ const styles = StyleSheet.create((theme, rt) => ({
         fontSize: 13,
         marginTop: 12,
         fontWeight: '500',
+    },
+    recallHandle: {
+        marginBottom: 12,
+        alignSelf: 'flex-start',
+        borderRadius: 20,
+        overflow: 'hidden',
+        borderWidth: 0.5,
+        borderColor: 'rgba(255,255,255,0.2)',
+    },
+    recallBlur: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+    },
+    recallText: {
+        color: '#fff',
+        fontSize: 12,
+        fontWeight: '600',
+        marginLeft: 6,
     }
 }));
