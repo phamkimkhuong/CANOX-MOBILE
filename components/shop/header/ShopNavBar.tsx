@@ -43,17 +43,17 @@ export const ShopNavBar: React.FC<ShopNavBarProps> = ({
     const insets = useSafeAreaInsets();
     const styles = stylesheet;
 
-    // Header background: transparent → surfaceGlass
+    // Header background: transparent → surface (Solid)
     const animatedHeaderStyle = useAnimatedStyle(() => {
         const backgroundColor = interpolateColor(
             scrollY.value,
             [0, SCROLL_THRESHOLD],
-            ['transparent', theme.colors.surfaceGlass]
+            ['transparent', theme.colors.surface]
         );
         const borderBottomColor = interpolateColor(
             scrollY.value,
             [SCROLL_THRESHOLD - 10, SCROLL_THRESHOLD],
-            ['transparent', theme.colors.borderGlass]
+            ['transparent', theme.colors.border]
         );
         return {
             backgroundColor,
@@ -62,14 +62,14 @@ export const ShopNavBar: React.FC<ShopNavBarProps> = ({
         };
     });
 
-    // Search bar background: translucent dark → surfaceGlassOverlay on scroll
+    // Search bar background: translucent dark → backgroundNewInput (Solid-like) on scroll
     const animatedSearchStyle = useAnimatedStyle(() => {
         const backgroundColor = interpolateColor(
             scrollY.value,
             [0, SCROLL_THRESHOLD],
-            ['rgba(0, 0, 0, 0.2)', theme.colors.surfaceGlassOverlay]
+            ['rgba(0, 0, 0, 0.2)', theme.colors.backgroundNewInput]
         );
-        return { backgroundColor, borderWidth: 1, borderColor: theme.colors.borderGlass };
+        return { backgroundColor, borderWidth: 1, borderColor: theme.colors.border };
     });
 
     // Icon/Text color: white → vibrantRed

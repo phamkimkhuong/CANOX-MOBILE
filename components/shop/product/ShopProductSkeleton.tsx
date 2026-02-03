@@ -1,10 +1,10 @@
 /**
  * ==============================================
- * SHOP PRODUCT SKELETON - Grid Loading State
+ * SHOP PRODUCT SKELETON - Simplified Grid Loading
  * ==============================================
  * 
- * Shows shimmer animation for product grid
- * Renders multiple skeleton cards in 2-column layout
+ * Lightweight skeleton - minimal elements
+ * Optimized for CPU performance
  */
 
 import { SkeletonBox, SkeletonText } from '@/components/ui/feedback/Skeleton';
@@ -18,72 +18,38 @@ interface ShopProductSkeletonProps {
 }
 
 const NUM_COLUMNS = 2;
-const DEFAULT_COUNT = 6;
+const DEFAULT_COUNT = 4;
 const GAP = 8;
 
 /**
- * ShopProductSkeleton - Loading skeleton for product grid
- * 
- * @example
- * ```tsx
- * {isLoading ? <ShopProductSkeleton count={4} /> : <ProductList />}
- * ```
+ * ShopProductSkeleton - Minimal skeleton for product grid
  */
 export const ShopProductSkeleton: React.FC<ShopProductSkeletonProps> = ({
     count = DEFAULT_COUNT,
 }) => {
     const { theme } = useUnistyles();
-    const styles = stylesheet;
     const screenWidth = UnistylesRuntime.screen.width;
-
-    // Calculate item dimensions
-    const horizontalPadding = theme.margins.md;
-    const itemWidth = (screenWidth - horizontalPadding * 2 - GAP * (NUM_COLUMNS - 1)) / NUM_COLUMNS;
-    const imageHeight = itemWidth; // Square
-
-    // Create array for rendering
-    const items = Array.from({ length: count }, (_, i) => i);
+    const itemWidth = (screenWidth - theme.margins.sm * 2 - GAP) / NUM_COLUMNS;
 
     return (
         <View style={styles.container}>
             <View style={styles.grid}>
-                {items.map((index) => (
+                {Array.from({ length: count }).map((_, index) => (
                     <View
                         key={index}
                         style={[
-                            styles.itemContainer,
+                            styles.item,
                             { width: itemWidth },
                             index % 2 === 0 && { marginRight: GAP },
                         ]}
                     >
                         {/* Image */}
-                        <SkeletonBox
-                            width={itemWidth}
-                            height={imageHeight}
-                            borderRadius={24}
-                        />
+                        <SkeletonBox width="100%" height={itemWidth} borderRadius={0} />
 
                         {/* Content */}
                         <View style={styles.content}>
-                            {/* Title */}
-                            <SkeletonText width="90%" height={14} />
-                            <SkeletonText width="70%" height={14} style={styles.titleLine2} />
-
-                            {/* Rating */}
-                            <SkeletonText width="60%" height={12} style={styles.rating} />
-
-                            {/* Price */}
-                            <SkeletonText width="50%" height={16} style={styles.price} />
-
-                            {/* Bottom Row */}
-                            <View style={styles.bottomRow}>
-                                <SkeletonText width="40%" height={12} />
-                                <SkeletonBox
-                                    width={28}
-                                    height={28}
-                                    borderRadius={14}
-                                />
-                            </View>
+                            <SkeletonText width="80%" height={13} />
+                            <SkeletonText width="50%" height={15} style={styles.mt8} />
                         </View>
                     </View>
                 ))}
@@ -92,43 +58,26 @@ export const ShopProductSkeleton: React.FC<ShopProductSkeletonProps> = ({
     );
 };
 
-const stylesheet = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((theme) => ({
     container: {
-        paddingHorizontal: theme.margins.md,
+        paddingHorizontal: theme.margins.sm,
         paddingTop: theme.margins.md,
     },
     grid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
     },
-    itemContainer: {
+    item: {
         backgroundColor: theme.colors.surface,
         borderRadius: 24,
         marginBottom: 12,
         overflow: 'hidden',
-        borderWidth: 1,
-        borderColor: 'rgba(0,0,0,0.05)',
     },
     content: {
-        padding: 12,
+        padding: 10,
     },
-    SkeletonBox: {
-        borderRadius: 24,
-    },
-    titleLine2: {
-        marginTop: theme.margins.sm / 2,
-    },
-    rating: {
-        marginTop: theme.margins.sm,
-    },
-    price: {
-        marginTop: theme.margins.sm,
-    },
-    bottomRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginTop: theme.margins.sm,
+    mt8: {
+        marginTop: 8,
     },
 }));
 

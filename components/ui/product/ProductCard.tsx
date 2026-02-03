@@ -27,7 +27,7 @@ interface ProductCardProps {
     priceDisplay?: string;
 }
 
-export const ProductCard = ({
+export const ProductCard = React.memo(({
     title,
     price,
     image,
@@ -142,7 +142,9 @@ export const ProductCard = ({
             )}
         </SmartNavButton>
     );
-};
+});
+
+ProductCard.displayName = 'ProductCard';
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {

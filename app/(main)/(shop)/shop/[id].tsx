@@ -29,9 +29,9 @@ import { useAuthStore } from '@/store/useAuthStore';
 import type { ShopProductFilterParams, ShopProductItemUI, ShopTabType } from '@/types/shop';
 import type { ShopIdentityResponseData } from '@/types/shop/shopIdentity';
 import { Navigator } from '@/utils/navigation';
-import { FlashList, ListRenderItem } from '@shopify/flash-list';
+import { FlashList, FlashListRef, ListRenderItem } from '@shopify/flash-list';
 import { Stack, useLocalSearchParams } from 'expo-router';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
     ActivityIndicator,
     Pressable,
@@ -44,7 +44,9 @@ import Animated, {
     runOnJS,
     useAnimatedReaction,
     useAnimatedScrollHandler,
+    useAnimatedStyle,
     useSharedValue,
+    withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -88,11 +90,27 @@ export default function ShopDetailScreen() {
     const [statusBarStyle, setStatusBarStyle] = useState<'light-content' | 'dark-content'>('light-content');
     const scrollY = useSharedValue(0);
 
+    // Chiều cao của header section (Banner + Info) để tính threshold cho sticky tabs
+    const headerSectionHeight = useSharedValue(0);
+    const headerSectionHeightRef = useRef(0);
+
+    // Ref cho FlashList để điều khiển scroll
+    const listRef = useRef<FlashListRef<FlatListItem>>(null);
+    // Lưu scroll position cho từng tab để restore khi quay lại
+    const scrollPositions = useRef<Record<ShopTabType, number>>({
+        home: 0,
+        products: 0,
+        categories: 0,
+    });
+
     // Mock identity data - will be replaced with API call
     const [identityData, setIdentityData] = useState<ShopIdentityResponseData | null>(null);
 
     const HEADER_HEIGHT = 56 + insets.top;
     const STATUS_BAR_THRESHOLD = 100; // Switch at this scroll position
+
+    // SharedValue cho chiều cao NavBar để sử dụng trong worklet
+    const navBarHeight = useSharedValue(HEADER_HEIGHT);
 
     // Animate StatusBar style based on scroll position
     useAnimatedReaction(
@@ -162,7 +180,10 @@ export default function ShopDetailScreen() {
     const listData = useMemo((): FlatListItem[] => {
         const baseItems: FlatListItem[] = [{ type: 'header' }];
 
-        baseItems.push({ type: 'tab-spacer' });
+        // Tabs chỉ hiển khi dữ liệu đã load xong
+        if (!shouldShowSkeleton) {
+            baseItems.push({ type: 'tab-spacer' });
+        }
 
         // Home tab: show profile content ONLY
         if (activeTab === 'home') {
@@ -189,15 +210,74 @@ export default function ShopDetailScreen() {
         }
 
         return baseItems;
-    }, [activeTab, products, hasVouchers]);
+    }, [activeTab, products, hasVouchers, shouldShowSkeleton]);
 
-    // Sticky header index: tabs are always at index 1 now (Header is 0)
-    const stickyHeaderIndices = useMemo(() => [1], []);
+    /**
+     * Animated Style cho Sticky Tabs Overlay
+     * Hiện NGAY KHI ShopTabs inline chạm vào bottom của ShopNavBar
+     * Threshold = headerSectionHeight - navBarHeight
+     */
+    const stickyTabsAnimatedStyle = useAnimatedStyle(() => {
+        const threshold = headerSectionHeight.value - navBarHeight.value;
+        const shouldShow = scrollY.value >= threshold && headerSectionHeight.value > 0;
+        return {
+            opacity: withTiming(shouldShow ? 1 : 0, { duration: 100 }),
+            pointerEvents: shouldShow ? 'auto' : 'none',
+        };
+    });
+
+    /**
+     * Callback khi header section đo được chiều cao
+     */
+    const handleHeaderLayout = useCallback((event: any) => {
+        const height = event.nativeEvent.layout.height;
+        headerSectionHeight.value = height;
+        headerSectionHeightRef.current = height;
+    }, [headerSectionHeight]);
 
     const handleBackPress = useCallback(() => Navigator.back(), []);
     const handleSearchPress = useCallback(() => { }, []);
     const handleMorePress = useCallback(() => { }, []);
-    const handleTabChange = useCallback((tab: ShopTabType) => setActiveTab(tab), []);
+
+    /**
+     */
+    const handleTabChange = useCallback((newTab: ShopTabType) => {
+        if (newTab === activeTab) return;
+
+        const currentScrollY = scrollY.value;
+        // Threshold = headerSectionHeight - HEADER_HEIGHT 
+        const stickyThreshold = headerSectionHeightRef.current - HEADER_HEIGHT;
+        const isTabsSticky = currentScrollY >= stickyThreshold && headerSectionHeightRef.current > 0;
+
+        if (isTabsSticky) {
+            // Lưu position của tab hiện tại
+            scrollPositions.current[activeTab] = currentScrollY;
+            const savedPosition = scrollPositions.current[newTab];
+
+            // Đổi tab
+            setActiveTab(newTab);
+
+            if (savedPosition >= stickyThreshold && savedPosition > 0) {
+                // Restore vị trí đã lưu nếu có
+                setTimeout(() => {
+                    listRef.current?.scrollToOffset({
+                        offset: savedPosition,
+                        animated: false,
+                    });
+                }, 100);
+            } else {
+                // Tab mới chưa có savedPosition → scroll về ngay dưới sticky tabs
+                setTimeout(() => {
+                    listRef.current?.scrollToOffset({
+                        offset: stickyThreshold,
+                        animated: false,
+                    });
+                }, 100);
+            }
+        } else {
+            setActiveTab(newTab);
+        }
+    }, [activeTab, scrollY, HEADER_HEIGHT]);
 
     /**
      * Prefetch chat - triggered on press in (ghost loading)
@@ -254,6 +334,18 @@ export default function ShopDetailScreen() {
     const handleLoadMore = useCallback(() => hasNextPage && !isFetchingNextPage && activeTab === 'products' && fetchNextPage(), [hasNextPage, isFetchingNextPage, activeTab, fetchNextPage]);
     const handleRefresh = useCallback(() => { refetchShop(); smartRefreshProducts(); }, [refetchShop, smartRefreshProducts]);
 
+    /**
+     * Tối ưu hóa việc tái sử dụng component của FlashList
+     */
+    const getItemType = useCallback((item: any) => item.type, []);
+
+    /**
+     * Tối ưu hóa layout: header và tabs chiếm full width
+     */
+    const overrideItemLayout = useCallback((layout: any, item: any) => {
+        layout.span = (item.type === 'header' || item.type === 'voucher-section' || item.type === 'tab-spacer' || item.type === 'profile-content' || item.type === 'categories-content') ? NUM_COLUMNS : 1;
+    }, []);
+
     /** Collect voucher handler */
     const handleCollectVoucher = useCallback((_voucherId: string) => {
         // TODO: Implement collect voucher API
@@ -270,7 +362,10 @@ export default function ShopDetailScreen() {
                 if (shouldShowSkeleton) return <ShopHeaderSkeleton />;
                 if (!shop) return null;
                 return (
-                    <View style={styles.fullWidthItem}>
+                    <View
+                        style={styles.fullWidthItem}
+                        onLayout={handleHeaderLayout}
+                    >
                         <ShopBanner bannerUrl={shop.bannerUrl} logoUrl={shop.logoUrl} />
                         <ShopHeaderInfo
                             shop={shop}
@@ -340,7 +435,7 @@ export default function ShopDetailScreen() {
             }
             default: return null;
         }
-    }, [shouldShowSkeleton, shop, identityData, activeTab, totalProductCount, vouchers, isLoadingVouchers, hasVouchers, handleChatPress, handleFollowPress, handleTabChange, handleCollectVoucher, handlePrefetchChat, handleProductPress]);
+    }, [shouldShowSkeleton, shop, identityData, activeTab, totalProductCount, vouchers, isLoadingVouchers, hasVouchers, handleChatPress, handleFollowPress, handleTabChange, handleCollectVoucher, handlePrefetchChat, handleProductPress, handleHeaderLayout, categories, isLoadingCategories, handleCategoryPress]);
 
     if (isShopError) {
         return (
@@ -362,25 +457,36 @@ export default function ShopDetailScreen() {
         <View style={styles.container}>
             <StatusBar translucent backgroundColor="transparent" barStyle={statusBarStyle} />
             <Stack.Screen options={{ headerShown: false }} />
-
-
+            {/* 1. ShopNavBar - Fixed Header */}
             <ShopNavBar scrollY={scrollY} onBackPress={handleBackPress} onSearchPress={handleSearchPress} onMorePress={handleMorePress} />
 
+            {/* 2. Sticky Tabs Overlay - Chỉ hiện khi dữ liệu đã load và scroll qua header */}
+            {!shouldShowSkeleton && (
+                <Animated.View
+                    style={[
+                        styles.stickyTabsOverlay,
+                        { top: HEADER_HEIGHT },
+                        stickyTabsAnimatedStyle,
+                    ]}
+                >
+                    <ShopTabs activeTab={activeTab} onTabChange={handleTabChange} productCount={totalProductCount} />
+                </Animated.View>
+            )}
+
             <AnimatedFlashList
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                ref={listRef as any}
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 data={listData as any}
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 renderItem={renderItem as any}
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 keyExtractor={(item: any, index: number) => item.type === 'product' ? `product-${item.data.id}` : `item-${item.type}-${index}`}
-                stickyHeaderIndices={stickyHeaderIndices}
                 numColumns={NUM_COLUMNS}
                 masonry
                 optimizeItemArrangement
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                overrideItemLayout={(layout: any, item: any) => {
-                    layout.span = (item.type === 'header' || item.type === 'voucher-section' || item.type === 'tab-spacer' || item.type === 'profile-content' || item.type === 'categories-content') ? NUM_COLUMNS : 1;
-                }}
+                getItemType={getItemType}
+                overrideItemLayout={overrideItemLayout}
                 onEndReached={handleLoadMore}
                 onEndReachedThreshold={0.5}
                 onScroll={scrollHandler}
@@ -405,7 +511,13 @@ const styles = StyleSheet.create((theme) => ({
     tabsWrapper: {
         marginHorizontal: -theme.margins.sm,
         backgroundColor: theme.colors.surface,
-        zIndex: 10,
+    },
+    stickyTabsOverlay: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        zIndex: 100,
+        backgroundColor: theme.colors.surface,
     },
     productItemWrapper: {
         flex: 1,

@@ -1,85 +1,80 @@
 /**
  * ==============================================
- * SHOP HEADER SKELETON - Loading State
+ * SHOP HEADER SKELETON - Simplified Loading State
  * ==============================================
  * 
- * Shows shimmer animation while shop detail is loading
- * Matches layout of ShopBanner + ShopHeaderInfo
+ * Lightweight skeleton - only essential elements
+ * Optimized for CPU performance
  */
 
 import { SkeletonBox, SkeletonCircle, SkeletonText } from '@/components/ui/feedback/Skeleton';
 import React from 'react';
 import { View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
-const BANNER_HEIGHT = 180;
-const AVATAR_SIZE = 80;
+const BANNER_HEIGHT = 200;
 
 /**
- * ShopHeaderSkeleton - Loading skeleton for shop header
+ * ShopHeaderSkeleton - Minimal skeleton for shop header
  */
 export const ShopHeaderSkeleton: React.FC = () => {
-    const { theme } = useUnistyles();
-    const styles = stylesheet;
-
     return (
         <View style={styles.container}>
-            {/* Banner Skeleton */}
+            {/* Banner */}
             <SkeletonBox width="100%" height={BANNER_HEIGHT} borderRadius={0} />
 
-            {/* Info Section */}
-            <View style={styles.infoContainer}>
-                {/* Avatar */}
-                <SkeletonCircle size={AVATAR_SIZE} style={styles.avatar} />
-
-                {/* Text Content */}
-                <View style={styles.textContainer}>
-                    {/* Shop Name */}
-                    <SkeletonText width="60%" height={20} />
-
-                    {/* Location */}
-                    <SkeletonText width="40%" height={14} style={styles.metaItem} />
-
-                    {/* Join Date */}
-                    <SkeletonText width="50%" height={14} style={styles.metaItem} />
+            {/* Info Card */}
+            <View style={styles.infoCard}>
+                {/* Avatar + Name Row */}
+                <View style={styles.row}>
+                    <SkeletonCircle size={64} />
+                    <View style={styles.textColumn}>
+                        <SkeletonText width="60%" height={18} />
+                        <SkeletonText width="40%" height={12} style={styles.mt6} />
+                    </View>
                 </View>
-            </View>
 
-            {/* Action Buttons */}
-            <View style={styles.actionsRow}>
-                <SkeletonBox width="48%" height={44} borderRadius={theme.radius.m} />
-                <SkeletonBox width="48%" height={44} borderRadius={theme.radius.m} />
+                {/* Stats Row - 3 columns */}
+                <View style={styles.statsRow}>
+                    <SkeletonText width="25%" height={14} />
+                    <SkeletonText width="25%" height={14} />
+                    <SkeletonText width="25%" height={14} />
+                </View>
             </View>
         </View>
     );
 };
 
-const stylesheet = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((theme) => ({
     container: {
+        backgroundColor: theme.colors.background,
+    },
+    infoCard: {
         backgroundColor: theme.colors.surface,
+        marginHorizontal: 16,
+        padding: 16,
+        borderRadius: 24,
+        marginTop: -15,
+        marginBottom: 5,
     },
-    infoContainer: {
+    row: {
         flexDirection: 'row',
-        paddingHorizontal: theme.margins.md,
-        marginTop: -AVATAR_SIZE / 2,
+        alignItems: 'center',
     },
-    avatar: {
-        borderWidth: 3,
-        borderColor: theme.colors.surface,
-    },
-    textContainer: {
+    textColumn: {
         flex: 1,
-        marginLeft: theme.margins.smd,
-        marginTop: AVATAR_SIZE / 4,
+        marginLeft: 12,
     },
-    metaItem: {
-        marginTop: theme.margins.sm,
+    mt6: {
+        marginTop: 6,
     },
-    actionsRow: {
+    statsRow: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        paddingHorizontal: theme.margins.md,
-        paddingVertical: theme.margins.md,
+        justifyContent: 'space-around',
+        marginTop: 16,
+        paddingTop: 12,
+        borderTopWidth: 1,
+        borderTopColor: 'rgba(0,0,0,0.05)',
     },
 }));
 

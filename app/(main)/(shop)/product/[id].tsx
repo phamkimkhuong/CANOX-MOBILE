@@ -513,7 +513,6 @@ export default function ProductDetailScreen() {
                 inventoryStatus={selectionResult.inventoryStatus}
                 onChatPress={handleChatPress}
                 onPrefetchChat={handlePrefetchChat}
-                onShopPress={handleShopPress}
                 onAddToCartPress={handleAddToCart}
                 onBuyNowPress={handleBuyNow}
             />

@@ -277,6 +277,7 @@ export default function HomeScreen() {
       // Đổi tab
       setActiveTab(newTab);
       if (savedPosition >= headerHeightRef.current && savedPosition > 0) {
+        // Restore vị trí đã lưu nếu có
         setTimeout(() => {
           listRef.current?.scrollToOffset({
             offset: savedPosition,
@@ -284,6 +285,16 @@ export default function HomeScreen() {
           });
           scrollYRef.current = savedPosition;
           scrollY.value = savedPosition;
+        }, 100);
+      } else {
+        setTimeout(() => {
+          const targetOffset = headerHeightRef.current;
+          listRef.current?.scrollToOffset({
+            offset: targetOffset,
+            animated: false,
+          });
+          scrollYRef.current = targetOffset;
+          scrollY.value = targetOffset;
         }, 100);
       }
     } else {

@@ -12,7 +12,6 @@ interface StickyBottomBarProps {
     inventoryStatus: InventoryStatus;
     onChatPress?: () => void;
     onPrefetchChat?: () => void;
-    onShopPress?: () => void;
     onAddToCartPress?: () => void;
     onBuyNowPress?: () => void;
     isFavorite?: boolean;
@@ -24,7 +23,6 @@ export const StickyBottomBar = memo<StickyBottomBarProps>(({
     inventoryStatus,
     onChatPress,
     onPrefetchChat,
-    onShopPress,
     onAddToCartPress,
     onBuyNowPress,
     isFavorite = false,
@@ -66,25 +64,10 @@ export const StickyBottomBar = memo<StickyBottomBarProps>(({
                         <View style={[styles.iconWrapper, pressed && styles.pressedOpacity]}>
                             <IconSymbol
                                 name="chat"
-                                size={22}
+                                size={26}
                                 color={theme.colors.typography}
                             />
                             <Text style={styles.iconLabel}>{PRODUCT_STRINGS.bottomBar.chat}</Text>
-                        </View>
-                    )}
-                </SmartNavButton>
-
-                <View style={styles.divider} />
-
-                <SmartNavButton onPress={onShopPress} style={styles.iconButton}>
-                    {({ pressed }) => (
-                        <View style={[styles.iconWrapper, pressed && styles.pressedOpacity]}>
-                            <IconSymbol
-                                name="storefront-outline"
-                                size={22}
-                                color={theme.colors.typography}
-                            />
-                            <Text style={styles.iconLabel}>{PRODUCT_STRINGS.bottomBar.shop}</Text>
                         </View>
                     )}
                 </SmartNavButton>
@@ -158,11 +141,15 @@ const styles = StyleSheet.create((theme) => ({
     leftActions: {
         flexDirection: 'row',
         alignItems: 'center',
+        paddingRight: theme.margins.smd,
+        borderRightWidth: 1,
+        borderRightColor: theme.colors.border,
     },
     iconButton: {
         alignItems: 'center',
         justifyContent: 'center',
         paddingHorizontal: theme.margins.smd,
+        paddingVertical: theme.margins.xs,
     },
     iconWrapper: {
         alignItems: 'center',
@@ -175,16 +162,11 @@ const styles = StyleSheet.create((theme) => ({
         color: theme.colors.typographySecondary,
         marginTop: 2,
     },
-    divider: {
-        width: 1,
-        height: 32,
-        backgroundColor: theme.colors.border,
-    },
     rightActions: {
         flex: 1,
         flexDirection: 'row',
         gap: 8,
-        marginLeft: theme.margins.smd,
+        marginLeft: theme.margins.sm,
     },
     addToCartButton: {
         flex: 1,
