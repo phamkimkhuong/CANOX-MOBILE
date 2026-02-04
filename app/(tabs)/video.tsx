@@ -1,4 +1,5 @@
 import { VideoData, VideoItem } from '@/components/video/VideoItem';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useIsFocused } from '@react-navigation/native';
 import { FlashList } from '@shopify/flash-list';
@@ -74,7 +75,11 @@ const MOCK_VIDEOS: VideoData[] = [
 ];
 
 export default function VideoScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const { height: windowHeight } = useWindowDimensions();
+
     const tabBarHeight = useBottomTabBarHeight();
     const isFocused = useIsFocused();
 

@@ -2,6 +2,7 @@ import { AuthInput } from '@/components/auth/AuthInput';
 import { IconSymbol } from '@/components/ui/Icon';
 import { authRoutes, ROUTES } from '@/constants/routes';
 import { useForgotPassword } from '@/hooks/api/useAuth';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { Navigator } from '@/utils/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
@@ -19,7 +20,11 @@ type ForgotPasswordFormData = {
 };
 
 export default function ForgotPasswordScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const { theme } = useUnistyles();
+
     const { t } = useTranslation('auth');
     const styles = stylesheet;
 

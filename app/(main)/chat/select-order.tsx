@@ -4,6 +4,7 @@
 
 import { IconSymbol } from '@/components/ui/Icon';
 import { useShopOrders } from '@/hooks/api/order/useOrders';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { useChatPickerStore } from '@/store/useChatPickerStore';
 import { OrderUI } from '@/types/order/order';
 import { formatCurrency } from '@/utils/format';
@@ -41,7 +42,11 @@ type SectionedOrderItem = DateHeaderItem | OrderItem;
 // ============================================
 
 export default function SelectOrderScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const { theme } = useUnistyles();
+
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
 

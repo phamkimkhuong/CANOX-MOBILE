@@ -16,6 +16,7 @@ import {
 } from '@/components/voucher';
 import { VOUCHER_STRINGS } from '@/constants/i18n/vi/voucher';
 import { useVoucherList } from '@/hooks/api/useVoucherList';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { createLogger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -45,7 +46,11 @@ const log = createLogger('VoucherScreen');
 const AnimatedFlashList = Animated.createAnimatedComponent(FlashList) as typeof FlashList;
 
 export default function VoucherScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const insets = useSafeAreaInsets();
+
     const { theme } = useUnistyles();
 
     // Hook for voucher data

@@ -15,6 +15,7 @@ import {
     useWalletBalance,
 } from '@/hooks/api/profile/useProfile';
 import { useWishlists } from '@/hooks/api/profile/useWishlists';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Navigator } from '@/utils/navigation';
 import React, { useCallback, useMemo } from 'react';
@@ -26,7 +27,11 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
  * Follows atomic design pattern with config-driven menus
  */
 export default function MeScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const { theme } = useUnistyles();
+
     const styles = stylesheet;
 
     // Auth state

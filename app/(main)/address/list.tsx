@@ -13,6 +13,7 @@ import {
     useCanAddAddress,
     useUserAddresses,
 } from '@/hooks/api/useUserAddresses';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { useUserAddressStore } from '@/store/useUserAddressStore';
 import type { AddressListMode, ShippingAddress } from '@/types/address';
 import { Navigator } from '@/utils/navigation';
@@ -25,7 +26,11 @@ import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 export default function AddressListScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const { t } = useTranslation(['address', 'common']);
+
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const insets = useSafeAreaInsets();

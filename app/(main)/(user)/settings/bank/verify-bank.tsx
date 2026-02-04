@@ -3,6 +3,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
 import { useVerifyAndCreateBank } from '@/hooks/api/bank/useBank';
 import { useCountdown } from '@/hooks/useCountdown';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { Navigator } from '@/utils/navigation';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -28,7 +29,11 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
  * VerifyBankScreen - Step 2: OTP Verification
  */
 export default function VerifyBankScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const { theme } = useUnistyles();
+
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
     const { t } = useTranslation(['bank', 'common']);

@@ -20,6 +20,7 @@ import { ProductCard } from '@/components/ui/product/ProductCard';
 import { productRoutes, shopRoutes } from '@/constants/routes';
 import { usePrefetchProductDetail } from '@/hooks/api/product/useProductDetail';
 import { useSearchProducts } from '@/hooks/api/search';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { PREFETCH_GRACE_PERIOD_MS } from '@/hooks/usePrefetchTiming';
 import type {
     SearchProductUI,
@@ -46,7 +47,11 @@ const NUM_COLUMNS = 2;
 // MAIN COMPONENT
 // ============================================
 export default function ShopSearchScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const { theme } = useUnistyles();
+
     const insets = useSafeAreaInsets();
     const { t } = useTranslation('search');
 

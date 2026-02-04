@@ -1,4 +1,5 @@
 import { IconSymbol } from '@/components/ui/Icon';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -12,7 +13,11 @@ const { width } = Dimensions.get('window');
 const COLUMN_WIDTH = width / 3;
 
 export default function CreatorProfileScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const { id } = useLocalSearchParams();
+
     const router = useRouter();
     const insets = useSafeAreaInsets();
     const { theme } = useUnistyles();

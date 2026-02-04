@@ -28,6 +28,7 @@ import {
     usePriceTargetMet,
     useWishlists,
 } from '@/hooks/api/wishlist';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import type { WishlistCardUI, WishlistItemUI } from '@/types/wishlist';
 import { Navigator } from '@/utils/navigation';
 import { FlashList } from '@shopify/flash-list';
@@ -265,7 +266,11 @@ const DiscoverTab: React.FC = () => {
  * Main Wishlist Hub Screen
  */
 export default function WishlistHubScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const styles = stylesheet;
+
     const { bottom } = useSafeAreaInsets();
 
     const [activeTab, setActiveTab] = useState<WishlistTabKey>('collections');

@@ -2,6 +2,7 @@ import { BankSelectModal } from '@/components/bank';
 import { SettingsHeader } from '@/components/settings';
 import { IconSymbol } from '@/components/ui/Icon';
 import { bankQueryKeys, useUpdateBank } from '@/hooks/api/bank/useBank';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { AddBankFormData, AddBankFormSchema } from '@/types/bank/bankSchema';
 import { BankSupportedUI, UserBankAccountUI } from '@/types/bank/ui';
 import { Alert } from '@/utils/AlertHelper';
@@ -31,7 +32,11 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
  * EditBankScreen - Edit existing bank account information
  */
 export default function EditBankScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const { theme } = useUnistyles();
+
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
     const { t } = useTranslation(['bank', 'common']);

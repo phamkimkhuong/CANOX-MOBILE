@@ -23,6 +23,7 @@ import { CHAT_STRINGS } from '@/constants/i18n/vi/chat';
 import { ROUTES, chatRoutes, productRoutes, shopSearchRoutes } from '@/constants/routes';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
 import { useRefreshShopProducts, useShopCategories, useShopDetail, useShopProducts, useShopVouchers } from '@/hooks/api/useShop';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { MINIMUM_SKELETON_DURATION_MS } from '@/hooks/usePrefetchTiming';
 import { getMockShopIdentity } from '@/services/api/mocks/shopIdentity';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -78,7 +79,11 @@ const ListFooterComponent: React.FC<{ isLoading: boolean }> = ({ isLoading }) =>
 };
 
 export default function ShopDetailScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const { theme } = useUnistyles();
+
     const insets = useSafeAreaInsets();
     const { id: shopId, instantNav } = useLocalSearchParams<{ id: string; instantNav?: string }>();
 

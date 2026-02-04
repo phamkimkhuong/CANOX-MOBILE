@@ -14,6 +14,7 @@ import {
     useUpdateAddress,
     useUserAddresses,
 } from '@/hooks/api/useUserAddresses';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { useUserAddressStore } from '@/store/useUserAddressStore';
 import type { AddressFormData } from '@/types/address';
 import { Alert } from '@/utils/AlertHelper';
@@ -26,6 +27,9 @@ import Toast from 'react-native-toast-message';
 import { StyleSheet } from 'react-native-unistyles';
 
 export default function AddAddressScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const { t } = useTranslation(['address', 'common']);
     const styles = stylesheet;
 

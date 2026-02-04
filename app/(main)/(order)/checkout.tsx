@@ -6,6 +6,7 @@
  */
 
 import { ROUTES } from '@/constants/routes';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { Alert } from '@/utils/AlertHelper';
 import { Navigator } from '@/utils/navigation';
 import { NavigationAction, useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -59,7 +60,11 @@ import { logger } from '@/utils/logger';
 // ============================================
 
 export default function CheckoutScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const { t } = useTranslation('checkout');
+
     const styles = stylesheet;
 
     // ========================================

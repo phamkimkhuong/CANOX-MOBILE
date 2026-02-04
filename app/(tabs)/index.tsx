@@ -7,6 +7,7 @@ import { productRoutes } from '@/constants/routes';
 import { useScrollToTopHandler } from '@/contexts/ScrollToTopContext';
 import { usePrefetchProductDetail } from '@/hooks/api/product/useProductDetail';
 import { FeedType, useProductFeed, useRefreshProductFeed } from '@/hooks/api/useHomeProducts';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { PREFETCH_GRACE_PERIOD_MS } from '@/hooks/usePrefetchTiming';
 import type { ProductFeedItem } from '@/types/product/product';
 import { Navigator } from '@/utils/navigation';
@@ -118,7 +119,11 @@ ProductRowItem.displayName = 'ProductRowItem';
  * HomeScreen 
  */
 export default function HomeScreen() {
+  // Unlock navigation when screen gains focus
+  useNavigationUnlockOnFocus();
+
   const { theme } = useUnistyles();
+
   const styles = stylesheet;
   const { t } = useTranslation(['home', 'common']);
 

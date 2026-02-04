@@ -1,3 +1,4 @@
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { Alert as CustomAlert } from '@/utils/AlertHelper';
 import { Navigator } from '@/utils/navigation';
 import React, { useCallback, useMemo } from 'react';
@@ -26,7 +27,11 @@ import type { SettingsItem as SettingsItemType } from '@/types/settings';
  * Config-driven UI with dynamic section rendering
  */
 export default function SettingsScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const styles = stylesheet;
+
     const insets = useSafeAreaInsets();
     const { t, i18n } = useTranslation(['profile', 'common']);
 

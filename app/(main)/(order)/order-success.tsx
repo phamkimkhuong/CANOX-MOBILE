@@ -13,6 +13,7 @@ import '@/constants/unistyles';
 
 import { IconSymbol } from '@/components/ui/Icon';
 import { orderRoutes, ROUTES } from '@/constants/routes';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { formatCurrency } from '@/utils/format';
 import { Navigator } from '@/utils/navigation';
 import * as Clipboard from 'expo-clipboard';
@@ -75,7 +76,11 @@ const formatDateTime = (dateString?: string): string => {
 };
 
 export default function OrderSuccessScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const { theme } = useUnistyles();
+
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
 

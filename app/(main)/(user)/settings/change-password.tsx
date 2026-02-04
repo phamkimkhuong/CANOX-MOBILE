@@ -3,6 +3,7 @@ import { PasswordStrengthIndicator } from '@/components/auth/PasswordStrengthInd
 import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
 import { isWrongOldPasswordError, useChangePassword } from '@/hooks/api/profile/useChangePassword';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { ChangePasswordRequestSchema } from '@/types/auth';
 import { Navigator } from '@/utils/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -35,7 +36,11 @@ import { z } from 'zod';
 type ChangePasswordFormData = z.infer<typeof ChangePasswordRequestSchema>;
 
 export default function ChangePasswordScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const { theme } = useUnistyles();
+
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
     const { t } = useTranslation(['profile', 'common', 'auth']);

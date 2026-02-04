@@ -18,6 +18,7 @@ import {
     useRefreshMyReviews,
     useRefreshPendingReviews,
 } from '@/hooks/api/review';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import type { MyReviewUI, RatingFilter } from '@/types/review';
 import { Navigator } from '@/utils/navigation';
 import { useLocalSearchParams } from 'expo-router';
@@ -30,7 +31,11 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 type TabType = 'pending' | 'history';
 
 export default function ReviewsScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const { theme } = useUnistyles();
+
     const { filterOrderId } = useLocalSearchParams<{ filterOrderId?: string }>();
     const insets = useSafeAreaInsets();
     const styles = stylesheet;

@@ -12,6 +12,7 @@
  */
 
 import { SettingsHeader } from '@/components/settings';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { useAppStore } from '@/store/useAppStore';
 import { SupportedLanguage } from '@/utils/language';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -120,7 +121,11 @@ const LanguageCard: React.FC<LanguageCardProps> = ({
 // ============================================
 
 export default function LanguageSettingsScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const { theme } = useUnistyles();
+
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
     const { i18n } = useTranslation('common');

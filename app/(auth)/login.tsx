@@ -1,5 +1,6 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { Navigator } from '@/utils/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
@@ -11,13 +12,18 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { AuthInput } from '@/components/auth/AuthInput';
+
 import { SocialLoginButtons } from '@/components/auth/SocialLoginButtons';
 import { useLogin } from '@/hooks/api/useAuth';
 import { showGlobalLoading } from '@/store/useLoadingStore';
 import { LoginPayload, LoginRequestSchema } from '@/types/auth';
 
 export default function LoginScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const { theme } = useUnistyles();
+
     const { t } = useTranslation('auth');
     const styles = stylesheet;
 

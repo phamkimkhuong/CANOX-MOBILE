@@ -35,6 +35,7 @@ import {
     useProductReviewStatistics,
     useRefreshProductReviews,
 } from '@/hooks/api/review/useInfiniteProductReviews';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useCartStore } from '@/store/useCartStore';
 import type {
@@ -136,7 +137,11 @@ const headerStyles = StyleSheet.create((theme) => ({
 // ============================================
 
 export default function ProductReviewsScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const { id: productId } = useLocalSearchParams<{ id: string }>();
+
     const router = useRouter();
     const insets = useSafeAreaInsets();
     const { theme } = useUnistyles();

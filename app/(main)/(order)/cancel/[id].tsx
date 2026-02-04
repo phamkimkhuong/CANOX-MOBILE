@@ -21,6 +21,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
 import { useCancelOrder } from '@/hooks/api/order/useCancelOrder';
 import { useOrderDetail } from '@/hooks/api/order/useOrderDetail';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import type { CancelReasonCode } from '@/types/order/cancel';
 import { MIN_OTHER_REASON_LENGTH } from '@/types/order/cancelReasons';
 import { Alert as CustomAlertHelper } from '@/utils/AlertHelper';
@@ -43,7 +44,11 @@ import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 export default function CancelOrderScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const { id: orderId, fromDetail } = useLocalSearchParams<{
+
         id: string;
         fromDetail?: string;
     }>();

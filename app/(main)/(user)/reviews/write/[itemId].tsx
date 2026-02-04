@@ -12,6 +12,7 @@
  */
 
 import { VideoPlayerModal } from '@/components/ui/VideoPlayerModal';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useNavigation } from 'expo-router';
@@ -57,7 +58,11 @@ import Toast from 'react-native-toast-message';
 const log = createLogger('WriteReview');
 
 export default function WriteReviewScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const { theme } = useUnistyles();
+
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
     const { t } = useTranslation(['myReviews']);

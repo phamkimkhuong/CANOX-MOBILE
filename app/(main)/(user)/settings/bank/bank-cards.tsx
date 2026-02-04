@@ -3,6 +3,7 @@ import { SettingsHeader } from '@/components/settings';
 import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
 import { useDeleteBank, useMyBankAccounts } from '@/hooks/api/bank/useBank';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { Alert } from '@/utils/AlertHelper';
 import { Navigator } from '@/utils/navigation';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -17,7 +18,11 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
  * BankCardsScreen - Premium Bank Account Management
  */
 export default function BankCardsScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const { theme } = useUnistyles();
+
     const styles = stylesheet;
     const { t } = useTranslation(['bank', 'common', 'profile']);
 

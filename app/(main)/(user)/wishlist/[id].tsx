@@ -19,6 +19,7 @@ import {
 } from '@/components/wishlist';
 import { productRoutes, ROUTES } from '@/constants/routes';
 import { useWishlistDetail } from '@/hooks/api/wishlist';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import type { WishlistItemUI } from '@/types/wishlist';
 import { Navigator } from '@/utils/navigation';
 import { FlashList } from '@shopify/flash-list';
@@ -206,7 +207,11 @@ const filterStyles = StyleSheet.create((theme) => ({
  * Main Wishlist Detail Screen
  */
 export default function WishlistDetailScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const { theme } = useUnistyles();
+
     const styles = stylesheet;
     const { id } = useLocalSearchParams<{ id: string }>();
 

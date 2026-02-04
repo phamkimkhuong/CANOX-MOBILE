@@ -10,6 +10,7 @@ import {
     OrderListTab,
     OrderTabsBar,
 } from '@/components/orders';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { useCartStore } from '@/store/useCartStore';
 import { OrderTabStatus } from '@/types/order/order';
 import { Navigator } from '@/utils/navigation';
@@ -46,7 +47,11 @@ const mapProfileTabToOrderTab = (profileTab: string | undefined): OrderTabStatus
 };
 
 export default function OrderHistoryScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const styles = stylesheet;
+
 
     // Get tab param from URL for deep linking
     const { tab } = useLocalSearchParams<{ tab?: string }>();

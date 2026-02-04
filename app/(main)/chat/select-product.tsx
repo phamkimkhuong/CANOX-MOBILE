@@ -4,6 +4,7 @@
 
 import { IconSymbol } from '@/components/ui/Icon';
 import { useShopProducts } from '@/hooks/api/useShop';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { useChatPickerStore } from '@/store/useChatPickerStore';
 import { ShopProductItemUI } from '@/types/shop';
 import { formatCurrency } from '@/utils/format';
@@ -28,7 +29,11 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 // ============================================
 
 export default function SelectProductScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const { theme } = useUnistyles();
+
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
 

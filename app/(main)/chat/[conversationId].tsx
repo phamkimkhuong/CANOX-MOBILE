@@ -29,6 +29,7 @@ import type { DeleteType } from '@/hooks/api/chat';
 import { CONVERSATIONS_QUERY_KEY, useChatMessages, useDeleteMessage, useMarkMessagesAsRead, useSendMediaMessage, useSendMessage, useSendOrderCard, useSendProductCard } from '@/hooks/api/chat';
 import { useChatImagePicker } from '@/hooks/api/chat/useChatImagePicker';
 import { buildChatWithShopRequest, useCreateConversation } from '@/hooks/api/chat/useCreateConversation';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useChatPickerStore } from '@/store/useChatPickerStore';
 import {
@@ -133,7 +134,11 @@ const calculateShowTime = (
 // ============================================
 
 export default function ChatDetailScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const params = useLocalSearchParams<{
+
         conversationId: string;
         // Context params (optional - passed from product/order page)
         contextType?: ContextType;

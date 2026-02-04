@@ -15,6 +15,7 @@ import { AuthInput } from '@/components/auth/AuthInput';
 import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
 import { useResetPassword } from '@/hooks/api/useAuth';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { PasswordGroupSchema } from '@/types/auth';
 import { Navigator } from '@/utils/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -42,7 +43,11 @@ const resetPasswordSchema = PasswordGroupSchema;
 type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 
 export default function ResetPasswordScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const { theme } = useUnistyles();
+
     const { t } = useTranslation('auth');
     const styles = stylesheet;
 

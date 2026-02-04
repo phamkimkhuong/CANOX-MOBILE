@@ -1,9 +1,14 @@
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import React from 'react';
 import { Text, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 export default function LinkedAccountsScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     return (
+
         <View style={styles.container}>
             <Text>Tài khoản liên kết</Text>
         </View>

@@ -5,6 +5,7 @@ import {
 } from '@/components/categories';
 import { ROUTES } from '@/constants/routes';
 import { useCategoryContent, useParentCategories } from '@/hooks/api/useCategories';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { Navigator } from '@/utils/navigation';
 import React, { useCallback, useEffect, useState } from 'react';
 import { View } from 'react-native';
@@ -21,7 +22,11 @@ import { StyleSheet } from 'react-native-unistyles';
  * - Seamless connection giữa Sidebar và Content
  */
 export default function CategoryScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const styles = stylesheet;
+
 
     // State: Selected category ID
     const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);

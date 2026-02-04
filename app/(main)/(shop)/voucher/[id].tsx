@@ -5,6 +5,7 @@
  */
 
 import { IconSymbol } from '@/components/ui/Icon';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { ShopVoucherUI } from '@/types/shop';
 import { formatCurrency } from '@/utils/format';
 import { Navigator } from '@/utils/navigation';
@@ -23,7 +24,11 @@ import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 export default function VoucherDetailScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const { voucherData, shopName: shopNameFromParam } = useLocalSearchParams<{
+
         id: string;
         voucherData: string;
         shopName?: string;

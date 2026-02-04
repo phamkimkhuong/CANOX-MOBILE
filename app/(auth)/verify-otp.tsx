@@ -8,6 +8,7 @@ import {
     useVerifyOtp
 } from '@/hooks/api/useAuth';
 import { useCountdown } from '@/hooks/useCountdown';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { Navigator } from '@/utils/navigation';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -33,7 +34,11 @@ const OTP_LENGTH = 6;
 type OtpType = 'register' | 'forgot-password';
 
 export default function VerifyOtpScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const { theme } = useUnistyles();
+
     const styles = stylesheet;
 
     // Get params from navigation

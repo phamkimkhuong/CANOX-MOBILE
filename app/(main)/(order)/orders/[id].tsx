@@ -34,6 +34,7 @@ import { cartRoutes, chatRoutes, orderRoutes, reviewRoutes, shopRoutes } from '@
 import { useAddToCart } from '@/hooks/api/cart';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
 import { useOrderDetail } from '@/hooks/api/order/useOrderDetail';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { useAuthStore } from '@/store/useAuthStore';
 import { hideGlobalLoading, showGlobalLoading } from '@/store/useLoadingStore';
 import { OrderItemUI } from '@/types/order/order';
@@ -52,7 +53,11 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 type LoadingActionType = 'cancel' | 'confirm' | null;
 
 export default function OrderDetailScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     // Route params - id is required, instantNav is optional (for hybrid pattern)
+
     const { id } = useLocalSearchParams<{
         id: string;
         instantNav?: 'true';  // Set when user tapped quickly (< 150ms)

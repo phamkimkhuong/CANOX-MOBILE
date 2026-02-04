@@ -3,6 +3,7 @@ import { SettingsHeader } from '@/components/settings';
 import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
 import { useInitBankVerification } from '@/hooks/api/bank/useBank';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { AddBankFormData, AddBankFormSchema } from '@/types/bank/bankSchema';
 import { BankSupportedUI } from '@/types/bank/ui';
 import { Alert } from '@/utils/AlertHelper';
@@ -30,7 +31,11 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
  * AddBankScreen - Step 1: Input Bank Information
  */
 export default function AddBankScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const { theme } = useUnistyles();
+
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
     const { t } = useTranslation(['bank', 'common']);

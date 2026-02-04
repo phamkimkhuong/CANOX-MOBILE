@@ -1,5 +1,6 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { authRoutes, ROUTES } from '@/constants/routes';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { Navigator } from '@/utils/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
@@ -23,7 +24,11 @@ const registerSchema = RegisterFormSchema;
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function RegisterScreen() {
+	// Unlock navigation when screen gains focus
+	useNavigationUnlockOnFocus();
+
 	const { theme } = useUnistyles();
+
 	const { t } = useTranslation('auth');
 	const styles = stylesheet;
 	const [agreedTerms, setAgreedTerms] = useState(false);

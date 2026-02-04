@@ -6,6 +6,7 @@ import { NotificationSkeleton } from '@/components/notifications/NotificationSke
 import { SectionHeader } from '@/components/notifications/SectionHeader';
 import { useMarkAllAsRead, useMarkAsRead, useNotifications, useRefreshNotifications } from '@/hooks/api/notification/useNotifications';
 import { usePrefetchNotificationNav } from '@/hooks/api/notification/usePrefetchNotificationNav';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { usePrefetchTiming } from '@/hooks/usePrefetchTiming';
 import {
     FlattenedNotificationItem,
@@ -21,7 +22,11 @@ import { ActivityIndicator, RefreshControl, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 export default function NotifyScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const { theme } = useUnistyles();
+
     const styles = stylesheet;
     const { t } = useTranslation(['notification', 'common']);
     const [activeFilter, setActiveFilter] = useState<NotificationFilter>(NotificationFilter.ALL);

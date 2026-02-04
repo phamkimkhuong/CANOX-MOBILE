@@ -2,6 +2,7 @@ import { PaymentCountdown } from '@/components/checkout/PaymentCountdown';
 import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES, orderRoutes } from '@/constants/routes';
 import { useOrderDetail } from '@/hooks/api/order/useOrderDetail';
+import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { Alert } from '@/utils/AlertHelper';
 import { Navigator } from '@/utils/navigation';
 import * as Clipboard from 'expo-clipboard';
@@ -77,7 +78,11 @@ const CopyButton = ({ text, label }: { text: string; label: string }) => {
 };
 
 export default function PaymentPayOSScreen() {
+    // Unlock navigation when screen gains focus
+    useNavigationUnlockOnFocus();
+
     const { theme } = useUnistyles();
+
     const styles = stylesheet;
     const router = useRouter();
     const [isExpired, setIsExpired] = useState(false);
