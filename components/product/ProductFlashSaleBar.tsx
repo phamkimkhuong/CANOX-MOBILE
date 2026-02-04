@@ -2,6 +2,8 @@ import { CountdownDigits } from '@/components/ui/CountdownDigits';
 import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import { useCountdown } from '@/hooks/useCountdown';
 import type { FlashSaleInfo } from '@/types/product/productDetail';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
@@ -21,7 +23,7 @@ export const ProductFlashSaleBar = memo<ProductFlashSaleBarProps>(({
     const { theme } = useUnistyles();
     const { t } = useTranslation('product');
 
-    // Mapping UI theo campaignType
+    // Mapping UI theo campaignType with Premium Gradients
     const campaignTheme = useMemo(() => {
         const type = flashSale.campaignType;
         switch (type) {
@@ -30,63 +32,57 @@ export const ProductFlashSaleBar = memo<ProductFlashSaleBarProps>(({
                     label: t('flashSale.campaigns.flashSale'),
                     icon: 'flash' as IconSymbolName,
                     iconColor: '#FFD700',
-                    bgColor: '#FFF5F5',
-                    borderColor: '#FFE0E0',
-                    textColor: theme.colors.error,
-                    badgeColor: theme.colors.error,
+                    gradient: ['#FF4B2B', '#FF416C'], // Vibrant Red
+                    textColor: '#FFFFFF',
+                    badgeColor: 'rgba(255, 255, 255, 0.2)',
                 };
             case 'MEGA_SALE':
                 return {
                     label: t('flashSale.campaigns.megaSale'),
                     icon: 'flame' as IconSymbolName,
                     iconColor: '#FFD700',
-                    bgColor: '#F3E5F5', // Purple light
-                    borderColor: '#E1BEE7',
-                    textColor: '#6A1B9A', // Deep purple
-                    badgeColor: '#9C27B0',
+                    gradient: ['#9C27B0', '#E91E63'], // Purple/Pink
+                    textColor: '#FFFFFF',
+                    badgeColor: 'rgba(255, 255, 255, 0.2)',
                 };
             case 'DAILY_DEAL':
                 return {
                     label: t('flashSale.campaigns.dailyDeal'),
                     icon: 'gift' as IconSymbolName,
-                    iconColor: '#2196F3',
-                    bgColor: '#E3F2FD', // Blue light
-                    borderColor: '#BBDEFB',
-                    textColor: '#1565C0',
-                    badgeColor: '#2196F3',
+                    iconColor: '#FFFFFF',
+                    gradient: ['#2196F3', '#00BCD4'], // Blue/Cyan
+                    textColor: '#FFFFFF',
+                    badgeColor: 'rgba(255, 255, 255, 0.2)',
                 };
             case 'SHOP_SALE':
                 return {
                     label: t('flashSale.campaigns.shopSale'),
                     icon: 'tag' as IconSymbolName,
-                    iconColor: '#FF9800',
-                    bgColor: '#FFF8E1', // Amber light
-                    borderColor: '#FFECB3',
-                    textColor: '#EF6C00',
-                    badgeColor: '#FF9800',
+                    iconColor: '#FFD700',
+                    gradient: ['#F97316', '#EF4444'], // Orange/Red (Brand Colors)
+                    textColor: '#FFFFFF',
+                    badgeColor: 'rgba(255, 255, 255, 0.2)',
                 };
             case 'SHOP_PROMOTION':
                 return {
                     label: t('flashSale.campaigns.shopPromotion'),
                     icon: 'gift' as IconSymbolName,
-                    iconColor: '#E91E63',
-                    bgColor: '#FCE4EC', // Pink light
-                    borderColor: '#F8BBD0',
-                    textColor: '#C2185B',
-                    badgeColor: '#E91E63',
+                    iconColor: '#FFFFFF',
+                    gradient: ['#10B981', '#059669'], // Emerald/Green
+                    textColor: '#FFFFFF',
+                    badgeColor: 'rgba(255, 255, 255, 0.2)',
                 };
             default:
                 return {
                     label: t('flashSale.campaigns.flashSale'),
                     icon: 'flash' as IconSymbolName,
                     iconColor: '#FFD700',
-                    bgColor: '#FFF5F5',
-                    borderColor: '#FFE0E0',
-                    textColor: theme.colors.error,
-                    badgeColor: theme.colors.error,
+                    gradient: ['#EF4444', '#F97316'],
+                    textColor: '#FFFFFF',
+                    badgeColor: 'rgba(255, 255, 255, 0.2)',
                 };
         }
-    }, [flashSale.campaignType, theme, t]);
+    }, [flashSale.campaignType, t]);
 
     // Sử dụng useCountdown - Ưu tiên secondsRemaining để tránh drift timezone
     const { duration, isExpired } = useCountdown({
@@ -115,65 +111,82 @@ export const ProductFlashSaleBar = memo<ProductFlashSaleBarProps>(({
             : t('flashSale.selling');
 
     return (
-        <View style={[
-            styles.container,
-            { backgroundColor: campaignTheme.bgColor, borderColor: campaignTheme.borderColor }
-        ]}>
-            {/* Header Row */}
-            <View style={styles.header}>
-                <View style={styles.titleRow}>
-                    <IconSymbol name={campaignTheme.icon} size={18} color={campaignTheme.iconColor} />
-                    <Text style={[styles.title, { color: campaignTheme.textColor }]}>
-                        {campaignTheme.label}
-                    </Text>
-                    {!!flashSale.discountPercentage && flashSale.discountPercentage > 0 && (
-                        <View style={[styles.discountBadge, { backgroundColor: campaignTheme.badgeColor }]}>
-                            <Text style={styles.discountText}>
-                                -{flashSale.discountPercentage}%
+        <View style={styles.container}>
+            <LinearGradient
+                colors={campaignTheme.gradient as any}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.gradient}
+            >
+                <BlurView intensity={10} tint="light" style={styles.blurContent}>
+                    {/* Specular Highlight */}
+                    <View style={styles.highlight} />
+
+                    {/* Header Row */}
+                    <View style={styles.header}>
+                        <View style={styles.titleRow}>
+                            <IconSymbol name={campaignTheme.icon} size={20} color={campaignTheme.iconColor} />
+                            <Text style={[styles.title, { color: campaignTheme.textColor }]}>
+                                {campaignTheme.label}
+                            </Text>
+                            {!!flashSale.discountPercentage && flashSale.discountPercentage > 0 && (
+                                <View style={[styles.discountBadge, { backgroundColor: campaignTheme.badgeColor }]}>
+                                    <BlurView intensity={20} tint="light" style={styles.badgeBlur}>
+                                        <Text style={styles.discountText}>
+                                            -{flashSale.discountPercentage}%
+                                        </Text>
+                                    </BlurView>
+                                </View>
+                            )}
+                        </View>
+
+                        {/* Countdown - Sử dụng CountdownDigits */}
+                        <CountdownDigits
+                            duration={duration}
+                            size="small"
+                            variant="glass"
+                        />
+                    </View>
+
+                    {/* Progress Bar Container */}
+                    {!!flashSale.quantityLimit && flashSale.quantityLimit > 0 && (
+                        <View style={styles.progressContainer}>
+                            <View style={styles.progressTrack}>
+                                <LinearGradient
+                                    colors={['rgba(255,255,255,0.3)', 'rgba(255,255,255,0.1)']}
+                                    style={StyleSheet.absoluteFill}
+                                />
+                                <View
+                                    style={[
+                                        styles.progressFill,
+                                        {
+                                            width: `${Math.max(soldPercentage, 15)}%`,
+                                            backgroundColor: isAlmostSoldOut ? '#FFD700' : '#FFFFFF',
+                                        },
+                                    ]}
+                                >
+                                    <LinearGradient
+                                        colors={['rgba(255,255,255,0.4)', 'transparent']}
+                                        style={StyleSheet.absoluteFill}
+                                    />
+                                </View>
+                                {isAlmostSoldOut && (
+                                    <View style={styles.fireIcon}>
+                                        <IconSymbol name="flame" size={10} color={isAlmostSoldOut ? '#E53935' : '#FFF'} />
+                                    </View>
+                                )}
+                            </View>
+                            <Text style={[
+                                styles.statusText,
+                                { color: campaignTheme.textColor },
+                                isAlmostSoldOut && styles.statusTextUrgent,
+                            ]}>
+                                {statusText}
                             </Text>
                         </View>
                     )}
-                </View>
-
-                {/* Countdown - Sử dụng CountdownDigits */}
-                <CountdownDigits
-                    duration={duration}
-                    size="small"
-                    variant="dark"
-                />
-            </View>
-
-            {/* Progress Bar */}
-            {!!flashSale.quantityLimit && flashSale.quantityLimit > 0 && (
-                <View style={styles.progressContainer}>
-                    <View style={[styles.progressTrack, { backgroundColor: campaignTheme.borderColor }]}>
-                        <View
-                            style={[
-                                styles.progressFill,
-                                {
-                                    width: `${Math.max(soldPercentage, 15)}%`, // Min 15% để luôn thấy
-                                    backgroundColor: isAlmostSoldOut
-                                        ? theme.colors.error
-                                        : campaignTheme.badgeColor,
-                                },
-                            ]}
-                        />
-                        {/* Fire icon for urgency */}
-                        {isAlmostSoldOut && (
-                            <View style={styles.fireIcon}>
-                                <IconSymbol name="flame" size={12} color="#FFF" />
-                            </View>
-                        )}
-                    </View>
-                    <Text style={[
-                        styles.statusText,
-                        { color: isAlmostSoldOut ? theme.colors.error : campaignTheme.textColor },
-                        isAlmostSoldOut && styles.statusTextUrgent,
-                    ]}>
-                        {statusText}
-                    </Text>
-                </View>
-            )}
+                </BlurView>
+            </LinearGradient>
         </View>
     );
 });
@@ -182,45 +195,63 @@ ProductFlashSaleBar.displayName = 'ProductFlashSaleBar';
 
 export const styles = StyleSheet.create((theme) => ({
     container: {
-        borderRadius: theme.radius.m,
-        paddingHorizontal: theme.margins.sm,
-        paddingVertical: theme.margins.sm,
         marginBottom: theme.margins.sm,
-        borderWidth: 1,
+        overflow: 'hidden',
+    },
+    gradient: {
+        width: '100%',
+    },
+    blurContent: {
+        paddingHorizontal: theme.margins.sm,
+        paddingVertical: 10,
+    },
+    highlight: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 1,
+        backgroundColor: 'rgba(255, 255, 255, 0.4)',
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         flexWrap: 'wrap',
-        gap: 4,
+        gap: 8,
     },
     titleRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
+        gap: 6,
     },
     title: {
-        fontSize: 13,
+        fontSize: 14,
         fontWeight: '800',
         letterSpacing: 0.5,
+        textTransform: 'uppercase',
     },
     discountBadge: {
-        borderRadius: 4,
-        paddingHorizontal: 4,
-        paddingVertical: 1,
+        borderRadius: 6,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.4)',
+    },
+    badgeBlur: {
+        paddingHorizontal: 6,
+        paddingVertical: 2,
     },
     discountText: {
-        fontSize: 10,
-        fontWeight: '700',
-        color: theme.colors.surface,
+        fontSize: 11,
+        fontWeight: '800',
+        color: '#FFFFFF',
     },
     progressContainer: {
-        marginTop: 6,
+        marginTop: 8,
         gap: 2,
     },
     progressTrack: {
-        height: 12,
+        height: 10,
         borderRadius: 6,
         overflow: 'hidden',
         position: 'relative',
@@ -228,21 +259,22 @@ export const styles = StyleSheet.create((theme) => ({
     progressFill: {
         height: '100%',
         borderRadius: 6,
-        justifyContent: 'center',
-        alignItems: 'flex-end',
-        paddingRight: 4,
+        overflow: 'hidden',
     },
     fireIcon: {
         position: 'absolute',
-        right: 4,
-        top: 1,
+        right: 8,
+        top: 2,
     },
     statusText: {
         fontSize: 12,
         fontWeight: '600',
         textAlign: 'center',
+        marginTop: 2,
+        opacity: 0.9,
     },
     statusTextUrgent: {
         fontWeight: '700',
+        opacity: 1,
     },
 }));

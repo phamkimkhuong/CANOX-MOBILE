@@ -1,9 +1,9 @@
-import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import { shopRoutes } from '@/constants/routes';
 import type { ShopUI } from '@/types/product/productDetail';
 import { Navigator } from '@/utils/navigation';
 import { Image } from 'expo-image';
 import React, { memo, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { IconSymbol } from '../ui/Icon';
@@ -19,11 +19,6 @@ interface ShopInfoCardProps {
 // ============================================
 // HELPER FUNCTIONS
 // ============================================
-
-const formatResponseTime = (time?: string): string => {
-    if (!time) return PRODUCT_STRINGS.shop.defaultResponseTime;
-    return time;
-};
 
 const formatCount = (count?: number): string => {
     if (!count) return '0';
@@ -44,6 +39,7 @@ export const ShopInfoCard = memo<ShopInfoCardProps>(({
     onViewShopPress,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('product');
 
     // Memoize handleViewShop để tránh tạo function mới mỗi render
     const handleViewShop = useCallback(() => {
@@ -66,8 +62,8 @@ export const ShopInfoCard = memo<ShopInfoCardProps>(({
     );
 
     const formattedResponseTime = useMemo(() =>
-        formatResponseTime(shop.responseTime),
-        [shop.responseTime]
+        shop.responseTime || t('shop.defaultResponseTime'),
+        [shop.responseTime, t]
     );
 
     const formattedProductCount = useMemo(() =>
@@ -127,7 +123,7 @@ export const ShopInfoCard = memo<ShopInfoCardProps>(({
                     )}
                     {shop.lastOnline && (
                         <Text style={styles.onlineStatus}>
-                            {PRODUCT_STRINGS.shop.online} {shop.lastOnline}
+                            {t('shop.online')} {shop.lastOnline}
                         </Text>
                     )}
                 </View>
@@ -141,7 +137,7 @@ export const ShopInfoCard = memo<ShopInfoCardProps>(({
                     >
                         {({ pressed }) => (
                             <View style={[styles.viewShopInner, pressed && styles.pressedOpacity]}>
-                                <Text style={styles.viewShopText}>{PRODUCT_STRINGS.shop.viewShop}</Text>
+                                <Text style={styles.viewShopText}>{t('shop.viewShop')}</Text>
                             </View>
                         )}
                     </SmartNavButton>
@@ -152,28 +148,28 @@ export const ShopInfoCard = memo<ShopInfoCardProps>(({
             <View style={styles.statsRow}>
                 <View style={styles.statItem}>
                     <Text style={styles.statValue}>{formattedRating}</Text>
-                    <Text style={styles.statLabel}>{PRODUCT_STRINGS.shop.rating}</Text>
+                    <Text style={styles.statLabel}>{t('shop.rating')}</Text>
                 </View>
 
                 <View style={styles.statDivider} />
 
                 <View style={styles.statItem}>
                     <Text style={styles.statValue}>{formattedResponseRate}</Text>
-                    <Text style={styles.statLabel}>{PRODUCT_STRINGS.shop.responseRate}</Text>
+                    <Text style={styles.statLabel}>{t('shop.responseRate')}</Text>
                 </View>
 
                 <View style={styles.statDivider} />
 
                 <View style={styles.statItem}>
                     <Text style={styles.statValue}>{formattedResponseTime}</Text>
-                    <Text style={styles.statLabel}>{PRODUCT_STRINGS.shop.responseTime}</Text>
+                    <Text style={styles.statLabel}>{t('shop.responseTime')}</Text>
                 </View>
 
                 <View style={styles.statDivider} />
 
                 <View style={styles.statItem}>
                     <Text style={styles.statValue}>{formattedProductCount}</Text>
-                    <Text style={styles.statLabel}>{PRODUCT_STRINGS.shop.products}</Text>
+                    <Text style={styles.statLabel}>{t('shop.products')}</Text>
                 </View>
             </View>
         </View>

@@ -1,6 +1,6 @@
-import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import { Image } from 'expo-image';
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { LayoutChangeEvent } from 'react-native';
 import { LayoutAnimation, Pressable, Text, useWindowDimensions, View } from 'react-native';
 import RenderHtml from 'react-native-render-html';
@@ -40,6 +40,7 @@ export const ProductDescription = memo<ProductDescriptionProps>(({
 }) => {
     const { theme } = useUnistyles();
     const { width } = useWindowDimensions();
+    const { t } = useTranslation('product');
 
     // State quản lý expand/collapse
     const [isExpanded, setIsExpanded] = useState(false);
@@ -188,10 +189,10 @@ export const ProductDescription = memo<ProductDescriptionProps>(({
         return (
             <View style={styles.container}>
                 <View style={styles.header}>
-                    <Text style={styles.title}>{PRODUCT_STRINGS.description.title}</Text>
+                    <Text style={styles.title}>{t('description.title')}</Text>
                 </View>
                 <View style={styles.emptyContainer}>
-                    <Text style={styles.emptyText}>{PRODUCT_STRINGS.description.empty}</Text>
+                    <Text style={styles.emptyText}>{t('description.empty')}</Text>
                 </View>
             </View>
         );
@@ -206,7 +207,7 @@ export const ProductDescription = memo<ProductDescriptionProps>(({
         <View style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                <Text style={styles.title}>{PRODUCT_STRINGS.description.title}</Text>
+                <Text style={styles.title}>{t('description.title')}</Text>
             </View>
 
             {/* Content */}
@@ -239,7 +240,7 @@ export const ProductDescription = memo<ProductDescriptionProps>(({
             {needsExpansion && (
                 <Pressable style={styles.toggleButton} onPress={handleToggle}>
                     <Text style={styles.toggleText}>
-                        {isExpanded ? PRODUCT_STRINGS.description.collapse : PRODUCT_STRINGS.description.viewMore}
+                        {isExpanded ? t('description.collapse') : t('description.viewMore')}
                     </Text>
                     <IconSymbol
                         name={isExpanded ? 'chevron-up' : 'chevron-down'}

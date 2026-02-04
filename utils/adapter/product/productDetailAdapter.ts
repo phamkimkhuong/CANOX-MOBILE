@@ -162,7 +162,10 @@ export const buildVariantMatrix = (
             }] : undefined,
         };
 
-        matrix.set(key, value);
+        const existingValue = matrix.get(key);
+        if (!existingValue || (value.isAvailable && (!existingValue.isAvailable || value.price < existingValue.price))) {
+            matrix.set(key, value);
+        }
     }
 
     return matrix;
@@ -239,6 +242,17 @@ export const calculatePriceDisplay = (
             basePrice: selectedVariant.originalPrice ?? selectedVariant.price,
             finalPrice: 0,
         };
+
+        // Add product promotion discount to breakdown
+        if (selectedVariant.originalPrice && selectedVariant.originalPrice > selectedVariant.price) {
+            breakdown.productDiscount = {
+                id: selectedVariant.promotionId || 'product-discount',
+                name: selectedVariant.promotionName || 'Giảm giá sản phẩm',
+                amount: selectedVariant.originalPrice - selectedVariant.price,
+                percentage: selectedVariant.promotionPercentage,
+                campaignType: selectedVariant.campaignType,
+            };
+        }
 
         // Use stackable vouchers (Platform + Shop)
         const vouchers = [
@@ -355,7 +369,9 @@ export const calculatePriceDisplay = (
         originalPrice: originalPrice > currentPrice ? originalPrice : undefined,
         discountPercentage: discountPercentage > 0 ? discountPercentage : undefined,
         isRange: false,
-        voucherDiscount: data.priceAfterBestVoucher ? (originalPrice - currentPrice) : undefined,
+        voucherDiscount: (data.bestShopVoucher?.discountAmount ?? 0) + (data.bestPlatformVoucher?.discountAmount ?? 0),
+        shopVoucherDiscount: data.bestShopVoucher?.discountAmount ?? undefined,
+        platformVoucherDiscount: data.bestPlatformVoucher?.discountAmount ?? undefined,
         priceAfterVoucher: data.priceAfterBestVoucher || undefined,
         breakdown: defaultBreakdown,
     };

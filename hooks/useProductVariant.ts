@@ -11,6 +11,7 @@ import type {
 } from '@/types/product/productDetail';
 import { createKeyFromSelection } from '@/utils/adapter/product/productDetailAdapter';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const LOW_STOCK_THRESHOLD = 5;
 
@@ -174,6 +175,8 @@ export const useProductVariant = (
 ): UseProductVariantReturn => {
     const { autoSelectFirst = false } = options;
 
+    const { t } = useTranslation('product');
+
     // ===== STATE =====
     const [selectedOptions, setSelectedOptions] = useState<SelectedOptions>({});
 
@@ -266,7 +269,7 @@ export const useProductVariant = (
             if (currentVariant.originalPrice && currentVariant.originalPrice > currentVariant.price) {
                 breakdown.productDiscount = {
                     id: currentVariant.promotionId || 'product-discount',
-                    name: currentVariant.promotionName || 'Giảm giá sản phẩm',
+                    name: currentVariant.promotionName || t('priceBreakdown.productDiscount'),
                     amount: currentVariant.originalPrice - currentVariant.price,
                     percentage: currentVariant.promotionPercentage,
                     campaignType: currentVariant.campaignType,
@@ -370,7 +373,7 @@ export const useProductVariant = (
 
         // Default state: Use prices from product detail (already includes breakdown from adapter)
         return product.priceDisplay;
-    }, [product, currentVariant]);
+    }, [product, currentVariant, t]);
 
     // ===== DERIVED: Inventory Status =====
     const inventoryStatus = useMemo((): InventoryStatus => {

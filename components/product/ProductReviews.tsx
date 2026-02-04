@@ -1,10 +1,10 @@
-import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import { useProductReviews } from '@/hooks/api/product/useProductReviews';
 import type { ReviewStatistics } from '@/types/product/productDetail';
 import { formatTime } from '@/utils/date';
 import { createLogger } from '@/utils/logger';
 import { Image } from 'expo-image';
 import React, { memo, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { IconSymbol } from '../ui/Icon';
@@ -168,6 +168,7 @@ export const ProductReviews = memo<ProductReviewsProps>(({
     onViewAllPress,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('product');
 
     // Fetch reviews preview (size 2)
     const { data: previewReviews, isLoading: isLoadingReviews } = useProductReviews(productId, {
@@ -189,10 +190,10 @@ export const ProductReviews = memo<ProductReviewsProps>(({
 
     // Memoize filter chips data
     const filterChips = useMemo(() => [
-        { id: 'all', label: PRODUCT_STRINGS.reviews.filterAll, count: totalReviews, isActive: true },
-        { id: '5star', label: PRODUCT_STRINGS.reviews.filter5Star, count: reviewStatistics.ratingDistribution?.['5'] ?? 0, isActive: false },
-        { id: 'media', label: PRODUCT_STRINGS.reviews.filterWithMedia, count: reviewStatistics.mediaReviewCount ?? 0, isActive: false },
-    ], [totalReviews, reviewStatistics.ratingDistribution, reviewStatistics.mediaReviewCount]);
+        { id: 'all', label: t('reviews.filterAll'), count: totalReviews, isActive: true },
+        { id: '5star', label: t('reviews.filter5Star'), count: reviewStatistics.ratingDistribution?.['5'] ?? 0, isActive: false },
+        { id: 'media', label: t('reviews.filterWithMedia'), count: reviewStatistics.mediaReviewCount ?? 0, isActive: false },
+    ], [totalReviews, reviewStatistics.ratingDistribution, reviewStatistics.mediaReviewCount, t]);
 
     const handleFilterPress = useCallback((filterId: string) => {
         log.info('Filter selected:', filterId);
@@ -203,7 +204,7 @@ export const ProductReviews = memo<ProductReviewsProps>(({
         return (
             <View style={styles.container}>
                 <View style={styles.header}>
-                    <Text style={styles.title}>{PRODUCT_STRINGS.reviews.title}</Text>
+                    <Text style={styles.title}>{t('reviews.title')}</Text>
                 </View>
 
                 <View style={styles.emptyContainer}>
@@ -212,9 +213,9 @@ export const ProductReviews = memo<ProductReviewsProps>(({
                         size={48}
                         color={theme.colors.secondary}
                     />
-                    <Text style={styles.emptyTitle}>{PRODUCT_STRINGS.reviews.noReviews}</Text>
+                    <Text style={styles.emptyTitle}>{t('reviews.noReviews')}</Text>
                     <Text style={styles.emptySubtitle}>
-                        {PRODUCT_STRINGS.reviews.beFirst}
+                        {t('reviews.beFirst')}
                     </Text>
                 </View>
             </View>
@@ -227,15 +228,15 @@ export const ProductReviews = memo<ProductReviewsProps>(({
             {/* Header */}
             <View style={styles.header}>
                 <View style={styles.headerLeft}>
-                    <Text style={styles.title}>{PRODUCT_STRINGS.reviews.title}</Text>
+                    <Text style={styles.title}>{t('reviews.title')}</Text>
                     <View style={styles.headerRating}>
                         <IconSymbol name="star" size={14} color={theme.colors.warning} />
                         <Text style={styles.headerRatingText}>{rating.toFixed(1)}/5</Text>
                     </View>
-                    <Text style={styles.totalCount}>({formatReviewCount(totalReviews)} {PRODUCT_STRINGS.reviews.reviewCount})</Text>
+                    <Text style={styles.totalCount}>({formatReviewCount(totalReviews)} {t('reviews.reviewCount')})</Text>
                 </View>
                 <Pressable style={styles.viewAllButton} onPress={onViewAllPress}>
-                    <Text style={styles.viewAllText}>{PRODUCT_STRINGS.reviews.viewAll}</Text>
+                    <Text style={styles.viewAllText}>{t('reviews.viewAll')}</Text>
                     <IconSymbol
                         name="chevron-right"
                         size={16}
@@ -259,7 +260,7 @@ export const ProductReviews = memo<ProductReviewsProps>(({
                         ))}
                     </View>
                     <Text style={styles.ratingSubtext}>
-                        {formatReviewCount(totalReviews)} {PRODUCT_STRINGS.reviews.reviewCount}
+                        {formatReviewCount(totalReviews)} {t('reviews.reviewCount')}
                     </Text>
                 </View>
 
@@ -297,7 +298,7 @@ export const ProductReviews = memo<ProductReviewsProps>(({
             <View style={styles.reviewPreview}>
                 {isLoadingReviews ? (
                     <View style={styles.reviewItem}>
-                        <Text style={styles.reviewPlaceholder}>Đang tải đánh giá...</Text>
+                        <Text style={styles.reviewPlaceholder}>{t('reviews.loading')}</Text>
                     </View>
                 ) : previewReviews && previewReviews.length > 0 ? (
                     <View style={styles.reviewList}>
@@ -363,7 +364,7 @@ export const ProductReviews = memo<ProductReviewsProps>(({
                 ) : (
                     <View style={styles.reviewItem}>
                         <Text style={styles.reviewPlaceholder}>
-                            {PRODUCT_STRINGS.reviews.viewAllReviews}
+                            {t('reviews.viewAllReviews')}
                         </Text>
                     </View>
                 )}

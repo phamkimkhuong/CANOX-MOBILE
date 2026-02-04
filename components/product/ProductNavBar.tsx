@@ -1,11 +1,11 @@
 import { IconSymbol } from '@/components/ui/Icon';
-import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import { ROUTES } from '@/constants/routes';
 import { useCartStore } from '@/store/useCartStore';
 import { Navigator } from '@/utils/navigation';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Platform, Pressable, Text, View } from 'react-native';
 import Animated, {
     interpolate,
@@ -117,6 +117,7 @@ export const ProductNavBar: React.FC<ProductNavBarProps> = ({
 }) => {
     const insets = useSafeAreaInsets();
     const { theme } = useUnistyles();
+    const { t } = useTranslation('product');
     const { id } = useLocalSearchParams<{ id: string }>();
     const cartItemCount = useCartStore((state) => state.totalQuantity);
 
@@ -187,7 +188,7 @@ export const ProductNavBar: React.FC<ProductNavBarProps> = ({
                 {/* Center: Title (appears on scroll) */}
                 <Animated.View style={[styles.centerSection, animatedTitleStyle]}>
                     <Text style={styles.title} numberOfLines={1}>
-                        {title ?? PRODUCT_STRINGS.navigation.title}
+                        {title ?? t('navigation.title')}
                     </Text>
                 </Animated.View>
 

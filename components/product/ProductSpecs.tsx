@@ -1,9 +1,10 @@
-import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import type { ProductSpec } from '@/types/product/productDetail';
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { LayoutAnimation, Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { IconSymbol } from '../ui/Icon';
+
 interface ProductSpecsProps {
     specifications: ProductSpec[];
     initialVisibleCount?: number;
@@ -63,6 +64,7 @@ export const ProductSpecs = memo<ProductSpecsProps>(({
     initialVisibleCount = 5,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('product');
     const [isExpanded, setIsExpanded] = useState(false);
 
     const isMountedRef = useRef(true);
@@ -98,7 +100,7 @@ export const ProductSpecs = memo<ProductSpecsProps>(({
         <View style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                <Text style={styles.title}>{PRODUCT_STRINGS.specs.title}</Text>
+                <Text style={styles.title}>{t('specs.title')}</Text>
             </View>
 
             {/* Specs List */}
@@ -117,7 +119,7 @@ export const ProductSpecs = memo<ProductSpecsProps>(({
             {hasMore && (
                 <Pressable style={styles.toggleButton} onPress={handleToggle}>
                     <Text style={styles.toggleText}>
-                        {isExpanded ? PRODUCT_STRINGS.specs.collapse : PRODUCT_STRINGS.specs.viewMore}
+                        {isExpanded ? t('specs.collapse') : t('specs.viewMore')}
                     </Text>
                     <IconSymbol
                         name={isExpanded ? 'chevron-up' : 'chevron-down'}

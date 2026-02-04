@@ -1,6 +1,7 @@
 import { PriceBreakdown } from '@/types/product/productDetail';
 import { formatCurrency } from '@/utils/format';
 import React, { memo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     Modal,
     Pressable,
@@ -27,23 +28,24 @@ export const PriceBreakdownBottomSheet = memo<PriceBreakdownBottomSheetProps>(({
 }) => {
     const { theme } = useUnistyles();
     const insets = useSafeAreaInsets();
+    const { t } = useTranslation(['product', 'voucher']);
 
     const formatVoucherDesc = useCallback((voucher?: PriceBreakdown['shopVoucher']) => {
         if (!voucher) return null;
         const { discountType, discountValue, maxDiscount } = voucher;
 
         if (discountType === 'PERCENTAGE') {
-            const percentStr = `Giảm ${discountValue}%`;
+            const percentStr = `${t('voucher:card.discount')} ${discountValue}%`;
             const maxStr = maxDiscount && maxDiscount > 0
-                ? ` tối đa ${formatCurrency(maxDiscount)}`
+                ? ` ${t('voucher:card.maxDiscount').toLowerCase()} ${formatCurrency(maxDiscount)}`
                 : '';
             return `${percentStr}${maxStr}`;
         } else if (discountType === 'FIXED_AMOUNT') {
-            return `Giảm ${formatCurrency(discountValue ?? 0)}`;
+            return `${t('voucher:card.discount')} ${formatCurrency(discountValue ?? 0)}`;
         }
 
         return null;
-    }, []);
+    }, [t]);
 
     if (!breakdown) return null;
 
@@ -71,7 +73,7 @@ export const PriceBreakdownBottomSheet = memo<PriceBreakdownBottomSheetProps>(({
 
                     {/* Header */}
                     <View style={styles.header}>
-                        <Text style={styles.headerTitle}>Chi tiết giá</Text>
+                        <Text style={styles.headerTitle}>{t('product:priceBreakdown.title')}</Text>
                         <Pressable style={styles.closeButton} onPress={onClose}>
                             <IconSymbol name="close" size={24} color={theme.colors.typography} />
                         </Pressable>
@@ -81,7 +83,7 @@ export const PriceBreakdownBottomSheet = memo<PriceBreakdownBottomSheetProps>(({
                     <View style={styles.content}>
                         {/* Base Price */}
                         <View style={styles.row}>
-                            <Text style={styles.label}>Giá sản phẩm</Text>
+                            <Text style={styles.label}>{t('product:priceBreakdown.basePrice')}</Text>
                             <Text style={styles.value}>{formatCurrency(breakdown.basePrice)}</Text>
                         </View>
 
@@ -99,7 +101,7 @@ export const PriceBreakdownBottomSheet = memo<PriceBreakdownBottomSheetProps>(({
                                 </View>
                                 <Text style={styles.shopVoucherDesc}>
                                     {breakdown.productDiscount.campaignType ? breakdown.productDiscount.campaignType.replace('_', ' ') : ''}
-                                    {breakdown.productDiscount.percentage ? ` giảm ${breakdown.productDiscount.percentage}%` : ''}
+                                    {breakdown.productDiscount.percentage ? ` ${t('product:info.discount').toLowerCase()} ${breakdown.productDiscount.percentage}%` : ''}
                                 </Text>
                             </View>
                         )}
@@ -109,7 +111,7 @@ export const PriceBreakdownBottomSheet = memo<PriceBreakdownBottomSheetProps>(({
                             <View style={styles.voucherRow}>
                                 <View style={styles.voucherHeader}>
                                     <View style={styles.voucherLabelContainer}>
-                                        <Text style={styles.voucherLabel}>Voucher người bán</Text>
+                                        <Text style={styles.voucherLabel}>{t('product:priceBreakdown.shopVoucher')}</Text>
                                     </View>
                                     <View style={styles.discountValueContainer}>
                                         <Text style={styles.minus}>-</Text>
@@ -127,7 +129,7 @@ export const PriceBreakdownBottomSheet = memo<PriceBreakdownBottomSheetProps>(({
                             <View style={styles.voucherRow}>
                                 <View style={styles.voucherHeader}>
                                     <View style={styles.voucherLabelContainer}>
-                                        <Text style={styles.platformVoucherLabel}>Voucher CanoX</Text>
+                                        <Text style={styles.platformVoucherLabel}>{t('product:priceBreakdown.platformVoucher')}</Text>
                                     </View>
                                     <View style={styles.discountValueContainer}>
                                         <Text style={styles.minus}>-</Text>
@@ -145,13 +147,13 @@ export const PriceBreakdownBottomSheet = memo<PriceBreakdownBottomSheetProps>(({
 
                         {/* Final Subtotal */}
                         <View style={styles.totalRow}>
-                            <Text style={styles.totalLabel}>Giá tạm tính</Text>
+                            <Text style={styles.totalLabel}>{t('product:priceBreakdown.finalSubtotal')}</Text>
                             <Text style={styles.totalValue}>{formatCurrency(breakdown.finalPrice)}</Text>
                         </View>
 
                         {/* Legal Note */}
                         <Text style={styles.note}>
-                            * Giá cuối cùng có thể thay đổi tùy thuộc vào phí vận chuyển và các ưu đãi khác khi thanh toán.
+                            {t('product:priceBreakdown.legalNote')}
                         </Text>
                     </View>
                 </Pressable>

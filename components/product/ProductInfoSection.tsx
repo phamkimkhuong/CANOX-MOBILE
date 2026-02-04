@@ -1,5 +1,7 @@
 import type { FlashSaleInfo, PriceDisplay } from '@/types/product/productDetail';
 import { formatCurrency } from '@/utils/format';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
@@ -48,6 +50,7 @@ const PriceSection = memo<{
     onPress?: () => void;
 }>(({ priceDisplay, onPress }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('product');
 
     // Memoize price rendering to avoid re-calculation
     const priceContent = useMemo(() => {
@@ -67,10 +70,25 @@ const PriceSection = memo<{
                         </Text>
                     )}
                     {priceDisplay.discountPercentage != null && priceDisplay.discountPercentage > 0 && (
-                        <View style={styles.discountBadge}>
-                            <Text style={styles.discountText}>
-                                -{priceDisplay.discountPercentage}%
-                            </Text>
+                        <View style={styles.discountBadgeContainer}>
+                            <LinearGradient
+                                colors={
+                                    (priceDisplay.breakdown?.productDiscount && priceDisplay.voucherDiscount != null && priceDisplay.voucherDiscount > 0)
+                                        ? ['#FF4B2B', '#FF416C'] // Red/Pink for "After Voucher"
+                                        : ['#F97316', '#F44336']   // Orange/Red for Normal Discount
+                                }
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 1 }}
+                                style={styles.discountBadgeGradient}
+                            >
+                                <BlurView intensity={10} tint="light" style={styles.discountBadgeBlur}>
+                                    <Text style={styles.discountText}>
+                                        {priceDisplay.breakdown?.productDiscount && priceDisplay.voucherDiscount && priceDisplay.voucherDiscount > 0
+                                            ? t('priceBreakdown.afterVoucher')
+                                            : `-${priceDisplay.discountPercentage}%`}
+                                    </Text>
+                                </BlurView>
+                            </LinearGradient>
                         </View>
                     )}
                 </View>
@@ -83,7 +101,7 @@ const PriceSection = memo<{
                 </View>
             </Pressable >
         );
-    }, [priceDisplay, onPress, theme.colors.secondary]);
+    }, [priceDisplay, onPress, theme.colors.secondary, t]);
 
     return priceContent;
 });
@@ -151,20 +169,30 @@ export const ProductInfoSection = memo<ProductInfoSectionProps>(({
     const badgesContent = useMemo(() => (
         <View style={styles.badgeRow}>
             {isMall && (
-                <View style={[styles.badge, styles.mallBadge]}>
-                    <Text style={styles.mallText}>{t('badges.mall')}</Text>
+                <View style={styles.premiumBadgeContainer}>
+                    <LinearGradient
+                        colors={['#E53935', '#B71C1C']}
+                        style={styles.premiumBadgeGradient}
+                    >
+                        <Text style={styles.mallText}>{t('badges.mall')}</Text>
+                    </LinearGradient>
                 </View>
             )}
             {isInternational && (
-                <View style={[styles.badge, styles.internationalBadge]}>
-                    <IconSymbol name="globe" size={12} color={theme.colors.primary} />
-                    <Text style={styles.internationalText}>{t('badges.international')}</Text>
+                <View style={styles.premiumBadgeContainer}>
+                    <LinearGradient
+                        colors={['#2196F3', '#1565C0']}
+                        style={styles.premiumBadgeGradient}
+                    >
+                        <IconSymbol name="globe" size={12} color="#FFFFFF" />
+                        <Text style={styles.internationalText}>{t('badges.international')}</Text>
+                    </LinearGradient>
                 </View>
             )}
             {priceDisplay.shopVoucherDiscount != null && priceDisplay.shopVoucherDiscount > 0 && (
                 <View style={[styles.badge, styles.voucherBadge]}>
                     <IconSymbol name="ticket" size={12} color={theme.colors.success} />
-                    <Text style={styles.voucherText}> Giảm
+                    <Text style={styles.voucherText}> {t('info.discount')}
                         -{formatCurrency(priceDisplay.shopVoucherDiscount)}
                     </Text>
                 </View>
@@ -172,7 +200,7 @@ export const ProductInfoSection = memo<ProductInfoSectionProps>(({
             {priceDisplay.platformVoucherDiscount != null && priceDisplay.platformVoucherDiscount > 0 && (
                 <View style={[styles.badge, styles.voucherBadge]}>
                     <IconSymbol name="ticket" size={12} color={theme.colors.success} />
-                    <Text style={styles.voucherText}> Giảm
+                    <Text style={styles.voucherText}> {t('info.discount')}
                         -{formatCurrency(priceDisplay.platformVoucherDiscount)}
                     </Text>
                 </View>
@@ -181,8 +209,8 @@ export const ProductInfoSection = memo<ProductInfoSectionProps>(({
     ), [isMall, isInternational, priceDisplay.shopVoucherDiscount, priceDisplay.platformVoucherDiscount, theme.colors.success, t]);
 
     return (
-        <View style={[styles.container, flashSale?.isActive && styles.flashSaleActive]}>
-            {/* Flash Sale Banner  */}
+        <View style={styles.container}>
+            {/* Flash Sale Banner - Full Width */}
             {flashSale?.isActive && (
                 <ProductFlashSaleBar
                     flashSale={flashSale}
@@ -190,27 +218,32 @@ export const ProductInfoSection = memo<ProductInfoSectionProps>(({
                 />
             )}
 
-            {/* Price Section */}
-            <PriceSection
-                priceDisplay={priceDisplay}
-                onPress={onShowPriceBreakdown}
-            />
+            {/* Padded Content Section */}
+            <View style={styles.contentContainer}>
+                {/* Price Section */}
+                <PriceSection
+                    priceDisplay={priceDisplay}
+                    onPress={onShowPriceBreakdown}
+                />
 
-            {/* Badges & Stats Row */}
-            <View style={styles.badgesAndStatsRow}>
+                {/* Badges Row */}
                 <View style={styles.badgesWrapper}>
                     {badgesContent}
                 </View>
-                <StatsRow
-                    rating={rating}
-                    totalReviews={totalReviews}
-                    totalSold={totalSold}
-                />
-            </View>
 
-            <Text style={styles.title} numberOfLines={3}>
-                {name}
-            </Text>
+                {/* Stats Row */}
+                <View style={styles.statsContainer}>
+                    <StatsRow
+                        rating={rating}
+                        totalReviews={totalReviews}
+                        totalSold={totalSold}
+                    />
+                </View>
+
+                <Text style={styles.title} numberOfLines={3}>
+                    {name}
+                </Text>
+            </View>
         </View>
     );
 });
@@ -220,12 +253,10 @@ ProductInfoSection.displayName = 'ProductInfoSection';
 const styles = StyleSheet.create((theme) => ({
     container: {
         backgroundColor: theme.colors.surface,
-        paddingHorizontal: theme.margins.sm,
         paddingBottom: theme.margins.sm,
-        paddingTop: 4,
     },
-    flashSaleActive: {
-        paddingTop: 5,
+    contentContainer: {
+        paddingHorizontal: theme.margins.sm,
     },
     priceContainer: {
         flexDirection: 'row',
@@ -242,43 +273,73 @@ const styles = StyleSheet.create((theme) => ({
         flex: 1,
     },
     currentPrice: {
-        fontSize: 24,
-        fontWeight: '700',
+        fontSize: 26,
+        fontWeight: '800',
         color: theme.colors.error,
     },
     originalPrice: {
         fontSize: 14,
         color: theme.colors.secondary,
         textDecorationLine: 'line-through',
+        opacity: 0.6,
     },
-    discountBadge: {
-        backgroundColor: '#FFF0F0',
+    discountBadgeContainer: {
+        borderRadius: 6,
+        overflow: 'hidden',
+    },
+    discountBadgeGradient: {
+        borderRadius: 6,
+    },
+    discountBadgeBlur: {
         paddingHorizontal: 6,
         paddingVertical: 2,
-        borderRadius: 4,
     },
     discountText: {
-        fontSize: 12,
-        fontWeight: '700',
-        color: theme.colors.error,
+        fontSize: 11,
+        fontWeight: '800',
+        color: '#FFFFFF',
     },
     infoIconWrapper: {
         padding: 4,
+        opacity: 0.5,
     },
     badgeRow: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: theme.margins.sm,
+        gap: 6,
     },
-    badgesAndStatsRow: {
+    premiumBadgeContainer: {
+        borderRadius: 4,
+        overflow: 'hidden',
+        borderWidth: 0.5,
+        borderColor: 'rgba(255, 255, 255, 0.2)',
+    },
+    premiumBadgeGradient: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: theme.margins.sm,
-        gap: theme.margins.sm,
+        gap: 4,
+        paddingHorizontal: 8,
+        paddingVertical: 3,
     },
     badgesWrapper: {
-        flex: 1,
+        marginBottom: 8,
+    },
+    statsContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        marginBottom: theme.margins.sm,
+    },
+    mallText: {
+        fontSize: 10,
+        fontWeight: '900',
+        color: '#FFFFFF',
+        textTransform: 'uppercase',
+    },
+    internationalText: {
+        fontSize: 10,
+        fontWeight: '700',
+        color: '#FFFFFF',
     },
     badge: {
         flexDirection: 'row',
@@ -287,24 +348,6 @@ const styles = StyleSheet.create((theme) => ({
         paddingHorizontal: 8,
         paddingVertical: 4,
         borderRadius: 4,
-    },
-    mallBadge: {
-        backgroundColor: '#E53935',
-    },
-    mallText: {
-        fontSize: 11,
-        fontWeight: '700',
-        color: theme.colors.surface,
-    },
-    internationalBadge: {
-        backgroundColor: theme.colors.activeLight,
-        borderWidth: 1,
-        borderColor: theme.colors.newPrimary,
-    },
-    internationalText: {
-        fontSize: 11,
-        fontWeight: '600',
-        color: theme.colors.newPrimary,
     },
     voucherBadge: {
         backgroundColor: '#E8F5E9',
@@ -317,10 +360,9 @@ const styles = StyleSheet.create((theme) => ({
         color: theme.colors.success,
     },
     title: {
-        fontSize: 16,
-        fontWeight: '500',
+        fontSize: 17,
+        fontWeight: '600',
         color: theme.colors.typography,
-        lineHeight: 22,
     },
     statsRow: {
         flexDirection: 'row',

@@ -1,6 +1,6 @@
-import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import type { InventoryStatus } from '@/types/product/productDetail';
 import React, { memo, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
@@ -30,20 +30,21 @@ export const StickyBottomBar = memo<StickyBottomBarProps>(({
 }) => {
     const insets = useSafeAreaInsets();
     const { theme } = useUnistyles();
+    const { t } = useTranslation('product');
 
     const isOutOfStock = inventoryStatus === 'out_of_stock';
     const isDisabled = isOutOfStock;
 
     // Memoize button texts để tránh tính lại mỗi render
     const addToCartText = useMemo(() => {
-        if (isOutOfStock) return PRODUCT_STRINGS.bottomBar.outOfStock;
-        return PRODUCT_STRINGS.bottomBar.addToCart;
-    }, [isOutOfStock]);
+        if (isOutOfStock) return t('bottomBar.outOfStock');
+        return t('bottomBar.addToCart');
+    }, [isOutOfStock, t]);
 
     const buyNowText = useMemo(() => {
-        if (isOutOfStock) return PRODUCT_STRINGS.bottomBar.outOfStock;
-        return PRODUCT_STRINGS.bottomBar.buyNow;
-    }, [isOutOfStock]);
+        if (isOutOfStock) return t('bottomBar.outOfStock');
+        return t('bottomBar.buyNow');
+    }, [isOutOfStock, t]);
 
     // Memoize container style với safe area
     const containerStyle = useMemo(() => [
@@ -67,7 +68,7 @@ export const StickyBottomBar = memo<StickyBottomBarProps>(({
                                 size={26}
                                 color={theme.colors.typography}
                             />
-                            <Text style={styles.iconLabel}>{PRODUCT_STRINGS.bottomBar.chat}</Text>
+                            <Text style={styles.iconLabel}>{t('bottomBar.chat')}</Text>
                         </View>
                     )}
                 </SmartNavButton>

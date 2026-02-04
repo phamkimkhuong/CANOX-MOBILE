@@ -16,7 +16,6 @@ import {
 import type { ProductGalleryRef } from '@/components/product/ProductGallery';
 import { IconSymbol } from '@/components/ui/Icon';
 import { ProductCard } from '@/components/ui/product/ProductCard';
-import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import { ROUTES, chatRoutes, checkoutRoutes, productRoutes, shopRoutes } from '@/constants/routes';
 import { useAddToCart } from '@/hooks/api/cart';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
@@ -438,7 +437,7 @@ export default function ProductDetailScreen() {
     if (isError || !product) {
         return (
             <View style={styles.container}>
-                <ProductNavBar scrollY={scrollY} title={PRODUCT_STRINGS.navigation.title} />
+                <ProductNavBar scrollY={scrollY} title={t('navigation.title')} />
                 <View style={styles.flex1}>
                     <ProductDetailSkeleton />
                     <View style={styles.errorOverlay}>
@@ -446,16 +445,16 @@ export default function ProductDetailScreen() {
                             <View style={styles.errorIconCircle}>
                                 <IconSymbol name="error" size={40} color={theme.colors.error} />
                             </View>
-                            <Text style={styles.errorTitle}>{PRODUCT_STRINGS.error.notFound}</Text>
+                            <Text style={styles.errorTitle}>{t('error.notFound')}</Text>
                             <Text style={styles.errorMessage}>
-                                {error instanceof Error ? error.message : PRODUCT_STRINGS.error.notFoundDetail}
+                                {error instanceof Error ? error.message : t('error.notFoundDetail')}
                             </Text>
                             <View style={styles.errorActions}>
                                 <Pressable style={styles.retryButton} onPress={() => refetch()}>
-                                    <Text style={styles.retryText}>{PRODUCT_STRINGS.error.retry}</Text>
+                                    <Text style={styles.retryText}>{t('error.retry')}</Text>
                                 </Pressable>
                                 <Pressable style={[styles.retryButton, styles.homeButton]} onPress={() => Navigator.replace(ROUTES.TABS.HOME)}>
-                                    <Text style={styles.homeButtonText}>{PRODUCT_STRINGS.error.home}</Text>
+                                    <Text style={styles.homeButtonText}>{t('error.home')}</Text>
                                 </Pressable>
                             </View>
                         </View>

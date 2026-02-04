@@ -98,6 +98,7 @@ export const PRODUCT_STRINGS: ProductTranslation = {
         filterWithMedia: 'Có Hình ảnh',
         newest: 'Mới nhất',
         viewAllReviews: 'Xem tất cả đánh giá để biết thêm chi tiết về sản phẩm',
+        loading: 'Đang tải đánh giá...',
     },
 
     // === Gallery ===
@@ -132,6 +133,16 @@ export const PRODUCT_STRINGS: ProductTranslation = {
     badges: {
         mall: 'Mall',
         international: 'Quốc tế',
+    },
+    priceBreakdown: {
+        title: 'Chi tiết giá',
+        basePrice: 'Giá sản phẩm',
+        productDiscount: 'Giảm giá sản phẩm',
+        shopVoucher: 'Voucher người bán',
+        platformVoucher: 'Voucher CanoX',
+        finalSubtotal: 'Giá tạm tính',
+        legalNote: '* Giá cuối cùng có thể thay đổi tùy thuộc vào phí vận chuyển và các ưu đãi khác khi thanh toán.',
+        afterVoucher: 'Giá sau voucher',
     },
 } as const;
 

@@ -82,6 +82,7 @@ export const PRODUCT_STRINGS: ProductTranslation = {
         filterWithMedia: 'With Media',
         newest: 'Newest',
         viewAllReviews: 'View all reviews for more details about the product',
+        loading: 'Loading reviews...',
     },
 
     // === Gallery ===
@@ -116,5 +117,15 @@ export const PRODUCT_STRINGS: ProductTranslation = {
     badges: {
         mall: 'Mall',
         international: 'International',
+    },
+    priceBreakdown: {
+        title: 'Price Details',
+        basePrice: 'Product Price',
+        productDiscount: 'Product Discount',
+        shopVoucher: 'Shop Voucher',
+        platformVoucher: 'CanoX Voucher',
+        finalSubtotal: 'Subtotal',
+        legalNote: '* Final price may vary depending on shipping fees and other offers at checkout.',
+        afterVoucher: 'Price after voucher',
     },
 };

@@ -8,7 +8,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 // ============================================
 
 type CountdownSize = 'small' | 'medium' | 'large';
-type CountdownTheme = 'dark' | 'light' | 'primary';
+type CountdownTheme = 'dark' | 'light' | 'primary' | 'glass';
 
 interface CountdownDigitsProps {
     /** Duration object từ useCountdown hook */
@@ -99,6 +99,12 @@ export const CountdownDigits = memo<CountdownDigitsProps>(({
             digitColor: theme.colors.surface,
             separatorColor: theme.colors.primary,
             labelColor: theme.colors.typographySecondary,
+        },
+        glass: {
+            boxBg: 'rgba(0, 0, 0, 0.2)', // Neutral dark glass
+            digitColor: '#FFFFFF',
+            separatorColor: '#FFFFFF', // Max contrast for ":" and "ngày"
+            labelColor: '#FFFFFF',
         },
     }[variant];
 

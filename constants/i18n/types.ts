@@ -70,6 +70,7 @@ export interface ProductTranslation {
         filterWithMedia: string;
         newest: string;
         viewAllReviews: string;
+        loading: string;
     };
     gallery: {
         noImages: string;
@@ -96,6 +97,16 @@ export interface ProductTranslation {
     badges: {
         mall: string;
         international: string;
+    };
+    priceBreakdown: {
+        title: string;
+        basePrice: string;
+        productDiscount: string;
+        shopVoucher: string;
+        platformVoucher: string;
+        finalSubtotal: string;
+        legalNote: string;
+        afterVoucher: string;
     };
 }
 

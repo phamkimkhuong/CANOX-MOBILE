@@ -1,8 +1,8 @@
-import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import type { ProductOptionUI, SelectedOptions } from '@/types/product/productDetail';
 import { formatCurrency } from '@/utils/format';
 import { Image } from 'expo-image';
 import React, { memo, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     Modal,
     Pressable,
@@ -83,14 +83,15 @@ export const VariantSelectorRow = memo<VariantSelectorRowProps>(({
     onPress,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('product');
 
-    const displayText = selectionSummary || PRODUCT_STRINGS.variant.placeholder;
+    const displayText = selectionSummary || t('variant.placeholder');
     const hasSelection = selectionSummary.length > 0;
 
     return (
         <Pressable style={rowStyles.container} onPress={onPress}>
             <View style={rowStyles.content}>
-                <Text style={rowStyles.label}>{PRODUCT_STRINGS.variant.label}</Text>
+                <Text style={rowStyles.label}>{t('variant.label')}</Text>
                 <View style={rowStyles.valueContainer}>
                     <Text
                         style={[
@@ -281,6 +282,7 @@ export const VariantBottomSheet = memo<VariantBottomSheetProps>(({
 }) => {
     const { theme } = useUnistyles();
     const insets = useSafeAreaInsets();
+    const { t } = useTranslation('product');
 
     // Memoize formatted price để tránh tính lại mỗi render
     const formattedCurrentPrice = useMemo(() => {
@@ -303,14 +305,14 @@ export const VariantBottomSheet = memo<VariantBottomSheetProps>(({
     const buttonText = useMemo(() => {
         switch (mode) {
             case 'add-to-cart':
-                return PRODUCT_STRINGS.variant.addToCart;
+                return t('variant.addToCart');
             case 'buy-now':
-                return PRODUCT_STRINGS.variant.buyNow;
+                return t('variant.buyNow');
             case 'select':
             default:
-                return PRODUCT_STRINGS.variant.confirm;
+                return t('variant.confirm');
         }
-    }, [mode]);
+    }, [mode, t]);
 
     // Memoize stop propagation handler
     const handleContainerPress = useCallback((e: { stopPropagation: () => void }) => {
@@ -358,7 +360,7 @@ export const VariantBottomSheet = memo<VariantBottomSheetProps>(({
                             )}
                             {currentStock !== undefined && (
                                 <Text style={sheetStyles.stockText}>
-                                    {PRODUCT_STRINGS.variant.stock}: {currentStock}
+                                    {t('variant.stock')}: {currentStock}
                                 </Text>
                             )}
                         </View>
@@ -392,48 +394,50 @@ export const VariantBottomSheet = memo<VariantBottomSheetProps>(({
                     </ScrollView>
 
                     {/* Quantity Selector */}
-                    <View style={sheetStyles.quantitySection}>
-                        <Text style={sheetStyles.quantityLabel}>
-                            {PRODUCT_STRINGS.variant.quantity}
-                        </Text>
-                        <View style={sheetStyles.quantityControl}>
-                            <Pressable
-                                style={[
-                                    sheetStyles.quantityButton,
-                                    quantity <= 1 && sheetStyles.quantityButtonDisabled,
-                                ]}
-                                onPress={() => onQuantityChange(Math.max(1, quantity - 1))}
-                                disabled={quantity <= 1}
-                            >
-                                <IconSymbol
-                                    name="remove"
-                                    size={20}
-                                    color={quantity <= 1 ? theme.colors.secondary : theme.colors.typography}
-                                />
-                            </Pressable>
-                            <Text style={sheetStyles.quantityValue}>{quantity}</Text>
-                            <Pressable
-                                style={[
-                                    sheetStyles.quantityButton,
-                                    currentStock !== undefined && quantity >= currentStock && sheetStyles.quantityButtonDisabled,
-                                ]}
-                                onPress={() => onQuantityChange(
-                                    currentStock !== undefined
-                                        ? Math.min(currentStock, quantity + 1)
-                                        : quantity + 1
-                                )}
-                                disabled={currentStock !== undefined && quantity >= currentStock}
-                            >
-                                <IconSymbol
-                                    name="add"
-                                    size={20}
-                                    color={
-                                        currentStock !== undefined && quantity >= currentStock
-                                            ? theme.colors.secondary
-                                            : theme.colors.typography
-                                    }
-                                />
-                            </Pressable>
+                    <View style={sheetStyles.quantitySectionSection}>
+                        <View style={sheetStyles.quantitySection}>
+                            <Text style={sheetStyles.quantityLabel}>
+                                {t('variant.quantity')}
+                            </Text>
+                            <View style={sheetStyles.quantityControl}>
+                                <Pressable
+                                    style={[
+                                        sheetStyles.quantityButton,
+                                        quantity <= 1 && sheetStyles.quantityButtonDisabled,
+                                    ]}
+                                    onPress={() => onQuantityChange(Math.max(1, quantity - 1))}
+                                    disabled={quantity <= 1}
+                                >
+                                    <IconSymbol
+                                        name="remove"
+                                        size={20}
+                                        color={quantity <= 1 ? theme.colors.secondary : theme.colors.typography}
+                                    />
+                                </Pressable>
+                                <Text style={sheetStyles.quantityValue}>{quantity}</Text>
+                                <Pressable
+                                    style={[
+                                        sheetStyles.quantityButton,
+                                        currentStock !== undefined && quantity >= currentStock && sheetStyles.quantityButtonDisabled,
+                                    ]}
+                                    onPress={() => onQuantityChange(
+                                        currentStock !== undefined
+                                            ? Math.min(currentStock, quantity + 1)
+                                            : quantity + 1
+                                    )}
+                                    disabled={currentStock !== undefined && quantity >= currentStock}
+                                >
+                                    <IconSymbol
+                                        name="add"
+                                        size={20}
+                                        color={
+                                            currentStock !== undefined && quantity >= currentStock
+                                                ? theme.colors.secondary
+                                                : theme.colors.typography
+                                        }
+                                    />
+                                </Pressable>
+                            </View>
                         </View>
                     </View>
 
@@ -553,13 +557,15 @@ const sheetStyles = StyleSheet.create((theme) => ({
         gap: 8,
     },
     // Quantity Selector Styles
+    quantitySectionSection: {
+        borderTopWidth: 1,
+        borderTopColor: theme.colors.border,
+    },
     quantitySection: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingVertical: theme.margins.md,
-        borderTopWidth: 1,
-        borderTopColor: theme.colors.border,
     },
     quantityLabel: {
         fontSize: 14,
