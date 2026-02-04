@@ -134,6 +134,21 @@ export const PRODUCT_STRINGS: ProductTranslation = {
         mall: 'Mall',
         international: 'Quốc tế',
     },
+    share: {
+        msgTemplate: 'Xem sản phẩm này trên Calatha: {{name}}\n{{url}}',
+    },
+    report: {
+        title: 'Báo cáo sản phẩm',
+        success: 'Cảm ơn bạn đã báo cáo. Chúng tôi sẽ xem xét sản phẩm này sớm nhất có thể.',
+        reasons: {
+            fake: 'Hàng giả, hàng nhái',
+            prohibited: 'Sản phẩm bị cấm kinh doanh',
+            offensive: 'Hình ảnh, nội dung phản cảm',
+            scam: 'Có dấu hiệu lừa đảo',
+            misleading: 'Thông tin sản phẩm sai lệch',
+            other: 'Lý do khác',
+        },
+    },
     priceBreakdown: {
         title: 'Chi tiết giá',
         basePrice: 'Giá sản phẩm',

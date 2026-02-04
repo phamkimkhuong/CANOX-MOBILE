@@ -98,6 +98,21 @@ export interface ProductTranslation {
         mall: string;
         international: string;
     };
+    share: {
+        msgTemplate: string;
+    };
+    report: {
+        title: string;
+        success: string;
+        reasons: {
+            fake: string;
+            prohibited: string;
+            offensive: string;
+            scam: string;
+            misleading: string;
+            other: string;
+        };
+    };
     priceBreakdown: {
         title: string;
         basePrice: string;

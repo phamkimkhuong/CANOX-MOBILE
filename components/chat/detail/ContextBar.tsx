@@ -115,23 +115,26 @@ export const ContextBar: React.FC<ContextBarProps> = ({
 
     return (
         <View style={styles.container}>
-            {/* Close button */}
-            <TouchableOpacity
-                style={styles.closeButton}
-                onPress={onDismiss}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-                <IconSymbol name="close" size={16} color={theme.colors.secondary} />
-            </TouchableOpacity>
+            {/* Content Left: Thumbnail + Info */}
+            <View style={styles.leftContent}>
+                {isProduct && renderProductContext()}
+                {isOrder && renderOrderContext()}
+            </View>
 
-            {/* Content */}
-            {isProduct && renderProductContext()}
-            {isOrder && renderOrderContext()}
+            {/* Content Right: Close (top) and Send (bottom) */}
+            <View style={styles.rightContent}>
+                <TouchableOpacity
+                    style={styles.closeButton}
+                    onPress={onDismiss}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                >
+                    <IconSymbol name="close" size={18} color={theme.colors.secondary} />
+                </TouchableOpacity>
 
-            {/* Action button */}
-            <TouchableOpacity style={styles.actionButton} onPress={onAction}>
-                <Text style={styles.actionText}>{actionConfig.label}</Text>
-            </TouchableOpacity>
+                <TouchableOpacity style={styles.actionButton} onPress={onAction}>
+                    <Text style={styles.actionText}>{actionConfig.label}</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     );
 };
@@ -139,24 +142,31 @@ export const ContextBar: React.FC<ContextBarProps> = ({
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
         flexDirection: 'row',
-        alignItems: 'center',
         backgroundColor: theme.colors.surface,
         paddingHorizontal: theme.margins.md,
-        paddingVertical: theme.margins.smd,
+        paddingVertical: theme.margins.sm,
         borderBottomWidth: 1,
         borderBottomColor: theme.colors.border,
         gap: theme.margins.smd,
+        minHeight: 80,
+    },
+    leftContent: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: theme.margins.smd,
+    },
+    rightContent: {
+        alignItems: 'flex-end',
+        justifyContent: 'space-between',
     },
     closeButton: {
-        position: 'absolute',
-        top: 4,
-        right: 4,
-        padding: 4,
-        zIndex: 1,
+        marginTop: -6,
+        marginRight: -6,
     },
     thumbnail: {
-        width: 48,
-        height: 48,
+        width: 60,
+        height: 60,
         borderRadius: theme.radius.m,
         backgroundColor: theme.colors.backgroundInput,
     },

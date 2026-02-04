@@ -167,6 +167,7 @@ export interface Order {
     customerNote: string | null;
     cancellationReason: string | null;
     createdAt: string | null;
+    createdDate: string | null;
 
     // Items
     items: OrderItem[];

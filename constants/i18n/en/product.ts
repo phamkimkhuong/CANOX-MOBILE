@@ -118,6 +118,21 @@ export const PRODUCT_STRINGS: ProductTranslation = {
         mall: 'Mall',
         international: 'International',
     },
+    share: {
+        msgTemplate: 'Check out this product on Calatha: {{name}}\n{{url}}',
+    },
+    report: {
+        title: 'Report Product',
+        success: 'Thank you for your report. We will review this product as soon as possible.',
+        reasons: {
+            fake: 'Counterfeit/Fake item',
+            prohibited: 'Prohibited item',
+            offensive: 'Offensive content',
+            scam: 'Spam or Scam',
+            misleading: 'Misleading information',
+            other: 'Other reasons',
+        },
+    },
     priceBreakdown: {
         title: 'Price Details',
         basePrice: 'Product Price',

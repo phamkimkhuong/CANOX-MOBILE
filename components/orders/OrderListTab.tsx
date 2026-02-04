@@ -191,6 +191,13 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
                     partnerAvatar: shopLogoUrl,
                     shopUserId: shopUserId,
                     shopId: order.shopId,
+                    contextType: 'ORDER',
+                    orderId: String(order.orderId),
+                    orderCode: String(order.orderNumber),
+                    orderStatus: String(order.status),
+                    productImage: order.items[0]?.imageUrl || '',
+                    totalAmount: String(order.grandTotal),
+                    itemCount: String(order.itemCount),
                 }));
 
                 logger.orders.info('Contact shop for order:', orderId);

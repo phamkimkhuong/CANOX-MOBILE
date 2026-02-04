@@ -72,7 +72,19 @@ export default function SelectOrderScreen() {
     // Flatten pages into single array
     const allOrders = useMemo(() => {
         if (!data?.pages) return [];
-        return data.pages.flatMap(page => page.content);
+        const flatOrders = data.pages.flatMap(page => page.content);
+
+        const uniqueOrders: OrderUI[] = [];
+        const seenIds = new Set<string>();
+
+        flatOrders.forEach(order => {
+            if (!seenIds.has(order.orderId)) {
+                seenIds.add(order.orderId);
+                uniqueOrders.push(order);
+            }
+        });
+
+        return uniqueOrders;
     }, [data?.pages]);
 
     // Client-side filtering for order number
@@ -175,7 +187,7 @@ export default function SelectOrderScreen() {
                 <View style={styles.imageStackContainer}>
                     {order.items.slice(0, 3).map((orderItem, idx) => (
                         <Image
-                            key={orderItem.itemId}
+                            key={orderItem.itemId || `order-item-${order.orderId}-${orderItem.variantId}-${idx}`}
                             source={{ uri: orderItem.imageUrl }}
                             style={[
                                 styles.rowItemThumb,

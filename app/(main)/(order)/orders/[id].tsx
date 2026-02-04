@@ -157,6 +157,13 @@ export default function OrderDetailScreen() {
             partnerAvatar: shopLogoUrl,
             shopUserId: shopUserId,
             shopId: order.shopId,
+            contextType: 'ORDER',
+            orderId: String(id), // Use direct id from params
+            orderCode: String(order.orderNumber),
+            orderStatus: String(order.status),
+            productImage: order.items[0]?.imageUrl || '',
+            totalAmount: String(order.grandTotal),
+            itemCount: String(order.itemCount),
         }));
 
         logger.api.info('Contact shop for order:', order.orderId);

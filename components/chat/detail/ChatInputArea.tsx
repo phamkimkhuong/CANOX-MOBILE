@@ -13,7 +13,13 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
-import { useKeyboardState } from 'react-native-keyboard-controller';
+import { useKeyboardHandler } from 'react-native-keyboard-controller';
+import Animated, {
+    Extrapolation,
+    interpolate,
+    useAnimatedStyle,
+    useSharedValue
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import EmojiPicker, { type EmojiType } from 'rn-emoji-keyboard';
@@ -45,15 +51,52 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
     const inputRef = useRef<TextInput>(null);
-
-    const { isVisible: isKeyboardVisible } = useKeyboardState();
-
     const [text, setText] = useState('');
     const [isFocused, setIsFocused] = useState(false);
     const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
 
+    // Reanimated shared value to track keyboard progress (0 to 1)
+    const progress = useSharedValue(0);
+
+    // Hook into native keyboard events for 60fps synchronization
+    useKeyboardHandler({
+        onStart: (e) => {
+            'worklet';
+            progress.value = e.progress;
+        },
+        onMove: (e) => {
+            'worklet';
+            progress.value = e.progress;
+        },
+        onEnd: (e) => {
+            'worklet';
+            progress.value = e.progress;
+        },
+    }, []);
+
+    // Zero-Jitter Animation: Using translateY instead of paddingBottom to avoid Layout Thrashing
+    const animatedContainerStyle = useAnimatedStyle(() => {
+        const startInset = Math.max(insets.bottom, 12);
+        const endInset = 8;
+        const diff = startInset - endInset;
+
+        const translateY = interpolate(
+            progress.value,
+            [0, 1],
+            [0, diff],
+            Extrapolation.CLAMP
+        );
+
+        return {
+            transform: [{ translateY }],
+        };
+    }, [insets.bottom]);
+
+    const staticPaddingStyle = {
+        paddingBottom: Math.max(insets.bottom, 12),
+    };
+
     const hasText = text.trim().length > 0;
-    const bottomPadding = isKeyboardVisible ? 8 : Math.max(insets.bottom, 12);
 
     const handleInputContainerPress = useCallback(() => {
         inputRef.current?.focus();
@@ -88,80 +131,82 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
 
     return (
         <>
-            <View
-                style={[
-                    styles.container,
-                    { paddingBottom: bottomPadding },
-                ]}
-            >
-                {/* Attachment button */}
-                <TouchableOpacity
-                    style={styles.iconButton}
-                    onPress={onAttachment}
-                    disabled={disabled}
-                >
-                    <IconSymbol
-                        name="add-circle"
-                        size={26}
-                        color={theme.colors.secondary}
-                    />
-                </TouchableOpacity>
-
-                {/* Input container */}
-                <Pressable
+            <View style={[styles.outerContainer, staticPaddingStyle]}>
+                <Animated.View
                     style={[
-                        styles.inputContainer,
-                        isFocused && styles.inputContainerFocused,
+                        styles.container,
+                        animatedContainerStyle,
                     ]}
-                    onPress={handleInputContainerPress}
                 >
-                    <TextInput
-                        ref={inputRef}
-                        style={styles.input}
-                        placeholder={placeholder}
-                        placeholderTextColor={theme.colors.secondary}
-                        value={text}
-                        onChangeText={handleChangeText}
-                        onFocus={() => setIsFocused(true)}
-                        onBlur={() => setIsFocused(false)}
-                        multiline
-                        maxLength={maxLength}
-                        editable={!disabled}
-                        returnKeyType="default"
-                        blurOnSubmit={false}
-                    />
-
-                    {/* Emoji button */}
-                    <View style={styles.rightIcons}>
-                        <TouchableOpacity
-                            style={styles.inputIcon}
-                            onPress={handleOpenEmojiPicker}
-                            disabled={disabled}
-                        >
-                            <IconSymbol
-                                name="happy"
-                                size={22}
-                                color={isEmojiPickerOpen ? theme.colors.primary : theme.colors.secondary}
-                            />
-                        </TouchableOpacity>
-                    </View>
-                </Pressable>
-
-                {/* Send button (when has text) */}
-                {hasText && (
+                    {/* Attachment button */}
                     <TouchableOpacity
-                        style={styles.sendButton}
-                        onPress={handleSend}
+                        style={styles.iconButton}
+                        onPress={onAttachment}
                         disabled={disabled}
-                        activeOpacity={0.8}
                     >
                         <IconSymbol
-                            name="send"
-                            size={20}
-                            color={theme.colors.surface}
+                            name="add-circle"
+                            size={26}
+                            color={theme.colors.secondary}
                         />
                     </TouchableOpacity>
-                )}
+
+                    {/* Input container */}
+                    <Pressable
+                        style={[
+                            styles.inputContainer,
+                            isFocused && styles.inputContainerFocused,
+                        ]}
+                        onPress={handleInputContainerPress}
+                    >
+                        <TextInput
+                            ref={inputRef}
+                            style={styles.input}
+                            placeholder={placeholder}
+                            placeholderTextColor={theme.colors.secondary}
+                            value={text}
+                            onChangeText={handleChangeText}
+                            onFocus={() => setIsFocused(true)}
+                            onBlur={() => setIsFocused(false)}
+                            multiline
+                            maxLength={maxLength}
+                            editable={!disabled}
+                            returnKeyType="default"
+                            blurOnSubmit={false}
+                        />
+
+                        {/* Emoji button */}
+                        <View style={styles.rightIcons}>
+                            <TouchableOpacity
+                                style={styles.inputIcon}
+                                onPress={handleOpenEmojiPicker}
+                                disabled={disabled}
+                            >
+                                <IconSymbol
+                                    name="happy"
+                                    size={22}
+                                    color={isEmojiPickerOpen ? theme.colors.primary : theme.colors.secondary}
+                                />
+                            </TouchableOpacity>
+                        </View>
+                    </Pressable>
+
+                    {/* Send button (when has text) */}
+                    {hasText && (
+                        <TouchableOpacity
+                            style={styles.sendButton}
+                            onPress={handleSend}
+                            disabled={disabled}
+                            activeOpacity={0.8}
+                        >
+                            <IconSymbol
+                                name="send"
+                                size={20}
+                                color={theme.colors.surface}
+                            />
+                        </TouchableOpacity>
+                    )}
+                </Animated.View>
             </View>
 
             {/* Emoji Picker Modal */}
@@ -201,14 +246,18 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
 };
 
 const stylesheet = StyleSheet.create((theme) => ({
+    outerContainer: {
+        backgroundColor: theme.colors.surface,
+        borderTopWidth: 1,
+        borderTopColor: theme.colors.border,
+        overflow: 'hidden', // Crucial to hide the translated content
+    },
     container: {
         flexDirection: 'row',
         alignItems: 'flex-end',
         paddingHorizontal: theme.margins.smd,
         paddingTop: theme.margins.smd,
         backgroundColor: theme.colors.surface,
-        borderTopWidth: 1,
-        borderTopColor: theme.colors.border,
         gap: 8,
     },
     iconButton: {

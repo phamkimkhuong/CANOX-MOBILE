@@ -114,11 +114,11 @@ export interface ContextActionConfig {
 
 export const CONTEXT_ACTION_CONFIG: Record<Exclude<ContextType, 'NONE'>, ContextActionConfig> = {
     PRODUCT: {
-        label: 'Mua ngay',
-        icon: 'cart',
+        label: 'Gửi',
+        icon: 'send',
     },
     ORDER: {
-        label: 'Theo dõi',
-        icon: 'shipping',
+        label: 'Gửi',
+        icon: 'send',
     },
 };

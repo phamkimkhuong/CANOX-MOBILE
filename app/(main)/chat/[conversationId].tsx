@@ -144,6 +144,8 @@ export default function ChatDetailScreen() {
         orderId?: string;
         orderCode?: string;
         orderStatus?: OrderStatus;
+        totalAmount?: string;
+        itemCount?: string;
         partnerName?: string;
         partnerAvatar?: string;
         partnerIsOnline?: string;
@@ -237,39 +239,50 @@ export default function ChatDetailScreen() {
     // STATE
     // ============================================
 
-    // Context bar state
-    const [contextType, setContextType] = useState<ContextType>(
-        (params.contextType as ContextType) || 'NONE'
-    );
+    // State to track if user manually closed a specific context (Product/Order)
+    const [dismissedContextId, setDismissedContextId] = useState<string | null>(null);
 
-    // Product context (if navigated from product page)
-    const productContext: ProductContext | undefined = useMemo(() => {
-        if (params.productId) {
-            return {
+    // Derive context information directly from params for maximum reliability
+    const { activeContextType, productContext, orderContext } = useMemo(() => {
+        const rawType = (params.contextType as ContextType) || 'NONE';
+        const currentId = params.productId || params.orderId || '';
+
+        // If user dismissed this specific product/order, hide the bar
+        if (rawType !== 'NONE' && currentId === dismissedContextId) {
+            return { activeContextType: 'NONE' as ContextType, productContext: undefined, orderContext: undefined };
+        }
+
+        let pCtx: ProductContext | undefined;
+        let oCtx: OrderContext | undefined;
+
+        if (rawType === 'PRODUCT' && params.productId) {
+            pCtx = {
                 productId: params.productId,
                 name: params.productName || '',
                 price: Number(params.productPrice) || 0,
                 thumbnail: params.productImage || '',
-                shopId: '',
+                shopId: params.shopId || '',
                 shopName: params.partnerName || '',
             };
-        }
-        return undefined;
-    }, [params]);
-
-    // Order context (if navigated from order page)
-    const orderContext: OrderContext | undefined = useMemo(() => {
-        if (params.orderId) {
-            return {
+        } else if (rawType === 'ORDER' && params.orderId) {
+            oCtx = {
                 orderId: params.orderId,
                 orderCode: params.orderCode || '',
                 status: (params.orderStatus || 'CREATED') as OrderStatus,
-                totalAmount: 0,
-                itemCount: 1,
+                totalAmount: Number(params.totalAmount) || 0,
+                itemCount: Number(params.itemCount) || 1,
+                thumbnail: params.productImage || undefined,
             };
         }
-        return undefined;
-    }, [params]);
+
+        return {
+            activeContextType: rawType,
+            productContext: pCtx,
+            orderContext: oCtx,
+        };
+    }, [params, dismissedContextId]);
+
+
 
     // ============================================
     // HOOKS
@@ -360,7 +373,6 @@ export default function ChatDetailScreen() {
     const markAsReadMutation = useMarkMessagesAsRead(currentConvId);
     const queryClient = useQueryClient();
     const hasMarkedAsRead = useRef(false);
-
 
     useEffect(() => {
         if (hasMarkedAsRead.current) return;
@@ -466,8 +478,8 @@ export default function ChatDetailScreen() {
 
     // Quick replies based on context
     const quickReplies = useMemo(
-        () => getQuickRepliesByContext(contextType),
-        [contextType]
+        () => getQuickRepliesByContext(activeContextType),
+        [activeContextType]
     );
 
     // ============================================
@@ -603,16 +615,51 @@ export default function ChatDetailScreen() {
     }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
     const handleContextDismiss = useCallback(() => {
-        setContextType('NONE');
-    }, []);
-    const handleContextAction = useCallback(() => {
-        if (contextType === 'PRODUCT' && productContext) {
-            Navigator.push(productRoutes.detail(productContext.productId));
-        } else if (contextType === 'ORDER' && orderContext) {
-            logger.chat.info('Navigate to order', { orderId: orderContext.orderId });
-            Navigator.push(orderRoutes.detail(orderContext.orderId));
+        const currentId = params.productId || params.orderId;
+        if (currentId) {
+            setDismissedContextId(currentId);
         }
-    }, [contextType, productContext, orderContext]);
+    }, [params.productId, params.orderId]);
+
+    const handleContextAction = useCallback(() => {
+        if (isGhostMode) return;
+
+        if (activeContextType === 'PRODUCT' && productContext) {
+            sendProductCardMutation.mutate({
+                productId: productContext.productId,
+                message: `Tôi muốn hỏi về sản phẩm: ${productContext.name}`,
+                productInfo: {
+                    title: productContext.name,
+                    price: productContext.price,
+                    thumbnail: productContext.thumbnail,
+                    shopId: productContext.shopId,
+                    shopName: productContext.shopName,
+                }
+            }, {
+                onSuccess: () => {
+                    handleContextDismiss();
+                    flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
+                }
+            });
+        } else if (activeContextType === 'ORDER' && orderContext) {
+            sendOrderCardMutation.mutate({
+                orderId: orderContext.orderId,
+                message: `Tôi muốn hỏi về đơn hàng: ${orderContext.orderCode}`,
+                orderInfo: {
+                    orderCode: orderContext.orderCode,
+                    status: orderContext.status,
+                    totalAmount: orderContext.totalAmount,
+                    items: [],
+                    shopId: params.shopId || '',
+                }
+            }, {
+                onSuccess: () => {
+                    handleContextDismiss();
+                    flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
+                }
+            });
+        }
+    }, [activeContextType, productContext, orderContext, isGhostMode, sendProductCardMutation, sendOrderCardMutation, handleContextDismiss, params.shopId]);
 
     const handleOpenAttachment = useCallback(() => {
         Keyboard.dismiss();
@@ -882,7 +929,7 @@ export default function ChatDetailScreen() {
 
                 {/* Context Bar */}
                 <ContextBar
-                    type={contextType}
+                    type={activeContextType}
                     productData={productContext}
                     orderData={orderContext}
                     onDismiss={handleContextDismiss}

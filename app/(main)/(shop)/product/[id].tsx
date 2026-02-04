@@ -26,13 +26,14 @@ import { useProductVariant } from '@/hooks/useProductVariant';
 import { useAuthStore } from '@/store/useAuthStore';
 import type { ProductFeedItem } from '@/types/product/product';
 import { findGalleryIndexByVariant } from '@/utils/adapter/product/productDetailAdapter';
+import { Alert } from '@/utils/AlertHelper';
 import { createLogger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
 import { FlashList, FlashListRef, ListRenderItemInfo } from '@shopify/flash-list';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, NativeScrollEvent, NativeSyntheticEvent, Pressable, RefreshControl, Text, View } from 'react-native';
+import { ActionSheetIOS, ActivityIndicator, NativeScrollEvent, NativeSyntheticEvent, Platform, Pressable, RefreshControl, Share, Text, View } from 'react-native';
 import {
     useSharedValue,
 } from 'react-native-reanimated';
@@ -250,6 +251,11 @@ export default function ProductDetailScreen() {
             partnerAvatar: shopLogoUrl,
             shopUserId: shopUserId,
             shopId: shopId,
+            contextType: 'PRODUCT',
+            productId: product.id,
+            productName: product.name,
+            productPrice: String(selectionResult.displayPrice.currentPrice),
+            productImage: currentImage,
         }));
     }, [shopUserId, shopName, shopLogoUrl, isAuthenticated, myShopId, shopId, t]);
 
@@ -293,7 +299,90 @@ export default function ProductDetailScreen() {
     }, [isAuthenticated, handleOpenVariantSheet, t]);
 
     const handleCartPress = useCallback(() => Navigator.push(ROUTES.CART.INDEX), []);
-    const handleSharePress = useCallback(() => log.info('Share product:', productId), [productId]);
+    const handleSharePress = useCallback(async () => {
+        if (!product) return;
+
+        const productUrl = `https://calatha.com/product/${product.id}`;
+        const message = t('product:share.msgTemplate', {
+            name: product.name,
+            url: Platform.OS === 'android' ? productUrl : '', // Android needs it in message, iOS likes it in url field
+        });
+
+        try {
+            await Share.share(
+                {
+                    message: message,
+                    url: productUrl, // iOS will use this for Rich Preview
+                    title: product.name,
+                },
+                {
+                    // iOS only
+                    subject: product.name,
+                    dialogTitle: product.name, // Android only
+                }
+            );
+        } catch (error) {
+            log.error('Share error:', error);
+        }
+    }, [product, t]);
+
+    const handleReportProduct = useCallback((reasonKey: string) => {
+        // Mock logic gửi API báo cáo
+        log.info('Reported product:', productId, 'Reason:', reasonKey);
+        Alert.success(t('product:report.success'));
+    }, [productId, t]);
+
+    const handleMorePress = useCallback(() => {
+        const reportTitle = t('product:report.title');
+        const cancelText = t('common:actions.cancel');
+
+        const reasons = [
+            { text: t('product:report.reasons.fake'), key: 'fake' },
+            { text: t('product:report.reasons.prohibited'), key: 'prohibited' },
+            { text: t('product:report.reasons.offensive'), key: 'offensive' },
+            { text: t('product:report.reasons.scam'), key: 'scam' },
+            { text: t('product:report.reasons.misleading'), key: 'misleading' },
+            { text: t('product:report.reasons.other'), key: 'other' },
+        ];
+
+        const showReportReasons = () => {
+            Alert.show({
+                title: reportTitle,
+                type: 'warning',
+                buttons: [
+                    ...reasons.map(r => ({
+                        text: r.text,
+                        onPress: () => handleReportProduct(r.key),
+                        style: 'default' as const
+                    })),
+                    { text: cancelText, style: 'cancel' as const }
+                ]
+            });
+        };
+
+        if (Platform.OS === 'ios') {
+            ActionSheetIOS.showActionSheetWithOptions(
+                {
+                    options: [cancelText, reportTitle],
+                    cancelButtonIndex: 0,
+                    destructiveButtonIndex: 1,
+                    title: product?.name,
+                },
+                (buttonIndex) => {
+                    if (buttonIndex === 1) showReportReasons();
+                }
+            );
+        } else {
+            Alert.show({
+                title: product?.name || reportTitle,
+                type: 'info',
+                buttons: [
+                    { text: reportTitle, onPress: showReportReasons, style: 'destructive' },
+                    { text: cancelText, style: 'cancel' }
+                ]
+            });
+        }
+    }, [handleReportProduct, product, t]);
     const handleImagePress = useCallback((index: number) => log.info('View image:', index), []);
     const handleViewAllReviews = useCallback(() => {
         if (productId) Navigator.push(productRoutes.reviews(productId));
@@ -476,6 +565,7 @@ export default function ProductDetailScreen() {
                 title={product.name}
                 onCartPress={handleCartPress}
                 onSharePress={handleSharePress}
+                onMorePress={handleMorePress}
             />
 
             {!isTransitionFinished ? (

@@ -152,8 +152,8 @@ export const transformOrder = (order: Order): OrderUI => {
         statusDisplay,
 
         // Formatted dates - handle null createdAt
-        formattedDate: order.createdAt ? formatDate(order.createdAt) : '',
-        formattedTime: formatTime(order.createdAt),
+        formattedDate: (order.createdAt || order.createdDate) ? formatDate((order.createdAt || order.createdDate)!) : '',
+        formattedTime: formatTime(order.createdAt || order.createdDate),
 
         // Prices - from nested pricing object
         subtotal: pricing.subtotal,
