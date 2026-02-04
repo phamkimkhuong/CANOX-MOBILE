@@ -228,7 +228,7 @@ export type BubblePosition = 'single' | 'first' | 'middle' | 'last';
 export const getBubblePosition = (
     messages: Message[],
     index: number,
-    currentUserId: string
+    _currentUserId: string
 ): BubblePosition => {
     const current = messages[index];
     const prev = messages[index - 1];

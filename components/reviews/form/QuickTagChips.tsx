@@ -47,6 +47,7 @@ export const QuickTagChips: React.FC<QuickTagChipsProps> = ({
             <Text style={styles.hint}>{t('form.tagHint')}</Text>
             <View style={styles.chipsContainer}>
                 {availableTags.map((tag) => {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const translatedLabel = t(tag.labelKey as any) as string;
                     return (
                         <QuickTagChip

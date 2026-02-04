@@ -19,8 +19,13 @@ export type AlertConfig = {
     showCancel?: boolean;
 };
 
+export type AlertRefHandle = {
+    show: (config: AlertConfig) => void;
+    hide: () => void;
+};
+
 // Create Ref global
-export const alertRef = createRef<any>();
+export const alertRef = createRef<AlertRefHandle>();
 
 export const Alert = {
     show: (config: AlertConfig) => {

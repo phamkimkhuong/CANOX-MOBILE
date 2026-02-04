@@ -178,7 +178,7 @@ export const VoucherList = memo<VoucherListProps>(({
 
 VoucherList.displayName = 'VoucherList';
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((_theme) => ({
     itemContainer: {
         // Ensure proper width for FlashList estimation
     },

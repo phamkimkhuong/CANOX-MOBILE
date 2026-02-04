@@ -4,9 +4,9 @@ import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useVideoPlayer, VideoView } from 'expo-video';
-import React, { memo, useCallback, useEffect, useState } from 'react';
-import { LayoutAnimation, Pressable, Text, TouchableOpacity, View } from 'react-native';
+import { useVideoPlayer, VideoPlayer, VideoView } from 'expo-video';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { GestureResponderEvent, LayoutAnimation, Pressable, Text, TouchableOpacity, View } from 'react-native';
 import Animated, {
     runOnJS,
     useAnimatedStyle,
@@ -61,7 +61,7 @@ const VideoPlayerLayer = memo(({
     isPaused: boolean;
     isMuted: boolean;
     isFocused?: boolean;
-    onPlayerReady: (player: any) => void;
+    onPlayerReady: (player: VideoPlayer) => void;
     onStatusChange: (status: string) => void;
 }) => {
     const player = useVideoPlayer(url, (p) => {
@@ -98,7 +98,7 @@ const VideoPlayerLayer = memo(({
     );
 });
 
-const VideoProgressBar = memo(({ player }: { player: any }) => {
+const VideoProgressBar = memo(({ player }: { player: VideoPlayer }) => {
     const { theme } = useUnistyles();
     const [progress, setProgress] = useState(0);
 
@@ -136,7 +136,7 @@ const HeartAnimation = ({ x, y, onComplete }: { x: number, y: number, onComplete
         );
         translateY.value = withTiming(-100, { duration: 800 });
         opacity.value = withTiming(0, { duration: 800 });
-    }, []);
+    }, [onComplete, opacity, scale, translateY]);
 
     const animatedStyle = useAnimatedStyle(() => ({
         position: 'absolute',
@@ -161,7 +161,7 @@ export const VideoItem = memo(({ item, mode }: VideoItemProps) => {
     const { isMuted, setIsMuted } = useVideoStore();
     const [isLiked, setIsLiked] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
-    const [activePlayer, setActivePlayer] = useState<any>(null);
+    const [activePlayer, setActivePlayer] = useState<VideoPlayer | null>(null);
     const [playerStatus, setPlayerStatus] = useState<string>('idle');
     const [hearts, setHearts] = useState<{ id: number, x: number, y: number }[]>([]);
     const [isExpanded, setIsExpanded] = useState(false);
@@ -181,7 +181,7 @@ export const VideoItem = memo(({ item, mode }: VideoItemProps) => {
         setIsProductVisible(visible);
     };
 
-    let lastTap = 0;
+    const lastTap = useRef<number>(0);
 
     useEffect(() => {
         if (mode === 'active') {
@@ -192,11 +192,29 @@ export const VideoItem = memo(({ item, mode }: VideoItemProps) => {
         }
     }, [mode]);
 
-    const handlePress = useCallback((event: any) => {
+    const onDoubleTap = useCallback((x: number, y: number) => {
+        if (!isLiked) {
+            setIsLiked(true);
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        }
+        const newHeart = { id: Date.now(), x, y };
+        setHearts(prev => [...prev, newHeart]);
+    }, [isLiked]);
+
+    const removeHeart = useCallback((id: number) => {
+        setHearts(prev => prev.filter(h => h.id !== id));
+    }, []);
+
+    const toggleMute = useCallback(() => {
+        setIsMuted(!isMuted);
+        Haptics.selectionAsync();
+    }, [isMuted, setIsMuted]);
+
+    const handlePress = useCallback((event: GestureResponderEvent) => {
         const now = Date.now();
         const DOUBLE_PRESS_DELAY = 300;
 
-        if (now - lastTap < DOUBLE_PRESS_DELAY) {
+        if (now - lastTap.current < DOUBLE_PRESS_DELAY) {
             // Double tap detected
             const { locationX, locationY } = event.nativeEvent;
             onDoubleTap(locationX, locationY);
@@ -205,27 +223,9 @@ export const VideoItem = memo(({ item, mode }: VideoItemProps) => {
             setTimeout(() => {
             }, DOUBLE_PRESS_DELAY);
         }
-        lastTap = now;
+        lastTap.current = now;
         setIsPaused(prev => !prev);
-    }, [lastTap]);
-
-    const onDoubleTap = (x: number, y: number) => {
-        if (!isLiked) {
-            setIsLiked(true);
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        }
-        const newHeart = { id: Date.now(), x, y };
-        setHearts(prev => [...prev, newHeart]);
-    };
-
-    const removeHeart = (id: number) => {
-        setHearts(prev => prev.filter(h => h.id !== id));
-    };
-
-    const toggleMute = () => {
-        setIsMuted(!isMuted);
-        Haptics.selectionAsync();
-    };
+    }, [onDoubleTap]);
 
     return (
         <View style={styles.container}>
@@ -256,7 +256,7 @@ export const VideoItem = memo(({ item, mode }: VideoItemProps) => {
                 {isPaused && playerStatus === 'readyToPlay' && (
                     <View style={styles.playIconContainer}>
                         <View style={styles.playIconBg}>
-                            <IconSymbol name="play.fill" size={40} color="white" style={{ opacity: 0.8 }} />
+                            <IconSymbol name="play.fill" size={40} color="white" style={styles.playIcon} />
                         </View>
                     </View>
                 )}
@@ -342,7 +342,7 @@ export const VideoItem = memo(({ item, mode }: VideoItemProps) => {
     );
 });
 
-const styles = StyleSheet.create((theme, rt) => ({
+const styles = StyleSheet.create((_theme, rt) => ({
     container: {
         flex: 1,
         backgroundColor: '#000',
@@ -439,6 +439,9 @@ const styles = StyleSheet.create((theme, rt) => ({
         backgroundColor: 'rgba(0,0,0,0.2)',
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    playIcon: {
+        opacity: 0.8,
     },
     progressBarContainer: {
         position: 'absolute',

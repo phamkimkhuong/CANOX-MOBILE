@@ -34,7 +34,7 @@ interface UsageProgressBarProps {
  * - 50-90%: Cam (cảnh báo)
  * - > 90%: Đỏ (khẩn cấp)
  */
-const getProgressColor = (percentage: number, theme: Record<string, unknown>): string => {
+const getProgressColor = (percentage: number): string => {
     if (percentage >= 90) {
         return '#ef4444'; // Red-500 - Khẩn cấp
     }
@@ -63,8 +63,8 @@ export const UsageProgressBar = memo<UsageProgressBarProps>(({
 
     // Memoize color
     const progressColor = useMemo(() => {
-        return color ?? getProgressColor(clampedPercentage, theme);
-    }, [color, clampedPercentage, theme]);
+        return color ?? getProgressColor(clampedPercentage);
+    }, [color, clampedPercentage]);
 
     // Animated width style
     const animatedBarStyle = useAnimatedStyle(() => ({

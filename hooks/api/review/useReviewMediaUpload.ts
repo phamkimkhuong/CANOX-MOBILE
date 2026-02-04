@@ -15,8 +15,7 @@ import { v4 as uuidv4 } from 'uuid';
 // TYPES
 // ============================================
 
-type ImageExtension = 'jpg' | 'jpeg' | 'png' | 'webp' | 'gif';
-type VideoExtension = 'mp4' | 'mov' | 'avi';
+// Image/Video extensions defined in review types if needed
 
 // ============================================
 // HELPER FUNCTIONS

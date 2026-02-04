@@ -22,8 +22,8 @@ interface ShopSearchEmptyStateProps {
 }
 
 export const ShopSearchEmptyState = React.memo(({
-    keyword,
-    categoryName,
+    keyword: _keyword,
+    categoryName: _categoryName,
     onViewAllProducts,
     onBack,
 }: ShopSearchEmptyStateProps) => {

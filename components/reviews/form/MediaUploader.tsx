@@ -52,7 +52,6 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({
 
     const canAddImages = imageCount < REVIEW_MEDIA_LIMITS.MAX_IMAGES;
     const canAddVideo = videoCount < REVIEW_MEDIA_LIMITS.MAX_VIDEOS;
-    const canAddMore = canAddImages || canAddVideo;
 
     return (
         <View style={styles.container}>

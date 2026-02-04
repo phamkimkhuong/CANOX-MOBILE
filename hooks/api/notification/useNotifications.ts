@@ -70,7 +70,7 @@ const fetchNotifications = async (
     pageParam: number,
     filter: NotificationFilter
 ): Promise<NotificationPage> => {
-    const params: Record<string, string | number> = {
+    const params: Record<string, string | number | boolean | string[] | undefined> = {
         recipientRole: 'BUYER',
         page: pageParam,
         size: PAGE_SIZE,
@@ -116,7 +116,7 @@ export const useNotifications = (filter: NotificationFilter = NotificationFilter
 
     const query = useInfiniteQuery({
         queryKey: ['notifications', filter],
-        queryFn: ({ pageParam = 0 }) => fetchNotifications(pageParam as number, filter), // Default page 0
+        queryFn: async ({ pageParam = 0, signal: _signal }) => fetchNotifications(pageParam as number, filter), // Default page 0
         initialPageParam: 0,
         getNextPageParam: (lastPage) => lastPage.nextCursor,
         enabled: isAuthenticated,
@@ -215,18 +215,18 @@ export const useMarkAllAsRead = () => {
                 queryKey: ['notifications']
             });
             // Optimistic: Đánh dấu TẤT CẢ là đã đọc
-            queryClient.setQueriesData<any>(
+            queryClient.setQueriesData<InfiniteData<NotificationPage> | number>(
                 { queryKey: ['notifications'] },
-                (oldData: any) => {
-                    if (!oldData) return oldData;
+                (oldData) => {
+                    if (oldData === undefined || oldData === null) return oldData;
 
                     // Infinite Query data (Notification List)
-                    if (oldData.pages && Array.isArray(oldData.pages)) {
+                    if (typeof oldData === 'object' && 'pages' in oldData) {
                         return {
                             ...oldData,
-                            pages: oldData.pages.map((page: any) => ({
+                            pages: oldData.pages.map((page) => ({
                                 ...page,
-                                data: page.data.map((notif: any) => ({ ...notif, isRead: true })),
+                                data: page.data.map((notif) => ({ ...notif, isRead: true })),
                             })),
                         };
                     }

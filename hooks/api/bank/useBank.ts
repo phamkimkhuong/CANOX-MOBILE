@@ -93,7 +93,7 @@ export const useDefaultBankAccount = () => {
                     BankAccountResponseSchema
                 );
                 return transformUserBankAccount(response.data);
-            } catch (error) {
+            } catch {
                 // Return null if no default account found
                 return null;
             }

@@ -21,14 +21,6 @@ import type {
     WardListResponse,
 } from '@/types/address';
 
-/**
- * Default pagination settings
- */
-const DEFAULT_PAGE_SIZE = {
-    PROVINCES: 40,
-    WARDS: 20,
-};
-
 // ============================================
 // HELPERS
 // ============================================

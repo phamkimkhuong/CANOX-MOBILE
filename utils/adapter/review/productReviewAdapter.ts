@@ -339,9 +339,7 @@ export const parseProductReviewFilter = (
     if (filter === 'with-media') {
         params.mediaFilter = 'ALL';
     } else if (filter === 'with-response') {
-        // Note: hasResponse might not be a direct query param in the provided swagger list, 
-        // but we'll include it if the backend supports standard boolean filtering
-        (params as any).hasResponse = true;
+        params.hasResponse = true;
     } else if (typeof filter === 'number') {
         params.rating = filter;
     }

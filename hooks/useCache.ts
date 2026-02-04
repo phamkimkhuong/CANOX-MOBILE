@@ -48,7 +48,7 @@ export function useCache(): UseCacheReturn {
                 size,
                 lastCalculated: new Date(),
             });
-        } catch (err) {
+        } catch {
             setError('Không thể tính toán cache');
             setCacheInfo({
                 size: 0,
@@ -80,7 +80,7 @@ export function useCache(): UseCacheReturn {
             }
 
             return success;
-        } catch (err) {
+        } catch {
             setError('Lỗi khi xóa cache');
             return false;
         } finally {

@@ -58,7 +58,6 @@ export default function EditProfileScreen() {
         pickFromGallery,
         takePhoto,
         uploadImage,
-        error: avatarError,
     } = useAvatarUpload();
 
     // Preview image URI (after picking, before upload completes)
@@ -88,7 +87,7 @@ export default function EditProfileScreen() {
         handleSubmit,
         setValue,
         watch,
-        formState: { errors, isDirty },
+        formState: { isDirty },
     } = useForm<ProfileFormValues>({
         resolver: zodResolver(ProfileFormSchema),
         defaultValues: {

@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleProp, View, ViewStyle } from 'react-native';
 import Animated, {
     interpolate,
     useAnimatedStyle,
@@ -8,8 +8,15 @@ import Animated, {
     withRepeat,
     withTiming
 } from 'react-native-reanimated';
+import { StyleSheet } from 'react-native-unistyles';
 
-export const Shimmer = ({ width, height, style }: { width: any, height: any, style?: any }) => {
+interface ShimmerProps {
+    width: number;
+    height: number;
+    style?: StyleProp<ViewStyle>;
+}
+
+export const Shimmer = ({ width, height, style }: ShimmerProps) => {
     const translateX = useSharedValue(-1);
 
     useEffect(() => {
@@ -35,13 +42,13 @@ export const Shimmer = ({ width, height, style }: { width: any, height: any, sty
     });
 
     return (
-        <View style={[{ width, height, backgroundColor: 'rgba(255,255,255,0.06)', overflow: 'hidden' }, style]}>
-            <Animated.View style={[StyleSheet.absoluteFill, animatedStyle]}>
+        <View style={[styles.shimmerContainer(width, height), style]}>
+            <Animated.View style={[styles.absoluteFill, animatedStyle]}>
                 <LinearGradient
                     colors={['transparent', 'rgba(255,255,255,0.12)', 'transparent']}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 0 }}
-                    style={StyleSheet.absoluteFill}
+                    style={styles.absoluteFill}
                 />
             </Animated.View>
         </View>
@@ -50,24 +57,22 @@ export const Shimmer = ({ width, height, style }: { width: any, height: any, sty
 
 export const VideoSkeleton = () => {
     return (
-        <View style={StyleSheet.absoluteFill}>
+        <View style={styles.container}>
             <View style={styles.bottomSkeleton}>
-                <Shimmer width={260} height={70} style={{ borderRadius: 12, marginBottom: 16 }} />
-                <Shimmer width={120} height={18} style={{ marginBottom: 8, borderRadius: 4 }} />
-                <Shimmer width={240} height={14} style={{ marginBottom: 6, borderRadius: 4 }} />
-                <Shimmer width={180} height={14} style={{ marginBottom: 16, borderRadius: 4 }} />
+                <Shimmer width={260} height={70} style={styles.promoShimmer} />
+                <Shimmer width={120} height={18} style={styles.textShimmerSm} />
+                <Shimmer width={240} height={14} style={styles.textShimmerXs} />
+                <Shimmer width={180} height={14} style={styles.textShimmerGap} />
             </View>
 
 
             <View style={styles.rightSkeleton}>
-
-                <Shimmer width={48} height={48} style={{ borderRadius: 24, marginBottom: 20 }} />
-
+                <Shimmer width={48} height={48} style={styles.avatarShimmer} />
 
                 {[1, 2, 3, 4].map((i) => (
-                    <View key={i} style={{ alignItems: 'center', marginBottom: 20 }}>
-                        <Shimmer width={40} height={40} style={{ borderRadius: 20, marginBottom: 4 }} />
-                        {i < 4 && <Shimmer width={24} height={10} style={{ borderRadius: 4 }} />}
+                    <View key={i} style={styles.actionItem}>
+                        <Shimmer width={40} height={40} style={styles.actionIcon} />
+                        {i < 4 && <Shimmer width={24} height={10} style={styles.actionLabel} />}
                     </View>
                 ))}
             </View>
@@ -75,7 +80,13 @@ export const VideoSkeleton = () => {
     );
 };
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create((_theme) => ({
+    container: {
+        ...StyleSheet.absoluteFillObject,
+    },
+    absoluteFill: {
+        ...StyleSheet.absoluteFillObject,
+    },
     bottomSkeleton: {
         position: 'absolute',
         bottom: 25,
@@ -87,5 +98,43 @@ const styles = StyleSheet.create({
         bottom: 40,
         right: 12,
         alignItems: 'center',
-    }
-});
+    },
+    shimmerContainer: (width: number, height: number) => ({
+        width,
+        height,
+        backgroundColor: 'rgba(255,255,255,0.06)',
+        overflow: 'hidden',
+    }),
+    promoShimmer: {
+        borderRadius: 12,
+        marginBottom: 16,
+    },
+    textShimmerSm: {
+        marginBottom: 8,
+        borderRadius: 4,
+    },
+    textShimmerXs: {
+        marginBottom: 6,
+        borderRadius: 4,
+    },
+    textShimmerGap: {
+        marginBottom: 16,
+        borderRadius: 4,
+    },
+    avatarShimmer: {
+        borderRadius: 24,
+        marginBottom: 20,
+    },
+    actionItem: {
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    actionIcon: {
+        borderRadius: 20,
+        marginBottom: 4,
+    },
+    actionLabel: {
+        borderRadius: 4,
+    },
+}));
+

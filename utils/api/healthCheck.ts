@@ -29,8 +29,11 @@ export const checkServerStatus = async (): Promise<boolean> => {
 
         logger.api.info(`Server is alive! Status: ${response.status}`);
         return true;
-    } catch (error: any) {
-        const status = error.response?.status;
+    } catch (error) {
+        let status: number | undefined;
+        if (axios.isAxiosError(error)) {
+            status = error.response?.status;
+        }
         logger.api.warn(`Server health check failed. Status: ${status ?? 'Timeout/Network Error'}`);
 
         // Even if it returns 401 or 404, the Gateway/Nginx is ALIVE.

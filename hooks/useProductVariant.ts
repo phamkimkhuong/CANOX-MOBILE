@@ -213,7 +213,9 @@ export const useProductVariant = (
                             }
                         }
                     }
-                } catch (e) { }
+                } catch {
+                    // Ignore parse error
+                }
             }
         }
         return initial;
@@ -227,7 +229,7 @@ export const useProductVariant = (
         }
 
         setSelectedOptions(getInitialSelection(product));
-    }, [product?.id, getInitialSelection]);
+    }, [product?.id, getInitialSelection, product]);
 
     // ===== DERIVED: Current Variant =====
     const currentVariant = useMemo((): VariantMatrixValue | null => {
@@ -350,9 +352,6 @@ export const useProductVariant = (
             //  Base Price (Original)
             const baseOriginalPrice = currentVariant.originalPrice ?? currentVariant.price;
 
-            //Public Price (After Promotion, Before Voucher)
-            const publicPrice = currentVariant.price;
-
             // Variant has a Promotion/Vouchers
             const totalDiscountPercent = baseOriginalPrice > finalPrice
                 ? Math.round(((baseOriginalPrice - finalPrice) / baseOriginalPrice) * 100)
@@ -385,7 +384,7 @@ export const useProductVariant = (
         if (!product) return 'out_of_stock';
 
         let totalStock = 0;
-        for (const [_, value] of product.variantMatrix) {
+        for (const [, value] of product.variantMatrix) {
             totalStock += value.stock;
         }
 
@@ -401,7 +400,7 @@ export const useProductVariant = (
         if (!product) return 0;
 
         let total = 0;
-        for (const [_, value] of product.variantMatrix) {
+        for (const [, value] of product.variantMatrix) {
             total += value.stock;
         }
         return total;

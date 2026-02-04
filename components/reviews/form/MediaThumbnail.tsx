@@ -10,7 +10,7 @@ import type { ReviewMediaItem } from '@/types/review';
 import { Image } from 'expo-image';
 import React from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
 interface MediaThumbnailProps {
     /** Media item data */
@@ -35,7 +35,7 @@ export const MediaThumbnail: React.FC<MediaThumbnailProps> = ({
     onPress,
     size = 80,
 }) => {
-    const { theme } = useUnistyles();
+
     const styles = stylesheet;
 
     const isUploading = item.uploadStatus === 'uploading' || item.uploadStatus === 'pending';

@@ -35,9 +35,10 @@ export const toPlatformVoucherUI = (dto: RecommendedPlatformVoucherDTO): Voucher
     const maxDiscount = voucher.maxDiscount ?? null;
 
     // Format discount display: "Giảm 10%" hoặc "Giảm 50.000 đ"
-    const discountDisplay = isPercentage
-        ? `Giảm\u00A0${Math.round(discountValue)}%`
-        : `Giảm\u00A0${formatCurrency(discountValue)}`;
+    const discountDisplay = formatDiscountDisplay(
+        discountValue,
+        isPercentage ? 'PERCENTAGE' : 'FIXED_AMOUNT'
+    );
 
     // Format max discount display (the main title in some views)
     const maxDiscountDisplay = isPercentage && maxDiscount && maxDiscount > 0

@@ -40,8 +40,6 @@ const HighlightedText = React.memo(({
     text: string;
     highlightedText?: string;
 }) => {
-    const { theme } = useUnistyles();
-
     if (!highlightedText) {
         return <Text style={styles.suggestionText}>{text}</Text>;
     }

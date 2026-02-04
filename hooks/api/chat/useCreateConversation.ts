@@ -57,7 +57,8 @@ const createConversation = async (
                 data: { id: cachedId, name: request.name || '', type: request.conversationType, participants: [] },
                 success: true,
                 message: 'Lấy từ cache',
-            } as any;
+                code: 200,
+            } as unknown as CreateConversationResponse;
         }
     }
 
@@ -155,7 +156,7 @@ export const usePrefetchShopChat = () => {
             const request = buildChatWithShopRequest(shopUserId, shopName, shopLogoUrl);
             createConv(request);
         }
-    }, [userId, queryClient, createConv]);
+    }, [userId, queryClient, createConv, myShopId]);
 
     return prefetch;
 };

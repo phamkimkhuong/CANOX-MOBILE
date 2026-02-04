@@ -245,11 +245,10 @@ apiClient.interceptors.response.use(
             try {
                 // Use TokenManager to handle 401 with refresh logic
                 return await handle401Error(error, async (retryConfig) => {
-                    // Preserve retry count in the retried request
                     (retryConfig as RetryConfig)._retryCount = config._retryCount;
                     return apiClient.request(retryConfig);
                 });
-            } catch (refreshError) {
+            } catch {
                 logger.auth.error('Token refresh failed - throwing SessionExpiredError');
                 throw new SessionExpiredError();
             }

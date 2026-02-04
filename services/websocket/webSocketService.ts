@@ -212,7 +212,7 @@ export class WebSocketService {
                     this.stompClient.activate();
 
                     // Clear timeout on success (handled in onConnect)
-                    this.stompClient.onConnect = (frame) => {
+                    this.stompClient.onConnect = (_frame) => {
                         clearTimeout(connectTimeout);
                         this.connected = true;
                         this.state = WebSocketState.CONNECTED;

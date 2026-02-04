@@ -176,7 +176,7 @@ export const chatRoutes = {
     /**
      * Chat detail/message screen
      */
-    detail: (conversationId: string, otherParams?: Record<string, any>): Href => ({
+    detail: (conversationId: string, otherParams?: Record<string, string | number | boolean | undefined | null>): Href => ({
         pathname: '/chat/[conversationId]',
         params: { conversationId, ...otherParams },
     }),
@@ -259,7 +259,7 @@ export const orderRoutes = {
             ...(options?.instantNav && { instantNav: 'true' }),
         },
     }),
-    cancel: (orderId: string, params?: Record<string, any>): Href => ({
+    cancel: (orderId: string, params?: Record<string, string | number | boolean | undefined | null>): Href => ({
         pathname: '/cancel/[id]',
         params: { id: orderId, ...params },
     }),

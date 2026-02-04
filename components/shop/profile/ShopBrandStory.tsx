@@ -6,7 +6,7 @@
 
 import React, { memo, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
 interface ShopBrandStoryProps {
     story: string;
@@ -21,7 +21,7 @@ export const ShopBrandStory = memo(({
     foundedYear,
     title = 'Về chúng tôi'
 }: ShopBrandStoryProps) => {
-    const { theme } = useUnistyles();
+
     const styles = stylesheet;
     const [expanded, setExpanded] = useState(false);
 

@@ -259,7 +259,7 @@ export const useShopCategories = (shopId: string | undefined) => {
         queryKey: shopKeys.categories(shopId ?? ''),
         enabled: !!shopId,
         queryFn: async (): Promise<CategoryNode[]> => {
-            const response = await request<any>(
+            const response = await request(
                 {
                     url: API_ROUTES.SHOPS.CATEGORIES(shopId!),
                     method: 'GET',

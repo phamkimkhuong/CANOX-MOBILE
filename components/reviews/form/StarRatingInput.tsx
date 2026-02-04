@@ -67,7 +67,7 @@ export const StarRatingInput: React.FC<StarRatingInputProps> = ({
     showLabel = true,
     hasError = false,
 }) => {
-    const { theme } = useUnistyles();
+
     const styles = stylesheet;
     const { t } = useTranslation(['myReviews']);
 
@@ -105,6 +105,7 @@ export const StarRatingInput: React.FC<StarRatingInputProps> = ({
                         hasError && styles.labelError,
                     ]}
                 >
+                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                     {value > 0 ? t(ratingLabelKey as any) : t('ratingLabels.none')}
                 </Text>
             )}

@@ -136,7 +136,7 @@ export const getStatusDisplay = (status: OrderStatus): StatusDisplay => {
     const config = ORDER_STATUS_MAP[status] || ORDER_STATUS_MAP.CREATED;
     return {
         ...config,
-        label: i18n.t(config.labelKey as any),
+        label: i18n.t(config.labelKey as never),
     };
 };
 

@@ -23,7 +23,7 @@ import { profileQueryKeys } from './useProfile';
 /**
  * Maximum file size for USER_AVATAR (2MB as per API)
  */
-const MAX_AVATAR_SIZE_BYTES = 2 * 1024 * 1024; // 2MB = 2,097,152 bytes
+// const MAX_AVATAR_SIZE_BYTES = 2 * 1024 * 1024; // 2MB limit (kept for reference)
 
 /**
  * Configuration for image picker

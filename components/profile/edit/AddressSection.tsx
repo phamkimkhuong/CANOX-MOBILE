@@ -29,7 +29,7 @@ export const AddressSection: React.FC = memo(() => {
         Navigator.push({
             pathname: ROUTES.ADDRESS.LIST,
             params: { mode: 'management' },
-        } as any);
+        });
     };
 
     return (

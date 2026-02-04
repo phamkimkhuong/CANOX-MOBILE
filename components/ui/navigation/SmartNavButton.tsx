@@ -1,16 +1,11 @@
 import { Navigator } from '@/utils/navigation';
-import { useQueryClient } from '@tanstack/react-query';
 import { Href } from 'expo-router';
 import React, { useCallback, useRef } from 'react';
-import { Pressable, PressableProps, StyleProp, ViewStyle } from 'react-native';
-
-import { createLogger } from '@/utils/logger';
-
-const log = createLogger('ProductCard');
+import { GestureResponderEvent, Pressable, PressableProps, StyleProp, ViewStyle } from 'react-native';
 
 interface SmartButtonProps extends PressableProps {
     route?: Href | string;
-    prefetchAction?: () => Promise<any> | void;
+    prefetchAction?: () => Promise<unknown> | void;
     style?: StyleProp<ViewStyle>;
 }
 
@@ -22,34 +17,35 @@ export const SmartNavButton: React.FC<SmartButtonProps> = ({
     prefetchAction,
     children,
     style,
-    ...props
+    onPressIn,
+    onPress,
+    ...restProps
 }) => {
-    const queryClient = useQueryClient();
     const touchStartTime = useRef(0);
 
-    const handlePressIn = useCallback((event: any) => {
+    const handlePressIn = useCallback((event: GestureResponderEvent) => {
         touchStartTime.current = Date.now();
         if (prefetchAction) {
             prefetchAction();
         }
-        if (props.onPressIn) {
-            props.onPressIn(event);
+        if (onPressIn) {
+            onPressIn(event);
         }
-    }, [prefetchAction, props.onPressIn]);
+    }, [prefetchAction, onPressIn]);
 
-    const handlePress = useCallback((event: any) => {
-        if (props.onPress) {
-            props.onPress(event);
+    const handlePress = useCallback((event: GestureResponderEvent) => {
+        if (onPress) {
+            onPress(event);
             return;
         }
         if (route) {
             Navigator.push(route);
         }
-    }, [route, props.onPress]);
+    }, [route, onPress]);
 
     return (
         <Pressable
-            {...props}
+            {...restProps}
             onPressIn={handlePressIn}
             onPress={handlePress}
             delayLongPress={200}

@@ -267,7 +267,7 @@ export const toShopSubtotal = (
 export const toCheckoutCalculation = (
     dto: CheckoutOrderSummaryDTO,
     shops: CheckoutPreviewShopDTO[],
-    isValid: boolean
+    _isValid: boolean
 ): CheckoutCalculationResult => {
     // Calculate total shop voucher discount from each shop's voucherResult
     const totalShopVoucherDiscount = shops.reduce(

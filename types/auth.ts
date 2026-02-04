@@ -31,7 +31,7 @@ export const PasswordGroupSchema = z.object({
  * Shared refinement for matching passwords
  */
 export const passwordMatchRefine = (passwordKey: string, confirmKey: string) => {
-    return (data: any) => data[passwordKey] === data[confirmKey];
+    return (data: Record<string, unknown>) => data[passwordKey] === data[confirmKey];
 };
 
 // 1. Schema cho Request
@@ -118,7 +118,7 @@ export const SocialLoginResponseSchema = ResponseDefaultSchema.extend({
             roles: z.array(z.string()).optional(),
             image: z.string().nullable().optional(),
             buyerId: z.string().nullable().optional(),
-            buyer: z.any().nullable().optional(),
+            buyer: z.unknown().nullable().optional(),
         }),
     }),
 });

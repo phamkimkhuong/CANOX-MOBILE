@@ -48,7 +48,7 @@ export const PendingReviewList: React.FC<PendingReviewListProps> = ({
     isLoading = false,
     isRefreshing = false,
     onRefresh,
-    error,
+    error: _error,
     filterOrderId,
     onClearFilter,
 }) => {
@@ -78,7 +78,7 @@ export const PendingReviewList: React.FC<PendingReviewListProps> = ({
         }
 
         return items;
-    }, [groups]);
+    }, [filteredGroups]);
 
     const renderItem: ListRenderItem<ListItem> = useCallback(
         ({ item }) => {

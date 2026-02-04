@@ -249,7 +249,7 @@ interface IconSymbolProps {
     size?: number;
     color?: string;
     style?: StyleProp<TextStyle>;
-    animatedStyle?: any;
+    animatedStyle?: StyleProp<TextStyle>;
 }
 
 /**

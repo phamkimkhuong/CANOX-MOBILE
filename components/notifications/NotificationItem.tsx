@@ -18,7 +18,7 @@ interface NotificationItemProps {
 export const NotificationItem: React.FC<NotificationItemProps> = ({ item, onPress, onPressIn, onPressOut }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const config = NOTIFICATION_TYPE_CONFIG[item.type];
+    const config = NOTIFICATION_TYPE_CONFIG[item.type] || NOTIFICATION_TYPE_CONFIG.SYSTEM;
 
     /**
      * Handle press - navigate to target screen

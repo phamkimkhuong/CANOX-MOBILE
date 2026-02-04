@@ -20,6 +20,7 @@
  */
 
 import { mmkvStorage } from '@/store/storage';
+import { logger } from '@/utils/logger';
 
 // ============================================
 // CONSTANTS
@@ -143,7 +144,7 @@ export const PopupFrequency = {
 
             // Log cho debug
             if (__DEV__) {
-                console.log('[PopupFrequency] Recorded popup shown:', campaignId);
+                logger.storage.info('[PopupFrequency] Recorded popup shown:', campaignId);
             }
         } catch (error) {
             console.warn('[PopupFrequency] Error recording popup shown:', error);
@@ -181,7 +182,7 @@ export const PopupFrequency = {
             }
 
             if (__DEV__) {
-                console.log('[PopupFrequency] Recorded campaign dismissed:', campaignId);
+                logger.storage.info('[PopupFrequency] Recorded campaign dismissed:', campaignId);
             }
         } catch (error) {
             console.warn('[PopupFrequency] Error recording dismiss:', error);
@@ -198,7 +199,7 @@ export const PopupFrequency = {
             mmkvStorage.set(STORAGE_KEYS.SKIP_TODAY, true);
 
             if (__DEV__) {
-                console.log('[PopupFrequency] User chose to skip popups today');
+                logger.storage.info('[PopupFrequency] User chose to skip popups today');
             }
         } catch (error) {
             console.warn('[PopupFrequency] Error setting skip today:', error);
@@ -226,7 +227,7 @@ export const PopupFrequency = {
                 STORAGE_KEYS.FIRST_LAUNCH_COMPLETED
             );
             return !completed;
-        } catch (error) {
+        } catch {
             return true; // Fail-safe: Coi như first launch
         }
     },
@@ -242,7 +243,7 @@ export const PopupFrequency = {
             mmkvStorage.remove(STORAGE_KEYS.SKIP_DATE);
 
             if (__DEV__) {
-                console.log('[PopupFrequency] Reset all popup frequency data');
+                logger.storage.info('[PopupFrequency] Reset all popup frequency data');
             }
         } catch (error) {
             console.warn('[PopupFrequency] Error resetting:', error);

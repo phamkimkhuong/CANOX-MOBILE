@@ -60,7 +60,7 @@ const handleMutationError = (
     error: unknown,
     _variables: unknown,
     _context: unknown,
-    mutation: Mutation<any, any, any, any>
+    mutation: Mutation<unknown, unknown, unknown, unknown>
 ): void => {
     // SessionExpiredError: Silently ignore (logout is happening)
     if (isSessionExpiredError(error)) {

@@ -5,7 +5,7 @@
  * Skeleton loader for review lists
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View } from 'react-native';
 import Animated, {
     useAnimatedStyle,
@@ -13,8 +13,7 @@ import Animated, {
     withRepeat,
     withTiming,
 } from 'react-native-reanimated';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { useEffect } from 'react';
+import { StyleSheet } from 'react-native-unistyles';
 
 interface ReviewListSkeletonProps {
     /** Number of skeleton items */
@@ -25,7 +24,6 @@ interface ReviewListSkeletonProps {
  * Skeleton item for review card
  */
 const SkeletonCard: React.FC<{ index: number }> = ({ index }) => {
-    const { theme } = useUnistyles();
     const styles = stylesheet;
     const opacity = useSharedValue(0.3);
 

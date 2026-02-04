@@ -174,7 +174,7 @@ export const useSearchProducts = ({
         queryKey,
         initialPageParam: 0,
         enabled: enabled && (keyword.trim().length > 0 || !!categoryId || !!shopId),
-        queryFn: async ({ pageParam = 0, signal }) => {
+        queryFn: async ({ pageParam = 0, signal: _signal }) => {
             // Cancel previous request
             if (abortControllerRef.current) {
                 abortControllerRef.current.abort();
@@ -184,7 +184,7 @@ export const useSearchProducts = ({
             abortControllerRef.current = new AbortController();
 
             // Build final params object
-            const params: Record<string, any> = {
+            const params: Record<string, string | number | boolean | string[] | undefined> = {
                 keyword: keyword.trim(),
                 page: pageParam,
                 size: pageSize,

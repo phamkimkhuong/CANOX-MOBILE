@@ -40,7 +40,7 @@ export const VoucherCard = memo<VoucherCardProps>(({
     onUse,
     onReminder,
     onViewConditions,
-    backgroundColor,
+    backgroundColor: _backgroundColor,
 }) => {
     const { theme } = useUnistyles();
 
@@ -49,9 +49,6 @@ export const VoucherCard = memo<VoucherCardProps>(({
         VOUCHER_TYPE_CONFIG[voucher.type] ?? VOUCHER_TYPE_CONFIG.discount,
         [voucher.type]
     );
-
-    // Background color for ticket separator (match parent)
-    const bgColor = backgroundColor ?? theme.colors.background;
 
     // Handle button press based on status
     const handleButtonPress = useCallback(() => {

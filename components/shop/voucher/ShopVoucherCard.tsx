@@ -18,9 +18,9 @@ import { Navigator } from '@/utils/navigation';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { memo, useCallback } from 'react';
-import { Pressable, Text, TouchableOpacity, View } from 'react-native';
+import { GestureResponderEvent, Pressable, Text, TouchableOpacity, View } from 'react-native';
 import Animated from 'react-native-reanimated';
-import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet, UnistylesRuntime } from 'react-native-unistyles';
 
 /** Card dimensions - dynamic based on screen size for consistent peek effect */
 export const CARD_HEIGHT = 90;
@@ -43,7 +43,7 @@ export const ShopVoucherCard = memo<ShopVoucherCardProps>(({
     onPress,
     onCollect,
 }) => {
-    const { theme } = useUnistyles();
+
 
     const handlePress = useCallback(() => {
         const voucherData = JSON.stringify(voucher);
@@ -51,7 +51,7 @@ export const ShopVoucherCard = memo<ShopVoucherCardProps>(({
         onPress?.(voucher);
     }, [onPress, voucher, shopName]);
 
-    const handleCollect = useCallback((e: any) => {
+    const handleCollect = useCallback((e: GestureResponderEvent) => {
         e.stopPropagation();
         onCollect?.(voucher.id);
     }, [onCollect, voucher.id]);
@@ -72,7 +72,7 @@ export const ShopVoucherCard = memo<ShopVoucherCardProps>(({
                 onPress={handlePress}
             >
                 <LinearGradient
-                    colors={cardGradient as any}
+                    colors={cardGradient as [string, string, ...string[]]}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                     style={styles.gradient}

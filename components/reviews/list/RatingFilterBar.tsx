@@ -5,12 +5,12 @@
  * Chip filter bar for filtering reviews by rating
  */
 
-import { IconSymbol } from '@/components/ui/Icon';
+import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import type { RatingFilter } from '@/types/review';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
 interface RatingFilterBarProps {
     /** Currently selected filter */
@@ -28,12 +28,11 @@ export const RatingFilterBar: React.FC<RatingFilterBarProps> = ({
     activeFilter,
     onFilterChange,
     counts,
-}) => {
-    const { theme } = useUnistyles();
+}: RatingFilterBarProps) => {
     const styles = stylesheet;
     const { t } = useTranslation(['myReviews']);
 
-    const filterOptions: { value: RatingFilter; label: string; icon?: string }[] = useMemo(() => [
+    const filterOptions: { value: RatingFilter; label: string; icon?: IconSymbolName }[] = useMemo(() => [
         { value: 'all', label: t('filter.all') },
         { value: 5, label: t('filter.rating', { count: 5 }), icon: 'star.fill' },
         { value: 4, label: t('filter.rating', { count: 4 }), icon: 'star.fill' },
@@ -64,7 +63,7 @@ export const RatingFilterBar: React.FC<RatingFilterBarProps> = ({
                         >
                             {option.icon && (
                                 <IconSymbol
-                                    name={option.icon as any}
+                                    name={option.icon as IconSymbolName}
                                     size={12}
                                     color={isActive ? '#FFFFFF' : '#FFB800'}
                                 />

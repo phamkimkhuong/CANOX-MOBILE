@@ -15,7 +15,7 @@ import Animated, {
     withRepeat,
     withTiming,
 } from 'react-native-reanimated';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
 import { CARD_HEIGHT, getVoucherWidth } from './ShopVoucherCard';
 
@@ -24,7 +24,7 @@ import { CARD_HEIGHT, getVoucherWidth } from './ShopVoucherCard';
  * Animated loading placeholder for voucher cards
  */
 export const ShopVoucherSkeleton = memo(() => {
-    const { theme } = useUnistyles();
+
     const opacity = useSharedValue(0.4);
 
     useEffect(() => {

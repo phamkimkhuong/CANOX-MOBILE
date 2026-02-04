@@ -79,7 +79,6 @@ RecentSearchItem.displayName = 'RecentSearchItem';
 export const RecentSearches = React.memo(({ onSelect }: RecentSearchesProps) => {
     const { t } = useTranslation('search');
     const { searches, removeSearch, clearAll } = useSearchHistory();
-    const { theme } = useUnistyles();
 
     const handleSelect = useCallback((keyword: string) => {
         onSelect(keyword);

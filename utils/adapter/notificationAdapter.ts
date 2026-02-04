@@ -13,9 +13,14 @@ export const mapApiNotificationToUi = (item: NotificationResponseItem): Notifica
         actionUrl = `/orders/${item.relatedEntityId}`;
     }
 
+    // Fallback to SYSTEM if type is unknown or 'OTHER'
+    const rawType = item.category || item.type;
+    const validTypes = ['ORDER', 'PROMO', 'SYSTEM', 'SHIPPING', 'PRODUCT', 'WALLET'];
+    const finalType = validTypes.includes(rawType) ? rawType : 'SYSTEM';
+
     return {
         id: item.id,
-        type: (item.category || item.type) as any,
+        type: finalType as Notification['type'],
         title: item.title,
         message: item.content,
         timestamp: item.createdDate,

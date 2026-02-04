@@ -81,7 +81,7 @@ export function useBiometrics(
                     onToggle?.(false);
                 }
             }
-        } catch (err) {
+        } catch {
             setError('Không thể kiểm tra sinh trắc học');
         } finally {
             if (!isSilent) setIsLoading(false);
@@ -91,7 +91,7 @@ export function useBiometrics(
     // Detect on mount
     useEffect(() => {
         detectBiometrics();
-    }, []);
+    }, [detectBiometrics]);
 
     // Sync status when app returns from background
     useEffect(() => {
@@ -130,7 +130,7 @@ export function useBiometrics(
             });
 
             return result.success;
-        } catch (err) {
+        } catch {
             setError('Xác thực thất bại');
             return false;
         }

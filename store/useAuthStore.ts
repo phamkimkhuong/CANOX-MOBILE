@@ -121,7 +121,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             await saveTokens(accessToken, refreshToken);
 
             // Save IDs separately
-            const storagePromises: Promise<any>[] = [];
+            const storagePromises: Promise<void>[] = [];
             if (userId) storagePromises.push(SecureStore.setItemAsync(USER_ID_KEY, userId));
             if (buyerId) storagePromises.push(SecureStore.setItemAsync(BUYER_ID_KEY, buyerId));
             if (shopId) storagePromises.push(SecureStore.setItemAsync(SHOP_ID_KEY, shopId));
@@ -175,7 +175,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 SecureStore.deleteItemAsync(SHOP_ID_KEY),
             ]);
 
-            // Clear all Zustand stores
             useCartStore.getState().clear();
             useUserAddressStore.getState().clear();
             useCheckoutStore.getState().resetSession();

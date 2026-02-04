@@ -10,7 +10,7 @@ import { Navigator } from '@/utils/navigation';
 import { Image } from 'expo-image';
 import React, { memo } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
 interface ShopGalleryProps {
     items: ShopGalleryItem[];
@@ -26,7 +26,7 @@ export const ShopGallery = memo(({
     title = 'Hình ảnh',
     onItemPress
 }: ShopGalleryProps) => {
-    const { theme } = useUnistyles();
+
     const styles = stylesheet;
     const handlePress = (item: ShopGalleryItem) => {
         if (item.type === 'image') {

@@ -43,13 +43,7 @@ export const useUpdateCartItemQuantity = () => {
         mutationFn: async ({ itemId, quantity }: UpdateQuantityParams): Promise<CartUI> => {
             logger.cart.info('Updating quantity', { itemId, quantity });
 
-            // Get current cart to extract version for If-Match 
-            const currentCart = queryClient.getQueryData<CartUI>(CART_QUERY_KEY);
-            const currentItem = currentCart?.shops
-                .flatMap(s => s.items)
-                .find(i => i.id === itemId);
             const idempotencyKey = uuidv4();
-            const version = currentItem?.version;
 
             const response = await request(
                 {
@@ -143,15 +137,9 @@ export const useRemoveCartItem = () => {
             logger.cart.info('Removing item', { itemId });
 
             // Get current cart to extract version for If-Match
-            const currentCart = queryClient.getQueryData<CartUI>(CART_QUERY_KEY);
-            const currentItem = currentCart?.shops
-                .flatMap(s => s.items)
-                .find(i => i.id === itemId);
-
-            const version = currentItem?.version;
             const idempotencyKey = uuidv4();
 
-            const response = await request(
+            await request(
                 {
                     url: API_ROUTES.CART.REMOVE(itemId),
                     method: 'DELETE',

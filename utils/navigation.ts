@@ -52,7 +52,7 @@ const lockNavigation = () => {
         global.__NAV_LOCKED__ = false;
         global.__NAV_LOCK_TIMEOUT__ = null;
         if (__DEV__) {
-            console.log('[NAV] Navigation auto-unlocked after', NAV_LOCK_DURATION, 'ms');
+            logger.nav.info('[NAV] Navigation auto-unlocked after', NAV_LOCK_DURATION, 'ms');
         }
     }, NAV_LOCK_DURATION);
 };
@@ -80,7 +80,8 @@ export const Navigator = {
         }
 
         lockNavigation();
-        logNav(`[NAV] Pushing: ${typeof route === 'string' ? route : (route as any).pathname || 'complex route'}`);
+        const routePath = typeof route === 'string' ? route : (route as { pathname?: string }).pathname || 'complex route';
+        logNav(`[NAV] Pushing: ${routePath}`);
         router.push(route as Href);
     },
 
@@ -136,7 +137,7 @@ export const Navigator = {
             global.__NAV_LOCK_TIMEOUT__ = null;
         }
         if (__DEV__) {
-            console.log('[NAV] 🔓 Navigation manually unlocked');
+            logger.nav.info('[NAV] Navigation manually unlocked');
         }
     },
 

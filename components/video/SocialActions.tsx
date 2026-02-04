@@ -90,7 +90,7 @@ export const SocialActions = ({
     );
 };
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((_theme) => ({
     container: {
         alignItems: 'center',
         gap: 20,

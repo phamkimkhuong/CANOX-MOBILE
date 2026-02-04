@@ -92,7 +92,6 @@ const MediaGrid = memo<{
     media: ProductReviewMediaUI[];
     onPress: (index: number) => void;
 }>(({ media, onPress }) => {
-    const { theme } = useUnistyles();
     const maxVisible = 4;
     const remainingCount = media.length - maxVisible;
 
@@ -328,7 +327,6 @@ export const ProductReviewCard = memo<ProductReviewCardProps>(({
     onMediaPress,
     onUserPress,
 }) => {
-    const { theme } = useUnistyles();
     const isAuthenticated = useIsAuthenticated();
 
     const handleHelpfulPress = useCallback(() => {

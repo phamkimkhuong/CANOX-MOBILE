@@ -185,7 +185,7 @@ export const useVoucherList = (): UseVoucherListResult => {
     const [vouchers, setVouchers] = useState<VoucherUI[]>(MOCK_VOUCHERS);
     const [featuredVoucher, setFeaturedVoucher] = useState<VoucherUI | null>(MOCK_FEATURED_VOUCHER);
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<Error | null>(null);
+    const [error] = useState<Error | null>(null);
 
     const [activeTab, setActiveTab] = useState('all');
     const [sortBy, setSortBy] = useState<SortOption>('popular');

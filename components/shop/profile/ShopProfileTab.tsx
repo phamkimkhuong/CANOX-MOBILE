@@ -13,11 +13,14 @@
  */
 
 import type { ShopHeaderUI, ShopProductItemUI } from '@/types/shop';
-import type { ShopIdentityResponseData } from '@/types/shop/shopIdentity';
+import type { GalleryGridItem, ShopIdentityResponseData } from '@/types/shop/shopIdentity';
+import { createLogger } from '@/utils/logger';
 import React, { memo, useCallback } from 'react';
 import { Linking, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { StyleSheet } from 'react-native-unistyles';
+
+const log = createLogger('ShopProfileTab');
 
 import { BrandStorySections } from './BrandStorySections';
 import { ShopFeaturedProducts } from './ShopFeaturedProducts';
@@ -65,11 +68,11 @@ export const ShopProfileTab = memo(({
     // Handle image press (open lightbox or browser)
     const handleImagePress = useCallback((url: string) => {
         // TODO: Implement image lightbox
-        console.log('Open image:', url);
+        log.debug('Open image:', url);
     }, []);
 
     // Handle gallery item press
-    const handleGalleryItemPress = useCallback((item: any) => {
+    const handleGalleryItemPress = useCallback((item: GalleryGridItem) => {
         if (item.clickAction) {
             const action = item.clickAction;
             switch (action.type) {
@@ -81,7 +84,7 @@ export const ShopProfileTab = memo(({
                     break;
                 case 'INTERNAL_ROUTE':
                     // TODO: Implement internal navigation
-                    console.log('Navigate to:', action.payload.screen, action.payload.params);
+                    log.debug('Navigate to:', action.payload.screen, action.payload.params);
                     break;
             }
         } else if (item.originalUrl) {

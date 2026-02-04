@@ -16,9 +16,7 @@ import { ROUTES } from '@/constants/routes';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useCartStore } from '@/store/useCartStore';
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 
 interface SearchResultHeaderProps {
@@ -37,8 +35,6 @@ export const SearchResultHeader = React.memo(({
     activeFilterCount = 0,
 }: SearchResultHeaderProps) => {
     const { theme } = useUnistyles();
-    const insets = useSafeAreaInsets();
-    const { t } = useTranslation('search');
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     const cartItemCount = useCartStore((state) => state.totalQuantity);
 

@@ -109,7 +109,6 @@ export interface AddToCartResult {
 export const useAddToCart = () => {
     const queryClient = useQueryClient();
     const incrementCart = useCartStore((state) => state.increment);
-    const setTotalQuantity = useCartStore((state) => state.setTotalQuantity);
     const { t } = useTranslation('cart');
 
     return useMutation({

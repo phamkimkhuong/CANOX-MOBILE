@@ -1,5 +1,6 @@
 import { mmkvStorage } from '@/store/storage';
 import { useAuthStore } from '@/store/useAuthStore';
+import { logger } from '@/utils/logger';
 import notifee, { AndroidImportance, AndroidVisibility, EventType } from '@notifee/react-native';
 import {
     AuthorizationStatus,
@@ -99,7 +100,7 @@ export function usePushNotifications() {
         // Listen when notification received (app is FOREGROUND)
         // Dùng Notifee để hiển thị Heads-up notification
         unsubscribeRef.current = onMessage(messaging, async remoteMessage => {
-            console.log('FCM Notification received (foreground):', remoteMessage);
+            logger.push.info('FCM Notification received (foreground):', remoteMessage);
             setNotification(remoteMessage);
 
             if (remoteMessage.notification) {
@@ -123,16 +124,16 @@ export function usePushNotifications() {
         // Notifee Foreground Event Listener (Khi user bấm vào banner lúc app đang mở)
         const unsubscribeNotifeeForeground = notifee.onForegroundEvent(({ type, detail }) => {
             if (type === EventType.PRESS) {
-                console.log('User pressed notification in foreground', detail.notification);
+                logger.push.info('User pressed notification in foreground', detail.notification);
                 if (detail.notification?.data) {
-                    handleNotificationNavigation(detail.notification as any);
+                    handleNotificationNavigation(detail.notification as FirebaseMessagingTypes.RemoteMessage);
                 }
             }
         });
 
         // Listen when user tap on notification (app is BACKGROUND)
         const unsubscribeOnNotificationOpenedApp = onNotificationOpenedApp(messaging, remoteMessage => {
-            console.log('FCM Notification tapped (background):', remoteMessage);
+            logger.push.info('FCM Notification tapped (background):', remoteMessage);
             handleNotificationNavigation(remoteMessage);
         });
 
@@ -140,14 +141,14 @@ export function usePushNotifications() {
         getInitialNotification(messaging)
             .then(remoteMessage => {
                 if (remoteMessage) {
-                    console.log('FCM App opened from notification (quit state):', remoteMessage);
+                    logger.push.info('FCM App opened from notification (quit state):', remoteMessage);
                     handleNotificationNavigation(remoteMessage);
                 }
             });
 
         // Listen for token refresh
         const unsubscribeTokenRefresh = onTokenRefresh(messaging, newToken => {
-            console.log('FCM Token refreshed:', newToken);
+            logger.push.info('FCM Token refreshed:', newToken);
             setFcmToken(newToken);
             setTokenChanged(true);
             savePushToken(newToken);
@@ -182,8 +183,7 @@ export function usePushNotifications() {
 function handleNotificationNavigation(message: FirebaseMessagingTypes.RemoteMessage) {
     const data = message.data;
     if (!data) return;
-
-    console.log('Handling navigation for notification data:', data);
+    logger.push.info('Handling navigation for notification data:', data);
 
     // TODO: Thực hiện điều hướng dựa trên data.screen, data.productId, v.v.
     // Ví dụ: router.push(data.screen);
@@ -196,12 +196,12 @@ async function subscribeToTopics(): Promise<void> {
     try {
         const messaging = getMessaging();
         await subscribeToTopic(messaging, FCM_TOPICS.ALL_USERS);
-        console.log('Subscribed to topic:', FCM_TOPICS.ALL_USERS);
+        logger.push.info('Subscribed to topic:', FCM_TOPICS.ALL_USERS);
 
         await subscribeToTopic(messaging, FCM_TOPICS.PROMOTIONS);
-        console.log('Subscribed to topic:', FCM_TOPICS.PROMOTIONS);
+        logger.push.info('Subscribed to topic:', FCM_TOPICS.PROMOTIONS);
     } catch (error) {
-        console.error('Error subscribing to topics:', error);
+        logger.push.error('Error subscribing to topics:', error);
     }
 }
 
@@ -212,15 +212,15 @@ export async function unsubscribeFromTopic(topic: string): Promise<void> {
     try {
         const messaging = getMessaging();
         await fcmUnsubscribeFromTopic(messaging, topic);
-        console.log('Unsubscribed from topic:', topic);
+        logger.push.info('Unsubscribed from topic:', topic);
     } catch (error) {
-        console.error('Error unsubscribing from topic:', error);
+        logger.push.error('Error unsubscribing from topic:', error);
     }
 }
 
 async function registerForPushNotificationsAsync(): Promise<string | null> {
     if (!Device.isDevice) {
-        console.log('Push notifications only work on physical devices');
+        logger.push.info('Push notifications only work on physical devices');
         return null;
     }
 
@@ -233,7 +233,7 @@ async function registerForPushNotificationsAsync(): Promise<string | null> {
             authStatus === AuthorizationStatus.PROVISIONAL;
 
         if (!enabled) {
-            console.log('Permission for push notifications was denied on iOS');
+            logger.push.info('Permission for push notifications was denied on iOS');
             return null;
         }
     }
@@ -272,10 +272,10 @@ async function registerForPushNotificationsAsync(): Promise<string | null> {
     try {
         const messaging = getMessaging();
         const token = await getToken(messaging);
-        console.log('FCM Token:', token);
+        logger.push.info('FCM Token:', token);
         return token;
     } catch (error) {
-        console.error('Error getting FCM token:', error);
+        logger.push.error('Error getting FCM token:', error);
         return null;
     }
 }

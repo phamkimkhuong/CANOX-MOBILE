@@ -15,7 +15,7 @@ interface ProductCardProps {
     onClose?: () => void;
 }
 
-export const ProductCard = ({ id, name, price, imageUrl, onPress, onClose }: ProductCardProps) => {
+export const ProductCard = ({ id: _id, name, price, imageUrl, onPress, onClose }: ProductCardProps) => {
     const { theme } = useUnistyles();
 
     return (

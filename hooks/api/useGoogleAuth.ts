@@ -76,7 +76,7 @@ export const useGoogleLogin = () => {
             // Xóa phiên đăng nhập cũ để luôn hiện bảng chọn tài khoản
             try {
                 await GoogleSignin.signOut();
-            } catch (e) {
+            } catch {
                 // Ignore if not signed in
             }
 
@@ -94,13 +94,14 @@ export const useGoogleLogin = () => {
                 log.error('No serverAuthCode found. Ensure offlineAccess: true in configuration.');
                 throw new Error('No serverAuthCode found');
             }
-        } catch (error: any) {
+        } catch (error) {
             hideGlobalLoading();
-            if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+            const signinError = error as { code?: string };
+            if (signinError.code === statusCodes.SIGN_IN_CANCELLED) {
                 log.info('User cancelled Google Sign-in');
-            } else if (error.code === statusCodes.IN_PROGRESS) {
+            } else if (signinError.code === statusCodes.IN_PROGRESS) {
                 log.warn('Google Sign-in already in progress');
-            } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+            } else if (signinError.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
                 Toast.show({
                     type: 'error',
                     text1: 'Google Play Services không khả dụng',

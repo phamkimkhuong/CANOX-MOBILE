@@ -40,7 +40,7 @@ const CoinIcon: React.FC<{ active: boolean }> = ({ active }) => {
 };
 
 // Internal styles for sub-components
-const innerStyles = StyleSheet.create((theme) => ({
+const innerStyles = StyleSheet.create((_theme) => ({
     coinWrapper: {
         width: 44,
         height: 44,

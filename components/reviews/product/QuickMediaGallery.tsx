@@ -37,8 +37,6 @@ const MediaThumbnail = memo<MediaThumbnailProps>(({
     isLast,
     remainingCount,
 }) => {
-    const { theme } = useUnistyles();
-
     return (
         <Pressable style={thumbnailStyles.container} onPress={onPress}>
             <Image

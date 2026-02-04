@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { createJSONStorage, persist } from 'zustand/middleware';
+import { persist, PersistStorage } from 'zustand/middleware';
 import { zustandMMKVStorage } from './storage';
 
 interface VideoState {
@@ -19,7 +19,7 @@ export const useVideoStore = create<VideoState>()(
         }),
         {
             name: 'video-settings',
-            storage: createJSONStorage(() => zustandMMKVStorage as any),
+            storage: zustandMMKVStorage as PersistStorage<VideoState>,
         }
     )
 );

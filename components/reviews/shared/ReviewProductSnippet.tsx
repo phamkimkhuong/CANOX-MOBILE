@@ -39,7 +39,7 @@ export const ReviewProductSnippet: React.FC<ReviewProductSnippetProps> = ({
     variantAttributes,
     price,
     shopName,
-    shopLogo,
+    shopLogo: _shopLogo,
     orderNumber,
     showOrderInfo = false,
 }) => {

@@ -1,4 +1,4 @@
-import { IconSymbol } from '@/components/ui/Icon';
+import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
 import { Navigator } from '@/utils/navigation';
 import React from 'react';
@@ -78,7 +78,7 @@ export const StateView: React.FC<StateViewProps> = ({
         <View style={styles.container}>
             <View style={styles.content}>
                 <View style={styles.iconWrapper}>
-                    <IconSymbol name={iconName as any} size={72} color={theme.colors.secondary} />
+                    <IconSymbol name={iconName as IconSymbolName} size={72} color={theme.colors.secondary} />
                     <View style={styles.iconBg} />
                 </View>
 

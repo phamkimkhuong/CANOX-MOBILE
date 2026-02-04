@@ -75,7 +75,7 @@ export const ShopBanner: React.FC<ShopBannerProps> = ({
     );
 };
 
-const stylesheet = StyleSheet.create((theme) => ({
+const stylesheet = StyleSheet.create((_theme) => ({
     container: {
         width: '100%',
         position: 'relative',

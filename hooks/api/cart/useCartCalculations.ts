@@ -71,8 +71,8 @@ export const useCartCalculations = ({
     onShopVoucherChange,
     onPlatformVoucherChange,
 }: UseCartCalculationsOptions): UseCartCalculationsReturn => {
-    const shops = cartData?.shops ?? [];
-    const platformVouchers = cartData?.platformVouchers ?? [];
+    const shops = useMemo(() => cartData?.shops ?? [], [cartData?.shops]);
+    const platformVouchers = useMemo(() => cartData?.platformVouchers ?? [], [cartData?.platformVouchers]);
 
     const deferredSelectedIds = useDeferredValue(selectedIds);
     const deferredShopVouchers = useDeferredValue(appliedShopVouchers);

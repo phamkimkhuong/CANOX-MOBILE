@@ -32,9 +32,11 @@ import {
 } from '@/types/shop/shopIdentity';
 import React, { memo, useCallback, useState } from 'react';
 import {
+    DimensionValue,
     Image,
     Pressable,
     Text,
+    TextStyle,
     useColorScheme,
     View,
 } from 'react-native';
@@ -88,7 +90,7 @@ const RichTextSection = memo(({ spans }: RichTextSectionProps) => {
         <View style={sectionStyles.richText}>
             <Text style={sectionStyles.richTextContainer}>
                 {spans.map((span, index) => {
-                    const style: any = {
+                    const style: TextStyle = {
                         color: theme.colors.typographySecondary,
                         fontSize: 14,
                         lineHeight: 22,
@@ -166,7 +168,6 @@ const VideoIntroSection = memo(({
     aspectRatio = 1.78,
     onPress,
 }: VideoIntroSectionProps) => {
-    const { theme } = useUnistyles();
 
     const formatDuration = (seconds: number) => {
         const mins = Math.floor(seconds / 60);
@@ -229,7 +230,7 @@ const GalleryGridSection = memo(({
                 {items.map((item, index) => (
                     <Pressable
                         key={index}
-                        style={[sectionStyles.galleryItem, { width: itemWidth as any }]}
+                        style={[sectionStyles.galleryItem, { width: itemWidth as DimensionValue }]}
                         onPress={() => onItemPress?.(item)}
                     >
                         <Image

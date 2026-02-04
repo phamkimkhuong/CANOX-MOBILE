@@ -80,7 +80,7 @@ export const ShopHeaderInfo: React.FC<ShopHeaderInfoProps> = memo(({
                             <Text style={stylesheet.metaText}>Tham gia: {shop.joinDate}</Text>
                         </View>
                         {shop.location && (
-                            <View style={[stylesheet.metaRow, { marginTop: 2 }]}>
+                            <View style={stylesheet.locationRow}>
                                 <IconSymbol name="location-outline" size={12} color={theme.colors.typographySecondary} />
                                 <Text style={stylesheet.metaText}>{shop.location}</Text>
                             </View>
@@ -269,6 +269,12 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: 11,
         color: theme.colors.typographySecondary,
         fontWeight: '600',
+    },
+    locationRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        marginTop: 2,
     },
     actionColumn: {
         gap: 8,

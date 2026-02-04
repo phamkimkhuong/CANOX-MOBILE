@@ -29,9 +29,6 @@ export const USER_ADDRESS_KEYS = {
 
 export const COUNTRY_KEY = ['country'] as const;
 
-// Default fallback nếu API country fail
-const DEFAULT_COUNTRY_NAME = 'Việt Nam';
-
 /**
  * Hook fetch danh sách địa chỉ của user
  */
@@ -103,7 +100,7 @@ export const useCanAddAddress = () => {
 export const checkAddressLimitAndShowToast = (
     currentCount: number,
     maxCount: number = MAX_ADDRESSES,
-    t?: any
+    t?: any // eslint-disable-line @typescript-eslint/no-explicit-any
 ): boolean => {
     const translate = t || i18n.t.bind(i18n);
     if (currentCount >= maxCount) {

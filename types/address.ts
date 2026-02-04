@@ -131,7 +131,13 @@ export interface CreateBuyerAddressRequest {
         ward: string;
         detail: string;
         zipCode?: string;
-        geoinfo?: any;
+        geoinfo?: {
+            latitude: number;
+            longitude: number;
+            confirmed?: boolean;
+            userVerified?: boolean;
+            userAdjusted?: boolean;
+        };
     };
     type: AddressTypeAPI | string;
     isDefault: boolean;

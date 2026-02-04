@@ -7,7 +7,7 @@
 import { SHOP_TABS, ShopTabType } from '@/types/shop';
 import React, { memo, useCallback } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
 interface ShopTabsProps {
     activeTab: ShopTabType;
@@ -20,7 +20,6 @@ export const ShopTabs = memo(({
     onTabChange,
     productCount,
 }: ShopTabsProps) => {
-    const { theme } = useUnistyles();
     const styles = stylesheet;
 
     const handleTabPress = useCallback((tab: ShopTabType) => {

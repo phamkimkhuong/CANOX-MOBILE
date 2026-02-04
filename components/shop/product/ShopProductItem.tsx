@@ -19,7 +19,7 @@ import { Navigator } from '@/utils/navigation';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useCallback } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { GestureResponderEvent, Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface ShopProductItemProps {
@@ -45,7 +45,7 @@ export const ShopProductItem: React.FC<ShopProductItemProps> = ({
     }, [product.id]);
 
     const handleAddToCart = useCallback(
-        (e: any) => {
+        (e: GestureResponderEvent) => {
             e.stopPropagation();
             if (onAddToCart) onAddToCart(product.id);
         },
@@ -121,7 +121,7 @@ export const ShopProductItem: React.FC<ShopProductItemProps> = ({
 
                         {/* Action Row */}
                         <View style={stylesheet.actionRow}>
-                            <View style={{ flex: 1 }} />
+                            <View style={stylesheet.flex1} />
 
                             <Pressable
                                 onPress={handleAddToCart}
@@ -276,6 +276,9 @@ const stylesheet = StyleSheet.create((theme) => ({
         alignItems: 'center',
         justifyContent: 'space-between',
         marginTop: 10,
+    },
+    flex1: {
+        flex: 1,
     },
     locationText: {
         fontSize: 10,

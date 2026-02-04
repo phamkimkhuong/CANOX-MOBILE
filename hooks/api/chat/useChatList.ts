@@ -20,12 +20,11 @@ import {
     ConversationActionResponse,
     ConversationActionResponseSchema,
     ConversationListResponse,
-    ConversationListResponseSchema,
-    ConversationType,
+    ConversationListResponseSchema
 } from '@/types/chat/conversationDTO';
 import { toConversationListUI } from '@/utils/adapter/chat/conversationAdapter';
 import { logger } from '@/utils/logger';
-import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { InfiniteData, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 
 const PAGE_SIZE = 20;
@@ -35,24 +34,6 @@ const PAGE_SIZE = 20;
  * Used for cache invalidation.
  */
 export const CONVERSATIONS_QUERY_KEY = 'conversations';
-
-/**
- * Map UI filter to API conversationType filter.
- * Returns undefined for ALL filter (no filtering).
- */
-const mapFilterToConversationType = (filter: ChatFilter): ConversationType | undefined => {
-    switch (filter) {
-        case ChatFilter.SHOP:
-            return 'BUYER_TO_SHOP';
-        case ChatFilter.SUPPORT:
-            return 'BUYER_TO_PLATFORM';
-        case ChatFilter.UNREAD:
-            return undefined; // Filter client-side
-        case ChatFilter.ALL:
-        default:
-            return undefined;
-    }
-};
 
 // ============================================
 // API FETCH FUNCTION
@@ -246,7 +227,6 @@ export const usePrefetchChat = () => {
  */
 export const useConversationActions = () => {
     const queryClient = useQueryClient();
-    const buyerId = useAuthStore((state) => state.buyerId);
 
     /**
      * Pin/Unpin a conversation.
@@ -302,8 +282,7 @@ export const useConversationActions = () => {
             return { conversationId, isMuted, updatedDto: validated.data };
         },
         onSuccess: ({ conversationId, isMuted }) => {
-            // Optimistically update the cache for all chat list queries
-            queryClient.setQueriesData<{ pages: any[]; pageParams: any[] }>(
+            queryClient.setQueriesData<InfiniteData<{ conversations: Conversation[]; page: number; hasNext: boolean; totalElements: number }>>(
                 { queryKey: [CONVERSATIONS_QUERY_KEY] },
                 (oldData) => {
                     if (!oldData) return oldData;
@@ -312,7 +291,7 @@ export const useConversationActions = () => {
                         ...oldData,
                         pages: oldData.pages.map(page => ({
                             ...page,
-                            conversations: page.conversations.map((conv: Conversation) =>
+                            conversations: page.conversations.map((conv) =>
                                 conv.id === conversationId
                                     ? { ...conv, isMuted }
                                     : conv

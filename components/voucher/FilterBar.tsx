@@ -122,7 +122,6 @@ export const FilterBar = memo<FilterBarProps>(({
     onTabChange,
     tabs = VOUCHER_FILTER_TABS,
 }) => {
-    const { theme } = useUnistyles();
 
     const handleTabPress = useCallback((tabId: string) => {
         onTabChange(tabId);

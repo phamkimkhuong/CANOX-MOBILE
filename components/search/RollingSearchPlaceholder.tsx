@@ -14,7 +14,7 @@ import Animated, {
     FadeInUp,
     FadeOutUp,
 } from 'react-native-reanimated';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
 interface RollingSearchPlaceholderProps {
     /** Array of keywords to cycle through */
@@ -37,7 +37,6 @@ export const RollingSearchPlaceholder: React.FC<RollingSearchPlaceholderProps> =
     interval = 3500,
     animate = true,
 }) => {
-    const { theme } = useUnistyles();
     const [currentIndex, setCurrentIndex] = useState(0);
 
     // Only cycle if we have multiple keywords and animation is enabled
