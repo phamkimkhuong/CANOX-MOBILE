@@ -7,7 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
 interface ProductFlashSaleBarProps {
     /** Flash Sale info từ ProductDetailUI */
@@ -20,7 +20,6 @@ export const ProductFlashSaleBar = memo<ProductFlashSaleBarProps>(({
     flashSale,
     onExpired,
 }) => {
-    const { theme } = useUnistyles();
     const { t } = useTranslation('product');
 
     // Mapping UI theo campaignType with Premium Gradients
@@ -92,18 +91,25 @@ export const ProductFlashSaleBar = memo<ProductFlashSaleBarProps>(({
         onComplete: onExpired,
     });
 
-    // Không render nếu không active hoặc đã hết hạn
-    if (!flashSale.isActive || isExpired || (!flashSale.endTime && !flashSale.secondsRemaining)) {
-        return null;
-    }
-
-    // Tính progress percentage
     const soldPercentage = flashSale.quantityLimit && flashSale.quantitySold !== undefined
         ? Math.min((flashSale.quantitySold / flashSale.quantityLimit) * 100, 100)
         : 0;
 
     // Xác định trạng thái hiển thị
     const isAlmostSoldOut = soldPercentage >= 80;
+
+    // Memoize dynamic progress style to avoid inline-styles warning
+    const progressFillStyle = useMemo(() => ({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        width: `${Math.max(soldPercentage, 15)}%` as any,
+        backgroundColor: isAlmostSoldOut ? '#FFD700' : '#FFFFFF',
+    }), [soldPercentage, isAlmostSoldOut]);
+
+    // Không render nếu không active hoặc đã hết hạn
+    if (!flashSale.isActive || isExpired || (!flashSale.endTime && !flashSale.secondsRemaining)) {
+        return null;
+    }
+
     const statusText = isAlmostSoldOut
         ? t('flashSale.soldOut')
         : flashSale.quantitySold && flashSale.quantitySold > 0
@@ -113,6 +119,7 @@ export const ProductFlashSaleBar = memo<ProductFlashSaleBarProps>(({
     return (
         <View style={styles.container}>
             <LinearGradient
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 colors={campaignTheme.gradient as any}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
@@ -159,10 +166,7 @@ export const ProductFlashSaleBar = memo<ProductFlashSaleBarProps>(({
                                 <View
                                     style={[
                                         styles.progressFill,
-                                        {
-                                            width: `${Math.max(soldPercentage, 15)}%`,
-                                            backgroundColor: isAlmostSoldOut ? '#FFD700' : '#FFFFFF',
-                                        },
+                                        progressFillStyle,
                                     ]}
                                 >
                                     <LinearGradient

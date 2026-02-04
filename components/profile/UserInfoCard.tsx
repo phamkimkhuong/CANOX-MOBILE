@@ -4,7 +4,7 @@ import { ROUTES } from '@/constants/routes';
 import { MEMBER_LEVEL_CONFIG, UserProfile } from '@/types/profile/profile';
 import { Navigator } from '@/utils/navigation';
 import { Image } from 'expo-image';
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';

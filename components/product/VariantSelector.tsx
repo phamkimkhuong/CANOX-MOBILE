@@ -77,8 +77,8 @@ interface OptionValueButtonProps {
 /**
  */
 export const VariantSelectorRow = memo<VariantSelectorRowProps>(({
-    options,
-    selectedOptions,
+    options: _options,
+    selectedOptions: _selectedOptions,
     selectionSummary,
     onPress,
 }) => {
@@ -268,7 +268,7 @@ export const VariantBottomSheet = memo<VariantBottomSheetProps>(({
     visible,
     onClose,
     options,
-    selectedOptions,
+    selectedOptions: _selectedOptions,
     onSelectOption,
     currentPrice,
     originalPrice,

@@ -2,7 +2,6 @@ import type { InventoryStatus } from '@/types/product/productDetail';
 import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 import { IconSymbol } from '../ui/Icon';
 import { SmartNavButton } from '../ui/navigation/SmartNavButton';
@@ -19,16 +18,15 @@ interface StickyBottomBarProps {
 }
 
 export const StickyBottomBar = memo<StickyBottomBarProps>(({
-    isFullySelected,
+    isFullySelected: _isFullySelected,
     inventoryStatus,
     onChatPress,
     onPrefetchChat,
     onAddToCartPress,
     onBuyNowPress,
-    isFavorite = false,
-    onFavoritePress,
+    isFavorite: _isFavorite = false,
+    onFavoritePress: _onFavoritePress,
 }) => {
-    const insets = useSafeAreaInsets();
     const { theme } = useUnistyles();
     const { t } = useTranslation('product');
 

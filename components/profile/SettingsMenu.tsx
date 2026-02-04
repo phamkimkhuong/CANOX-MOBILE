@@ -44,6 +44,7 @@ const MenuItem: React.FC<MenuItemProps> = memo(({ item, isFirst, isLast, onPress
                     color={item.iconColor}
                 />
             </View>
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             <Text style={styles.menuLabel}>{t(`menu.${item.key}` as any)}</Text>
             {value && <Text style={styles.menuValue}>{value}</Text>}
             <IconSymbol name="chevron-right" size={18} color={theme.colors.typographySecondary} />
@@ -58,7 +59,6 @@ MenuItem.displayName = 'MenuItem';
  */
 export const SettingsMenu: React.FC<SettingsMenuProps> = memo(({ appVersion = '1.0.0', onPressItem }) => {
     const styles = stylesheet;
-    const { t } = useTranslation('profile');
 
     const handlePress = useCallback((route: string) => {
         if (onPressItem) {

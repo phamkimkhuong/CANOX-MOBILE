@@ -1,6 +1,5 @@
 import React from 'react';
 import { useWindowDimensions, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 
 // ============================================
@@ -37,8 +36,6 @@ const SkeletonBox: React.FC<SkeletonBoxProps> = ({
 };
 
 export const ProductDetailSkeleton: React.FC = () => {
-    const insets = useSafeAreaInsets();
-    const { theme } = useUnistyles();
 
     // Reactive screen dimensions - tự động update khi xoay màn hình
     const { width: screenWidth } = useWindowDimensions();

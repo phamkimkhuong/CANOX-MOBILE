@@ -19,7 +19,7 @@ interface ProfileHeaderProps {
  * Sticky at top with safe area handling
  */
 export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
-    hasNotification = true,
+    hasNotification: _hasNotification = true,
     showSettings = true,
 }) => {
     const { theme } = useUnistyles();

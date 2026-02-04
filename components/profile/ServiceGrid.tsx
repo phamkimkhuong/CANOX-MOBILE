@@ -105,6 +105,7 @@ export const ServiceGrid: React.FC<ServiceGridProps> = memo(({
                                 />
                             </View>
                             <View style={styles.textContainer}>
+                                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                                 <Text style={styles.label}>{t(`menu.${item.key}` as any)}</Text>
                                 <Text
                                     style={[

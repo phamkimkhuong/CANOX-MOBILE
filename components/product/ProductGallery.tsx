@@ -67,7 +67,7 @@ interface ThumbnailItemProps {
  */
 const GalleryItemView = memo<GalleryItemViewProps>(({
     item,
-    index,
+    index: _index,
     width,
     height,
     onPress,
@@ -122,7 +122,7 @@ const GalleryItemView = memo<GalleryItemViewProps>(({
 
 GalleryItemView.displayName = 'GalleryItemView';
 
-const itemStyles = StyleSheet.create((theme) => ({
+const itemStyles = StyleSheet.create((_theme) => ({
     image: {
         width: '100%',
         height: '100%',
@@ -151,7 +151,7 @@ const itemStyles = StyleSheet.create((theme) => ({
  */
 const ThumbnailItem = memo<ThumbnailItemProps>(({
     item,
-    index,
+    index: _index,
     isActive,
     onPress,
 }) => {
@@ -223,7 +223,7 @@ const thumbnailStyles = StyleSheet.create((theme) => ({
  */
 export const ProductGallery = memo(forwardRef<ProductGalleryRef, ProductGalleryProps>(({
     gallery,
-    onScrollY,
+    onScrollY: _onScrollY,
     onImagePress,
     initialIndex = 0,
 }, ref) => {

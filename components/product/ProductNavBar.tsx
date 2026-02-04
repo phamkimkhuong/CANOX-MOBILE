@@ -3,7 +3,7 @@ import { ROUTES } from '@/constants/routes';
 import { useCartStore } from '@/store/useCartStore';
 import { Navigator } from '@/utils/navigation';
 import { Ionicons } from '@expo/vector-icons';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router } from 'expo-router';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, Pressable, Text, View } from 'react-native';
@@ -14,7 +14,6 @@ import Animated, {
     useAnimatedProps,
     useAnimatedStyle,
 } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 
 // CONSTANTS
@@ -115,10 +114,8 @@ export const ProductNavBar: React.FC<ProductNavBarProps> = ({
     onSharePress,
     onMorePress,
 }) => {
-    const insets = useSafeAreaInsets();
     const { theme } = useUnistyles();
     const { t } = useTranslation('product');
-    const { id } = useLocalSearchParams<{ id: string }>();
     const cartItemCount = useCartStore((state) => state.totalQuantity);
 
     const handleGoBack = () => {

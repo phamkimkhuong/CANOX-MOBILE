@@ -5,7 +5,7 @@ import { Navigator } from '@/utils/navigation';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
 interface RelatedProductsProps {
     productId: string;
@@ -14,7 +14,6 @@ interface RelatedProductsProps {
 export const RelatedProducts = ({ productId }: RelatedProductsProps) => {
     const { t } = useTranslation('product');
     const { data, isLoading } = useRelatedProducts(productId);
-    const { theme } = useUnistyles();
 
     const products = useMemo(() => data?.content ?? [], [data]);
 
