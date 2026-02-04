@@ -490,6 +490,7 @@ export interface CheckoutTranslation {
         bestApplied: string;
         bestAppliedDetail: string;
         manualInputPlaceholder: string;
+        platformManualInputPlaceholder: string;
         findingBest: string;
         shippingVoucherTitle: string;
         noShippingVoucher: string;

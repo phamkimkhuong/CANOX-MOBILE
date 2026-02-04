@@ -65,8 +65,7 @@ export const VoucherPickerCard = memo<VoucherPickerCardProps>(({
                 pressed && !isDisabled && styles.containerPressed,
                 isDisabled && styles.containerDisabled,
             ]}
-            onPress={onPress}
-            disabled={isDisabled}
+            onPress={!isDisabled ? onPress : undefined}
         >
             {/* Radio Button */}
             <View style={styles.radioContainer}>

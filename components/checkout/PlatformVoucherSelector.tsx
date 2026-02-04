@@ -11,7 +11,7 @@ import type { VoucherUI } from '@/types/cart';
 import { formatCurrency } from '@/utils/format';
 import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Modal, Pressable, ScrollView, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native';
+import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface PlatformVoucherSelectorProps {
@@ -202,8 +202,11 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
             >
                 <TouchableWithoutFeedback onPress={() => setIsModalVisible(false)}>
                     <View style={styles.modalOverlay}>
-                        <TouchableWithoutFeedback>
-                            <View style={styles.modalContent}>
+                        <KeyboardAvoidingView
+                            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                            style={styles.keyboardAvoid}
+                        >
+                            <Pressable onPress={(e) => e.stopPropagation()} style={styles.modalContent}>
                                 {/* Handle bar */}
                                 <View style={styles.handleBar} />
 
@@ -229,42 +232,46 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
                                     </Pressable>
                                 </View>
 
-                                {/* Manual Input Section */}
-                                <View style={styles.manualInputSection}>
-                                    <View style={styles.inputWrapper}>
-                                        <TextInput
-                                            style={styles.manualInput}
-                                            placeholder={t('voucher.manualInputPlaceholder')}
-                                            placeholderTextColor={theme.colors.typographySecondary}
-                                            value={manualCode}
-                                            onChangeText={setManualCode}
-                                            autoCapitalize="characters"
-                                            autoCorrect={false}
-                                            returnKeyType="done"
-                                        />
-                                        {manualCode.length > 0 && (
-                                            <Pressable
-                                                onPress={() => setManualCode('')}
-                                                style={styles.clearButton}
-                                            >
-                                                <IconSymbol name="close-circle" size={16} color={theme.colors.typographySecondary} />
-                                            </Pressable>
-                                        )}
+                                {/* Unified Scroll Flow */}
+                                <ScrollView
+                                    style={styles.voucherList}
+                                    contentContainerStyle={styles.scrollContent}
+                                    showsVerticalScrollIndicator={false}
+                                >
+                                    {/* Manual Input Section - Integrated into ScrollView */}
+                                    <View style={styles.manualInputSection}>
+                                        <View style={styles.inputWrapper}>
+                                            <TextInput
+                                                style={styles.manualInput}
+                                                placeholder={t('voucher.platformManualInputPlaceholder')}
+                                                placeholderTextColor={theme.colors.typographySecondary}
+                                                value={manualCode}
+                                                onChangeText={setManualCode}
+                                                autoCapitalize="characters"
+                                                autoCorrect={false}
+                                                returnKeyType="done"
+                                            />
+                                            {manualCode.length > 0 && (
+                                                <Pressable
+                                                    onPress={() => setManualCode('')}
+                                                    style={styles.clearButton}
+                                                >
+                                                    <IconSymbol name="close-circle" size={16} color={theme.colors.typographySecondary} />
+                                                </Pressable>
+                                            )}
+                                        </View>
+                                        <Pressable
+                                            style={[
+                                                styles.applyButton,
+                                                !manualCode.trim() && styles.applyButtonDisabled
+                                            ]}
+                                            onPress={handleManualApply}
+                                            disabled={!manualCode.trim()}
+                                        >
+                                            <Text style={styles.applyButtonText}>{t('voucher.applyButton')}</Text>
+                                        </Pressable>
                                     </View>
-                                    <Pressable
-                                        style={[
-                                            styles.applyButton,
-                                            !manualCode.trim() && styles.applyButtonDisabled
-                                        ]}
-                                        onPress={handleManualApply}
-                                        disabled={!manualCode.trim()}
-                                    >
-                                        <Text style={styles.applyButtonText}>{t('voucher.applyButton')}</Text>
-                                    </Pressable>
-                                </View>
 
-                                {/* Voucher List */}
-                                <ScrollView style={styles.voucherList}>
                                     {/* SECTION 1: SHIPPING VOUCHERS */}
                                     <View style={styles.sectionHeader}>
                                         <Text style={styles.sectionTitle}>{t('voucher.shippingVoucherTitle')}</Text>
@@ -308,8 +315,8 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
 
                                 {/* Footer spacing */}
                                 <View style={styles.modalFooter} />
-                            </View>
-                        </TouchableWithoutFeedback>
+                            </Pressable>
+                        </KeyboardAvoidingView>
                     </View>
                 </TouchableWithoutFeedback>
             </Modal>
@@ -342,8 +349,7 @@ const VoucherItem: React.FC<VoucherItemProps> = ({ voucher, isSelected, onPress 
                 pressed && !isDisabled && styles.voucherItemPressed,
                 isDisabled && styles.voucherItemDisabled,
             ]}
-            onPress={handlePress}
-            disabled={isDisabled}
+            onPress={!isDisabled ? handlePress : undefined}
         >
             <View style={styles.radioContainer}>
                 <View
@@ -518,9 +524,14 @@ const styles = StyleSheet.create((theme, rt) => {
 
         modalContent: {
             backgroundColor: theme.colors.surface,
-            borderTopLeftRadius: 24,
-            borderTopRightRadius: 24,
-            maxHeight: '75%',
+            borderTopLeftRadius: 28,
+            borderTopRightRadius: 28,
+            height: '85%',
+            width: '100%',
+        },
+        keyboardAvoid: {
+            width: '100%',
+            justifyContent: 'flex-end',
         },
 
         handleBar: {
@@ -701,7 +712,10 @@ const styles = StyleSheet.create((theme, rt) => {
         },
 
         modalFooter: {
-            height: 34,
+            height: 44,
+        },
+        scrollContent: {
+            paddingBottom: 20,
         },
 
         manualInputSection: {
