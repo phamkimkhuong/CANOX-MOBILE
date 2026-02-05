@@ -1,7 +1,9 @@
 import { IconSymbol } from '@/components/ui/Icon';
-import { useActiveFlashSale } from '@/hooks/api/useActiveFlashSale';
+import { ROUTES } from '@/constants/routes';
+import { useActiveFlashSale } from '@/hooks/api/campaign/useActiveFlashSale';
 import { formatTimeLeft } from '@/utils/date';
 import { formatCurrency } from '@/utils/format';
+import { Navigator } from '@/utils/navigation';
 import { Image } from 'expo-image';
 import React, { memo, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -89,7 +91,10 @@ export const FlashSale = memo(({ onProductPress }: FlashSaleProps = {}) => {
                         </View>
                     </View>
                 </View>
-                <TouchableOpacity style={styles.seeAllBtn}>
+                <TouchableOpacity
+                    style={styles.seeAllBtn}
+                    onPress={() => Navigator.push(ROUTES.CAMPAIGN.FLASH_SALE)}
+                >
                     <Text style={styles.seeAllText}>{t('flashSale.seeAll')}</Text>
                     <IconSymbol name="chevron-right" size={16} color={theme.colors.secondary} />
                 </TouchableOpacity>

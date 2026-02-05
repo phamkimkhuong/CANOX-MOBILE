@@ -162,7 +162,11 @@ export const API_ROUTES = {
     },
     CAMPAIGNS: {
         ACTIVE_SLOTS: `${API_PREFIX}/campaigns/slots/active`,
+        UPCOMING_SLOTS: `${API_PREFIX}/campaigns/slots/upcoming`,
+        SEARCH_SLOTS: `${API_PREFIX}/campaigns/slots/search`,
         SLOT_PRODUCTS: (slotId: string) => `${API_PREFIX}/campaigns/slots/${slotId}/products`,
+        SLOT_DETAIL: (slotId: string) => `${API_PREFIX}/campaigns/slots/${slotId}`,
+        DETAIL: (id: string) => `${API_PREFIX}/campaigns/${id}`,
         ACTIVE: `${API_PREFIX}/campaigns/active`,
         UPCOMING: `${API_PREFIX}/campaigns/upcoming`,
         FEATURED: `${API_PREFIX}/campaigns/featured`,

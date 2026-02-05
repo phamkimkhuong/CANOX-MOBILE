@@ -77,6 +77,7 @@ export const useActiveFlashSale = () => {
                     discountPercentage: p.discountPercent || 0,
                     soldCount: stockSold,
                     totalStock: stockLimit,
+                    stockRemaining: p.stockRemaining || 0,
                     progress: progress,
                     isSoldOut: p.isSoldOut || (p.stockRemaining === 0),
                     purchaseLimitPerUser: p.purchaseLimitPerUser,

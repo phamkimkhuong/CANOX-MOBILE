@@ -141,6 +141,16 @@ export interface HomeTranslation {
         sellingFast: string;
         soldOut: string;
         urgentStock: string;
+        recentlyLaunched: string;
+        endingIn: string;
+        startingIn: string;
+        statusLive: string;
+        statusUpcoming: string;
+        remindMe: string;
+        buyNow: string;
+        almostGone: string;
+        sold: string;
+        onlyLeft: string;
     };
     featured: {
         title: string;

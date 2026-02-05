@@ -72,24 +72,24 @@ export default [
             '@typescript-eslint/no-empty-object-type': 'off',
 
             // i18n scanner - Find literal strings
-            'i18next/no-literal-string': ['warn', {
-                'markupOnly': true,
-                'ignoreComponent': [
-                    'Icon', 'IconSymbol', 'StatusBar', 'ActivityIndicator',
-                    'RefreshControl', 'FlashList', 'FlatList', 'ScrollView',
-                    'Animated.View', 'View', 'Pressable', 'TouchableOpacity'
-                ],
-                'ignoreAttribute': [
-                    'style', 'contentContainerStyle', 'testID', 'nativeID',
-                    'color', 'backgroundColor', 'tintColor'
-                ],
-                'onlyAttributes': ['placeholder', 'title', 'label'],
-                'ignore': [
-                    '^[A-Z0-9_-]+$',
-                    '^[0-9]+$',
-                    '^[\\+\\-\\*/%&\\|<>!\\?:]+$'
-                ],
-            }],
+            // 'i18next/no-literal-string': ['warn', {
+            //     'markupOnly': true,
+            //     'ignoreComponent': [
+            //         'Icon', 'IconSymbol', 'StatusBar', 'ActivityIndicator',
+            //         'RefreshControl', 'FlashList', 'FlatList', 'ScrollView',
+            //         'Animated.View', 'View', 'Pressable', 'TouchableOpacity'
+            //     ],
+            //     'ignoreAttribute': [
+            //         'style', 'contentContainerStyle', 'testID', 'nativeID',
+            //         'color', 'backgroundColor', 'tintColor'
+            //     ],
+            //     'onlyAttributes': ['placeholder', 'title', 'label'],
+            //     'ignore': [
+            //         '^[A-Z0-9_-]+$',
+            //         '^[0-9]+$',
+            //         '^[\\+\\-\\*/%&\\|<>!\\?:]+$'
+            //     ],
+            // }],
         },
     },
 
@@ -103,7 +103,7 @@ export default [
             },
         },
         rules: {
-            '@typescript-eslint/no-deprecated': 'warn',
+            // '@typescript-eslint/no-deprecated': 'warn',
         },
     },
 

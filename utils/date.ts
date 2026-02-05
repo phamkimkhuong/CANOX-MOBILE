@@ -79,6 +79,42 @@ export const formatRelativeDate = (dateString: string | null | undefined): strin
 };
 
 /**
+ * Calculate a stable target timestamp synchronized with the Backend's relative seconds.
+ * This bypasses user system clock skew/timezone issues.
+ */
+export const getSynchronizedTargetTimestamp = (
+    absoluteTime: string | null | undefined,
+    secondsUntil?: number
+): number => {
+    if (secondsUntil !== undefined && secondsUntil > 0) {
+        return Date.now() + secondsUntil * 1000;
+    }
+    return safeParseDate(absoluteTime)?.getTime() || 0;
+};
+
+/**
+ * Format remaining time based on a synchronized target timestamp.
+ */
+export const formatSynchronizedTimeLeft = (targetTimestamp: number) => {
+    const total = targetTimestamp - Date.now();
+
+    if (total <= 0) {
+        return { total: 0, hours: 0, minutes: 0, seconds: 0 };
+    }
+
+    const seconds = Math.floor((total / 1000) % 60);
+    const minutes = Math.floor((total / 1000 / 60) % 60);
+    const hours = Math.floor(total / (1000 * 60 * 60));
+
+    return {
+        total,
+        hours,
+        minutes,
+        seconds,
+    };
+};
+
+/**
  * Format remaining time (ms) -> { hours, minutes, seconds }
  * Uses safeParseDate for cross-platform safety
  */

@@ -52,7 +52,7 @@ const PUBLIC_ENDPOINTS = [
     '/categories/tree',
     '/reviews/PRODUCT/**',
     '/search/hot',
-    '/campaigns/slots/**',
+    '/campaigns/**',
     '/homepage/**',
     '/address/**',
     '/products/**',

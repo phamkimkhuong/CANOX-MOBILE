@@ -115,9 +115,9 @@ export const ROUTES = {
         /** Search results with products */
         RESULTS: '/(main)/search/results' as const,
     },
-    // ============ CREATOR ============
-    CREATOR: {
-        DETAIL: '/(main)/(user)/creator/[id]' as const,
+    // ============ CAMPAIGN ============
+    CAMPAIGN: {
+        FLASH_SALE: '/(main)/flash-sale' as const,
     },
 } as const;
 

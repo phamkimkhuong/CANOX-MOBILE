@@ -22,6 +22,7 @@ export interface FlashSaleItem {
     discountPercentage: number;
     soldCount: number;
     totalStock: number;
+    stockRemaining: number;
     progress: number; // 0 to 100
     isSoldOut: boolean;
     purchaseLimitPerUser?: number | null;

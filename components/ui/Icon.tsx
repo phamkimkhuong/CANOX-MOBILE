@@ -219,6 +219,7 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     'heart.fill': { ios: 'heart', android: 'heart' },
     'play.fill': { ios: 'play', android: 'play' },
     'exclamationmark.triangle.fill': { ios: 'warning', android: 'warning' },
+    'cart.badge.minus': { ios: 'cart-outline', android: 'cart-outline' },
 
     // === Error State Icons (for StateView/DataGuard) ===
     wifi: { ios: 'wifi', android: 'wifi' },

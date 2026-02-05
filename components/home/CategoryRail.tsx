@@ -26,7 +26,7 @@ interface Category {
 }
 
 const CATEGORIES: Category[] = [
-    { id: 1, name: 'Flash Sale', icon: 'flash', color: '#f59e0b' },
+    { id: 1, name: 'Flash Sale', icon: 'flash', color: '#f59e0b', route: ROUTES.CAMPAIGN.FLASH_SALE },
     { id: 2, name: 'Free Ship', icon: 'shipping', color: '#3b82f6' },
     { id: 3, name: 'Vouchers', icon: 'ticket', color: '#fb923c', route: ROUTES.PROFILE.VOUCHERS },
     { id: 5, name: 'Top Up', icon: 'smartphone', color: '#a855f7' },
