@@ -17,13 +17,13 @@ import React, { memo, useCallback } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
-    runOnJS,
     useAnimatedStyle,
     useSharedValue,
     withSpring,
     withTiming,
 } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { scheduleOnRN } from 'react-native-worklets';
 import { IconSymbol } from './Icon';
 
 // ============================================
@@ -129,7 +129,7 @@ export const SwipeableRow: React.FC<SwipeableRowProps> = memo(({
     const handleDelete = useCallback(() => {
         translateX.value = withTiming(-300, { duration: 200 }, () => {
             if (onDelete) {
-                runOnJS(onDelete)();
+                scheduleOnRN(onDelete);
             }
         });
     }, [onDelete, translateX]);

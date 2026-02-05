@@ -45,6 +45,7 @@ export interface ProductTranslation {
         reviews: string;
         sold: string;
         discount: string;
+        soldCountTemplate: string;
     };
     flashSale: {
         title: string;
@@ -282,8 +283,10 @@ export interface CommonTranslation {
         copy: string;
         viewNow: string;
         seeAll: string;
+        seeMore: string;
         yes: string;
         no: string;
+        quantityTemplate: string;
     };
     status: {
         loading: string;
@@ -1338,6 +1341,40 @@ export interface AddressTranslation {
 }
 
 /**
+ * Shop module translations
+ */
+export interface ShopTranslation {
+    vouchers: {
+        title: string;
+        expiryLabel: string;
+        collect: string;
+    };
+    categories: {
+        empty: string;
+    };
+}
+
+/**
+ * Video module translations
+ */
+export interface VideoTranslation {
+    loadError: string;
+    reviewProduct: string;
+    following: string;
+    forYou: string;
+    priceTemplate: string;
+}
+
+/**
+ * Wishlist module translations
+ */
+export interface WishlistTranslation {
+    productCount: string;
+    targetPriceMet: string;
+    targetPriceGoal: string;
+}
+
+/**
  * Global I18n Resources
  */
 export interface I18nResources {
@@ -1357,4 +1394,7 @@ export interface I18nResources {
     myReviews: MyReviewTranslation;
     bank: BankTranslation;
     address: AddressTranslation;
+    video: VideoTranslation;
+    wishlist: WishlistTranslation;
+    shop: ShopTranslation;
 }

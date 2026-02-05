@@ -8,7 +8,7 @@
 import { z } from 'zod';
 
 // Helper to transform nullish arrays to empty arrays
-const arrayOrEmpty = <T extends z.ZodTypeAny>(schema: T) =>
+const arrayOrEmpty = <T extends z.ZodType>(schema: T) =>
     z.array(schema).nullish().transform((val) => val ?? []);
 
 // Helper to transform nullish numbers to default

@@ -30,7 +30,7 @@ export interface PaginatedResponse<T> {
 /**
  * Helper function to create a paginated response schema
  */
-export const createPaginatedResponseSchema = <T extends z.ZodTypeAny>(contentSchema: T) =>
+export const createPaginatedResponseSchema = <T extends z.ZodType>(contentSchema: T) =>
     ResponseDefaultSchema.extend({
         data: z.object({
             content: z.array(contentSchema).default([]),

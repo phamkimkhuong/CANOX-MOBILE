@@ -69,6 +69,7 @@ export const PRODUCT_STRINGS: ProductTranslation = {
         reviews: 'Đánh giá',
         sold: 'Đã bán',
         discount: 'Giảm',
+        soldCountTemplate: 'Đã bán {{soldCount}}',
     },
 
     // === Flash Sale ===

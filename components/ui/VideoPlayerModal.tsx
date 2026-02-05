@@ -2,6 +2,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import { useEvent, useEventListener } from 'expo';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     ActivityIndicator,
     Modal,
@@ -44,6 +45,7 @@ export function VideoPlayerModal({
     videoUrl,
     onClose,
 }: VideoPlayerModalProps) {
+    const { t } = useTranslation(['product', 'common']);
     const insets = useSafeAreaInsets();
     const [error, setError] = useState<string | null>(null);
 
@@ -65,7 +67,7 @@ export function VideoPlayerModal({
      */
     useEventListener(player, 'statusChange', ({ status: newStatus, error: playerError }) => {
         if (newStatus === 'error' && playerError) {
-            setError('Không thể phát video');
+            setError(t('product:error.loadFailed'));
         } else if (newStatus === 'readyToPlay') {
             setError(null);
         }
@@ -138,7 +140,7 @@ export function VideoPlayerModal({
                         <IconSymbol name="alert-circle-outline" size={48} color="#FF4444" />
                         <Text style={styles.errorText}>{error}</Text>
                         <Pressable style={styles.retryButton} onPress={handleRetry}>
-                            <Text style={styles.retryText}>Thử lại</Text>
+                            <Text style={styles.retryText}>{t('common:actions.retry')}</Text>
                         </Pressable>
                     </View>
                 )}

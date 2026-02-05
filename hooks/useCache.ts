@@ -1,7 +1,6 @@
 import type { CacheInfo } from '@/types/settings';
 import { calculateCacheSize, clearAllCache, formatBytes } from '@/utils/cache';
 import { useCallback, useEffect, useState } from 'react';
-import { InteractionManager } from 'react-native';
 
 interface UseCacheReturn {
     /** Cache information */
@@ -90,14 +89,12 @@ export function useCache(): UseCacheReturn {
 
     // Calculate cache size on mount with a delay to let UI transition finish
     useEffect(() => {
-        const task = InteractionManager.runAfterInteractions(() => {
-            // Add short delay (~500ms) for user to see screen
-            setTimeout(() => {
-                refreshCacheSize();
-            }, 500);
-        });
+        // Add short delay (~500ms) for user to see screen and wait for transitions
+        const timer = setTimeout(() => {
+            refreshCacheSize();
+        }, 500);
 
-        return () => task.cancel();
+        return () => clearTimeout(timer);
     }, [refreshCacheSize]);
 
     // Format cache size for display

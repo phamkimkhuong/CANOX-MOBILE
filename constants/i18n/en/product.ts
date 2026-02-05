@@ -53,6 +53,7 @@ export const PRODUCT_STRINGS: ProductTranslation = {
         reviews: 'Reviews',
         sold: 'Sold',
         discount: 'Off',
+        soldCountTemplate: 'Sold {{soldCount}}',
     },
 
     // === Flash Sale ===

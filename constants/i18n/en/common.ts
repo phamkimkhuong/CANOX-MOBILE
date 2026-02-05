@@ -15,8 +15,10 @@ export const COMMON_STRINGS: CommonTranslation = {
         copy: 'Copy',
         viewNow: 'View Now',
         seeAll: 'See All',
+        seeMore: 'See More',
         yes: 'Yes',
         no: 'No',
+        quantityTemplate: 'x{{count}}'
     },
     status: {
         loading: 'Loading...',

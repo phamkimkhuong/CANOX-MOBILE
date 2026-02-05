@@ -32,9 +32,7 @@ export default function ForgotPasswordScreen() {
 
     // Schema Validation with i18n
     const forgotPasswordSchema = useMemo(() => z.object({
-        email: z.string()
-            .min(1, t('validation.emailRequired'))
-            .email(t('validation.emailInvalid')),
+        email: z.email(t('validation.emailInvalid')),
     }), [t]);
 
     const { control, handleSubmit, setError } = useForm<ForgotPasswordFormData>({

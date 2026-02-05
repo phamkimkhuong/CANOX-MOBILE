@@ -292,7 +292,7 @@ export async function request<T>(
         // Schema mismatch - log for debugging
         logger.api.error('API Validation Error:', {
             url: config.url,
-            errors: parseResult.error.format(),
+            errors: z.treeifyError(parseResult.error),
             data: response.data,
         });
         const currentLang = (i18n.language?.split('-')[0] || 'vi') as 'vi' | 'en';

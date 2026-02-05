@@ -17,7 +17,7 @@ import Animated, {
     withTiming
 } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-import { runOnJS } from 'react-native-worklets';
+import { scheduleOnRN } from 'react-native-worklets';
 import { OnlineStatusBadge } from './OnlineStatusBadge';
 
 // Current user ID for checking message sender
@@ -155,7 +155,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
             // Trigger haptic feedback khi vượt ngưỡng rung
             if (!hasTriggeredHaptic.current && Math.abs(newValue) > HAPTIC_THRESHOLD) {
                 hasTriggeredHaptic.current = true;
-                runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Light);
+                scheduleOnRN(Haptics.impactAsync, Haptics.ImpactFeedbackStyle.Light);
             }
         })
         .onEnd((event) => {
@@ -174,7 +174,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
                     stiffness: 150,
                     overshootClamping: true
                 });
-                runOnJS(notifySwipeOpen)(shouldOpen);
+                scheduleOnRN(notifySwipeOpen, shouldOpen);
             } else if (isSwipeRight) {
                 // Kéo phải (Pin): Chỉ cần vượt ngưỡng 40px là "dính"
                 const shouldOpen = currentX > SWIPE_THRESHOLD_RIGHT || velocity > 500;
@@ -183,10 +183,10 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
                     stiffness: 150,
                     overshootClamping: true
                 });
-                runOnJS(notifySwipeOpen)(shouldOpen);
+                scheduleOnRN(notifySwipeOpen, shouldOpen);
             } else {
                 translateX.value = withSpring(0, { damping: 25 });
-                runOnJS(notifySwipeOpen)(false);
+                scheduleOnRN(notifySwipeOpen, false);
             }
         });
 
@@ -195,10 +195,10 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
         .maxDuration(250)
         .onEnd(() => {
             if (translateX.value === 0) {
-                runOnJS(handlePress)();
+                scheduleOnRN(handlePress);
             } else {
                 translateX.value = withSpring(0, { damping: 25 });
-                runOnJS(notifySwipeOpen)(false);
+                scheduleOnRN(notifySwipeOpen, false);
             }
         });
 

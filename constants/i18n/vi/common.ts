@@ -15,8 +15,10 @@ export const COMMON_STRINGS: CommonTranslation = {
         copy: 'Sao chép',
         viewNow: 'Xem ngay',
         seeAll: 'Xem tất cả',
+        seeMore: 'Xem thêm',
         yes: 'Có',
         no: 'Không',
+        quantityTemplate: 'x{{count}}'
     },
     status: {
         loading: 'Đang tải...',

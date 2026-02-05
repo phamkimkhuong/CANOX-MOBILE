@@ -21,3 +21,8 @@ declare global {
 
 export { };
 
+declare module 'eslint-plugin-i18next';
+declare module 'eslint-plugin-react';
+declare module 'eslint-plugin-react-hooks';
+declare module 'eslint-plugin-react-native';
+

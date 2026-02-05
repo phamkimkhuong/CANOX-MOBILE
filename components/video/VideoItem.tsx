@@ -6,9 +6,9 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useVideoPlayer, VideoPlayer, VideoView } from 'expo-video';
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { GestureResponderEvent, LayoutAnimation, Pressable, Text, TouchableOpacity, View } from 'react-native';
 import Animated, {
-    runOnJS,
     useAnimatedStyle,
     useSharedValue,
     withSequence,
@@ -16,6 +16,7 @@ import Animated, {
     withTiming
 } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { scheduleOnRN } from 'react-native-worklets';
 
 import { creatorRoutes, productRoutes } from '@/constants/routes';
 import { useVideoStore } from '@/store/useVideoStore';
@@ -131,7 +132,7 @@ const HeartAnimation = ({ x, y, onComplete }: { x: number, y: number, onComplete
             withSpring(1.5),
             withSpring(1.2),
             withTiming(0, { duration: 500 }, () => {
-                runOnJS(onComplete)();
+                scheduleOnRN(onComplete);
             })
         );
         translateY.value = withTiming(-100, { duration: 800 });
@@ -159,6 +160,7 @@ const HeartAnimation = ({ x, y, onComplete }: { x: number, y: number, onComplete
 
 export const VideoItem = memo(({ item, mode }: VideoItemProps) => {
     const { isMuted, setIsMuted } = useVideoStore();
+    const { t } = useTranslation(['video', 'common']);
     const [isLiked, setIsLiked] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
     const [activePlayer, setActivePlayer] = useState<VideoPlayer | null>(null);
@@ -249,7 +251,7 @@ export const VideoItem = memo(({ item, mode }: VideoItemProps) => {
                 {mode === 'active' && playerStatus === 'error' && (
                     <View style={styles.centerContainer}>
                         <IconSymbol name="wifi-exclamationmark" size={44} color="rgba(255,255,255,0.4)" />
-                        <Text style={styles.errorText}>Lỗi tải video. Kiểm tra mạng!</Text>
+                        <Text style={styles.errorText}>{t('loadError')}</Text>
                     </View>
                 )}
 
@@ -287,7 +289,7 @@ export const VideoItem = memo(({ item, mode }: VideoItemProps) => {
                         >
                             <BlurView intensity={30} tint="dark" style={styles.recallBlur}>
                                 <IconSymbol name="shopping-cart" size={14} color="#fff" />
-                                <Text style={styles.recallText}>Xem lại sản phẩm</Text>
+                                <Text style={styles.recallText}>{t('reviewProduct')}</Text>
                             </BlurView>
                         </TouchableOpacity>
                     )}
@@ -302,7 +304,7 @@ export const VideoItem = memo(({ item, mode }: VideoItemProps) => {
                             {item.caption}
                         </Text>
                         {!isExpanded && item.caption.length > 60 && (
-                            <Text style={styles.moreText}>Xem thêm</Text>
+                            <Text style={styles.moreText}>{t('common:actions.seeMore')}</Text>
                         )}
                     </Pressable>
                 </View>
@@ -335,8 +337,8 @@ export const VideoItem = memo(({ item, mode }: VideoItemProps) => {
             {mode === 'active' && activePlayer && <VideoProgressBar player={activePlayer} />}
 
             <View style={styles.topOverlay}>
-                <Text style={styles.topTabText}>Đang Follow</Text>
-                <Text style={[styles.topTabText, styles.topTabTextActive]}>Dành cho bạn</Text>
+                <Text style={styles.topTabText}>{t('following')}</Text>
+                <Text style={[styles.topTabText, styles.topTabTextActive]}>{t('forYou')}</Text>
             </View>
         </View>
     );

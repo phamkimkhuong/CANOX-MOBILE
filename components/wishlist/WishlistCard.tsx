@@ -10,6 +10,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import type { WishlistCardUI } from '@/types/wishlist';
 import { Image } from 'expo-image';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -33,6 +34,7 @@ export const WishlistCard: React.FC<WishlistCardProps> = ({
     onPress,
     onLongPress,
 }) => {
+    const { t } = useTranslation('wishlist');
     const { theme } = useUnistyles();
     const styles = stylesheet;
 
@@ -97,7 +99,7 @@ export const WishlistCard: React.FC<WishlistCardProps> = ({
 
                 <View style={styles.footer}>
                     <Text style={styles.itemCount}>
-                        {wishlist.itemCount} sản phẩm
+                        {wishlist.itemCount} {t('productCount')}
                     </Text>
                     <View style={styles.dot} />
                     <Text style={styles.date}>

@@ -16,6 +16,7 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import type { ShopVoucherUI } from '@/types/shop';
 import React, { memo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { getVoucherWidth, ShopVoucherCard } from './ShopVoucherCard';
@@ -38,6 +39,7 @@ export const ShopVoucherSection = memo<ShopVoucherSectionProps>(({
     shopName,
     onCollectVoucher,
 }) => {
+    const { t } = useTranslation(['shop']);
     const { theme } = useUnistyles();
     const SNAP_INTERVAL = getVoucherWidth() + 16;
 
@@ -60,7 +62,7 @@ export const ShopVoucherSection = memo<ShopVoucherSectionProps>(({
                         size={18}
                         color={theme.colors.error}
                     />
-                    <Text style={styles.headerTitle}>Voucher của Shop</Text>
+                    <Text style={styles.headerTitle}>{t('vouchers.title')}</Text>
                     {!isLoading && vouchers.length > 0 && (
                         <View style={styles.badge}>
                             <Text style={styles.badgeText}>{vouchers.length}</Text>

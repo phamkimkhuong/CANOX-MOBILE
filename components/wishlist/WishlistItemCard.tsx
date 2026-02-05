@@ -13,6 +13,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import type { WishlistItemUI } from '@/types/wishlist';
 import { Image } from 'expo-image';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -41,6 +42,7 @@ export const WishlistItemCard: React.FC<WishlistItemCardProps> = ({
     onEdit,
     onDelete,
 }) => {
+    const { t } = useTranslation(['wishlist', 'common']);
     const { theme } = useUnistyles();
     const styles = stylesheet;
 
@@ -119,7 +121,9 @@ export const WishlistItemCard: React.FC<WishlistItemCardProps> = ({
                 <View style={styles.priceSection}>
                     <Text style={styles.price}>{item.formattedPrice}</Text>
                     {item.quantity > 1 && (
-                        <Text style={styles.quantity}>x{item.quantity}</Text>
+                        <Text style={styles.quantity}>
+                            {t('common:actions.quantityTemplate', { count: item.quantity })}
+                        </Text>
                     )}
                 </View>
 
@@ -139,8 +143,8 @@ export const WishlistItemCard: React.FC<WishlistItemCardProps> = ({
                             { color: item.isPriceTargetMet ? theme.colors.success : theme.colors.warning },
                         ]}>
                             {item.isPriceTargetMet
-                                ? `Đã đạt giá ${item.formattedDesiredPrice}`
-                                : `Mục tiêu: ${item.formattedDesiredPrice}`
+                                ? t('targetPriceMet', { price: item.formattedDesiredPrice })
+                                : t('targetPriceGoal', { price: item.formattedDesiredPrice })
                             }
                         </Text>
                     </View>

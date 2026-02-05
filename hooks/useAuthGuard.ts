@@ -2,7 +2,6 @@ import { ROUTES } from '@/constants/routes';
 import { useAuthStore } from '@/store/useAuthStore';
 import { router, useRootNavigationState, useSegments } from 'expo-router';
 import { useEffect, useRef } from 'react';
-import { InteractionManager } from 'react-native';
 
 /**
  * Global auth gate:
@@ -38,13 +37,13 @@ export const useAuthGuard = (): void => {
         const inAuthGroup = firstSegment === '(auth)';
 
         // Wait for animations/interactions to complete before redirecting
-        const task = InteractionManager.runAfterInteractions(() => {
+        const timer = setTimeout(() => {
             // If user is logged in but on auth screen, redirect to home
             if (isAuthenticated && inAuthGroup) {
                 router.replace(ROUTES.TABS.HOME);
             }
-        });
+        }, 0);
 
-        return () => task.cancel();
+        return () => clearTimeout(timer);
     }, [hydrated, isAuthenticated, navigationState?.key, segments]);
 };

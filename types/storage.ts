@@ -78,7 +78,7 @@ export type PresignUploadRequest = z.infer<typeof PresignUploadRequestSchema>;
  * Response data from presign-upload API
  */
 export const PresignUploadDataSchema = z.object({
-    url: z.string().url(),
+    url: z.url(),
     method: z.string(), // Usually 'PUT'
     headers: z.record(z.string(), z.string()), // Dynamic headers like Content-Type, x-amz-*
     expiresAtEpochSeconds: z.number(),
@@ -169,7 +169,7 @@ export type StoragePreCheckResponse = z.infer<typeof StoragePreCheckResponseSche
  * PUT /api/v1/users/{userId}/client
  */
 export const UpdateUserAvatarRequestSchema = z.object({
-    image: z.string().url(),
+    image: z.url(),
 });
 
 export const UpdateUserAvatarResponseSchema = z.object({

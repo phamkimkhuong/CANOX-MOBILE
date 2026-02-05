@@ -40,7 +40,7 @@ export const NotificationSchema = z.object({
     message: z.string(),
     timestamp: z.string(), // ISO date string
     isRead: z.boolean(),
-    image: z.string().url().nullable().optional(), // Product image for ORDER type
+    image: z.url().nullable().optional(), // Product image for ORDER type
     actionLabel: z.string().nullable().optional(), // e.g., "Đánh giá ngay", "Dùng ngay"
     actionUrl: z.string().nullable().optional(), // Deep link or route
     metadata: z.record(z.string(), z.unknown()).nullable().optional(), // Extra data (orderId, voucherId, etc.)
@@ -146,7 +146,7 @@ export const NotificationResponseItemSchema = z.object({
     category: z.string().nullable(), // ORDER, PROMO...
     imageUrl: z.string().nullable(),
     createdDate: z.string(),
-}).passthrough(); // Allow extra fields
+}).loose(); // Allow extra fields
 
 export type NotificationResponseItem = z.infer<typeof NotificationResponseItemSchema>;
 

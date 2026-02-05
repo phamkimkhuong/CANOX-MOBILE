@@ -8,6 +8,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import type { CategoryNode } from '@/types/category';
 import { Image } from 'expo-image';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     ActivityIndicator,
     Pressable,
@@ -27,6 +28,7 @@ export const ShopCategoriesTab = ({
     isLoading,
     onCategoryPress,
 }: ShopCategoriesTabProps) => {
+    const { t } = useTranslation(['shop']);
     const { theme } = useUnistyles();
 
     if (isLoading) {
@@ -43,7 +45,7 @@ export const ShopCategoriesTab = ({
                 <View style={styles.emptyIconWrapper}>
                     <IconSymbol name="category" size={40} color={theme.colors.border} />
                 </View>
-                <Text style={styles.emptyText}>Shop chưa phân loại danh mục sản phẩm</Text>
+                <Text style={styles.emptyText}>{t('categories.empty')}</Text>
             </View>
         );
     }

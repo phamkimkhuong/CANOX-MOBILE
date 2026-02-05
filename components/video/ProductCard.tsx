@@ -3,6 +3,7 @@ import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -16,6 +17,7 @@ interface ProductCardProps {
 }
 
 export const ProductCard = ({ id: _id, name, price, imageUrl, onPress, onClose }: ProductCardProps) => {
+    const { t } = useTranslation(['video']);
     const { theme } = useUnistyles();
 
     return (
@@ -28,7 +30,9 @@ export const ProductCard = ({ id: _id, name, price, imageUrl, onPress, onClose }
                 <Image source={imageUrl} style={styles.image} contentFit="cover" />
                 <View style={styles.info}>
                     <Text style={styles.name} numberOfLines={1}>{name}</Text>
-                    <Text style={styles.price}>₫{price.toLocaleString()}</Text>
+                    <Text style={styles.price}>
+                        {t('priceTemplate', { price: price.toLocaleString() })}
+                    </Text>
                 </View>
 
                 <LinearGradient

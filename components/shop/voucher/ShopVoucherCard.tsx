@@ -18,6 +18,7 @@ import { Navigator } from '@/utils/navigation';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { memo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { GestureResponderEvent, Pressable, Text, TouchableOpacity, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { StyleSheet, UnistylesRuntime } from 'react-native-unistyles';
@@ -43,7 +44,7 @@ export const ShopVoucherCard = memo<ShopVoucherCardProps>(({
     onPress,
     onCollect,
 }) => {
-
+    const { t } = useTranslation(['shop']);
 
     const handlePress = useCallback(() => {
         const voucherData = JSON.stringify(voucher);
@@ -106,7 +107,7 @@ export const ShopVoucherCard = memo<ShopVoucherCardProps>(({
                                 </Text>
                                 <View style={styles.footerRow}>
                                     <View>
-                                        <Text style={styles.expiryLabel}>HẠN SỬ DỤNG</Text>
+                                        <Text style={styles.expiryLabel}>{t('vouchers.expiryLabel')}</Text>
                                         <Text style={styles.expiryText}>{voucher.endDate}</Text>
                                     </View>
                                     <TouchableOpacity
@@ -114,7 +115,7 @@ export const ShopVoucherCard = memo<ShopVoucherCardProps>(({
                                         onPress={handleCollect}
                                         activeOpacity={0.7}
                                     >
-                                        <Text style={styles.actionBtnText}>Lưu</Text>
+                                        <Text style={styles.actionBtnText}>{t('vouchers.collect')}</Text>
                                     </TouchableOpacity>
                                 </View>
                             </View>

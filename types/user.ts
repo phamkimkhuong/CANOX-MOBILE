@@ -46,7 +46,7 @@ export type ShopInfo = z.infer<typeof ShopInfoSchema>;
 export const UserMeDataSchema = z.object({
     userId: z.string(),
     username: z.string(),
-    email: z.string().email(),
+    email: z.email(),
     image: z.string().nullable().optional(),
     status: z.enum(['ACTIVE', 'INACTIVE', 'SUSPENDED']),
     roleName: z.string(),
@@ -118,7 +118,7 @@ export const ProfileFormSchema = z.object({
         .regex(/^[0-9]+$/, 'Số điện thoại chỉ được chứa số'),
     dateOfBirth: z.date().nullable(),
     gender: z.enum(['MALE', 'FEMALE', 'OTHER']).nullable(),
-    email: z.string().email().optional(), // Read-only field
+    email: z.email().optional(), // Read-only field
 });
 
 export type ProfileFormValues = z.infer<typeof ProfileFormSchema>;

@@ -8,6 +8,22 @@ interface NotificationIconProps {
     iconColor?: string;
 }
 
+interface AndroidManifestMetadata {
+    $: {
+        'android:name': string;
+        'android:resource'?: string;
+        'android:value'?: string;
+        'tools:replace'?: string;
+    };
+}
+
+interface AndroidColor {
+    $: {
+        name: string;
+    };
+    _: string;
+}
+
 const withNotificationMetadata: ConfigPlugin<NotificationIconProps> = (config, { iconColor }) => {
     return ConfigPlugins.withAndroidManifest(config, (config) => {
         const manifest = config.modResults.manifest;
@@ -31,8 +47,8 @@ const withNotificationMetadata: ConfigPlugin<NotificationIconProps> = (config, {
         }
 
         // Filter out old entries
-        mainApplication['meta-data'] = (mainApplication['meta-data'] as any[]).filter(
-            (m: any) => m.$['android:name'] !== iconMetadataName && m.$['android:name'] !== colorMetadataName
+        mainApplication['meta-data'] = (mainApplication['meta-data'] as AndroidManifestMetadata[]).filter(
+            (m) => m.$['android:name'] !== iconMetadataName && m.$['android:name'] !== colorMetadataName
         );
 
         // Add Icon meta-data
@@ -42,7 +58,7 @@ const withNotificationMetadata: ConfigPlugin<NotificationIconProps> = (config, {
                 'android:resource': '@drawable/notification_icon',
                 'tools:replace': 'android:resource',
             },
-        } as any);
+        } as AndroidManifestMetadata);
 
         // Add Color meta-data
         if (iconColor) {
@@ -52,7 +68,7 @@ const withNotificationMetadata: ConfigPlugin<NotificationIconProps> = (config, {
                     'android:resource': '@color/notification_icon_color',
                     'tools:replace': 'android:resource',
                 },
-            } as any);
+            } as AndroidManifestMetadata);
         }
 
         return config;
@@ -95,16 +111,18 @@ const withNotificationColor: ConfigPlugin<NotificationIconProps> = (config, { ic
                 config.modResults.resources.color = [];
             }
 
+            const colors = config.modResults.resources.color as AndroidColor[];
+
             // Clean old color
-            config.modResults.resources.color = (config.modResults.resources.color as any[]).filter(
-                (c: any) => c.$.name !== 'notification_icon_color'
+            config.modResults.resources.color = colors.filter(
+                (c) => c.$.name !== 'notification_icon_color'
             );
 
             // Add new color
             config.modResults.resources.color.push({
                 _: iconColor,
                 $: { name: 'notification_icon_color' },
-            } as any);
+            } as AndroidColor);
         }
         return config;
     });

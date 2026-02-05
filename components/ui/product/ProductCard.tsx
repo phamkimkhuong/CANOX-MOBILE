@@ -3,6 +3,7 @@ import { createLogger } from '@/utils/logger';
 import { Image } from 'expo-image';
 import { Href } from 'expo-router';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { IconSymbol } from '../Icon';
@@ -43,6 +44,7 @@ export const ProductCard = React.memo(({
     route,
     priceDisplay,
 }: ProductCardProps) => {
+    const { t } = useTranslation(['product']);
     const { theme } = useUnistyles();
     const styles = stylesheet;
 
@@ -77,7 +79,7 @@ export const ProductCard = React.memo(({
                             {/* Mall Badge */}
                             {isMall && (
                                 <View style={styles.mallBadge}>
-                                    <Text style={styles.mallText}>Mall</Text>
+                                    <Text style={styles.mallText}>{t('badges.mall')}</Text>
                                 </View>
                             )}
 
@@ -127,7 +129,9 @@ export const ProductCard = React.memo(({
                             {/* Sold & Location Row */}
                             <View style={styles.metaRow}>
                                 {sold != null && (
-                                    <Text style={styles.soldText}>Đã bán {formatSoldCount(sold)}</Text>
+                                    <Text style={styles.soldText}>
+                                        {t('info.soldCountTemplate', { soldCount: formatSoldCount(sold) })}
+                                    </Text>
                                 )}
                                 {location && (
                                     <View style={styles.locationRow}>

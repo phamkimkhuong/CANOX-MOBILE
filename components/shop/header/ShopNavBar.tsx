@@ -13,7 +13,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import Animated, {
-    Extrapolate,
+    Extrapolation,
     interpolate,
     interpolateColor,
     useAnimatedStyle,
@@ -98,7 +98,7 @@ export const ShopNavBar: React.FC<ShopNavBarProps> = ({
             scrollY.value,
             [0, SCROLL_THRESHOLD / 2],
             [1, 0],
-            Extrapolate.CLAMP
+            Extrapolation.CLAMP
         );
         return { opacity };
     });

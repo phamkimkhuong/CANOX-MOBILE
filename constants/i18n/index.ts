@@ -18,7 +18,10 @@ import { ORDER_STRINGS as orderEn } from './en/order';
 import { PRODUCT_STRINGS as productEn } from './en/product';
 import { PROFILE_STRINGS as profileEn } from './en/profile';
 import { SEARCH_STRINGS as searchEn } from './en/search';
+import { SHOP_STRINGS as shopEn } from './en/shop';
+import { VIDEO_STRINGS as videoEn } from './en/video';
 import { VOUCHER_STRINGS as voucherEn } from './en/voucher';
+import { WISHLIST_STRINGS as wishlistEn } from './en/wishlist';
 
 // Import resources - VI
 import { ADDRESS_STRINGS as addressVi } from './vi/address';
@@ -36,7 +39,10 @@ import { ORDER_STRINGS as orderVi } from './vi/order';
 import { PRODUCT_STRINGS as productVi } from './vi/product';
 import { PROFILE_STRINGS as profileVi } from './vi/profile';
 import { SEARCH_STRINGS as searchVi } from './vi/search';
+import { SHOP_STRINGS as shopVi } from './vi/shop';
+import { VIDEO_STRINGS as videoVi } from './vi/video';
 import { VOUCHER_STRINGS as voucherVi } from './vi/voucher';
+import { WISHLIST_STRINGS as wishlistVi } from './vi/wishlist';
 
 const resources = {
     vi: {
@@ -56,6 +62,9 @@ const resources = {
         myReviews: myReviewsVi,
         bank: bankVi,
         address: addressVi,
+        video: videoVi,
+        wishlist: wishlistVi,
+        shop: shopVi,
     },
     en: {
         common: commonEn,
@@ -74,6 +83,9 @@ const resources = {
         myReviews: myReviewsEn,
         bank: bankEn,
         address: addressEn,
+        video: videoEn,
+        wishlist: wishlistEn,
+        shop: shopEn,
     },
 } as const;
 
@@ -81,7 +93,7 @@ i18n.use(initReactI18next).init({
     resources,
     lng: getDeviceLanguage(),
     fallbackLng: 'en',
-    ns: ['common', 'auth', 'product', 'voucher', 'cart', 'order', 'chat', 'profile', 'home', 'category', 'search', 'notification', 'checkout', 'myReviews', 'bank', 'address'],
+    ns: ['common', 'auth', 'product', 'voucher', 'cart', 'order', 'chat', 'profile', 'home', 'category', 'search', 'notification', 'checkout', 'myReviews', 'bank', 'address', 'video', 'wishlist', 'shop'],
     defaultNS: 'common',
     interpolation: {
         escapeValue: false,

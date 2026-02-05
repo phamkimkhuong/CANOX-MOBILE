@@ -8,7 +8,7 @@ export const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\w\W]{6,}
 // SHARED VALIDATION PIECES
 // ===============================
 
-export const EmailSchema = z.string().email('Email không hợp lệ');
+export const EmailSchema = z.email('Email không hợp lệ');
 
 export const PasswordSchema = z.string()
     .min(6, 'Mật khẩu tối thiểu 6 ký tự')
@@ -78,11 +78,11 @@ export const AuthResponseSchema = ResponseDefaultSchema.extend({
         accessToken: z.string(),
         refreshToken: z.string(),
         emailVerified: z.boolean(),
-        email: z.string().optional(),
+        email: z.email().optional(),
         user: z.object({
             userId: z.string(),
             username: z.string(),
-            email: z.string(),
+            email: z.email(),
             roles: z.array(z.string()).optional(),
             image: z.string().nullable().optional(),
             fullNameBuyer: z.string().nullable().optional(),
@@ -113,7 +113,7 @@ export const SocialLoginResponseSchema = ResponseDefaultSchema.extend({
         user: z.object({
             userId: z.string(),
             username: z.string(),
-            email: z.string(),
+            email: z.email(),
             status: z.string().optional(),
             roles: z.array(z.string()).optional(),
             image: z.string().nullable().optional(),
@@ -137,7 +137,7 @@ export const RegisterResponseSchema = ResponseDefaultSchema.extend({
 });
 
 export const VerifyOtpSchema = z.object({
-    email: z.string().email(), // Email người dùng
+    email: z.email(), // Email người dùng
     otpCode: z.string().length(6, 'Mã xác thực phải đủ 6 số'), // Mã 6 số
 });
 
@@ -198,7 +198,7 @@ export type CheckEmailExistsResponse = z.infer<typeof CheckEmailExistsResponseSc
  * POST /api/v1/auth/password/forgot
  */
 export const ForgotPasswordRequestSchema = z.object({
-    email: z.string().email('Email không hợp lệ'),
+    email: z.email('Email không hợp lệ'),
 });
 
 export type ForgotPasswordPayload = z.infer<typeof ForgotPasswordRequestSchema>;
@@ -208,7 +208,7 @@ export type ForgotPasswordPayload = z.infer<typeof ForgotPasswordRequestSchema>;
  * POST /api/v1/auth/password/verify-otp
  */
 export const VerifyForgotPasswordOtpSchema = z.object({
-    email: z.string().email(),
+    email: z.email(),
     otpCode: z.string().length(6, 'Mã xác thực phải đủ 6 số'),
 });
 
