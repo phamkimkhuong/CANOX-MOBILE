@@ -21,7 +21,7 @@ import type {
     Ward,
 } from '@/types/address';
 import { zodResolver } from '@hookform/resolvers/zod';
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import {
@@ -146,10 +146,10 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
      * PREFETCHING & DATA LOGIC
      */
     const { data: countriesResponse } = useCountries({ enabled: true });
-    const countriesList = countriesResponse?.data ?? [];
+    const countriesList = useMemo(() => countriesResponse?.data ?? [], [countriesResponse]);
 
     const { data: provincesResponse } = useProvinces({ enabled: true });
-    const provincesList = provincesResponse?.data ?? [];
+    const provincesList = useMemo(() => provincesResponse?.data ?? [], [provincesResponse]);
 
     // Picker state
     const [showCountryPicker, setShowCountryPicker] = useState(false);
@@ -285,7 +285,7 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
         provinceCode: selectedProvince?.code || null,
         enabled: isVietnam && !!selectedProvince?.code && !!initialData // Only auto-fetch in edit mode
     });
-    const wardsList = wardsResponse?.data ?? [];
+    const wardsList = useMemo(() => wardsResponse?.data ?? [], [wardsResponse]);
 
     useEffect(() => {
         // 2. Resolve Ward Code
@@ -377,7 +377,7 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
                 style={styles.scrollView}
                 contentContainerStyle={[
                     styles.scrollContent,
-                    { paddingBottom: 10 }
+                    styles.scrollContentExtra
                 ]}
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
@@ -795,6 +795,9 @@ const stylesheet = StyleSheet.create((theme) => ({
     scrollContent: {
         padding: theme.margins.md,
         gap: theme.margins.md,
+    },
+    scrollContentExtra: {
+        paddingBottom: 10,
     },
 
     field: {

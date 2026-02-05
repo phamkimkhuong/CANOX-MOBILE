@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, TextStyle, View, ViewStyle } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
 interface PaymentCountdownProps {
     expiredAt: number; // timestamp in seconds
@@ -22,7 +22,6 @@ export const PaymentCountdown: React.FC<PaymentCountdownProps> = ({
     containerStyle,
     textStyle,
 }) => {
-    const { theme } = useUnistyles();
     const { t } = useTranslation('checkout');
     const styles = stylesheet;
 

@@ -73,6 +73,7 @@ const CartHeader: React.FC<CartHeaderProps> = ({ onEditPress, isEditMode }) => {
                 <Pressable
                     onPress={() => Navigator.back()}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
                     accessibilityLabel={t('header.back' as any)} // Fallback or add to cart i18n
                     accessibilityRole="button"
                 >

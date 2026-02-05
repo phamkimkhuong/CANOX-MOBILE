@@ -22,7 +22,6 @@ import {
 } from '@/utils/adapter/order/orderTimeline';
 import { formatDate } from '@/utils/date';
 import React, { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -150,14 +149,12 @@ export const OrderTracker: React.FC<OrderTrackerProps> = ({
     status,
     createdAt,
 }) => {
-    const { theme } = useUnistyles();
-    const { t } = useTranslation(['order']);
     const styles = stylesheet;
 
     // Generate timeline based on current status
     const timeline = useMemo(() => {
         return generateTimeline(status, createdAt);
-    }, [status, createdAt, t]);
+    }, [status, createdAt]);
 
     // Check if we should show abnormal status banner instead
     const showTimeline = canShowTimeline(status);

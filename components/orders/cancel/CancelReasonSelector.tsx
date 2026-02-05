@@ -45,8 +45,6 @@ export const CancelReasonSelector: React.FC<CancelReasonSelectorProps> = ({
     const { t } = useTranslation('order');
     const styles = stylesheet;
 
-    const isOtherSelected = selectedReason === 'OTHER';
-
     return (
         <View style={styles.container}>
             {/* Header */}
@@ -75,6 +73,7 @@ export const CancelReasonSelector: React.FC<CancelReasonSelectorProps> = ({
                                         isSelected && styles.optionLabelSelected,
                                     ]}
                                 >
+                                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                                     {t(`cancel.reasons.${reason.code}` as any)}
                                 </Text>
 

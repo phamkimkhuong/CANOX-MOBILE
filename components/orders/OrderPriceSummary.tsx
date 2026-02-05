@@ -9,7 +9,7 @@ import { formatCurrency } from '@/utils/format';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
 interface OrderPriceSummaryProps {
     grandTotal: number;
@@ -19,10 +19,9 @@ interface OrderPriceSummaryProps {
 
 export const OrderPriceSummary: React.FC<OrderPriceSummaryProps> = ({
     grandTotal,
-    itemCount,
+    itemCount: _itemCount,
     totalQuantity,
 }) => {
-    const { theme } = useUnistyles();
     const { t } = useTranslation('order');
     const styles = stylesheet;
 

@@ -52,7 +52,9 @@ export const EmptyOrderState: React.FC<EmptyOrderStateProps> = ({
                     color={theme.colors.secondary}
                 />
             </View>
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             <Text style={styles.title}>{t(`list.emptyState.${i18nPath}.title` as any)}</Text>
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             <Text style={styles.description}>{t(`list.emptyState.${i18nPath}.description` as any)}</Text>
 
             {onShopNow && (

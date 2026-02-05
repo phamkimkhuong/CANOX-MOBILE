@@ -65,7 +65,7 @@ export const OrderActionButtons: React.FC<OrderActionButtonsProps> = ({
 
     return (
         <View style={styles.container}>
-            {actions.map((action, index) => (
+            {actions.map((action, _index) => (
                 <Pressable
                     key={action.action}
                     style={({ pressed }) => [
@@ -83,6 +83,7 @@ export const OrderActionButtons: React.FC<OrderActionButtonsProps> = ({
                         />
                     )}
                     <Text style={[styles.buttonText, getTextStyle(action.type)]}>
+                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                         {t(action.labelKey as any)}
                     </Text>
                 </Pressable>

@@ -6,7 +6,7 @@ import React, { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import Animated, { FadeInRight, Layout } from 'react-native-reanimated';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
 
 interface BankCardItemProps {
@@ -23,11 +23,10 @@ interface BankCardItemProps {
 export const BankCardItem: React.FC<BankCardItemProps> = memo(({
     card,
     onPress,
-    onSetDefault,
+    onSetDefault: _onSetDefault,
     onDelete,
     index = 0
 }) => {
-    const { theme } = useUnistyles();
     const styles = stylesheet;
     const { t } = useTranslation(['bank']);
 
@@ -50,6 +49,7 @@ export const BankCardItem: React.FC<BankCardItemProps> = memo(({
                 ]}
             >
                 <LinearGradient
+                    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
                     colors={cardGradient as any}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}

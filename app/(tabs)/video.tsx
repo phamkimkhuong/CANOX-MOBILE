@@ -87,12 +87,14 @@ export default function VideoScreen() {
 
     const visibleHeight = windowHeight - tabBarHeight;
 
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     const onViewableItemsChanged = useRef(({ viewableItems }: any) => {
         if (viewableItems.length > 0) {
             setActiveIndex(viewableItems[0].index ?? 0);
         }
     }).current;
 
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     const renderItem = useCallback(({ item, index }: any) => {
         // Thuật toán Cửa sổ trượt (Sliding Window): 
         // Chỉ 'active' item đang xem, 'preload' item tiếp theo và trước đó.
@@ -121,7 +123,7 @@ export default function VideoScreen() {
                 {...({
                     data: MOCK_VIDEOS,
                     renderItem,
-                    keyExtractor: (item: any) => item.id,
+                    keyExtractor: (item: VideoData) => item.id,
                     estimatedItemSize: visibleHeight,
                     pagingEnabled: true,
                     showsVerticalScrollIndicator: false,
@@ -130,13 +132,14 @@ export default function VideoScreen() {
                         itemVisiblePercentThreshold: 50
                     },
                     bounces: false
+                    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
                 } as any)}
             />
         </View>
     );
 }
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((_theme) => ({
     container: {
         flex: 1,
         backgroundColor: '#000',

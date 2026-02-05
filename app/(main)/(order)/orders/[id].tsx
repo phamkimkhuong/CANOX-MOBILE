@@ -147,6 +147,7 @@ export default function OrderDetailScreen() {
             Toast.show({
                 type: 'info',
                 text1: t('chat:error.chatWithSelf'),
+                /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
                 text2: t('chat:error.chatWithSelfDetail' as any), // Fallback if detail key exists or just t()
             });
             return;
@@ -172,7 +173,7 @@ export default function OrderDetailScreen() {
         }));
 
         logger.api.info('Contact shop for order:', order.orderId);
-    }, [order, prefetchChat, myShopId, t]);
+    }, [order, prefetchChat, myShopId, t, id]);
 
     const handleTrackOrder = useCallback(async () => {
         if (!order?.trackingNumber) {

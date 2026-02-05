@@ -54,7 +54,7 @@ export const IntroPopupProvider = memo(function IntroPopupProvider({
                     } else {
                         setIsDeepLink(true);
                         if (__DEV__) {
-                            console.log('[IntroPopup] Detected real deep link, skipping popup:', initialUrl);
+                            // console.log('[IntroPopup] Detected real deep link, skipping popup:', initialUrl);
                         }
                     }
                 }
@@ -75,7 +75,7 @@ export const IntroPopupProvider = memo(function IntroPopupProvider({
             const timer = setTimeout(() => {
                 PopupFrequency.markFirstLaunchCompleted();
                 if (__DEV__) {
-                    console.log('[IntroPopup] First launch marked as completed');
+                    // console.log('[IntroPopup] First launch marked as completed');
                 }
             }, 5000);
 

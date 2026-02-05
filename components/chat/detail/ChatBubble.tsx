@@ -6,7 +6,7 @@
 import { BubblePosition } from '@/utils/adapter/chat/messageAdapter';
 import React from 'react';
 import { View, ViewStyle } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
 interface ChatBubbleProps {
     isMe: boolean;
@@ -26,7 +26,6 @@ export const ChatBubble: React.FC<ChatBubbleProps> = React.memo(({
     maxWidth = '100%',
     type,
 }) => {
-    const { theme } = useUnistyles();
     const styles = stylesheet;
 
     const isCard = type === 'PRODUCT_CARD' || type === 'ORDER_CARD';
@@ -101,6 +100,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = React.memo(({
                 isMe ? styles.bubbleMe : styles.bubbleOther,
                 isCard && styles.cardBubble,
                 borderRadius,
+                /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
                 { maxWidth: maxWidth as any },
             ]}
         >

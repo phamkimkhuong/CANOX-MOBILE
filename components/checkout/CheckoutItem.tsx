@@ -14,14 +14,13 @@ import { Image } from 'expo-image';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
 interface CheckoutItemProps {
     item: CheckoutItemUI;
 }
 
 export const CheckoutItem: React.FC<CheckoutItemProps> = ({ item }) => {
-    const { theme } = useUnistyles();
     const { t } = useTranslation('checkout');
     const styles = stylesheet;
 

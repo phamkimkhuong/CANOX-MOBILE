@@ -179,6 +179,7 @@ export const OrderDetailFooter: React.FC<OrderDetailFooterProps> = ({
 
             return {
                 key: action.action,
+                /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
                 label: t(action.labelKey as any),
                 icon: action.icon || '',
                 variant: action.type,
@@ -188,7 +189,7 @@ export const OrderDetailFooter: React.FC<OrderDetailFooterProps> = ({
                 hidden: action.action === 'review' && !canReview,
             };
         }).filter(b => !b.hidden);
-    }, [actions, onCancel, onContactShop, onTrackOrder, onConfirmReceived, onRebuy, onReview, loadingAction, canReview, t]);
+    }, [actions, onCancel, onContactShop, onTrackOrder, onConfirmReceived, onRebuy, onReview, onReturn, onPay, loadingAction, canReview, t]);
 
     // Don't render if no actions
     if (buttons.length === 0) {

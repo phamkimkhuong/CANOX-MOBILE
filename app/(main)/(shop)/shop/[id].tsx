@@ -35,11 +35,12 @@ import { Stack, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
     ActivityIndicator,
+    LayoutChangeEvent,
     Pressable,
     RefreshControl,
     StatusBar,
     Text,
-    View,
+    View
 } from 'react-native';
 import Animated, {
     runOnJS,
@@ -234,7 +235,7 @@ export default function ShopDetailScreen() {
     /**
      * Callback khi header section đo được chiều cao
      */
-    const handleHeaderLayout = useCallback((event: any) => {
+    const handleHeaderLayout = useCallback((event: LayoutChangeEvent) => {
         const height = event.nativeEvent.layout.height;
         headerSectionHeight.value = height;
         headerSectionHeightRef.current = height;
@@ -328,6 +329,7 @@ export default function ShopDetailScreen() {
 
     const handleFollowPress = useCallback(() => { }, []);
     const handleProductPress = useCallback((product: ShopProductItemUI) => Navigator.push(productRoutes.detail(product.id)), []);
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     const handleCategoryPress = useCallback((category: any) => {
         Navigator.push(shopSearchRoutes.search({
             shopId,
@@ -342,11 +344,13 @@ export default function ShopDetailScreen() {
     /**
      * Tối ưu hóa việc tái sử dụng component của FlashList
      */
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     const getItemType = useCallback((item: any) => item.type, []);
 
     /**
      * Tối ưu hóa layout: header và tabs chiếm full width
      */
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     const overrideItemLayout = useCallback((layout: any, item: any) => {
         layout.span = (item.type === 'header' || item.type === 'voucher-section' || item.type === 'tab-spacer' || item.type === 'profile-content' || item.type === 'categories-content') ? NUM_COLUMNS : 1;
     }, []);
@@ -440,7 +444,7 @@ export default function ShopDetailScreen() {
             }
             default: return null;
         }
-    }, [shouldShowSkeleton, shop, identityData, activeTab, totalProductCount, vouchers, isLoadingVouchers, hasVouchers, handleChatPress, handleFollowPress, handleTabChange, handleCollectVoucher, handlePrefetchChat, handleProductPress, handleHeaderLayout, categories, isLoadingCategories, handleCategoryPress]);
+    }, [shouldShowSkeleton, shop, identityData, activeTab, totalProductCount, vouchers, isLoadingVouchers, hasVouchers, handleChatPress, handleFollowPress, handleTabChange, handleCollectVoucher, handlePrefetchChat, handleProductPress, handleHeaderLayout, categories, isLoadingCategories, handleCategoryPress, products]);
 
     if (isShopError) {
         return (

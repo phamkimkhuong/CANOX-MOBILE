@@ -65,7 +65,7 @@ export const MarketingHeader = memo(({ onHeightMeasured, onProductPress }: Marke
 
 MarketingHeader.displayName = 'MarketingHeader';
 
-const stylesheet = StyleSheet.create((theme) => ({
+const stylesheet = StyleSheet.create((_theme) => ({
     categoryContainer: {
         // paddingHorizontal: theme.margins.md,
     },

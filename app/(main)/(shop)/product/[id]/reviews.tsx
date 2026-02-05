@@ -152,7 +152,7 @@ export default function ProductReviewsScreen() {
 
     const [activeFilter, setActiveFilter] = useState<ProductReviewFilterType>('all');
     const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
-    const [sortOption, setSortOption] = useState<ProductReviewSortOption>('newest');
+    const [sortOption] = useState<ProductReviewSortOption>('newest');
 
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     const cartItemCount = useCartStore((state) => state.totalQuantity);
@@ -174,8 +174,6 @@ export default function ProductReviewsScreen() {
         hasNextPage,
         isFetchingNextPage,
         isLoading: isListLoading,
-        isError: isListError,
-        refetch: refetchList,
         isRefetching: isRefetchingList,
     } = useInfiniteProductReviews(productId ?? '', {
         filter: activeFilter,
@@ -187,7 +185,6 @@ export default function ProductReviewsScreen() {
     const {
         data: statistics,
         isLoading: isStatsLoading,
-        isError: isStatsError,
         refetch: refetchStats,
     } = useProductReviewStatistics(productId ?? '', !!productId);
 
@@ -214,7 +211,7 @@ export default function ProductReviewsScreen() {
     const totalReviews = statisticsData?.totalReviews ?? 0;
 
     const isLoading = isListLoading || isStatsLoading;
-    const isError = isListError || isStatsError;
+
     const isRefetching = isRefetchingList;
 
     const handleRefetch = useCallback(() => {

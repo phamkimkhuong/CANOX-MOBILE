@@ -1,4 +1,5 @@
 import js from '@eslint/js';
+import i18nextPlugin from 'eslint-plugin-i18next';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import reactNativePlugin from 'eslint-plugin-react-native';
@@ -6,22 +7,29 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default [
+    // GLOBAL IGNORES
     {
         ignores: [
-            'node_modules',
-            'android',
-            'ios',
-            '.expo',
-            'web-build',
-            'dist',
+            'node_modules/**',
+            'android/**',
+            'ios/**',
+            '.expo/**',
+            'web-build/**',
+            'dist/**',
             'babel.config.js',
             'metro.config.js',
             'package.json',
             'package-lock.json',
+            'eslint.config.mjs',
+            'plugins/**',
         ],
     },
+
+    // BASE CONFIGS
     js.configs.recommended,
     ...tseslint.configs.recommended,
+
+    // GENERAL RULES (Run for all JS/TS, no type checking required)
     {
         files: ['**/*.{js,jsx,mjs,cjs,ts,tsx}'],
         languageOptions: {
@@ -43,6 +51,7 @@ export default [
             react: reactPlugin,
             'react-native': reactNativePlugin,
             'react-hooks': reactHooksPlugin,
+            i18next: i18nextPlugin,
         },
         settings: {
             react: {
@@ -60,8 +69,42 @@ export default [
             'no-console': ['warn', { allow: ['warn', 'error'] }],
 
             // React Native standard patterns
-            '@typescript-eslint/no-require-imports': 'off', // Allow require() for static assets (images, fonts)
-            '@typescript-eslint/no-empty-object-type': 'off', // Allow empty interfaces for declaration merging (Unistyles)
+            '@typescript-eslint/no-require-imports': 'off',
+            '@typescript-eslint/no-empty-object-type': 'off',
+
+            // i18n scanner - Find literal strings
+            'i18next/no-literal-string': ['warn', {
+                'markupOnly': true,
+                'ignoreComponent': [
+                    'Icon', 'IconSymbol', 'StatusBar', 'ActivityIndicator',
+                    'RefreshControl', 'FlashList', 'FlatList', 'ScrollView',
+                    'Animated.View', 'View', 'Pressable', 'TouchableOpacity'
+                ],
+                'ignoreAttribute': [
+                    'style', 'contentContainerStyle', 'testID', 'nativeID',
+                    'color', 'backgroundColor', 'tintColor'
+                ],
+                'onlyAttributes': ['placeholder', 'title', 'label'],
+                'ignore': [
+                    '^[A-Z0-9_-]+$',
+                    '^[0-9]+$',
+                    '^[\\+\\-\\*/%&\\|<>!\\?:]+$'
+                ],
+            }],
+        },
+    },
+
+    // TYPE-AWARE RULES (Only run for TS, require project config)
+    {
+        files: ['**/*.{ts,tsx}'],
+        languageOptions: {
+            parserOptions: {
+                project: './tsconfig.json',
+                tsconfigRootDir: import.meta.dirname,
+            },
+        },
+        rules: {
+            '@typescript-eslint/no-deprecated': 'warn',
         },
     },
 ];

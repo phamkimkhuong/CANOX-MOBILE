@@ -45,6 +45,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({ activeFilter, onFilterChan
                                 />
                             ) : null}
                             <Text style={[styles.chipText, isActive && styles.chipTextActive]}>
+                                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                                 {t(`filters.${tab.key.toLowerCase()}` as any)}
                             </Text>
                         </TouchableOpacity>

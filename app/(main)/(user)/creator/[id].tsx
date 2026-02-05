@@ -10,8 +10,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 const { width } = Dimensions.get('window');
-const COLUMN_WIDTH = width / 3;
-
 export default function CreatorProfileScreen() {
     // Unlock navigation when screen gains focus
     useNavigationUnlockOnFocus();

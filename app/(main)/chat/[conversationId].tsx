@@ -57,7 +57,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ActivityIndicator, FlatList, Keyboard, ListRenderItem, Modal, Pressable, Text, View } from 'react-native';
 import Gallery, { RenderItemInfo } from 'react-native-awesome-gallery';
 import { KeyboardAvoidingView, KeyboardProvider } from 'react-native-keyboard-controller';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface MessageListItem {
@@ -176,7 +176,6 @@ export default function ChatDetailScreen() {
     const isGhostMode = currentConvId.startsWith('ghost_');
     const userId = useAuthStore((s) => s.userId);
     const myShopId = useAuthStore((s) => s.shopId);
-    const insets = useSafeAreaInsets();
 
     const [ghostModeError, setGhostModeError] = useState<Error | null>(null);
 
@@ -351,7 +350,7 @@ export default function ChatDetailScreen() {
                 try {
                     const metadata = JSON.parse(otherMessage.metadata);
                     shopIdFromMetadata = metadata.shopId;
-                } catch (e) {
+                } catch {
                     // Ignore parse error
                 }
             }
@@ -581,7 +580,7 @@ export default function ChatDetailScreen() {
                 }
             );
         },
-        [sendMessageMutation]
+        [sendMessageMutation, isGhostMode]
     );
 
     const handleQuickReply = useCallback(
@@ -699,7 +698,7 @@ export default function ChatDetailScreen() {
     }, [deleteMessageMutation]);
 
     // Hook xử lý chọn ảnh/chụp ảnh
-    const { pickMultipleImages, takePhoto, isProcessing: isImageProcessing } = useChatImagePicker();
+    const { pickMultipleImages, takePhoto } = useChatImagePicker();
 
     /**
      * Handle multi-image selection from gallery
@@ -708,6 +707,7 @@ export default function ChatDetailScreen() {
         const images = await pickMultipleImages(10);
         if (images.length > 0) {
             sendMediaMessageMutation.mutate({
+                /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
                 files: images.map((img: any) => ({
                     uri: img.uri,
                     fileName: img.fileName || `image_${Date.now()}.jpg`,

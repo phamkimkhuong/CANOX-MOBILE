@@ -32,7 +32,7 @@ import type {
 } from '@/types/search-results';
 import { Navigator } from '@/utils/navigation';
 import { FlashList, ListRenderItemInfo } from '@shopify/flash-list';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -96,7 +96,6 @@ ProductItem.displayName = 'ProductItem';
 
 export default function SearchResultsScreen() {
     const { theme } = useUnistyles();
-    const router = useRouter();
     const insets = useSafeAreaInsets();
     const { t } = useTranslation('search');
 
@@ -116,7 +115,6 @@ export default function SearchResultsScreen() {
     // Search query
     const {
         products,
-        totalCount,
         isEmpty,
         isLoading,
         isFetching,
@@ -184,15 +182,6 @@ export default function SearchResultsScreen() {
 
     const handleApplyAdvancedFilters = useCallback((filters: AdvancedFilters) => {
         setAdvancedFilters(filters);
-    }, []);
-
-    const handleClearFilters = useCallback(() => {
-        setQuickFilters([]);
-        setAdvancedFilters({});
-    }, []);
-
-    const handleTryAgain = useCallback(() => {
-        Navigator.push(searchRoutes.entry());
     }, []);
 
     const handleLoadMore = useCallback(() => {
@@ -271,7 +260,7 @@ export default function SearchResultsScreen() {
             );
         }
         return null;
-    }, [isFetchingNextPage, theme.colors.primary]);
+    }, [isFetchingNextPage, theme.colors.buttonActive]);
 
     const keyExtractor = useCallback((item: ListItemType) => {
         if (item.type === 'controls') return item.id;

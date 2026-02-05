@@ -169,6 +169,7 @@ export default function AddBankScreen() {
                             )}
                         />
                         {errors.bankAccountHolder && (
+                            /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
                             <Text style={styles.errorText}>{t(errors.bankAccountHolder.message as any)}</Text>
                         )}
 
@@ -198,6 +199,7 @@ export default function AddBankScreen() {
                             )}
                         />
                         {errors.bankAccountNumber && (
+                            /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
                             <Text style={styles.errorText}>{t(errors.bankAccountNumber.message as any)}</Text>
                         )}
 

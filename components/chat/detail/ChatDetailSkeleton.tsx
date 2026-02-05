@@ -29,6 +29,7 @@ const SkeletonBubble: React.FC<{ isMe: boolean }> = ({ isMe }) => {
                     style={[
                         styles.bubble,
                         isMe ? styles.bubbleMe : styles.bubbleOther
+                        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
                     ] as any}
                 />
             </View>

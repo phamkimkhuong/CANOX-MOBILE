@@ -217,7 +217,7 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
             default:
                 break;
         }
-    }, [myShopId, prefetchChat]);
+    }, [myShopId, prefetchChat, addToCart, t]);
 
     const handleTrackingPress = useCallback((orderId: string) => {
         Navigator.push(orderRoutes.detail(orderId));

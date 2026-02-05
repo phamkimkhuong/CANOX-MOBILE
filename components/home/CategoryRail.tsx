@@ -11,7 +11,7 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
 // Define kích thước cố định cho thanh chỉ báo
 const INDICATOR_WIDTH = 40; // Thanh track chỉ rộng 40px
@@ -37,7 +37,6 @@ const CATEGORIES: Category[] = [
 ];
 
 export const CategoryRail = memo(() => {
-    const { theme } = useUnistyles();
     const styles = stylesheet;
     const scrollX = useRef(new Animated.Value(0)).current;
     const [contentWidth, setContentWidth] = useState(0);

@@ -22,7 +22,6 @@ import Animated, {
     withSequence,
     withTiming
 } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { CartCheckbox } from './CartCheckbox';
 
@@ -83,7 +82,7 @@ const AnimatedPrice: React.FC<{ value: number; isCalculating?: boolean }> = ({ v
                 withTiming(1, { duration: 150 })
             );
         }
-    }, [value]);
+    }, [value, displayValue, rotation, opacity]);
 
     const animatedStyle = useAnimatedStyle(() => ({
         transform: [{ rotateX: `${rotation.value}deg` }],
@@ -119,16 +118,14 @@ export const CartFooter: React.FC<CartFooterProps> = memo(({
     calculation,
     onToggleSelectAll,
     onCheckout,
-    onVoucherPress,
-    appliedPlatformVoucher,
+    onVoucherPress: _onVoucherPress,
+    appliedPlatformVoucher: _appliedPlatformVoucher,
     tabBarHeight = 0,
     isEditMode = false,
     onDeleteSelected,
     onMoveToWishlist,
 }) => {
-    const { theme } = useUnistyles();
     const { t } = useTranslation('cart');
-    const insets = useSafeAreaInsets();
 
     const {
         totalAmount,
@@ -137,13 +134,6 @@ export const CartFooter: React.FC<CartFooterProps> = memo(({
     } = calculation;
 
     const hasSelection = selectedCount > 0;
-    const showVoucherBar = onVoucherPress !== undefined;
-
-    // Calculate total footer height for external use
-    const totalFooterHeight =
-        CHECKOUT_BAR_HEIGHT +
-        (showVoucherBar ? VOUCHER_BAR_HEIGHT : 0) +
-        insets.bottom;
 
     return (
         <View
@@ -214,6 +204,7 @@ export const CartFooter: React.FC<CartFooterProps> = memo(({
                                 ]}
                             >
                                 <Text style={styles.wishlistButtonText}>
+                                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                                     {t('footer.moveToWishlist' as any)}
                                 </Text>
                             </Pressable>
@@ -227,6 +218,7 @@ export const CartFooter: React.FC<CartFooterProps> = memo(({
                                 ]}
                             >
                                 <Text style={styles.deleteButtonText}>
+                                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                                     {t('footer.deleteSelected' as any)}
                                 </Text>
                             </Pressable>

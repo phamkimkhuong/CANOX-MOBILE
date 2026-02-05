@@ -69,7 +69,7 @@ export default function WriteReviewScreen() {
 
     // Get params from URL
     const params = useLocalSearchParams();
-    const _itemId = params.itemId as string;
+    // const _itemId = params.itemId as string; // Unused
     const orderId = (params.orderId as string) || '';
     const productId = (params.productId as string) || '';
     const productName = (params.productName as string) || t('card.productSnapshot', { id: '' }).replace(' #', '');

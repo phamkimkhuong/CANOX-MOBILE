@@ -10,7 +10,7 @@ import { OrderAction, OrderUI } from '@/types/order/order';
 import { hasTracking } from '@/utils/adapter/order/orderActions';
 import React, { useCallback } from 'react';
 import { Pressable } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
 import { OrderActionButtons } from './OrderActionButtons';
 import { OrderPriceSummary } from './OrderPriceSummary';
@@ -35,7 +35,6 @@ export const OrderCard: React.FC<OrderCardProps> = ({
     onAction,
     onTrackingPress,
 }) => {
-    const { theme } = useUnistyles();
     const styles = stylesheet;
 
     const handlePress = useCallback(() => {

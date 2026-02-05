@@ -53,7 +53,6 @@ export default function SettingsScreen() {
 
     const {
         formattedSize: cacheSize,
-        isClearing,
         clearCache,
     } = useCache();
 
@@ -69,6 +68,7 @@ export default function SettingsScreen() {
     }, [t]);
 
     // Handle navigation for link items
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     const handleNavigation = useCallback((route: any) => {
         Navigator.push(route);
     }, []);
@@ -170,17 +170,6 @@ export default function SettingsScreen() {
         }
     }, [handleBiometricsToggle, handleDarkModeToggle]);
 
-    // Check if item should be disabled
-    const isItemDisabled = useCallback((item: SettingsItemType): boolean => {
-        if (item.id === 'biometrics') {
-            return biometricsLoading || !biometricsSupported;
-        }
-        if (item.id === 'cache') {
-            return isClearing;
-        }
-        return false;
-    }, [biometricsLoading, biometricsSupported, isClearing]);
-
     // Get dynamic label for biometrics
     const getDynamicLabel = useCallback((item: SettingsItemType): string => {
         if (item.id === 'biometrics' && biometricStatus.biometryType) {
@@ -188,6 +177,7 @@ export default function SettingsScreen() {
         }
         // Try to translate label based on ID
         const key = `settings.items.${item.id}`;
+        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
         const translatedLabel = t(key as any);
         return translatedLabel !== key ? translatedLabel : item.label;
     }, [biometricStatus.biometryType, t]);
@@ -197,7 +187,6 @@ export default function SettingsScreen() {
         const dynamicValue = getDynamicValue(item);
         const onPress = getItemHandler(item);
         const onToggleChange = getToggleHandler(item);
-        const _disabled = isItemDisabled(item);
         const label = getDynamicLabel(item);
 
         // Get the value properly typed
@@ -222,7 +211,7 @@ export default function SettingsScreen() {
                 isLast={index === total - 1}
             />
         );
-    }, [getDynamicValue, getItemHandler, getToggleHandler, isItemDisabled, getDynamicLabel]);
+    }, [getDynamicValue, getItemHandler, getToggleHandler, getDynamicLabel]);
 
     // Filter sections based on availability and authentication
     const visibleSections = useMemo(() => {
@@ -267,6 +256,7 @@ export default function SettingsScreen() {
                 {visibleSections.map((section) => (
                     <SettingsSection
                         key={section.id}
+                        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
                         title={t(`settings.sections.${section.id}` as any)}
                     >
                         {section.items.map((item, index) =>

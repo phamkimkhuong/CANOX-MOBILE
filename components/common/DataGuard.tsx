@@ -36,6 +36,7 @@ type SupportedQuery<T, E = Error> =
 
 export interface DataGuardProps<T> {
     /** React Query result object */
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     query: SupportedQuery<T, any>;
 
     /** Render function receiving data - only called when data is valid */
@@ -270,6 +271,7 @@ export function DataGuard<T>({
         // Case B: HARD ERROR - No data at all
         // Full screen error state
         const errorType = detectErrorType(error);
+        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
         const statusCode = (error as any)?.status || (error as any)?.response?.status;
 
         return (

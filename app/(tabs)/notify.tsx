@@ -48,7 +48,7 @@ export default function NotifyScreen() {
     const markAllAsRead = useMarkAllAsRead();
     const markAsRead = useMarkAsRead();
 
-    const { startPrefetch: startTiming, cancelPrefetch: cancelTiming, isInstantTap, reset: resetTiming } = usePrefetchTiming();
+    const { startPrefetch: startTiming, cancelPrefetch: cancelTiming, isInstantTap } = usePrefetchTiming();
 
     // Prefetch hook for near-instant navigation
     const { prefetch: prefetchNav, cancelPrefetch: cancelNavPrefetch } = usePrefetchNotificationNav();
@@ -151,7 +151,8 @@ export default function NotifyScreen() {
 
     const renderEmpty = useCallback(() => {
         const filterLabel = activeFilter !== NotificationFilter.ALL
-            ? t(`filters.${activeFilter.toLowerCase()}` as any)
+            ? /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+            t(`filters.${activeFilter.toLowerCase()}` as any)
             : undefined;
         return <EmptyState filterLabel={filterLabel as string | undefined} />;
     }, [activeFilter, t]);

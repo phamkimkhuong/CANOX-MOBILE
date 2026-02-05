@@ -68,9 +68,10 @@ export const CategoryBanner = memo(({
             // Handle deep links or URLs
             if (primaryBanner.href.startsWith('http')) {
                 // External URL - could open in WebView or browser
-                console.log('[Banner] External URL:', primaryBanner.href);
+                // console.log('[Banner] External URL:', primaryBanner.href);
             } else {
                 // Internal route
+                /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
                 Navigator.push(primaryBanner.href as any);
             }
         }
@@ -78,7 +79,7 @@ export const CategoryBanner = memo(({
         // Track click event
         if (primaryBanner.trackingId) {
             // TODO: Send analytics event
-            console.log('[Banner] Click tracked:', primaryBanner.trackingId);
+            // console.log('[Banner] Click tracked:', primaryBanner.trackingId);
         }
     }, [primaryBanner, onPress]);
 

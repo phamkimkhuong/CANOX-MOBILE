@@ -30,7 +30,7 @@ import { IconSymbol } from '../ui/Icon';
 // CONSTANTS
 // ============================================
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 /** Banner width = 85% screen width */
 const BANNER_WIDTH = SCREEN_WIDTH * 0.85;

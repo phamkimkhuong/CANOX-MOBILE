@@ -63,7 +63,6 @@ const SkeletonCheckoutItem: React.FC = () => {
  * Skeleton for Shop Group section
  */
 const SkeletonShopGroup: React.FC = () => {
-    const { theme } = useUnistyles();
     const styles = stylesheet;
 
     return (

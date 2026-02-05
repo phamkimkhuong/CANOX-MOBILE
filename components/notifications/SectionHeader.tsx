@@ -13,6 +13,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({ title }) => {
 
     return (
         <View style={styles.container}>
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             <Text style={styles.title}>{t(`sections.${title}` as any)}</Text>
         </View>
     );

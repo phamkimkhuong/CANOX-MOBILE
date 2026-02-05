@@ -14,7 +14,7 @@ import Animated, {
     withSequence,
     withTiming,
 } from 'react-native-reanimated';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
 interface OtpInputProps {
     /** Number of OTP digits */
@@ -50,7 +50,6 @@ export const OtpInput: React.FC<OtpInputProps> = ({
     disabled = false,
     autoFocus = true,
 }) => {
-    const { theme } = useUnistyles();
     const styles = stylesheet;
     const inputRef = useRef<TextInput>(null);
     const [isFocused, setIsFocused] = useState(false);
@@ -112,7 +111,7 @@ export const OtpInput: React.FC<OtpInputProps> = ({
     );
 
     const handleKeyPress = useCallback(
-        (e: NativeSyntheticEvent<TextInputKeyPressEventData>) => {
+        (_e: NativeSyntheticEvent<TextInputKeyPressEventData>) => {
             // Handle backspace on empty - do nothing special needed
             // The invisible input handles this naturally
         },

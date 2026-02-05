@@ -28,7 +28,6 @@ const PLACEHOLDER_IMAGE = 'https://via.placeholder.com/80x80?text=No+Image';
  * Single Product Item Row
  */
 const ProductItemRow: React.FC<{ item: OrderItemUI }> = ({ item }) => {
-    const { theme } = useUnistyles();
     const styles = stylesheet;
 
     const imageUrl = item.imageUrl || PLACEHOLDER_IMAGE;

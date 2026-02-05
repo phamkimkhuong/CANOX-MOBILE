@@ -49,7 +49,7 @@ export const CartItem: React.FC<CartItemProps> = memo(({
     onQuantityChange,
     onVariantPress,
     onFindSimilar,
-    onDelete,
+    onDelete: _onDelete,
 }) => {
     const { theme } = useUnistyles();
     const { t } = useTranslation('cart');
@@ -126,7 +126,7 @@ export const CartItem: React.FC<CartItemProps> = memo(({
                             <Text
                                 style={[
                                     styles.productName,
-                                    pressed && { color: theme.colors.newPrimary, opacity: 0.7 }
+                                    pressed && styles.productNamePressed
                                 ]}
                                 numberOfLines={2}
                             >
@@ -294,6 +294,10 @@ const styles = StyleSheet.create((theme, rt) => {
             fontWeight: '500',
             lineHeight: 20,
             color: theme.colors.typography,
+        },
+        productNamePressed: {
+            color: theme.colors.newPrimary,
+            opacity: 0.7,
         },
         imagePressed: {
             opacity: 0.8,

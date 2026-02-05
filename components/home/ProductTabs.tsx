@@ -20,7 +20,7 @@ import Animated, {
     withSequence,
     withTiming,
 } from 'react-native-reanimated';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
 interface ProductTabsProps {
     activeTab: FeedType;
@@ -73,7 +73,7 @@ AnimatedNewBadge.displayName = 'AnimatedNewBadge';
 /**
  * Animated Flash Icon with Shimmer Effect
  */
-const AnimatedFlashIcon = memo(({ isActive, color }: { isActive: boolean; color: string }) => {
+const AnimatedFlashIcon = memo(({ isActive: _isActive, color }: { isActive: boolean; color: string }) => {
     const opacity = useSharedValue(1);
 
     useEffect(() => {
@@ -105,7 +105,7 @@ AnimatedFlashIcon.displayName = 'AnimatedFlashIcon';
 /**
  * Animated Flame Icon with Wiggle Effect
  */
-const AnimatedFlameIcon = memo(({ isActive, color }: { isActive: boolean; color: string }) => {
+const AnimatedFlameIcon = memo(({ isActive: _isActive, color }: { isActive: boolean; color: string }) => {
     const rotation = useSharedValue(0);
 
     useEffect(() => {
@@ -140,7 +140,7 @@ AnimatedFlameIcon.displayName = 'AnimatedFlameIcon';
 /**
  * Animated Trophy Icon with Bounce Effect
  */
-const AnimatedTrophyIcon = memo(({ isActive, color }: { isActive: boolean; color: string }) => {
+const AnimatedTrophyIcon = memo(({ isActive: _isActive, color }: { isActive: boolean; color: string }) => {
     const scale = useSharedValue(1);
 
     useEffect(() => {
@@ -186,7 +186,6 @@ interface TabConfig {
 // ============================================
 
 export const ProductTabs = memo(({ activeTab, onTabChange }: ProductTabsProps) => {
-    const { theme } = useUnistyles();
     const styles = stylesheet;
     const { t } = useTranslation('home');
 

@@ -8,6 +8,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
  * AuthInput - Input component dùng cho các form authentication
  */
 interface AuthInputProps extends TextInputProps {
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     control: Control<any>;
     name: string;
     label: string;

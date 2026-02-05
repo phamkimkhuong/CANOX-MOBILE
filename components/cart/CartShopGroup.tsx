@@ -61,7 +61,7 @@ interface CartShopGroupProps {
 
 export const CartShopGroup: React.FC<CartShopGroupProps> = memo(({
     shop,
-    selectedIds,
+    selectedIds: _selectedIds,
     shopCheckboxState,
     onToggleShop,
     onToggleItem,

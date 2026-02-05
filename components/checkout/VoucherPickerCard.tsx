@@ -38,7 +38,6 @@ export const VoucherPickerCard = memo<VoucherPickerCardProps>(({
 
     // Accent colors based on discount type
     const accentColor = isPercentage ? theme.colors.error : theme.colors.primary;
-    const accentBgColor = isPercentage ? theme.colors.errorSoft : theme.colors.primarySoft;
 
     // Format expiry date
     const expiryDisplay = useMemo(() => {

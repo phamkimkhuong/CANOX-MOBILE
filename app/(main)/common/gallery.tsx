@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { Pressable, StatusBar, Text, View } from 'react-native';
 import Gallery, { RenderItemInfo } from 'react-native-awesome-gallery';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
 const IMAGE_PLACEHOLDER = 'L6PZfSi_.AyE_3t7t7R**0o#DgR4';
 
@@ -13,7 +13,6 @@ export default function GalleryScreen() {
     const router = useRouter();
     const { images: imagesParam, initialIndex: initialIndexParam } = useLocalSearchParams<{ images: string; initialIndex?: string }>();
     const insets = useSafeAreaInsets();
-    const { theme } = useUnistyles();
     const styles = stylesheet;
 
     const images = JSON.parse(imagesParam || '[]') as string[];

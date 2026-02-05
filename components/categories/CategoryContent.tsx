@@ -109,7 +109,7 @@ export const CategoryContent: React.FC<CategoryContentProps> = ({
                 )}
             </View>
         ),
-        [styles, theme.colors.primary]
+        [styles, theme.colors.primary, t]
     );
 
     const renderGridItem = useCallback(
@@ -158,7 +158,7 @@ export const CategoryContent: React.FC<CategoryContentProps> = ({
                 </View>
             );
         },
-        [styles]
+        [styles, t]
     );
 
     const renderBanner = useCallback(

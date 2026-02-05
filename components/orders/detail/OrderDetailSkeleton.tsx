@@ -14,27 +14,8 @@
 import { SkeletonBox, SkeletonCircle, SkeletonText } from '@/components/ui/feedback/Skeleton';
 import React from 'react';
 import { ScrollView, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, UnistylesRuntime } from 'react-native-unistyles';
 
-/**
- * Header Skeleton - Back button, title, support button
- */
-
-const HeaderSkeleton: React.FC = () => {
-    const styles = stylesheet;
-
-    return (
-        <View style={[styles.header, styles.safeTop]}>
-            <SkeletonCircle size={36} />
-            <View style={styles.headerCenter}>
-                <SkeletonText width={120} height={14} />
-                <SkeletonText width={80} height={11} style={styles.mt4} />
-            </View>
-            <SkeletonCircle size={36} />
-        </View>
-    );
-};
 
 
 /**
@@ -178,20 +159,6 @@ const PriceSummarySkeleton: React.FC = () => {
     );
 };
 
-/**
- * Footer Skeleton - Action buttons
- */
-const FooterSkeleton: React.FC = () => {
-    const styles = stylesheet;
-    const { bottom } = useSafeAreaInsets();
-
-    return (
-        <View style={[styles.footer, { paddingBottom: bottom || 16 }]}>
-            <SkeletonBox width="48%" height={44} borderRadius={8} />
-            <SkeletonBox width="48%" height={44} borderRadius={8} />
-        </View>
-    );
-};
 
 /**
  * OrderDetailSkeleton - Full page loading skeleton

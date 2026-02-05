@@ -8,10 +8,9 @@
 import { SkeletonBox } from '@/components/ui/feedback/Skeleton';
 import React from 'react';
 import { View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
 export const OrderCardSkeleton: React.FC = () => {
-    const { theme } = useUnistyles();
     const styles = stylesheet;
 
     return (

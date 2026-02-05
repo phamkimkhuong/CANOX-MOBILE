@@ -68,7 +68,8 @@ export default function VerifyBankScreen() {
                 onSuccess: () => {
                     Navigator.replace(ROUTES.SETTINGS.BANK_CARDS);
                 },
-                onError: (err: any) => {
+                /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+                onError: (_err: any) => {
                     setError(t('bank:verify.errorExpired'));
                 }
             }

@@ -16,7 +16,7 @@ import Animated, {
     useSharedValue,
     withTiming,
 } from 'react-native-reanimated';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
 interface OrderTabsBarProps {
     activeTab: OrderTabStatus;
@@ -27,7 +27,6 @@ export const OrderTabsBar: React.FC<OrderTabsBarProps> = ({
     activeTab,
     onTabChange,
 }) => {
-    const { theme } = useUnistyles();
     const { t } = useTranslation('order');
     const { width: screenWidth } = useWindowDimensions();
     const styles = stylesheet;
@@ -164,6 +163,7 @@ export const OrderTabsBar: React.FC<OrderTabsBarProps> = ({
                                     isActive && styles.tabTextActive,
                                 ]}
                             >
+                                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                                 {t(tab.labelKey as any)}
                             </Text>
                         </Pressable>

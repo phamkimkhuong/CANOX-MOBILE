@@ -110,7 +110,7 @@ export default function MeScreen() {
             tintColor={theme.colors.buttonActive}
             colors={[theme.colors.buttonActive]}
         />
-    ), [isRefreshing, handleRefresh]);
+    ), [isRefreshing, handleRefresh, theme.colors.buttonActive]);
 
     // Guest state - show login prompt
     if (!isAuthenticated) {

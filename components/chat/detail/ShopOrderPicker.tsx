@@ -23,7 +23,6 @@ import {
     Text,
     View
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface ShopOrderPickerProps {
@@ -41,7 +40,6 @@ export const ShopOrderPicker = forwardRef<BottomSheetModal, ShopOrderPickerProps
     ({ shopId, onSelectOrder }, ref) => {
         const { theme } = useUnistyles();
         const styles = stylesheet;
-        const insets = useSafeAreaInsets();
 
         // Search state
         const [searchKeyword, setSearchKeyword] = useState('');

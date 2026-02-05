@@ -48,7 +48,7 @@ export const OrderAddressCard: React.FC<OrderAddressCardProps> = ({
         });
 
         setTimeout(() => setCopied(false), 2000);
-    }, [recipientName, phoneNumber, fullAddress]);
+    }, [recipientName, phoneNumber, fullAddress, t]);
 
     return (
         <View style={styles.container}>

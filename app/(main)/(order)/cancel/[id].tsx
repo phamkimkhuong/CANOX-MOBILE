@@ -100,6 +100,7 @@ export default function CancelOrderScreen() {
         if (selectedReason === 'OTHER') {
             return otherReasonText.trim();
         }
+        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
         return t(`cancel.reasons.${selectedReason}` as any);
     }, [selectedReason, otherReasonText, t]);
 

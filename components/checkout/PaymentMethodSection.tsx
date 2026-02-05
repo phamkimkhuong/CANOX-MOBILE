@@ -31,6 +31,7 @@ export const PaymentMethodSection: React.FC<PaymentMethodSectionProps> = ({
         id: PaymentMethodType;
         name: string;
         description: string;
+        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
         icon: any; // Using IconSymbolName from Icon.tsx or any for simplicity
         iconColor: string;
     }> = useMemo(() => [

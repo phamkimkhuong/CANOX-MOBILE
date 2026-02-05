@@ -236,7 +236,7 @@ export default function ProductDetailScreen() {
             Navigator.push(ROUTES.AUTH.LOGIN);
             return;
         }
-        if (!shopUserId || !shopName) return;
+        if (!shopUserId || !shopName || !product) return;
         if (shopId === myShopId) {
             Toast.show({
                 type: 'info',
@@ -257,7 +257,7 @@ export default function ProductDetailScreen() {
             productPrice: String(selectionResult.displayPrice.currentPrice),
             productImage: currentImage,
         }));
-    }, [shopUserId, shopName, shopLogoUrl, isAuthenticated, myShopId, shopId, t]);
+    }, [shopUserId, shopName, shopLogoUrl, isAuthenticated, myShopId, shopId, t, product, selectionResult.displayPrice.currentPrice, currentImage]);
 
     const handleShopPress = useCallback(() => {
         if (shopId) Navigator.push(shopRoutes.detail(shopId));

@@ -331,7 +331,6 @@ interface VoucherItemProps {
 }
 
 const VoucherItem: React.FC<VoucherItemProps> = ({ voucher, isSelected, onPress }) => {
-    const { theme } = useUnistyles();
     const { t, i18n } = useTranslation('checkout');
     const isShipping = voucher.category === 'SHIPPING';
     const isDisabled = !voucher.isApplicable;

@@ -102,7 +102,7 @@ export default function PaymentPayOSScreen() {
     const { data: orderResponse } = useOrderDetail(id || null, {
         enabled: !!id,
         // @ts-expect-error: PayOS SDK might have loose types - refetchInterval can be a function in TanStack Query
-        refetchInterval: (query: any) => {
+        refetchInterval: (query: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
             const status = query.state.data?.raw?.status;
             if (status === 'PAID' || status === 'CANCELLED') {
                 return false;

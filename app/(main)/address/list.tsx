@@ -97,7 +97,7 @@ export default function AddressListScreen() {
             // Clear the message after showing
             clearPendingSuccessMessage();
         }
-    }, [isReady, isLoading, pendingSuccessMessage, clearPendingSuccessMessage]);
+    }, [isReady, isLoading, pendingSuccessMessage, clearPendingSuccessMessage, t]);
 
     // Sort addresses: default first
     const sortedAddresses = useMemo(() => {
@@ -147,6 +147,7 @@ export default function AddressListScreen() {
         Navigator.push({
             pathname: ROUTES.ADDRESS.ADD,
             params: { id: address.id, mode },
+            /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
         } as any);
     }, [mode]);
 
@@ -159,6 +160,7 @@ export default function AddressListScreen() {
             Navigator.push({
                 pathname: ROUTES.ADDRESS.ADD,
                 params: { mode },
+                /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
             } as any);
         }
     }, [currentCount, maxCount, mode, t]);

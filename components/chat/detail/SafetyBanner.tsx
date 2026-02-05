@@ -16,7 +16,7 @@ interface SafetyBannerProps {
  * SafetyBanner - Scam warning banner
  * Required by e-commerce platforms for legal protection
  */
-export const SafetyBanner: React.FC<SafetyBannerProps> = ({ onClose }) => {
+export const SafetyBanner: React.FC<SafetyBannerProps> = ({ onClose: _onClose }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
 

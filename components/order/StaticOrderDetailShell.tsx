@@ -38,7 +38,7 @@ export const StaticOrderDetailShell: React.FC<StaticOrderDetailShellProps> = ({
         } else {
             opacity.value = 1;
         }
-    }, [showShimmer]);
+    }, [showShimmer, opacity]);
 
     const shimmerStyle = useAnimatedStyle(() => ({
         opacity: opacity.value,

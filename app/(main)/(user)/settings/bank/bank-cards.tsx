@@ -44,6 +44,7 @@ export default function BankCardsScreen() {
         Navigator.push(ROUTES.SETTINGS.ADD_BANK);
     }, []);
 
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     const handleCardPress = useCallback((card: any) => {
         Navigator.push({
             pathname: ROUTES.SETTINGS.EDIT_BANK,
@@ -51,6 +52,7 @@ export default function BankCardsScreen() {
         });
     }, []);
 
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     const handleDeleteCard = useCallback((card: any) => {
         Alert.show({
             title: t('bank:cards.deleteTitle'),

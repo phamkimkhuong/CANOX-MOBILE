@@ -8,7 +8,7 @@ import {
 import React, { forwardRef, useCallback } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
 /**
  * ==============================================
@@ -25,7 +25,6 @@ interface AttachmentMenuProps {
 
 export const AttachmentMenu = forwardRef<BottomSheetModal, AttachmentMenuProps>(
     ({ onSelectOption }, ref) => {
-        const { theme } = useUnistyles();
         const styles = stylesheet;
         const insets = useSafeAreaInsets();
 

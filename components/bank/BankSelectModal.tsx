@@ -26,7 +26,7 @@ export const BankSelectModal: React.FC<BankSelectModalProps> = memo(({
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
     const { t } = useTranslation(['bank']);
-    const { data: banks, isLoading } = useSupportedBanks();
+    const { data: banks } = useSupportedBanks();
     const [searchQuery, setSearchQuery] = useState('');
 
     const filteredBanks = useMemo(() => {
