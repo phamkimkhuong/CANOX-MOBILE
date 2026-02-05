@@ -1,3 +1,11 @@
+require('ts-node/register');
+
+// Helper to load plugins (supports both CJS and ESM via ts-node)
+const loadPlugin = (path) => {
+    const plugin = require(path);
+    return plugin.default || plugin;
+};
+
 const IS_DEV = process.env.APP_VARIANT === 'development';
 const IS_PREVIEW = process.env.APP_VARIANT === 'preview';
 
@@ -38,11 +46,11 @@ module.exports = {
         },
 
         "plugins": [
-            "./plugins/withDisableLint",
-            "./plugins/withAndroid16KB",
-            "./plugins/withNotifee",
+            loadPlugin("./plugins/withDisableLint"),
+            loadPlugin("./plugins/withAndroid16KB"),
+            loadPlugin("./plugins/withNotifee"),
             [
-                "./plugins/withNotificationIcon",
+                loadPlugin("./plugins/withNotificationIcon"),
                 {
                     "iconPath": "./assets/images/notification-icon.png",
                     "iconColor": "#ef4444"

@@ -21,7 +21,6 @@ export default [
             'package.json',
             'package-lock.json',
             'eslint.config.mjs',
-            'plugins/**',
         ],
     },
 
@@ -107,4 +106,18 @@ export default [
             '@typescript-eslint/no-deprecated': 'warn',
         },
     },
+
+    // SPECIAL CONFIG FOR EXPO PLUGINS (Node.js context)
+    {
+        files: ['plugins/**/*.{js,ts}'],
+        languageOptions: {
+            globals: {
+                ...globals.node,
+            },
+        },
+        rules: {
+            '@typescript-eslint/no-var-requires': 'off',
+            'no-console': 'off',
+        },
+    }
 ];

@@ -11,7 +11,13 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
+    "plugins/**/*.ts",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-  ]
+  ],
+  "ts-node": {
+    "compilerOptions": {
+      "module": "CommonJS"
+    }
+  }
 }

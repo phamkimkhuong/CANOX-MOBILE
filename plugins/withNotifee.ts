@@ -1,10 +1,11 @@
-const { withProjectBuildGradle } = require('@expo/config-plugins');
+import * as ConfigPlugins from '@expo/config-plugins';
+import { ConfigPlugin } from '@expo/config-plugins';
 
 /**
  * Notifee requires a local Maven repository to be added to the project build.gradle.
  */
-const withNotifeeRepository = (config) => {
-    return withProjectBuildGradle(config, (config) => {
+const withNotifeeRepository: ConfigPlugin = (config) => {
+    return ConfigPlugins.withProjectBuildGradle(config, (config) => {
         if (config.modResults.language === 'groovy') {
             config.modResults.contents = addNotifeeMavenRepository(config.modResults.contents);
         } else {
@@ -14,7 +15,7 @@ const withNotifeeRepository = (config) => {
     });
 };
 
-function addNotifeeMavenRepository(buildGradle) {
+function addNotifeeMavenRepository(buildGradle: string): string {
     const repository = `        maven { url "$rootDir/../node_modules/@notifee/react-native/android/libs" }`;
 
     if (buildGradle.includes(repository)) {
@@ -28,11 +29,11 @@ function addNotifeeMavenRepository(buildGradle) {
             allProjectsRepoPattern,
             `allprojects {
     repositories {
-${repository}`
+        ${repository}`
         );
     }
 
     return buildGradle;
 }
 
-module.exports = withNotifeeRepository;
+export default withNotifeeRepository;

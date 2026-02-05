@@ -1,11 +1,12 @@
-const { withAppBuildGradle } = require('@expo/config-plugins');
+import * as ConfigPlugins from '@expo/config-plugins';
+import { ConfigPlugin } from '@expo/config-plugins';
 
 /**
  * Plugin to disable Android Lint tasks which frequently fail on Windows
  * due to file locking issues during 'lintVitalAnalyzeRelease'.
  */
-const withDisableLint = (config) => {
-    return withAppBuildGradle(config, (config) => {
+const withDisableLint: ConfigPlugin = (config) => {
+    return ConfigPlugins.withAppBuildGradle(config, (config) => {
         if (config.modResults.language === 'groovy') {
             const disableLintConfig = `
     lintOptions {
@@ -26,4 +27,4 @@ const withDisableLint = (config) => {
     });
 };
 
-module.exports = withDisableLint;
+export default withDisableLint;
