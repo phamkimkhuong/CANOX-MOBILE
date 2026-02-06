@@ -31,6 +31,7 @@ import { UserSyncProvider } from '@/components/UserSyncProvider';
 import { WebSocketProvider } from '@/components/WebSocketProvider';
 import { ScrollToTopProvider } from '@/contexts/ScrollToTopContext';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
+import { usePrivacyConsent } from '@/hooks/usePrivacyConsent';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { usePushTokenSync } from '@/hooks/usePushTokenSync';
 import { useTokenRefreshOnForeground } from '@/hooks/useTokenRefresh';
@@ -106,6 +107,12 @@ export default function RootLayout() {
     if (error) throw error;
   }, [error]);
 
+  // Privacy Consent (GDPR/Apple)
+  const { applyPrivacyPreferences, hasAcceptedPrivacy } = usePrivacyConsent();
+  useEffect(() => {
+    applyPrivacyPreferences();
+  }, [applyPrivacyPreferences]);
+
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
@@ -158,6 +165,11 @@ export default function RootLayout() {
                         />
                       </Stack>
                     </IntroPopupProvider>
+                    {/* Privacy Consent Popup - Shows if not accepted yet */}
+                    {/* <PrivacyConsentPopup
+                      visible={!hasAcceptedPrivacy}
+                      onClose={() => { }}
+                    /> */}
                   </UserSyncProvider>
                   <CustomAlert ref={alertRef} />
                   <Toast

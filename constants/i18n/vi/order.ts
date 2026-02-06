@@ -159,4 +159,30 @@ export const ORDER_STRINGS: OrderTranslation = {
         returned: 'Đã trả hàng',
         cancelled: 'Đã hủy',
     },
+    success: {
+        title: 'Đặt hàng thành công',
+        subtitle: 'Cảm ơn bạn đã mua sắm tại CanoX. Đơn hàng của bạn đang được xử lý.',
+        orderTitle: 'Thông tin đơn hàng',
+        orderNumberLabel: 'Mã đơn hàng',
+        paymentLabel: 'Thanh toán',
+        timeLabel: 'Thời gian',
+        itemCountLabel: 'Số lượng',
+        totalLabel: 'Thành tiền',
+        copySuccess: 'Đã sao chép mã đơn hàng',
+        actions: {
+            continue: 'Tiếp tục mua sắm',
+            viewHistory: 'Xem lịch sử đơn hàng',
+            home: 'Về trang chủ',
+        },
+        multiOrders: {
+            title: 'Đơn hàng',
+            orderItemTitle: 'Đơn hàng #{{orderNumber}}',
+            viewDetail: 'Xem chi tiết',
+            fallback: '{{count}} đơn hàng đã được tạo',
+        },
+        toast: {
+            copySuccess: 'Đã sao chép mã đơn hàng: {{orderNumber}}',
+            pushEnabled: 'Đã bật thông báo đơn hàng',
+        },
+    },
 };

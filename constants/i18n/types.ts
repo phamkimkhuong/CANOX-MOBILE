@@ -720,6 +720,32 @@ export interface OrderTranslation {
         returned: string;
         cancelled: string;
     };
+    success: {
+        title: string;
+        subtitle: string;
+        orderTitle: string;
+        orderNumberLabel: string;
+        paymentLabel: string;
+        timeLabel: string;
+        itemCountLabel: string;
+        totalLabel: string;
+        copySuccess: string;
+        actions: {
+            continue: string;
+            viewHistory: string;
+            home: string;
+        };
+        multiOrders: {
+            title: string;
+            orderItemTitle: string;
+            viewDetail: string;
+            fallback: string;
+        };
+        toast: {
+            copySuccess: string;
+            pushEnabled: string;
+        };
+    };
 }
 
 /**
@@ -1056,6 +1082,54 @@ export interface NotificationTranslation {
     actions: {
         markAllAsReadTitle: string;
         markAllAsReadMessage: string;
+    };
+    settings: {
+        title: string;
+        systemDisabled: {
+            title: string;
+            description: string;
+            action: string;
+        };
+        groups: {
+            transaction: {
+                title: string;
+                order: {
+                    title: string;
+                    description: string;
+                };
+                chat: {
+                    title: string;
+                    description: string;
+                };
+            };
+            promotion: {
+                title: string;
+                deals: {
+                    title: string;
+                    description: string;
+                };
+                news: {
+                    title: string;
+                    description: string;
+                };
+            };
+            advanced: {
+                title: string;
+                systemSettings: string;
+            };
+        };
+        messages: {
+            enableSuccess: string;
+            disableSuccess: string;
+            updateError: string;
+            featureDeveloping: string;
+        };
+    };
+    softAsk: {
+        title: string;
+        description: string;
+        accept: string;
+        later: string;
     };
 }
 

@@ -159,4 +159,30 @@ export const ORDER_STRINGS: OrderTranslation = {
         returned: 'Returned',
         cancelled: 'Cancelled',
     },
+    success: {
+        title: 'Order Successful',
+        subtitle: 'Thank you for shopping at CanoX. Your order is being processed.',
+        orderTitle: 'Order Information',
+        orderNumberLabel: 'Order Number',
+        paymentLabel: 'Payment',
+        timeLabel: 'Time',
+        itemCountLabel: 'Quantity',
+        totalLabel: 'Total Amount',
+        copySuccess: 'Order number copied',
+        actions: {
+            continue: 'Continue Shopping',
+            viewHistory: 'View Order History',
+            home: 'Back to Home',
+        },
+        multiOrders: {
+            title: 'Orders',
+            orderItemTitle: 'Order #{{orderNumber}}',
+            viewDetail: 'View Detail',
+            fallback: '{{count}} orders have been created',
+        },
+        toast: {
+            copySuccess: 'Copied order number: {{orderNumber}}',
+            pushEnabled: 'Order notifications enabled',
+        },
+    },
 };

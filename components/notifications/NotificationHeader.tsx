@@ -12,12 +12,16 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
  */
 interface NotificationHeaderProps {
     onMarkAllRead?: () => void;
+    onSettingsPress?: () => void; // Thêm callback mở cài đặt
     isMarkingAll?: boolean; // Trạng thái loading khi đang đánh dấu tất cả
+    showSettingsBadge?: boolean; // Hiển thị chấm đỏ cảnh báo trên icon cài đặt
 }
 
 export const NotificationHeader: React.FC<NotificationHeaderProps> = ({
     onMarkAllRead,
+    onSettingsPress,
     isMarkingAll = false,
+    showSettingsBadge = false,
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
@@ -27,7 +31,21 @@ export const NotificationHeader: React.FC<NotificationHeaderProps> = ({
     return (
         <View style={[styles.container, { paddingTop: insets.top }]}>
             <View style={styles.content}>
-                <Text style={styles.title}>{t('header.title')}</Text>
+                <View style={styles.leftContent}>
+                    <TouchableOpacity
+                        style={styles.settingsButton}
+                        onPress={onSettingsPress}
+                        activeOpacity={0.7}
+                    >
+                        <IconSymbol
+                            name="settings-outline"
+                            size={22}
+                            color={theme.colors.typography}
+                        />
+                        {showSettingsBadge && <View style={styles.badge} />}
+                    </TouchableOpacity>
+                    <Text style={styles.title}>{t('header.title')}</Text>
+                </View>
                 <TouchableOpacity
                     style={[styles.markAllButton, isMarkingAll && styles.markAllButtonDisabled]}
                     onPress={onMarkAllRead}
@@ -69,6 +87,29 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontWeight: '700',
         color: theme.colors.typography,
         letterSpacing: -0.3,
+    },
+    leftContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+    },
+    settingsButton: {
+        width: 36,
+        height: 36,
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'relative',
+    },
+    badge: {
+        position: 'absolute',
+        top: 6,
+        right: 6,
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: theme.colors.error,
+        borderWidth: 1.5,
+        borderColor: theme.colors.surface,
     },
     markAllButton: {
         flexDirection: 'row',

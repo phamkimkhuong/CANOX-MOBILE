@@ -35,6 +35,12 @@ interface AppState {
     language: SupportedLanguage;
     setLanguage: (lang: SupportedLanguage) => void;
 
+    // Privacy Consent
+    hasAcceptedPrivacy: boolean;
+    crashlyticsConsent: boolean;
+    analyticsConsent: boolean;
+    updatePrivacyConsent: (consent: { crash: boolean; analytics: boolean }) => void;
+
     // Maintenance / System Down state
     isSystemDown: boolean;
     setSystemDown: (status: boolean) => void;
@@ -66,6 +72,16 @@ export const useAppStore = create<AppState>()(
             language: getDeviceLanguage(),
             setLanguage: (lang) => set({ language: lang }),
 
+            // Privacy
+            hasAcceptedPrivacy: false,
+            crashlyticsConsent: false,
+            analyticsConsent: false,
+            updatePrivacyConsent: (consent) => set({
+                hasAcceptedPrivacy: true,
+                crashlyticsConsent: consent.crash,
+                analyticsConsent: consent.analytics,
+            }),
+
             // Maintenance
             isSystemDown: false,
             setSystemDown: (status) => set({ isSystemDown: status }),
@@ -80,6 +96,9 @@ export const useAppStore = create<AppState>()(
                 biometricsEnabled: state.biometricsEnabled,
                 hasSeenOnboarding: state.hasSeenOnboarding,
                 language: state.language,
+                hasAcceptedPrivacy: state.hasAcceptedPrivacy,
+                crashlyticsConsent: state.crashlyticsConsent,
+                analyticsConsent: state.analyticsConsent,
             }),
         }
     )

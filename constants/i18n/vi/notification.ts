@@ -33,4 +33,52 @@ export const NOTIFICATION_STRINGS: NotificationTranslation = {
         markAllAsReadTitle: 'Đánh dấu đã đọc',
         markAllAsReadMessage: 'Bạn có muốn đánh dấu tất cả thông báo là đã đọc không?',
     },
+    settings: {
+        title: 'Cài đặt thông báo',
+        systemDisabled: {
+            title: 'Thông báo đang bị tắt',
+            description: 'Bạn cần cho phép trong cài đặt điện thoại để nhận thông báo đơn hàng.',
+            action: 'Mở Cài đặt máy',
+        },
+        groups: {
+            transaction: {
+                title: 'Giao dịch & Cá nhân',
+                order: {
+                    title: 'Cập nhật đơn hàng',
+                    description: 'Thông báo khi trạng thái đơn hàng thay đổi, shipper bắt đầu giao hàng.',
+                },
+                chat: {
+                    title: 'Tin nhắn mới',
+                    description: 'Nhận thông báo khi có tin nhắn từ Shop hoặc hỗ trợ khách hàng.',
+                },
+            },
+            promotion: {
+                title: 'Khuyến mãi & Tin tức',
+                deals: {
+                    title: 'Khuyến mãi & Ưu đãi',
+                    description: 'Các chương trình Flash Sale, Voucher độc quyền và quà tặng mỗi ngày.',
+                },
+                news: {
+                    title: 'Tin tức CanoX',
+                    description: 'Khám phá các tính năng mới, mẹo mua sắm và cập nhật từ cộng đồng CanoX.',
+                },
+            },
+            advanced: {
+                title: 'Nâng cao',
+                systemSettings: 'Cài đặt thông báo trên điện thoại',
+            },
+        },
+        messages: {
+            enableSuccess: 'Đã bật thông báo {{topic}}',
+            disableSuccess: 'Đã tắt thông báo {{topic}}',
+            updateError: 'Không thể cập nhật cấu hình',
+            featureDeveloping: 'Tính năng đang phát triển',
+        },
+    },
+    softAsk: {
+        title: 'Theo dõi đơn hàng',
+        description: 'Bạn có muốn nhận thông báo ngay khi trạng thái đơn hàng thay đổi và khi shipper bắt đầu giao hàng không?',
+        accept: 'Đồng ý',
+        later: 'Để sau',
+    },
 };

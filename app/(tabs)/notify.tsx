@@ -4,6 +4,7 @@ import { NotificationHeader } from '@/components/notifications/NotificationHeade
 import { NotificationItem } from '@/components/notifications/NotificationItem';
 import { NotificationSkeleton } from '@/components/notifications/NotificationSkeleton';
 import { SectionHeader } from '@/components/notifications/SectionHeader';
+import { ROUTES } from '@/constants/routes';
 import { useMarkAllAsRead, useMarkAsRead, useNotifications, useRefreshNotifications } from '@/hooks/api/notification/useNotifications';
 import { usePrefetchNotificationNav } from '@/hooks/api/notification/usePrefetchNotificationNav';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
@@ -15,10 +16,11 @@ import {
 } from '@/types/notification';
 import { Alert as CustomAlert } from '@/utils/AlertHelper';
 import { Navigator } from '@/utils/navigation';
+import { AuthorizationStatus, getMessaging, hasPermission } from '@react-native-firebase/messaging';
 import { FlashList } from '@shopify/flash-list';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, RefreshControl, View } from 'react-native';
+import { ActivityIndicator, AppState, RefreshControl, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 export default function NotifyScreen() {
@@ -30,7 +32,33 @@ export default function NotifyScreen() {
     const styles = stylesheet;
     const { t } = useTranslation(['notification', 'common']);
     const [activeFilter, setActiveFilter] = useState<NotificationFilter>(NotificationFilter.ALL);
+    const [isSystemEnabled, setIsSystemEnabled] = useState(true);
     const isScrolling = useRef(false);
+
+    useEffect(() => {
+        checkSystemPermission();
+
+        const subscription = AppState.addEventListener('change', (nextAppState) => {
+            if (nextAppState === 'active') {
+                checkSystemPermission();
+            }
+        });
+
+        return () => subscription.remove();
+    }, []);
+
+    const checkSystemPermission = async () => {
+        const messagingInstance = getMessaging();
+        const authStatus = await hasPermission(messagingInstance);
+        setIsSystemEnabled(
+            authStatus === AuthorizationStatus.AUTHORIZED ||
+            authStatus === AuthorizationStatus.PROVISIONAL
+        );
+    };
+
+    const handleSettingsPress = useCallback(() => {
+        Navigator.push(ROUTES.SETTINGS.NOTIFICATIONS);
+    }, []);
 
     const {
         flattenedData,
@@ -163,7 +191,9 @@ export default function NotifyScreen() {
             <View style={styles.container}>
                 <NotificationHeader
                     onMarkAllRead={handleMarkAllRead}
+                    onSettingsPress={handleSettingsPress}
                     isMarkingAll={markAllAsRead.isPending}
+                    showSettingsBadge={!isSystemEnabled}
                 />
                 <FilterBar activeFilter={activeFilter} onFilterChange={handleFilterChange} />
                 <NotificationSkeleton count={6} />
@@ -175,7 +205,9 @@ export default function NotifyScreen() {
         <View style={styles.container}>
             <NotificationHeader
                 onMarkAllRead={handleMarkAllRead}
+                onSettingsPress={handleSettingsPress}
                 isMarkingAll={markAllAsRead.isPending}
+                showSettingsBadge={!isSystemEnabled}
             />
             <FilterBar activeFilter={activeFilter} onFilterChange={handleFilterChange} />
 

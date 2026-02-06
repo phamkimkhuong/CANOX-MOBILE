@@ -11,15 +11,19 @@
 
 import '@/constants/unistyles';
 
+import { PushNotificationSoftAsk } from '@/components/notifications/PushNotificationSoftAsk';
 import { IconSymbol } from '@/components/ui/Icon';
 import { orderRoutes, ROUTES } from '@/constants/routes';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { formatCurrency } from '@/utils/format';
 import { Navigator } from '@/utils/navigation';
+import { AuthorizationStatus, getMessaging, hasPermission } from '@react-native-firebase/messaging';
 import * as Clipboard from 'expo-clipboard';
 import { Image } from 'expo-image';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -41,17 +45,17 @@ interface OrderInfo {
 }
 
 /**
- * Format payment method to Vietnamese display
+ * Format payment method to localized display
  */
-const formatPaymentMethod = (method?: string): string => {
-    if (!method) return 'Thanh toán khi nhận hàng';
+const formatPaymentMethod = (method: string | undefined, t: any): string => {
+    if (!method) return t('checkout:payment.cod.name');
     switch (method.toUpperCase()) {
         case 'COD':
-            return 'Thanh toán khi nhận hàng';
+            return t('checkout:payment.cod.name');
         case 'BANK_TRANSFER':
-            return 'Chuyển khoản ngân hàng';
+            return t('checkout:payment.bankTransfer.name');
         case 'CREDIT_CARD':
-            return 'Thẻ tín dụng';
+            return t('order:statusLabel.paid'); // Defaulting to paid label or method name
         default:
             return method;
     }
@@ -79,6 +83,7 @@ export default function OrderSuccessScreen() {
     // Unlock navigation when screen gains focus
     useNavigationUnlockOnFocus();
 
+    const { t } = useTranslation(['order', 'checkout']);
     const { theme } = useUnistyles();
 
     const styles = stylesheet;
@@ -103,6 +108,36 @@ export default function OrderSuccessScreen() {
     const isMultipleOrders = orderCount > 1;
     const singleOrder = !isMultipleOrders && orders.length > 0 ? orders[0] : null;
 
+    // --- PUSH NOTIFICATION SOFT ASK LOGIC ---
+    const { requestPermission } = usePushNotifications();
+    const [showPushModal, setShowPushModal] = React.useState(false);
+
+    React.useEffect(() => {
+        const timer = setTimeout(async () => {
+            // Kiểm tra xem đã có quyền chưa trước khi hiện Soft Ask
+            const messagingInstance = getMessaging();
+            const authStatus = await hasPermission(messagingInstance);
+            if (authStatus === AuthorizationStatus.NOT_DETERMINED) {
+                setShowPushModal(true);
+            }
+        }, 1500);
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    const handleAcceptPush = async () => {
+        setShowPushModal(false);
+        const granted = await requestPermission();
+        if (granted) {
+            Toast.show({
+                type: 'success',
+                text1: t('order:success.toast.pushEnabled'),
+                visibilityTime: 2000,
+            });
+        }
+    };
+    // ----------------------------------------
+
     /**
      * Copy order number to clipboard
      */
@@ -110,10 +145,10 @@ export default function OrderSuccessScreen() {
         await Clipboard.setStringAsync(orderNumber);
         Toast.show({
             type: 'success',
-            text1: 'Đã sao chép mã đơn hàng',
+            text1: t('order:success.toast.copySuccess', { orderNumber }),
             visibilityTime: 1500,
         });
-    }, []);
+    }, [t]);
 
     /**
      * Navigate to order history/list
@@ -161,7 +196,7 @@ export default function OrderSuccessScreen() {
             >
                 {/* Order Number Row */}
                 <View style={styles.orderNumberRow}>
-                    <Text style={styles.orderNumberLabel}>Mã đơn hàng</Text>
+                    <Text style={styles.orderNumberLabel}>{t('order:success.orderNumberLabel')}</Text>
                     <View style={styles.orderNumberValue}>
                         <Text style={styles.orderNumberText}>
                             {singleOrder.orderNumber}
@@ -205,21 +240,21 @@ export default function OrderSuccessScreen() {
                 {/* Order Details */}
                 <View style={styles.detailsSection}>
                     <View style={styles.detailRow}>
-                        <Text style={styles.detailLabel}>Phương thức thanh toán</Text>
+                        <Text style={styles.detailLabel}>{t('order:success.paymentLabel')}</Text>
                         <Text style={styles.detailValue}>
-                            {formatPaymentMethod(singleOrder.paymentMethod)}
+                            {formatPaymentMethod(singleOrder.paymentMethod, t)}
                         </Text>
                     </View>
                     {singleOrder.createdAt && (
                         <View style={styles.detailRow}>
-                            <Text style={styles.detailLabel}>Thời gian đặt</Text>
+                            <Text style={styles.detailLabel}>{t('order:success.timeLabel')}</Text>
                             <Text style={styles.detailValue}>
                                 {formatDateTime(singleOrder.createdAt)}
                             </Text>
                         </View>
                     )}
                     <View style={styles.totalRow}>
-                        <Text style={styles.detailLabel}>Tổng thanh toán</Text>
+                        <Text style={styles.detailLabel}>{t('order:success.totalLabel')}</Text>
                         <Text style={styles.totalValue}>
                             {formatCurrency(singleOrder.grandTotal || 0)}
                         </Text>
@@ -261,7 +296,7 @@ export default function OrderSuccessScreen() {
                                     {order.shopName}
                                 </Text>
                                 <Text style={styles.orderItemNumber}>
-                                    {order.orderNumber}
+                                    {t('order:success.multiOrders.orderItemTitle', { orderNumber: order.orderNumber })}
                                 </Text>
                             </View>
                         </View>
@@ -280,7 +315,7 @@ export default function OrderSuccessScreen() {
                         color={theme.colors.success}
                     />
                     <Text style={styles.fallbackText}>
-                        {orderCount} đơn hàng đã được tạo
+                        {t('order:success.multiOrders.fallback', { count: orderCount })}
                     </Text>
                 </View>
             )}
@@ -323,7 +358,7 @@ export default function OrderSuccessScreen() {
                     entering={FadeInUp.delay(200).duration(400)}
                     style={styles.title}
                 >
-                    Đặt hàng Thành công!
+                    {t('order:success.title')}!
                 </Animated.Text>
 
                 {/* Subtitle */}
@@ -331,7 +366,7 @@ export default function OrderSuccessScreen() {
                     entering={FadeInUp.delay(300).duration(400)}
                     style={styles.subtitle}
                 >
-                    Cảm ơn bạn đã mua sắm. Đơn hàng của bạn đã được tiếp nhận và đang trong quá trình xử lý.
+                    {t('order:success.subtitle')}
                 </Animated.Text>
 
                 {/* Order Card - Different content based on order count */}
@@ -362,7 +397,7 @@ export default function OrderSuccessScreen() {
                             color={theme.colors.surface}
                         />
                         <Text style={styles.primaryButtonText}>
-                            {isMultipleOrders ? 'Xem lịch sử mua hàng' : 'Chi tiết đơn hàng'}
+                            {isMultipleOrders ? t('order:success.actions.viewHistory') : t('order:success.orderTitle')}
                         </Text>
                     </Pressable>
 
@@ -380,7 +415,7 @@ export default function OrderSuccessScreen() {
                             color={theme.colors.primary}
                         />
                         <Text style={styles.outlineButtonText}>
-                            Tiếp tục Mua sắm
+                            {t('order:success.actions.continue')}
                         </Text>
                     </Pressable>
 
@@ -390,11 +425,17 @@ export default function OrderSuccessScreen() {
                         onPress={handleGoToHome}
                     >
                         <Text style={styles.linkButtonText}>
-                            Quay lại Trang chủ
+                            {t('order:success.actions.home')}
                         </Text>
                     </Pressable>
                 </Animated.View>
             </ScrollView>
+
+            <PushNotificationSoftAsk
+                isVisible={showPushModal}
+                onClose={() => setShowPushModal(false)}
+                onAccept={handleAcceptPush}
+            />
         </View>
     );
 }

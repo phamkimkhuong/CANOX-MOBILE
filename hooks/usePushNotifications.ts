@@ -1,6 +1,8 @@
+import { orderRoutes, productRoutes } from '@/constants/routes';
 import { mmkvStorage } from '@/store/storage';
 import { useAuthStore } from '@/store/useAuthStore';
 import { logger } from '@/utils/logger';
+import { Navigator } from '@/utils/navigation';
 import notifee, { AndroidImportance, AndroidVisibility, EventType } from '@notifee/react-native';
 import {
     AuthorizationStatus,
@@ -9,10 +11,12 @@ import {
     getInitialNotification,
     getMessaging,
     getToken,
+    hasPermission,
     onMessage,
     onNotificationOpenedApp,
     onTokenRefresh,
     requestPermission,
+    setBackgroundMessageHandler,
     subscribeToTopic,
 } from '@react-native-firebase/messaging';
 import * as Device from 'expo-device';
@@ -21,6 +25,14 @@ import { Platform } from 'react-native';
 
 // Key save push token on MMKV
 const FCM_TOKEN_KEY = 'fcm_push_token';
+
+// Sync with STORAGE_KEYS from notification settings screen
+const NOTIFY_STORAGE_KEYS = {
+    PROMOTIONS: 'notify_promotions',
+    NEWS: 'notify_news',
+    ORDERS: 'notify_orders',
+    CHAT: 'notify_chat',
+};
 
 /**
  * Get FCM token saved on MMKV
@@ -64,6 +76,54 @@ export const FCM_TOPICS = {
     NEWS: 'news',
 } as const;
 
+/**
+ * Đăng ký xử lý sự kiện Background của Notifee
+ * Phải đặt ở ngoài Hook và gọi càng sớm càng tốt
+ */
+notifee.onBackgroundEvent(async ({ type, detail }) => {
+    const { notification, pressAction } = detail;
+    logger.push.info('Notifee Background Event:', { type, detail });
+
+    if (type === EventType.PRESS) {
+        // Lưu ý: Navigation thực tế sẽ được xử lý khi App mở lên thông qua onNotificationOpenedApp hoặc getInitialNotification
+        logger.push.info('User pressed notification in background');
+    }
+});
+
+/**
+ * Đăng ký xử lý tin nhắn FCM Background
+ */
+setBackgroundMessageHandler(getMessaging(), async (remoteMessage) => {
+    logger.push.info('FCM Background message received:', remoteMessage);
+
+    const isOrder = remoteMessage.data?.type === 'ORDER' || remoteMessage.notification?.title?.includes('Đơn hàng');
+    const isChat = remoteMessage.data?.type === 'CHAT' || remoteMessage.notification?.title?.includes('Tin nhắn');
+
+    // Client-side filtering check
+    if (isOrder && !mmkvStorage.getBoolean(NOTIFY_STORAGE_KEYS.ORDERS)) {
+        logger.push.info('Order notification suppressed by user settings');
+        return;
+    }
+    if (isChat && !mmkvStorage.getBoolean(NOTIFY_STORAGE_KEYS.CHAT)) {
+        logger.push.info('Chat notification suppressed by user settings');
+        return;
+    }
+
+    // Hiển thị thông báo bằng Notifee nếu cần (FCM Data messages)
+    if (remoteMessage.notification) {
+        await notifee.displayNotification({
+            title: remoteMessage.notification.title,
+            body: remoteMessage.notification.body,
+            android: {
+                channelId: remoteMessage.data?.channelId as string || 'default',
+                importance: AndroidImportance.HIGH,
+                pressAction: { id: 'default' },
+            },
+            data: remoteMessage.data,
+        });
+    }
+});
+
 export function usePushNotifications() {
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     const [fcmToken, setFcmToken] = useState<string | null>(null);
@@ -77,103 +137,109 @@ export function usePushNotifications() {
             return;
         }
 
-        // Register for push token and setup notifications
-        const setup = async () => {
-            const token = await registerForPushNotificationsAsync();
-            if (token) {
-                setFcmToken(token);
-                // Check if token has changed
-                const changed = hasTokenChanged(token);
-                setTokenChanged(changed);
-                // Always save the latest token
-                savePushToken(token);
-            }
+        // Get token if permission already granted
+        const checkAndGetToken = async () => {
+            const messaging = getMessaging();
+            const authStatus = await hasPermission(messaging);
 
-            // Subscribe to topics
-            await subscribeToTopics();
+            if (authStatus === AuthorizationStatus.AUTHORIZED || authStatus === AuthorizationStatus.PROVISIONAL) {
+                const token = await getToken(messaging);
+                if (token) {
+                    setFcmToken(token);
+                    const changed = hasTokenChanged(token);
+                    setTokenChanged(changed);
+                    savePushToken(token);
+                    await subscribeToTopics();
+                }
+            }
         };
 
-        setup();
+        checkAndGetToken();
 
         const messaging = getMessaging();
 
-        // Listen when notification received (app is FOREGROUND)
-        // Dùng Notifee để hiển thị Heads-up notification
+        // Listen to notification when app is open
         unsubscribeRef.current = onMessage(messaging, async remoteMessage => {
             logger.push.info('FCM Notification received (foreground):', remoteMessage);
             setNotification(remoteMessage);
 
+            const isOrder = remoteMessage.data?.type === 'ORDER' || remoteMessage.notification?.title?.includes('Đơn hàng');
+            const isChat = remoteMessage.data?.type === 'CHAT' || remoteMessage.notification?.title?.includes('Tin nhắn');
+
+            // Client-side filtering check
+            if (isOrder && !mmkvStorage.getBoolean(NOTIFY_STORAGE_KEYS.ORDERS)) return;
+            if (isChat && !mmkvStorage.getBoolean(NOTIFY_STORAGE_KEYS.CHAT)) return;
+
             if (remoteMessage.notification) {
-                // Hiển thị notification qua Notifee
                 await notifee.displayNotification({
                     title: remoteMessage.notification.title,
                     body: remoteMessage.notification.body,
                     android: {
                         channelId: remoteMessage.data?.channelId as string || 'default',
-                        // Giúp hiện banner ngay cả khi đang mở app
                         importance: AndroidImportance.HIGH,
-                        pressAction: {
-                            id: 'default',
-                        },
+                        pressAction: { id: 'default' },
                     },
                     data: remoteMessage.data,
                 });
             }
         });
 
-        // Notifee Foreground Event Listener (Khi user bấm vào banner lúc app đang mở)
+        // ... (keep other listeners)
         const unsubscribeNotifeeForeground = notifee.onForegroundEvent(({ type, detail }) => {
             if (type === EventType.PRESS) {
-                logger.push.info('User pressed notification in foreground', detail.notification);
                 if (detail.notification?.data) {
                     handleNotificationNavigation(detail.notification as FirebaseMessagingTypes.RemoteMessage);
                 }
             }
         });
 
-        // Listen when user tap on notification (app is BACKGROUND)
         const unsubscribeOnNotificationOpenedApp = onNotificationOpenedApp(messaging, remoteMessage => {
-            logger.push.info('FCM Notification tapped (background):', remoteMessage);
             handleNotificationNavigation(remoteMessage);
         });
 
-        // Check if app was opened from notification (app was QUIT)
-        getInitialNotification(messaging)
-            .then(remoteMessage => {
-                if (remoteMessage) {
-                    logger.push.info('FCM App opened from notification (quit state):', remoteMessage);
-                    handleNotificationNavigation(remoteMessage);
-                }
-            });
+        getInitialNotification(messaging).then(remoteMessage => {
+            if (remoteMessage) handleNotificationNavigation(remoteMessage);
+        });
 
-        // Listen for token refresh
         const unsubscribeTokenRefresh = onTokenRefresh(messaging, newToken => {
-            logger.push.info('FCM Token refreshed:', newToken);
             setFcmToken(newToken);
             setTokenChanged(true);
             savePushToken(newToken);
         });
 
         return () => {
-            if (unsubscribeRef.current) {
-                unsubscribeRef.current();
-            }
+            if (unsubscribeRef.current) unsubscribeRef.current();
             if (unsubscribeNotifeeForeground) unsubscribeNotifeeForeground();
             if (unsubscribeOnNotificationOpenedApp) unsubscribeOnNotificationOpenedApp();
             if (unsubscribeTokenRefresh) unsubscribeTokenRefresh();
         };
     }, [isAuthenticated]);
 
+    /**
+     * Hàm chủ động xin quyền từ UI
+     */
+    const requestPermission = async () => {
+        try {
+            const token = await registerForPushNotificationsAsync();
+            if (token) {
+                setFcmToken(token);
+                setTokenChanged(true);
+                savePushToken(token);
+                await subscribeToTopics();
+                return true;
+            }
+            return false;
+        } catch (error) {
+            logger.push.error('Manual permission request failed:', error);
+            return false;
+        }
+    };
+
     return {
-        /** FCM Token - gửi lên Backend để nhận notification cá nhân */
         fcmToken,
-        /** Notification vừa nhận được */
         notification,
-        /**
-         * Return true if token has changed compared to the last saved token
-         * Use to determine whether to send token to server or not
-         */
         tokenChanged,
+        requestPermission, // Trả về hàm để UI gọi
     };
 }
 
@@ -183,10 +249,33 @@ export function usePushNotifications() {
 function handleNotificationNavigation(message: FirebaseMessagingTypes.RemoteMessage) {
     const data = message.data;
     if (!data) return;
+
     logger.push.info('Handling navigation for notification data:', data);
 
-    // TODO: Thực hiện điều hướng dựa trên data.screen, data.productId, v.v.
-    // Ví dụ: router.push(data.screen);
+    try {
+        // 1. Nếu là thông báo đơn hàng
+        if (data.type === 'ORDER' && data.orderId) {
+            Navigator.push(orderRoutes.detail(data.orderId as string));
+            return;
+        }
+
+        // 2. Nếu là thông báo khuyến mãi sản phẩm
+        if (data.type === 'PRODUCT' && data.productId) {
+            Navigator.push(productRoutes.detail(data.productId as string));
+            return;
+        }
+
+        // 3. Điều hướng linh hoạt theo màn hình chỉ định
+        if (data.screen) {
+            Navigator.push(data.screen as any);
+            return;
+        }
+
+        // 4. Mặc định vào danh sách thông báo nếu không rõ loại
+        Navigator.push('/(main)/(user)/settings/notifications');
+    } catch (error) {
+        logger.push.error('Failed to handle notification navigation:', error);
+    }
 }
 
 /**
@@ -195,11 +284,11 @@ function handleNotificationNavigation(message: FirebaseMessagingTypes.RemoteMess
 async function subscribeToTopics(): Promise<void> {
     try {
         const messaging = getMessaging();
+        // Chỉ subscribe vào các topic mang tính hệ thống/bắt buộc
         await subscribeToTopic(messaging, FCM_TOPICS.ALL_USERS);
-        logger.push.info('Subscribed to topic:', FCM_TOPICS.ALL_USERS);
+        logger.push.info('Subscribed to system topic:', FCM_TOPICS.ALL_USERS);
 
-        await subscribeToTopic(messaging, FCM_TOPICS.PROMOTIONS);
-        logger.push.info('Subscribed to topic:', FCM_TOPICS.PROMOTIONS);
+        // Topic PROMOTIONS sẽ để user tự bật trong màn hình Settings sau này
     } catch (error) {
         logger.push.error('Error subscribing to topics:', error);
     }
