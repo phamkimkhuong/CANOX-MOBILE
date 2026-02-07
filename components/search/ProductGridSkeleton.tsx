@@ -16,10 +16,12 @@ import { StyleSheet } from 'react-native-unistyles';
 
 interface ProductGridSkeletonProps {
     count?: number;
+    animatedStyle?: any;
 }
 
 export const ProductGridSkeleton = React.memo(({
     count = 6,
+    animatedStyle,
 }: ProductGridSkeletonProps) => {
     const items = Array.from({ length: count }, (_, i) => i);
 
@@ -27,7 +29,7 @@ export const ProductGridSkeleton = React.memo(({
         <View style={styles.container}>
             {items.map((index) => (
                 <View key={`skeleton_${index}`} style={styles.itemWrapper}>
-                    <ProductCardSkeleton />
+                    <ProductCardSkeleton animatedStyle={animatedStyle} />
                 </View>
             ))}
         </View>

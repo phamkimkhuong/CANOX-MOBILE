@@ -119,21 +119,17 @@ export default function VideoScreen() {
     return (
         <View style={styles.container}>
             <StatusBar barStyle="light-content" translucent />
-            <FlashList
-                {...({
-                    data: MOCK_VIDEOS,
-                    renderItem,
-                    keyExtractor: (item: VideoData) => item.id,
-                    estimatedItemSize: visibleHeight,
-                    pagingEnabled: true,
-                    showsVerticalScrollIndicator: false,
-                    onViewableItemsChanged: onViewableItemsChanged,
-                    viewabilityConfig: {
-                        itemVisiblePercentThreshold: 50
-                    },
-                    bounces: false
-                    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-                } as any)}
+            <FlashList<VideoData>
+                data={MOCK_VIDEOS}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.id}
+                pagingEnabled={true}
+                showsVerticalScrollIndicator={false}
+                onViewableItemsChanged={onViewableItemsChanged}
+                viewabilityConfig={{
+                    itemVisiblePercentThreshold: 50
+                }}
+                bounces={false}
             />
         </View>
     );

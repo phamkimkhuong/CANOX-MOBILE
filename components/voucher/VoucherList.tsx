@@ -161,9 +161,8 @@ export const VoucherList = memo<VoucherListProps>(({
         return <LoadingState />;
     }
 
-
     return (
-        <FlashList
+        <FlashList<VoucherUI>
             data={vouchers}
             renderItem={renderItem}
             keyExtractor={keyExtractor}
@@ -172,6 +171,7 @@ export const VoucherList = memo<VoucherListProps>(({
             ListEmptyComponent={<EmptyState />}
             contentContainerStyle={mergedContentStyle}
             showsVerticalScrollIndicator={false}
+            removeClippedSubviews={true}
         />
     );
 });
@@ -188,4 +188,3 @@ const styles = StyleSheet.create((_theme) => ({
 }));
 
 export default VoucherList;
-

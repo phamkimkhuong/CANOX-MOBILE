@@ -211,13 +211,14 @@ export default function NotifyScreen() {
             />
             <FilterBar activeFilter={activeFilter} onFilterChange={handleFilterChange} />
 
-            <FlashList
+            <FlashList<FlattenedNotificationItem>
                 data={flattenedData}
                 renderItem={renderItem}
                 getItemType={getItemType}
                 stickyHeaderIndices={stickyHeaderIndices}
                 onEndReached={handleLoadMore}
                 onEndReachedThreshold={0.5}
+                removeClippedSubviews={true}
                 ListEmptyComponent={renderEmpty}
                 ListFooterComponent={renderFooter}
                 onScrollBeginDrag={handleScrollBegin}

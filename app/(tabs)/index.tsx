@@ -434,7 +434,7 @@ export default function HomeScreen() {
       </Animated.View>
 
       {/* 3. FlashList - Main content với layout zigzag (masonry) */}
-      <FlashList
+      <FlashList<ListItem>
         ref={listRef}
         data={listData}
         renderItem={renderItem}
@@ -450,6 +450,7 @@ export default function HomeScreen() {
         scrollEventThrottle={16}
         onEndReached={handleEndReached}
         onEndReachedThreshold={0.5}
+        removeClippedSubviews={true}
         refreshControl={
           <RefreshControl
             refreshing={isRefetching && !isLoading}

@@ -17,7 +17,7 @@ import type {
     VoucherUI,
 } from '@/types/cart';
 import { formatPriceShort as formatShortCurrency } from '../format';
-import { toPublicUrl, toSizedImageUrl } from '../url';
+import { toSizedImageUrl } from '../url';
 
 const DEFAULT_IMAGE = 'https://via.placeholder.com/96';
 
@@ -92,7 +92,7 @@ export const transformCartItem = (item: CartItem): CartItemUI => {
         variantId: item.variantId,
         productName: item.productName ?? '',
         variantAttributes: item.variantAttributes || '',
-        imageUrl: buildImageUrl(item.imagePath || item.imageBasePath, item.imageExtension),
+        imageUrl: buildImageUrl(item.imagePath),
         unitPrice,
         quantity: item.quantity ?? 1,
         totalPrice: item.totalPrice ?? 0,
@@ -150,10 +150,15 @@ export const transformVoucher = (voucher: Voucher): VoucherUI => {
  * Transform CartShop (API) => CartShopUI
  */
 export const transformCartShop = (shop: CartShop): CartShopUI => {
+    // Sử dụng logoPath (chuẩn mới có dấu *)
+    const logoUrl = shop.logoPath
+        ? (toSizedImageUrl(shop.logoPath, null, 'thumb') ?? null)
+        : null;
+
     return {
         shopId: shop.shopId,
         shopName: shop.shopName ?? '',
-        shopLogoUrl: shop.shopLogo ? toPublicUrl(shop.shopLogo) : null,
+        shopLogoUrl: logoUrl,
         items: shop.items ? shop.items.map(transformCartItem) : [],
 
         // Shop totals from API
@@ -178,6 +183,7 @@ export const transformCartShop = (shop: CartShop): CartShopUI => {
  */
 export const transformCart = (response: CartResponse): CartUI => {
     return {
+        itemCount: response.itemCount ?? 0,
         shops: response.shops.map(transformCartShop),
         platformVouchers: [],
         appliedPlatformVoucherId: null,

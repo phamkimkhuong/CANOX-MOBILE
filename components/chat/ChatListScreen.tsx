@@ -12,10 +12,12 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { ChatFilter, Conversation } from '@/types/chat';
 import { Navigator } from '@/utils/navigation';
 import { FlashList } from '@shopify/flash-list';
+import { useFocusEffect } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, RefreshControl, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 /** Debounce delay for search input (ms) */
@@ -36,13 +38,31 @@ export function ChatListScreen({ isTab = false }: ChatListScreenProps) {
     const debouncedSearchQuery = useDebounce(searchQuery, SEARCH_DEBOUNCE_MS);
     const [openedRowId, setOpenedRowId] = useState<string | null>(null);
     const [isReady, setIsReady] = useState(false);
+    const opacity = useSharedValue(0.4);
 
     useEffect(() => {
-        const handle = requestIdleCallback(() => {
-            setIsReady(true);
-        }, { timeout: 500 });
-        return () => cancelIdleCallback(handle);
-    }, []);
+        opacity.value = withRepeat(
+            withTiming(1, { duration: 1000 }),
+            -1,
+            true
+        );
+    }, [opacity]);
+
+    const animatedStyle = useAnimatedStyle(() => ({
+        opacity: opacity.value,
+    }));
+
+    useFocusEffect(
+        useCallback(() => {
+            const task = requestAnimationFrame(() => {
+                setIsReady(true);
+            });
+            return () => {
+                cancelAnimationFrame(task);
+                setIsReady(false);
+            };
+        }, [])
+    );
 
     const {
         conversations,
@@ -143,7 +163,7 @@ export function ChatListScreen({ isTab = false }: ChatListScreenProps) {
                     onSearchChange={setSearchQuery}
                     showBack={!isTab}
                 />
-                <ChatSkeleton count={8} />
+                <ChatSkeleton count={8} animatedStyle={animatedStyle} />
             </View>
         );
     }
@@ -158,7 +178,7 @@ export function ChatListScreen({ isTab = false }: ChatListScreenProps) {
                 showBack={!isTab}
             />
 
-            <FlashList
+            <FlashList<Conversation>
                 data={conversations}
                 extraData={openedRowId}
                 renderItem={renderItem}

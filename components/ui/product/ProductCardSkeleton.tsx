@@ -1,3 +1,4 @@
+import { SkeletonBox } from '@/components/ui/feedback/Skeleton';
 import React from 'react';
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
@@ -5,27 +6,34 @@ import { StyleSheet } from 'react-native-unistyles';
 /**
  * ProductCardSkeleton
  */
-export const ProductCardSkeleton = () => {
+export const ProductCardSkeleton: React.FC<{
+    animatedStyle?: any;
+}> = ({ animatedStyle }) => {
     const styles = stylesheet;
 
     return (
         <View style={styles.container}>
             <View style={styles.surface}>
                 {/* Image Placeholder */}
-                <View style={styles.imageWrapper} />
+                <SkeletonBox
+                    width="100%"
+                    height={160}
+                    borderRadius={0}
+                    animatedStyle={animatedStyle}
+                />
 
                 {/* Content Placeholder */}
                 <View style={styles.content}>
-                    <View style={styles.titleLine} />
-                    <View style={[styles.titleLine, styles.w60p]} />
+                    <SkeletonBox width="90%" height={12} animatedStyle={animatedStyle} />
+                    <SkeletonBox width="60%" height={12} animatedStyle={animatedStyle} style={styles.mt4} />
 
                     <View style={styles.priceRow}>
-                        <View style={styles.priceTag} />
+                        <SkeletonBox width={100} height={18} animatedStyle={animatedStyle} />
                     </View>
 
                     <View style={styles.metaRow}>
-                        <View style={styles.metaLine} />
-                        <View style={[styles.metaLine, styles.w40]} />
+                        <SkeletonBox width={60} height={10} animatedStyle={animatedStyle} />
+                        <SkeletonBox width={40} height={10} animatedStyle={animatedStyle} />
                     </View>
                 </View>
             </View>
@@ -36,58 +44,32 @@ export const ProductCardSkeleton = () => {
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
         flex: 1,
-        padding: 4,
+        paddingHorizontal: 4,
         paddingTop: 0,
+        paddingBottom: 8,
     },
     surface: {
         backgroundColor: theme.colors.surface,
-        borderColor: theme.colors.primaryLight,
+        borderColor: theme.colors.border,
         borderRadius: theme.radius.m,
         borderWidth: 1,
         height: 260,
         overflow: 'hidden',
     },
-    imageWrapper: {
-        width: '100%',
-        aspectRatio: 1,
-        backgroundColor: theme.colors.primaryMuted,
-    },
     content: {
         padding: 8,
         gap: 6,
     },
-    titleLine: {
-        height: 12,
-        borderRadius: 4,
-        width: '90%',
-        marginBottom: 2,
-        backgroundColor: theme.colors.secondaryLight,
-    },
-    w60p: {
-        width: '60%',
+    mt4: {
+        marginTop: 4,
     },
     priceRow: {
         marginTop: 4,
         marginBottom: 4,
     },
-    priceTag: {
-        height: 18,
-        width: 100,
-        borderRadius: 4,
-        backgroundColor: theme.colors.secondaryLight,
-    },
     metaRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginTop: 4,
-    },
-    metaLine: {
-        height: 10,
-        width: 60,
-        borderRadius: 4,
-        backgroundColor: theme.colors.secondaryLight,
-    },
-    w40: {
-        width: 40,
     },
 }));

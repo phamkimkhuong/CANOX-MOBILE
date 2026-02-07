@@ -112,13 +112,14 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
 
     return (
         <View style={styles.container}>
-            <FlashList
+            <FlashList<ParentCategory>
                 ref={listRef}
                 data={categories}
                 renderItem={renderItem}
                 keyExtractor={keyExtractor}
                 showsVerticalScrollIndicator={false}
                 extraData={selectedId}
+                removeClippedSubviews={true}
             />
         </View>
     );

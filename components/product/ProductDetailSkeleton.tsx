@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useWindowDimensions, View } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
+
+const SHIMMER_DURATION = 1000;
 
 // ============================================
 // ANIMATED SKELETON BOX
@@ -10,6 +13,7 @@ interface SkeletonBoxProps {
     height: number;
     borderRadius?: number;
     style?: object;
+    animatedStyle?: any;
 }
 
 const SkeletonBox: React.FC<SkeletonBoxProps> = ({
@@ -17,75 +21,115 @@ const SkeletonBox: React.FC<SkeletonBoxProps> = ({
     height,
     borderRadius = 4,
     style,
+    animatedStyle,
 }) => {
     const { theme } = useUnistyles();
 
+    // Internal shimmer if no animatedStyle provided
+    const opacity = useSharedValue(0.4);
+    useEffect(() => {
+        if (animatedStyle) return;
+        opacity.value = withRepeat(
+            withTiming(1, { duration: SHIMMER_DURATION }),
+            -1,
+            true
+        );
+    }, [animatedStyle]);
+
+    const internalAnimatedStyle = useAnimatedStyle(() => ({
+        opacity: opacity.value,
+    }));
+
+    const finalAnimatedStyle = animatedStyle ?? internalAnimatedStyle;
+
     return (
-        <View
+        <Animated.View
             style={[
                 {
-                    width: typeof width === 'number' ? width : width,
+                    width,
                     height,
                     borderRadius,
                     backgroundColor: theme.colors.secondaryLight,
                 },
+                finalAnimatedStyle,
                 style,
             ]}
         />
     );
 };
 
-export const ProductDetailSkeleton: React.FC = () => {
-
+export const ProductDetailSkeleton: React.FC<{
+    animatedStyle?: any;
+    hideBottomBar?: boolean;
+    hideSafeTop?: boolean;
+}> = ({ animatedStyle, hideBottomBar = false, hideSafeTop = false }) => {
     // Reactive screen dimensions - tự động update khi xoay màn hình
     const { width: screenWidth } = useWindowDimensions();
     const galleryHeight = screenWidth; // Gallery là hình vuông
 
+    // Internal shared animation if none provided (Parent should usually provide this)
+    const opacity = useSharedValue(0.4);
+    useEffect(() => {
+        if (animatedStyle) return;
+        opacity.value = withRepeat(
+            withTiming(1, { duration: SHIMMER_DURATION }),
+            -1,
+            true
+        );
+    }, [animatedStyle]);
+
+    const internalAnimatedStyle = useAnimatedStyle(() => ({
+        opacity: opacity.value,
+    }));
+
+    const finalAnimatedStyle = animatedStyle ?? internalAnimatedStyle;
+
     return (
-        <View style={[styles.container, styles.safeTop]}>
+        <View style={[styles.container, !hideSafeTop && styles.safeTop]}>
             {/* Gallery Skeleton */}
             <SkeletonBox
                 width={screenWidth}
                 height={galleryHeight}
                 borderRadius={0}
+                animatedStyle={finalAnimatedStyle}
             />
 
             {/* Price Section */}
             <View style={styles.section}>
-                <SkeletonBox width={120} height={28} borderRadius={4} />
+                <SkeletonBox width={120} height={28} borderRadius={4} animatedStyle={finalAnimatedStyle} />
                 <View style={styles.row}>
-                    <SkeletonBox width={80} height={16} borderRadius={4} />
-                    <SkeletonBox width={60} height={20} borderRadius={4} />
+                    <SkeletonBox width={80} height={16} borderRadius={4} animatedStyle={finalAnimatedStyle} />
+                    <SkeletonBox width={60} height={20} borderRadius={4} animatedStyle={finalAnimatedStyle} />
                 </View>
-                <SkeletonBox width={screenWidth - 32} height={48} borderRadius={8} style={styles.titleSkeleton} />
+                <SkeletonBox width={screenWidth - 32} height={48} borderRadius={8} style={styles.titleSkeleton} animatedStyle={finalAnimatedStyle} />
                 <View style={styles.row}>
-                    <SkeletonBox width={60} height={16} borderRadius={4} />
-                    <SkeletonBox width={80} height={16} borderRadius={4} />
-                    <SkeletonBox width={70} height={16} borderRadius={4} />
+                    <SkeletonBox width={60} height={16} borderRadius={4} animatedStyle={finalAnimatedStyle} />
+                    <SkeletonBox width={80} height={16} borderRadius={4} animatedStyle={finalAnimatedStyle} />
+                    <SkeletonBox width={70} height={16} borderRadius={4} animatedStyle={finalAnimatedStyle} />
                 </View>
             </View>
 
             {/* Variant Selector */}
             <View style={styles.variantSection}>
-                <SkeletonBox width={60} height={14} borderRadius={4} />
-                <SkeletonBox width={100} height={14} borderRadius={4} />
+                <SkeletonBox width={60} height={14} borderRadius={4} animatedStyle={finalAnimatedStyle} />
+                <SkeletonBox width={100} height={14} borderRadius={4} animatedStyle={finalAnimatedStyle} />
             </View>
 
             {/* Shop Info */}
             <View style={styles.shopSection}>
                 <View style={styles.shopHeader}>
-                    <SkeletonBox width={56} height={56} borderRadius={28} />
+                    <SkeletonBox width={56} height={56} borderRadius={28} animatedStyle={finalAnimatedStyle} />
                     <View style={styles.shopInfo}>
-                        <SkeletonBox width={120} height={16} borderRadius={4} />
-                        <SkeletonBox width={80} height={12} borderRadius={4} style={styles.mt8} />
+                        <SkeletonBox width={120} height={16} borderRadius={4} animatedStyle={finalAnimatedStyle} />
+                        <SkeletonBox width={80} height={12} borderRadius={4} style={styles.mt8} animatedStyle={finalAnimatedStyle} />
                     </View>
-                    <SkeletonBox width={70} height={32} borderRadius={8} />
+                    <SkeletonBox width={70} height={32} borderRadius={8} animatedStyle={finalAnimatedStyle} />
                 </View>
                 <View style={styles.shopStats}>
                     {[1, 2, 3, 4].map((i) => (
                         <View key={i} style={styles.statItem}>
-                            <SkeletonBox width={40} height={16} borderRadius={4} />
-                            <SkeletonBox width={60} height={12} borderRadius={4} style={styles.mt4} />
+                            <SkeletonBox width={40} height={16} borderRadius={4} animatedStyle={finalAnimatedStyle} />
+                            <SkeletonBox width={60} height={12} borderRadius={4} style={styles.mt4} animatedStyle={finalAnimatedStyle} />
                         </View>
                     ))}
                 </View>
@@ -93,35 +137,28 @@ export const ProductDetailSkeleton: React.FC = () => {
 
             {/* Specs Section */}
             <View style={styles.specsSection}>
-                <SkeletonBox width={120} height={18} borderRadius={4} style={styles.mb12} />
+                <SkeletonBox width={120} height={18} borderRadius={4} style={styles.mb12} animatedStyle={finalAnimatedStyle} />
                 {[1, 2, 3, 4, 5].map((i) => (
                     <View key={i} style={styles.specRow}>
-                        <SkeletonBox width={100} height={14} borderRadius={4} />
-                        <SkeletonBox width={150} height={14} borderRadius={4} />
+                        <SkeletonBox width={100} height={14} borderRadius={4} animatedStyle={finalAnimatedStyle} />
+                        <SkeletonBox width={150} height={14} borderRadius={4} animatedStyle={finalAnimatedStyle} />
                     </View>
                 ))}
             </View>
 
-            {/* Description Section */}
-            <View style={styles.descSection}>
-                <SkeletonBox width={120} height={18} borderRadius={4} style={styles.mb12} />
-                <SkeletonBox width="100%" height={14} borderRadius={4} />
-                <SkeletonBox width="100%" height={14} borderRadius={4} style={styles.mt8} />
-                <SkeletonBox width="80%" height={14} borderRadius={4} style={styles.mt8} />
-                <SkeletonBox width="90%" height={14} borderRadius={4} style={styles.mt8} />
-            </View>
-
             {/* Bottom Bar Skeleton */}
-            <View style={[styles.bottomBar, styles.safeBottom]}>
-                <View style={styles.leftActions}>
-                    <SkeletonBox width={40} height={40} borderRadius={8} />
-                    <SkeletonBox width={40} height={40} borderRadius={8} />
+            {!hideBottomBar && (
+                <View style={[styles.bottomBar, styles.safeBottom]}>
+                    <View style={styles.leftActions}>
+                        <SkeletonBox width={40} height={40} borderRadius={8} animatedStyle={finalAnimatedStyle} />
+                        <SkeletonBox width={40} height={40} borderRadius={8} animatedStyle={finalAnimatedStyle} />
+                    </View>
+                    <View style={styles.rightActions}>
+                        <SkeletonBox width={110} height={40} borderRadius={8} animatedStyle={finalAnimatedStyle} />
+                        <SkeletonBox width={110} height={40} borderRadius={8} animatedStyle={finalAnimatedStyle} />
+                    </View>
                 </View>
-                <View style={styles.rightActions}>
-                    <SkeletonBox width={120} height={44} borderRadius={8} />
-                    <SkeletonBox width={120} height={44} borderRadius={8} />
-                </View>
-            </View>
+            )}
         </View>
     );
 };

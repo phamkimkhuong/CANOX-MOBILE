@@ -15,8 +15,16 @@ import { useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
+import Animated, {
+    FadeIn,
+    FadeOut,
+    useAnimatedStyle,
+    useSharedValue,
+    withRepeat,
+    withTiming,
+} from 'react-native-reanimated';
 import Toast from 'react-native-toast-message';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 // Components
 import {
@@ -29,6 +37,7 @@ import {
     PaymentMethodSection,
     PlatformVoucherSelector,
 } from '@/components/checkout';
+import { SkeletonBox } from '@/components/ui/feedback/Skeleton';
 
 // Store & Hooks
 import { CART_QUERY_KEY, useAddToCart } from '@/hooks/api/cart/useCart';
@@ -65,6 +74,7 @@ export default function CheckoutScreen() {
 
     const { t } = useTranslation('checkout');
 
+    const { theme } = useUnistyles();
     const styles = stylesheet;
 
     // ========================================
@@ -105,6 +115,36 @@ export default function CheckoutScreen() {
     const selectedItemIds = useCheckoutStore((s) => s.selectedItemIds);
     const checkoutShops = useCheckoutStore((s) => s.checkoutShops);
     const isLoadingPreview = useCheckoutStore((s) => s.isLoadingPreview);
+
+    // ========================================
+    // Animation state
+    // ========================================
+    const shimmerValue = useSharedValue(0.3);
+    const contentOpacity = useSharedValue(0);
+
+    useEffect(() => {
+        shimmerValue.value = withRepeat(
+            withTiming(1, { duration: 800 }),
+            -1,
+            true
+        );
+    }, []);
+
+    const shimmerAnimatedStyle = useAnimatedStyle(() => ({
+        opacity: shimmerValue.value,
+    }));
+
+    const contentAnimatedStyle = useAnimatedStyle(() => ({
+        opacity: contentOpacity.value,
+    }));
+
+    useEffect(() => {
+        if (isInitialized && previewData && !isBuyNowProcessing) {
+            contentOpacity.value = withTiming(1, { duration: 400 });
+        } else {
+            contentOpacity.value = 0;
+        }
+    }, [isInitialized, previewData, isBuyNowProcessing]);
 
     // Computed selectors from store
     const shops = useCheckoutShops();
@@ -667,75 +707,92 @@ export default function CheckoutScreen() {
 
     const shouldShowSkeleton = !isInitialized || !previewData || isBuyNowProcessing;
 
-    if (shouldShowSkeleton) {
-        return (
-            <View style={styles.container}>
-                <CheckoutHeader title={t('header.title')} onBack={handleBack} />
-                <ScrollView
-                    style={styles.scrollView}
-                    contentContainerStyle={styles.scrollContent}
-                    showsVerticalScrollIndicator={false}
-                >
-                    <CheckoutSkeleton />
-                </ScrollView>
-            </View>
-        );
-    }
-
     return (
         <View style={styles.container}>
-            {/* Header */}
+            {/* Header - Static shell */}
             <CheckoutHeader title={t('header.title')} onBack={handleBack} />
 
-            {/* Scrollable Content */}
-            <ScrollView
-                style={styles.scrollView}
-                contentContainerStyle={styles.scrollContent}
-                showsVerticalScrollIndicator={false}
-                keyboardShouldPersistTaps="handled"
-            >
-                {/* Address Card */}
-                <AddressCard address={deliveryAddress} onPress={handleAddressPress} />
+            <View style={styles.flex1}>
+                {/* Real Content - Fades in */}
+                {isInitialized && previewData && (
+                    <Animated.View style={[styles.flex1, contentAnimatedStyle]}>
+                        <ScrollView
+                            style={styles.scrollView}
+                            contentContainerStyle={styles.scrollContent}
+                            showsVerticalScrollIndicator={false}
+                            keyboardShouldPersistTaps="handled"
+                        >
+                            {/* Address Card */}
+                            <AddressCard address={deliveryAddress} onPress={handleAddressPress} />
 
-                {/* Shop Groups - từ previewData */}
-                {shops.map((shop) => (
-                    <CheckoutShopGroup key={shop.shopId} shop={shop} />
-                ))}
+                            {/* Shop Groups */}
+                            {shops.map((shop) => (
+                                <CheckoutShopGroup key={shop.shopId} shop={shop} />
+                            ))}
 
-                {/* Platform Voucher */}
-                <PlatformVoucherSelector
-                    availableVouchers={availablePlatformVouchers}
-                    selectedDiscountVoucherId={selectedPlatformDiscountVoucher}
-                    selectedShippingVoucherId={selectedPlatformShippingVoucher}
-                    discountAmount={calculation.platformVoucherDiscount + calculation.shippingDiscount}
-                    isInvalid={!isPlatformVoucherValid}
-                    warningMessage={platformVoucherWarning}
-                    onApply={handlePlatformVoucherApply}
-                    isLoading={isLoadingRecommendations}
-                />
+                            {/* Platform Voucher */}
+                            <PlatformVoucherSelector
+                                availableVouchers={availablePlatformVouchers}
+                                selectedDiscountVoucherId={selectedPlatformDiscountVoucher}
+                                selectedShippingVoucherId={selectedPlatformShippingVoucher}
+                                discountAmount={calculation.platformVoucherDiscount + calculation.shippingDiscount}
+                                isInvalid={!isPlatformVoucherValid}
+                                warningMessage={platformVoucherWarning}
+                                onApply={handlePlatformVoucherApply}
+                                isLoading={isLoadingRecommendations}
+                            />
 
-                {/* Payment Method */}
-                <PaymentMethodSection
-                    selectedMethod={paymentMethod}
-                    onSelect={handlePaymentMethodSelect}
-                />
+                            {/* Payment Method */}
+                            <PaymentMethodSection
+                                selectedMethod={paymentMethod}
+                                onSelect={handlePaymentMethodSelect}
+                            />
 
-                {/* Bill Summary */}
-                <BillSummary calculation={calculation} />
+                            {/* Bill Summary */}
+                            <BillSummary calculation={calculation} />
 
-                {/* Bottom spacing for footer */}
-                <View style={styles.footerSpacer} />
-            </ScrollView>
+                            <View style={styles.footerSpacer} />
+                        </ScrollView>
 
-            {/* Sticky Footer */}
-            <CheckoutFooter
-                totalAmount={calculation.totalAmount}
-                itemCount={calculation.totalItemCount}
-                totalSavings={calculation.totalSavings}
-                canPlaceOrder={canPlaceOrder}
-                blockReasons={orderBlockReasons}
-                onPlaceOrder={handlePlaceOrder}
-            />
+                        {/* Sticky Footer */}
+                        <CheckoutFooter
+                            totalAmount={calculation.totalAmount}
+                            itemCount={calculation.totalItemCount}
+                            totalSavings={calculation.totalSavings}
+                            canPlaceOrder={canPlaceOrder}
+                            blockReasons={orderBlockReasons}
+                            onPlaceOrder={handlePlaceOrder}
+                        />
+                    </Animated.View>
+                )}
+
+                {/* Skeleton Overlay - Fades out */}
+                {shouldShowSkeleton && (
+                    <Animated.View
+                        entering={FadeIn}
+                        exiting={FadeOut.duration(300)}
+                        style={[StyleSheet.absoluteFill, styles.skeletonOverlay]}
+                        pointerEvents="none"
+                    >
+                        <ScrollView
+                            style={styles.scrollView}
+                            contentContainerStyle={styles.scrollContent}
+                            showsVerticalScrollIndicator={false}
+                        >
+                            <CheckoutSkeleton animatedStyle={shimmerAnimatedStyle} />
+                        </ScrollView>
+
+                        {/* Skeleton Footer */}
+                        <View style={styles.skeletonFooter}>
+                            <View style={styles.skeletonFooterLeft}>
+                                <SkeletonBox width={80} height={12} animatedStyle={shimmerAnimatedStyle} />
+                                <SkeletonBox width={120} height={20} animatedStyle={shimmerAnimatedStyle} style={styles.mt4} />
+                            </View>
+                            <SkeletonBox width={120} height={44} borderRadius={theme.radius.m} animatedStyle={shimmerAnimatedStyle} />
+                        </View>
+                    </Animated.View>
+                )}
+            </View>
         </View>
     );
 }
@@ -744,6 +801,28 @@ const stylesheet = StyleSheet.create((theme) => ({
     container: {
         flex: 1,
         backgroundColor: theme.colors.background,
+    },
+    flex1: {
+        flex: 1,
+    },
+    skeletonOverlay: {
+        backgroundColor: theme.colors.background,
+    },
+    skeletonFooter: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: theme.margins.md,
+        paddingVertical: theme.margins.sm,
+        backgroundColor: theme.colors.surface,
+        borderTopWidth: 1,
+        borderTopColor: theme.colors.border,
+    },
+    skeletonFooterLeft: {
+        gap: 4,
+    },
+    mt4: {
+        marginTop: 4,
     },
 
     scrollView: {

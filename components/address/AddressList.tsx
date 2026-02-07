@@ -80,7 +80,7 @@ export const AddressList: React.FC<AddressListProps> = memo(({
     }
 
     return (
-        <FlashList
+        <FlashList<ShippingAddress>
             data={addresses}
             renderItem={renderItem}
             keyExtractor={keyExtractor}

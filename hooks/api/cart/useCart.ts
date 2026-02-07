@@ -50,11 +50,7 @@ export const useCart = () => {
     // Sync cart count to Zustand badge
     useEffect(() => {
         if (query.data) {
-            const totalItems = query.data.shops.reduce(
-                (sum, shop) => sum + shop.itemCount,
-                0
-            );
-            setTotalQuantity(totalItems);
+            setTotalQuantity(query.data.itemCount);
         }
     }, [query.data, setTotalQuantity]);
 

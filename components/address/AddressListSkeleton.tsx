@@ -7,30 +7,30 @@ import React, { memo } from 'react';
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-export const AddressCardSkeleton: React.FC = memo(() => {
+export const AddressCardSkeleton: React.FC<{ animatedStyle?: any }> = memo(({ animatedStyle }) => {
     const styles = stylesheet;
 
     return (
         <View style={styles.card}>
             {/* Icon */}
-            <SkeletonCircle size={40} />
+            <SkeletonCircle size={40} animatedStyle={animatedStyle} />
 
             {/* Content */}
             <View style={styles.content}>
                 {/* Name & Phone */}
                 <View style={styles.nameRow}>
-                    <SkeletonBox width={100} height={16} />
-                    <SkeletonBox width={90} height={14} />
+                    <SkeletonBox width={100} height={16} animatedStyle={animatedStyle} />
+                    <SkeletonBox width={90} height={14} animatedStyle={animatedStyle} />
                 </View>
 
                 {/* Address */}
-                <SkeletonBox width="100%" height={14} />
-                <SkeletonBox width="70%" height={14} />
+                <SkeletonBox width="100%" height={14} animatedStyle={animatedStyle} />
+                <SkeletonBox width="70%" height={14} animatedStyle={animatedStyle} />
 
                 {/* Badges */}
                 <View style={styles.badgeRow}>
-                    <SkeletonBox width={60} height={20} borderRadius={4} />
-                    <SkeletonBox width={70} height={20} borderRadius={4} />
+                    <SkeletonBox width={60} height={20} borderRadius={4} animatedStyle={animatedStyle} />
+                    <SkeletonBox width={70} height={20} borderRadius={4} animatedStyle={animatedStyle} />
                 </View>
             </View>
         </View>
@@ -39,14 +39,14 @@ export const AddressCardSkeleton: React.FC = memo(() => {
 
 AddressCardSkeleton.displayName = 'AddressCardSkeleton';
 
-export const AddressListSkeleton: React.FC = memo(() => {
+export const AddressListSkeleton: React.FC<{ animatedStyle?: any }> = memo(({ animatedStyle }) => {
     const styles = stylesheet;
 
     return (
         <View style={styles.container}>
-            <AddressCardSkeleton />
-            <AddressCardSkeleton />
-            <AddressCardSkeleton />
+            <AddressCardSkeleton animatedStyle={animatedStyle} />
+            <AddressCardSkeleton animatedStyle={animatedStyle} />
+            <AddressCardSkeleton animatedStyle={animatedStyle} />
         </View>
     );
 });

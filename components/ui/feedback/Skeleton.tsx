@@ -13,17 +13,20 @@ interface SkeletonBoxProps {
     height: number;
     borderRadius?: number;
     style?: ViewStyle;
+    animatedStyle?: any;
 }
 
 interface SkeletonCircleProps {
     size: number;
     style?: ViewStyle;
+    animatedStyle?: any;
 }
 
 interface SkeletonTextProps {
     width?: number | `${number}%`;
     height?: number;
     style?: ViewStyle;
+    animatedStyle?: any;
 }
 
 const SHIMMER_DURATION = 800;
@@ -32,16 +35,20 @@ const SHIMMER_DURATION = 800;
  * Custom hook for shimmer animation
  * Returns an animated style with opacity pulsing effect
  */
-const useShimmerAnimation = () => {
+const useShimmerAnimation = (enabled: boolean = true) => {
     const opacity = useSharedValue(0.3);
 
     useEffect(() => {
+        if (!enabled) {
+            opacity.value = 0.3; // Static fallback
+            return;
+        }
         opacity.value = withRepeat(
             withTiming(1, { duration: SHIMMER_DURATION }),
             -1, // infinite
             true // reverse
         );
-    }, [opacity]);
+    }, [opacity, enabled]);
 
     const animatedStyle = useAnimatedStyle(() => ({
         opacity: opacity.value,
@@ -62,10 +69,12 @@ export const SkeletonBox: React.FC<SkeletonBoxProps> = ({
     height,
     borderRadius,
     style,
+    animatedStyle,
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const shimmerStyle = useShimmerAnimation();
+    const internalShimmer = useShimmerAnimation(!animatedStyle);
+    const finalAnimatedStyle = animatedStyle ?? internalShimmer;
 
     return (
         <Animated.View
@@ -76,7 +85,7 @@ export const SkeletonBox: React.FC<SkeletonBoxProps> = ({
                     height,
                     borderRadius: borderRadius ?? theme.radius.s,
                 },
-                shimmerStyle,
+                finalAnimatedStyle,
                 style,
             ]}
             accessibilityLabel="Đang tải nội dung"
@@ -94,9 +103,11 @@ export const SkeletonBox: React.FC<SkeletonBoxProps> = ({
 export const SkeletonCircle: React.FC<SkeletonCircleProps> = ({
     size,
     style,
+    animatedStyle,
 }) => {
     const styles = stylesheet;
-    const shimmerStyle = useShimmerAnimation();
+    const internalShimmer = useShimmerAnimation(!animatedStyle);
+    const finalAnimatedStyle = animatedStyle ?? internalShimmer;
 
     return (
         <Animated.View
@@ -107,7 +118,7 @@ export const SkeletonCircle: React.FC<SkeletonCircleProps> = ({
                     height: size,
                     borderRadius: size / 2,
                 },
-                shimmerStyle,
+                finalAnimatedStyle,
                 style,
             ]}
             accessibilityLabel="Đang tải nội dung"
@@ -127,10 +138,12 @@ export const SkeletonText: React.FC<SkeletonTextProps> = ({
     width = '100%',
     height = 14,
     style,
+    animatedStyle,
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const shimmerStyle = useShimmerAnimation();
+    const internalShimmer = useShimmerAnimation(!animatedStyle);
+    const finalAnimatedStyle = animatedStyle ?? internalShimmer;
 
     return (
         <Animated.View
@@ -141,7 +154,7 @@ export const SkeletonText: React.FC<SkeletonTextProps> = ({
                     height,
                     borderRadius: theme.radius.s,
                 },
-                shimmerStyle,
+                finalAnimatedStyle,
                 style,
             ]}
             accessibilityLabel="Đang tải nội dung"

@@ -67,7 +67,7 @@ export const HomeHeader = () => {
                 ]}
                 onPress={handleSearchPress}
             >
-                <IconSymbol name="search" size={20} color={theme.colors.header.onHeader} style={styles.searchIcon} />
+                <IconSymbol name="search" size={20} color={theme.colors.secondary} style={styles.searchIcon} />
 
                 <View style={styles.placeholderContainer}>
                     <RollingSearchPlaceholder
@@ -142,7 +142,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         alignItems: 'center',
         height: 40,
         borderRadius: theme.radius.full,
-        backgroundColor: theme.colors.surfaceOverlay,
+        backgroundColor: theme.colors.backgroundInput,
         paddingHorizontal: 5,
     },
     searchIcon: {
@@ -156,7 +156,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         overflow: 'hidden',
     },
     searchContainerPressed: {
-        backgroundColor: theme.colors.backgroundInput,
+        backgroundColor: theme.colors.backgroundNewInput,
     },
     searchPlaceholder: {
         flex: 1,

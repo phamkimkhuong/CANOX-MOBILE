@@ -42,6 +42,14 @@ import {
     Text,
     View,
 } from 'react-native';
+import Animated, {
+    FadeIn,
+    FadeOut,
+    useAnimatedStyle,
+    useSharedValue,
+    withRepeat,
+    withTiming,
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -138,6 +146,42 @@ export default function SearchResultsScreen() {
         enabled: isEmpty && !isLoading,
         pageSize: 20,
     });
+
+    // ========================================
+    // ANIMATION STATE
+    // ========================================
+    const shimmerValue = useSharedValue(0.3);
+    const contentOpacity = useSharedValue(0);
+
+    const shimmerAnimatedStyle = useAnimatedStyle(() => ({
+        opacity: shimmerValue.value,
+    }));
+
+    const contentAnimatedStyle = useAnimatedStyle(() => ({
+        opacity: contentOpacity.value,
+    }));
+
+    React.useEffect(() => {
+        shimmerValue.value = withRepeat(
+            withTiming(1, { duration: 800 }),
+            -1,
+            true
+        );
+    }, []);
+
+    const isDataLoaded = useMemo(() => {
+        if (isLoading && products.length === 0) return false;
+        if (isEmpty && isLoadingRecommended) return false;
+        return true;
+    }, [isLoading, products.length, isEmpty, isLoadingRecommended]);
+
+    React.useEffect(() => {
+        if (isDataLoaded) {
+            contentOpacity.value = withTiming(1, { duration: 400 });
+        } else {
+            contentOpacity.value = 0;
+        }
+    }, [isDataLoaded]);
 
     // Calculate active filter count for badge
     const activeFilterCount = useMemo(() => {
@@ -286,66 +330,15 @@ export default function SearchResultsScreen() {
     // LOADING STATE
     // ========================================
 
-    if (isLoading && products.length === 0) {
-        return (
-            <View style={styles.container}>
-                <SearchResultHeader
-                    keyword={keyword}
-                    onSearchPress={handleSearchPress}
-                    onFilterPress={handleFilterPress}
-                    onBack={handleBack}
-                    activeFilterCount={activeFilterCount}
-                />
-                <View style={styles.controlsWrapper}>
-                    <SortBar currentSort={sortBy} onSortChange={handleSortChange} />
-                    <QuickFilters
-                        activeFilters={quickFilters}
-                        onFilterToggle={handleQuickFilterToggle}
-                    />
-                </View>
-                <ProductGridSkeleton count={6} />
-            </View>
-        );
-    }
-
-    // Show skeleton when loading recommended products for empty state
-    if (isEmpty && isLoadingRecommended) {
-        return (
-            <View style={styles.container}>
-                <SearchResultHeader
-                    keyword={keyword}
-                    onSearchPress={handleSearchPress}
-                    onFilterPress={handleFilterPress}
-                    onBack={handleBack}
-                    activeFilterCount={activeFilterCount}
-                />
-                <View style={styles.controlsWrapper}>
-                    <SortBar currentSort={sortBy} onSortChange={handleSortChange} />
-                    <QuickFilters
-                        activeFilters={quickFilters}
-                        onFilterToggle={handleQuickFilterToggle}
-                    />
-                </View>
-                <View style={styles.emptyHeader}>
-                    <Text style={styles.emptyTitle}>
-                        {t('empty.subtitle', { keyword })}
-                    </Text>
-                    <Text style={styles.emptySubtitle}>
-                        {t('empty.suggestion')}
-                    </Text>
-                </View>
-                <ProductGridSkeleton count={6} />
-            </View>
-        );
-    }
-
     // ========================================
     // MAIN RENDER
     // ========================================
 
+    const shouldShowSkeleton = !isDataLoaded;
+
     return (
         <View style={styles.container}>
-            {/* Search Header */}
+            {/* Header & Controls - Static Shell */}
             <SearchResultHeader
                 keyword={keyword}
                 onSearchPress={handleSearchPress}
@@ -353,32 +346,69 @@ export default function SearchResultsScreen() {
                 onBack={handleBack}
                 activeFilterCount={activeFilterCount}
             />
+            <View style={styles.controlsWrapper}>
+                <SortBar currentSort={sortBy} onSortChange={handleSortChange} />
+                <QuickFilters
+                    activeFilters={quickFilters}
+                    onFilterToggle={handleQuickFilterToggle}
+                />
+            </View>
 
-            <FlashList
-                data={listData}
-                renderItem={renderItem}
-                keyExtractor={keyExtractor}
-                getItemType={getItemType}
-                overrideItemLayout={overrideItemLayout}
-                numColumns={2}
-                masonry={true}
-                optimizeItemArrangement={true}
-                ListFooterComponent={renderFooter}
-                onEndReached={handleLoadMore}
-                onEndReachedThreshold={0.3}
-                refreshControl={
-                    <RefreshControl
-                        refreshing={isFetching && !isFetchingNextPage}
-                        onRefresh={handleRefresh}
-                        tintColor={theme.colors.buttonActive}
-                    />
-                }
-                contentContainerStyle={[
-                    styles.listContent,
-                    { paddingBottom: insets.bottom + 16 },
-                ]}
-                showsVerticalScrollIndicator={false}
-            />
+            <View style={styles.flex1}>
+                {/* Real Content - Fades in */}
+                {isDataLoaded && (
+                    <Animated.View style={[styles.flex1, contentAnimatedStyle]}>
+                        <FlashList<ListItemType>
+                            data={listData}
+                            renderItem={renderItem}
+                            keyExtractor={keyExtractor}
+                            getItemType={getItemType}
+                            overrideItemLayout={overrideItemLayout}
+                            numColumns={2}
+                            masonry={true}
+                            optimizeItemArrangement={true}
+                            ListFooterComponent={renderFooter}
+                            onEndReached={handleLoadMore}
+                            onEndReachedThreshold={0.3}
+                            removeClippedSubviews={true}
+                            refreshControl={
+                                <RefreshControl
+                                    refreshing={isFetching && !isFetchingNextPage}
+                                    onRefresh={handleRefresh}
+                                    tintColor={theme.colors.buttonActive}
+                                />
+                            }
+                            contentContainerStyle={[
+                                styles.listContent,
+                                { paddingBottom: insets.bottom + 16 },
+                            ]}
+                            showsVerticalScrollIndicator={false}
+                        />
+                    </Animated.View>
+                )}
+
+                {/* Skeleton Overlay - Fades out */}
+                {shouldShowSkeleton && (
+                    <Animated.View
+                        entering={FadeIn}
+                        exiting={FadeOut.duration(300)}
+                        style={[StyleSheet.absoluteFill, styles.skeletonOverlay]}
+                        pointerEvents="none"
+                    >
+                        {isEmpty && (
+                            <View style={styles.emptyHeader}>
+                                <Text style={styles.emptyTitle}>
+                                    {t('empty.subtitle', { keyword })}
+                                </Text>
+                                <Text style={styles.emptySubtitle}>
+                                    {t('empty.suggestion')}
+                                </Text>
+                            </View>
+                        )}
+                        <ProductGridSkeleton count={6} animatedStyle={shimmerAnimatedStyle} />
+                    </Animated.View>
+                )}
+            </View>
 
             <SearchFilterModal
                 visible={isFilterModalVisible}
@@ -393,6 +423,12 @@ export default function SearchResultsScreen() {
 const styles = StyleSheet.create((theme) => ({
     container: {
         flex: 1,
+        backgroundColor: theme.colors.background,
+    },
+    flex1: {
+        flex: 1,
+    },
+    skeletonOverlay: {
         backgroundColor: theme.colors.background,
     },
     controlsWrapper: {

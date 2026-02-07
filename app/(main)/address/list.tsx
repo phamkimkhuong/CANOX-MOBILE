@@ -5,7 +5,7 @@
  * - mode=management: Từ Settings -> CRUD địa chỉ
  */
 
-import { AddressHeader, AddressList } from '@/components/address';
+import { AddressHeader, AddressList, AddressListSkeleton } from '@/components/address';
 import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
 import {
@@ -17,10 +17,11 @@ import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { useUserAddressStore } from '@/store/useUserAddressStore';
 import type { AddressListMode, ShippingAddress } from '@/types/address';
 import { Navigator } from '@/utils/navigation';
-import { useLocalSearchParams } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
+import { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -60,12 +61,18 @@ export default function AddressListScreen() {
     // ========================================
     const [isReady, setIsReady] = useState(false);
 
-    React.useEffect(() => {
-        const handle = requestIdleCallback(() => {
-            setIsReady(true);
-        }, { timeout: 500 });
-        return () => cancelIdleCallback(handle);
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            // Screen focused + animation done
+            const task = requestAnimationFrame(() => {
+                setIsReady(true);
+            });
+            return () => {
+                cancelAnimationFrame(task);
+                setIsReady(false);
+            };
+        }, [])
+    );
 
     // Show toast after UI is ready and loading is finished
     React.useEffect(() => {
@@ -169,23 +176,40 @@ export default function AddressListScreen() {
     // Header title
     const headerTitle = mode === 'selection' ? t('address:list.titleSelection') : t('address:list.title');
 
+    const skeletonOpacity = useSharedValue(0.4);
+    React.useEffect(() => {
+        skeletonOpacity.value = withRepeat(
+            withTiming(1, { duration: 1000 }),
+            -1,
+            true
+        );
+    }, [skeletonOpacity]);
+
+    const skeletonAnimatedStyle = useAnimatedStyle(() => ({
+        opacity: skeletonOpacity.value,
+    }));
+
     return (
         <View style={styles.container}>
             <AddressHeader title={headerTitle} />
 
-            <AddressList
-                addresses={sortedAddresses}
-                mode={mode}
-                selectedId={effectiveSelectedId}
-                isLoading={isLoading}
-                isRefreshing={isRefetching}
-                onRefresh={refetch}
-                onSelect={handleSelect}
-                onEdit={handleEdit}
-                contentContainerStyle={{
-                    paddingBottom: theme.margins.md,
-                }}
-            />
+            {(!isReady || isLoading) ? (
+                <AddressListSkeleton animatedStyle={skeletonAnimatedStyle} />
+            ) : (
+                <AddressList
+                    addresses={sortedAddresses}
+                    mode={mode}
+                    selectedId={effectiveSelectedId}
+                    isLoading={isLoading}
+                    isRefreshing={isRefetching}
+                    onRefresh={refetch}
+                    onSelect={handleSelect}
+                    onEdit={handleEdit}
+                    contentContainerStyle={{
+                        paddingBottom: theme.margins.md,
+                    }}
+                />
+            )}
 
             {/* Sticky Add Button */}
             <View

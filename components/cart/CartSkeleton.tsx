@@ -1,123 +1,94 @@
-import { SkeletonBox, SkeletonCircle, SkeletonText } from '@/components/ui/feedback/Skeleton';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View } from 'react-native';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
+import { StyleSheet } from 'react-native-unistyles';
+
+const SHIMMER_DURATION = 1000;
 
 /**
- * Single cart item skeleton 
- * Mirrors the layout of CartItem component
+ * Simplified Cart Item Block
+ * Focuses on major shapes (Image + Text Block) to reduce component count
  */
-const SkeletonCartItem: React.FC<{ isLast?: boolean }> = ({ isLast }) => {
-    const { theme } = useUnistyles();
+const SkeletonCartItem: React.FC<{ animatedStyle: any }> = ({ animatedStyle }) => {
     const styles = stylesheet;
 
     return (
-        <View style={styles.itemWrapper}>
-            <View style={styles.itemContainer}>
-                {/* Checkbox skeleton */}
-                <View style={styles.checkboxColumn}>
-                    <SkeletonBox width={20} height={20} borderRadius={4} />
-                </View>
+        <View style={styles.itemContainer}>
+            {/* Image Block */}
+            <Animated.View style={[styles.imageBlock, animatedStyle]} />
 
-                {/* Content Row */}
-                <View style={styles.contentRow}>
-                    {/* Image skeleton */}
-                    <SkeletonBox width={96} height={96} borderRadius={theme.radius.m} />
-
-                    {/* Info Column */}
-                    <View style={styles.infoColumn}>
-                        {/* Product Name skeleton */}
-                        <SkeletonText width="90%" height={16} />
-                        <SkeletonText width="60%" height={16} />
-
-                        {/* Variant Selector skeleton */}
-                        <SkeletonBox width={100} height={24} borderRadius={4} style={styles.mt8} />
-
-                        {/* Bottom Row: Price & Quantity */}
-                        <View style={styles.bottomRow}>
-                            <View style={styles.priceContainer}>
-                                <SkeletonText width={60} height={12} />
-                                <SkeletonText width={80} height={18} />
-                            </View>
-                            <SkeletonBox width={100} height={32} borderRadius={theme.radius.m} />
-                        </View>
-                    </View>
-
-                </View>
+            {/* Content Blocks */}
+            <View style={styles.textStack}>
+                <Animated.View style={[styles.line, styles.w90p, animatedStyle]} />
+                <Animated.View style={[styles.line, styles.w60p, animatedStyle]} />
+                <View style={styles.spacer} />
+                <Animated.View style={[styles.line, styles.w40p, animatedStyle]} />
             </View>
-            {!isLast && <View style={styles.divider} />}
         </View>
     );
 };
 
 /**
- * Shop group skeleton
- * Mirrors the layout of CartShopGroup component
+ * Simplified Shop Group Block
  */
-const SkeletonShopGroup: React.FC = () => {
+const SkeletonShopGroup: React.FC<{ animatedStyle: any }> = ({ animatedStyle }) => {
     const styles = stylesheet;
 
     return (
         <View style={styles.shopContainer}>
-            {/* Shop Header skeleton */}
+            {/* Shop Header: Simplified to Icon + Title block */}
             <View style={styles.shopHeader}>
-                <SkeletonBox width={20} height={20} borderRadius={4} />
-                <SkeletonCircle size={24} />
-                <SkeletonText width={120} height={16} />
+                <Animated.View style={[styles.iconCircle, animatedStyle]} />
+                <Animated.View style={[styles.line, styles.w40p, animatedStyle]} />
             </View>
 
-            {/* Items list skeleton */}
-            <View>
-                <SkeletonCartItem />
-                <SkeletonCartItem isLast />
-            </View>
+            {/* Items: Only 2 items to represent the list */}
+            <SkeletonCartItem animatedStyle={animatedStyle} />
+            <SkeletonCartItem animatedStyle={animatedStyle} />
 
-            {/* Voucher Row skeleton */}
+            {/* Bottom Row: Combined into one long line */}
             <View style={styles.voucherRow}>
-                <SkeletonText width={150} height={14} />
-                <SkeletonText width={80} height={14} />
+                <Animated.View style={[styles.line, styles.w70p, animatedStyle]} />
             </View>
         </View>
     );
 };
 
 /**
- * CartSkeleton - Loading placeholder for the Cart screen
- * 
- * @example
- * if (isLoading) return <CartSkeleton />;
+ * CartSkeleton - Optimized Shell for performance
+ * Uses direct Animated.Views and fewer nested components
  */
 export const CartSkeleton: React.FC = () => {
     const styles = stylesheet;
+    const opacity = useSharedValue(0.4);
+
+    useEffect(() => {
+        opacity.value = withRepeat(
+            withTiming(1, { duration: SHIMMER_DURATION }),
+            -1,
+            true
+        );
+    }, []);
+
+    const animatedStyle = useAnimatedStyle(() => ({
+        opacity: opacity.value,
+    }));
 
     return (
         <View style={styles.container}>
-            {/* Shop Groups skeletons - Start immediately after header */}
             <View style={styles.listContent}>
-                <SkeletonShopGroup />
-                <SkeletonShopGroup />
+                <SkeletonShopGroup animatedStyle={animatedStyle} />
+                <SkeletonShopGroup animatedStyle={animatedStyle} />
             </View>
         </View>
     );
 };
 
 const stylesheet = StyleSheet.create((theme) => ({
-    mt8: {
-        marginTop: 8,
-    },
     container: {
         flex: 1,
         backgroundColor: theme.colors.background,
         paddingTop: theme.margins.smd,
-    },
-    addressBarSkeleton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: theme.margins.md,
-        paddingVertical: theme.margins.smd,
-        backgroundColor: theme.colors.primaryMuted,
-        gap: theme.margins.smd,
-        marginBottom: theme.margins.smd,
     },
     listContent: {
         paddingHorizontal: theme.margins.smd,
@@ -137,50 +108,46 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderBottomWidth: 1,
         borderBottomColor: theme.colors.border,
     },
-    itemWrapper: {
-        // Wrapper for item + divider
-    },
     itemContainer: {
         flexDirection: 'row',
         paddingHorizontal: theme.margins.smd,
         paddingVertical: theme.margins.md,
         gap: theme.margins.smd,
     },
-    checkboxColumn: {
-        justifyContent: 'flex-start',
-        paddingTop: 32,
+    imageBlock: {
+        width: 80,
+        height: 80,
+        borderRadius: theme.radius.m,
+        backgroundColor: theme.colors.border,
     },
-    contentRow: {
+    iconCircle: {
+        width: 24,
+        height: 24,
+        borderRadius: 12,
+        backgroundColor: theme.colors.border,
+    },
+    textStack: {
         flex: 1,
-        flexDirection: 'row',
-        gap: theme.margins.smd,
+        gap: 8,
+        justifyContent: 'center',
     },
-    infoColumn: {
-        flex: 1,
-        gap: 4,
+    line: {
+        height: 12,
+        backgroundColor: theme.colors.border,
+        borderRadius: 4,
     },
-    bottomRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-end',
-        marginTop: 8,
+    spacer: {
+        height: 4,
     },
-    priceContainer: {
-        gap: 2,
-    },
+    w90p: { width: '90%' },
+    w70p: { width: '70%' },
+    w60p: { width: '60%' },
+    w40p: { width: '40%' },
     voucherRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
         paddingHorizontal: theme.margins.smd,
         paddingVertical: theme.margins.smd,
         backgroundColor: theme.colors.backgroundSurface,
         borderTopWidth: 1,
         borderTopColor: theme.colors.border,
-    },
-    divider: {
-        height: 1,
-        backgroundColor: theme.colors.border,
-        marginHorizontal: theme.margins.smd,
     },
 }));

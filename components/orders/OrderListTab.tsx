@@ -273,6 +273,7 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
                 contentContainerStyle={styles.listContent}
                 onEndReached={handleEndReached}
                 onEndReachedThreshold={0.5}
+                removeClippedSubviews={true}
                 refreshControl={
                     <RefreshControl
                         refreshing={isRefetching && !isFetchingNextPage}

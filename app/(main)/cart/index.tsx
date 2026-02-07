@@ -44,7 +44,7 @@ import { Alert as CustomAlert } from '@/utils/AlertHelper';
 import { logger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
 import { FlashList } from '@shopify/flash-list';
-import { useLocalSearchParams } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, RefreshControl, Text, View } from 'react-native';
@@ -199,13 +199,18 @@ export default function CartScreen() {
     // ========================================
     const [isReady, setIsReady] = useState(false);
 
-    useEffect(() => {
-        const handle = requestIdleCallback(() => {
-            setIsReady(true);
-        }, { timeout: 500 });
-
-        return () => cancelIdleCallback(handle);
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            // Screen focused + animation done
+            const task = requestAnimationFrame(() => {
+                setIsReady(true);
+            });
+            return () => {
+                cancelAnimationFrame(task);
+                setIsReady(false);
+            };
+        }, [])
+    );
 
     useEffect(() => {
         if (isReady && !isLoading && rebuySuccess === 'true') {

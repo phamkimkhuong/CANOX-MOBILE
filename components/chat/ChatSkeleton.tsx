@@ -11,24 +11,24 @@ interface ChatSkeletonProps {
  * Single chat conversation item skeleton
  * Mirrors the layout of ConversationItem component
  */
-const SkeletonItem: React.FC = () => {
+const SkeletonItem: React.FC<{ animatedStyle?: any }> = ({ animatedStyle }) => {
     const styles = stylesheet;
 
     return (
         <View style={styles.item}>
             {/* Avatar skeleton */}
-            <SkeletonCircle size={48} />
+            <SkeletonCircle size={48} animatedStyle={animatedStyle} />
 
             {/* Text content skeleton */}
             <View style={styles.textContainer}>
                 {/* Name row: name + time */}
                 <View style={styles.nameRow}>
-                    <SkeletonText width="50%" height={16} />
-                    <SkeletonText width={50} height={12} />
+                    <SkeletonText width="50%" height={16} animatedStyle={animatedStyle} />
+                    <SkeletonText width={50} height={12} animatedStyle={animatedStyle} />
                 </View>
 
                 {/* Message preview */}
-                <SkeletonText width="80%" height={14} />
+                <SkeletonText width="80%" height={14} animatedStyle={animatedStyle} />
             </View>
         </View>
     );
@@ -36,17 +36,17 @@ const SkeletonItem: React.FC = () => {
 
 /**
  * ChatSkeleton - Loading placeholder for chat conversation list
- * 
- * @example
- * if (isLoading) return <ChatSkeleton count={6} />;
  */
-export const ChatSkeleton: React.FC<ChatSkeletonProps> = ({ count = 6 }) => {
+export const ChatSkeleton: React.FC<ChatSkeletonProps & { animatedStyle?: any }> = ({
+    count = 6,
+    animatedStyle,
+}) => {
     const styles = stylesheet;
 
     return (
         <View style={styles.container}>
             {Array.from({ length: count }).map((_, index) => (
-                <SkeletonItem key={`chat-skeleton-${index}`} />
+                <SkeletonItem key={`chat-skeleton-${index}`} animatedStyle={animatedStyle} />
             ))}
         </View>
     );

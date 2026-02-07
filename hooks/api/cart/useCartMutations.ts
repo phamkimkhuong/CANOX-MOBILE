@@ -245,6 +245,7 @@ export const useClearCart = () => {
             // Set empty cart optimistically
             const emptyCart: CartUI = {
                 shops: [],
+                itemCount: 0,
                 platformVouchers: previousCart?.platformVouchers ?? [],
                 appliedPlatformVoucherId: null,
             };

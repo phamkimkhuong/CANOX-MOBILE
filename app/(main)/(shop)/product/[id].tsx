@@ -30,12 +30,15 @@ import { Alert } from '@/utils/AlertHelper';
 import { createLogger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
 import { FlashList, FlashListRef, ListRenderItemInfo } from '@shopify/flash-list';
-import { useLocalSearchParams } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActionSheetIOS, ActivityIndicator, NativeScrollEvent, NativeSyntheticEvent, Platform, Pressable, RefreshControl, Share, Text, View } from 'react-native';
-import {
+import Animated, {
+    useAnimatedStyle,
     useSharedValue,
+    withRepeat,
+    withTiming,
 } from 'react-native-reanimated';
 import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -118,13 +121,21 @@ export default function ProductDetailScreen() {
     // ANIMATION & TRANSITION HANDLING
     // ============================================
 
-    React.useEffect(() => {
-        const handle = requestIdleCallback(() => {
-            setIsTransitionFinished(true);
-        }, { timeout: 500 });
-
-        return () => cancelIdleCallback(handle);
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            // Screen focused + animation done
+            const task = requestAnimationFrame(() => {
+                setIsTransitionFinished(true);
+            });
+            return () => {
+                cancelAnimationFrame(task);
+                // We keep it true once loaded for a smoother experience if user comes back
+                // or we can reset it to false - in this case product detail is heavy, 
+                // resetting to false ensures smooth re-entry.
+                setIsTransitionFinished(false);
+            };
+        }, [])
+    );
 
     // Minimum skeleton duration for instant nav (prevents flash)
     const [minSkeletonComplete, setMinSkeletonComplete] = React.useState(!isInstantNav);
@@ -519,16 +530,51 @@ export default function ProductDetailScreen() {
     // EARLY RETURNS
     // ============================================
 
-    if (shouldShowSkeleton) {
-        return <ProductDetailSkeleton />;
-    }
+    const skeletonOpacity = useSharedValue(0.4);
+    React.useEffect(() => {
+        skeletonOpacity.value = withRepeat(
+            withTiming(1, { duration: 1000 }),
+            -1,
+            true
+        );
+    }, [skeletonOpacity]);
 
-    if (isError || !product) {
+    const skeletonAnimatedStyle = useAnimatedStyle(() => ({
+        opacity: skeletonOpacity.value,
+    }));
+
+    // Combine all loading/transition states into one logic
+    const isScreenReady = !shouldShowSkeleton && isTransitionFinished;
+
+    // === Cross-fade Handling ===
+    const contentOpacity = useSharedValue(0);
+    const [isActuallyReady, setIsActuallyReady] = useState(false);
+
+    // Sync content opacity with readiness
+    React.useEffect(() => {
+        if (isScreenReady) {
+            // Give 100ms for FlashList to finalize layout before fading in
+            const timer = setTimeout(() => {
+                contentOpacity.value = withTiming(1, { duration: 300 });
+                setIsActuallyReady(true);
+            }, 100);
+            return () => clearTimeout(timer);
+        } else {
+            contentOpacity.value = 0;
+            setIsActuallyReady(false);
+        }
+    }, [isScreenReady, contentOpacity]);
+
+    const contentAnimatedStyle = useAnimatedStyle(() => ({
+        opacity: contentOpacity.value,
+    }));
+
+    // Error State
+    if (isError || (!product && isScreenReady)) {
         return (
             <View style={styles.container}>
                 <ProductNavBar scrollY={scrollY} title={t('navigation.title')} />
                 <View style={styles.flex1}>
-                    <ProductDetailSkeleton />
                     <View style={styles.errorOverlay}>
                         <View style={styles.errorCard}>
                             <View style={styles.errorIconCircle}>
@@ -559,44 +605,58 @@ export default function ProductDetailScreen() {
 
     return (
         <View style={styles.container}>
-            {/* Animated NavBar */}
+            {/* Real NavBar - Shell First */}
             <ProductNavBar
                 scrollY={scrollY}
-                title={product.name}
+                title={product?.name ?? ''}
                 onCartPress={handleCartPress}
                 onSharePress={handleSharePress}
                 onMorePress={handleMorePress}
             />
 
-            {!isTransitionFinished ? (
-                <ProductDetailSkeleton />
-            ) : (
-                <View style={styles.flex1}>
-                    <FlashList
-                        ref={listRef}
-                        data={listData}
-                        renderItem={renderItem}
-                        keyExtractor={(item) => item.id}
-                        numColumns={2}
-                        masonry={true}
-                        optimizeItemArrangement={true}
-                        overrideItemLayout={overrideItemLayout}
-                        onScroll={handleScroll}
-                        scrollEventThrottle={16}
-                        showsVerticalScrollIndicator={false}
-                        ListFooterComponent={renderListFooter}
-                        contentContainerStyle={styles.listContent}
-                        refreshControl={
-                            <RefreshControl
-                                refreshing={isRefetching}
-                                onRefresh={handleRefresh}
-                                tintColor={theme.colors.buttonActive}
-                            />
-                        }
-                    />
-                </View>
-            )}
+            <View style={styles.flex1}>
+                {/* Real Content - Fades in behind the skeleton overlay */}
+                {product && (
+                    <Animated.View style={[styles.flex1, contentAnimatedStyle]}>
+                        <FlashList<ProductDetailListItem>
+                            ref={listRef}
+                            data={listData}
+                            renderItem={renderItem}
+                            keyExtractor={(item) => item.id}
+                            getItemType={(item) => item.type}
+                            numColumns={2}
+                            masonry={true}
+                            optimizeItemArrangement={true}
+                            overrideItemLayout={overrideItemLayout}
+                            onScroll={handleScroll}
+                            scrollEventThrottle={16}
+                            showsVerticalScrollIndicator={false}
+                            ListFooterComponent={renderListFooter}
+                            contentContainerStyle={styles.listContent}
+                            refreshControl={
+                                <RefreshControl
+                                    refreshing={isRefetching}
+                                    onRefresh={handleRefresh}
+                                    tintColor={theme.colors.buttonActive}
+                                />
+                            }
+                        />
+                    </Animated.View>
+                )}
 
+                {/* Skeleton Overlay - Stays until content is fully opaque */}
+                {!isActuallyReady && (
+                    <View style={StyleSheet.absoluteFill}>
+                        <ProductDetailSkeleton
+                            animatedStyle={skeletonAnimatedStyle}
+                            hideSafeTop
+                            hideBottomBar
+                        />
+                    </View>
+                )}
+            </View>
+
+            {/* Real Bottom Bar - Shell First */}
             <StickyBottomBar
                 isFullySelected={selectionResult.isFullySelected}
                 inventoryStatus={selectionResult.inventoryStatus}
@@ -606,7 +666,7 @@ export default function ProductDetailScreen() {
                 onBuyNowPress={handleBuyNow}
             />
 
-            {product.hasVariants && (
+            {product && product.hasVariants && (
                 <VariantBottomSheet
                     visible={variantSheetVisible}
                     onClose={handleCloseVariantSheet}
@@ -625,11 +685,13 @@ export default function ProductDetailScreen() {
                 />
             )}
 
-            <PriceBreakdownBottomSheet
-                visible={priceBreakdownVisible}
-                onClose={() => setPriceBreakdownVisible(false)}
-                breakdown={selectionResult.displayPrice.breakdown}
-            />
+            {product && (
+                <PriceBreakdownBottomSheet
+                    visible={priceBreakdownVisible}
+                    onClose={() => setPriceBreakdownVisible(false)}
+                    breakdown={selectionResult.displayPrice.breakdown}
+                />
+            )}
         </View>
     );
 }

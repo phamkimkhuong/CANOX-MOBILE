@@ -15,8 +15,6 @@ export const CartItemSchema = z.object({
     variantAttributes: z.string().nullable().optional().default(''),
     shopId: z.string().nullable().optional(),
     imagePath: z.string().nullable().optional(),
-    imageBasePath: z.string().nullable().optional(),
-    imageExtension: z.string().nullable().optional(),
     imageAssetId: z.string().nullable().optional(),
 
     // Pricing
@@ -43,7 +41,8 @@ export const CartItemSchema = z.object({
 export const CartShopSchema = z.object({
     shopId: z.string(),
     shopName: z.string().nullable().optional().default(''),
-    shopLogo: z.string().nullable().optional(),
+    logoPath: z.string().nullable().optional(),
+    logoAssetId: z.string().nullable().optional(),
     items: z.array(CartItemSchema).default([]),
 
     // Shop totals (from API)
@@ -71,9 +70,9 @@ export const VoucherSchema = z.object({
     expiresAt: z.string().nullable().optional(),
 });
 
-// Schema cho toàn bộ Giỏ hàng (Root - từ API)
 export const CartResponseSchema = z.object({
     id: z.string(),
+    itemCount: z.number().nullable().optional().default(0),
     shops: z.array(CartShopSchema).default([]),
 });
 
@@ -194,6 +193,7 @@ export interface VoucherUI {
  * CartUI - Full cart state for UI
  */
 export interface CartUI {
+    itemCount: number;
     shops: CartShopUI[];
     platformVouchers: VoucherUI[];
     appliedPlatformVoucherId: string | null;

@@ -210,13 +210,14 @@ export const CategoryContent: React.FC<CategoryContentProps> = ({
 
     return (
         <View style={styles.container}>
-            <FlashList
+            <FlashList<FlattenedCategoryItem>
                 data={flattenedData}
                 renderItem={renderItem}
                 keyExtractor={keyExtractor}
                 getItemType={getItemType}
                 showsVerticalScrollIndicator={false}
                 numColumns={NUM_COLUMNS}
+                removeClippedSubviews={true}
                 // Override span cho các item không phải grid-item
                 overrideItemLayout={(layout, item) => {
                     if (item.type !== 'grid-item') {
