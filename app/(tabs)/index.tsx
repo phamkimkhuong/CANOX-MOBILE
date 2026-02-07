@@ -10,18 +10,24 @@ import { FeedType, useProductFeed, useRefreshProductFeed } from '@/hooks/api/use
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { PREFETCH_GRACE_PERIOD_MS } from '@/hooks/usePrefetchTiming';
 import type { ProductFeedItem } from '@/types/product/product';
+import { createLogger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
+import { toSizedImageUrl } from '@/utils/url';
 import { FlashList, FlashListRef, ListRenderItemInfo } from '@shopify/flash-list';
 import { useQueryClient } from '@tanstack/react-query';
-import React, { memo, useCallback, useMemo, useRef, useState } from 'react';
+import { useFocusEffect } from 'expo-router';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, LayoutChangeEvent, NativeScrollEvent, NativeSyntheticEvent, RefreshControl, Text, useWindowDimensions, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
+  withRepeat,
   withTiming,
 } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+
+const log = createLogger('HomeScreen');
 
 
 /**
@@ -96,7 +102,7 @@ const ProductRowItem = memo(({
     <ProductCard
       title={item.title}
       price={item.price}
-      image={item.thumbnail}
+      image={toSizedImageUrl(item.thumbnail, null, 'medium') ?? ''}
       originalPrice={item.originalPrice}
       rating={item.rating}
       reviews={item.reviews}
@@ -139,6 +145,33 @@ export default function HomeScreen() {
   // Ref để lưu giá trị JS cho logic đổi tab
   const headerHeightRef = useRef(0);
   const scrollYRef = useRef(0);
+  const tabTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Deferred Rendering: Only render heavy content after transition
+  const [isReady, setIsReady] = useState(false);
+  useFocusEffect(
+    useCallback(() => {
+      const task = setTimeout(() => setIsReady(true), 50);
+      return () => {
+        clearTimeout(task);
+        if (tabTimerRef.current) clearTimeout(tabTimerRef.current);
+      };
+    }, [])
+  );
+
+  // Shared Animation Pattern: One loop for all Skeletons
+  const shimmerValue = useSharedValue(0.3);
+  useEffect(() => {
+    shimmerValue.value = withRepeat(
+      withTiming(1, { duration: 1000 }),
+      -1,
+      true
+    );
+  }, [shimmerValue]);
+
+  const shimmerAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: shimmerValue.value,
+  }));
 
   // Lưu scroll position cho từng tab để restore khi quay lại
   const scrollPositions = useRef<Record<FeedType, number>>({
@@ -276,23 +309,33 @@ export default function HomeScreen() {
     const isTabsSticky = scrollYRef.current >= headerHeightRef.current && headerHeightRef.current > 0;
 
     if (isTabsSticky) {
+      if (__DEV__) {
+        log.info(`Switching tab to: ${newTab} (Sticky Mode)`);
+        console.time(`TabChange_${newTab}`);
+      }
+
       scrollPositions.current[activeTab] = scrollYRef.current;
       const savedPosition = scrollPositions.current[newTab];
 
       // Đổi tab
       setActiveTab(newTab);
+
+      // Clear previous timer if any
+      if (tabTimerRef.current) clearTimeout(tabTimerRef.current);
+
       if (savedPosition >= headerHeightRef.current && savedPosition > 0) {
         // Restore vị trí đã lưu nếu có
-        setTimeout(() => {
+        tabTimerRef.current = setTimeout(() => {
           listRef.current?.scrollToOffset({
             offset: savedPosition,
             animated: false,
           });
           scrollYRef.current = savedPosition;
           scrollY.value = savedPosition;
-        }, 100);
+          if (__DEV__) console.timeEnd(`TabChange_${newTab}`);
+        }, 100) as any;
       } else {
-        setTimeout(() => {
+        tabTimerRef.current = setTimeout(() => {
           const targetOffset = headerHeightRef.current;
           listRef.current?.scrollToOffset({
             offset: targetOffset,
@@ -300,7 +343,8 @@ export default function HomeScreen() {
           });
           scrollYRef.current = targetOffset;
           scrollY.value = targetOffset;
-        }, 100);
+          if (__DEV__) console.timeEnd(`TabChange_${newTab}`);
+        }, 100) as any;
       }
     } else {
       setActiveTab(newTab);
@@ -363,7 +407,9 @@ export default function HomeScreen() {
           />
         );
       case 'skeleton':
-        return <ProductCardSkeleton />;
+        return <ProductCardSkeleton animatedStyle={shimmerAnimatedStyle} />;
+      default:
+        return null;
     }
   }, [activeTab, handleTabChange, handleProductPress, handleMarketingHeaderLayout]);
 
@@ -422,50 +468,58 @@ export default function HomeScreen() {
         <HomeHeader />
       </View>
 
-      {/* 2. Sticky Tabs Overlay - Absolute positioned, controlled by Reanimated */}
-      <Animated.View
-        style={[
-          styles.stickyTabsOverlay,
-          { top: homeHeaderHeight },
-          stickyTabsAnimatedStyle,
-        ]}
-      >
-        <ProductTabs activeTab={activeTab} onTabChange={handleTabChange} />
-      </Animated.View>
+      {!isReady ? (
+        <View style={styles.emptyContainer}>
+          <ActivityIndicator color={theme.colors.buttonActive} />
+        </View>
+      ) : (
+        <>
+          {/* 2. Sticky Tabs Overlay - Absolute positioned, controlled by Reanimated */}
+          <Animated.View
+            style={[
+              styles.stickyTabsOverlay,
+              { top: homeHeaderHeight },
+              stickyTabsAnimatedStyle,
+            ]}
+          >
+            <ProductTabs activeTab={activeTab} onTabChange={handleTabChange} />
+          </Animated.View>
 
-      {/* 3. FlashList - Main content với layout zigzag (masonry) */}
-      <FlashList<ListItem>
-        ref={listRef}
-        data={listData}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-        numColumns={2}
-        masonry={true}
-        optimizeItemArrangement={true}
-        ListEmptyComponent={renderListEmpty}
-        ListFooterComponent={renderListFooter}
-        getItemType={getItemType}
-        overrideItemLayout={overrideItemLayout}
-        onScroll={handleScroll}
-        scrollEventThrottle={16}
-        onEndReached={handleEndReached}
-        onEndReachedThreshold={0.5}
-        removeClippedSubviews={true}
-        refreshControl={
-          <RefreshControl
-            refreshing={isRefetching && !isLoading}
-            onRefresh={handleRefresh}
-            tintColor={theme.colors.buttonActive}
-            colors={[theme.colors.buttonActive]}
-            progressViewOffset={homeHeaderHeight}
+          {/* 3. FlashList - Main content với layout zigzag (masonry) */}
+          <FlashList<ListItem>
+            ref={listRef}
+            data={listData}
+            renderItem={renderItem}
+            keyExtractor={keyExtractor}
+            numColumns={2}
+            masonry={true}
+            optimizeItemArrangement={true}
+            ListEmptyComponent={renderListEmpty}
+            ListFooterComponent={renderListFooter}
+            getItemType={getItemType}
+            overrideItemLayout={overrideItemLayout}
+            onScroll={handleScroll}
+            scrollEventThrottle={16}
+            onEndReached={handleEndReached}
+            onEndReachedThreshold={0.5}
+            removeClippedSubviews={true}
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefetching && !isLoading}
+                onRefresh={handleRefresh}
+                tintColor={theme.colors.buttonActive}
+                colors={[theme.colors.buttonActive]}
+                progressViewOffset={homeHeaderHeight}
+              />
+            }
+            contentContainerStyle={[
+              styles.listContent,
+              (isLoading || listData.length < 5) && minHeightStyle
+            ]}
+            showsVerticalScrollIndicator={false}
           />
-        }
-        contentContainerStyle={[
-          styles.listContent,
-          (isLoading || listData.length < 5) && minHeightStyle
-        ]}
-        showsVerticalScrollIndicator={false}
-      />
+        </>
+      )}
     </View>
   );
 }

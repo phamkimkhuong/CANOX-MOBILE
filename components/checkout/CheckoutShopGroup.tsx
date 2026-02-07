@@ -16,8 +16,9 @@
 
 import { IconSymbol } from '@/components/ui/Icon';
 import { formatCurrency } from '@/utils/format';
+import { toSizedImageUrl } from '@/utils/url';
 import { Image } from 'expo-image';
-import React, { useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -41,7 +42,7 @@ interface CheckoutShopGroupProps {
     shop: CheckoutShopUI;
 }
 
-export const CheckoutShopGroup: React.FC<CheckoutShopGroupProps> = ({ shop }) => {
+export const CheckoutShopGroup = memo<CheckoutShopGroupProps>(({ shop }) => {
     const { theme } = useUnistyles();
     const { t } = useTranslation('checkout');
     const styles = stylesheet;
@@ -121,7 +122,7 @@ export const CheckoutShopGroup: React.FC<CheckoutShopGroupProps> = ({ shop }) =>
                 <View style={styles.shopIcon}>
                     {shop.shopLogo ? (
                         <Image
-                            source={{ uri: shop.shopLogo }}
+                            source={{ uri: toSizedImageUrl(shop.shopLogo, null, 'thumb') ?? shop.shopLogo }}
                             style={styles.shopLogoImage}
                             contentFit="cover"
                             transition={200}
@@ -195,7 +196,9 @@ export const CheckoutShopGroup: React.FC<CheckoutShopGroupProps> = ({ shop }) =>
             )}
         </View>
     );
-};
+});
+
+CheckoutShopGroup.displayName = 'CheckoutShopGroup';
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {

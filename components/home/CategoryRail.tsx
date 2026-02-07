@@ -1,9 +1,8 @@
 import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
 import { Navigator } from '@/utils/navigation';
-import React, { memo, useCallback, useRef, useState } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import {
-    Animated,
     NativeScrollEvent,
     NativeSyntheticEvent,
     ScrollView,
@@ -11,6 +10,11 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
+import Animated, {
+    interpolate,
+    useAnimatedStyle,
+    useSharedValue,
+} from 'react-native-reanimated';
 import { StyleSheet } from 'react-native-unistyles';
 
 // Define kích thước cố định cho thanh chỉ báo
@@ -38,7 +42,9 @@ const CATEGORIES: Category[] = [
 
 export const CategoryRail = memo(() => {
     const styles = stylesheet;
-    const scrollX = useRef(new Animated.Value(0)).current;
+
+    // Use Reanimated shared value instead of Animated.Value (runs on UI thread)
+    const scrollX = useSharedValue(0);
     const [contentWidth, setContentWidth] = useState(0);
     const [containerWidth, setContainerWidth] = useState(0);
 
@@ -59,20 +65,23 @@ export const CategoryRail = memo(() => {
         ? Math.max(12, (containerWidth / contentWidth) * trackWidth)
         : 0;
 
-    // 3. Mapping vị trí scroll sang vị trí thumb
-    const thumbTranslateX = showIndicator
-        ? scrollX.interpolate({
-            inputRange: [0, Math.max(1, maxScrollRange)], // Input: từ 0 đến max scroll
-            outputRange: [0, trackWidth - thumbWidth],    // Output: chạy trong track
-            extrapolate: 'clamp',
-        })
-        : 0;
+    // 3. Animated style for thumb (runs on UI thread via Reanimated)
+    const thumbAnimatedStyle = useAnimatedStyle(() => {
+        const translateX = interpolate(
+            scrollX.value,
+            [0, Math.max(1, maxScrollRange)],
+            [0, trackWidth - thumbWidth],
+            'clamp'
+        );
+        return {
+            transform: [{ translateX }],
+        };
+    });
 
     const handleScroll = useCallback(
         (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-            // Animated.event native driver không hỗ trợ tốt layout calculation trực tiếp
-            // nên dùng setValue thủ công ở đây vẫn ổn cho list nhỏ
-            scrollX.setValue(event.nativeEvent.contentOffset.x);
+            // Update shared value (runs on UI thread, no JS bridge overhead)
+            scrollX.value = event.nativeEvent.contentOffset.x;
         },
         [scrollX]
     );
@@ -118,10 +127,8 @@ export const CategoryRail = memo(() => {
                         <Animated.View
                             style={[
                                 styles.indicatorThumb,
-                                {
-                                    width: thumbWidth,
-                                    transform: [{ translateX: thumbTranslateX }],
-                                },
+                                { width: thumbWidth },
+                                thumbAnimatedStyle,
                             ]}
                         />
                     </View>

@@ -10,8 +10,9 @@
 
 import type { CheckoutItemUI } from '@/types/checkout';
 import { formatCurrency } from '@/utils/format';
+import { toSizedImageUrl } from '@/utils/url';
 import { Image } from 'expo-image';
-import React from 'react';
+import React, { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
@@ -20,7 +21,7 @@ interface CheckoutItemProps {
     item: CheckoutItemUI;
 }
 
-export const CheckoutItem: React.FC<CheckoutItemProps> = ({ item }) => {
+export const CheckoutItem = memo<CheckoutItemProps>(({ item }) => {
     const { t } = useTranslation('checkout');
     const styles = stylesheet;
 
@@ -32,7 +33,7 @@ export const CheckoutItem: React.FC<CheckoutItemProps> = ({ item }) => {
             {/* Product Image */}
             <View style={styles.imageContainer}>
                 <Image
-                    source={{ uri: item.imageUrl }}
+                    source={{ uri: toSizedImageUrl(item.imageUrl, null, 'thumb') ?? item.imageUrl }}
                     style={styles.image}
                     contentFit="cover"
                     transition={200}
@@ -74,7 +75,9 @@ export const CheckoutItem: React.FC<CheckoutItemProps> = ({ item }) => {
             </View>
         </View>
     );
-};
+});
+
+CheckoutItem.displayName = 'CheckoutItem';
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {

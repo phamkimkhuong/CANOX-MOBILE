@@ -13,7 +13,7 @@ import {
 } from '@/utils/adapter/chat/messageAdapter';
 import { formatMessageTime } from '@/utils/date';
 import { Navigator } from '@/utils/navigation';
-import { toPublicUrl } from '@/utils/url';
+import { toPublicUrl, toSizedImageUrl } from '@/utils/url';
 import * as Clipboard from 'expo-clipboard';
 import { Image } from 'expo-image';
 import React, { useCallback, useState } from 'react';
@@ -542,7 +542,7 @@ const MessageItem: React.FC<MessageItemProps> = React.memo(({
                 <View style={styles.avatarContainer}>
                     {showAvatar && (
                         <Image
-                            source={{ uri: message.sender.avatar }}
+                            source={{ uri: toSizedImageUrl(message.sender.avatar, null, 'thumb') ?? message.sender.avatar }}
                             style={styles.avatar}
                         />
                     )}
@@ -594,30 +594,30 @@ const MessageTime: React.FC<{
     onImage,
     forceDark = false,
 }) => {
-    const { theme } = useUnistyles();
-    const styles = stylesheet;
-    const time = formatMessageTime(sentAt);
+        const { theme } = useUnistyles();
+        const styles = stylesheet;
+        const time = formatMessageTime(sentAt);
 
-    const getTimeStyle = () => {
-        if (onImage) return styles.timeOnImage;
-        if (forceDark) return styles.timeSecondary;
-        return isMe ? styles.timeInsideMe : styles.timeInsideOther;
-    };
+        const getTimeStyle = () => {
+            if (onImage) return styles.timeOnImage;
+            if (forceDark) return styles.timeSecondary;
+            return isMe ? styles.timeInsideMe : styles.timeInsideOther;
+        };
 
-    if (status === 'PENDING') {
+        if (status === 'PENDING') {
+            return (
+                <View style={styles.pendingIndicator}>
+                    <ActivityIndicator size="small" color={onImage ? '#fff' : (isMe ? '#fff' : theme.colors.primary)} />
+                </View>
+            );
+        }
+
         return (
-            <View style={styles.pendingIndicator}>
-                <ActivityIndicator size="small" color={onImage ? '#fff' : (isMe ? '#fff' : theme.colors.primary)} />
-            </View>
+            <Text numberOfLines={1} style={[styles.timeInside, getTimeStyle()]}>
+                {time}
+            </Text>
         );
-    }
-
-    return (
-        <Text numberOfLines={1} style={[styles.timeInside, getTimeStyle()]}>
-            {time}
-        </Text>
-    );
-};
+    };
 
 const TextContent: React.FC<{ content: string; isMe: boolean; sentAt: string; status: string }> = ({
     content,
@@ -657,164 +657,216 @@ const ImageContent: React.FC<{
     onPress,
     onLongPress,
 }) => {
-    const styles = stylesheet;
-    const imageCount = attachments.length;
+        const styles = stylesheet;
+        const imageCount = attachments.length;
 
-    /**
-     * Calculate border radius for an image in the grid based on its position
-     * This ensures the outer corners match the bubble and inner corners are sharp
-     */
-    const getGridImageRadius = useCallback((index: number, total: number) => {
-        const RADIUS = 12;
-        const radii = {
-            borderTopLeftRadius: 0,
-            borderTopRightRadius: 0,
-            borderBottomLeftRadius: 0,
-            borderBottomRightRadius: 0,
-        };
+        /**
+         * Calculate border radius for an image in the grid based on its position
+         * This ensures the outer corners match the bubble and inner corners are sharp
+         */
+        const getGridImageRadius = useCallback((index: number, total: number) => {
+            const RADIUS = 12;
+            const radii = {
+                borderTopLeftRadius: 0,
+                borderTopRightRadius: 0,
+                borderBottomLeftRadius: 0,
+                borderBottomRightRadius: 0,
+            };
 
-        // Top corners - only if it's the first row & not having content above (which is not current case)
-        if (total === 1) {
-            radii.borderTopLeftRadius = RADIUS;
-            radii.borderTopRightRadius = RADIUS;
-            if (!content) {
-                radii.borderBottomLeftRadius = RADIUS;
-                radii.borderBottomRightRadius = RADIUS;
-            }
-        } else if (total === 2) {
-            if (index === 0) {
+            // Top corners - only if it's the first row & not having content above (which is not current case)
+            if (total === 1) {
                 radii.borderTopLeftRadius = RADIUS;
-                if (!content) radii.borderBottomLeftRadius = RADIUS;
-            } else {
                 radii.borderTopRightRadius = RADIUS;
-                if (!content) radii.borderBottomRightRadius = RADIUS;
+                if (!content) {
+                    radii.borderBottomLeftRadius = RADIUS;
+                    radii.borderBottomRightRadius = RADIUS;
+                }
+            } else if (total === 2) {
+                if (index === 0) {
+                    radii.borderTopLeftRadius = RADIUS;
+                    if (!content) radii.borderBottomLeftRadius = RADIUS;
+                } else {
+                    radii.borderTopRightRadius = RADIUS;
+                    if (!content) radii.borderBottomRightRadius = RADIUS;
+                }
+            } else if (total === 3) {
+                if (index === 0) {
+                    radii.borderTopLeftRadius = RADIUS;
+                    if (!content) radii.borderBottomLeftRadius = RADIUS;
+                } else if (index === 1) {
+                    radii.borderTopRightRadius = RADIUS;
+                } else if (index === 2) {
+                    if (!content) radii.borderBottomRightRadius = RADIUS;
+                }
+            } else if (total >= 4) {
+                if (index === 0) radii.borderTopLeftRadius = RADIUS;
+                if (index === 1) radii.borderTopRightRadius = RADIUS;
+                if (!content && index === 2) radii.borderBottomLeftRadius = RADIUS;
+                if (!content && index === 3) radii.borderBottomRightRadius = RADIUS;
             }
-        } else if (total === 3) {
-            if (index === 0) {
-                radii.borderTopLeftRadius = RADIUS;
-                if (!content) radii.borderBottomLeftRadius = RADIUS;
-            } else if (index === 1) {
-                radii.borderTopRightRadius = RADIUS;
-            } else if (index === 2) {
-                if (!content) radii.borderBottomRightRadius = RADIUS;
-            }
-        } else if (total >= 4) {
-            if (index === 0) radii.borderTopLeftRadius = RADIUS;
-            if (index === 1) radii.borderTopRightRadius = RADIUS;
-            if (!content && index === 2) radii.borderBottomLeftRadius = RADIUS;
-            if (!content && index === 3) radii.borderBottomRightRadius = RADIUS;
-        }
 
-        return radii;
-    }, [content]);
+            return radii;
+        }, [content]);
 
-    if (imageCount === 0) return null;
+        if (imageCount === 0) return null;
 
-    // Base constants for grid
-    const GRID_WIDTH = 240;
-    const GAP = 2;
+        // Base constants for grid
+        const GRID_WIDTH = 240;
+        const GAP = 2;
 
-    const renderImages = () => {
-        const imagesToShow = attachments.slice(0, 4);
+        const renderImages = () => {
+            const imagesToShow = attachments.slice(0, 4);
 
-        // Case 1: Single Image
-        if (imageCount === 1) {
-            return (
-                <TouchableOpacity
-                    activeOpacity={0.9}
-                    onPress={() => onPress?.(attachments[0].url)}
-                    onLongPress={onLongPress}
-                    style={styles.singleImageWrapper}
-                >
-                    <Image
-                        source={{ uri: attachments[0].url }}
-                        style={[styles.messageImage, getGridImageRadius(0, 1)]}
-                        contentFit="cover"
-                        placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
-                    />
-                    {!content && (
-                        <View style={styles.timeOverlayImage}>
-                            <MessageTime sentAt={sentAt} isMe={isMe} onImage status={status} />
-                        </View>
-                    )}
-                </TouchableOpacity>
-            );
-        }
-
-        // Case 2: Two Images
-        if (imageCount === 2) {
-            const side = (GRID_WIDTH - GAP) / 2;
-            return (
-                <View style={styles.gridRow}>
-                    {imagesToShow.map((img: MessageAttachment, idx: number) => (
-                        <TouchableOpacity
-                            key={img.id || idx}
-                            activeOpacity={0.9}
-                            onLongPress={onLongPress}
-                            onPress={() => onPress?.(img.url)}
-                            style={styles.dynamicGridHalf(side * 1.2)}
-                        >
-                            <Image
-                                source={{ uri: img.url }}
-                                style={[styles.fullSize, getGridImageRadius(idx, 2)]}
-                                contentFit="cover"
-                            />
-                        </TouchableOpacity>
-                    ))}
-                    {!content && (
-                        <View style={styles.timeOverlayImage}>
-                            <MessageTime sentAt={sentAt} isMe={isMe} onImage status={status} />
-                        </View>
-                    )}
-                </View>
-            );
-        }
-
-        // Case 3: Three Images (1 big left, 2 small right)
-        if (imageCount === 3) {
-            const bigSide = (GRID_WIDTH - GAP) * 0.65;
-            const smallSide = GRID_WIDTH - bigSide - GAP;
-            const smallHeight = (bigSide - GAP) / 2;
-
-            return (
-                <View style={styles.gridRow}>
+            // Case 1: Single Image
+            if (imageCount === 1) {
+                return (
                     <TouchableOpacity
                         activeOpacity={0.9}
+                        onPress={() => onPress?.(attachments[0].url)}
                         onLongPress={onLongPress}
-                        onPress={() => onPress?.(imagesToShow[0].url)}
-                        style={styles.dynamicGridBig(bigSide, bigSide)}
+                        style={styles.singleImageWrapper}
                     >
                         <Image
-                            source={{ uri: imagesToShow[0].url }}
-                            style={[styles.dynamicGridBig(bigSide, bigSide), getGridImageRadius(0, 3)]}
+                            source={{ uri: toSizedImageUrl(attachments[0].url, null, 'medium') ?? attachments[0].url }}
+                            style={[styles.messageImage, getGridImageRadius(0, 1)]}
                             contentFit="cover"
+                            placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
                         />
+                        {!content && (
+                            <View style={styles.timeOverlayImage}>
+                                <MessageTime sentAt={sentAt} isMe={isMe} onImage status={status} />
+                            </View>
+                        )}
                     </TouchableOpacity>
-                    <View style={styles.gridGap}>
+                );
+            }
+
+            // Case 2: Two Images
+            if (imageCount === 2) {
+                const side = (GRID_WIDTH - GAP) / 2;
+                return (
+                    <View style={styles.gridRow}>
+                        {imagesToShow.map((img: MessageAttachment, idx: number) => (
+                            <TouchableOpacity
+                                key={img.id || idx}
+                                activeOpacity={0.9}
+                                onLongPress={onLongPress}
+                                onPress={() => onPress?.(img.url)}
+                                style={styles.dynamicGridHalf(side * 1.2)}
+                            >
+                                <Image
+                                    source={{ uri: toSizedImageUrl(img.url, null, 'small') ?? img.url }}
+                                    style={[styles.fullSize, getGridImageRadius(idx, 2)]}
+                                    contentFit="cover"
+                                />
+                            </TouchableOpacity>
+                        ))}
+                        {!content && (
+                            <View style={styles.timeOverlayImage}>
+                                <MessageTime sentAt={sentAt} isMe={isMe} onImage status={status} />
+                            </View>
+                        )}
+                    </View>
+                );
+            }
+
+            // Case 3: Three Images (1 big left, 2 small right)
+            if (imageCount === 3) {
+                const bigSide = (GRID_WIDTH - GAP) * 0.65;
+                const smallSide = GRID_WIDTH - bigSide - GAP;
+                const smallHeight = (bigSide - GAP) / 2;
+
+                return (
+                    <View style={styles.gridRow}>
                         <TouchableOpacity
                             activeOpacity={0.9}
                             onLongPress={onLongPress}
-                            onPress={() => onPress?.(imagesToShow[1].url)}
-                            style={styles.dynamicGridBig(smallSide, smallHeight)}
+                            onPress={() => onPress?.(imagesToShow[0].url)}
+                            style={styles.dynamicGridBig(bigSide, bigSide)}
                         >
                             <Image
-                                source={{ uri: imagesToShow[1].url }}
-                                style={[styles.dynamicGridBig(smallSide, smallHeight), getGridImageRadius(1, 3)]}
+                                source={{ uri: toSizedImageUrl(imagesToShow[0].url, null, 'small') ?? imagesToShow[0].url }}
+                                style={[styles.dynamicGridBig(bigSide, bigSide), getGridImageRadius(0, 3)]}
                                 contentFit="cover"
                             />
                         </TouchableOpacity>
-                        <TouchableOpacity
-                            activeOpacity={0.9}
-                            onLongPress={onLongPress}
-                            onPress={() => onPress?.(imagesToShow[2].url)}
-                            style={styles.dynamicGridBig(smallSide, smallHeight)}
-                        >
-                            <Image
-                                source={{ uri: imagesToShow[2].url }}
-                                style={[styles.dynamicGridBig(smallSide, smallHeight), getGridImageRadius(2, 3)]}
-                                contentFit="cover"
-                            />
-                        </TouchableOpacity>
+                        <View style={styles.gridGap}>
+                            <TouchableOpacity
+                                activeOpacity={0.9}
+                                onLongPress={onLongPress}
+                                onPress={() => onPress?.(imagesToShow[1].url)}
+                                style={styles.dynamicGridBig(smallSide, smallHeight)}
+                            >
+                                <Image
+                                    source={{ uri: toSizedImageUrl(imagesToShow[1].url, null, 'thumb') ?? imagesToShow[1].url }}
+                                    style={[styles.dynamicGridBig(smallSide, smallHeight), getGridImageRadius(1, 3)]}
+                                    contentFit="cover"
+                                />
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                activeOpacity={0.9}
+                                onLongPress={onLongPress}
+                                onPress={() => onPress?.(imagesToShow[2].url)}
+                                style={styles.dynamicGridBig(smallSide, smallHeight)}
+                            >
+                                <Image
+                                    source={{ uri: toSizedImageUrl(imagesToShow[2].url, null, 'thumb') ?? imagesToShow[2].url }}
+                                    style={[styles.dynamicGridBig(smallSide, smallHeight), getGridImageRadius(2, 3)]}
+                                    contentFit="cover"
+                                />
+                            </TouchableOpacity>
+                        </View>
+                        {!content && (
+                            <View style={styles.timeOverlayImage}>
+                                <MessageTime sentAt={sentAt} isMe={isMe} onImage status={status} />
+                            </View>
+                        )}
+                    </View>
+                );
+            }
+
+            // Case 4+: 2x2 Grid
+            const boxSide = (GRID_WIDTH - GAP) / 2;
+            return (
+                <View style={styles.gridGap}>
+                    <View style={styles.gridRow}>
+                        {imagesToShow.slice(0, 2).map((img: MessageAttachment, idx: number) => (
+                            <TouchableOpacity
+                                key={img.id || idx}
+                                activeOpacity={0.9}
+                                onLongPress={onLongPress}
+                                onPress={() => onPress?.(img.url)}
+                                style={styles.dynamicGridHalf(boxSide)}
+                            >
+                                <Image
+                                    source={{ uri: toSizedImageUrl(img.url, null, 'thumb') ?? img.url }}
+                                    style={[styles.dynamicGridBig(boxSide, boxSide), getGridImageRadius(idx, 4)]}
+                                    contentFit="cover"
+                                />
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                    <View style={styles.gridRow}>
+                        {imagesToShow.slice(2, 4).map((img: MessageAttachment, idx: number) => (
+                            <TouchableOpacity
+                                key={img.id || idx + 2}
+                                activeOpacity={0.9}
+                                onLongPress={onLongPress}
+                                onPress={() => onPress?.(img.url)}
+                                style={styles.dynamicGridHalf(boxSide)}
+                            >
+                                <Image
+                                    source={{ uri: toSizedImageUrl(img.url, null, 'thumb') ?? img.url }}
+                                    style={[styles.dynamicGridBig(boxSide, boxSide), getGridImageRadius(idx + 2, 4)]}
+                                    contentFit="cover"
+                                />
+                                {imageCount > 4 && idx === 1 && (
+                                    <View style={styles.plusOverlay}>
+                                        <Text style={styles.plusText}>+{imageCount - 4}</Text>
+                                    </View>
+                                )}
+                            </TouchableOpacity>
+                        ))}
                     </View>
                     {!content && (
                         <View style={styles.timeOverlayImage}>
@@ -823,79 +875,27 @@ const ImageContent: React.FC<{
                     )}
                 </View>
             );
-        }
+        };
 
-        // Case 4+: 2x2 Grid
-        const boxSide = (GRID_WIDTH - GAP) / 2;
         return (
-            <View style={styles.gridGap}>
-                <View style={styles.gridRow}>
-                    {imagesToShow.slice(0, 2).map((img: MessageAttachment, idx: number) => (
-                        <TouchableOpacity
-                            key={img.id || idx}
-                            activeOpacity={0.9}
-                            onLongPress={onLongPress}
-                            onPress={() => onPress?.(img.url)}
-                            style={styles.dynamicGridHalf(boxSide)}
-                        >
-                            <Image
-                                source={{ uri: img.url }}
-                                style={[styles.dynamicGridBig(boxSide, boxSide), getGridImageRadius(idx, 4)]}
-                                contentFit="cover"
-                            />
-                        </TouchableOpacity>
-                    ))}
+            <View style={styles.mediaContainerMain}>
+                <View style={styles.gridWrapper}>
+                    {renderImages()}
                 </View>
-                <View style={styles.gridRow}>
-                    {imagesToShow.slice(2, 4).map((img: MessageAttachment, idx: number) => (
-                        <TouchableOpacity
-                            key={img.id || idx + 2}
-                            activeOpacity={0.9}
-                            onLongPress={onLongPress}
-                            onPress={() => onPress?.(img.url)}
-                            style={styles.dynamicGridHalf(boxSide)}
-                        >
-                            <Image
-                                source={{ uri: img.url }}
-                                style={[styles.dynamicGridBig(boxSide, boxSide), getGridImageRadius(idx + 2, 4)]}
-                                contentFit="cover"
-                            />
-                            {imageCount > 4 && idx === 1 && (
-                                <View style={styles.plusOverlay}>
-                                    <Text style={styles.plusText}>+{imageCount - 4}</Text>
-                                </View>
-                            )}
-                        </TouchableOpacity>
-                    ))}
-                </View>
-                {!content && (
-                    <View style={styles.timeOverlayImage}>
-                        <MessageTime sentAt={sentAt} isMe={isMe} onImage status={status} />
+                {content ? (
+                    <View style={styles.captionContainer}>
+                        <Text style={[styles.textContent, isMe && styles.textContentMe]}>
+                            {content}
+                            <Text>{"          "}</Text>
+                        </Text>
+                        <View style={styles.timeOverlayCaption}>
+                            <MessageTime sentAt={sentAt} isMe={isMe} status={status} />
+                        </View>
                     </View>
-                )}
+                ) : null}
             </View>
         );
     };
-
-    return (
-        <View style={styles.mediaContainerMain}>
-            <View style={styles.gridWrapper}>
-                {renderImages()}
-            </View>
-            {content ? (
-                <View style={styles.captionContainer}>
-                    <Text style={[styles.textContent, isMe && styles.textContentMe]}>
-                        {content}
-                        <Text>{"          "}</Text>
-                    </Text>
-                    <View style={styles.timeOverlayCaption}>
-                        <MessageTime sentAt={sentAt} isMe={isMe} status={status} />
-                    </View>
-                </View>
-            ) : null}
-        </View>
-    );
-};
 
 const FileContent: React.FC<{ content?: string; attachments: MessageAttachment[]; isMe: boolean; sentAt: string; status: string }> = ({
     content,
@@ -1047,7 +1047,7 @@ const ProductCardContent: React.FC<CardContentProps> = ({
         );
     }
 
-    const imageUrl = toPublicUrl(data.image);
+    const imageUrl = toSizedImageUrl(toPublicUrl(data.image), null, 'medium') ?? toPublicUrl(data.image);
 
     return (
         <View style={styles.productCard}>
@@ -1198,7 +1198,7 @@ const OrderCardContent: React.FC<CardContentProps> = ({
                 {data.items.slice(0, 2).map((item, index) => (
                     <View key={index} style={styles.orderItemRow}>
                         <Image
-                            source={{ uri: toPublicUrl(item.image) || 'https://via.placeholder.com/50' }}
+                            source={{ uri: toSizedImageUrl(toPublicUrl(item.image), null, 'thumb') ?? toPublicUrl(item.image) ?? 'https://via.placeholder.com/50' }}
                             style={styles.orderItemThumb}
                             placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
                             transition={300}

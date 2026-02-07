@@ -84,7 +84,7 @@ export default function NotificationsSettingsScreen() {
                 type: newValue ? 'success' : 'info',
                 text1: t(newValue ? 'settings.messages.enableSuccess' : 'settings.messages.disableSuccess', { topic: topicLabel })
             });
-        } catch (error) {
+        } catch {
             setter(currentValue);
             Toast.show({ type: 'error', text1: t('settings.messages.updateError') });
         }
@@ -108,7 +108,7 @@ export default function NotificationsSettingsScreen() {
     ) => (
         <View style={styles.settingItem}>
             <View style={styles.settingIconContainer}>
-                <IconSymbol name={icon as any} size={22} color={theme.colors.accent} />
+                <IconSymbol name={icon as never} size={22} color={theme.colors.accent} />
             </View>
             <View style={styles.settingTextContainer}>
                 <Text style={styles.settingTitle}>{title}</Text>

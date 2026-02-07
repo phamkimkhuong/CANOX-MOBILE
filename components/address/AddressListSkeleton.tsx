@@ -7,7 +7,7 @@ import React, { memo } from 'react';
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
-export const AddressCardSkeleton: React.FC<{ animatedStyle?: any }> = memo(({ animatedStyle }) => {
+export const AddressCardSkeleton: React.FC<{ animatedStyle?: object }> = memo(({ animatedStyle }) => {
     const styles = stylesheet;
 
     return (
@@ -39,7 +39,7 @@ export const AddressCardSkeleton: React.FC<{ animatedStyle?: any }> = memo(({ an
 
 AddressCardSkeleton.displayName = 'AddressCardSkeleton';
 
-export const AddressListSkeleton: React.FC<{ animatedStyle?: any }> = memo(({ animatedStyle }) => {
+export const AddressListSkeleton: React.FC<{ animatedStyle?: object }> = memo(({ animatedStyle }) => {
     const styles = stylesheet;
 
     return (

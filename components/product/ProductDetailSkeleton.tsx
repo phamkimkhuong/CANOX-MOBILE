@@ -13,7 +13,7 @@ interface SkeletonBoxProps {
     height: number;
     borderRadius?: number;
     style?: object;
-    animatedStyle?: any;
+    animatedStyle?: object;
 }
 
 const SkeletonBox: React.FC<SkeletonBoxProps> = ({
@@ -34,7 +34,7 @@ const SkeletonBox: React.FC<SkeletonBoxProps> = ({
             -1,
             true
         );
-    }, [animatedStyle]);
+    }, [animatedStyle, opacity]);
 
     const internalAnimatedStyle = useAnimatedStyle(() => ({
         opacity: opacity.value,
@@ -59,7 +59,7 @@ const SkeletonBox: React.FC<SkeletonBoxProps> = ({
 };
 
 export const ProductDetailSkeleton: React.FC<{
-    animatedStyle?: any;
+    animatedStyle?: object;
     hideBottomBar?: boolean;
     hideSafeTop?: boolean;
 }> = ({ animatedStyle, hideBottomBar = false, hideSafeTop = false }) => {
@@ -76,7 +76,7 @@ export const ProductDetailSkeleton: React.FC<{
             -1,
             true
         );
-    }, [animatedStyle]);
+    }, [animatedStyle, opacity]);
 
     const internalAnimatedStyle = useAnimatedStyle(() => ({
         opacity: opacity.value,

@@ -167,7 +167,7 @@ export default function SearchResultsScreen() {
             -1,
             true
         );
-    }, []);
+    }, [shimmerValue]);
 
     const isDataLoaded = useMemo(() => {
         if (isLoading && products.length === 0) return false;
@@ -181,7 +181,7 @@ export default function SearchResultsScreen() {
         } else {
             contentOpacity.value = 0;
         }
-    }, [isDataLoaded]);
+    }, [isDataLoaded, contentOpacity]);
 
     // Calculate active filter count for badge
     const activeFilterCount = useMemo(() => {

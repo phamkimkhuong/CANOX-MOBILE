@@ -2,6 +2,7 @@ import { useProductReviews } from '@/hooks/api/product/useProductReviews';
 import type { ReviewStatistics } from '@/types/product/productDetail';
 import { formatTime } from '@/utils/date';
 import { createLogger } from '@/utils/logger';
+import { toSizedImageUrl } from '@/utils/url';
 import { Image } from 'expo-image';
 import React, { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -308,7 +309,7 @@ export const ProductReviews = memo<ProductReviewsProps>(({
                                     <View style={styles.reviewerInfo}>
                                         {review.userAvatar ? (
                                             <Image
-                                                source={{ uri: review.userAvatar }}
+                                                source={{ uri: toSizedImageUrl(review.userAvatar, null, 'thumb') ?? review.userAvatar }}
                                                 style={styles.avatar}
                                             />
                                         ) : (
@@ -347,7 +348,7 @@ export const ProductReviews = memo<ProductReviewsProps>(({
                                         {review.media.slice(0, 3).map((m) => (
                                             <Image
                                                 key={m.id}
-                                                source={{ uri: m.url }}
+                                                source={{ uri: toSizedImageUrl(m.url, null, 'thumb') ?? m.url }}
                                                 style={styles.mediaThumb}
                                             />
                                         ))}

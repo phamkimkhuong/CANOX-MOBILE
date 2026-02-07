@@ -47,6 +47,7 @@ interface OrderInfo {
 /**
  * Format payment method to localized display
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const formatPaymentMethod = (method: string | undefined, t: any): string => {
     if (!method) return t('checkout:payment.cod.name');
     switch (method.toUpperCase()) {

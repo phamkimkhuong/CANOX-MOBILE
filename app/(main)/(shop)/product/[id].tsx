@@ -29,6 +29,7 @@ import { findGalleryIndexByVariant } from '@/utils/adapter/product/productDetail
 import { Alert } from '@/utils/AlertHelper';
 import { createLogger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
+import { toSizedImageUrl } from '@/utils/url';
 import { FlashList, FlashListRef, ListRenderItemInfo } from '@shopify/flash-list';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
@@ -494,7 +495,7 @@ export default function ProductDetailScreen() {
                     <ProductCard
                         title={item.data.title}
                         price={item.data.price}
-                        image={item.data.thumbnail}
+                        image={toSizedImageUrl(item.data.thumbnail, null, 'medium') ?? item.data.thumbnail}
                         originalPrice={item.data.originalPrice}
                         rating={item.data.rating}
                         reviews={item.data.reviews}

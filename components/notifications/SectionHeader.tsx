@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
@@ -7,7 +7,7 @@ interface SectionHeaderProps {
     title: string;
 }
 
-export const SectionHeader: React.FC<SectionHeaderProps> = ({ title }) => {
+export const SectionHeader = memo<SectionHeaderProps>(({ title }) => {
     const styles = stylesheet;
     const { t } = useTranslation('notification');
 
@@ -17,7 +17,9 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({ title }) => {
             <Text style={styles.title}>{t(`sections.${title}` as any)}</Text>
         </View>
     );
-};
+});
+
+SectionHeader.displayName = 'SectionHeader';
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {

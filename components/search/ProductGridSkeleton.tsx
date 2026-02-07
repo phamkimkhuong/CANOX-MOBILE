@@ -16,7 +16,7 @@ import { StyleSheet } from 'react-native-unistyles';
 
 interface ProductGridSkeletonProps {
     count?: number;
-    animatedStyle?: any;
+    animatedStyle?: object;
 }
 
 export const ProductGridSkeleton = React.memo(({

@@ -12,8 +12,9 @@ import { productRoutes } from '@/constants/routes';
 import { OrderItemUI } from '@/types/order/order';
 import { formatCurrency } from '@/utils/format';
 import { Navigator } from '@/utils/navigation';
+import { toSizedImageUrl } from '@/utils/url';
 import { Image } from 'expo-image';
-import React, { useCallback } from 'react';
+import React, { memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -24,7 +25,7 @@ interface OrderItemRowProps {
     onPressReview?: (item: OrderItemUI) => void;
 }
 
-const OrderItemRow: React.FC<OrderItemRowProps> = ({
+const OrderItemRow = memo<OrderItemRowProps>(({
     item,
     showReviewStatus = false,
     onPressReview,
@@ -51,7 +52,7 @@ const OrderItemRow: React.FC<OrderItemRowProps> = ({
             >
                 {/* Product Image */}
                 <Image
-                    source={{ uri: item.imageUrl }}
+                    source={{ uri: toSizedImageUrl(item.imageUrl, null, 'thumb') ?? item.imageUrl }}
                     style={styles.itemImage}
                     contentFit="cover"
                     placeholder={{ blurhash: 'LGF5?xYk^6#M@-5c,1J5@[or[Q6.' }}
@@ -126,7 +127,9 @@ const OrderItemRow: React.FC<OrderItemRowProps> = ({
             </View>
         </View>
     );
-};
+});
+
+OrderItemRow.displayName = 'OrderItemRow';
 
 interface OrderDetailItemsListProps {
     items: OrderItemUI[];

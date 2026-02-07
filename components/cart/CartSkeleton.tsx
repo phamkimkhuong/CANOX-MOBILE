@@ -9,7 +9,7 @@ const SHIMMER_DURATION = 1000;
  * Simplified Cart Item Block
  * Focuses on major shapes (Image + Text Block) to reduce component count
  */
-const SkeletonCartItem: React.FC<{ animatedStyle: any }> = ({ animatedStyle }) => {
+const SkeletonCartItem: React.FC<{ animatedStyle: object }> = ({ animatedStyle }) => {
     const styles = stylesheet;
 
     return (
@@ -31,7 +31,7 @@ const SkeletonCartItem: React.FC<{ animatedStyle: any }> = ({ animatedStyle }) =
 /**
  * Simplified Shop Group Block
  */
-const SkeletonShopGroup: React.FC<{ animatedStyle: any }> = ({ animatedStyle }) => {
+const SkeletonShopGroup: React.FC<{ animatedStyle: object }> = ({ animatedStyle }) => {
     const styles = stylesheet;
 
     return (
@@ -68,7 +68,7 @@ export const CartSkeleton: React.FC = () => {
             -1,
             true
         );
-    }, []);
+    }, [opacity]);
 
     const animatedStyle = useAnimatedStyle(() => ({
         opacity: opacity.value,

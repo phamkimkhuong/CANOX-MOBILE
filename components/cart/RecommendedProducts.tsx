@@ -3,6 +3,7 @@ import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import { productRoutes } from '@/constants/routes';
 import { useProductFeed } from '@/hooks/api/useHomeProducts';
 import { Navigator } from '@/utils/navigation';
+import { toSizedImageUrl } from '@/utils/url';
 import React from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -42,7 +43,7 @@ export const RecommendedProducts = () => {
                         <ProductCard
                             title={item.title}
                             price={item.price}
-                            image={item.thumbnail}
+                            image={toSizedImageUrl(item.thumbnail, null, 'medium') ?? item.thumbnail}
                             originalPrice={item.originalPrice}
                             rating={item.rating}
                             reviews={item.reviews}

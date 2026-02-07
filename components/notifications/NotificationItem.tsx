@@ -1,8 +1,9 @@
 import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import { Notification, NOTIFICATION_TYPE_CONFIG } from '@/types/notification';
 import { formatTime } from '@/utils/date';
+import { toSizedImageUrl } from '@/utils/url';
 import { Image } from 'expo-image';
-import React, { useCallback } from 'react';
+import React, { memo, useCallback } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -15,7 +16,7 @@ interface NotificationItemProps {
     onPressOut?: (item: Notification) => void;
 }
 
-export const NotificationItem: React.FC<NotificationItemProps> = ({ item, onPress, onPressIn, onPressOut }) => {
+export const NotificationItem = memo<NotificationItemProps>(({ item, onPress, onPressIn, onPressOut }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const config = NOTIFICATION_TYPE_CONFIG[item.type] || NOTIFICATION_TYPE_CONFIG.SYSTEM;
@@ -46,7 +47,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({ item, onPres
         if (item.image) {
             return (
                 <Image
-                    source={{ uri: item.image }}
+                    source={{ uri: toSizedImageUrl(item.image, null, 'thumb') ?? item.image }}
                     style={styles.productImage}
                     contentFit="cover"
                     transition={200}
@@ -111,7 +112,9 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({ item, onPres
             />
         </Pressable>
     );
-};
+});
+
+NotificationItem.displayName = 'NotificationItem';
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {

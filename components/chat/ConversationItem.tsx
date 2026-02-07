@@ -1,9 +1,10 @@
 import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import { Conversation, MessageType, PARTNER_TYPE_CONFIG } from '@/types/chat';
 import { formatTime } from '@/utils/date';
+import { toSizedImageUrl } from '@/utils/url';
 import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -45,7 +46,7 @@ interface ConversationItemProps {
 /**
  * ConversationItem - Hiển thị một cuộc trò chuyện với swipe actions
  */
-export const ConversationItem: React.FC<ConversationItemProps> = ({
+export const ConversationItem = memo<ConversationItemProps>(({
     item,
     openedRowId,
     onSwipeOpen,
@@ -238,7 +239,7 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
             return (
                 <View style={styles.avatarContainer}>
                     <Image
-                        source={{ uri: item.partner.avatar }}
+                        source={{ uri: toSizedImageUrl(item.partner.avatar, null, 'thumb') ?? item.partner.avatar }}
                         style={styles.avatar}
                         contentFit="cover"
                         transition={200}
@@ -406,7 +407,9 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
             </GestureDetector>
         </View>
     );
-};
+});
+
+ConversationItem.displayName = 'ConversationItem';
 
 const stylesheet = StyleSheet.create((theme) => ({
     wrapper: {

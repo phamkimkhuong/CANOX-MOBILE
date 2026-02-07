@@ -11,8 +11,9 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { OrderItemUI } from '@/types/order/order';
 import { formatCurrency } from '@/utils/format';
+import { toSizedImageUrl } from '@/utils/url';
 import { Image } from 'expo-image';
-import React from 'react';
+import React, { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -27,7 +28,7 @@ const PLACEHOLDER_IMAGE = 'https://via.placeholder.com/80x80?text=No+Image';
 /**
  * Single Product Item Row
  */
-const ProductItemRow: React.FC<{ item: OrderItemUI }> = ({ item }) => {
+const ProductItemRow = memo<{ item: OrderItemUI }>(({ item }) => {
     const styles = stylesheet;
 
     const imageUrl = item.imageUrl || PLACEHOLDER_IMAGE;
@@ -37,7 +38,7 @@ const ProductItemRow: React.FC<{ item: OrderItemUI }> = ({ item }) => {
             {/* Product Image */}
             <View style={styles.imageWrapper}>
                 <Image
-                    source={{ uri: imageUrl }}
+                    source={{ uri: toSizedImageUrl(imageUrl, null, 'thumb') ?? imageUrl }}
                     style={styles.productImage}
                     contentFit="cover"
                     transition={200}
@@ -64,7 +65,9 @@ const ProductItemRow: React.FC<{ item: OrderItemUI }> = ({ item }) => {
             </View>
         </View>
     );
-};
+});
+
+ProductItemRow.displayName = 'ProductItemRow';
 
 export const ProductPreviewList: React.FC<ProductPreviewListProps> = ({
     items,
@@ -112,7 +115,7 @@ export const ProductPreviewList: React.FC<ProductPreviewListProps> = ({
                             return (
                                 <Image
                                     key={uniqueKey}
-                                    source={{ uri: imgUrl }}
+                                    source={{ uri: toSizedImageUrl(imgUrl, null, 'thumb') ?? imgUrl }}
                                     style={[
                                         styles.stackImage,
                                         styles.dynamicStack(index),

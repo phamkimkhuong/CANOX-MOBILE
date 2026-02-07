@@ -8,7 +8,7 @@
 
 import { OrderAction, OrderUI } from '@/types/order/order';
 import { hasTracking } from '@/utils/adapter/order/orderActions';
-import React, { useCallback } from 'react';
+import React, { memo, useCallback } from 'react';
 import { Pressable } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
@@ -27,7 +27,7 @@ interface OrderCardProps {
     onTrackingPress?: (orderId: string) => void;
 }
 
-export const OrderCard: React.FC<OrderCardProps> = ({
+export const OrderCard = memo<OrderCardProps>(({
     order,
     onPress,
     onPressIn,
@@ -114,7 +114,9 @@ export const OrderCard: React.FC<OrderCardProps> = ({
             />
         </Pressable>
     );
-};
+});
+
+OrderCard.displayName = 'OrderCard';
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {

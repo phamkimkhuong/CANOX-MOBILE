@@ -13,20 +13,20 @@ interface SkeletonBoxProps {
     height: number;
     borderRadius?: number;
     style?: ViewStyle;
-    animatedStyle?: any;
+    animatedStyle?: object;
 }
 
 interface SkeletonCircleProps {
     size: number;
     style?: ViewStyle;
-    animatedStyle?: any;
+    animatedStyle?: object;
 }
 
 interface SkeletonTextProps {
     width?: number | `${number}%`;
     height?: number;
     style?: ViewStyle;
-    animatedStyle?: any;
+    animatedStyle?: object;
 }
 
 const SHIMMER_DURATION = 800;

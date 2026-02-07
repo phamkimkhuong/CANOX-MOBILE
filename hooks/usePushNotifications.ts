@@ -81,7 +81,6 @@ export const FCM_TOPICS = {
  * Phải đặt ở ngoài Hook và gọi càng sớm càng tốt
  */
 notifee.onBackgroundEvent(async ({ type, detail }) => {
-    const { notification, pressAction } = detail;
     logger.push.info('Notifee Background Event:', { type, detail });
 
     if (type === EventType.PRESS) {
@@ -266,8 +265,8 @@ function handleNotificationNavigation(message: FirebaseMessagingTypes.RemoteMess
         }
 
         // 3. Điều hướng linh hoạt theo màn hình chỉ định
-        if (data.screen) {
-            Navigator.push(data.screen as any);
+        if (typeof data.screen === 'string') {
+            Navigator.push(data.screen);
             return;
         }
 

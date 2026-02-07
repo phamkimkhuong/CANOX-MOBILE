@@ -2,6 +2,7 @@ import { ProductCard } from '@/components/ui/product/ProductCard';
 import { productRoutes } from '@/constants/routes';
 import { useRelatedProducts } from '@/hooks/api/product/useProductDetail';
 import { Navigator } from '@/utils/navigation';
+import { toSizedImageUrl } from '@/utils/url';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
@@ -35,7 +36,7 @@ export const RelatedProducts = ({ productId }: RelatedProductsProps) => {
                         <ProductCard
                             title={item.title}
                             price={item.price}
-                            image={item.thumbnail}
+                            image={toSizedImageUrl(item.thumbnail, null, 'medium') ?? item.thumbnail}
                             originalPrice={item.originalPrice}
                             rating={item.rating}
                             reviews={item.reviews}

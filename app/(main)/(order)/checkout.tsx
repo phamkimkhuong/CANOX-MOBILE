@@ -128,7 +128,7 @@ export default function CheckoutScreen() {
             -1,
             true
         );
-    }, []);
+    }, [shimmerValue]);
 
     const shimmerAnimatedStyle = useAnimatedStyle(() => ({
         opacity: shimmerValue.value,
@@ -144,7 +144,7 @@ export default function CheckoutScreen() {
         } else {
             contentOpacity.value = 0;
         }
-    }, [isInitialized, previewData, isBuyNowProcessing]);
+    }, [isInitialized, previewData, isBuyNowProcessing, contentOpacity]);
 
     // Computed selectors from store
     const shops = useCheckoutShops();

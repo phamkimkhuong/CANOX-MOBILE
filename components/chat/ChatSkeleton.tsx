@@ -11,7 +11,7 @@ interface ChatSkeletonProps {
  * Single chat conversation item skeleton
  * Mirrors the layout of ConversationItem component
  */
-const SkeletonItem: React.FC<{ animatedStyle?: any }> = ({ animatedStyle }) => {
+const SkeletonItem: React.FC<{ animatedStyle?: object }> = ({ animatedStyle }) => {
     const styles = stylesheet;
 
     return (
@@ -37,7 +37,7 @@ const SkeletonItem: React.FC<{ animatedStyle?: any }> = ({ animatedStyle }) => {
 /**
  * ChatSkeleton - Loading placeholder for chat conversation list
  */
-export const ChatSkeleton: React.FC<ChatSkeletonProps & { animatedStyle?: any }> = ({
+export const ChatSkeleton: React.FC<ChatSkeletonProps & { animatedStyle?: object }> = ({
     count = 6,
     animatedStyle,
 }) => {

@@ -39,6 +39,11 @@ const AnimatedNewBadge = memo(({ isActive }: { isActive: boolean }) => {
     const scale = useSharedValue(1);
 
     useEffect(() => {
+        if (!isActive) {
+            // Reset to static state when not active
+            scale.value = withTiming(1, { duration: 200 });
+            return;
+        }
         // Pulse animation: scale 1 → 1.08 → 1, repeat infinite
         scale.value = withRepeat(
             withSequence(
@@ -48,7 +53,7 @@ const AnimatedNewBadge = memo(({ isActive }: { isActive: boolean }) => {
             -1, // Infinite repeat
             false
         );
-    }, [scale]);
+    }, [scale, isActive]);
 
     const animatedStyle = useAnimatedStyle(() => ({
         transform: [{ scale: scale.value }],
@@ -77,6 +82,11 @@ const AnimatedFlashIcon = memo(({ isActive: _isActive, color }: { isActive: bool
     const opacity = useSharedValue(1);
 
     useEffect(() => {
+        if (!_isActive) {
+            // Reset to static state when not active
+            opacity.value = withTiming(1, { duration: 200 });
+            return;
+        }
         // Flash animation: opacity blink
         opacity.value = withRepeat(
             withSequence(
@@ -87,7 +97,7 @@ const AnimatedFlashIcon = memo(({ isActive: _isActive, color }: { isActive: bool
             -1,
             false
         );
-    }, [opacity]);
+    }, [opacity, _isActive]);
 
     const animatedStyle = useAnimatedStyle(() => ({
         opacity: opacity.value,
@@ -109,6 +119,11 @@ const AnimatedFlameIcon = memo(({ isActive: _isActive, color }: { isActive: bool
     const rotation = useSharedValue(0);
 
     useEffect(() => {
+        if (!_isActive) {
+            // Reset to static state when not active
+            rotation.value = withTiming(0, { duration: 200 });
+            return;
+        }
         // Wiggle animation: rotate left-right like a flame
         rotation.value = withRepeat(
             withSequence(
@@ -122,7 +137,7 @@ const AnimatedFlameIcon = memo(({ isActive: _isActive, color }: { isActive: bool
             -1,
             false
         );
-    }, [rotation]);
+    }, [rotation, _isActive]);
 
     const animatedStyle = useAnimatedStyle(() => ({
         transform: [{ rotate: `${rotation.value}deg` }],
@@ -144,6 +159,11 @@ const AnimatedTrophyIcon = memo(({ isActive: _isActive, color }: { isActive: boo
     const scale = useSharedValue(1);
 
     useEffect(() => {
+        if (!_isActive) {
+            // Reset to static state when not active
+            scale.value = withTiming(1, { duration: 200 });
+            return;
+        }
         // Bounce animation: scale with elastic feel
         scale.value = withRepeat(
             withSequence(
@@ -154,7 +174,7 @@ const AnimatedTrophyIcon = memo(({ isActive: _isActive, color }: { isActive: boo
             -1,
             false
         );
-    }, [scale]);
+    }, [scale, _isActive]);
 
     const animatedStyle = useAnimatedStyle(() => ({
         transform: [{ scale: scale.value }],

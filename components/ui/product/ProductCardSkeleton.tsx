@@ -7,7 +7,7 @@ import { StyleSheet } from 'react-native-unistyles';
  * ProductCardSkeleton
  */
 export const ProductCardSkeleton: React.FC<{
-    animatedStyle?: any;
+    animatedStyle?: object;
 }> = ({ animatedStyle }) => {
     const styles = stylesheet;
 

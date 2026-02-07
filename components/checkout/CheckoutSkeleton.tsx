@@ -16,7 +16,7 @@ import { View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface SkeletonSubProps {
-    animatedStyle?: any;
+    animatedStyle?: object;
 }
 
 /**
@@ -206,9 +206,8 @@ const SkeletonBillSummary: React.FC<SkeletonSubProps> = ({ animatedStyle }) => {
  * if (!isInitialized) return <CheckoutSkeleton />;
  */
 export const CheckoutSkeleton: React.FC<{
-    animatedStyle?: any;
-    hideSafeTop?: boolean;
-}> = ({ animatedStyle, hideSafeTop = false }) => {
+    animatedStyle?: object;
+}> = ({ animatedStyle }) => {
     const styles = stylesheet;
 
     return (

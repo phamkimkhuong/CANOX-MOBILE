@@ -1,4 +1,5 @@
 import type { GalleryItem } from '@/types/product/productDetail';
+import { toSizedImageUrl } from '@/utils/url';
 import { Image } from 'expo-image';
 import { StatusBar } from 'expo-status-bar';
 import React, {
@@ -85,7 +86,7 @@ const GalleryItemView = memo<GalleryItemViewProps>(({
         return (
             <Pressable style={containerStyle} onPress={onPress}>
                 <Image
-                    source={{ uri: item.url }}
+                    source={{ uri: toSizedImageUrl(item.url, null, 'large') ?? item.url }}
                     style={itemStyles.image}
                     contentFit="cover"
                     transition={200}
@@ -108,7 +109,7 @@ const GalleryItemView = memo<GalleryItemViewProps>(({
     return (
         <Pressable style={containerStyle} onPress={onPress}>
             <Image
-                source={{ uri: item.url }}
+                source={{ uri: toSizedImageUrl(item.url, null, 'large') ?? item.url }}
                 style={itemStyles.image}
                 contentFit="cover"
                 transition={200}
@@ -166,7 +167,7 @@ const ThumbnailItem = memo<ThumbnailItemProps>(({
             ]}
         >
             <Image
-                source={{ uri: item.url }}
+                source={{ uri: toSizedImageUrl(item.url, null, 'thumb') ?? item.url }}
                 style={thumbnailStyles.image}
                 contentFit="cover"
                 transition={150}
