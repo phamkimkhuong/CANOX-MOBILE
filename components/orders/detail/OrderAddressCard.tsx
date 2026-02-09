@@ -13,7 +13,7 @@
 
 import { IconSymbol } from '@/components/ui/Icon';
 import * as Clipboard from 'expo-clipboard';
-import React, { useCallback, useState } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import Toast from 'react-native-toast-message';
@@ -26,7 +26,7 @@ interface OrderAddressCardProps {
     email?: string | null;
 }
 
-export const OrderAddressCard: React.FC<OrderAddressCardProps> = ({
+export const OrderAddressCard: React.FC<OrderAddressCardProps> = memo(({
     recipientName,
     phoneNumber,
     fullAddress,
@@ -112,7 +112,9 @@ export const OrderAddressCard: React.FC<OrderAddressCardProps> = ({
             </View>
         </View>
     );
-};
+});
+
+OrderAddressCard.displayName = 'OrderAddressCard';
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {

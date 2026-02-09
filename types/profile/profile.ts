@@ -270,17 +270,6 @@ export type SettingsMenuItem = ProfileMenuItem;
  */
 export const SETTINGS_MENU_CONFIG: ProfileMenuItem[] = [
     {
-        id: 'support',
-        key: 'support',
-        icon: 'headset',
-        label: 'Trung tâm hỗ trợ',
-        route: SETTINGS_MENU_ROUTES.support,
-        iconBgColor: 'rgba(59, 130, 246, 0.1)',
-        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-        iconColor: '#3b82f6',
-        group: 'support',
-    },
-    {
         id: 'security',
         key: 'security',
         icon: 'shield',
@@ -289,6 +278,28 @@ export const SETTINGS_MENU_CONFIG: ProfileMenuItem[] = [
         iconBgColor: 'rgba(34, 197, 94, 0.1)',
         backgroundColor: 'rgba(34, 197, 94, 0.1)',
         iconColor: '#22c55e',
-        group: 'settings',
+        group: 'account',
+    },
+    {
+        id: 'support',
+        key: 'support',
+        icon: 'headset',
+        label: 'Trung tâm hỗ trợ',
+        route: SETTINGS_MENU_ROUTES.support,
+        iconBgColor: 'rgba(59, 130, 246, 0.1)',
+        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        iconColor: '#3b82f6',
+        group: 'account',
+    },
+    {
+        id: 'legal_policies',
+        key: 'legal_policies',
+        icon: 'document-text',
+        label: 'Chính sách & Điều khoản',
+        route: ROUTES.SETTINGS.LEGAL_POLICIES,
+        iconBgColor: 'rgba(99, 102, 241, 0.1)',
+        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+        iconColor: '#6366f1',
+        group: 'account',
     },
 ];

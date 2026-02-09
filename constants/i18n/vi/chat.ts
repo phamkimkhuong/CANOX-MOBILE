@@ -37,4 +37,8 @@ export const CHAT_STRINGS: ChatTranslation = {
         missingShopInfo: 'Thiếu thông tin shop để bắt đầu chat',
         chatWithSelf: 'Không thể chat với chính mình',
     },
+    authRequired: {
+        title: 'Đăng nhập để xem tin nhắn',
+        login: 'Đăng nhập ngay',
+    },
 };

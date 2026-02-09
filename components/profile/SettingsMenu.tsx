@@ -59,6 +59,7 @@ MenuItem.displayName = 'MenuItem';
  */
 export const SettingsMenu: React.FC<SettingsMenuProps> = memo(({ appVersion = '1.0.0', onPressItem }) => {
     const styles = stylesheet;
+    const { t } = useTranslation('profile');
 
     const handlePress = useCallback((route: string) => {
         if (onPressItem) {
@@ -95,24 +96,29 @@ export const SettingsMenu: React.FC<SettingsMenuProps> = memo(({ appVersion = '1
     return (
         <View style={styles.container}>
             {groups.map(([groupKey, items], groupIndex) => (
-                <View
-                    key={groupKey}
-                    style={[
-                        styles.group,
-                        groupIndex === groups.length - 1 && styles.groupLast,
-                    ]}
-                >
-                    {items.map((item, index) => (
-                        <MenuItem
-                            key={item.key}
-                            item={item}
-                            isFirst={index === 0}
-                            isLast={index === items.length - 1}
-                            onPress={handlePress}
-                            value={getValue(item.key)}
-                        />
-                    ))}
-                </View>
+                <React.Fragment key={groupKey}>
+                    <Text style={styles.groupTitle}>
+                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                        {t(`settings.sections.${groupKey}` as any)}
+                    </Text>
+                    <View
+                        style={[
+                            styles.group,
+                            groupIndex === groups.length - 1 && styles.groupLast,
+                        ]}
+                    >
+                        {items.map((item, index) => (
+                            <MenuItem
+                                key={item.key}
+                                item={item}
+                                isFirst={index === 0}
+                                isLast={index === items.length - 1}
+                                onPress={handlePress}
+                                value={getValue(item.key)}
+                            />
+                        ))}
+                    </View>
+                </React.Fragment>
             ))}
         </View>
     );
@@ -124,6 +130,15 @@ const stylesheet = StyleSheet.create((theme) => ({
     container: {
         marginHorizontal: theme.margins.md,
         gap: theme.margins.md,
+    },
+    groupTitle: {
+        fontSize: 13,
+        fontWeight: '700',
+        color: theme.colors.typographySecondary,
+        marginBottom: theme.margins.sm,
+        marginLeft: theme.margins.sm,
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
     },
     group: {
         backgroundColor: theme.colors.surface,

@@ -12,6 +12,10 @@ export const CART_STRINGS: CartTranslation = {
         subtitle: 'Go add some products to your cart!',
         shopNow: 'SHOP NOW',
     },
+    authRequired: {
+        title: 'Your Shopping Cart is empty',
+        login: 'Login Now',
+    },
     footer: {
         selectAll: 'All',
         total: 'Total payment',

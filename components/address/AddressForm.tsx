@@ -215,11 +215,11 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
         }
     }, [isVietnam, initialData, provincesList, selectedProvince?.code, setValue]);
 
-    const { data: wardsResponse } = useWards({
+    // Wards logic for initial data sync (if needed)
+    useWards({
         provinceCode: selectedProvince?.code || null,
         enabled: isVietnam && !!selectedProvince?.code && !!initialData
     });
-    const wardsList = useMemo(() => wardsResponse?.data ?? [], [wardsResponse]);
 
 
     /**

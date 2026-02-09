@@ -12,7 +12,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import type { AddressLabel, AddressListMode, ShippingAddress } from '@/types/address';
 import { formatShippingAddress } from '@/utils/adapter/addressAdapter';
 import { formatPhoneNumber } from '@/utils/format';
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -41,17 +41,17 @@ export const AddressCard: React.FC<AddressCardProps> = memo(({
     const { theme } = useUnistyles();
     const styles = stylesheet;
 
-    const labels: Record<AddressLabel, { text: string; icon: string }> = {
+    const labels: Record<AddressLabel, { text: string; icon: string }> = useMemo(() => ({
         home: { text: t('address:form.label.home'), icon: 'home' },
         work: { text: t('address:form.label.work'), icon: 'work' },
         other: { text: t('address:form.label.other'), icon: 'location-outline' },
-    };
+    }), [t]);
 
     const isSelected = mode === 'selection' && selectedId === address.id;
     const labelConfig = labels[address.label];
 
     // Format full address string
-    const fullAddress = formatShippingAddress(address);
+    const fullAddress = useMemo(() => formatShippingAddress(address), [address]);
 
     const handlePress = useCallback(() => {
         onPress?.(address);

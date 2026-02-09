@@ -81,4 +81,8 @@ export const NOTIFICATION_STRINGS: NotificationTranslation = {
         accept: 'Agree',
         later: 'Later',
     },
+    authRequired: {
+        title: 'Login to view notifications',
+        login: 'Login Now',
+    },
 };

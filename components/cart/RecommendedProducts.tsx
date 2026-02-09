@@ -2,8 +2,10 @@ import { ProductCard } from '@/components/ui/product/ProductCard';
 import { PRODUCT_STRINGS } from '@/constants/i18n/vi/product';
 import { productRoutes } from '@/constants/routes';
 import { useProductFeed } from '@/hooks/api/useHomeProducts';
+import type { ProductFeedItem } from '@/types/product/product';
 import { Navigator } from '@/utils/navigation';
 import { toSizedImageUrl } from '@/utils/url';
+import { FlashList, ListRenderItemInfo } from '@shopify/flash-list';
 import React from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -27,6 +29,9 @@ export const RecommendedProducts = () => {
         return null;
     }
 
+    // Limit to 10 items for recommendation
+    const displayProducts = products.slice(0, 10);
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -37,9 +42,16 @@ export const RecommendedProducts = () => {
                 </View>
             </View>
 
-            <View style={styles.grid}>
-                {products.slice(0, 10).map((item) => (
-                    <View key={item.id} style={styles.cardWrapper}>
+            <FlashList<ProductFeedItem>
+                data={displayProducts}
+                keyExtractor={(item) => item.id}
+                numColumns={2}
+                masonry={true}
+                optimizeItemArrangement={true}
+                scrollEnabled={false}
+                contentContainerStyle={styles.listContent}
+                renderItem={({ item }: ListRenderItemInfo<ProductFeedItem>) => (
+                    <View style={styles.cardWrapper}>
                         <ProductCard
                             title={item.title}
                             price={item.price}
@@ -57,8 +69,8 @@ export const RecommendedProducts = () => {
                             route={productRoutes.detail(item.id)}
                         />
                     </View>
-                ))}
-            </View>
+                )}
+            />
         </View>
     );
 };
@@ -89,13 +101,11 @@ const styles = StyleSheet.create((theme) => ({
         color: theme.colors.typography,
         letterSpacing: 0.5,
     },
-    grid: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        paddingHorizontal: theme.margins.md,
+    listContent: {
+        paddingHorizontal: theme.margins.sm,
     },
     cardWrapper: {
-        width: '50%',
+        paddingHorizontal: 4,
     },
     loadingContainer: {
         padding: theme.margins.xl,

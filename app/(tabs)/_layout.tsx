@@ -1,11 +1,8 @@
 import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
-import { ROUTES } from '@/constants/routes';
 import { useScrollToTopContext } from '@/contexts/ScrollToTopContext';
 import { useCart } from '@/hooks/api/cart/useCart';
 import { useUnreadNotificationCount } from '@/hooks/api/notification/useNotifications';
-import { useAuthStore } from '@/store/useAuthStore';
-import { Navigator } from '@/utils/navigation';
 import { Tabs, usePathname } from 'expo-router';
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -23,7 +20,6 @@ export default function TabLayout() {
   const { theme } = useUnistyles();
   const styles = stylesheet;
   const { t } = useTranslation('common');
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   useCart();
 
   // Current pathname to detect if already on home tab
@@ -48,18 +44,14 @@ export default function TabLayout() {
   }, [pathname, triggerScrollToTop]);
 
   /**
-   * Create protected tab press handler
-   * Prevents tab navigation and redirects to login if not authenticated
-   * This prevents the 'child already has parent' crash on Android
+   * Handler: When user presses Notify tab while ALREADY on Notify tab
+   * => Scroll to top
    */
-  const createProtectedTabListener = useCallback(() => ({
-    tabPress: (e: { preventDefault: () => void }) => {
-      if (!isAuthenticated) {
-        e.preventDefault();
-        Navigator.push(ROUTES.AUTH.LOGIN);
-      }
-    },
-  }), [isAuthenticated]);
+  const handleNotifyTabPress = useCallback(() => {
+    if (pathname === '/notify') {
+      triggerScrollToTop('notify');
+    }
+  }, [pathname, triggerScrollToTop]);
 
   return (
     <Tabs
@@ -111,7 +103,9 @@ export default function TabLayout() {
           tabBarBadge: unreadNotificationCount && unreadNotificationCount > 0 ? unreadNotificationCount : undefined,
           headerShown: false,
         }}
-        listeners={createProtectedTabListener}
+        listeners={{
+          tabPress: handleNotifyTabPress,
+        }}
       />
       {/* 5. Tôi/Me ( app/(tabs)/me.tsx) */}
       <Tabs.Screen

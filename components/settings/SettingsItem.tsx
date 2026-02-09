@@ -69,6 +69,13 @@ export const SettingsItem: React.FC<SettingsItemProps> = memo(({
             'star': 'star',
             'logout': 'logout',
             'delete-forever': 'delete-forever',
+            'shopping-bag': 'shopping-bag',
+            'local-shipping': 'local-shipping',
+            'settings-backup-restore': 'settings-backup-restore',
+            'gavel': 'gavel',
+            'article': 'article',
+            'store': 'store',
+            'headset': 'headset',
         };
         return iconMap[icon] ?? 'chevron-right';
     };

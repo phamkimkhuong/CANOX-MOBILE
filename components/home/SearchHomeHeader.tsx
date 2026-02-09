@@ -47,15 +47,15 @@ export const HomeHeader = () => {
         Navigator.push(searchRoutes.entry());
     }, []);
 
-    // Navigate to cart screen with double-tap protection
+    // Navigate to cart screen
     const handleCartPress = useCallback(() => {
-        Navigator.push(isAuthenticated ? ROUTES.CART.INDEX : ROUTES.AUTH.LOGIN);
-    }, [isAuthenticated]);
+        Navigator.push(ROUTES.CART.INDEX);
+    }, []);
 
-    // Navigate to chat screen with double-tap protection
+    // Navigate to chat screen
     const handleChatPress = useCallback(() => {
-        Navigator.push(isAuthenticated ? ROUTES.TABS.CHAT : ROUTES.AUTH.LOGIN);
-    }, [isAuthenticated]);
+        Navigator.push(ROUTES.TABS.CHAT);
+    }, []);
 
     return (
         <View style={styles.headerContainer}>
@@ -82,7 +82,7 @@ export const HomeHeader = () => {
             {/* 2. Các nút chức năng */}
             <View style={styles.actions}>
                 <SmartNavButton
-                    route={isAuthenticated ? ROUTES.CART.INDEX : ROUTES.AUTH.LOGIN}
+                    route={ROUTES.CART.INDEX}
                     onPress={handleCartPress}
                     style={styles.iconBtn}
                     onPressIn={prefetchCart}
@@ -103,7 +103,7 @@ export const HomeHeader = () => {
 
                 {/* {Router to chat.tsx} */}
                 <SmartNavButton
-                    route={isAuthenticated ? ROUTES.TABS.CHAT : ROUTES.AUTH.LOGIN}
+                    route={ROUTES.TABS.CHAT}
                     onPress={handleChatPress}
                     style={styles.iconBtn}
                     onPressIn={prefetchChat}

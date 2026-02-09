@@ -32,38 +32,42 @@ export const NotificationHeader: React.FC<NotificationHeaderProps> = ({
         <View style={[styles.container, { paddingTop: insets.top }]}>
             <View style={styles.content}>
                 <View style={styles.leftContent}>
-                    <TouchableOpacity
-                        style={styles.settingsButton}
-                        onPress={onSettingsPress}
-                        activeOpacity={0.7}
-                    >
-                        <IconSymbol
-                            name="settings-outline"
-                            size={22}
-                            color={theme.colors.typography}
-                        />
-                        {showSettingsBadge && <View style={styles.badge} />}
-                    </TouchableOpacity>
+                    {onSettingsPress && (
+                        <TouchableOpacity
+                            style={styles.settingsButton}
+                            onPress={onSettingsPress}
+                            activeOpacity={0.7}
+                        >
+                            <IconSymbol
+                                name="settings-outline"
+                                size={22}
+                                color={theme.colors.typography}
+                            />
+                            {showSettingsBadge && <View style={styles.badge} />}
+                        </TouchableOpacity>
+                    )}
                     <Text style={styles.title}>{t('header.title')}</Text>
                 </View>
-                <TouchableOpacity
-                    style={[styles.markAllButton, isMarkingAll && styles.markAllButtonDisabled]}
-                    onPress={onMarkAllRead}
-                    activeOpacity={0.7}
-                    disabled={isMarkingAll} // Disable khi đang loading
-                >
-                    <IconSymbol
-                        name="done-all"
-                        size={18}
-                        color={isMarkingAll ? theme.colors.secondary : theme.colors.primary}
-                    />
-                    <Text style={[
-                        styles.markAllText,
-                        isMarkingAll && styles.markAllTextDisabled
-                    ]}>
-                        {t('header.markAllRead')}
-                    </Text>
-                </TouchableOpacity>
+                {onMarkAllRead && (
+                    <TouchableOpacity
+                        style={[styles.markAllButton, isMarkingAll && styles.markAllButtonDisabled]}
+                        onPress={onMarkAllRead}
+                        activeOpacity={0.7}
+                        disabled={isMarkingAll} // Disable khi đang loading
+                    >
+                        <IconSymbol
+                            name="done-all"
+                            size={18}
+                            color={isMarkingAll ? theme.colors.secondary : theme.colors.primary}
+                        />
+                        <Text style={[
+                            styles.markAllText,
+                            isMarkingAll && styles.markAllTextDisabled
+                        ]}>
+                            {t('header.markAllRead')}
+                        </Text>
+                    </TouchableOpacity>
+                )}
             </View>
         </View>
     );

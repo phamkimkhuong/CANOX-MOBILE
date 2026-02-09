@@ -36,6 +36,7 @@ import {
 import { usePrefetchShopDetail } from '@/hooks/api/useShop';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { PREFETCH_GRACE_PERIOD_MS } from '@/hooks/usePrefetchTiming';
+import { useIsAuthenticated } from '@/store/useAuthStore';
 import { useCartStore } from '@/store/useCartStore';
 import { useCheckoutStore } from '@/store/useCheckoutStore';
 import type { CartShopUI } from '@/types/cart';
@@ -99,11 +100,12 @@ const CartHeader: React.FC<CartHeaderProps> = ({ onEditPress, isEditMode }) => {
 interface EmptyCartProps {
     onRefresh: () => void;
     refreshing: boolean;
+    isAuthenticated: boolean;
 }
 
-const EmptyCart: React.FC<EmptyCartProps> = ({ onRefresh, refreshing }) => {
+const EmptyCart: React.FC<EmptyCartProps> = ({ onRefresh, refreshing, isAuthenticated }) => {
     const { theme } = useUnistyles();
-    const { t } = useTranslation('cart');
+    const { t } = useTranslation(['cart', 'common']);
 
     return (
         <Animated.ScrollView
@@ -121,23 +123,46 @@ const EmptyCart: React.FC<EmptyCartProps> = ({ onRefresh, refreshing }) => {
         >
             <View style={styles.emptyContainer}>
                 <View style={styles.emptyIconCircle}>
-                    <IconSymbol name="cart" size={60} color={theme.colors.newPrimary} />
+                    <IconSymbol
+                        name="cart"
+                        size={60}
+                        color={theme.colors.newPrimary}
+                    />
                 </View>
-                <Text style={styles.emptyTitle}>{t('empty.title')}</Text>
-                <Text style={styles.emptySubtitle}>{t('empty.subtitle')}</Text>
+                <Text style={styles.emptyTitle}>
+                    {isAuthenticated ? t('cart:empty.title') : t('cart:authRequired.title')}
+                </Text>
+                {isAuthenticated && (
+                    <Text style={styles.emptySubtitle}>{t('cart:empty.subtitle')}</Text>
+                )}
 
-                <Pressable
-                    onPress={() => Navigator.push('/')}
-                    style={({ pressed }) => [
-                        styles.shopNowButton,
-                        pressed && styles.shopNowButtonPressed
-                    ]}
-                    accessibilityLabel={t('empty.shopNow')}
-                    accessibilityRole="button"
-                >
-                    <Text style={styles.shopNowText}>{t('empty.shopNow')}</Text>
-                    <IconSymbol name="arrow-forward" size={16} color={theme.colors.onPrimary} />
-                </Pressable>
+                <View style={styles.emptyActions}>
+                    {!isAuthenticated ? (
+                        <Pressable
+                            onPress={() => Navigator.push('/(auth)/login')}
+                            style={({ pressed }) => [
+                                styles.loginButton,
+                                pressed && styles.buttonPressed
+                            ]}
+                            accessibilityLabel={t('cart:authRequired.login')}
+                            accessibilityRole="button"
+                        >
+                            <Text style={styles.loginButtonText}>{t('cart:authRequired.login')}</Text>
+                        </Pressable>
+                    ) : (
+                        <Pressable
+                            onPress={() => Navigator.push('/')}
+                            style={({ pressed }) => [
+                                styles.shopNowButton,
+                                pressed && styles.shopNowButtonPressed
+                            ]}
+                            accessibilityLabel={t('cart:empty.shopNow')}
+                            accessibilityRole="button"
+                        >
+                            <Text style={styles.shopNowText}>{t('cart:empty.shopNow')}</Text>
+                        </Pressable>
+                    )}
+                </View>
             </View>
 
             {/* Recommended Products Section */}
@@ -153,6 +178,7 @@ const EmptyCart: React.FC<EmptyCartProps> = ({ onRefresh, refreshing }) => {
 export default function CartScreen() {
     const { theme } = useUnistyles();
     const { t } = useTranslation(['cart', 'common']);
+    const isAuthenticated = useIsAuthenticated();
 
     // Safety mechanism: unlock navigation when this screen gains focus
     useNavigationUnlockOnFocus();
@@ -164,7 +190,7 @@ export default function CartScreen() {
     // ========================================
 
     // Fetch cart data from API
-    const { data: cartData, isLoading, isFetching, error, refetch } = useCart();
+    const { data: cartData, isLoading, isFetching, refetch } = useCart();
 
     // API Mutations
     const { mutate: updateQuantity, isPending: isUpdating } = useUpdateCartItemQuantity();
@@ -443,29 +469,13 @@ export default function CartScreen() {
     // ========================================
 
     const renderContent = () => {
-        // 1. Error state (High priority)
-        if (error) {
-            return (
-                <View style={styles.emptyContainer}>
-                    <IconSymbol name="error-outline" size={64} color={theme.colors.error} />
-                    <Text style={styles.emptyTitle}>{t('error.loadFailed')}</Text>
-                    <Text style={styles.emptySubtitle}>{t('error.tryAgainLater')}</Text>
-                    <Pressable
-                        onPress={() => refetch()}
-                        style={styles.shopNowButton}
-                    >
-                        <Text style={styles.shopNowText}>{t('error.retryButton')}</Text>
-                    </Pressable>
-                </View>
-            );
-        }
-
-        //  Empty cart
-        if (!isLoading && isReady && (!cartData || shops.length === 0)) {
+        //  Empty cart or Unauthenticated
+        if (!isLoading && isReady && (!isAuthenticated || !cartData || shops.length === 0)) {
             return (
                 <EmptyCart
                     onRefresh={refetch}
                     refreshing={isFetching && !isLoading}
+                    isAuthenticated={isAuthenticated}
                 />
             );
         }
@@ -597,14 +607,14 @@ const styles = StyleSheet.create((theme, runtime) => ({
         backgroundColor: theme.colors.background,
     },
     emptyContainer: {
-        paddingTop: theme.margins.xl,
+        paddingTop: theme.margins.md,
         justifyContent: 'center',
         alignItems: 'center',
         gap: theme.margins.sm,
     },
     emptyIconCircle: {
-        width: 90,
-        height: 90,
+        width: 80,
+        height: 80,
         borderRadius: 50,
         backgroundColor: theme.colors.activeSoft,
         justifyContent: 'center',
@@ -645,6 +655,31 @@ const styles = StyleSheet.create((theme, runtime) => ({
         fontWeight: '600',
         color: theme.colors.onPrimary,
         // letterSpacing: 0.5,
+    },
+    emptyActions: {
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: theme.margins.md,
+        width: '100%',
+        paddingHorizontal: theme.margins.xl,
+    },
+    loginButton: {
+        backgroundColor: theme.colors.activeSoft,
+        paddingHorizontal: theme.margins.lg,
+        paddingVertical: theme.margins.md,
+        borderRadius: theme.radius.full,
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: theme.colors.buttonActive,
+    },
+    loginButtonText: {
+        fontSize: 15,
+        fontWeight: '700',
+        color: theme.colors.buttonActive,
+    },
+    buttonPressed: {
+        opacity: 0.8,
+        transform: [{ scale: 0.98 }],
     },
     syncBar: {
         flexDirection: 'row',

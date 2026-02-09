@@ -9,6 +9,7 @@ import { chatRoutes } from '@/constants/routes';
 import { useChatList, useConversationActions, useRefreshChatList } from '@/hooks/api/chat/useChatList';
 import { useChatSocket } from '@/hooks/api/useChatSocket';
 import { useDebounce } from '@/hooks/useDebounce';
+import { useAuthStore } from '@/store/useAuthStore';
 import { ChatFilter, Conversation } from '@/types/chat';
 import { Navigator } from '@/utils/navigation';
 import { FlashList } from '@shopify/flash-list';
@@ -64,6 +65,7 @@ export function ChatListScreen({ isTab = false }: ChatListScreenProps) {
         }, [])
     );
 
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     const {
         conversations,
         isLoading,
@@ -151,7 +153,24 @@ export function ChatListScreen({ isTab = false }: ChatListScreenProps) {
         );
     }, [isFetchingNextPage, styles.loadingFooter, theme.colors.buttonActive]);
 
-    const renderEmpty = useCallback(() => <ChatEmptyState />, []);
+    const renderEmpty = useCallback(() => (
+        <ChatEmptyState isAuthenticated={isAuthenticated} />
+    ), [isAuthenticated]);
+
+    if (!isAuthenticated) {
+        return (
+            <View style={styles.container}>
+                <ChatHeader
+                    activeFilter={activeFilter}
+                    onFilterChange={handleFilterChange}
+                    searchQuery={searchQuery}
+                    onSearchChange={setSearchQuery}
+                    showBack={!isTab}
+                />
+                <ChatEmptyState isAuthenticated={false} />
+            </View>
+        );
+    }
 
     if (isLoading || !isReady) {
         return (

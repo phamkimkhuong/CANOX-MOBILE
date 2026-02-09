@@ -430,6 +430,10 @@ export interface CartTranslation {
         subtitle: string;
         shopNow: string;
     };
+    authRequired: {
+        title: string;
+        login: string;
+    };
     footer: {
         selectAll: string;
         total: string;
@@ -788,6 +792,10 @@ export interface ChatTranslation {
         missingShopInfo: string;
         chatWithSelf: string;
     };
+    authRequired: {
+        title: string;
+        login: string;
+    };
 }
 
 /**
@@ -850,6 +858,14 @@ export interface ProfileTranslation {
         reviews: string;
         shipping: string;
         security: string;
+        legal_tos: string;
+        legal_privacy: string;
+        legal_buying: string;
+        legal_shipping: string;
+        legal_return: string;
+        legal_dispute: string;
+        legal_seller: string;
+        legal_policies: string;
     };
     guestState: {
         title: string;
@@ -1130,6 +1146,10 @@ export interface NotificationTranslation {
         description: string;
         accept: string;
         later: string;
+    };
+    authRequired: {
+        title: string;
+        login: string;
     };
 }
 

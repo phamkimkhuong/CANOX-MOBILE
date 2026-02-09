@@ -15,7 +15,7 @@ import { ROUTES, href } from '@/constants/routes';
 import type { ShippingAddress } from '@/types/address';
 import { formatShippingAddress } from '@/utils/adapter/addressAdapter';
 import { Navigator } from '@/utils/navigation';
-import React from 'react';
+import React, { memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -31,7 +31,7 @@ interface AddressCardProps {
  * Used in Checkout screen to show delivery address.
  * Applies Cart-style design with primaryMuted background.
  */
-export const AddressCard: React.FC<AddressCardProps> = ({ address, onPress }) => {
+export const AddressCard: React.FC<AddressCardProps> = memo(({ address, onPress }) => {
     const { theme } = useUnistyles();
     const { t } = useTranslation('checkout');
     const styles = stylesheet;
@@ -40,13 +40,17 @@ export const AddressCard: React.FC<AddressCardProps> = ({ address, onPress }) =>
     /**
      * Handle card press - navigate to address selection or call custom handler
      */
-    const handlePress = () => {
+    const handlePress = useCallback(() => {
         if (onPress) {
             onPress();
         } else {
             Navigator.push(href(ROUTES.ADDRESS.LIST));
         }
-    };
+    }, [onPress]);
+
+    const formattedAddress = React.useMemo(() =>
+        address ? formatShippingAddress(address) : '',
+        [address]);
 
     return (
         <Pressable
@@ -88,7 +92,7 @@ export const AddressCard: React.FC<AddressCardProps> = ({ address, onPress }) =>
 
                         {/* Full address */}
                         <Text style={styles.addressText} numberOfLines={1}>
-                            {formatShippingAddress(address)}
+                            {formattedAddress}
                         </Text>
                     </>
                 ) : (
@@ -113,7 +117,9 @@ export const AddressCard: React.FC<AddressCardProps> = ({ address, onPress }) =>
             />
         </Pressable>
     );
-};
+});
+
+AddressCard.displayName = 'AddressCard';
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {

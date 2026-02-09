@@ -5,10 +5,12 @@ import { NotificationItem } from '@/components/notifications/NotificationItem';
 import { NotificationSkeleton } from '@/components/notifications/NotificationSkeleton';
 import { SectionHeader } from '@/components/notifications/SectionHeader';
 import { ROUTES } from '@/constants/routes';
+import { useScrollToTopHandler } from '@/contexts/ScrollToTopContext';
 import { useMarkAllAsRead, useMarkAsRead, useNotifications, useRefreshNotifications } from '@/hooks/api/notification/useNotifications';
 import { usePrefetchNotificationNav } from '@/hooks/api/notification/usePrefetchNotificationNav';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { usePrefetchTiming } from '@/hooks/usePrefetchTiming';
+import { useAuthStore } from '@/store/useAuthStore';
 import {
     FlattenedNotificationItem,
     Notification,
@@ -17,7 +19,7 @@ import {
 import { Alert as CustomAlert } from '@/utils/AlertHelper';
 import { Navigator } from '@/utils/navigation';
 import { AuthorizationStatus, getMessaging, hasPermission } from '@react-native-firebase/messaging';
-import { FlashList } from '@shopify/flash-list';
+import { FlashList, FlashListRef } from '@shopify/flash-list';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, AppState, RefreshControl, View } from 'react-native';
@@ -177,16 +179,26 @@ export default function NotifyScreen() {
         );
     }, [isFetchingNextPage, styles.loadingFooter, theme.colors.buttonActive]);
 
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+    const listRef = useRef<FlashListRef<FlattenedNotificationItem>>(null);
+
+    const scrollToTop = useCallback(() => {
+        listRef.current?.scrollToOffset({ offset: 0, animated: true });
+    }, []);
+
+    useScrollToTopHandler('notify', scrollToTop);
+
     const renderEmpty = useCallback(() => {
         const filterLabel = activeFilter !== NotificationFilter.ALL
             ? /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
             t(`filters.${activeFilter.toLowerCase()}` as any)
             : undefined;
-        return <EmptyState filterLabel={filterLabel as string | undefined} />;
-    }, [activeFilter, t]);
+        return <EmptyState filterLabel={filterLabel as string | undefined} isAuthenticated={isAuthenticated} />;
+    }, [activeFilter, t, isAuthenticated]);
 
-    // Show skeleton on initial load
-    if (isLoading) {
+    // Show skeleton on initial load (only if authenticated)
+    if (isLoading && isAuthenticated) {
         return (
             <View style={styles.container}>
                 <NotificationHeader
@@ -197,6 +209,16 @@ export default function NotifyScreen() {
                 />
                 <FilterBar activeFilter={activeFilter} onFilterChange={handleFilterChange} />
                 <NotificationSkeleton count={6} />
+            </View>
+        );
+    }
+
+    if (!isAuthenticated) {
+        return (
+            <View style={styles.container}>
+                <NotificationHeader />
+                <FilterBar activeFilter={activeFilter} onFilterChange={handleFilterChange} />
+                <EmptyState isAuthenticated={false} />
             </View>
         );
     }
@@ -212,6 +234,7 @@ export default function NotifyScreen() {
             <FilterBar activeFilter={activeFilter} onFilterChange={handleFilterChange} />
 
             <FlashList<FlattenedNotificationItem>
+                ref={listRef}
                 data={flattenedData}
                 renderItem={renderItem}
                 getItemType={getItemType}

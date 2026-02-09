@@ -37,4 +37,8 @@ export const CHAT_STRINGS: ChatTranslation = {
         missingShopInfo: 'Missing shop information',
         chatWithSelf: 'Cannot chat with yourself',
     },
+    authRequired: {
+        title: 'Login to view messages',
+        login: 'Login Now',
+    },
 };

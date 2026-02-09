@@ -12,6 +12,10 @@ export const CART_STRINGS: CartTranslation = {
         subtitle: 'Hãy thêm sản phẩm vào giỏ hàng nhé!',
         shopNow: 'MUA SẮM NGAY',
     },
+    authRequired: {
+        title: 'Giỏ hàng của bạn đang trống',
+        login: 'Đăng nhập ngay',
+    },
     footer: {
         selectAll: 'Tất cả',
         total: 'Tổng thanh toán',

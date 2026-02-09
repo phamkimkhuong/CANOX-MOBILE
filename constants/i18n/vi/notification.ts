@@ -81,4 +81,8 @@ export const NOTIFICATION_STRINGS: NotificationTranslation = {
         accept: 'Đồng ý',
         later: 'Để sau',
     },
+    authRequired: {
+        title: 'Đăng nhập để xem thông báo',
+        login: 'Đăng nhập ngay',
+    },
 };
