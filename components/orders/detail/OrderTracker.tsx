@@ -21,7 +21,7 @@ import {
     type TimelineStep,
 } from '@/utils/adapter/order/orderTimeline';
 import { formatDate } from '@/utils/date';
-import React, { useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -33,11 +33,11 @@ interface OrderTrackerProps {
 /**
  * Single Step Item
  */
-const StepItem: React.FC<{
+const StepItem = memo<{
     step: TimelineStep;
     isFirst: boolean;
     isLast: boolean;
-}> = ({ step, isFirst, isLast }) => {
+}>(({ step, isFirst, isLast }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
 
@@ -111,16 +111,18 @@ const StepItem: React.FC<{
             )}
         </View>
     );
-};
+});
+
+StepItem.displayName = 'StepItem';
 
 /**
  * Abnormal Status Banner
  * Shown when order is cancelled, rejected, etc.
  */
-const AbnormalStatusBanner: React.FC<{
+const AbnormalStatusBanner = memo<{
     status: OrderStatus;
     message: string;
-}> = ({ status, message }) => {
+}>(({ status, message }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
 
@@ -140,7 +142,9 @@ const AbnormalStatusBanner: React.FC<{
             </Text>
         </View>
     );
-};
+});
+
+AbnormalStatusBanner.displayName = 'AbnormalStatusBanner';
 
 /**
  * OrderTracker - Main Component

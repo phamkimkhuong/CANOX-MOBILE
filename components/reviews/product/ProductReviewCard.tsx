@@ -10,6 +10,7 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { useIsAuthenticated } from '@/store/useAuthStore';
 import type { ProductReviewMediaUI, ProductReviewUI } from '@/types/review/productReview';
+import { toSizedImageUrl } from '@/utils/url';
 import { Image } from 'expo-image';
 import React, { memo, useCallback, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
@@ -106,7 +107,7 @@ const MediaGrid = memo<{
                     onPress={() => onPress(index)}
                 >
                     <Image
-                        source={{ uri: item.thumbnailUrl || item.url }}
+                        source={{ uri: toSizedImageUrl(item.thumbnailUrl || item.url, null, 'thumb') ?? (item.thumbnailUrl || item.url) }}
                         style={mediaStyles.image}
                         contentFit="cover"
                         placeholder="L6PZfSi_.AyE_3t7t7R**0o#DgR4"
@@ -349,7 +350,7 @@ export const ProductReviewCard = memo<ProductReviewCardProps>(({
                 <View style={styles.avatarContainer}>
                     {review.userAvatar ? (
                         <Image
-                            source={{ uri: review.userAvatar }}
+                            source={{ uri: toSizedImageUrl(review.userAvatar, null, 'thumb') ?? review.userAvatar }}
                             style={styles.avatar}
                             contentFit="cover"
                         />

@@ -311,9 +311,9 @@ export default function HomeScreen() {
     if (isTabsSticky) {
       if (__DEV__) {
         log.info(`Switching tab to: ${newTab} (Sticky Mode)`);
-        console.time(`TabChange_${newTab}`);
       }
 
+      const tabStartTime = Date.now();
       scrollPositions.current[activeTab] = scrollYRef.current;
       const savedPosition = scrollPositions.current[newTab];
 
@@ -332,8 +332,8 @@ export default function HomeScreen() {
           });
           scrollYRef.current = savedPosition;
           scrollY.value = savedPosition;
-          if (__DEV__) console.timeEnd(`TabChange_${newTab}`);
-        }, 100) as any;
+          if (__DEV__) log.info(`TabChange_${newTab} took ${Date.now() - tabStartTime}ms`);
+        }, 100);
       } else {
         tabTimerRef.current = setTimeout(() => {
           const targetOffset = headerHeightRef.current;
@@ -343,8 +343,8 @@ export default function HomeScreen() {
           });
           scrollYRef.current = targetOffset;
           scrollY.value = targetOffset;
-          if (__DEV__) console.timeEnd(`TabChange_${newTab}`);
-        }, 100) as any;
+          if (__DEV__) log.info(`TabChange_${newTab} took ${Date.now() - tabStartTime}ms`);
+        }, 100);
       }
     } else {
       setActiveTab(newTab);
@@ -411,7 +411,7 @@ export default function HomeScreen() {
       default:
         return null;
     }
-  }, [activeTab, handleTabChange, handleProductPress, handleMarketingHeaderLayout]);
+  }, [activeTab, handleTabChange, handleProductPress, handleMarketingHeaderLayout, shimmerAnimatedStyle]);
 
   /**
    * Item type cho FlashList recycling optimization

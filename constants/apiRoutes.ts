@@ -87,6 +87,9 @@ export const API_ROUTES = {
         PROVINCE_DETAIL: (code: string) => `${API_PREFIX}/address/provinces/${code}`,
         WARDS_BY_PROVINCE: (provinceCode: string) => `${API_PREFIX}/address/provinces/${provinceCode}/wards`,
         WARD_DETAIL: (wardCode: string) => `${API_PREFIX}/address/wards/${wardCode}`,
+        AUTOCOMPLETE: `${API_PREFIX}/address/autocomplete`,
+        GEOCODE: `${API_PREFIX}/address/geocode`,
+        DISTANCE: `${API_PREFIX}/address/distance`,
     },
     BUYER_ADDRESS: {
         LIST: `${API_PREFIX}/buyer/addresses`,

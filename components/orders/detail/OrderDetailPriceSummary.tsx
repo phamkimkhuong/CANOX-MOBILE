@@ -11,7 +11,7 @@
 
 import { IconSymbol } from '@/components/ui/Icon';
 import { formatCurrency } from '@/utils/format';
-import React from 'react';
+import React, { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -24,7 +24,7 @@ interface PriceRowProps {
     icon?: string;
 }
 
-const PriceRow: React.FC<PriceRowProps> = ({
+const PriceRow = memo<PriceRowProps>(({
     label,
     value,
     isDiscount = false,
@@ -60,7 +60,9 @@ const PriceRow: React.FC<PriceRowProps> = ({
             </Text>
         </View>
     );
-};
+});
+
+PriceRow.displayName = 'PriceRow';
 
 interface OrderDetailPriceSummaryProps {
     subtotal: number;

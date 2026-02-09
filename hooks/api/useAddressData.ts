@@ -9,7 +9,15 @@
  */
 
 import { useDebounce } from '@/hooks/useDebounce';
-import { getCountry, getProvinceDetail, getProvinces, getWardsByProvince } from '@/services/api/addressApi';
+import {
+    autocompleteAddress,
+    geocodeAddress,
+    getCountry,
+    getDistance,
+    getProvinceDetail,
+    getProvinces,
+    getWardsByProvince
+} from '@/services/api/addressApi';
 import { useQuery } from '@tanstack/react-query';
 
 // ============================================
@@ -22,10 +30,16 @@ export const ADDRESS_QUERY_KEYS = {
     provinceDetail: (code: string) => ['province', code] as const,
     wards: (provinceCode: string, search: string) =>
         ['wards', provinceCode, search] as const,
+    autocomplete: (query: string, language: string, countryCode?: string) =>
+        ['address-autocomplete', query, language, countryCode] as const,
+    geocode: (address: string, language: string) => ['address-geocode', address, language] as const,
+    distance: (fromLat: number, fromLng: number, toLat: number, toLng: number) =>
+        ['address-distance', fromLat, fromLng, toLat, toLng] as const,
 } as const;
 
-const DEBOUNCE_DELAY = 300; // ms - Delay search để tránh spam
+const DEBOUNCE_DELAY = 800; // ms - Tăng lên 800ms để đợi người dùng gõ xong cụm từ
 const STALE_TIME = 1000 * 60 * 30; // 30 phút - Dữ liệu hành chính ít thay đổi
+const INTERACTIVE_STALE_TIME = 1000 * 60 * 5; // 5 phút cho các API tương tác
 
 // ============================================
 // HOOKS
@@ -110,6 +124,61 @@ export const useWards = (options: UseWardsOptions) => {
         enabled: isEnabled,
         staleTime: STALE_TIME,
         gcTime: 1000 * 60 * 30, // 30 phút
+    });
+};
+
+/**
+ * Hook suggest addresses as user types (Mapbox)
+ */
+export const useAddressAutocomplete = (
+    query: string,
+    language: string = 'vi',
+    options: { enabled?: boolean; limit?: number; countryCode?: string } = {}
+) => {
+    const { enabled = true, limit = 5, countryCode } = options;
+    const debouncedQuery = useDebounce(query, DEBOUNCE_DELAY);
+
+    return useQuery({
+        queryKey: ADDRESS_QUERY_KEYS.autocomplete(debouncedQuery, language, countryCode ?? ''),
+        queryFn: () => autocompleteAddress(debouncedQuery, language, limit, countryCode),
+        enabled: enabled && debouncedQuery.length >= 3, // Chỉ gợi ý khi gõ từ 3 ký tự
+        staleTime: INTERACTIVE_STALE_TIME,
+    });
+};
+
+/**
+ * Hook get latitude/longitude from an address (Mapbox)
+ */
+export const useAddressGeocode = (
+    address: string,
+    language: string = 'vi',
+    enabled: boolean = false
+) => {
+    return useQuery({
+        queryKey: ADDRESS_QUERY_KEYS.geocode(address, language),
+        queryFn: () => geocodeAddress(address, language),
+        enabled: enabled && !!address,
+        staleTime: INTERACTIVE_STALE_TIME,
+    });
+};
+
+/**
+ * Hook calculate driving distance between two points (Mapbox)
+ */
+export const useDistanceCalculation = (params: {
+    fromLat: number;
+    fromLng: number;
+    toLat: number;
+    toLng: number;
+    enabled?: boolean;
+}) => {
+    const { fromLat, fromLng, toLat, toLng, enabled = false } = params;
+
+    return useQuery({
+        queryKey: ADDRESS_QUERY_KEYS.distance(fromLat, fromLng, toLat, toLng),
+        queryFn: () => getDistance(fromLat, fromLng, toLat, toLng),
+        enabled: enabled && !!(fromLat && fromLng && toLat && toLng),
+        staleTime: INTERACTIVE_STALE_TIME,
     });
 };
 

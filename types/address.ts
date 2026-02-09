@@ -78,6 +78,51 @@ export interface Country {
 export type CountryResponse = ApiResponse<Country[]>;
 
 // ============================================
+// SMART ADDRESS TYPES (Mapbox Integration)
+// ============================================
+
+/**
+ * Result from autocomplete API
+ */
+export interface MapboxAutocompleteResponse {
+    placeName: string;
+    text: string;
+    latitude: number;
+    longitude: number;
+    relevance: number;
+    province: string | null;
+    district: string | null;
+    ward: string | null;
+    country: string;
+    postcode: string | null;
+    locationId: string;
+    placeType: string;
+    address: string;
+}
+
+/**
+ * Result from geocode API
+ */
+export interface GeoInfoResponse {
+    latitude: number;
+    longitude: number;
+    placeName: string;
+    relevance: number;
+}
+
+/**
+ * Result from distance calculation API
+ */
+export interface DistanceResponse {
+    distanceKm: number;
+    durationMinutes: number;
+}
+
+export type AutocompleteResponse = ApiResponse<MapboxAutocompleteResponse[]>;
+export type GeocodeResponse = ApiResponse<GeoInfoResponse | null>;
+export type DistanceCalculationResponse = ApiResponse<DistanceResponse | null>;
+
+// ============================================
 // BUYER ADDRESS DTO (API Response)
 // ============================================
 
@@ -273,6 +318,47 @@ export const CountryResponseSchema = ResponseDefaultSchema.extend({
     data: z.array(CountrySchema),
 });
 
+// Smart Address schemas (Robust strategy to prevent crashes)
+export const MapboxAutocompleteSchema = z.object({
+    placeName: z.string().catch('').default(''),
+    text: z.string().catch('').default(''),
+    latitude: z.number().catch(0).default(0),
+    longitude: z.number().catch(0).default(0),
+    relevance: z.number().catch(0).default(0),
+    province: z.string().nullish().catch(null).default(null),
+    district: z.string().nullish().catch(null).default(null),
+    ward: z.string().nullish().catch(null).default(null),
+    country: z.string().catch('').default(''),
+    postcode: z.string().nullish().catch(null).default(null),
+    locationId: z.string().catch('').default(''),
+    placeType: z.string().catch('').default(''),
+    address: z.string().catch('').default(''),
+});
+
+export const AutocompleteResponseSchema = ResponseDefaultSchema.extend({
+    data: z.array(MapboxAutocompleteSchema).catch([]).default([]),
+});
+
+export const GeoInfoSchema = z.object({
+    latitude: z.number().catch(0).default(0),
+    longitude: z.number().catch(0).default(0),
+    placeName: z.string().catch('').default(''),
+    relevance: z.number().catch(0).default(0),
+});
+
+export const GeocodeResponseSchema = ResponseDefaultSchema.extend({
+    data: GeoInfoSchema.nullable().catch(null).default(null),
+});
+
+export const DistanceSchema = z.object({
+    distanceKm: z.number().catch(0).default(0),
+    durationMinutes: z.number().catch(0).default(0),
+});
+
+export const DistanceResponseSchema = ResponseDefaultSchema.extend({
+    data: DistanceSchema.nullable().catch(null).default(null),
+});
+
 // ============================================
 // HELPER TYPES
 // ============================================
@@ -292,3 +378,35 @@ export interface LocationSearchParams {
 export interface InfiniteQueryPageParam {
     pageParam: number;
 }
+// ============================================
+// FORM VALIDATION SCHEMAS
+// ============================================
+
+/**
+ * Schema cho Address Form - Dùng với react-hook-form
+ * Tách biệt khỏi UI để dễ bảo trì và tái sử dụng
+ */
+export const AddressFormSchema = z.object({
+    recipientName: z
+        .string()
+        .min(2, 'Tên người nhận tối thiểu 2 ký tự')
+        .max(50, 'Tên người nhận tối đa 50 ký tự'),
+    phone: z
+        .string()
+        .min(10, 'Số điện thoại không hợp lệ')
+        .max(11, 'Số điện thoại không hợp lệ')
+        .regex(/^(0|\+84)[0-9]{9,10}$/, 'Số điện thoại không hợp lệ'),
+    countryCode: z.string().min(1, 'Vui lòng chọn Quốc gia'),
+    countryName: z.string(),
+    provinceCode: z.string().optional(),
+    provinceName: z.string().min(1, 'Vui lòng nhập Tỉnh/Thành phố'),
+    districtName: z.string().min(1, 'Vui lòng nhập Quận/Huyện'),
+    wardCode: z.string().optional(),
+    wardName: z.string().min(1, 'Vui lòng nhập Phường/Xã'),
+    streetAddress: z
+        .string()
+        .min(5, 'Địa chỉ chi tiết tối thiểu 5 ký tự')
+        .max(200, 'Địa chỉ chi tiết tối đa 200 ký tự'),
+    label: z.enum(['home', 'work', 'other']),
+    isDefault: z.boolean(),
+});

@@ -1,5 +1,6 @@
 import { formatCurrency, formatSoldCount } from '@/utils/format';
 import { createLogger } from '@/utils/logger';
+import { toSizedImageUrl } from '@/utils/url';
 import { Image } from 'expo-image';
 import { Href } from 'expo-router';
 import React from 'react';
@@ -67,7 +68,7 @@ export const ProductCard = React.memo(({
 
                         {/* Image Container */}
                         <View style={styles.imageWrapper}>
-                            <Image source={{ uri: image }} style={styles.image} contentFit="cover" />
+                            <Image source={{ uri: toSizedImageUrl(image, null, 'small') ?? image }} style={styles.image} contentFit="cover" />
 
                             {/* Discount Badge */}
                             {discount != null && discount > 0 && (

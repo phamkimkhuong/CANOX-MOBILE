@@ -12,7 +12,7 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import type { OrderStatus, OrderUI } from '@/types/order/order';
 import { getOrderActions } from '@/utils/adapter/order/orderActions';
-import React, { useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     ActivityIndicator,
@@ -32,7 +32,7 @@ interface ActionButtonProps {
     disabled?: boolean;
 }
 
-const ActionButton: React.FC<ActionButtonProps> = ({
+const ActionButton = memo<ActionButtonProps>(({
     label,
     icon,
     variant,
@@ -104,7 +104,9 @@ const ActionButton: React.FC<ActionButtonProps> = ({
             )}
         </TouchableOpacity>
     );
-};
+});
+
+ActionButton.displayName = 'ActionButton';
 
 interface OrderDetailFooterProps {
     order?: OrderUI;

@@ -10,10 +10,13 @@
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { apiClient } from '@/services/api/client';
 import type {
+    AutocompleteResponse,
     BuyerAddressListResponse,
     BuyerAddressSingleResponse,
     CountryResponse,
     CreateBuyerAddressRequest,
+    DistanceCalculationResponse,
+    GeocodeResponse,
     LocationSearchParams,
     ProvinceDetailResponse,
     ProvinceListResponse,
@@ -33,6 +36,47 @@ const normalizeCode = (code: string): string => {
     if (!code) return code;
     // Strip leading zeros for numeric strings
     return code.replace(/^0+/, '') || '0';
+};
+
+/**
+ * Normalizes language codes for Mapbox.
+ * Mapbox expects ISO 639-1 or BCP-47 (e.g., 'vi', 'en', 'en-US').
+ * This helper fixes common mistakes like passing country codes instead of language codes.
+ */
+const normalizeLang = (lang: string): string => {
+    if (!lang) return 'vi';
+
+    // Mapbox requires lowercase
+    const lowerLang = lang.toLowerCase();
+
+    // Map of common region/country codes to their primary language codes
+    const commonMapping: Record<string, string> = {
+        'us': 'en',
+        'uk': 'en',
+        'gb': 'en',
+        'jp': 'ja',
+        'kr': 'ko',
+        'cn': 'zh',
+        'vn': 'vi',
+    };
+
+    // If it's a known country code used as a language, return the mapping
+    if (commonMapping[lowerLang]) {
+        return commonMapping[lowerLang];
+    }
+
+    // Keep original for BCP-47 support (e.g., 'en-US', 'zh-Hans')
+    return lowerLang;
+};
+
+/**
+ * Normalizes country codes for Mapbox (e.g., 'UK' -> 'GB')
+ */
+const normalizeCountry = (countryCode: string | undefined): string | undefined => {
+    if (!countryCode) return undefined;
+    const code = countryCode.toUpperCase();
+    if (code === 'UK') return 'GB';
+    return code;
 };
 
 // ============================================
@@ -130,6 +174,101 @@ export const getWardDetail = async (
     );
 
     return response.data;
+};
+
+import {
+    AutocompleteResponseSchema,
+    DistanceResponseSchema,
+    GeocodeResponseSchema,
+} from '@/types/address';
+import { safeValidate } from '@/utils/schema';
+
+/**
+ * Suggest addresses as user types (Mapbox)
+ */
+export const autocompleteAddress = async (
+    query: string,
+    language: string = 'vi',
+    limit: number = 5,
+    countryCode?: string
+): Promise<AutocompleteResponse> => {
+    const sanitizedLang = normalizeLang(language);
+    const sanitizedCountry = normalizeCountry(countryCode);
+
+    const response = await apiClient.get<AutocompleteResponse>(
+        API_ROUTES.ADDRESS.AUTOCOMPLETE,
+        {
+            params: {
+                query,
+                language: sanitizedLang,
+                limit,
+                ...(sanitizedCountry && { country: sanitizedCountry })
+            }
+        }
+    );
+
+    // Validate & Fallback
+    const validated = safeValidate(
+        AutocompleteResponseSchema,
+        response.data,
+        { ...response.data, data: [] }, // Fallback data array to empty if mismatch
+        'autocompleteAddress'
+    );
+
+    return validated;
+};
+
+/**
+ * Get latitude/longitude from an address (Mapbox)
+ */
+export const geocodeAddress = async (
+    address: string,
+    language: string = 'vi'
+): Promise<GeocodeResponse> => {
+    const sanitizedLang = normalizeLang(language);
+    const response = await apiClient.get<GeocodeResponse>(
+        API_ROUTES.ADDRESS.GEOCODE,
+        {
+            params: { address, language: sanitizedLang }
+        }
+    );
+
+    // Validate & Fallback
+    const validated = safeValidate(
+        GeocodeResponseSchema,
+        response.data,
+        { ...response.data, data: null },
+        'geocodeAddress'
+    );
+
+    return validated;
+};
+
+/**
+ * Calculate driving distance between two points (Mapbox)
+ */
+export const getDistance = async (
+    fromLat: number,
+    fromLng: number,
+    toLat: number,
+    toLng: number
+): Promise<DistanceCalculationResponse> => {
+    const response = await apiClient.get<DistanceCalculationResponse>(
+        API_ROUTES.ADDRESS.DISTANCE,
+        {
+            params: { fromLat, fromLng, toLat, toLng }
+        }
+    );
+
+    // Validate & Fallback
+    const validated = safeValidate(
+        DistanceResponseSchema,
+        response.data,
+        { ...response.data, data: null },
+        'getDistance'
+    );
+
+    return validated;
 };
 
 // ============================================

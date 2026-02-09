@@ -1404,12 +1404,21 @@ export interface AddressTranslation {
             delete: string;
             deleting: string;
         };
+        search: {
+            label: string;
+            placeholder: string;
+            searching: string;
+            noResults: string;
+        };
     };
     picker: {
+        locationTitle: string;
         provinceTitle: string;
+        districtTitle: string;
         wardTitle: string;
         countryTitle: string;
         provincePlaceholder: string;
+        districtPlaceholder: string;
         wardPlaceholder: string;
         results: string;
         emptyText: string;

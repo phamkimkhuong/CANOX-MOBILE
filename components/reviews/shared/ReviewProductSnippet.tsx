@@ -6,8 +6,9 @@
  */
 
 import type { PendingReviewItem } from '@/types/review';
+import { toSizedImageUrl } from '@/utils/url';
 import { Image } from 'expo-image';
-import React from 'react';
+import React, { memo } from 'react';
 import { Text, View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
@@ -33,7 +34,7 @@ interface ReviewProductSnippetProps {
 /**
  * ReviewProductSnippet - Compact product display
  */
-export const ReviewProductSnippet: React.FC<ReviewProductSnippetProps> = ({
+export const ReviewProductSnippet = memo<ReviewProductSnippetProps>(({
     productName,
     imageUrl,
     variantAttributes,
@@ -50,7 +51,7 @@ export const ReviewProductSnippet: React.FC<ReviewProductSnippetProps> = ({
             {/* Product Image */}
             <View style={styles.imageWrapper}>
                 <Image
-                    source={{ uri: imageUrl }}
+                    source={{ uri: toSizedImageUrl(imageUrl, null, 'thumb') ?? imageUrl }}
                     style={styles.image}
                     contentFit="cover"
                     placeholder="L6PZfSi_.AyE_3t7t7R**0o#DgR4"
@@ -88,7 +89,9 @@ export const ReviewProductSnippet: React.FC<ReviewProductSnippetProps> = ({
             </View>
         </View>
     );
-};
+});
+
+ReviewProductSnippet.displayName = 'ReviewProductSnippet';
 
 /**
  * Props from PendingReviewItem

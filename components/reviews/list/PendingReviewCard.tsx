@@ -11,8 +11,9 @@ import { reviewRoutes } from '@/constants/routes';
 import { PendingReviewItemUI } from '@/types/review';
 import { getMaxReviewReward as getMaxReward } from '@/utils/adapter/review/reviewAdapter';
 import { Navigator } from '@/utils/navigation';
+import { toSizedImageUrl } from '@/utils/url';
 import { Image } from 'expo-image';
-import React from 'react';
+import React, { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -30,7 +31,7 @@ interface PendingReviewCardProps {
  * PendingReviewCard - Single pending review item card
  * Shows product info with coin reward incentive
  */
-export const PendingReviewCard: React.FC<PendingReviewCardProps> = ({
+export const PendingReviewCard = memo<PendingReviewCardProps>(({
     item,
     itemCount,
     onPress,
@@ -86,7 +87,7 @@ export const PendingReviewCard: React.FC<PendingReviewCardProps> = ({
                 {/* Product Image */}
                 <View style={styles.imageWrapper}>
                     <Image
-                        source={{ uri: item.imageUrl }}
+                        source={{ uri: toSizedImageUrl(item.imageUrl, null, 'thumb') ?? item.imageUrl }}
                         style={styles.image}
                         contentFit="cover"
                         placeholder="L6PZfSi_.AyE_3t7t7R**0o#DgR4"
@@ -130,7 +131,9 @@ export const PendingReviewCard: React.FC<PendingReviewCardProps> = ({
             </View>
         </Pressable>
     );
-};
+});
+
+PendingReviewCard.displayName = 'PendingReviewCard';
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {

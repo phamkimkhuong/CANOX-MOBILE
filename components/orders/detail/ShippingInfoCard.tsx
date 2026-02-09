@@ -15,7 +15,7 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import type { Carrier } from '@/types/order/order';
 import * as Clipboard from 'expo-clipboard';
-import React, { useCallback, useState } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import Toast from 'react-native-toast-message';
@@ -41,11 +41,11 @@ const CARRIER_DISPLAY: Record<Carrier, { name: string; color: string }> = {
 /**
  * CopyableText - Text với nút copy
  */
-const CopyableText: React.FC<{
+const CopyableText = memo<{
     label: string;
     value: string;
     onCopy?: () => void;
-}> = ({ label, value, onCopy }) => {
+}>(({ label, value, onCopy }) => {
     const { theme } = useUnistyles();
     const { t } = useTranslation(['order', 'common']);
     const styles = stylesheet;
@@ -96,7 +96,9 @@ const CopyableText: React.FC<{
             </View>
         </View>
     );
-};
+});
+
+CopyableText.displayName = 'CopyableText';
 
 /**
  * ShippingInfoCard - Main Component

@@ -9,8 +9,9 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import type { MyReviewUI } from '@/types/review';
 import { formatRelativeDate } from '@/utils/date';
+import { toSizedImageUrl } from '@/utils/url';
 import { Image } from 'expo-image';
-import React from 'react';
+import React, { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -26,7 +27,7 @@ interface ReviewHistoryCardProps {
 /**
  * ReviewHistoryCard - Display submitted review
  */
-export const ReviewHistoryCard: React.FC<ReviewHistoryCardProps> = ({
+export const ReviewHistoryCard = memo<ReviewHistoryCardProps>(({
     review,
     onEdit,
 }) => {
@@ -62,7 +63,7 @@ export const ReviewHistoryCard: React.FC<ReviewHistoryCardProps> = ({
             <View style={styles.productRow}>
                 <View style={styles.imageWrapper}>
                     <Image
-                        source={{ uri: review.productImage }}
+                        source={{ uri: toSizedImageUrl(review.productImage, null, 'thumb') ?? review.productImage }}
                         style={styles.image}
                         contentFit="cover"
                         placeholder="L6PZfSi_.AyE_3t7t7R**0o#DgR4"
@@ -106,7 +107,7 @@ export const ReviewHistoryCard: React.FC<ReviewHistoryCardProps> = ({
                             style={styles.mediaThumbnail}
                         >
                             <Image
-                                source={{ uri: url }}
+                                source={{ uri: toSizedImageUrl(url, null, 'thumb') ?? url }}
                                 style={styles.mediaImage}
                                 contentFit="cover"
                             />
@@ -148,7 +149,9 @@ export const ReviewHistoryCard: React.FC<ReviewHistoryCardProps> = ({
             )}
         </View>
     );
-};
+});
+
+ReviewHistoryCard.displayName = 'ReviewHistoryCard';
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {

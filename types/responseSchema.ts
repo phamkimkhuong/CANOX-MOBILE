@@ -1,10 +1,10 @@
 import z from "zod";
 
-// Schema cho Response Default
+// Schema cho Response Default (Strict output for TypeScript matching)
 export const ResponseDefaultSchema = z.object({
-    code: z.number().nullable().optional().default(0),
-    success: z.boolean().nullable().optional().default(true),
-    message: z.string().nullable().optional().default(''),
+    code: z.number().catch(0).default(0),
+    success: z.boolean().catch(true).default(true),
+    message: z.string().catch('').default(''),
     data: z.any().optional()
 });
 
