@@ -28,20 +28,18 @@ CanoX là sàn giao dịch thương mại điện tử (marketplace) mô hình B
 
 ### 1.2 Cấu trúc Policy (9 file)
 
-```
-🔴 BẮT BUỘC (Pháp luật VN + Store Review) — 5 file
-├── 1. Quy chế hoạt động sàn TMĐT        → POLICY_01_REGULATIONS.md
-├── 2. Chính sách bảo mật (Privacy)       → POLICY_02_PRIVACY.md
-├── 3. Điều khoản sử dụng (Buyer ToS)     → POLICY_03_TOS.md
-├── 4. Điều khoản Seller (Seller Agreement)→ POLICY_04_SELLER.md
-└── 5. Chính sách đổi trả & hoàn tiền     → POLICY_05_RETURN.md
+🔴 **BẮT BUỘC (Pháp luật VN + Store Review)** — 5 file
+1. [Quy chế hoạt động sàn TMĐT](./POLICY_01_REGULATIONS.md)
+2. [Chính sách bảo mật (Privacy)](./POLICY_02_PRIVACY.md)
+3. [Điều khoản sử dụng (Buyer ToS)](./POLICY_03_TOS.md)
+4. [Điều khoản Seller (Seller Agreement)](./POLICY_04_SELLER.md)
+5. [Chính sách đổi trả & hoàn tiền](./POLICY_05_RETURN.md)
 
-🟡 CẦN THIẾT (Vận hành) — 4 file
-├── 6. Chính sách vận chuyển               → POLICY_06_SHIPPING.md
-├── 7. Chính sách thanh toán               → POLICY_07_PAYMENT.md
-├── 8. Sản phẩm cấm & hạn chế             → POLICY_08_PROHIBITED.md
-└── 9. Chính sách bảo hành                 → POLICY_09_WARRANTY.md
-```
+🟡 **CẦN THIẾT (Vận hành)** — 4 file
+6. [Chính sách vận chuyển](./POLICY_06_09_OPERATIONAL.md)
+7. [Chính sách thanh toán](./POLICY_06_09_OPERATIONAL.md#policy-7--chính-sách-thanh-toán-payment-policy)
+8. [Sản phẩm cấm & hạn chế](./POLICY_06_09_OPERATIONAL.md#policy-8--sản-phẩm-cấm--hạn-chế-prohibited-items)
+9. [Chính sách bảo hành](./POLICY_06_09_OPERATIONAL.md#policy-9--chính-sách-bảo-hành-warranty-policy)
 
 ### 1.3 Các mục đã gộp (không tách file riêng)
 

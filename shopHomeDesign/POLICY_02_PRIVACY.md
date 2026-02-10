@@ -1,5 +1,7 @@
 # Policy #2 — Chính sách Bảo mật (Privacy Policy)
 
+[← Quay lại Tổng quan](./LEGAL_POLICIES_OVERVIEW.md)
+
 > **Căn cứ chính**: NĐ 13/2023/NĐ-CP (PDPA Vietnam, hiệu lực 01/07/2023)  
 > **Bổ sung**: Luật BVNTD 2023, Apple App Store Guidelines, Google Play Policy  
 > **Yêu cầu Store**: URL truy cập công khai (không cần đăng nhập)  

@@ -25,6 +25,7 @@ export const API_ROUTES = {
         CHANGE_PASSWORD: (userId: string) => `${API_PREFIX}/users/${userId}/password`,
         CHECK_EMAIL_EXISTS: (email: string) => `${API_PREFIX}/users/exists/email?email=${encodeURIComponent(email)}`,
         UPDATE_CLIENT: (userId: string) => `${API_PREFIX}/users/${userId}/client`,
+        DELETE: (userId: string) => `${API_PREFIX}/users/${userId}`,
     },
     PROFILE: {
         USER_ME: `${API_PREFIX}/users/me`,

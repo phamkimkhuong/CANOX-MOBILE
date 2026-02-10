@@ -1,5 +1,7 @@
 # Policy #1 — Quy chế hoạt động sàn TMĐT CanoX
 
+[← Quay lại Tổng quan](./LEGAL_POLICIES_OVERVIEW.md)
+
 > **Căn cứ chính**: Điều 38 NĐ 52/2013/NĐ-CP (sửa đổi bởi NĐ 85/2021/NĐ-CP)  
 > **Bổ sung**: Luật TMĐT 2025, Luật BVNTD 2023, NĐ 117/2025/NĐ-CP  
 > **Bắt buộc**: Phải nộp Bộ Công Thương qua online.gov.vn  

@@ -1,5 +1,7 @@
 # Policy #5 — Chính sách Đổi trả & Hoàn tiền (Return & Refund)
 
+[← Quay lại Tổng quan](./LEGAL_POLICIES_OVERVIEW.md)
+
 > **Căn cứ chính**: Luật BVNTD 2023 (hiệu lực 01/07/2024), NĐ 55/2024/NĐ-CP  
 > **Bổ sung**: NĐ 85/2021/NĐ-CP (phân định trách nhiệm 3 bên)  
 

@@ -1,5 +1,7 @@
 # Policy #6 — Chính sách Vận chuyển (Shipping & Delivery)
 
+[← Quay lại Tổng quan](./LEGAL_POLICIES_OVERVIEW.md)
+
 > **Căn cứ**: NĐ 52/2013/NĐ-CP (yêu cầu công bố), NĐ 85/2021/NĐ-CP  
 
 ---

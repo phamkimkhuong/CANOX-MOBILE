@@ -1,5 +1,7 @@
 # Policy #3 — Điều khoản Sử dụng (Terms of Service — Buyer)
 
+[← Quay lại Tổng quan](./LEGAL_POLICIES_OVERVIEW.md)
+
 > **Căn cứ chính**: Bộ luật Dân sự 2015, NĐ 52/2013/NĐ-CP  
 > **Bổ sung**: Luật BVNTD 2023, Luật TMĐT 2025  
 

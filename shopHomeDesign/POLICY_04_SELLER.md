@@ -1,5 +1,7 @@
 # Policy #4 — Điều khoản dành cho Seller (Seller Agreement)
 
+[← Quay lại Tổng quan](./LEGAL_POLICIES_OVERVIEW.md)
+
 > **Căn cứ chính**: NĐ 85/2021/NĐ-CP, Luật TMĐT 2025  
 > **Bổ sung**: NĐ 117/2025/NĐ-CP (thuế), Luật BVNTD 2023  
 > **Lưu trữ tại**: seller.canox.vn/terms  

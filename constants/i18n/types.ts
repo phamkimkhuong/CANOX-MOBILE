@@ -944,6 +944,24 @@ export interface ProfileTranslation {
             item3: string;
         };
     };
+    deleteAccount: {
+        title: string;
+        subtitle: string;
+        description: string;
+        warningTitle: string;
+        warningItem1: string;
+        warningItem2: string;
+        warningItem3: string;
+        warningItem4: string;
+        confirmCheckbox: string;
+        confirmInputLabel: string;
+        confirmInputPlaceholder: string;
+        confirmInputError: string;
+        submitButton: string;
+        cancelButton: string;
+        successTitle: string;
+        successSubtitle: string;
+    };
     settings: {
         title: string;
         header: {

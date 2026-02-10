@@ -139,6 +139,7 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     'delete-sweep': { ios: 'trash-outline', android: 'trash-outline' },
     policy: { ios: 'shield-checkmark-outline', android: 'shield-checkmark-outline' },
     description: { ios: 'document-text-outline', android: 'document-text-outline' },
+    'delete-forever': { ios: 'trash-bin-outline', android: 'trash-bin-outline' },
 
     // === Status & Error Icons ===
     'check-circle': { ios: 'checkmark-circle', android: 'checkmark-circle' },
