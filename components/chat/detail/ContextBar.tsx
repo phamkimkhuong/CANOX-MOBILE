@@ -9,6 +9,7 @@ import {
     ContextBarProps,
 } from '@/types/chat/contextBar';
 import { formatCurrency } from '@/utils/format';
+import { buildImageUrl } from '@/utils/url';
 import { Image } from 'expo-image';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
@@ -22,7 +23,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
  * - ORDER: Shows order info + "Theo dõi" button
  * - NONE: Hidden
  */
-export const ContextBar: React.FC<ContextBarProps> = ({
+export const ContextBar: React.FC<ContextBarProps> = React.memo(({
     type,
     productData,
     orderData,
@@ -47,7 +48,7 @@ export const ContextBar: React.FC<ContextBarProps> = ({
         return (
             <>
                 <Image
-                    source={{ uri: productData.thumbnail }}
+                    source={{ uri: buildImageUrl(productData.thumbnail, null, 'thumb') }}
                     style={styles.thumbnail}
                     contentFit="cover"
                 />
@@ -82,7 +83,7 @@ export const ContextBar: React.FC<ContextBarProps> = ({
             <>
                 {orderData.thumbnail ? (
                     <Image
-                        source={{ uri: orderData.thumbnail }}
+                        source={{ uri: buildImageUrl(orderData.thumbnail, null, 'thumb') }}
                         style={styles.thumbnail}
                         contentFit="cover"
                     />
@@ -137,7 +138,7 @@ export const ContextBar: React.FC<ContextBarProps> = ({
             </View>
         </View>
     );
-};
+});
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {

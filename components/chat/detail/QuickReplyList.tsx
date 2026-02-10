@@ -22,7 +22,7 @@ interface QuickReplyListProps {
  * - Primary chip highlighted
  * - One-tap to send
  */
-export const QuickReplyList: React.FC<QuickReplyListProps> = ({
+export const QuickReplyList: React.FC<QuickReplyListProps> = React.memo(({
     replies,
     onReplyPress,
 }) => {
@@ -70,7 +70,7 @@ export const QuickReplyList: React.FC<QuickReplyListProps> = ({
             </ScrollView>
         </View>
     );
-};
+});
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {

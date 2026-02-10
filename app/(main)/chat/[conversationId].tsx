@@ -27,7 +27,7 @@ import { CHAT_STRINGS } from '@/constants/i18n/vi/chat';
 import { chatRoutes, orderRoutes, productRoutes } from '@/constants/routes';
 import type { DeleteType } from '@/hooks/api/chat';
 import { CONVERSATIONS_QUERY_KEY, useChatMessages, useDeleteMessage, useMarkMessagesAsRead, useSendMediaMessage, useSendMessage, useSendOrderCard, useSendProductCard } from '@/hooks/api/chat';
-import { useChatImagePicker } from '@/hooks/api/chat/useChatImagePicker';
+import { PickedImage, useChatImagePicker } from '@/hooks/api/chat/useChatImagePicker';
 import { buildChatWithShopRequest, useCreateConversation } from '@/hooks/api/chat/useCreateConversation';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -57,6 +57,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ActivityIndicator, FlatList, Keyboard, ListRenderItem, Modal, Pressable, Text, View } from 'react-native';
 import Gallery, { RenderItemInfo } from 'react-native-awesome-gallery';
 import { KeyboardAvoidingView, KeyboardProvider } from 'react-native-keyboard-controller';
+import { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -181,6 +182,20 @@ export default function ChatDetailScreen() {
 
     // Flag to delay rendering of message list until the end of screen transition
     const [isReady, setIsReady] = useState(false);
+
+    // Shared Animation Pattern: One loop for all Skeletons
+    const shimmerValue = useSharedValue(0.4);
+    useEffect(() => {
+        shimmerValue.value = withRepeat(
+            withTiming(1, { duration: 1000 }),
+            -1,
+            true
+        );
+    }, [shimmerValue]);
+
+    const shimmerAnimatedStyle = useAnimatedStyle(() => ({
+        opacity: shimmerValue.value,
+    }));
 
     // ============================================
     // HOOKS (Main data)
@@ -707,8 +722,7 @@ export default function ChatDetailScreen() {
         const images = await pickMultipleImages(10);
         if (images.length > 0) {
             sendMediaMessageMutation.mutate({
-                /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-                files: images.map((img: any) => ({
+                files: images.map((img: PickedImage) => ({
                     uri: img.uri,
                     fileName: img.fileName || `image_${Date.now()}.jpg`,
                     fileSize: img.fileSize,
@@ -826,7 +840,7 @@ export default function ChatDetailScreen() {
 
     const renderEmptyComponent = useCallback(() => {
         if (isLoading || !isReady) {
-            return <ChatDetailSkeleton count={8} />;
+            return <ChatDetailSkeleton count={8} shimmerAnimatedStyle={shimmerAnimatedStyle} />;
         }
 
         return (
@@ -837,7 +851,7 @@ export default function ChatDetailScreen() {
                 </Text>
             </View>
         );
-    }, [isLoading, isReady, styles]);
+    }, [isLoading, isReady, styles, shimmerAnimatedStyle]);
 
     // ============================================
     // ERROR STATE
@@ -981,7 +995,7 @@ export default function ChatDetailScreen() {
                             )}
                         </>
                     ) : (
-                        <ChatDetailSkeleton count={10} />
+                        <ChatDetailSkeleton count={10} shimmerAnimatedStyle={shimmerAnimatedStyle} />
                     )}
 
                     {/* Quick Replies - Now pinned to bottom above input */}

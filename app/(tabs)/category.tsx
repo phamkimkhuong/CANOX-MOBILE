@@ -7,16 +7,13 @@ import { useCategoryContent, useParentCategories } from '@/hooks/api/useCategori
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { useFocusEffect } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { View } from 'react-native';
 import { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet } from 'react-native-unistyles';
 
 /**
  * Category Screen - Master-Detail Layout
- * 
- * Layout: Sidebar (25-30%) | Content (70-75%)
- * 
- * UX Features:
+ *
  * - Sidebar auto scroll to center khi select
  * - Skeleton loading tức thì khi chuyển category
  * - Seamless connection giữa Sidebar và Content
@@ -24,8 +21,6 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 export default function CategoryScreen() {
     // Unlock navigation when screen gains focus
     useNavigationUnlockOnFocus();
-
-    const { theme } = useUnistyles();
     const styles = stylesheet;
 
     // Deferred Rendering: Only render heavy content after transition
@@ -86,35 +81,29 @@ export default function CategoryScreen() {
             {/* Header với Search */}
             <CategoryHeader />
 
-            {!isReady ? (
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator color={theme.colors.buttonActive} />
+            {/* Main Content: Sidebar + Content */}
+            <View style={styles.mainContent}>
+                {/* Sidebar (96px width như HTML) */}
+                <View style={styles.sidebar}>
+                    <CategorySidebar
+                        categories={categories ?? []}
+                        selectedId={selectedCategoryId}
+                        onSelect={handleCategorySelect}
+                        isLoading={isCategoriesLoading || !isReady}
+                        shimmerAnimatedStyle={shimmerAnimatedStyle}
+                    />
                 </View>
-            ) : (
-                /* Main Content: Sidebar + Content */
-                <View style={styles.mainContent}>
-                    {/* Sidebar (96px width như HTML) */}
-                    <View style={styles.sidebar}>
-                        <CategorySidebar
-                            categories={categories ?? []}
-                            selectedId={selectedCategoryId}
-                            onSelect={handleCategorySelect}
-                            isLoading={isCategoriesLoading}
-                            shimmerAnimatedStyle={shimmerAnimatedStyle}
-                        />
-                    </View>
 
-                    {/* Content Area */}
-                    <View style={styles.content}>
-                        <CategoryContent
-                            data={categoryContent}
-                            isLoading={isContentLoading}
-                            categoryId={selectedCategoryId}
-                            shimmerAnimatedStyle={shimmerAnimatedStyle}
-                        />
-                    </View>
+                {/* Content Area */}
+                <View style={styles.content}>
+                    <CategoryContent
+                        data={categoryContent}
+                        isLoading={isContentLoading || !isReady}
+                        categoryId={selectedCategoryId}
+                        shimmerAnimatedStyle={shimmerAnimatedStyle}
+                    />
                 </View>
-            )}
+            </View>
         </View>
     );
 }
@@ -123,11 +112,6 @@ const stylesheet = StyleSheet.create((theme) => ({
     container: {
         flex: 1,
         backgroundColor: theme.colors.background,
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
     },
     mainContent: {
         flex: 1,

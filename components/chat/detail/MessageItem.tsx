@@ -1229,4 +1229,4 @@ const OrderCardContent: React.FC<CardContentProps> = ({
     );
 };
 
-export default MessageItem;
+export default React.memo(MessageItem);

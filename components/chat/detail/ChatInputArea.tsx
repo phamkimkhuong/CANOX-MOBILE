@@ -40,7 +40,7 @@ interface ChatInputAreaProps {
  * - Dynamic send button (appears when text is entered)
  * - Attachment menu trigger
  */
-export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
+export const ChatInputArea: React.FC<ChatInputAreaProps> = React.memo(({
     onSend,
     onAttachment,
     placeholder = 'Nhập tin nhắn...',
@@ -243,7 +243,7 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
             />
         </>
     );
-};
+});
 
 const stylesheet = StyleSheet.create((theme) => ({
     outerContainer: {

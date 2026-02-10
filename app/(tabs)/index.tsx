@@ -242,29 +242,30 @@ export default function HomeScreen() {
 
     const items: ListItem[] = [headerItem, tabsItem];
 
-    if (isLoading && products.length === 0) {
+    // Show skeletons if either loading OR not yet ready for heavy render (maintain jank-free transition)
+    if (!isReady || (isLoading && products.length === 0)) {
       for (let i = 0; i < 6; i++) {
         items.push({ type: 'skeleton', id: `skeleton-${i}` });
       }
     } else {
       items.push(...products.map((product): ProductItem => ({
         type: 'product',
-        data: product,
+        data: product
       })));
     }
 
     return items;
-  }, [data, isLoading]);
+  }, [data, isLoading, isReady]);
 
   /**
    * Đo chiều cao HomeHeader (search bar) để định vị sticky overlay
    */
   const handleHomeHeaderLayout = useCallback((event: LayoutChangeEvent) => {
     const height = event.nativeEvent.layout.height;
-    if (homeHeaderHeight === 0) {
+    if (isReady && homeHeaderHeight === 0) {
       setHomeHeaderHeight(height);
     }
-  }, [homeHeaderHeight]);
+  }, [homeHeaderHeight, isReady]);
 
   /**
    * Callback khi MarketingHeader đo được chiều cao
@@ -424,7 +425,7 @@ export default function HomeScreen() {
    * ListEmpty: Loading indicator
    */
   const renderListEmpty = useCallback(() => {
-    if (isLoading) {
+    if (isLoading && isReady) {
       return (
         <View style={styles.emptyContainer}>
           <ActivityIndicator size="large" color={theme.colors.buttonActive} />
@@ -432,7 +433,7 @@ export default function HomeScreen() {
       );
     }
     return null;
-  }, [isLoading, styles.emptyContainer, theme.colors.buttonActive]);
+  }, [isLoading, isReady, styles.emptyContainer, theme.colors.buttonActive]);
 
   /**
    * ListFooter: Loading more indicator
@@ -468,58 +469,52 @@ export default function HomeScreen() {
         <HomeHeader />
       </View>
 
-      {!isReady ? (
-        <View style={styles.emptyContainer}>
-          <ActivityIndicator color={theme.colors.buttonActive} />
-        </View>
-      ) : (
-        <>
-          {/* 2. Sticky Tabs Overlay - Absolute positioned, controlled by Reanimated */}
-          <Animated.View
-            style={[
-              styles.stickyTabsOverlay,
-              { top: homeHeaderHeight },
-              stickyTabsAnimatedStyle,
-            ]}
-          >
-            <ProductTabs activeTab={activeTab} onTabChange={handleTabChange} />
-          </Animated.View>
-
-          {/* 3. FlashList - Main content với layout zigzag (masonry) */}
-          <FlashList<ListItem>
-            ref={listRef}
-            data={listData}
-            renderItem={renderItem}
-            keyExtractor={keyExtractor}
-            numColumns={2}
-            masonry={true}
-            optimizeItemArrangement={true}
-            ListEmptyComponent={renderListEmpty}
-            ListFooterComponent={renderListFooter}
-            getItemType={getItemType}
-            overrideItemLayout={overrideItemLayout}
-            onScroll={handleScroll}
-            scrollEventThrottle={16}
-            onEndReached={handleEndReached}
-            onEndReachedThreshold={0.5}
-            removeClippedSubviews={true}
-            refreshControl={
-              <RefreshControl
-                refreshing={isRefetching && !isLoading}
-                onRefresh={handleRefresh}
-                tintColor={theme.colors.buttonActive}
-                colors={[theme.colors.buttonActive]}
-                progressViewOffset={homeHeaderHeight}
-              />
-            }
-            contentContainerStyle={[
-              styles.listContent,
-              (isLoading || listData.length < 5) && minHeightStyle
-            ]}
-            showsVerticalScrollIndicator={false}
-          />
-        </>
+      {/* 2. Sticky Tabs Overlay - Absolute positioned, controlled by Reanimated */}
+      {isReady && (
+        <Animated.View
+          style={[
+            styles.stickyTabsOverlay,
+            { top: homeHeaderHeight },
+            stickyTabsAnimatedStyle,
+          ]}
+        >
+          <ProductTabs activeTab={activeTab} onTabChange={handleTabChange} />
+        </Animated.View>
       )}
+
+      {/* 3. FlashList - Main content với layout zigzag (masonry) */}
+      <FlashList<ListItem>
+        ref={listRef}
+        data={listData}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        numColumns={2}
+        masonry={true}
+        optimizeItemArrangement={true}
+        ListEmptyComponent={renderListEmpty}
+        ListFooterComponent={renderListFooter}
+        getItemType={getItemType}
+        overrideItemLayout={overrideItemLayout}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        onEndReached={handleEndReached}
+        onEndReachedThreshold={0.5}
+        removeClippedSubviews={true}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching && !isLoading}
+            onRefresh={handleRefresh}
+            tintColor={theme.colors.buttonActive}
+            colors={[theme.colors.buttonActive]}
+            progressViewOffset={homeHeaderHeight}
+          />
+        }
+        contentContainerStyle={[
+          styles.listContent,
+          (isLoading || listData.length < 5) && minHeightStyle
+        ]}
+        showsVerticalScrollIndicator={false}
+      />
     </View>
   );
 }

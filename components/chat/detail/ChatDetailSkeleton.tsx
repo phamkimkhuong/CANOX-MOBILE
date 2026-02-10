@@ -5,27 +5,29 @@
 
 import { SkeletonBox, SkeletonCircle } from '@/components/ui/feedback/Skeleton';
 import React from 'react';
-import { View } from 'react-native';
+import { View, type StyleProp, type ViewStyle } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 interface ChatDetailSkeletonProps {
     count?: number;
+    shimmerAnimatedStyle?: StyleProp<ViewStyle>;
 }
 
 /**
  * Single bubble skeleton item
  */
-const SkeletonBubble: React.FC<{ isMe: boolean }> = ({ isMe }) => {
+const SkeletonBubble: React.FC<{ isMe: boolean; shimmerAnimatedStyle?: StyleProp<ViewStyle> }> = ({ isMe, shimmerAnimatedStyle }) => {
     const styles = stylesheet;
 
     return (
         <View style={[styles.bubbleWrapper, isMe && styles.bubbleWrapperMe]}>
-            {!isMe && <SkeletonCircle size={32} style={styles.avatar} />}
+            {!isMe && <SkeletonCircle size={32} style={styles.avatar} animatedStyle={shimmerAnimatedStyle} />}
             <View style={styles.content}>
                 <SkeletonBox
                     width={isMe ? 180 : 200}
                     height={44}
                     borderRadius={16}
+                    animatedStyle={shimmerAnimatedStyle}
                     style={[
                         styles.bubble,
                         isMe ? styles.bubbleMe : styles.bubbleOther
@@ -37,7 +39,7 @@ const SkeletonBubble: React.FC<{ isMe: boolean }> = ({ isMe }) => {
     );
 };
 
-export const ChatDetailSkeleton: React.FC<ChatDetailSkeletonProps> = ({ count = 6 }) => {
+export const ChatDetailSkeleton: React.FC<ChatDetailSkeletonProps> = ({ count = 6, shimmerAnimatedStyle }) => {
     const styles = stylesheet;
 
     // Create alternating bubbles (other, me, other, other, me...)
@@ -46,7 +48,7 @@ export const ChatDetailSkeleton: React.FC<ChatDetailSkeletonProps> = ({ count = 
     return (
         <View style={styles.container}>
             {bubbles.slice(0, count).map((isMe, index) => (
-                <SkeletonBubble key={`detail-skeleton-${index}`} isMe={isMe} />
+                <SkeletonBubble key={`detail-skeleton-${index}`} isMe={isMe} shimmerAnimatedStyle={shimmerAnimatedStyle} />
             ))}
         </View>
     );

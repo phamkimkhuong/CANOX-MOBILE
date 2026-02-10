@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { ViewStyle } from 'react-native';
+import { type StyleProp, ViewStyle } from 'react-native';
 import Animated, {
     useAnimatedStyle,
     useSharedValue,
@@ -13,20 +13,20 @@ interface SkeletonBoxProps {
     height: number;
     borderRadius?: number;
     style?: ViewStyle;
-    animatedStyle?: object;
+    animatedStyle?: StyleProp<ViewStyle>;
 }
 
 interface SkeletonCircleProps {
     size: number;
     style?: ViewStyle;
-    animatedStyle?: object;
+    animatedStyle?: StyleProp<ViewStyle>;
 }
 
 interface SkeletonTextProps {
     width?: number | `${number}%`;
     height?: number;
     style?: ViewStyle;
-    animatedStyle?: object;
+    animatedStyle?: StyleProp<ViewStyle>;
 }
 
 const SHIMMER_DURATION = 800;
