@@ -243,6 +243,14 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     'camera-fill': { ios: 'camera', android: 'camera' },
     'videocam-fill': { ios: 'videocam', android: 'videocam' },
     circle: { ios: 'ellipse-outline', android: 'ellipse-outline' },
+
+    // === Legal & Compliance Icons ===
+    gavel: { ios: 'hammer-outline', android: 'hammer-outline' },
+    article: { ios: 'newspaper-outline', android: 'newspaper-outline' },
+    'settings-backup-restore': { ios: 'arrow-undo-outline', android: 'arrow-undo-outline' },
+    ban: { ios: 'ban-outline', android: 'ban-outline' },
+    build: { ios: 'construct-outline', android: 'construct-outline' },
+    'verified-shield': { ios: 'shield-checkmark-outline', android: 'shield-checkmark-outline' },
 };
 
 interface IconSymbolProps {

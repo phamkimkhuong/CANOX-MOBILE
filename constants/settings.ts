@@ -59,6 +59,14 @@ export const ICON_COLOR_MAP: Record<IconColorPreset, IconColorConfig> = {
         bg: 'rgba(239, 68, 68, 0.1)',
         icon: '#ef4444',
     },
+    violet: {
+        bg: 'rgba(139, 92, 246, 0.1)',
+        icon: '#8b5cf6',
+    },
+    amber: {
+        bg: 'rgba(245, 158, 11, 0.1)',
+        icon: '#f59e0b',
+    },
 };
 
 // SETTINGS SECTIONS CONFIGURATION

@@ -1,25 +1,19 @@
+import { PolicyWebView } from '@/components/common/PolicyWebView';
+import { LEGAL_URLS } from '@/constants/legal';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import React from 'react';
-import { Text, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
 
+/**
+ * Privacy Policy Screen
+ * Renders the privacy policy from the website via WebView
+ */
 export default function PrivacyPolicyScreen() {
-    // Unlock navigation when screen gains focus
     useNavigationUnlockOnFocus();
 
     return (
-
-        <View style={styles.container}>
-            <Text>Chính sách bảo mật</Text>
-        </View>
+        <PolicyWebView
+            url={LEGAL_URLS.PRIVACY}
+            title="Chính sách bảo mật"
+        />
     );
 }
-
-const styles = StyleSheet.create((theme) => ({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: theme.colors.background,
-    },
-}));

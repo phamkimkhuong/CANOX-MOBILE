@@ -1,25 +1,19 @@
+import { PolicyWebView } from '@/components/common/PolicyWebView';
+import { LEGAL_URLS } from '@/constants/legal';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import React from 'react';
-import { Text, View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
 
+/**
+ * Terms of Service Screen
+ * Renders the terms from the website via WebView
+ */
 export default function TermsScreen() {
-    // Unlock navigation when screen gains focus
     useNavigationUnlockOnFocus();
 
     return (
-
-        <View style={styles.container}>
-            <Text>Điều khoản dịch vụ</Text>
-        </View>
+        <PolicyWebView
+            url={LEGAL_URLS.TOS}
+            title="Điều khoản sử dụng"
+        />
     );
 }
-
-const styles = StyleSheet.create((theme) => ({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: theme.colors.background,
-    },
-}));

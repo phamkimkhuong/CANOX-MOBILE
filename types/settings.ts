@@ -34,7 +34,9 @@ export type IconColorPreset =
     | 'cyan'
     | 'sky'
     | 'yellow'
-    | 'red';
+    | 'red'
+    | 'violet'
+    | 'amber';
 
 /**
  * Icon color configuration

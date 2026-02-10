@@ -103,6 +103,7 @@ export const ROUTES = {
         NOTIFICATIONS: '/settings/notifications' as const,
         LANGUAGE: '/settings/language' as const,
         LEGAL_POLICIES: '/settings/legal' as const,
+        LEGAL_DETAIL: '/settings/legal/[slug]' as const,
         RATE_APP: '/settings/rate-app' as const,
         DELETE_ACCOUNT: '/settings/delete-account' as const,
     },

@@ -860,10 +860,12 @@ export interface ProfileTranslation {
         security: string;
         legal_tos: string;
         legal_privacy: string;
-        legal_buying: string;
+        legal_payment: string;
         legal_shipping: string;
         legal_return: string;
-        legal_dispute: string;
+        legal_prohibited: string;
+        legal_warranty: string;
+        legal_regulations: string;
         legal_seller: string;
         legal_policies: string;
     };
@@ -983,6 +985,13 @@ export interface ProfileTranslation {
         };
         helpTitle: string;
         helpMessage: string;
+    };
+    legalWebView: {
+        back: string;
+        errorTitle: string;
+        errorSubtitle: string;
+        retry: string;
+        loading: string;
     };
 }
 
