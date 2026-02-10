@@ -23,10 +23,6 @@ interface AppState {
     darkModeEnabled: boolean;
     setDarkMode: (enabled: boolean) => void;
 
-    // Biometrics
-    biometricsEnabled: boolean;
-    setBiometrics: (enabled: boolean) => void;
-
     // Onboarding
     hasSeenOnboarding: boolean;
     setHasSeenOnboarding: (value: boolean) => void;
@@ -60,10 +56,6 @@ export const useAppStore = create<AppState>()(
                 themeMode: enabled ? 'dark' : 'light',
             }),
 
-            // Biometrics
-            biometricsEnabled: false,
-            setBiometrics: (enabled) => set({ biometricsEnabled: enabled }),
-
             // Onboarding
             hasSeenOnboarding: false,
             setHasSeenOnboarding: (value) => set({ hasSeenOnboarding: value }),
@@ -93,7 +85,6 @@ export const useAppStore = create<AppState>()(
             partialize: (state) => ({
                 themeMode: state.themeMode,
                 darkModeEnabled: state.darkModeEnabled,
-                biometricsEnabled: state.biometricsEnabled,
                 hasSeenOnboarding: state.hasSeenOnboarding,
                 language: state.language,
                 hasAcceptedPrivacy: state.hasAcceptedPrivacy,

@@ -978,7 +978,6 @@ export interface ProfileTranslation {
             profile: string;
             'change-password': string;
             'linked-accounts': string;
-            biometrics: string;
             'bank-cards': string;
             notifications: string;
             language: string;

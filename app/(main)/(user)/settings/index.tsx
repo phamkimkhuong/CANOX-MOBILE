@@ -15,7 +15,6 @@ import {
 } from '@/components/settings';
 import { ROUTES } from '@/constants/routes';
 import { SETTINGS_SECTIONS } from '@/constants/settings';
-import { getBiometryDisplayName, useBiometrics } from '@/hooks/useBiometrics';
 import { useCache } from '@/hooks/useCache';
 import { useLogout } from '@/hooks/useLogout';
 import { useAppStore } from '@/store/useAppStore';
@@ -38,18 +37,7 @@ export default function SettingsScreen() {
     // App Store - Global settings
     const darkModeEnabled = useAppStore((state) => state.darkModeEnabled);
     const setDarkMode = useAppStore((state) => state.setDarkMode);
-    const biometricsEnabled = useAppStore((state) => state.biometricsEnabled);
-    const setBiometrics = useAppStore((state) => state.setBiometrics);
     const isAuthenticated = useIsAuthenticated();
-
-    // Hooks
-    const {
-        isEnabled: biometricsIsEnabled,
-        isSupported: biometricsSupported,
-        isLoading: biometricsLoading,
-        status: biometricStatus,
-        toggleBiometrics,
-    } = useBiometrics(biometricsEnabled, setBiometrics);
 
     const {
         formattedSize: cacheSize,
@@ -72,11 +60,6 @@ export default function SettingsScreen() {
     const handleNavigation = useCallback((route: any) => {
         Navigator.push(route);
     }, []);
-
-    // Handle biometrics toggle
-    const handleBiometricsToggle = useCallback(async () => {
-        await toggleBiometrics();
-    }, [toggleBiometrics]);
 
     // Handle dark mode toggle
     const handleDarkModeToggle = useCallback((value: boolean) => {
@@ -119,8 +102,6 @@ export default function SettingsScreen() {
     // Get dynamic values for settings items
     const getDynamicValue = useCallback((item: SettingsItemType): string | boolean | undefined => {
         switch (item.id) {
-            case 'biometrics':
-                return biometricsIsEnabled;
             case 'dark-mode':
                 return darkModeEnabled;
             case 'cache':
@@ -129,13 +110,11 @@ export default function SettingsScreen() {
                 return i18n.language?.startsWith('vi') ? 'Tiếng Việt' : 'English';
             default:
                 if (item.type === 'toggle' && item.storeKey) {
-                    return item.storeKey === 'biometricsEnabled'
-                        ? biometricsIsEnabled
-                        : darkModeEnabled;
+                    return darkModeEnabled;
                 }
                 return undefined;
         }
-    }, [biometricsIsEnabled, darkModeEnabled, cacheSize, i18n.language]);
+    }, [darkModeEnabled, cacheSize, i18n.language]);
 
     // Get onPress handler for each item
     const getItemHandler = useCallback((item: SettingsItemType): (() => void) | undefined => {
@@ -161,26 +140,21 @@ export default function SettingsScreen() {
         if (item.type !== 'toggle') return undefined;
 
         switch (item.id) {
-            case 'biometrics':
-                return () => handleBiometricsToggle();
             case 'dark-mode':
                 return handleDarkModeToggle;
             default:
                 return undefined;
         }
-    }, [handleBiometricsToggle, handleDarkModeToggle]);
+    }, [handleDarkModeToggle]);
 
-    // Get dynamic label for biometrics
+    // Get dynamic label
     const getDynamicLabel = useCallback((item: SettingsItemType): string => {
-        if (item.id === 'biometrics' && biometricStatus.biometryType) {
-            return getBiometryDisplayName(biometricStatus.biometryType);
-        }
         // Try to translate label based on ID
         const key = `settings.items.${item.id}`;
         /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
         const translatedLabel = t(key as any);
         return translatedLabel !== key ? translatedLabel : item.label;
-    }, [biometricStatus.biometryType, t]);
+    }, [t]);
 
     // Render a single settings item
     const renderItem = useCallback((item: SettingsItemType, index: number, total: number) => {
@@ -226,10 +200,6 @@ export default function SettingsScreen() {
             .map((section) => ({
                 ...section,
                 items: section.items.filter((item) => {
-                    // Hide biometrics if device doesn't support it
-                    if (item.id === 'biometrics' && !biometricsSupported && !biometricsLoading) {
-                        return false;
-                    }
                     // Hide notifications if not authenticated (guest mode)
                     if (item.id === 'notifications' && !isAuthenticated) {
                         return false;
@@ -238,7 +208,7 @@ export default function SettingsScreen() {
                 }),
             }))
             .filter((section) => section.items.length > 0);
-    }, [biometricsSupported, biometricsLoading, isAuthenticated]);
+    }, [isAuthenticated]);
 
     return (
         <View style={styles.container}>

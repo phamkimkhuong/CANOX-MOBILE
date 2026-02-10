@@ -5,11 +5,13 @@ import type {
     FlattenedCategoryItem,
     SubCategory,
 } from '@/types/category';
+import { buildImageUrl } from '@/utils/url';
 import { FlashList } from '@shopify/flash-list';
 import { Image } from 'expo-image';
 import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View, type StyleProp, type ViewStyle } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { CategoryBanner } from './CategoryBanner';
 
@@ -18,6 +20,7 @@ interface CategoryContentProps {
     isLoading?: boolean;
     /** Category ID để hiển thị banner targeted */
     categoryId?: string | null;
+    shimmerAnimatedStyle?: StyleProp<ViewStyle>;
 }
 
 // Constants
@@ -35,6 +38,7 @@ export const CategoryContent: React.FC<CategoryContentProps> = ({
     data,
     isLoading = false,
     categoryId,
+    shimmerAnimatedStyle,
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
@@ -118,7 +122,7 @@ export const CategoryContent: React.FC<CategoryContentProps> = ({
                 <View style={styles.gridItemImageContainer}>
                     {item.image ? (
                         <Image
-                            source={{ uri: item.image }}
+                            source={{ uri: buildImageUrl(item.image, null, 'thumb') }}
                             style={styles.gridItemImage}
                             contentFit="cover"
                             transition={200}
@@ -141,6 +145,12 @@ export const CategoryContent: React.FC<CategoryContentProps> = ({
         [styles, theme.colors.primarySoft]
     );
 
+    const brandNameStyle = useCallback((name: string) => ({
+        fontSize: name.length > 10 ? 10 : 12,
+        fontWeight: '700' as const,
+        color: theme.colors.secondary,
+    }), [theme.colors.secondary]);
+
     const renderBrands = useCallback(
         (brands: CategoryContentData['featuredBrands']) => {
             if (!brands || brands.length === 0) return null;
@@ -151,14 +161,14 @@ export const CategoryContent: React.FC<CategoryContentProps> = ({
                     <View style={styles.brandsGrid}>
                         {brands.map((brand) => (
                             <View key={brand.id} style={styles.brandItem}>
-                                <Text style={styles.brandName}>{brand.name}</Text>
+                                <Text style={brandNameStyle(brand.name)}>{brand.name}</Text>
                             </View>
                         ))}
                     </View>
                 </View>
             );
         },
-        [styles, t]
+        [styles, t, brandNameStyle]
     );
 
     const renderBanner = useCallback(
@@ -167,10 +177,11 @@ export const CategoryContent: React.FC<CategoryContentProps> = ({
                 <CategoryBanner
                     categoryId={catId}
                     marginHorizontal={0}
+                    shimmerAnimatedStyle={shimmerAnimatedStyle}
                 />
             </View>
         ),
-        [styles]
+        [styles, shimmerAnimatedStyle]
     );
 
     const renderItem = useCallback(
@@ -196,7 +207,7 @@ export const CategoryContent: React.FC<CategoryContentProps> = ({
     const getItemType = useCallback((item: FlattenedCategoryItem) => item.type, []);
 
     if (isLoading) {
-        return <CategoryContentSkeleton />;
+        return <CategoryContentSkeleton shimmerAnimatedStyle={shimmerAnimatedStyle} />;
     }
 
     if (!data) {
@@ -234,7 +245,7 @@ export const CategoryContent: React.FC<CategoryContentProps> = ({
  * Skeleton Component cho CategoryContent
  * Hiển thị ngay lập tức khi chuyển category
  */
-const CategoryContentSkeleton: React.FC = () => {
+const CategoryContentSkeleton: React.FC<{ shimmerAnimatedStyle?: StyleProp<ViewStyle> }> = ({ shimmerAnimatedStyle }) => {
     const styles = stylesheet;
 
     return (
@@ -242,16 +253,16 @@ const CategoryContentSkeleton: React.FC = () => {
 
             {/* Section Header Skeleton */}
             <View style={styles.skeletonSectionHeader}>
-                <View style={styles.skeletonTitle} />
-                <View style={styles.skeletonSeeAll} />
+                <Animated.View style={[styles.skeletonTitle, shimmerAnimatedStyle]} />
+                <Animated.View style={[styles.skeletonSeeAll, shimmerAnimatedStyle]} />
             </View>
 
             {/* Grid Items Skeleton */}
             <View style={styles.skeletonGrid}>
                 {Array.from({ length: 6 }).map((_, index) => (
                     <View key={index} style={styles.skeletonGridItem}>
-                        <View style={styles.skeletonCircle} />
-                        <View style={styles.skeletonText} />
+                        <Animated.View style={[styles.skeletonCircle, shimmerAnimatedStyle]} />
+                        <Animated.View style={[styles.skeletonText, shimmerAnimatedStyle]} />
                     </View>
                 ))}
             </View>
@@ -261,14 +272,14 @@ const CategoryContentSkeleton: React.FC = () => {
 
             {/* Another Section Skeleton */}
             <View style={styles.skeletonSectionHeader}>
-                <View style={styles.skeletonTitle} />
+                <Animated.View style={[styles.skeletonTitle, shimmerAnimatedStyle]} />
             </View>
 
             <View style={styles.skeletonGrid}>
                 {Array.from({ length: 6 }).map((_, index) => (
                     <View key={`second-${index}`} style={styles.skeletonGridItem}>
-                        <View style={styles.skeletonCircle} />
-                        <View style={styles.skeletonText} />
+                        <Animated.View style={[styles.skeletonCircle, shimmerAnimatedStyle]} />
+                        <Animated.View style={[styles.skeletonText, shimmerAnimatedStyle]} />
                     </View>
                 ))}
             </View>

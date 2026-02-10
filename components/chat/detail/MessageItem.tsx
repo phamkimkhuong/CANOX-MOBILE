@@ -13,7 +13,7 @@ import {
 } from '@/utils/adapter/chat/messageAdapter';
 import { formatMessageTime } from '@/utils/date';
 import { Navigator } from '@/utils/navigation';
-import { toPublicUrl, toSizedImageUrl } from '@/utils/url';
+import { buildImageUrl, toSizedImageUrl } from '@/utils/url';
 import * as Clipboard from 'expo-clipboard';
 import { Image } from 'expo-image';
 import React, { useCallback, useState } from 'react';
@@ -542,7 +542,7 @@ const MessageItem: React.FC<MessageItemProps> = React.memo(({
                 <View style={styles.avatarContainer}>
                     {showAvatar && (
                         <Image
-                            source={{ uri: toSizedImageUrl(message.sender.avatar, null, 'thumb') ?? message.sender.avatar }}
+                            source={{ uri: buildImageUrl(message.sender.avatar, null, 'thumb') }}
                             style={styles.avatar}
                         />
                     )}
@@ -727,7 +727,7 @@ const ImageContent: React.FC<{
                         style={styles.singleImageWrapper}
                     >
                         <Image
-                            source={{ uri: toSizedImageUrl(attachments[0].url, null, 'medium') ?? attachments[0].url }}
+                            source={{ uri: buildImageUrl(attachments[0].url, null, 'medium') }}
                             style={[styles.messageImage, getGridImageRadius(0, 1)]}
                             contentFit="cover"
                             placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
@@ -755,7 +755,7 @@ const ImageContent: React.FC<{
                                 style={styles.dynamicGridHalf(side * 1.2)}
                             >
                                 <Image
-                                    source={{ uri: toSizedImageUrl(img.url, null, 'small') ?? img.url }}
+                                    source={{ uri: buildImageUrl(img.url, null, 'small') }}
                                     style={[styles.fullSize, getGridImageRadius(idx, 2)]}
                                     contentFit="cover"
                                 />
@@ -785,7 +785,7 @@ const ImageContent: React.FC<{
                             style={styles.dynamicGridBig(bigSide, bigSide)}
                         >
                             <Image
-                                source={{ uri: toSizedImageUrl(imagesToShow[0].url, null, 'small') ?? imagesToShow[0].url }}
+                                source={{ uri: buildImageUrl(imagesToShow[0].url, null, 'small') }}
                                 style={[styles.dynamicGridBig(bigSide, bigSide), getGridImageRadius(0, 3)]}
                                 contentFit="cover"
                             />
@@ -798,7 +798,7 @@ const ImageContent: React.FC<{
                                 style={styles.dynamicGridBig(smallSide, smallHeight)}
                             >
                                 <Image
-                                    source={{ uri: toSizedImageUrl(imagesToShow[1].url, null, 'thumb') ?? imagesToShow[1].url }}
+                                    source={{ uri: buildImageUrl(imagesToShow[1].url, null, 'thumb') }}
                                     style={[styles.dynamicGridBig(smallSide, smallHeight), getGridImageRadius(1, 3)]}
                                     contentFit="cover"
                                 />
@@ -810,7 +810,7 @@ const ImageContent: React.FC<{
                                 style={styles.dynamicGridBig(smallSide, smallHeight)}
                             >
                                 <Image
-                                    source={{ uri: toSizedImageUrl(imagesToShow[2].url, null, 'thumb') ?? imagesToShow[2].url }}
+                                    source={{ uri: buildImageUrl(imagesToShow[2].url, null, 'thumb') }}
                                     style={[styles.dynamicGridBig(smallSide, smallHeight), getGridImageRadius(2, 3)]}
                                     contentFit="cover"
                                 />
@@ -839,7 +839,7 @@ const ImageContent: React.FC<{
                                 style={styles.dynamicGridHalf(boxSide)}
                             >
                                 <Image
-                                    source={{ uri: toSizedImageUrl(img.url, null, 'thumb') ?? img.url }}
+                                    source={{ uri: buildImageUrl(img.url, null, 'thumb') }}
                                     style={[styles.dynamicGridBig(boxSide, boxSide), getGridImageRadius(idx, 4)]}
                                     contentFit="cover"
                                 />
@@ -1047,7 +1047,7 @@ const ProductCardContent: React.FC<CardContentProps> = ({
         );
     }
 
-    const imageUrl = toSizedImageUrl(toPublicUrl(data.image), null, 'medium') ?? toPublicUrl(data.image);
+    const imageUrl = buildImageUrl(data.image, null, 'medium');
 
     return (
         <View style={styles.productCard}>
@@ -1198,7 +1198,7 @@ const OrderCardContent: React.FC<CardContentProps> = ({
                 {data.items.slice(0, 2).map((item, index) => (
                     <View key={index} style={styles.orderItemRow}>
                         <Image
-                            source={{ uri: toSizedImageUrl(toPublicUrl(item.image), null, 'thumb') ?? toPublicUrl(item.image) ?? 'https://via.placeholder.com/50' }}
+                            source={{ uri: buildImageUrl(item.image, null, 'thumb') }}
                             style={styles.orderItemThumb}
                             placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
                             transition={300}

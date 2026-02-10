@@ -8,7 +8,7 @@
 import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import { OrderShopInfo, OrderStatus } from '@/types/order/order';
 import { getStatusDisplay } from '@/utils/adapter/order/orderStatusMapper';
-import { toPublicUrl, toSizedImageUrl } from '@/utils/url';
+import { buildImageUrl } from '@/utils/url';
 import { Image } from 'expo-image';
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
@@ -38,7 +38,7 @@ export const OrderShopHeader: React.FC<OrderShopHeaderProps> = ({
                 <View style={styles.logoWrapper}>
                     {shopInfo.logoUrl ? (
                         <Image
-                            source={{ uri: toSizedImageUrl(toPublicUrl(shopInfo.logoUrl), null, 'thumb') ?? toPublicUrl(shopInfo.logoUrl) }}
+                            source={{ uri: buildImageUrl(shopInfo.logoUrl, null, 'thumb') }}
                             style={styles.logo}
                             contentFit="cover"
                             transition={200}

@@ -1,5 +1,7 @@
 import { IconSymbol } from '@/components/ui/Icon';
+import { CartHeaderButton, ChatHeaderButton } from '@/components/ui/navigation/HeaderButtons';
 import { ROUTES } from '@/constants/routes';
+import { useAuthStore } from '@/store/useAuthStore';
 import { Navigator } from '@/utils/navigation';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -26,6 +28,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     const { t } = useTranslation('profile');
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
     const handleSettings = () => {
         Navigator.push(ROUTES.SETTINGS.INDEX);
@@ -36,6 +39,13 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             <Text style={styles.title}>{t('title')}</Text>
 
             <View style={styles.actions}>
+                {isAuthenticated && (
+                    <>
+                        <CartHeaderButton />
+                        <ChatHeaderButton />
+                    </>
+                )}
+
                 {showSettings && (
                     <TouchableOpacity
                         style={styles.iconBtn}

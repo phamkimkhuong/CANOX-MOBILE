@@ -2,6 +2,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import { SlotStatus } from '@/types/campaign';
 import { FlashSaleItem } from '@/types/home';
 import { formatCurrency } from '@/utils/format';
+import { buildImageUrl } from '@/utils/url';
 import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 import React, { memo } from 'react';
@@ -53,7 +54,7 @@ export const FlashSaleProductCard = memo(({
                 {/* 1. Image Section with Glass Elements */}
                 <View style={styles.imageWrapper}>
                     <Image
-                        source={{ uri: item.image }}
+                        source={{ uri: buildImageUrl(item.image, null, 'thumb') }}
                         style={[styles.image, isSoldOut && styles.grayscale]}
                         contentFit="cover"
                         transition={300}

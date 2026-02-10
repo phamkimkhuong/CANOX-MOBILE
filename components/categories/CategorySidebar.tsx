@@ -2,7 +2,8 @@ import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import type { ParentCategory } from '@/types/category';
 import { FlashList, FlashListRef } from '@shopify/flash-list';
 import React, { useCallback, useEffect, useRef } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View, type StyleProp, type ViewStyle } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface CategorySidebarProps {
@@ -10,6 +11,7 @@ interface CategorySidebarProps {
     selectedId: string | null;
     onSelect: (categoryId: string, index: number) => void;
     isLoading?: boolean;
+    shimmerAnimatedStyle?: StyleProp<ViewStyle>;
 }
 
 /**
@@ -25,6 +27,7 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
     selectedId,
     onSelect,
     isLoading = false,
+    shimmerAnimatedStyle,
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
@@ -96,6 +99,7 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
     );
 
     const keyExtractor = useCallback((item: ParentCategory) => item.id, []);
+    const getItemType = useCallback(() => 'category', []);
 
     if (isLoading) {
         return (
@@ -103,7 +107,7 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
                 {/* Skeleton items */}
                 {Array.from({ length: 10 }).map((_, index) => (
                     <View key={index} style={styles.skeletonItem}>
-                        <View style={styles.skeletonText} />
+                        <Animated.View style={[styles.skeletonText, shimmerAnimatedStyle]} />
                     </View>
                 ))}
             </View>
@@ -117,6 +121,7 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
                 data={categories}
                 renderItem={renderItem}
                 keyExtractor={keyExtractor}
+                getItemType={getItemType}
                 showsVerticalScrollIndicator={false}
                 extraData={selectedId}
                 removeClippedSubviews={true}

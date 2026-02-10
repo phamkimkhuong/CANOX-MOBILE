@@ -9,7 +9,7 @@ import { useSlotDetail } from '@/hooks/api/campaign/useSlotDetail';
 import { SlotStatus } from '@/types/campaign';
 import { FlashSaleItem } from '@/types/home';
 import { Navigator } from '@/utils/navigation';
-import { toPublicUrl } from '@/utils/url';
+import { buildImageUrl } from '@/utils/url';
 import { FlashList } from '@shopify/flash-list';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -57,7 +57,9 @@ export default function FlashSaleScreen() {
     const campaignId = (activeTab?.campaignId || slotDetail?.campaignId) as string | undefined;
     const { data: campaign } = useCampaignDetail(campaignId);
 
-    const bannerImage = (campaign?.bannerUrl || campaign?.thumbnailUrl) ? toPublicUrl(campaign.bannerUrl || campaign.thumbnailUrl) : null;
+    const bannerImage = (campaign?.bannerUrl || campaign?.thumbnailUrl)
+        ? buildImageUrl(campaign.bannerUrl || campaign.thumbnailUrl, null, 'large')
+        : null;
     const handleRemindMe = useCallback((_id: string) => {
         // Implement remind logic here if needed
     }, []);

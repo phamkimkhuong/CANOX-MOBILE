@@ -103,14 +103,6 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
                 route: ROUTES.SETTINGS.LINKED_ACCOUNTS,
             },
             {
-                id: 'biometrics',
-                type: 'toggle',
-                label: 'Sinh trắc học (FaceID/TouchID)',
-                icon: 'fingerprint',
-                iconColor: 'emerald',
-                storeKey: 'biometricsEnabled',
-            },
-            {
                 id: 'support',
                 type: 'link',
                 label: 'Trung tâm hỗ trợ',

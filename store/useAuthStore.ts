@@ -22,7 +22,6 @@ import { logger } from '@/utils/logger';
 import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { create } from 'zustand';
-import { useAppStore } from './useAppStore';
 import { useCartStore } from './useCartStore';
 import { useCheckoutStore } from './useCheckoutStore';
 import { hideGlobalLoading, showGlobalLoading } from './useLoadingStore';
@@ -178,9 +177,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             useCartStore.getState().clear();
             useUserAddressStore.getState().clear();
             useCheckoutStore.getState().resetSession();
-
-            //  Reset sensitive app preferences
-            useAppStore.getState().setBiometrics(false);
 
             // Clear all TanStack Query caches (Nuclear Reset)
             queryClient.clear();

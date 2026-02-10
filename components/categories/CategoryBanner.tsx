@@ -19,9 +19,10 @@
 import { useCategoryBanner } from '@/hooks/api/useCategoryBanner';
 import type { BannerUI } from '@/types/banner';
 import { Navigator } from '@/utils/navigation';
+import { buildImageUrl } from '@/utils/url';
 import { Image } from 'expo-image';
 import React, { memo, useCallback } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, View, type StyleProp, type ViewStyle } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { StyleSheet } from 'react-native-unistyles';
 
@@ -38,6 +39,8 @@ interface CategoryBannerProps {
     aspectRatio?: number;
     /** Margin horizontal */
     marginHorizontal?: number;
+    /** Shared animation style */
+    shimmerAnimatedStyle?: StyleProp<ViewStyle>;
 }
 
 // ============================================
@@ -49,6 +52,7 @@ export const CategoryBanner = memo(({
     onPress,
     aspectRatio = 3 / 1,
     marginHorizontal = 0,
+    shimmerAnimatedStyle,
 }: CategoryBannerProps) => {
     const styles = stylesheet;
     const { primaryBanner, isLoading } = useCategoryBanner(categoryId);
@@ -92,7 +96,7 @@ export const CategoryBanner = memo(({
                     { aspectRatio, marginHorizontal },
                 ]}
             >
-                <View style={styles.skeleton} />
+                <Animated.View style={[styles.skeleton, shimmerAnimatedStyle]} />
             </View>
         );
     }
@@ -117,7 +121,7 @@ export const CategoryBanner = memo(({
                 ]}
             >
                 <Image
-                    source={{ uri: primaryBanner.imageUrl }}
+                    source={{ uri: buildImageUrl(primaryBanner.imageUrl, null, 'large') }}
                     style={styles.image}
                     contentFit="cover"
                     transition={300}

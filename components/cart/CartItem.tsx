@@ -16,7 +16,7 @@ import { useCartStore } from '@/store/useCartStore';
 import type { CartItemUI } from '@/types/cart';
 import { formatCurrency } from '@/utils/format';
 import { Navigator } from '@/utils/navigation';
-import { toSizedImageUrl } from '@/utils/url';
+import { buildImageUrl } from '@/utils/url';
 import { Image } from 'expo-image';
 import React, { memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -95,7 +95,7 @@ export const CartItem: React.FC<CartItemProps> = memo(({
                     ]}
                 >
                     <Image
-                        source={{ uri: toSizedImageUrl(imageUrl, null, 'thumb') ?? imageUrl }}
+                        source={{ uri: buildImageUrl(imageUrl, null, 'thumb') }}
                         style={[styles.image, isOutOfStock && styles.outOfStockImage]}
                         contentFit="cover"
                         transition={200}

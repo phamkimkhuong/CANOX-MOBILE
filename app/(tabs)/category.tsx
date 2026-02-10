@@ -3,13 +3,13 @@ import {
     CategoryHeader,
     CategorySidebar,
 } from '@/components/categories';
-import { ROUTES } from '@/constants/routes';
 import { useCategoryContent, useParentCategories } from '@/hooks/api/useCategories';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
-import { Navigator } from '@/utils/navigation';
+import { useFocusEffect } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
-import { View } from 'react-native';
-import { StyleSheet } from 'react-native-unistyles';
+import { ActivityIndicator, View } from 'react-native';
+import { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 /**
  * Category Screen - Master-Detail Layout
@@ -25,8 +25,31 @@ export default function CategoryScreen() {
     // Unlock navigation when screen gains focus
     useNavigationUnlockOnFocus();
 
+    const { theme } = useUnistyles();
     const styles = stylesheet;
 
+    // Deferred Rendering: Only render heavy content after transition
+    const [isReady, setIsReady] = useState(false);
+    useFocusEffect(
+        useCallback(() => {
+            const task = setTimeout(() => setIsReady(true), 50);
+            return () => clearTimeout(task);
+        }, [])
+    );
+
+    // Shared Animation Pattern: One loop for all Skeletons
+    const shimmerValue = useSharedValue(0.4);
+    useEffect(() => {
+        shimmerValue.value = withRepeat(
+            withTiming(1, { duration: 1000 }),
+            -1,
+            true
+        );
+    }, [shimmerValue]);
+
+    const shimmerAnimatedStyle = useAnimatedStyle(() => ({
+        opacity: shimmerValue.value,
+    }));
 
     // State: Selected category ID
     const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
@@ -58,39 +81,40 @@ export default function CategoryScreen() {
         setSelectedCategoryId(categoryId);
     }, []);
 
-    // Handler: Cart press
-    const handleCartPress = useCallback(() => {
-        Navigator.push(ROUTES.CART.INDEX);
-    }, []);
-
     return (
         <View style={styles.container}>
             {/* Header với Search */}
-            <CategoryHeader
-                onCartPress={handleCartPress}
-            />
+            <CategoryHeader />
 
-            {/* Main Content: Sidebar + Content */}
-            <View style={styles.mainContent}>
-                {/* Sidebar (96px width như HTML) */}
-                <View style={styles.sidebar}>
-                    <CategorySidebar
-                        categories={categories ?? []}
-                        selectedId={selectedCategoryId}
-                        onSelect={handleCategorySelect}
-                        isLoading={isCategoriesLoading}
-                    />
+            {!isReady ? (
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator color={theme.colors.buttonActive} />
                 </View>
+            ) : (
+                /* Main Content: Sidebar + Content */
+                <View style={styles.mainContent}>
+                    {/* Sidebar (96px width như HTML) */}
+                    <View style={styles.sidebar}>
+                        <CategorySidebar
+                            categories={categories ?? []}
+                            selectedId={selectedCategoryId}
+                            onSelect={handleCategorySelect}
+                            isLoading={isCategoriesLoading}
+                            shimmerAnimatedStyle={shimmerAnimatedStyle}
+                        />
+                    </View>
 
-                {/* Content Area */}
-                <View style={styles.content}>
-                    <CategoryContent
-                        data={categoryContent}
-                        isLoading={isContentLoading}
-                        categoryId={selectedCategoryId}
-                    />
+                    {/* Content Area */}
+                    <View style={styles.content}>
+                        <CategoryContent
+                            data={categoryContent}
+                            isLoading={isContentLoading}
+                            categoryId={selectedCategoryId}
+                            shimmerAnimatedStyle={shimmerAnimatedStyle}
+                        />
+                    </View>
                 </View>
-            </View>
+            )}
         </View>
     );
 }
@@ -99,6 +123,11 @@ const stylesheet = StyleSheet.create((theme) => ({
     container: {
         flex: 1,
         backgroundColor: theme.colors.background,
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     mainContent: {
         flex: 1,

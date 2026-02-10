@@ -1,14 +1,11 @@
 import { IconSymbol } from '@/components/ui/Icon';
-import { useCartStore } from '@/store/useCartStore';
+import { CartHeaderButton, ChatHeaderButton } from '@/components/ui/navigation/HeaderButtons';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { TextInput, View } from 'react-native';
 import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 
 interface CategoryHeaderProps {
-    cartCount?: number;
-    onCartPress?: () => void;
-    onChatPress?: () => void;
     onSearchFocus?: () => void;
 }
 
@@ -17,16 +14,11 @@ interface CategoryHeaderProps {
  * 
  */
 export const CategoryHeader: React.FC<CategoryHeaderProps> = ({
-    cartCount,
-    onCartPress,
-    onChatPress,
     onSearchFocus,
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const { t } = useTranslation('category');
-    const storeCartCount = useCartStore((state) => state.totalQuantity);
-    const displayCount = cartCount ?? storeCartCount;
 
     return (
         <View style={styles.container}>
@@ -41,36 +33,16 @@ export const CategoryHeader: React.FC<CategoryHeaderProps> = ({
                 />
             </View>
 
-            {/* Action Buttons */}
+            {/* Action Buttons dùng chung */}
             <View style={styles.actions}>
-                {/* Cart Button */}
-                <TouchableOpacity
-                    style={styles.actionBtn}
-                    onPress={onCartPress}
-                    activeOpacity={0.7}
-                >
-                    <IconSymbol name="cart-outline" size={24} color={theme.colors.typographySecondary} />
-                    {displayCount > 0 && (
-                        <View style={styles.badge}>
-                            <Text style={styles.badgeText}>
-                                {displayCount > 99 ? '99+' : displayCount}
-                            </Text>
-                        </View>
-                    )}
-                </TouchableOpacity>
-
-                {/* Chat Button */}
-                <TouchableOpacity
-                    style={styles.actionBtn}
-                    onPress={onChatPress}
-                    activeOpacity={0.7}
-                >
-                    <IconSymbol
-                        name="chatbubble-ellipses-outline"
-                        size={24}
-                        color={theme.colors.typographySecondary}
-                    />
-                </TouchableOpacity>
+                <CartHeaderButton
+                    color={theme.colors.typographySecondary}
+                    badgeBorderColor={theme.colors.surface}
+                />
+                <ChatHeaderButton
+                    color={theme.colors.typographySecondary}
+                    badgeBorderColor={theme.colors.surface}
+                />
             </View>
         </View>
     );

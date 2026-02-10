@@ -39,12 +39,18 @@ export const toSizedImageUrl = (
         return undefined;
     }
 
+    const base = (CDN_BASE_URL || '').replace(/\/$/, '');
+
     // Handle full URLs
     if (basePathOrTemplate.startsWith('http://') || basePathOrTemplate.startsWith('https://')) {
-        return basePathOrTemplate;
+        // If it belongs to our CDN, we can strip the base and continue with sizing logic
+        if (base && basePathOrTemplate.startsWith(base)) {
+            basePathOrTemplate = basePathOrTemplate.replace(base, '').replace(/^\/+/, '');
+        } else {
+            return basePathOrTemplate;
+        }
     }
 
-    const base = (CDN_BASE_URL || '').replace(/\/$/, '');
     if (!base) return undefined;
 
     let finalPath = basePathOrTemplate.replace(/^\/+/, '');

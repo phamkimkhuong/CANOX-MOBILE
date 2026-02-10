@@ -75,7 +75,7 @@ export interface ToggleSettingsItem extends BaseSettingsItem {
     type: 'toggle';
     /** Key in app store for persisting toggle state */
     storeKey: string;
-    /** Optional async check before toggle (e.g., biometrics permission) */
+    /** Optional async check before toggle */
     onToggleCheck?: () => Promise<boolean>;
 }
 
@@ -126,15 +126,6 @@ export interface SocialLinkConfig {
     label: string;
     connected: boolean;
 }
-// BIOMETRICS TYPES
-
-export type BiometricType = 'fingerprint' | 'face' | 'iris' | null;
-
-export interface BiometricStatus {
-    isSupported: boolean;
-    isEnrolled: boolean;
-    biometryType: BiometricType;
-}
 
 // CACHE TYPES
 
@@ -146,7 +137,6 @@ export interface CacheInfo {
 // SETTINGS STATE
 
 export interface SettingsState {
-    biometricsEnabled: boolean;
     darkModeEnabled: boolean;
     notificationsEnabled: boolean;
     language: 'vi' | 'en';

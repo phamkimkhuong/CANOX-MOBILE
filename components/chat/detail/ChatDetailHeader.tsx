@@ -7,7 +7,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import { shopRoutes } from '@/constants/routes';
 import { ConversationPartner } from '@/types/chat';
 import { Navigator } from '@/utils/navigation';
-import { toPublicUrl } from '@/utils/url';
+import { buildImageUrl } from '@/utils/url';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import React, { useCallback } from 'react';
@@ -74,7 +74,7 @@ export const ChatDetailHeader: React.FC<ChatDetailHeaderProps> = ({
                     <View style={styles.avatarContainer}>
                         {partner?.avatar ? (
                             <Image
-                                source={{ uri: toPublicUrl(partner.avatar) }}
+                                source={{ uri: buildImageUrl(partner.avatar, null, 'thumb') }}
                                 style={styles.avatar}
                                 contentFit="cover"
                             />

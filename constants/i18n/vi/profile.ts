@@ -177,7 +177,6 @@ export const PROFILE_STRINGS: ProfileTranslation = {
             profile: 'Hồ sơ & Địa chỉ',
             'change-password': 'Đổi mật khẩu',
             'linked-accounts': 'Tài khoản liên kết',
-            biometrics: 'Sinh trắc học (FaceID/TouchID)',
             'bank-cards': 'Tài khoản / Thẻ ngân hàng',
             notifications: 'Cài đặt thông báo',
             language: 'Ngôn ngữ / Language',

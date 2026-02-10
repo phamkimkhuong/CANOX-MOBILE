@@ -8,7 +8,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import { useShopProducts } from '@/hooks/api/useShop';
 import { ShopProductItemUI } from '@/types/shop';
 import { formatCurrency } from '@/utils/format';
-import { toPublicUrl } from '@/utils/url';
+import { buildImageUrl } from '@/utils/url';
 import {
     BottomSheetBackdrop,
     BottomSheetBackdropProps,
@@ -137,8 +137,6 @@ export const ShopProductPicker = forwardRef<BottomSheetModal, ShopProductPickerP
 
         // Render product item
         const renderProduct = useCallback(({ item }: { item: ShopProductItemUI }) => {
-            const imageUrl = toPublicUrl(item.thumbnail);
-
             return (
                 <Pressable
                     style={({ pressed }) => [
@@ -149,7 +147,7 @@ export const ShopProductPicker = forwardRef<BottomSheetModal, ShopProductPickerP
                 >
                     {/* Product Image */}
                     <Image
-                        source={{ uri: imageUrl || 'https://via.placeholder.com/80' }}
+                        source={{ uri: buildImageUrl(item.thumbnail, null, 'thumb') }}
                         style={styles.productImage}
                         contentFit="cover"
                     />

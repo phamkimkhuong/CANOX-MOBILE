@@ -1,18 +1,13 @@
 import { RollingSearchPlaceholder } from '@/components/search/RollingSearchPlaceholder';
 import { IconSymbol } from '@/components/ui/Icon';
-import { SmartNavButton } from '@/components/ui/navigation/SmartNavButton';
-import { ROUTES, searchRoutes } from '@/constants/routes';
+import { CartHeaderButton, ChatHeaderButton } from '@/components/ui/navigation/HeaderButtons';
+import { searchRoutes } from '@/constants/routes';
 import '@/constants/unistyles';
-import { usePrefetchCart } from '@/hooks/api/cart/useCart';
-import { useUnreadMessageCount } from '@/hooks/api/chat';
-import { usePrefetchChat } from '@/hooks/api/chat/useChatList';
 import { useHotKeywords } from '@/hooks/api/search';
-import { useAuthStore } from '@/store/useAuthStore';
-import { useCartStore } from '@/store/useCartStore';
 import { Navigator } from '@/utils/navigation';
 import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 
 /**
@@ -22,12 +17,6 @@ import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyl
 export const HomeHeader = () => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-    const cartItemCount = useCartStore((state) => state.totalQuantity);
-
-    // Abstracted Prefetch Actions (Architecture compliant)
-    const prefetchCart = usePrefetchCart();
-    const prefetchChat = usePrefetchChat();
 
     // Fetch hot keywords for rolling placeholder
     const { data: hotKeywords, isLoading: isLoadingKeywords } = useHotKeywords({ limit: 10 });
@@ -38,23 +27,11 @@ export const HomeHeader = () => {
         return hotKeywords.map((item) => item.keyword);
     }, [hotKeywords]);
 
-    // Fetch unread message count for chat badge
-    const { data: unreadMessageCount } = useUnreadMessageCount();
     const { t } = useTranslation('home');
 
     // Navigate to search entry screen
     const handleSearchPress = useCallback(() => {
         Navigator.push(searchRoutes.entry());
-    }, []);
-
-    // Navigate to cart screen
-    const handleCartPress = useCallback(() => {
-        Navigator.push(ROUTES.CART.INDEX);
-    }, []);
-
-    // Navigate to chat screen
-    const handleChatPress = useCallback(() => {
-        Navigator.push(ROUTES.TABS.CHAT);
     }, []);
 
     return (
@@ -79,50 +56,11 @@ export const HomeHeader = () => {
                 </View>
             </Pressable>
 
-            {/* 2. Các nút chức năng */}
+            {/* 2. Các nút chức năng dùng chung */}
             <View style={styles.actions}>
-                <SmartNavButton
-                    route={ROUTES.CART.INDEX}
-                    onPress={handleCartPress}
-                    style={styles.iconBtn}
-                    onPressIn={prefetchCart}
-                >
-                    {({ pressed }) => (
-                        <View style={[styles.iconWrapper, pressed && styles.pressedOpacity]}>
-                            <IconSymbol name="cart" size={26} color={theme.colors.header.onHeader} />
-                            {cartItemCount > 0 && (
-                                <View style={styles.badge}>
-                                    <Text style={styles.badgeText}>
-                                        {cartItemCount > 99 ? '99+' : cartItemCount}
-                                    </Text>
-                                </View>
-                            )}
-                        </View>
-                    )}
-                </SmartNavButton>
-
-                {/* {Router to chat.tsx} */}
-                <SmartNavButton
-                    route={ROUTES.TABS.CHAT}
-                    onPress={handleChatPress}
-                    style={styles.iconBtn}
-                    onPressIn={prefetchChat}
-                >
-                    {({ pressed }) => (
-                        <View style={[styles.iconWrapper, pressed && styles.pressedOpacity]}>
-                            <IconSymbol name="chatbubble-ellipses-outline" size={26} color={theme.colors.header.onHeader} />
-                            {isAuthenticated && unreadMessageCount !== undefined && unreadMessageCount > 0 && (
-                                <View style={styles.badge}>
-                                    <Text style={styles.badgeText}>
-                                        {unreadMessageCount > 99 ? '99+' : unreadMessageCount}
-                                    </Text>
-                                </View>
-                            )}
-                        </View>
-                    )}
-                </SmartNavButton>
+                <CartHeaderButton />
+                <ChatHeaderButton />
             </View>
-
         </View>
     );
 };

@@ -40,7 +40,7 @@ export const useDeleteAccount = () => {
             // Perform logout and cleanup
             await logout();
         },
-        onError: (error: any) => {
+        onError: (error: Error) => {
             hideGlobalLoading();
             Toast.show({
                 type: 'error',

@@ -177,7 +177,6 @@ export const PROFILE_STRINGS: ProfileTranslation = {
             profile: 'Profile & Address',
             'change-password': 'Change Password',
             'linked-accounts': 'Linked Accounts',
-            biometrics: 'Biometrics (FaceID/TouchID)',
             'bank-cards': 'Bank Accounts / Cards',
             notifications: 'Notification Settings',
             language: 'Language / Ngôn ngữ',
