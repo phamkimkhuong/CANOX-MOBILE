@@ -262,10 +262,10 @@ export default function HomeScreen() {
    */
   const handleHomeHeaderLayout = useCallback((event: LayoutChangeEvent) => {
     const height = event.nativeEvent.layout.height;
-    if (isReady && homeHeaderHeight === 0) {
+    if (height > 0 && homeHeaderHeight !== height) {
       setHomeHeaderHeight(height);
     }
-  }, [homeHeaderHeight, isReady]);
+  }, [homeHeaderHeight]);
 
   /**
    * Callback khi MarketingHeader đo được chiều cao
@@ -465,7 +465,7 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       {/* 1. Fixed HomeHeader - Search bar */}
-      <View onLayout={handleHomeHeaderLayout}>
+      <View onLayout={handleHomeHeaderLayout} style={{ zIndex: 110 }}>
         <HomeHeader />
       </View>
 

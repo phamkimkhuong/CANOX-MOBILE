@@ -304,10 +304,16 @@ ProductTabs.displayName = 'ProductTabs';
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
-        backgroundColor: theme.colors.surface,
+        backgroundColor: theme.colors.surfaceGlassOverlay,
         borderBottomWidth: 1,
-        borderBottomColor: theme.colors.border,
+        borderBottomColor: theme.colors.borderGlass,
         borderRadius: theme.radius.m,
+        // Premium soft shadow
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 5,
+        elevation: 2,
     },
     scrollContent: {
         paddingHorizontal: theme.margins.sm,
@@ -319,7 +325,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderBottomColor: 'transparent',
     },
     tabActive: {
-        borderBottomColor: theme.colors.primary,
+        borderBottomColor: theme.colors.vibrantRed,
     },
     tabContent: {
         flexDirection: 'row',
@@ -332,8 +338,8 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.secondary,
     },
     tabTextActive: {
-        color: theme.colors.primary,
-        fontWeight: '600',
+        color: theme.colors.vibrantRed,
+        fontWeight: '700',
     },
     newBadge: {
         paddingHorizontal: 6,
