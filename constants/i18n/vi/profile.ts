@@ -185,6 +185,9 @@ export const PROFILE_STRINGS: ProfileTranslation = {
             privacy: 'Chính sách bảo mật',
             terms: 'Điều khoản sử dụng',
             'rate-app': 'Đánh giá ứng dụng',
+            'app-version': 'Phiên bản ứng dụng',
+            support: 'Trung tâm hỗ trợ',
+            'legal-policies': 'Chính sách & Điều khoản',
         },
         actions: {
             logout: 'Đăng xuất',
@@ -192,6 +195,10 @@ export const PROFILE_STRINGS: ProfileTranslation = {
             deleteAccountConfirm: 'Việc này sẽ xóa vĩnh viễn tài khoản và tất cả dữ liệu của bạn. Hành động này không thể hoàn tác.',
             confirmClearCache: 'Bạn có chắc chắn muốn xóa {{size}} bộ nhớ đệm?',
             cacheCleared: 'Đã xóa bộ nhớ đệm',
+        },
+        version: {
+            upToDateTitle: 'Đã cập nhật',
+            upToDateMessage: 'Bạn đang sử dụng phiên bản mới nhất ({{version}}).',
         },
         footer: {
             version: 'Phiên bản {{version}}',

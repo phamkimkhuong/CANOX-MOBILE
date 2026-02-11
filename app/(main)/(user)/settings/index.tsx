@@ -1,9 +1,10 @@
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { Alert as CustomAlert } from '@/utils/AlertHelper';
 import { Navigator } from '@/utils/navigation';
+import * as Application from 'expo-application';
 import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, View } from 'react-native';
+import { Linking, Platform, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet } from 'react-native-unistyles';
 
@@ -37,7 +38,13 @@ export default function SettingsScreen() {
     // App Store - Global settings
     const darkModeEnabled = useAppStore((state) => state.darkModeEnabled);
     const setDarkMode = useAppStore((state) => state.setDarkMode);
+    const updateStatus = useAppStore((state) => state.updateStatus);
+    const updateStoreUrl = useAppStore((state) => state.updateStoreUrl);
     const isAuthenticated = useIsAuthenticated();
+
+    // Current app version
+    const currentVersion = Application.nativeApplicationVersion ?? '1.0.0';
+    const hasUpdate = updateStatus === 'soft' || updateStatus === 'force';
 
     const {
         formattedSize: cacheSize,
@@ -99,6 +106,26 @@ export default function SettingsScreen() {
         });
     }, [t]);
 
+    // Handle app version press — open store if update available, otherwise show up-to-date message
+    const handleAppVersionPress = useCallback(() => {
+        if (hasUpdate && updateStoreUrl) {
+            Linking.openURL(updateStoreUrl);
+        } else if (hasUpdate) {
+            const fallbackUrl = Platform.select({
+                ios: process.env.EXPO_PUBLIC_STORE_URL_IOS,
+                android: process.env.EXPO_PUBLIC_STORE_URL_ANDROID,
+            });
+            if (fallbackUrl) Linking.openURL(fallbackUrl);
+        } else {
+            CustomAlert.show({
+                title: t('settings.version.upToDateTitle' as any),
+                message: t('settings.version.upToDateMessage' as any, { version: currentVersion }),
+                type: 'success',
+                confirmText: t('common:actions.done'),
+            });
+        }
+    }, [hasUpdate, updateStoreUrl, t, currentVersion]);
+
     // Get dynamic values for settings items
     const getDynamicValue = useCallback((item: SettingsItemType): string | boolean | undefined => {
         switch (item.id) {
@@ -106,6 +133,8 @@ export default function SettingsScreen() {
                 return darkModeEnabled;
             case 'cache':
                 return cacheSize;
+            case 'app-version':
+                return `v${currentVersion}`;
             case 'language':
                 return i18n.language?.startsWith('vi') ? 'Tiếng Việt' : 'English';
             default:
@@ -114,7 +143,7 @@ export default function SettingsScreen() {
                 }
                 return undefined;
         }
-    }, [darkModeEnabled, cacheSize, i18n.language]);
+    }, [darkModeEnabled, cacheSize, currentVersion, i18n.language]);
 
     // Get onPress handler for each item
     const getItemHandler = useCallback((item: SettingsItemType): (() => void) | undefined => {
@@ -126,6 +155,9 @@ export default function SettingsScreen() {
             case 'info':
                 if (item.id === 'cache') {
                     return handleClearCache;
+                }
+                if (item.id === 'app-version') {
+                    return handleAppVersionPress;
                 }
                 return undefined;
             case 'action':
@@ -173,6 +205,9 @@ export default function SettingsScreen() {
             finalItem = { ...item, label, subtitle: dynamicValue };
         }
 
+        // Show badge for app-version when update is available
+        const showBadge = item.id === 'app-version' && hasUpdate;
+
         return (
             <SettingsItem
                 key={item.id}
@@ -183,9 +218,10 @@ export default function SettingsScreen() {
                 infoValue={infoValue}
                 isFirst={index === 0}
                 isLast={index === total - 1}
+                badge={showBadge}
             />
         );
-    }, [getDynamicValue, getItemHandler, getToggleHandler, getDynamicLabel]);
+    }, [getDynamicValue, getItemHandler, getToggleHandler, getDynamicLabel, hasUpdate]);
 
     // Filter sections based on availability and authentication
     const visibleSections = useMemo(() => {
@@ -256,6 +292,7 @@ export default function SettingsScreen() {
                 <SettingsFooter
                     onDeleteAccount={handleDeleteAccount}
                     showDeleteAccount={isAuthenticated}
+                    version={currentVersion}
                 />
             </ScrollView>
         </View>

@@ -24,6 +24,15 @@ module.exports = {
             "resizeMode": "contain",
             "backgroundColor": "#f6f6f6"
         },
+        "runtimeVersion": {
+            "policy": "appVersion"
+        },
+        "updates": {
+            "url": "https://u.expo.dev/34490ad6-6863-455c-bac8-4ee18be1a9a0",
+            "enabled": true,
+            "checkOnLaunch": "ALWAYS",
+            "fallbackToCacheTimeout": 3000
+        },
         "ios": {
             "supportsTablet": true,
             "bundleIdentifier": IS_DEV ? "com.cano.canox.dev" : (IS_PREVIEW ? "com.cano.canox.preview" : "com.cano.canox")

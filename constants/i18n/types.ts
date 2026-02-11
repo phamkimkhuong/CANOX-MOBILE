@@ -324,6 +324,14 @@ export interface CommonTranslation {
         contactSupport: string;
         support: string;
     };
+    update: {
+        forceTitle: string;
+        forceDescription: string;
+        softTitle: string;
+        softDescription: string;
+        updateNow: string;
+        later: string;
+    };
 }
 
 /**
@@ -986,6 +994,9 @@ export interface ProfileTranslation {
             privacy: string;
             terms: string;
             'rate-app': string;
+            'app-version': string;
+            support: string;
+            'legal-policies': string;
         };
         actions: {
             logout: string;
@@ -993,6 +1004,10 @@ export interface ProfileTranslation {
             deleteAccountConfirm: string;
             confirmClearCache: string;
             cacheCleared: string;
+        };
+        version: {
+            upToDateTitle: string;
+            upToDateMessage: string;
         };
         footer: {
             version: string;

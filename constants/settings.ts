@@ -177,6 +177,14 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
                 iconColor: 'rose',
                 valueKey: 'cacheSize',
             },
+            {
+                id: 'app-version',
+                type: 'info',
+                label: 'Phiên bản ứng dụng',
+                icon: 'system-update',
+                iconColor: 'emerald',
+                valueKey: 'appVersion',
+            },
         ],
     },
 ];
@@ -203,10 +211,6 @@ export const SOCIAL_LINKS_CONFIG: SocialLinkConfig[] = [
         connected: false,
     },
 ];
-
-// APP INFO
-
-export const APP_VERSION = '2.4.0';
 
 // CACHE SETTINGS
 

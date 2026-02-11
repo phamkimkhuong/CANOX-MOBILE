@@ -1,3 +1,5 @@
+import type { UpdateStatus } from '@/services/updateChecker';
+
 /**
  * ==============================================
  * APP STORE - Global Client State
@@ -40,6 +42,18 @@ interface AppState {
     // Maintenance / System Down state
     isSystemDown: boolean;
     setSystemDown: (status: boolean) => void;
+
+    // App Update state
+    /** Runtime: current update check result (not persisted) */
+    updateStatus: UpdateStatus;
+    updateMessage: string;
+    updateStoreUrl: string;
+    setUpdateInfo: (info: { updateStatus: UpdateStatus; updateMessage: string; updateStoreUrl: string }) => void;
+    /** Persisted: skipped version tracking for soft update cooldown */
+    skippedVersion: string | null;
+    skippedAt: number | null;
+    skipUpdate: () => void;
+    clearSkippedUpdate: () => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -77,11 +91,29 @@ export const useAppStore = create<AppState>()(
             // Maintenance
             isSystemDown: false,
             setSystemDown: (status) => set({ isSystemDown: status }),
+
+            // App Update
+            updateStatus: 'none' as UpdateStatus,
+            updateMessage: '',
+            updateStoreUrl: '',
+            setUpdateInfo: (info) => set(info),
+            skippedVersion: null,
+            skippedAt: null,
+            skipUpdate: () => set({
+                skippedVersion: 'skipped',
+                skippedAt: Date.now(),
+                updateStatus: 'none' as UpdateStatus,
+            }),
+            clearSkippedUpdate: () => set({
+                skippedVersion: null,
+                skippedAt: null,
+            }),
         }),
         {
             name: 'app-settings',
             storage: zustandMMKVStorage,
             // Only persist UI preferences, exclude runtime states like isSystemDown
+            // Persist UI prefs + skip cooldown. Exclude runtime states (isSystemDown, updateStatus).
             partialize: (state) => ({
                 themeMode: state.themeMode,
                 darkModeEnabled: state.darkModeEnabled,
@@ -90,6 +122,8 @@ export const useAppStore = create<AppState>()(
                 hasAcceptedPrivacy: state.hasAcceptedPrivacy,
                 crashlyticsConsent: state.crashlyticsConsent,
                 analyticsConsent: state.analyticsConsent,
+                skippedVersion: state.skippedVersion,
+                skippedAt: state.skippedAt,
             }),
         }
     )

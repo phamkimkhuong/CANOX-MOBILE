@@ -16,6 +16,8 @@ interface SettingsItemProps {
     onPress?: () => void;
     isFirst?: boolean;
     isLast?: boolean;
+    /** Show a small red badge dot (e.g., update available) */
+    badge?: boolean;
 }
 
 /**
@@ -34,6 +36,7 @@ export const SettingsItem: React.FC<SettingsItemProps> = memo(({
     onPress,
     isFirst = false,
     isLast = false,
+    badge = false,
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
@@ -76,6 +79,7 @@ export const SettingsItem: React.FC<SettingsItemProps> = memo(({
             'article': 'article',
             'store': 'store',
             'headset': 'headset',
+            'system-update': 'system-update',
         };
         return iconMap[icon] ?? 'chevron-right';
     };
@@ -181,6 +185,7 @@ export const SettingsItem: React.FC<SettingsItemProps> = memo(({
                     />
                 </View>
                 <Text style={styles.label}>{item.label}</Text>
+                {badge && <View style={styles.badge} />}
             </View>
 
             {/* Right: Type-specific content */}
@@ -267,5 +272,12 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     actionLabelDestructive: {
         color: theme.colors.error,
+    },
+    badge: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: theme.colors.error,
+        marginLeft: 4,
     },
 }));

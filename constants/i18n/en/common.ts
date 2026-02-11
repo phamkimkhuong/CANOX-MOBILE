@@ -46,4 +46,12 @@ export const COMMON_STRINGS: CommonTranslation = {
         contactSupport: 'Contact Support',
         support: '@CANOX E-Commerce Support',
     },
+    update: {
+        forceTitle: 'App Update Required',
+        forceDescription: 'Your current version is no longer supported. Please update to continue using the app.',
+        softTitle: 'New version available!',
+        softDescription: 'Update now to enjoy new features and improved performance.',
+        updateNow: 'Update Now',
+        later: 'Maybe Later',
+    },
 };

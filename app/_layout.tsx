@@ -1,4 +1,6 @@
+import { ForceUpdateScreen } from '@/components/common/ForceUpdateScreen';
 import { MaintenanceScreen } from '@/components/common/MaintenanceScreen';
+import { SoftUpdateBanner } from '@/components/common/SoftUpdateBanner';
 import '@/constants/i18n';
 import i18n from '@/constants/i18n';
 import '@/constants/unistyles';
@@ -32,10 +34,12 @@ import { UserSyncProvider } from '@/components/UserSyncProvider';
 import { WebSocketProvider } from '@/components/WebSocketProvider';
 import { ScrollToTopProvider } from '@/contexts/ScrollToTopContext';
 import { useAuthGuard } from '@/hooks/useAuthGuard';
+import { useOTAUpdate } from '@/hooks/useOTAUpdate';
 import { usePrivacyConsent } from '@/hooks/usePrivacyConsent';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { usePushTokenSync } from '@/hooks/usePushTokenSync';
 import { useTokenRefreshOnForeground } from '@/hooks/useTokenRefresh';
+import { useUpdateCheck } from '@/hooks/useUpdateCheck';
 import { alertRef } from '@/utils/AlertHelper';
 import { logger } from '@/utils/logger';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
@@ -79,6 +83,9 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const isSystemDown = useAppStore((state) => state.isSystemDown);
   const setSystemDown = useAppStore((state) => state.setSystemDown);
+  const updateStatus = useAppStore((state) => state.updateStatus);
+  const skippedAt = useAppStore((state) => state.skippedAt);
+  const skipUpdate = useAppStore((state) => state.skipUpdate);
 
   const [assetsLoaded, setAssetsLoaded] = useState(false);
 
@@ -111,6 +118,12 @@ export default function RootLayout() {
   const isReady = fontsLoaded && assetsLoaded;
 
   useAuthGuard();
+
+  // Version Update Check - Runs on mount and foreground resume
+  useUpdateCheck();
+
+  // EAS OTA Update - Silent background download (JS-only updates)
+  useOTAUpdate();
 
   // Layer 1: Token refresh when app returns to foreground
   useTokenRefreshOnForeground();
@@ -150,12 +163,24 @@ export default function RootLayout() {
     }
   }, [isReady]);
 
-  // HANDLE MAINTENANCE MODE
+  // MAINTENANCE MODE ──
   if (isSystemDown) {
     return (
       <GestureHandlerRootView style={styles.container}>
         <ThemeProvider value={NavigationTheme}>
           <MaintenanceScreen onRetry={() => setSystemDown(false)} />
+        </ThemeProvider>
+      </GestureHandlerRootView>
+    );
+  }
+
+  // EMERGENCY FORCE UPDATE — Only triggers when `app_force_update = true`
+  // in Firebase Console. Default OFF. Used only for critical security issues.
+  if (updateStatus === 'force') {
+    return (
+      <GestureHandlerRootView style={styles.container}>
+        <ThemeProvider value={NavigationTheme}>
+          <ForceUpdateScreen />
         </ThemeProvider>
       </GestureHandlerRootView>
     );
@@ -208,6 +233,12 @@ export default function RootLayout() {
                   />
                   {/* Global Loading Overlay - Blocks all interactions during critical operations */}
                   <GlobalLoadingOverlay />
+                  {/* Native Update Banner — Primary update mechanism.
+                      Shows when a newer native version is available on the Store.
+                      User can choose "Update Now" or "Maybe Later" (7-day cooldown). */}
+                  {updateStatus === 'soft' && !skippedAt && (
+                    <SoftUpdateBanner onDismiss={skipUpdate} />
+                  )}
                   <StatusBar style="dark" />
                   {/* Navigation Bar Background - Dark background for device navigation bar area */}
                   <NavigationBarBackground />

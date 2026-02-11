@@ -46,4 +46,12 @@ export const COMMON_STRINGS: CommonTranslation = {
         contactSupport: 'Liên hệ hỗ trợ',
         support: '@CANOX E-Commerce Support',
     },
+    update: {
+        forceTitle: 'Cần cập nhật ứng dụng',
+        forceDescription: 'Phiên bản bạn đang dùng đã quá cũ và không còn được hỗ trợ. Vui lòng cập nhật để tiếp tục sử dụng.',
+        softTitle: 'Phiên bản mới đã có!',
+        softDescription: 'Cập nhật ngay để trải nghiệm những tính năng mới và cải thiện hiệu suất.',
+        updateNow: 'Cập nhật ngay',
+        later: 'Để sau',
+    },
 };

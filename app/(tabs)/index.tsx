@@ -465,7 +465,7 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       {/* 1. Fixed HomeHeader - Search bar */}
-      <View onLayout={handleHomeHeaderLayout} style={{ zIndex: 110 }}>
+      <View onLayout={handleHomeHeaderLayout} style={styles.headerContainer}>
         <HomeHeader />
       </View>
 
@@ -523,6 +523,9 @@ const stylesheet = StyleSheet.create((theme) => ({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
+  },
+  headerContainer: {
+    zIndex: 110,
   },
   listContent: {
     paddingHorizontal: theme.margins.sm,

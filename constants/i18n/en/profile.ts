@@ -185,6 +185,9 @@ export const PROFILE_STRINGS: ProfileTranslation = {
             privacy: 'Privacy Policy',
             terms: 'Terms of Service',
             'rate-app': 'Rate Our App',
+            'app-version': 'App Version',
+            support: 'Help Center',
+            'legal-policies': 'Policies & Terms',
         },
         actions: {
             logout: 'Logout',
@@ -192,6 +195,10 @@ export const PROFILE_STRINGS: ProfileTranslation = {
             deleteAccountConfirm: 'This will permanently delete your account and all your data. This action cannot be undone.',
             confirmClearCache: 'Are you sure you want to clear {{size}} of cache?',
             cacheCleared: 'Cache cleared successfully',
+        },
+        version: {
+            upToDateTitle: 'Up to Date',
+            upToDateMessage: 'You are using the latest version ({{version}}).',
         },
         footer: {
             version: 'Version {{version}}',

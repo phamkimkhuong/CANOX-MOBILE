@@ -13,3 +13,7 @@ export type { StateType, StateViewProps } from './StateView';
 export { DataGuard, defaultIsEmpty, detectErrorType } from './DataGuard';
 export type { DataGuardMeta, DataGuardProps } from './DataGuard';
 
+// Update / Version Guard Components
+export { ForceUpdateScreen } from './ForceUpdateScreen';
+export { SoftUpdateBanner, shouldShowSoftUpdate } from './SoftUpdateBanner';
+

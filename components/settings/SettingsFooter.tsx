@@ -1,4 +1,3 @@
-import { APP_VERSION } from '@/constants/settings';
 import { MaterialIcons } from '@expo/vector-icons';
 import React, { memo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -8,6 +7,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 interface SettingsFooterProps {
     onDeleteAccount?: () => void;
     showDeleteAccount?: boolean;
+    version?: string;
 }
 
 /**
@@ -17,6 +17,7 @@ interface SettingsFooterProps {
 export const SettingsFooter: React.FC<SettingsFooterProps> = memo(({
     onDeleteAccount,
     showDeleteAccount = true,
+    version,
 }) => {
     const { theme } = useUnistyles();
     const { t } = useTranslation('profile');
@@ -50,7 +51,7 @@ export const SettingsFooter: React.FC<SettingsFooterProps> = memo(({
                     color={theme.colors.secondary}
                 />
                 <Text style={styles.versionText}>
-                    {t('settings.footer.version', { version: APP_VERSION })}
+                    {t('settings.footer.version', { version: version || '1.0.0' })}
                 </Text>
             </View>
 
