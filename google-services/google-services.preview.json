@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "615278692622",
+    "project_id": "canox-9a8e6",
+    "storage_bucket": "canox-9a8e6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:615278692622:android:57b5e64d5aaf02a275af5f",
+        "android_client_info": {
+          "package_name": "com.calatha.canox.dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCYw30eQP--tsi_74lSW9Iq66oiqi40mFA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:615278692622:android:29e5a414de5fffe375af5f",
+        "android_client_info": {
+          "package_name": "com.cano.canox"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCYw30eQP--tsi_74lSW9Iq66oiqi40mFA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:615278692622:android:75517addaa27aca475af5f",
+        "android_client_info": {
+          "package_name": "com.cano.canox.preview"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCYw30eQP--tsi_74lSW9Iq66oiqi40mFA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

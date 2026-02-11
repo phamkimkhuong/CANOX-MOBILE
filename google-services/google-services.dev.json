@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "521840324498",
+    "project_id": "ebayecommerce",
+    "storage_bucket": "ebayecommerce.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:521840324498:android:d58745e4c54e056cc85b4b",
+        "android_client_info": {
+          "package_name": "com.cano.canox.dev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "521840324498-77tcis6rs8dqs4h94q019jo6t18lf8v2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA5co6JOdXZSe_hNUTNXkDNDpNt5-HNTIA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "521840324498-77tcis6rs8dqs4h94q019jo6t18lf8v2.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "521840324498-qqjs0eje1gl67opcksp8e7rtsvs338d6.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.calatha.ebay.dev"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
