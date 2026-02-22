@@ -6,17 +6,20 @@
  * Using custom segmented tabs instead of Material Top Tabs
  */
 
+import { DataGuard } from '@/components/common/DataGuard';
 import {
     PendingReviewList,
     ReviewHistoryList,
 } from '@/components/reviews/list';
+import { RatingFilterBar } from '@/components/reviews/list/RatingFilterBar';
+import { ReviewListSkeleton } from '@/components/reviews/list/ReviewListSkeleton';
 import { IconSymbol } from '@/components/ui/Icon';
 import { reviewRoutes } from '@/constants/routes';
 import {
     useMyReviews,
     usePendingReviews,
     useRefreshMyReviews,
-    useRefreshPendingReviews,
+    useRefreshPendingReviews
 } from '@/hooks/api/review';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import type { MyReviewUI, RatingFilter } from '@/types/review';
@@ -53,24 +56,25 @@ export default function ReviewsScreen() {
     const [ratingFilter, setRatingFilter] = useState<RatingFilter>('all');
 
     // Pending reviews data
+    const pendingQuery = usePendingReviews();
     const {
         pendingGroups,
         pendingCount,
         isLoading: isPendingLoading,
         isRefetching: isPendingRefetching,
-        error: pendingError,
-    } = usePendingReviews();
+    } = pendingQuery;
     const { refresh: refreshPending } = useRefreshPendingReviews();
 
     // History reviews data
+    const historyQuery = useMyReviews(ratingFilter, activeTab === 'history');
     const {
-        reviews,
+        reviews: historyReviews,
         isLoading: isHistoryLoading,
         isRefetching: isHistoryRefetching,
         isFetchingNextPage,
         hasNextPage,
         fetchNextPage,
-    } = useMyReviews(ratingFilter, activeTab === 'history');
+    } = historyQuery;
     const { refresh: refreshHistory } = useRefreshMyReviews();
 
     // Handlers
@@ -175,28 +179,50 @@ export default function ReviewsScreen() {
             {/* Tab Content */}
             <View style={styles.content}>
                 {activeTab === 'pending' ? (
-                    <PendingReviewList
-                        groups={pendingGroups}
-                        isLoading={isPendingLoading}
-                        isRefreshing={isPendingRefetching}
-                        onRefresh={handleRefreshPending}
-                        error={pendingError}
-                        filterOrderId={filterOrderId}
-                        onClearFilter={handleClearFilter}
-                    />
+                    <DataGuard
+                        query={pendingQuery}
+                        skeleton={<ReviewListSkeleton />}
+                        isDataEmpty={() => false}
+                    >
+                        {() => (
+                            <PendingReviewList
+                                groups={pendingGroups}
+                                isRefreshing={isPendingRefetching}
+                                onRefresh={handleRefreshPending}
+                                filterOrderId={filterOrderId}
+                                onClearFilter={handleClearFilter}
+                            />
+                        )}
+                    </DataGuard>
                 ) : (
-                    <ReviewHistoryList
-                        reviews={reviews}
-                        ratingFilter={ratingFilter}
-                        onRatingFilterChange={handleRatingFilterChange}
-                        isLoading={isHistoryLoading}
-                        isRefreshing={isHistoryRefetching}
-                        onRefresh={handleRefreshHistory}
-                        isFetchingNextPage={isFetchingNextPage}
-                        hasNextPage={hasNextPage}
-                        onLoadMore={handleLoadMore}
-                        onEditReview={handleEditReview}
-                    />
+                    <DataGuard
+                        query={historyQuery}
+                        skeleton={
+                            <View style={{ flex: 1 }}>
+                                <RatingFilterBar
+                                    activeFilter={ratingFilter}
+                                    onFilterChange={handleRatingFilterChange}
+                                    counts={undefined}
+                                />
+                                <ReviewListSkeleton />
+                            </View>
+                        }
+                        isDataEmpty={() => false}
+                    >
+                        {() => (
+                            <ReviewHistoryList
+                                reviews={historyReviews}
+                                ratingFilter={ratingFilter}
+                                onRatingFilterChange={handleRatingFilterChange}
+                                isRefreshing={isHistoryRefetching}
+                                onRefresh={handleRefreshHistory}
+                                isFetchingNextPage={isFetchingNextPage}
+                                hasNextPage={hasNextPage}
+                                onLoadMore={handleLoadMore}
+                                onEditReview={handleEditReview}
+                            />
+                        )}
+                    </DataGuard>
                 )}
             </View>
         </View>

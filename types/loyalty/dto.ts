@@ -4,8 +4,14 @@
  * ==============================================
  */
 
+// ============================================
+// BATCH
+// ============================================
+
 /**
  * Individual point batch for a user in a shop
+ * GET /buyer/loyalty/shops/{shopId}/batches → data[]
+ * GET /buyer/loyalty/shops/{shopId} → data.batches[]
  */
 export interface UserShopPointDTO {
     batchId: string;
@@ -18,8 +24,13 @@ export interface UserShopPointDTO {
     daysUntilExpiry: number;
 }
 
+// ============================================
+// SHOP SUMMARY (PointBalanceResponse)
+// ============================================
+
 /**
- * Summary of points in a shop
+ * Comprehensive loyalty info for a single shop
+ * GET /buyer/loyalty/shops/{shopId}
  */
 export interface PointBalanceDTO {
     totalAvailable: number;
@@ -29,11 +40,77 @@ export interface PointBalanceDTO {
     queriedAt: string; // ISO Date
 }
 
+// ============================================
+// HISTORY (PointHistoryResponse)
+// ============================================
+
 /**
- * Request to consume points
+ * Transaction history summary + paginated transactions
+ * GET /buyer/loyalty/shops/{shopId}/history
+ */
+export interface PointHistoryDTO {
+    currentBalance: number;
+    totalEarned: number;
+    totalSpent: number;
+    totalExpired: number;
+    transactions: PointHistoryPageDTO;
+}
+
+export interface PointHistoryPageDTO {
+    content: object[];
+    totalElements: number;
+    totalPages: number;
+    number: number; // current page (0-indexed)
+    size: number;
+    first: boolean;
+    last: boolean;
+    empty: boolean;
+}
+
+// ============================================
+// OVERVIEW (LoyaltyOverviewResponse)
+// ============================================
+
+/**
+ * Dashboard showing points across all shops
+ * GET /buyer/loyalty/overview
+ */
+export interface LoyaltyOverviewDTO {
+    totalPointsAllShops: number;
+    totalShopsWithPoints: number;
+    totalExpiringPoints: number;
+    shops: ShopPointSummaryDTO[];
+}
+
+export interface ShopPointSummaryDTO {
+    shopId: string;
+    shopName: string;
+    shopLogo: string;
+    totalPoints: number;
+    expiringPoints: number;
+    nearestExpiryDate: string | null; // ISO Date, nullable
+    activeBatches: number;
+}
+
+// ============================================
+// REDEEM
+// ============================================
+
+/**
+ * Request to redeem points
+ * POST /buyer/loyalty/shops/{shopId}/redeem
  */
 export interface ConsumePointsRequestDTO {
     shopId: string;
     orderId: string;
     amount: number;
+}
+
+/**
+ * Response after redeeming points
+ */
+export interface PointRedeemResponseDTO {
+    orderId: string;
+    redeemedPoints: number;
+    remainingPoints: number;
 }

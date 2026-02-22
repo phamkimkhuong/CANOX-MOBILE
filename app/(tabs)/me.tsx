@@ -7,6 +7,7 @@ import {
     SettingsMenu,
     UserInfoCard,
 } from '@/components/profile';
+import { useLoyaltyOverview } from '@/hooks/api/loyalty/useLoyalty';
 import {
     // useFollowedShops,
     useOrderStats,
@@ -54,6 +55,10 @@ export default function MeScreen() {
         data: walletBalance,
         isLoading: isLoadingWallet,
     } = useWalletBalance();
+
+    const {
+        data: loyaltyOverview,
+    } = useLoyaltyOverview();
 
     const {
         data: wishlistData,
@@ -159,7 +164,7 @@ export default function MeScreen() {
                 {/* Services Grid */}
                 <ServiceGrid
                     walletBalance={walletBalance?.balance ?? 0}
-                    coinsBalance={walletBalance?.coins ?? 0}
+                    coinsBalance={loyaltyOverview?.totalPoints ?? 0}
                     voucherCount={walletBalance?.vouchers ?? 0}
                     reviewCount={orderStats?.review ?? 0}
                     favoriteCount={favoriteCount}

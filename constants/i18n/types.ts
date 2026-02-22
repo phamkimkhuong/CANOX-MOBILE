@@ -1529,6 +1529,35 @@ export interface WishlistTranslation {
 }
 
 /**
+ * Loyalty module translations
+ */
+export interface LoyaltyTranslation {
+    title: string;
+    hero: {
+        totalCoinsLabel: string;
+        unit: string;
+        shopCountLabel: string;
+        expiringLabel: string;
+    };
+    shopSection: {
+        title: string;
+    };
+    emptyState: {
+        title: string;
+        message: string;
+        shopNowBtn: string;
+    };
+    howItWorks: {
+        title: string;
+        steps: {
+            buy: { title: string; desc: string };
+            accumulate: { title: string; desc: string };
+            use: { title: string; desc: string };
+        };
+    };
+}
+
+/**
  * Global I18n Resources
  */
 export interface I18nResources {
@@ -1551,4 +1580,5 @@ export interface I18nResources {
     video: VideoTranslation;
     wishlist: WishlistTranslation;
     shop: ShopTranslation;
+    loyalty: LoyaltyTranslation;
 }

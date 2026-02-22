@@ -2,114 +2,158 @@
  * ==============================================
  * ORDER CARD SKELETON - Loading Placeholder
  * ==============================================
- * Hiển thị khi đang load danh sách đơn hàng
+ * Hiển thị khi đang load danh sách đơn hàng.
  */
 
-import { SkeletonBox } from '@/components/ui/feedback/Skeleton';
-import React from 'react';
+import React, { memo, useEffect } from 'react';
 import { View } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { StyleSheet } from 'react-native-unistyles';
 
-export const OrderCardSkeleton: React.FC = () => {
+const SHIMMER_DURATION = 800;
+
+/**
+ * Single order card skeleton — zero hook overhead
+ */
+const SkeletonCard: React.FC<{ animatedStyle: object }> = ({ animatedStyle }) => {
     const styles = stylesheet;
 
     return (
-        <View style={styles.container}>
-            {/* Header Skeleton */}
+        <View style={styles.card}>
+            {/* Header: Shop icon + name */}
             <View style={styles.header}>
-                <View style={styles.headerLeft}>
-                    <SkeletonBox width={28} height={28} borderRadius={8} />
-                    <SkeletonBox width={100} height={14} />
-                </View>
-                <SkeletonBox width={80} height={24} borderRadius={8} />
+                <Animated.View style={[styles.iconCircle, animatedStyle]} />
+                <Animated.View style={[styles.line, styles.headerName, animatedStyle]} />
             </View>
 
-            {/* Product Skeleton */}
+            {/* Product: Image + text */}
             <View style={styles.productRow}>
-                <SkeletonBox width={72} height={72} borderRadius={8} />
-                <View style={styles.productInfo}>
-                    <SkeletonBox width="100%" height={14} />
-                    <SkeletonBox width="60%" height={12} style={styles.mt6} />
-                    <View style={styles.priceRow}>
-                        <SkeletonBox width={80} height={14} />
-                        <SkeletonBox width={24} height={12} />
-                    </View>
+                <Animated.View style={[styles.productImage, animatedStyle]} />
+                <View style={styles.productText}>
+                    <Animated.View style={[styles.line, styles.w100, animatedStyle]} />
+                    <Animated.View style={[styles.line, styles.w60, animatedStyle]} />
                 </View>
             </View>
 
-
-            {/* Summary Skeleton */}
+            {/* Summary: price total */}
             <View style={styles.summary}>
-                <SkeletonBox width={100} height={12} />
-                <SkeletonBox width={120} height={16} />
-            </View>
-
-            {/* Actions Skeleton */}
-            <View style={styles.actions}>
-                <SkeletonBox width={100} height={36} borderRadius={8} />
-                <SkeletonBox width={100} height={36} borderRadius={8} />
+                <Animated.View style={[styles.line, styles.summaryLabel, animatedStyle]} />
+                <Animated.View style={[styles.line, styles.summaryPrice, animatedStyle]} />
             </View>
         </View>
     );
 };
 
 /**
+ * Exported for backward compat — single card with optional shared animation
+ */
+export const OrderCardSkeleton = memo<{ animatedStyle?: object }>(({ animatedStyle }) => {
+    const opacity = useSharedValue(0.3);
+
+    useEffect(() => {
+        if (animatedStyle) return;
+        opacity.value = withRepeat(
+            withTiming(1, { duration: SHIMMER_DURATION }),
+            -1,
+            true
+        );
+    }, [animatedStyle, opacity]);
+
+    const internalStyle = useAnimatedStyle(() => ({
+        opacity: opacity.value,
+    }));
+
+    return <SkeletonCard animatedStyle={animatedStyle ?? internalStyle} />;
+});
+
+OrderCardSkeleton.displayName = 'OrderCardSkeleton';
+
+/**
  * Multiple Skeletons for list
  */
-export const OrderListSkeleton: React.FC<{ count?: number }> = ({ count = 3 }) => {
+export const OrderListSkeleton = memo<{ count?: number }>(({ count = 3 }) => {
     const styles = stylesheet;
+
+    // Single shared animation for ALL elements
+    const opacity = useSharedValue(0.3);
+
+    useEffect(() => {
+        opacity.value = withRepeat(
+            withTiming(1, { duration: SHIMMER_DURATION }),
+            -1,
+            true
+        );
+    }, [opacity]);
+
+    const animatedStyle = useAnimatedStyle(() => ({
+        opacity: opacity.value,
+    }));
+
     return (
         <View style={styles.listContainer}>
             {Array.from({ length: count }).map((_, index) => (
-                <OrderCardSkeleton key={index} />
+                <SkeletonCard key={index} animatedStyle={animatedStyle} />
             ))}
         </View>
     );
-};
+});
+
+OrderListSkeleton.displayName = 'OrderListSkeleton';
 
 const stylesheet = StyleSheet.create((theme) => ({
-    mt6: {
-        marginTop: 6,
-    },
+    // ============ List ============
     listContainer: {
-        paddingTop: 16,
+        paddingTop: theme.margins.md,
     },
-    container: {
+
+    // ============ Card ============
+    card: {
         backgroundColor: theme.colors.surface,
         borderRadius: theme.radius.l,
         marginHorizontal: theme.margins.md,
         marginBottom: theme.margins.md,
         overflow: 'hidden',
     },
+
+    // ============ Header ============
     header: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
+        gap: theme.margins.sm,
         paddingHorizontal: theme.margins.md,
         paddingVertical: theme.margins.smd,
         borderBottomWidth: 1,
         borderBottomColor: theme.colors.border,
     },
-    headerLeft: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: theme.margins.sm,
+    iconCircle: {
+        width: 24,
+        height: 24,
+        borderRadius: 12,
+        backgroundColor: theme.colors.secondaryLight,
     },
+    headerName: {
+        width: 100,
+    },
+
+    // ============ Product ============
     productRow: {
         flexDirection: 'row',
         padding: theme.margins.md,
         gap: theme.margins.smd,
     },
-    productInfo: {
+    productImage: {
+        width: 72,
+        height: 72,
+        borderRadius: theme.radius.m,
+        backgroundColor: theme.colors.secondaryLight,
+    },
+    productText: {
         flex: 1,
-        justifyContent: 'space-between',
+        gap: 8,
+        justifyContent: 'center',
     },
-    priceRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginTop: 8,
-    },
+
+    // ============ Summary ============
     summary: {
         flexDirection: 'row',
         justifyContent: 'flex-end',
@@ -120,13 +164,20 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderTopWidth: 1,
         borderTopColor: theme.colors.border,
     },
-    actions: {
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        gap: theme.margins.sm,
-        paddingHorizontal: theme.margins.md,
-        paddingVertical: theme.margins.smd,
-        borderTopWidth: 1,
-        borderTopColor: theme.colors.border,
+    summaryLabel: {
+        width: 80,
     },
+    summaryPrice: {
+        width: 100,
+        height: 16,
+    },
+
+    // ============ Shared ============
+    line: {
+        height: 12,
+        backgroundColor: theme.colors.secondaryLight,
+        borderRadius: 4,
+    },
+    w100: { width: '90%' },
+    w60: { width: '55%' },
 }));

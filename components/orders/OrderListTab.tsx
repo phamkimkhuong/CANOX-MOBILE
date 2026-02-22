@@ -25,6 +25,7 @@ import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Linking, RefreshControl, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { DataGuard } from '../common/DataGuard';
 import { EmptyOrderState } from './EmptyOrderState';
 import { OrderCard } from './OrderCard';
 import { OrderListSkeleton } from './OrderCardSkeleton';
@@ -46,20 +47,11 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
     const pressTimingMap = useRef<Map<string, number>>(new Map());
 
     // Fetch orders với useInfiniteQuery
-    const {
-        data,
-        isLoading,
-        isRefetching,
-        fetchNextPage,
-        hasNextPage,
-        isFetchingNextPage,
-    } = useOrderList(status);
+    const query = useOrderList(status);
+    const { fetchNextPage, hasNextPage, isFetchingNextPage } = query;
 
     // Smart refresh: Reset to page 0 only (not refetch ALL loaded pages)
     const { refresh: smartRefresh } = useRefreshOrderList(status);
-
-    // Flatten pages thành array orders
-    const orders = flattenOrders(data);
 
     /**
      * HYBRID PATTERN: PressIn Handler
@@ -249,48 +241,55 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
     // Key extractor
     const keyExtractor = useCallback((item: OrderUI) => item.orderId, []);
 
-    // Loading state
-    if (isLoading) {
-        return <OrderListSkeleton count={3} />;
-    }
-
-    // Empty state
-    if (orders.length === 0) {
-        return (
-            <EmptyOrderState
-                status={status}
-                onShopNow={handleShopNow}
-            />
-        );
-    }
-
     return (
-        <View style={styles.container}>
-            <FlashList<OrderUI>
-                data={orders}
-                renderItem={renderItem}
-                keyExtractor={keyExtractor}
-                contentContainerStyle={styles.listContent}
-                onEndReached={handleEndReached}
-                onEndReachedThreshold={0.5}
-                removeClippedSubviews={true}
-                refreshControl={
-                    <RefreshControl
-                        refreshing={isRefetching && !isFetchingNextPage}
-                        onRefresh={smartRefresh}
-                        colors={[theme.colors.primary]}
-                        tintColor={theme.colors.primary}
-                    />
+        <DataGuard
+            query={query}
+            skeleton={<OrderListSkeleton count={3} />}
+            isDataEmpty={() => false}
+            onSecondaryAction={handleShopNow}
+        >
+            {(guardData, meta) => {
+                const orders = flattenOrders(guardData);
+
+                if (orders.length === 0) {
+                    return (
+                        <EmptyOrderState
+                            status={status}
+                            onShopNow={handleShopNow}
+                        />
+                    );
                 }
-                ListFooterComponent={
-                    isFetchingNextPage ? (
-                        <View style={styles.footer}>
-                            <ActivityIndicator color={theme.colors.primary} />
-                        </View>
-                    ) : null
-                }
-            />
-        </View>
+
+                return (
+                    <View style={styles.container}>
+                        <FlashList<OrderUI>
+                            data={orders}
+                            renderItem={renderItem}
+                            keyExtractor={keyExtractor}
+                            contentContainerStyle={styles.listContent}
+                            onEndReached={handleEndReached}
+                            onEndReachedThreshold={0.5}
+                            removeClippedSubviews={true}
+                            refreshControl={
+                                <RefreshControl
+                                    refreshing={meta.isRefetching && !isFetchingNextPage}
+                                    onRefresh={smartRefresh}
+                                    colors={[theme.colors.primary]}
+                                    tintColor={theme.colors.primary}
+                                />
+                            }
+                            ListFooterComponent={
+                                isFetchingNextPage ? (
+                                    <View style={styles.footer}>
+                                        <ActivityIndicator color={theme.colors.primary} />
+                                    </View>
+                                ) : null
+                            }
+                        />
+                    </View>
+                );
+            }}
+        </DataGuard>
     );
 };
 

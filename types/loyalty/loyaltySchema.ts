@@ -1,8 +1,14 @@
+/**
+ * ==============================================
+ * LOYALTY ZOD SCHEMAS - Runtime Validation
+ * ==============================================
+ */
+
 import { z } from 'zod';
 import { ResponseDefaultSchema } from '../responseSchema';
 
 // ============================================
-// INDIVIDUAL BATCH SCHEMA
+// BATCH SCHEMA
 // ============================================
 
 export const UserShopPointSchema = z.object({
@@ -17,7 +23,7 @@ export const UserShopPointSchema = z.object({
 });
 
 // ============================================
-// POINT BALANCE SCHEMA
+// SHOP SUMMARY (PointBalanceResponse)
 // ============================================
 
 export const PointBalanceSchema = z.object({
@@ -28,22 +34,80 @@ export const PointBalanceSchema = z.object({
     queriedAt: z.string(),
 });
 
-// ============================================
-// API RESPONSE SCHEMAS
-// ============================================
-
 export const PointBalanceResponseSchema = ResponseDefaultSchema.extend({
     data: PointBalanceSchema,
 });
+
+// ============================================
+// BATCHES LIST
+// ============================================
 
 export const PointBatchesResponseSchema = ResponseDefaultSchema.extend({
     data: z.array(UserShopPointSchema),
 });
 
-/**
- * The GET /api/v1/buyer/loyalty/points/{shopId} returns a Map<String, Object>
- * Usually it's { "totalPoints": number }
- */
-export const PointsSummaryResponseSchema = ResponseDefaultSchema.extend({
-    data: z.record(z.string(), z.any()),
+// ============================================
+// HISTORY (PointHistoryResponse)
+// ============================================
+
+const PointHistoryPageSchema = z.object({
+    content: z.array(z.record(z.string(), z.unknown())).default([]),
+    totalElements: z.number().default(0),
+    totalPages: z.number().default(0),
+    number: z.number().default(0),
+    size: z.number().default(20),
+    first: z.boolean().default(true),
+    last: z.boolean().default(true),
+    empty: z.boolean().default(true),
+});
+
+export const PointHistorySchema = z.object({
+    currentBalance: z.number().default(0),
+    totalEarned: z.number().default(0),
+    totalSpent: z.number().default(0),
+    totalExpired: z.number().default(0),
+    transactions: PointHistoryPageSchema,
+});
+
+export const PointHistoryResponseSchema = ResponseDefaultSchema.extend({
+    data: PointHistorySchema,
+});
+
+// ============================================
+// OVERVIEW (LoyaltyOverviewResponse)
+// ============================================
+
+export const ShopPointSummarySchema = z.object({
+    shopId: z.string(),
+    shopName: z.string().default(''),
+    shopLogo: z.string().default(''),
+    totalPoints: z.number().default(0),
+    expiringPoints: z.number().default(0),
+    nearestExpiryDate: z.string().nullable().default(null),
+    activeBatches: z.number().default(0),
+});
+
+export const LoyaltyOverviewSchema = z.object({
+    totalPointsAllShops: z.number().default(0),
+    totalShopsWithPoints: z.number().default(0),
+    totalExpiringPoints: z.number().default(0),
+    shops: z.array(ShopPointSummarySchema).default([]),
+});
+
+export const LoyaltyOverviewResponseSchema = ResponseDefaultSchema.extend({
+    data: LoyaltyOverviewSchema,
+});
+
+// ============================================
+// REDEEM (PointRedeemResponse)
+// ============================================
+
+export const PointRedeemSchema = z.object({
+    orderId: z.string(),
+    redeemedPoints: z.number().default(0),
+    remainingPoints: z.number().default(0),
+});
+
+export const PointRedeemResponseSchema = ResponseDefaultSchema.extend({
+    data: PointRedeemSchema,
 });

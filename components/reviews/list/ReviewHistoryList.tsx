@@ -12,7 +12,6 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { EmptyReviewState } from './EmptyReviewState';
 import { RatingFilterBar } from './RatingFilterBar';
 import { ReviewHistoryCard } from './ReviewHistoryCard';
-import { ReviewListSkeleton } from './ReviewListSkeleton';
 
 interface ReviewHistoryListProps {
     /** Review data */
@@ -21,8 +20,6 @@ interface ReviewHistoryListProps {
     ratingFilter: RatingFilter;
     /** Rating filter change callback */
     onRatingFilterChange: (filter: RatingFilter) => void;
-    /** Loading state */
-    isLoading?: boolean;
     /** Refreshing state */
     isRefreshing?: boolean;
     /** Refresh callback */
@@ -46,7 +43,6 @@ export const ReviewHistoryList: React.FC<ReviewHistoryListProps> = ({
     reviews,
     ratingFilter,
     onRatingFilterChange,
-    isLoading = false,
     isRefreshing = false,
     onRefresh,
     isFetchingNextPage = false,
@@ -88,23 +84,8 @@ export const ReviewHistoryList: React.FC<ReviewHistoryListProps> = ({
         );
     }, [isFetchingNextPage, styles.footer, theme.colors.primary]);
 
-    // Loading state
-    if (isLoading && reviews.length === 0) {
-        return (
-            <View style={styles.container}>
-                {/* RatingFilterBar */}
-                <RatingFilterBar
-                    activeFilter={ratingFilter}
-                    onFilterChange={onRatingFilterChange}
-                    counts={counts}
-                />
-                <ReviewListSkeleton />
-            </View>
-        );
-    }
-
     // Empty state
-    if (!isLoading && reviews.length === 0) {
+    if (reviews.length === 0) {
         return (
             <View style={styles.container}>
                 {/* RatingFilterBar*/}

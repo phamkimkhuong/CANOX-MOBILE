@@ -112,6 +112,7 @@ export const API_ROUTES = {
         DETAIL: (orderId: string) => `${API_PREFIX}/buyer/orders/${orderId}`,
         CANCEL: (orderId: string) => `${API_PREFIX}/buyer/orders/${orderId}/cancel`,
         CONFIRM_RECEIVED: (orderId: string) => `${API_PREFIX}/buyer/orders/${orderId}/confirm-received`,
+        COUNT_BY_STATUS: `${API_PREFIX}/buyer/orders/count-by-status`,
     },
     REVIEWS: {
         LIST: (type: string, id: string | number) => `${API_PREFIX}/reviews/${type}/${id}`,
@@ -126,29 +127,29 @@ export const API_ROUTES = {
         UPDATE: (buyerId: string) => `${API_PREFIX}/buyers/${buyerId}`,
     },
     WISHLISTS: {
-        LIST: `${API_PREFIX}/wishlists`,
-        DETAIL: (wishlistId: string) => `${API_PREFIX}/wishlists/${wishlistId}`,
+        LIST: `${API_PREFIX}/buyer/wishlists`,
+        DETAIL: (wishlistId: string) => `${API_PREFIX}/buyer/wishlists/${wishlistId}`,
         /** GET - Get items in a wishlist */
-        ITEMS: (wishlistId: string) => `${API_PREFIX}/wishlists/${wishlistId}/items`,
-        CREATE: `${API_PREFIX}/wishlists`,
-        UPDATE: (wishlistId: string) => `${API_PREFIX}/wishlists/${wishlistId}`,
-        DELETE: (wishlistId: string) => `${API_PREFIX}/wishlists/${wishlistId}`,
-        SET_DEFAULT: (wishlistId: string) => `${API_PREFIX}/wishlists/${wishlistId}/set-default`,
+        ITEMS: (wishlistId: string) => `${API_PREFIX}/buyer/wishlists/${wishlistId}/items`,
+        CREATE: `${API_PREFIX}/buyer/wishlists`,
+        UPDATE: (wishlistId: string) => `${API_PREFIX}/buyer/wishlists/${wishlistId}`,
+        DELETE: (wishlistId: string) => `${API_PREFIX}/buyer/wishlists/${wishlistId}`,
+        SET_DEFAULT: (wishlistId: string) => `${API_PREFIX}/buyer/wishlists/${wishlistId}/set-default`,
         /** GET - Get default wishlist */
-        DEFAULT: `${API_PREFIX}/wishlists/default`,
-        POPULAR: `${API_PREFIX}/wishlists/popular`,
-        LATEST: `${API_PREFIX}/wishlists/latest`,
-        SEARCH: `${API_PREFIX}/wishlists/public/search`,
+        DEFAULT: `${API_PREFIX}/buyer/wishlists/default`,
+        POPULAR: `${API_PREFIX}/public/wishlists/popular`,
+        LATEST: `${API_PREFIX}/public/wishlists/latest`,
+        SEARCH: `${API_PREFIX}/public/wishlists/search`,
         /** GET - Items that met price target */
-        PRICE_TARGET_MET: `${API_PREFIX}/wishlists/price-target-met`,
-        ADD_ITEM: (wishlistId: string) => `${API_PREFIX}/wishlists/${wishlistId}/items`,
-        ADD_ITEM_DEFAULT: `${API_PREFIX}/wishlists/default/items`,
-        UPDATE_ITEM: (wishlistId: string, itemId: string) => `${API_PREFIX}/wishlists/${wishlistId}/items/${itemId}`,
-        REMOVE_ITEM: (wishlistId: string, variantId: string) => `${API_PREFIX}/wishlists/${wishlistId}/items/${variantId}`,
-        CHECK_VARIANTS: `${API_PREFIX}/wishlists/check-variants`,
-        REGENERATE_TOKEN: (wishlistId: string) => `${API_PREFIX}/wishlists/${wishlistId}/regenerate-token`,
-        SHARED_DETAIL: (token: string) => `${API_PREFIX}/wishlists/shared/${token}`,
-        SHARED_OG: (token: string) => `${API_PREFIX}/wishlists/shared/${token}/og`,
+        PRICE_TARGET_MET: `${API_PREFIX}/buyer/wishlists/price-target-met`,
+        ADD_ITEM: (wishlistId: string) => `${API_PREFIX}/buyer/wishlists/${wishlistId}/items`,
+        ADD_ITEM_DEFAULT: `${API_PREFIX}/buyer/wishlists/default/items`,
+        UPDATE_ITEM: (wishlistId: string, itemId: string) => `${API_PREFIX}/buyer/wishlists/${wishlistId}/items/${itemId}`,
+        REMOVE_ITEM: (wishlistId: string, variantId: string) => `${API_PREFIX}/buyer/wishlists/${wishlistId}/items/${variantId}`,
+        CHECK_VARIANTS: `${API_PREFIX}/buyer/wishlists/check-variants`,
+        REGENERATE_TOKEN: (wishlistId: string) => `${API_PREFIX}/buyer/wishlists/${wishlistId}/regenerate-token`,
+        SHARED_DETAIL: (token: string) => `${API_PREFIX}/public/wishlists/shared/${token}`,
+        SHARED_OG: (token: string) => `${API_PREFIX}/public/wishlists/shared/${token}/og`,
     },
     STORAGE: {
         PRESIGN_UPLOAD: `${API_PREFIX}/storage/presign-upload`,
@@ -222,9 +223,15 @@ export const API_ROUTES = {
         LABEL: `${API_PREFIX}/shipment/label`,
     },
     LOYALTY: {
-        POINTS: (shopId: string) => `${API_PREFIX}/buyer/loyalty/points/${shopId}`,
-        POINTS_DETAILS: (shopId: string) => `${API_PREFIX}/buyer/loyalty/points/${shopId}/details`,
-        POINTS_BATCHES: (shopId: string) => `${API_PREFIX}/buyer/loyalty/points/${shopId}/batches`,
-        CONSUME_POINTS: `${API_PREFIX}/buyer/loyalty/points/consume`,
+        /** GET - Comprehensive loyalty info (balance, batches, expiry) */
+        SHOP_SUMMARY: (shopId: string) => `${API_PREFIX}/buyer/loyalty/shops/${shopId}`,
+        /** GET - Active point batches (FIFO ordering) */
+        BATCHES: (shopId: string) => `${API_PREFIX}/buyer/loyalty/shops/${shopId}/batches`,
+        /** GET - Paginated transaction history (earned/spent/expired/refunded) */
+        HISTORY: (shopId: string) => `${API_PREFIX}/buyer/loyalty/shops/${shopId}/history`,
+        /** POST - Redeem points for order discount */
+        REDEEM: (shopId: string) => `${API_PREFIX}/buyer/loyalty/shops/${shopId}/redeem`,
+        /** GET - Dashboard showing points across all shops */
+        OVERVIEW: `${API_PREFIX}/buyer/loyalty/overview`,
     },
 } as const;  // <--- as const for TS to understand these are readonly values

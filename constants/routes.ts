@@ -58,7 +58,7 @@ export const ROUTES = {
     // ============ PROFILE SERVICES ============
     PROFILE: {
         WALLET: '/wallet' as const,
-        COINS: '/coins' as const,
+        COINS: '/(main)/(user)/coins' as const,
         VOUCHERS: '/voucher' as const,
         INTERNATIONAL_SHIPPING: '/international-shipping' as const,
         SUPPORT: '/support' as const,

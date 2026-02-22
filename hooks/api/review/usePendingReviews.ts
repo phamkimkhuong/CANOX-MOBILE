@@ -19,7 +19,7 @@ const PAGE_SIZE = 20;
  */
 const fetchCompletedOrders = async (page: number): Promise<OrdersPageResponse> => {
     const response = await apiClient.get<OrdersApiResponse>(API_ROUTES.ORDERS.LIST, {
-        params: { status: 'COMPLETED', page, size: PAGE_SIZE },
+        params: { status: 'UI_COMPLETED', page, size: PAGE_SIZE },
     });
 
     if (!response.data.success) {

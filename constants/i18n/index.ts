@@ -12,6 +12,7 @@ import { CHAT_STRINGS as chatEn } from './en/chat';
 import { CHECKOUT_STRINGS as checkoutEn } from './en/checkout';
 import { COMMON_STRINGS as commonEn } from './en/common';
 import { HOME_STRINGS as homeEn } from './en/home';
+import { LOYALTY_STRINGS as loyaltyEn } from './en/loyalty';
 import { myReviews as myReviewsEn } from './en/myReviews';
 import { NOTIFICATION_STRINGS as notificationEn } from './en/notification';
 import { ORDER_STRINGS as orderEn } from './en/order';
@@ -33,6 +34,7 @@ import { CHAT_STRINGS as chatVi } from './vi/chat';
 import { CHECKOUT_STRINGS as checkoutVi } from './vi/checkout';
 import { COMMON_STRINGS as commonVi } from './vi/common';
 import { HOME_STRINGS as homeVi } from './vi/home';
+import { LOYALTY_STRINGS as loyaltyVi } from './vi/loyalty';
 import { myReviews as myReviewsVi } from './vi/myReviews';
 import { NOTIFICATION_STRINGS as notificationVi } from './vi/notification';
 import { ORDER_STRINGS as orderVi } from './vi/order';
@@ -65,6 +67,7 @@ const resources = {
         video: videoVi,
         wishlist: wishlistVi,
         shop: shopVi,
+        loyalty: loyaltyVi,
     },
     en: {
         common: commonEn,
@@ -86,6 +89,7 @@ const resources = {
         video: videoEn,
         wishlist: wishlistEn,
         shop: shopEn,
+        loyalty: loyaltyEn,
     },
 } as const;
 
@@ -93,7 +97,7 @@ i18n.use(initReactI18next).init({
     resources,
     lng: getDeviceLanguage(),
     fallbackLng: 'en',
-    ns: ['common', 'auth', 'product', 'voucher', 'cart', 'order', 'chat', 'profile', 'home', 'category', 'search', 'notification', 'checkout', 'myReviews', 'bank', 'address', 'video', 'wishlist', 'shop'],
+    ns: ['common', 'auth', 'product', 'voucher', 'cart', 'order', 'chat', 'profile', 'home', 'category', 'search', 'notification', 'checkout', 'myReviews', 'bank', 'address', 'video', 'wishlist', 'shop', 'loyalty'],
     defaultNS: 'common',
     interpolation: {
         escapeValue: false,

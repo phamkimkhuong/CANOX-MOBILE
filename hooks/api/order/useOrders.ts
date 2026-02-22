@@ -11,6 +11,7 @@ import { useSmartRefresh } from '@/hooks/useSmartRefresh';
 import { apiClient, ApiError } from '@/services/api/client';
 import { OrdersApiResponse, OrdersPageResponse, OrderTabStatus, OrderUI } from '@/types/order/order';
 import { transformOrder } from '@/utils/adapter/order/orderAdapter';
+import { ORDER_TABS } from '@/utils/adapter/order/orderStatusMapper';
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const PAGE_SIZE = 20;
@@ -31,9 +32,12 @@ const fetchOrdersByStatus = async (
     status: OrderTabStatus,
     page: number
 ): Promise<OrdersPageResponse> => {
+    const tabConfig = ORDER_TABS.find((t) => t.key === status);
+    const apiStatus = tabConfig ? tabConfig.apiStatus : status;
+
     const response = await apiClient.get<OrdersApiResponse>(API_ROUTES.ORDERS.LIST, {
         params: {
-            status,
+            status: apiStatus,
             page,
             size: PAGE_SIZE,
         },

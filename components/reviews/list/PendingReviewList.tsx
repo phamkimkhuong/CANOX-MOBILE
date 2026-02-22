@@ -14,19 +14,14 @@ import { Pressable, RefreshControl, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { EmptyReviewState } from './EmptyReviewState';
 import { PendingReviewCard } from './PendingReviewCard';
-import { ReviewListSkeleton } from './ReviewListSkeleton';
 
 interface PendingReviewListProps {
     /** Grouped pending review data */
     groups: PendingReviewGroup[];
-    /** Loading state */
-    isLoading?: boolean;
     /** Refreshing state */
     isRefreshing?: boolean;
     /** Refresh callback */
     onRefresh?: () => void;
-    /** Error state */
-    error?: Error | null;
     /** Optional Order ID to filter the list */
     filterOrderId?: string;
     /** Callback to clear the active filter */
@@ -45,10 +40,8 @@ type ListItem = {
  */
 export const PendingReviewList: React.FC<PendingReviewListProps> = ({
     groups,
-    isLoading = false,
     isRefreshing = false,
     onRefresh,
-    error: _error,
     filterOrderId,
     onClearFilter,
 }) => {
@@ -99,13 +92,8 @@ export const PendingReviewList: React.FC<PendingReviewListProps> = ({
 
     const getItemType = useCallback(() => 'item', []);
 
-    // Loading state
-    if (isLoading && listData.length === 0) {
-        return <ReviewListSkeleton />;
-    }
-
     // Empty state
-    if (!isLoading && listData.length === 0) {
+    if (listData.length === 0) {
         return (
             <EmptyReviewState
                 type="pending"

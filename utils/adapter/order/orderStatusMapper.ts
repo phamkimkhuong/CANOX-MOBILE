@@ -152,7 +152,7 @@ export const ORDER_TABS: Array<{
         { key: 'CREATED', labelKey: 'order:tabs.created', apiStatus: 'CREATED' },
         { key: 'FULFILLING', labelKey: 'order:tabs.processing', apiStatus: 'FULFILLING' },
         { key: 'DELIVERED', labelKey: 'order:tabs.delivered', apiStatus: 'DELIVERED' },
-        { key: 'COMPLETED', labelKey: 'order:tabs.completed', apiStatus: 'COMPLETED' },
+        { key: 'COMPLETED', labelKey: 'order:tabs.completed', apiStatus: 'UI_COMPLETED' },
         { key: 'CANCELLED', labelKey: 'order:tabs.cancelled', apiStatus: 'CANCELLED' },
     ];
 

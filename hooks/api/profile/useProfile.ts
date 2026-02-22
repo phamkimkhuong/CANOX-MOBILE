@@ -152,6 +152,7 @@ export const useRefreshProfile = () => {
                 queryClient.invalidateQueries({ queryKey: profileQueryKeys.wallet() }),
                 queryClient.invalidateQueries({ queryKey: profileQueryKeys.followedShops() }),
                 queryClient.invalidateQueries({ queryKey: ['wishlists'] }),
+                queryClient.invalidateQueries({ queryKey: ['loyalty'] }),
             ]);
         } finally {
             setIsRefreshing(false);

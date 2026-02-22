@@ -129,7 +129,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         marginBottom: theme.margins.lg,
     },
     button: {
-        backgroundColor: theme.colors.primary,
+        backgroundColor: theme.colors.newPrimary,
         paddingHorizontal: theme.margins.xl,
         paddingVertical: theme.margins.smd,
         borderRadius: theme.radius.m,
