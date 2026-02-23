@@ -121,7 +121,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         position: 'absolute',
         top: 0,
         right: 0,
-        backgroundColor: theme.colors.error,
+        backgroundColor: theme.colors.surface,
         borderRadius: 10,
         minWidth: 16,
         height: 16,
@@ -130,8 +130,8 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderWidth: 1.5,
     },
     badgeText: {
-        color: 'white',
-        fontSize: 8,
-        fontWeight: 'bold',
+        color: theme.colors.error,
+        fontSize: 10,
+        fontWeight: '800',
     },
 }));

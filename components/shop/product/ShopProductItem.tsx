@@ -16,6 +16,7 @@ import { productRoutes } from '@/constants/routes';
 import { ShopProductItemUI } from '@/types/shop';
 import { formatCurrency, formatSoldCount } from '@/utils/format';
 import { Navigator } from '@/utils/navigation';
+import { toSizedImageUrl } from '@/utils/url';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useCallback } from 'react';
@@ -72,7 +73,7 @@ export const ShopProductItem: React.FC<ShopProductItemProps> = ({
                     {/* Image Section */}
                     <View style={stylesheet.imageContainer}>
                         <Image
-                            source={{ uri: product.thumbnail }}
+                            source={{ uri: toSizedImageUrl(product.thumbnail, null, 'medium') ?? product.thumbnail }}
                             style={stylesheet.image}
                             contentFit="cover"
                             transition={200}

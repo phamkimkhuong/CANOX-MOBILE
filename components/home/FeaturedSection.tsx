@@ -2,6 +2,7 @@ import { SectionHeader } from '@/components/ui/SectionHeader';
 import { useProductFeed } from '@/hooks/api/useHomeProducts';
 import type { ProductFeedItem } from '@/types/product/product';
 import { formatCurrency, formatSoldCount } from '@/utils/format';
+import { toSizedImageUrl } from '@/utils/url';
 import { Image } from 'expo-image';
 import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -130,7 +131,7 @@ export const FeaturedSection = memo(({ onProductPress }: FeaturedSectionProps = 
                 onPress={() => onProductPress?.(mainProduct.id)}
             >
                 <Image
-                    source={{ uri: mainProduct.thumbnail }}
+                    source={{ uri: toSizedImageUrl(mainProduct.thumbnail, null, 'medium') ?? mainProduct.thumbnail }}
                     style={styles.mainImage}
                     contentFit="cover"
                     accessibilityLabel={mainProduct.title}
@@ -209,7 +210,7 @@ export const FeaturedSection = memo(({ onProductPress }: FeaturedSectionProps = 
                             >
                                 <View style={[styles.smallImageContainer, { height: imageHeight }]}>
                                     <Image
-                                        source={{ uri: product.thumbnail }}
+                                        source={{ uri: toSizedImageUrl(product.thumbnail, null, 'medium') ?? product.thumbnail }}
                                         style={styles.smallImage}
                                         contentFit="cover"
                                         accessibilityLabel={product.title}

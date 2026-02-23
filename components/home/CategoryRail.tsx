@@ -185,12 +185,12 @@ const stylesheet = StyleSheet.create((theme) => ({
     indicatorTrack: {
         height: INDICATOR_HEIGHT,
         borderRadius: INDICATOR_HEIGHT / 2,
-        backgroundColor: '#e2e8f0',
+        backgroundColor: 'rgba(255, 255, 255, 0.3)',
         overflow: 'hidden',
     },
     indicatorThumb: {
         height: '100%',
         borderRadius: INDICATOR_HEIGHT / 2,
-        backgroundColor: theme.colors.primary,
+        backgroundColor: '#ffffff',
     },
 }));

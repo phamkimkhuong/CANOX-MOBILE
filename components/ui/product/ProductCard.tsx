@@ -71,7 +71,7 @@ export const ProductCard = React.memo(({
 
                         {/* Image Container */}
                         <View style={styles.imageWrapper}>
-                            <Image source={{ uri: toSizedImageUrl(image, null, 'small') ?? image }} style={styles.image} contentFit="cover" />
+                            <Image source={{ uri: toSizedImageUrl(image, null, 'medium') ?? image }} style={styles.image} contentFit="cover" />
 
                             {/* Discount Badge */}
                             {discount != null && discount > 0 && (

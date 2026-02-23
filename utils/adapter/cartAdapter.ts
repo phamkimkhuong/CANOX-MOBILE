@@ -17,7 +17,7 @@ import type {
     VoucherUI,
 } from '@/types/cart';
 import { formatPriceShort as formatShortCurrency } from '../format';
-import { toSizedImageUrl } from '../url';
+import { toPublicUrl, toSizedImageUrl } from '../url';
 
 const DEFAULT_IMAGE = 'https://via.placeholder.com/96';
 
@@ -28,7 +28,7 @@ export const buildImageUrl = (
     path: string | null | undefined,
     extension: string | null | undefined = null
 ): string => {
-    return toSizedImageUrl(path, extension, 'thumb') ?? DEFAULT_IMAGE;
+    return toPublicUrl(path || undefined, extension || undefined) ?? DEFAULT_IMAGE;
 };
 
 // ============================================

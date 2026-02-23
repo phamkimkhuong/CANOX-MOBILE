@@ -1,5 +1,5 @@
 import { BaseProductDTO, ProductFeedItem } from '@/types/product/product';
-import { toSizedImageUrl } from '@/utils/url';
+import { toPublicUrl } from '@/utils/url';
 
 /**
  * Shorten Vietnam location names for display
@@ -55,7 +55,7 @@ export const transformProduct = (raw: BaseProductDTO): ProductFeedItem => {
     return {
         id: raw.id,
         title: raw.name ?? '',
-        thumbnail: toSizedImageUrl(primaryMedia?.imagePath || primaryMedia?.url, '', 'thumb') ?? '',
+        thumbnail: toPublicUrl(primaryMedia?.imagePath || primaryMedia?.url, ''),
         price: displayPrice,
         originalPrice: hasDiscount ? originalPrice : undefined,
         discountPercentage: discountPercentage > 0 ? discountPercentage : undefined,

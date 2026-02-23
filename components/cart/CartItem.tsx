@@ -95,7 +95,7 @@ export const CartItem: React.FC<CartItemProps> = memo(({
                     ]}
                 >
                     <Image
-                        source={{ uri: buildImageUrl(imageUrl, null, 'thumb') }}
+                        source={{ uri: buildImageUrl(imageUrl, null, 'medium') }}
                         style={[styles.image, isOutOfStock && styles.outOfStockImage]}
                         contentFit="cover"
                         transition={200}
@@ -169,7 +169,7 @@ export const CartItem: React.FC<CartItemProps> = memo(({
                                 style={styles.currentPrice}
                                 numberOfLines={1}
                                 adjustsFontSizeToFit
-                                minimumFontScale={0.8}
+                                minimumFontScale={0.5}
                             >
                                 {formatCurrency(unitPrice)}
                             </Text>
@@ -327,9 +327,11 @@ const styles = StyleSheet.create((theme, rt) => {
             justifyContent: 'space-between',
             alignItems: 'flex-end',
             marginTop: 8,
+            gap: 8,
         },
         priceContainer: {
             gap: 2,
+            flex: 1,
         },
         originalPrice: {
             fontSize: f(theme.fontSizes.sm),
