@@ -27,7 +27,7 @@ export const useSlotProducts = (slotId: string | null) => {
                 SlotProductsResponseSchema
             );
 
-            const products = response.data || [];
+            const products = response.data?.content || [];
 
             // Transform to UI items
             return products.map((p) => {

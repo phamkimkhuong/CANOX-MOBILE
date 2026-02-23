@@ -58,7 +58,7 @@ export const useActiveFlashSale = () => {
                 SlotProductsResponseSchema
             );
 
-            const products = productsResponse.data || [];
+            const products = productsResponse.data?.content || [];
             if (products.length === 0) return null;
 
             // Transform data

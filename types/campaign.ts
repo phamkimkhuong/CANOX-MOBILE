@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ResponseDefaultSchema } from './responseSchema';
+import { ResponseDefaultSchema, createPaginatedResponseSchema } from './responseSchema';
 
 /**
  * Slot Status enum
@@ -44,9 +44,7 @@ export type CampaignSlotProductResponse = z.infer<typeof CampaignSlotProductResp
  * API Wrapper for Slot Products (Simple List)
  * GET /api/v1/campaigns/slots/{slotId}/products
  */
-export const SlotProductsResponseSchema = ResponseDefaultSchema.extend({
-    data: z.array(CampaignSlotProductResponseSchema).nullable().optional().default([]),
-});
+export const SlotProductsResponseSchema = createPaginatedResponseSchema(CampaignSlotProductResponseSchema);
 
 export type SlotProductsResponse = z.infer<typeof SlotProductsResponseSchema>;
 

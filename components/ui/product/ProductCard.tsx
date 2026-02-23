@@ -9,6 +9,7 @@ import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { IconSymbol } from '../Icon';
 import { SmartNavButton } from '../navigation/SmartNavButton';
+import { InternationalBadge } from './InternationalBadge';
 
 const log = createLogger('ProductCard');
 
@@ -23,6 +24,7 @@ interface ProductCardProps {
     location?: string;
     discount?: number;
     isMall?: boolean;
+    isInternational?: boolean;
     onPress: () => void;
     onPressIn?: () => void;
     route: Href | string;
@@ -40,6 +42,7 @@ export const ProductCard = React.memo(({
     location,
     discount,
     isMall,
+    isInternational,
     onPress,
     onPressIn,
     route,
@@ -94,6 +97,7 @@ export const ProductCard = React.memo(({
                             >
                                 <IconSymbol name="favorite-border" size={18} color="#333" />
                             </Pressable>
+
                         </View>
 
                         {/* Content */}
@@ -101,6 +105,11 @@ export const ProductCard = React.memo(({
                             <Text numberOfLines={2} style={styles.title}>
                                 {title}
                             </Text>
+
+                            {/* International Shipping Badge - below title */}
+                            {isInternational && (
+                                <InternationalBadge label={t('badges.international')} size="md" />
+                            )}
 
                             {/* Rating */}
                             <View style={styles.ratingRow}>

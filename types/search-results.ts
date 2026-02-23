@@ -151,10 +151,9 @@ export const initialSearchResultState: SearchResultState = {
 export const SearchProductItemSchema = z.object({
     id: z.string(),
     name: z.string().nullable().optional().default(''),
-    priceMin: z.number().nullable().optional().default(0),
     priceBeforeDiscount: z.number().nullable().optional().default(0),
-    showDiscount: z.number().nullable().optional().default(0),
     priceAfterBestVoucher: z.number().nullable().optional().default(0),
+    showDiscount: z.number().nullable().optional().default(0),
     // Category
     category: z.object({
         name: z.string().nullable().optional().default(''),

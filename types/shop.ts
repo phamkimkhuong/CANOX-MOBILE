@@ -82,7 +82,6 @@ export const ShopProductReviewStatisticsSchema = z.object({
 export const ShopProductDTOSchema = z.object({
     id: z.string(),
     name: z.string().nullable().optional().default(''),
-    priceMin: z.number().nullable().optional().default(0),
     priceBeforeDiscount: z.number().nullable().optional().default(0),
     priceAfterBestVoucher: z.number().nullable().optional().default(0),
     shop: z.object({
@@ -90,6 +89,7 @@ export const ShopProductDTOSchema = z.object({
     }).nullable().optional(),
     media: z.array(ShopProductMediaSchema).nullable().optional().default([]),
     reviewStatistics: ShopProductReviewStatisticsSchema,
+    availableRegions: z.array(z.string()).nullable().optional().default([]),
 });
 
 export type ShopProductDTO = z.infer<typeof ShopProductDTOSchema>;

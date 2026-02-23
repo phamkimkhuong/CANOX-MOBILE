@@ -133,7 +133,7 @@ export const PRODUCT_STRINGS: ProductTranslation = {
     // === Badges ===
     badges: {
         mall: 'Mall',
-        international: 'Quốc tế',
+        international: 'Hàng quốc tế',
     },
     share: {
         msgTemplate: 'Xem sản phẩm này trên Calatha: {{name}}\n{{url}}',

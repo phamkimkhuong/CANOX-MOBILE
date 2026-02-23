@@ -110,6 +110,7 @@ const ProductRowItem = memo(({
       location={item.location}
       discount={item.discountPercentage}
       isMall={item.isMall}
+      isInternational={item.isInternational}
       onPress={handlePress}
       onPressIn={handlePressIn}
       route={productRoutes.detail(item.id)}

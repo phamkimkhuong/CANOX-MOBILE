@@ -7,9 +7,11 @@ import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, Text, TouchableOpacity, useWindowDimensions, View, ViewStyle } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { IconSymbol } from '../ui/Icon';
+import { InternationalBadge } from '../ui/product/InternationalBadge';
 import { FeaturedSectionSkeleton } from './FeaturedSectionSkeleton';
 
-type BadgeType = 'mall' | 'bestSeller' | 'topRated' | null;
+type BadgeType = 'mall' | 'bestSeller' | 'topRated' | 'international' | null;
 
 interface BadgeInfo {
     text: string;
@@ -18,12 +20,16 @@ interface BadgeInfo {
 
 /**
  * Xác định badge dựa trên dữ liệu sản phẩm
- * Ưu tiên: Mall > Best Seller > Top Rated > null
+ * Ưu tiên: Mall > International > Best Seller > Top Rated > null
  */
 const getBadge = (product: ProductFeedItem): BadgeInfo | null => {
     //  Mall - Shop chính hãng
     if (product.isMall) {
         return { text: 'Mall', type: 'mall' };
+    }
+    //  International - Giao hàng quốc tế
+    if (product.isInternational) {
+        return { text: 'Quốc tế', type: 'international' };
     }
     //  Best Seller - Bán chạy (sold > 500)
     if (product.sold > 500) {
@@ -97,6 +103,8 @@ export const FeaturedSection = memo(({ onProductPress }: FeaturedSectionProps = 
         switch (type) {
             case 'mall':
                 return { backgroundColor: theme.colors.primary };
+            case 'international':
+                return { backgroundColor: theme.colors.info };
             case 'bestSeller':
                 return { backgroundColor: theme.colors.warning };
             case 'topRated':
@@ -134,9 +142,26 @@ export const FeaturedSection = memo(({ onProductPress }: FeaturedSectionProps = 
                     <Text style={styles.mainTitle} numberOfLines={2}>
                         {mainProduct.title}
                     </Text>
-                    <Text style={styles.mainSubtitle} numberOfLines={1}>
-                        {mainProduct.location}
-                    </Text>
+                    <View style={styles.mainRatingLocationRow}>
+                        <View style={styles.mainRatingRow}>
+                            {[1, 2, 3, 4, 5].map((star) => (
+                                <IconSymbol
+                                    key={star}
+                                    name={star <= Math.floor(mainProduct.rating ?? 0) ? 'star' : 'star-border'}
+                                    size={12}
+                                    color="#facc15"
+                                />
+                            ))}
+                            {mainProduct.reviews > 0 && (
+                                <Text style={styles.mainReviewsText}>
+                                    ({mainProduct.reviews >= 1000 ? `${(mainProduct.reviews / 1000).toFixed(1)}k` : mainProduct.reviews})
+                                </Text>
+                            )}
+                        </View>
+                        <Text style={styles.mainSubtitle} numberOfLines={1}>
+                            {mainProduct.location ? ` • ${mainProduct.location}` : ''}
+                        </Text>
+                    </View>
                     <View style={styles.mainFooter}>
                         <View style={styles.mainPriceContainer}>
                             <Text style={styles.mainPrice}>
@@ -190,8 +215,8 @@ export const FeaturedSection = memo(({ onProductPress }: FeaturedSectionProps = 
                                         accessibilityLabel={product.title}
                                     />
 
-                                    {/* Feature badge - chỉ hiển thị nếu có */}
-                                    {badge && (
+                                    {/* Feature badge - chỉ hiển thị nếu có (KHÔNG bao gồm international) */}
+                                    {badge && badge.type !== 'international' && (
                                         <View style={[styles.smallBadge, getBadgeStyle(badge.type)]}>
                                             <Text style={styles.smallBadgeText}>{badge.text}</Text>
                                         </View>
@@ -207,6 +232,29 @@ export const FeaturedSection = memo(({ onProductPress }: FeaturedSectionProps = 
                                 <Text style={styles.smallTitle} numberOfLines={2}>
                                     {product.title}
                                 </Text>
+
+                                {/* International badge - below title, with shimmer */}
+                                {product.isInternational && (
+                                    <InternationalBadge label={t('product:badges.international')} size="sm" />
+                                )}
+
+                                {/* Rating Row */}
+                                <View style={styles.smallRatingRow}>
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                        <IconSymbol
+                                            key={star}
+                                            name={star <= Math.floor(product.rating ?? 0) ? 'star' : 'star-border'}
+                                            size={10}
+                                            color="#facc15"
+                                        />
+                                    ))}
+                                    {product.reviews > 0 && (
+                                        <Text style={styles.smallReviewsText}>
+                                            ({product.reviews >= 1000 ? `${(product.reviews / 1000).toFixed(1)}k` : product.reviews})
+                                        </Text>
+                                    )}
+                                </View>
+
                                 <View style={styles.smallPriceRow}>
                                     <Text style={styles.smallPrice}>
                                         {formatCurrency(product.price)}
@@ -277,10 +325,26 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.onPrimary,
         marginBottom: 4,
     },
+    mainRatingLocationRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: theme.margins.sm,
+    },
+    mainRatingRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 2,
+    },
+    mainReviewsText: {
+        fontSize: 12,
+        color: theme.colors.onPrimary,
+        marginLeft: 2,
+        fontWeight: '500',
+    },
     mainSubtitle: {
         fontSize: 13,
         color: theme.colors.textOnOverlay,
-        marginBottom: theme.margins.sm,
+        marginLeft: 4,
     },
     mainFooter: {
         flexDirection: 'row',
@@ -375,6 +439,18 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontWeight: '500',
         color: theme.colors.typography,
         lineHeight: 16,
+    },
+    smallRatingRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 2,
+        marginTop: 2,
+    },
+    smallReviewsText: {
+        fontSize: 10,
+        color: theme.colors.typographySecondary,
+        marginLeft: 2,
+        fontWeight: '500',
     },
     smallPriceRow: {
         flexDirection: 'row',

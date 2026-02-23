@@ -15,40 +15,54 @@ export const shortenLocationName = (location: string | null | undefined): string
 /**
  * Transform Raw API Data -> Lightweight UI Model
  * Supports multiple DTO types via BaseProductDTO interface
+ * 
+ * Price logic:
+ * - priceBeforeDiscount    = giá gốc (original price, always highest)
+ * - priceAfterBestVoucher  = giá bán (selling price, after best voucher)
+ * - If giá bán < giá gốc   -> show both + discount badge
+ * - If giá bán = 0 or >= giá gốc -> show giá gốc only
+ * 
+ * Image logic:
+ * - Uses product.media[] (product-level images, NOT variant images)
+ * - Prioritize isPrimary flag, fallback to first image
  */
 export const transformProduct = (raw: BaseProductDTO): ProductFeedItem => {
-    // 1. Primary image logic (Prioritize isPrimary, else take first image)
+    // 1. Primary image (product-level, not variant-level)
     const media = raw.media ?? [];
     const primaryMedia = media.find(m => m.isPrimary) || media[0];
 
-    // 2. Display price logic
-    const priceMin = raw.priceMin ?? 0;
-    const priceAfterVoucher = raw.priceAfterBestVoucher ?? 0;
-    const priceBeforeDiscount = raw.priceBeforeDiscount ?? 0;
+    // 2. Price logic
+    const originalPrice = raw.priceBeforeDiscount ?? 0;
+    const sellingPrice = raw.priceAfterBestVoucher ?? 0;
 
-    // Prioritize price after voucher (actual amount user pays)
-    const displayPrice = priceAfterVoucher > 0 ? priceAfterVoucher : priceMin;
+    // Giá bán phải > 0 VÀ < giá gốc thì mới hiện giá gốc gạch ngang
+    const hasDiscount = sellingPrice > 0 && sellingPrice < originalPrice;
+    const displayPrice = hasDiscount ? sellingPrice : originalPrice;
 
-    // Original price: use priceBeforeDiscount if available, else priceMin
-    const originalPrice = priceBeforeDiscount > displayPrice ? priceBeforeDiscount : undefined;
-
-    // 3. Calculate % discount
-    let discount = 0;
-    if (originalPrice && originalPrice > displayPrice) {
-        discount = Math.round(((originalPrice - displayPrice) / originalPrice) * 100);
+    // Tính % giảm giá
+    let discountPercentage = 0;
+    if (hasDiscount) {
+        discountPercentage = Math.round(((originalPrice - sellingPrice) / originalPrice) * 100);
     }
+
+    // 3. Location
     const location = shortenLocationName(raw.shop?.shop_location);
+
+    // 4. International badge
+    const regions = raw.availableRegions ?? [];
+    const isInternational = regions.includes('INTERNATIONAL');
 
     return {
         id: raw.id,
         title: raw.name ?? '',
         thumbnail: toSizedImageUrl(primaryMedia?.imagePath || primaryMedia?.url, '', 'thumb') ?? '',
         price: displayPrice,
-        originalPrice,
-        discountPercentage: discount > 0 ? discount : undefined,
+        originalPrice: hasDiscount ? originalPrice : undefined,
+        discountPercentage: discountPercentage > 0 ? discountPercentage : undefined,
         rating: raw.reviewStatistics?.averageRating ?? 0,
         reviews: raw.reviewStatistics?.totalReviews ?? 0,
         sold: raw.reviewStatistics?.verifiedPurchaseCount ?? 0,
         location,
+        isInternational: isInternational || undefined,
     };
 };

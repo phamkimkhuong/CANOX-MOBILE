@@ -67,6 +67,7 @@ export const ShopFeaturedProducts = memo(({
                                 sold={product.sold}
                                 discount={product.discountPercentage}
                                 isMall={product.isMall}
+                                isInternational={product.isInternational}
                                 location={product.location}
                                 onPress={() => Navigator.push(productRoutes.detail(product.id))}
                                 route={productRoutes.detail(product.id)}
@@ -89,6 +90,7 @@ export const ShopFeaturedProducts = memo(({
                                 sold={product.sold}
                                 discount={product.discountPercentage}
                                 isMall={product.isMall}
+                                isInternational={product.isInternational}
                                 location={product.location}
                                 onPress={() => Navigator.push(productRoutes.detail(product.id))}
                                 route={productRoutes.detail(product.id)}

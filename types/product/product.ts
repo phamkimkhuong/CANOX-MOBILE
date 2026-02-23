@@ -22,13 +22,14 @@ export type ReviewStatsRaw = z.infer<typeof ReviewStatsRawSchema>;
 export const ProductResponseItemSchema = z.object({
     id: z.string(),
     name: z.string().nullable().optional().default(''),
-    priceMin: z.number().nullable().optional().default(0),
     priceBeforeDiscount: z.number().nullable().optional().default(0),
+    priceAfterBestVoucher: z.number().nullable().optional().default(0),
     media: z.array(ProductMediaRawSchema).nullable().optional().default([]),
     reviewStatistics: ReviewStatsRawSchema.nullable().optional(),
     shop: z.object({
         shop_location: z.string().nullable().optional().default(''),
     }).nullable().optional(),
+    availableRegions: z.array(z.string()).nullable().optional().default([]),
 });
 export type ProductResponseItem = z.infer<typeof ProductResponseItemSchema>;
 
@@ -48,6 +49,7 @@ export interface ProductFeedItem {
     sold: number;
     location: string;
     isMall?: boolean;
+    isInternational?: boolean;
 }
 
 /**
@@ -56,7 +58,6 @@ export interface ProductFeedItem {
 export interface BaseProductDTO {
     id: string;
     name?: string | null;
-    priceMin?: number | null;
     priceBeforeDiscount?: number | null;
     priceAfterBestVoucher?: number | null;
     media?: {
@@ -72,4 +73,5 @@ export interface BaseProductDTO {
     shop?: {
         shop_location?: string | null;
     } | null;
+    availableRegions?: string[] | null;
 }

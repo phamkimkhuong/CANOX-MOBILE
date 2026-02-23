@@ -53,19 +53,17 @@ const transformSearchProduct = (raw: NonNullable<SearchProductsResponse['data']>
     const media = raw.media ?? [];
     const primaryMedia = media.find(m => m.isPrimary) || media[0];
 
-    // Price logic
-    const priceMin = raw.priceMin ?? 0;
-    const priceBeforeDiscount = raw.priceBeforeDiscount ?? 0;
-    const priceAfterVoucher = raw.priceAfterBestVoucher ?? 0;
+    // Price logic: priceBeforeDiscount = giá gốc, priceAfterBestVoucher = giá bán
+    const originalPrice = raw.priceBeforeDiscount ?? 0;
+    const sellingPrice = raw.priceAfterBestVoucher ?? 0;
 
-    // Display price: voucher price > min price
-    const displayPrice = priceAfterVoucher > 0 ? priceAfterVoucher : priceMin;
-    const originalPrice = priceBeforeDiscount > displayPrice ? priceBeforeDiscount : undefined;
+    const hasDiscount = sellingPrice > 0 && sellingPrice < originalPrice;
+    const displayPrice = hasDiscount ? sellingPrice : originalPrice;
 
-    // Discount percentage
+    // Discount: tính từ giá gốc vs giá bán, fallback sang showDiscount
     let discount = 0;
-    if (originalPrice && originalPrice > displayPrice) {
-        discount = Math.round(((originalPrice - displayPrice) / originalPrice) * 100);
+    if (hasDiscount) {
+        discount = Math.round(((originalPrice - sellingPrice) / originalPrice) * 100);
     } else if (raw.showDiscount && raw.showDiscount > 0) {
         discount = raw.showDiscount;
     }
@@ -80,7 +78,7 @@ const transformSearchProduct = (raw: NonNullable<SearchProductsResponse['data']>
         title: raw.name ?? '',
         thumbnail: toSizedImageUrl(primaryMedia?.imagePath || primaryMedia?.url, '', 'thumb') ?? '',
         price: displayPrice,
-        originalPrice,
+        originalPrice: hasDiscount ? originalPrice : undefined,
         discountPercentage: discount > 0 ? discount : undefined,
         rating: raw.reviewStatistics?.averageRating ?? 0,
         reviews: raw.reviewStatistics?.totalReviews ?? 0,
@@ -107,9 +105,9 @@ const getSortParams = (sortBy: SearchSortField): string[] => {
         case 'BEST_SELLING':
             return ['reviewStatistics.verifiedPurchaseCount,desc'];
         case 'PRICE_ASC':
-            return ['priceMin,asc'];
+            return ['priceBeforeDiscount,asc'];
         case 'PRICE_DESC':
-            return ['priceMin,desc'];
+            return ['priceBeforeDiscount,desc'];
         case 'RELEVANCE':
         default:
             return []; // Default API sorting

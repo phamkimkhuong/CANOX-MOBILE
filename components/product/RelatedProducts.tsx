@@ -43,6 +43,7 @@ export const RelatedProducts = ({ productId }: RelatedProductsProps) => {
                             sold={item.sold}
                             discount={item.discountPercentage}
                             isMall={item.isMall}
+                            isInternational={item.isInternational}
                             onPress={() => {
                                 Navigator.push(productRoutes.detail(item.id));
                             }}

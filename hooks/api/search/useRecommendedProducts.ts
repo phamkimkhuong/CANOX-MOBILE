@@ -31,16 +31,17 @@ const transformProduct = (raw: NonNullable<SearchProductsResponse['data']>['cont
     const media = raw.media ?? [];
     const primaryMedia = media.find(m => m.isPrimary) || media[0];
 
-    const priceMin = raw.priceMin ?? 0;
-    const priceBeforeDiscount = raw.priceBeforeDiscount ?? 0;
-    const priceAfterVoucher = raw.priceAfterBestVoucher ?? 0;
+    // Price logic: priceBeforeDiscount = giá gốc, priceAfterBestVoucher = giá bán
+    const originalPrice = raw.priceBeforeDiscount ?? 0;
+    const sellingPrice = raw.priceAfterBestVoucher ?? 0;
 
-    const displayPrice = priceAfterVoucher > 0 ? priceAfterVoucher : priceMin;
-    const originalPrice = priceBeforeDiscount > displayPrice ? priceBeforeDiscount : undefined;
+    const hasDiscount = sellingPrice > 0 && sellingPrice < originalPrice;
+    const displayPrice = hasDiscount ? sellingPrice : originalPrice;
 
+    // Discount: tính từ giá gốc vs giá bán, fallback sang showDiscount
     let discount = 0;
-    if (originalPrice && originalPrice > displayPrice) {
-        discount = Math.round(((originalPrice - displayPrice) / originalPrice) * 100);
+    if (hasDiscount) {
+        discount = Math.round(((originalPrice - sellingPrice) / originalPrice) * 100);
     } else if (raw.showDiscount && raw.showDiscount > 0) {
         discount = raw.showDiscount;
     }
@@ -54,7 +55,7 @@ const transformProduct = (raw: NonNullable<SearchProductsResponse['data']>['cont
         title: raw.name ?? '',
         thumbnail: toPublicUrl(primaryMedia?.url ?? ''),
         price: displayPrice,
-        originalPrice,
+        originalPrice: hasDiscount ? originalPrice : undefined,
         discountPercentage: discount > 0 ? discount : undefined,
         rating: raw.reviewStatistics?.averageRating ?? 0,
         reviews: raw.reviewStatistics?.totalReviews ?? 0,
