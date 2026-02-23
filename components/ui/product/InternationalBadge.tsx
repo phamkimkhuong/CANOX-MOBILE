@@ -44,7 +44,7 @@ export const InternationalBadge = React.memo(({ label, size = 'md' }: Internatio
             -1,    // infinite repeats
             false, // don't reverse
         );
-    }, []);
+    }, [shimmerX]);
 
     const shimmerStyle = useAnimatedStyle(() => ({
         transform: [{ translateX: `${shimmerX.value}%` as unknown as number }],
@@ -90,7 +90,7 @@ export const InternationalBadge = React.memo(({ label, size = 'md' }: Internatio
 
 InternationalBadge.displayName = 'InternationalBadge';
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((_theme) => ({
     badge: {
         alignSelf: 'flex-start',
         flexDirection: 'row',

@@ -2,13 +2,9 @@ import { IconSymbol } from '@/components/ui/Icon';
 import { checkServerStatus } from '@/utils/api/healthCheck';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Linking, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-
-// Contact constants
-const SUPPORT_ZALO_LINK = 'https://zalo.me/0329670310';
-const SUPPORT_PHONE = '0329670310';
 
 interface MaintenanceScreenProps {
     onRetry?: () => void;
@@ -36,12 +32,7 @@ export const MaintenanceScreen: React.FC<MaintenanceScreenProps> = ({ onRetry })
         }
     }, [isChecking, onRetry]);
 
-    const handleContactSupport = () => {
-        Linking.openURL(SUPPORT_ZALO_LINK).catch(() => {
-            // Fallback to phone call if Zalo fails
-            Linking.openURL(`tel:${SUPPORT_PHONE}`);
-        });
-    };
+
 
     // Auto-check periodically for silent recovery
     useEffect(() => {
@@ -66,15 +57,14 @@ export const MaintenanceScreen: React.FC<MaintenanceScreenProps> = ({ onRetry })
                 </Text>
 
                 <View style={styles.buttonGroup}>
-                    <TouchableOpacity
+                    <View
                         style={styles.primaryButton}
-                        onPress={handleContactSupport}
                     >
                         <View style={styles.buttonContent}>
                             <IconSymbol name="chat" size={20} color={theme.colors.onPrimary} />
                             <Text style={styles.buttonText}>{t('maintenance.contactSupport')}</Text>
                         </View>
-                    </TouchableOpacity>
+                    </View>
 
                     {isChecking && (
                         <View style={styles.autoCheckingContainer}>

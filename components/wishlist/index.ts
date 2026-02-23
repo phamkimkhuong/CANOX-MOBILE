@@ -5,8 +5,8 @@
  */
 
 export * from './WishlistCard';
-export * from './WishlistEmptyState';
+export * from './WishlistCollectionChips';
 export * from './WishlistItemCard';
+export * from './WishlistProductGrid';
 export * from './WishlistSkeleton';
-export * from './WishlistTabBar';
 

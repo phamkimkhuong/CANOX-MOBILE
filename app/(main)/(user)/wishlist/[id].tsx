@@ -13,7 +13,6 @@
 
 import { IconSymbol } from '@/components/ui/Icon';
 import {
-    EmptyWishlistItems,
     WishlistItemCard,
     WishlistItemListSkeleton,
 } from '@/components/wishlist';
@@ -25,6 +24,7 @@ import { Navigator } from '@/utils/navigation';
 import { FlashList } from '@shopify/flash-list';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     Pressable,
     RefreshControl,
@@ -123,12 +123,13 @@ const FilterPills: React.FC<{
     onFilterChange: (filter: FilterOption) => void;
     counts: { all: number; urgent: number; priceMet: number };
 }> = ({ activeFilter, onFilterChange, counts }) => {
+    const { t } = useTranslation('wishlist');
     const styles = filterStyles;
 
     const filters: { key: FilterOption; label: string; count: number }[] = [
-        { key: 'all', label: 'Tất cả', count: counts.all },
-        { key: 'urgent', label: 'Ưu tiên cao', count: counts.urgent },
-        { key: 'price-met', label: 'Đạt giá', count: counts.priceMet },
+        { key: 'all', label: t('filter.all'), count: counts.all },
+        { key: 'urgent', label: t('filter.urgent'), count: counts.urgent },
+        { key: 'price-met', label: t('filter.priceMet'), count: counts.priceMet },
     ];
 
     return (
@@ -211,6 +212,7 @@ export default function WishlistDetailScreen() {
     useNavigationUnlockOnFocus();
 
     const { theme } = useUnistyles();
+    const { t } = useTranslation('wishlist');
 
     const styles = stylesheet;
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -264,16 +266,16 @@ export default function WishlistDetailScreen() {
 
         try {
             await Share.share({
-                message: `Xem bộ sưu tập "${wishlist.name}" của tôi: ${wishlist.shareUrl}`,
+                message: t('share.message', { name: wishlist.name, url: wishlist.shareUrl }),
                 url: wishlist.shareUrl,
             });
         } catch {
             Toast.show({
                 type: 'error',
-                text1: 'Không thể chia sẻ',
+                text1: t('share.error'),
             });
         }
-    }, [wishlist]);
+    }, [wishlist, t]);
 
     const handleEdit = useCallback(() => {
         // TODO: Open edit wishlist bottom sheet
@@ -291,10 +293,10 @@ export default function WishlistDetailScreen() {
         // TODO: Add to cart mutation
         Toast.show({
             type: 'success',
-            text1: 'Đã thêm vào giỏ hàng',
+            text1: t('cart.addSuccess'),
             text2: item.productName,
         });
-    }, []);
+    }, [t]);
 
     const handleEditItem = useCallback((_item: WishlistItemUI) => {
         // TODO: Open edit item bottom sheet
@@ -323,7 +325,7 @@ export default function WishlistDetailScreen() {
         return (
             <View style={styles.container}>
                 <DetailHeader
-                    title="Đang tải..."
+                    title={t('error.loading')}
                     isPublic={false}
                     onBack={handleBack}
                     onShare={() => { }}
@@ -339,7 +341,7 @@ export default function WishlistDetailScreen() {
         return (
             <View style={styles.container}>
                 <DetailHeader
-                    title="Lỗi"
+                    title={t('error.errorTitle')}
                     isPublic={false}
                     onBack={handleBack}
                     onShare={() => { }}
@@ -347,9 +349,9 @@ export default function WishlistDetailScreen() {
                 />
                 <View style={styles.errorContainer}>
                     <IconSymbol name="error" size={48} color={theme.colors.error} />
-                    <Text style={styles.errorText}>Không thể tải bộ sưu tập</Text>
+                    <Text style={styles.errorText}>{t('error.loadFailed')}</Text>
                     <Pressable style={styles.retryButton} onPress={() => refetch()}>
-                        <Text style={styles.retryText}>Thử lại</Text>
+                        <Text style={styles.retryText}>{t('error.retry')}</Text>
                     </Pressable>
                 </View>
             </View>
@@ -376,7 +378,13 @@ export default function WishlistDetailScreen() {
 
             {/* Item List */}
             {filteredItems.length === 0 ? (
-                <EmptyWishlistItems onAddProduct={handleAddProduct} />
+                <View style={styles.errorContainer}>
+                    <IconSymbol name="add-circle-outline" size={48} color={theme.colors.primary} />
+                    <Text style={styles.errorText}>{t('empty.collectionEmpty')}</Text>
+                    <Pressable style={styles.retryButton} onPress={handleAddProduct}>
+                        <Text style={styles.retryText}>{t('empty.addProduct')}</Text>
+                    </Pressable>
+                </View>
             ) : (
                 <FlashList<WishlistItemUI>
                     data={filteredItems}

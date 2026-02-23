@@ -1,7 +1,34 @@
 import { WishlistTranslation } from '../types';
 
 export const WISHLIST_STRINGS: WishlistTranslation = {
+    title: 'Yêu thích',
     productCount: 'sản phẩm',
-    targetPriceMet: 'Đã đạt giá {{price}}',
+    targetPriceMet: 'Đã đạt giá!',
     targetPriceGoal: 'Mục tiêu: {{price}}',
+    isPublic: 'Công khai',
+    empty: {
+        title: 'Chưa có sản phẩm nào',
+        subtitle: 'Khám phá và thêm sản phẩm yêu thích vào bộ sưu tập này!',
+        collectionEmpty: 'Bộ sưu tập trống',
+        addProduct: 'Thêm sản phẩm',
+        productTitle: 'đang trống',
+    },
+    error: {
+        loadFailed: 'Không thể tải bộ sưu tập',
+        retry: 'Thử lại',
+        loading: 'Đang tải...',
+        errorTitle: 'Lỗi',
+    },
+    filter: {
+        all: 'Tất cả',
+        urgent: 'Ưu tiên cao',
+        priceMet: 'Đạt giá',
+    },
+    share: {
+        message: 'Xem bộ sưu tập "{{name}}" của tôi: {{url}}',
+        error: 'Không thể chia sẻ',
+    },
+    cart: {
+        addSuccess: 'Đã thêm vào giỏ hàng',
+    },
 };

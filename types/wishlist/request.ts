@@ -22,6 +22,7 @@ export interface CreateWishlistRequest {
     description?: string;
     isPublic?: boolean;
     isDefault?: boolean;
+    coverImageAssetId?: string;
 }
 
 /**
@@ -34,6 +35,7 @@ export interface UpdateWishlistRequest {
     description?: string;
     isPublic?: boolean;
     isDefault?: boolean;
+    coverImageAssetId?: string;
 }
 
 /**

@@ -1,17 +1,15 @@
 import { formatCurrency, formatSoldCount } from '@/utils/format';
-import { createLogger } from '@/utils/logger';
 import { toSizedImageUrl } from '@/utils/url';
 import { Image } from 'expo-image';
 import { Href } from 'expo-router';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { IconSymbol } from '../Icon';
 import { SmartNavButton } from '../navigation/SmartNavButton';
+import { FavoriteButton } from './FavoriteButton';
 import { InternationalBadge } from './InternationalBadge';
-
-const log = createLogger('ProductCard');
 
 interface ProductCardProps {
     title: string;
@@ -29,6 +27,22 @@ interface ProductCardProps {
     onPressIn?: () => void;
     route: Href | string;
     priceDisplay?: string;
+    /** Variant ID for wishlist check */
+    variantId?: string;
+    /** Called when favorite button is pressed — should open Wishlist Picker */
+    onFavoritePress?: (variantId: string) => void;
+    /** Image resolution size, defaults to 'medium' */
+    imageSize?: 'thumb' | 'medium' | 'large' | 'orig';
+    /** Small badge text below rating (e.g. "Đã giảm giá!") */
+    badgeText?: string;
+    /** Badge background color */
+    badgeColor?: string;
+    /** Hide sold count (e.g. when API doesn't provide it) */
+    hideSold?: boolean;
+    /** Target/desired price to display below current price */
+    targetPrice?: string;
+    /** Label for target price (e.g. "Mục tiêu") */
+    targetPriceLabel?: string;
 }
 
 export const ProductCard = React.memo(({
@@ -47,6 +61,14 @@ export const ProductCard = React.memo(({
     onPressIn,
     route,
     priceDisplay,
+    variantId,
+    onFavoritePress,
+    imageSize = 'medium',
+    badgeText,
+    badgeColor,
+    hideSold,
+    targetPrice,
+    targetPriceLabel,
 }: ProductCardProps) => {
     const { t } = useTranslation(['product']);
     const { theme } = useUnistyles();
@@ -71,7 +93,7 @@ export const ProductCard = React.memo(({
 
                         {/* Image Container */}
                         <View style={styles.imageWrapper}>
-                            <Image source={{ uri: toSizedImageUrl(image, null, 'medium') ?? image }} style={styles.image} contentFit="cover" />
+                            <Image source={{ uri: toSizedImageUrl(image, null, imageSize) ?? image }} style={styles.image} contentFit="cover" />
 
                             {/* Discount Badge */}
                             {discount != null && discount > 0 && (
@@ -88,15 +110,16 @@ export const ProductCard = React.memo(({
                             )}
 
                             {/* Favorite Button */}
-                            <Pressable
-                                style={styles.favoriteBtn}
-                                onPress={(e) => {
-                                    e.stopPropagation();
-                                    log.info('Toggle favorite');
-                                }}
-                            >
-                                <IconSymbol name="favorite-border" size={18} color="#333" />
-                            </Pressable>
+                            {variantId && onFavoritePress ? (
+                                <FavoriteButton
+                                    variantId={variantId}
+                                    onPress={onFavoritePress}
+                                />
+                            ) : (
+                                <View style={styles.favoriteBtn}>
+                                    <IconSymbol name="favorite-border" size={18} color="#333" />
+                                </View>
+                            )}
 
                         </View>
 
@@ -136,20 +159,41 @@ export const ProductCard = React.memo(({
                                 )}
                             </View>
 
-                            {/* Sold & Location Row */}
-                            <View style={styles.metaRow}>
-                                {sold != null && (
-                                    <Text style={styles.soldText}>
-                                        {t('info.soldCountTemplate', { soldCount: formatSoldCount(sold) })}
+                            {/* Target Price Row */}
+                            {targetPrice && (
+                                <View style={styles.targetPriceRow}>
+                                    <IconSymbol name="flag" size={11} color={theme.colors.primary} />
+                                    <Text style={styles.targetPriceLabel}>
+                                        {targetPriceLabel ?? 'Mục tiêu'}:
                                     </Text>
-                                )}
-                                {location && (
-                                    <View style={styles.locationRow}>
-                                        <IconSymbol name="location-outline" size={10} color={theme.colors.typographySecondary} />
-                                        <Text style={styles.location} numberOfLines={1}>{location}</Text>
-                                    </View>
-                                )}
-                            </View>
+                                    <Text style={styles.targetPriceValue}>{targetPrice}</Text>
+                                </View>
+                            )}
+
+                            {/* Badge (e.g. "Đã giảm giá!") */}
+                            {badgeText && (
+                                <View style={[styles.infoBadge, badgeColor ? { backgroundColor: badgeColor } : undefined]}>
+                                    <IconSymbol name="check-circle" size={11} color="#16a34a" />
+                                    <Text style={[styles.infoBadgeText, badgeColor === '#dcfce7' ? undefined : { color: '#fff' }]}>{badgeText}</Text>
+                                </View>
+                            )}
+
+                            {/* Sold & Location Row */}
+                            {!hideSold && (
+                                <View style={styles.metaRow}>
+                                    {sold != null && (
+                                        <Text style={styles.soldText}>
+                                            {t('info.soldCountTemplate', { soldCount: formatSoldCount(sold) })}
+                                        </Text>
+                                    )}
+                                    {location && (
+                                        <View style={styles.locationRow}>
+                                            <IconSymbol name="location-outline" size={10} color={theme.colors.typographySecondary} />
+                                            <Text style={styles.location} numberOfLines={1}>{location}</Text>
+                                        </View>
+                                    )}
+                                </View>
+                            )}
                         </View>
                     </View>
                 </View>
@@ -290,6 +334,38 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.typographySecondary,
         fontSize: 11,
         fontWeight: '400',
+    },
+    targetPriceRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        marginTop: 3,
+    },
+    targetPriceLabel: {
+        fontSize: 10,
+        fontWeight: '500',
+        color: theme.colors.primary,
+    },
+    targetPriceValue: {
+        fontSize: 11,
+        fontWeight: '600',
+        color: theme.colors.primary,
+    },
+    infoBadge: {
+        alignSelf: 'flex-start',
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 3,
+        paddingHorizontal: 6,
+        paddingVertical: 3,
+        borderRadius: 4,
+        backgroundColor: '#dcfce7',
+        marginTop: 4,
+    },
+    infoBadgeText: {
+        fontSize: 10,
+        fontWeight: '600',
+        color: '#16a34a',
     },
     metaRow: {
         flexDirection: 'row',

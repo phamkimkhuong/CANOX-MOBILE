@@ -787,7 +787,7 @@ const styles = StyleSheet.create((theme) => ({
         width: '100%',
     },
     listContent: {
-        paddingBottom: 100, // Account for bottom bar
+
     },
     listFooter: {
         paddingVertical: theme.margins.lg,

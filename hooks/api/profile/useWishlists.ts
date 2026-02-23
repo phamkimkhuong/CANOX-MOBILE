@@ -17,14 +17,14 @@
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { request } from '@/services/api/client';
 import { useAuthStore } from '@/store/useAuthStore';
-import {
-    WishlistFilterParams,
-    WishlistsResponse,
-    WishlistsResponseSchema,
-    WishlistUI,
-} from '@/types/profile/wishlist';
+import type { WishlistQueryParams } from '@/types/wishlist/request';
+import type { WishlistCardUI } from '@/types/wishlist/ui';
+import { WishlistListResponseSchema } from '@/types/wishlist/wishlistSchema';
 import { toWishlistsUI } from '@/utils/adapter/wishlistAdapter';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import type { z } from 'zod';
+
+type WishlistsResponse = z.infer<typeof WishlistListResponseSchema>;
 
 // ============================================
 // QUERY KEYS
@@ -32,7 +32,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 export const wishlistQueryKeys = {
     all: ['wishlists'] as const,
-    list: (params?: WishlistFilterParams) => [...wishlistQueryKeys.all, 'list', params] as const,
+    list: (params?: WishlistQueryParams) => [...wishlistQueryKeys.all, 'list', params] as const,
     summary: () => [...wishlistQueryKeys.all, 'summary'] as const,
     detail: (wishlistId: string) => [...wishlistQueryKeys.all, 'detail', wishlistId] as const,
     items: (wishlistId: string) => [...wishlistQueryKeys.all, 'items', wishlistId] as const,
@@ -42,7 +42,7 @@ export const wishlistQueryKeys = {
 // DEFAULT PARAMS
 // ============================================
 
-const DEFAULT_PARAMS: WishlistFilterParams = {
+const DEFAULT_PARAMS: WishlistQueryParams = {
     page: 0,
     size: 100,
     sortBy: 'createdDate',
@@ -65,14 +65,14 @@ const DEFAULT_PARAMS: WishlistFilterParams = {
  * @param params - Optional filter/sort params
  * @returns Query result with wishlists array
  */
-export const useWishlists = (params?: WishlistFilterParams) => {
+export const useWishlists = (params?: WishlistQueryParams) => {
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     const mergedParams = { ...DEFAULT_PARAMS, ...params };
 
     return useQuery({
         queryKey: wishlistQueryKeys.list(mergedParams),
         queryFn: async (): Promise<{
-            items: WishlistUI[];
+            items: WishlistCardUI[];
             totalElements: number;
             hasNext: boolean;
         }> => {
@@ -82,7 +82,7 @@ export const useWishlists = (params?: WishlistFilterParams) => {
                     method: 'GET',
                     params: mergedParams,
                 },
-                WishlistsResponseSchema
+                WishlistListResponseSchema
             );
 
             // Guard: Check response.data exists
@@ -164,7 +164,7 @@ export const usePrefetchWishlists = () => {
                         method: 'GET',
                         params: DEFAULT_PARAMS,
                     },
-                    WishlistsResponseSchema
+                    WishlistListResponseSchema
                 );
 
                 // Guard: Check response.data exists

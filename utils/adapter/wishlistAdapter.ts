@@ -8,16 +8,29 @@
  * 2. Handle nullable fields with safe fallbacks
  */
 
-import { WishlistDTO, WishlistUI } from '@/types/profile/wishlist';
+import type { WishlistCardUI } from '@/types/wishlist/ui';
+import type { WishlistSummarySchemaType } from '@/types/wishlist/wishlistSchema';
 import { toPublicUrl } from '@/utils/url';
 
 /**
- * Transform WishlistDTO → WishlistUI
- * 
- * @param dto - Raw API response
- * @returns UI-ready wishlist object
+ * Format ISO date string to short display format
  */
-export const toWishlistUI = (dto: WishlistDTO): WishlistUI => {
+const formatDate = (isoDate: string): string => {
+    try {
+        const date = new Date(isoDate);
+        return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    } catch {
+        return '';
+    }
+};
+
+/**
+ * Transform WishlistSummary → WishlistCardUI
+ * 
+ * @param dto - Zod-validated API response
+ * @returns UI-ready wishlist card object
+ */
+export const toWishlistUI = (dto: WishlistSummarySchemaType): WishlistCardUI => {
     return {
         id: dto.id,
         name: dto.name,
@@ -25,17 +38,19 @@ export const toWishlistUI = (dto: WishlistDTO): WishlistUI => {
         isPublic: dto.isPublic,
         isDefault: dto.isDefault,
         itemCount: dto.itemCount,
-        createdAt: dto.createdDate,
-        thumbnailUrl: toPublicUrl(dto.imagePath) || null,
+        buyerName: dto.buyerName,
+        formattedDate: formatDate(dto.createdDate),
+        coverImageUrl: toPublicUrl(dto.imagePath) || null,
     };
 };
 
 /**
- * Transform array of WishlistDTO → WishlistUI[]
+ * Transform array of WishlistSummary → WishlistCardUI[]
  * 
- * @param dtos - Array of raw API responses
- * @returns Array of UI-ready wishlist objects
+ * @param dtos - Array of Zod-validated API responses
+ * @returns Array of UI-ready wishlist card objects
  */
-export const toWishlistsUI = (dtos: WishlistDTO[]): WishlistUI[] => {
+export const toWishlistsUI = (dtos: WishlistSummarySchemaType[]): WishlistCardUI[] => {
     return dtos.map(toWishlistUI);
 };
+

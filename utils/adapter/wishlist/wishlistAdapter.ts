@@ -56,7 +56,7 @@ export const adaptWishlistItem = (item: WishlistItemDTO): WishlistItemUI => {
         variantId: item.variantId,
         productName: item.productName,
         // Prioritize new imagePath, fallback to legacy
-        imageUrl: toSizedImageUrl(item.imagePath || item.imageBasePath, item.imageExtension, 'thumb') ?? null,
+        imageUrl: toSizedImageUrl(item.imagePath || item.imageBasePath, item.imageExtension, 'medium') ?? null,
         price: item.productPrice,
         // Use existing currency formatter
         formattedPrice: formatCurrency(item.productPrice),

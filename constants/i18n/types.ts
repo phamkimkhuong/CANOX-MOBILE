@@ -1523,9 +1523,36 @@ export interface VideoTranslation {
  * Wishlist module translations
  */
 export interface WishlistTranslation {
+    title: string;
     productCount: string;
     targetPriceMet: string;
     targetPriceGoal: string;
+    isPublic: string;
+    empty: {
+        title: string;
+        subtitle: string;
+        collectionEmpty: string;
+        addProduct: string;
+        productTitle: string;
+    };
+    error: {
+        loadFailed: string;
+        retry: string;
+        loading: string;
+        errorTitle: string;
+    };
+    filter: {
+        all: string;
+        urgent: string;
+        priceMet: string;
+    };
+    share: {
+        message: string;
+        error: string;
+    };
+    cart: {
+        addSuccess: string;
+    };
 }
 
 /**

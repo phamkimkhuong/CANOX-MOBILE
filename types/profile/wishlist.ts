@@ -1,81 +1,29 @@
 /**
  * ==============================================
- * WISHLIST TYPES - Single Source of Truth
+ * WISHLIST TYPES - Re-export from canonical source
  * ==============================================
- * 
- * API Endpoints:
- * - GET /wishlists → WishlistsResponse (paginated)
- * - GET /wishlists/{id} → WishlistDetailResponse
- * - GET /wishlists/{id}/items → WishlistItemsResponse
- * 
- * Adapter: @/utils/adapter/wishlistAdapter.ts
  */
 
+// Re-export everything from the canonical wishlist types
+export {
+    WishlistSummarySchema as WishlistDTOSchema,
+    WishlistPageSchema,
+    type WishlistSummarySchemaType as WishlistDTO,
+    type WishlistPageSchemaType
+} from '@/types/wishlist/wishlistSchema';
+
+export { type WishlistQueryParams as WishlistFilterParams } from '@/types/wishlist/request';
+export { type WishlistCardUI as WishlistUI } from '@/types/wishlist/ui';
+
+// Create compatible paginated response schema
+import { WishlistPageSchema } from '@/types/wishlist/wishlistSchema';
 import { z } from 'zod';
-import { createPaginatedResponseSchema } from '../responseSchema';
 
-// ============================================
-// DTO SCHEMAS (API Response)
-// ============================================
-
-/**
- * Wishlist Item DTO - Matches API response exactly
- * All fields are nullable/optional for new users
- */
-export const WishlistDTOSchema = z.object({
-    id: z.string().nullish().transform((val) => val ?? ''),
-    name: z.string().nullish().transform((val) => val ?? 'Untitled Wishlist'),
-    description: z.string().nullable().optional(),
-    isPublic: z.coerce.boolean().nullish().transform(val => val ?? false),
-    isDefault: z.coerce.boolean().nullish().transform(val => val ?? false),
-    itemCount: z.coerce.number().nullish().transform((val) => val ?? 0),
-    createdDate: z.string().nullish().transform((val) => val ?? new Date().toISOString()),
-    imagePath: z.string().nullable().optional(),
-    imageAssetId: z.string().nullable().optional(),
+export const WishlistsResponseSchema = z.object({
+    code: z.number(),
+    success: z.boolean(),
+    message: z.string(),
+    data: WishlistPageSchema,
 });
 
-export type WishlistDTO = z.infer<typeof WishlistDTOSchema>;
-
-/**
- * Paginated Wishlists Response Schema
- */
-export const WishlistsResponseSchema = createPaginatedResponseSchema(WishlistDTOSchema);
-
 export type WishlistsResponse = z.infer<typeof WishlistsResponseSchema>;
-
-// ============================================
-// UI TYPES (Transformed for display)
-// ============================================
-
-/**
- * Wishlist UI Type - Optimized for display
- */
-export interface WishlistUI {
-    /** Unique ID */
-    id: string;
-    /** Wishlist name */
-    name: string;
-    /** Optional description */
-    description: string | null;
-    /** Is visible to others */
-    isPublic: boolean;
-    /** Default wishlist for quick add */
-    isDefault: boolean;
-    /** Number of items in wishlist */
-    itemCount: number;
-    /** Formatted created date (MM/YYYY) */
-    createdAt: string;
-    /** Full thumbnail URL or null */
-    thumbnailUrl: string | null;
-}
-
-// ============================================
-// FILTER PARAMS
-// ============================================
-
-export interface WishlistFilterParams {
-    page?: number;
-    size?: number;
-    sortBy?: 'createdDate' | 'name' | 'itemCount';
-    sortDir?: 'asc' | 'desc';
-}

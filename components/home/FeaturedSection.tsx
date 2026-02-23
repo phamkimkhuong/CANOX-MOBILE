@@ -216,61 +216,64 @@ export const FeaturedSection = memo(({ onProductPress }: FeaturedSectionProps = 
                                         accessibilityLabel={product.title}
                                     />
 
-                                    {/* Feature badge - chỉ hiển thị nếu có (KHÔNG bao gồm international) */}
+                                    {/* Feature badge */}
                                     {badge && badge.type !== 'international' && (
                                         <View style={[styles.smallBadge, getBadgeStyle(badge.type)]}>
                                             <Text style={styles.smallBadgeText}>{badge.text}</Text>
                                         </View>
                                     )}
 
-                                    {/* Discount badge - chỉ hiển thị nếu có giảm giá */}
+                                    {/* Discount badge */}
                                     {discountBadge && (
                                         <View style={styles.discountBadge}>
                                             <Text style={styles.discountText}>{discountBadge}</Text>
                                         </View>
                                     )}
                                 </View>
-                                <Text style={styles.smallTitle} numberOfLines={2}>
-                                    {product.title}
-                                </Text>
 
-                                {/* International badge - below title, with shimmer */}
-                                {product.isInternational && (
-                                    <InternationalBadge label={t('product:badges.international')} size="sm" />
-                                )}
+                                <View style={styles.smallCardContent}>
+                                    <Text style={styles.smallTitle} numberOfLines={2}>
+                                        {product.title}
+                                    </Text>
 
-                                {/* Rating Row */}
-                                <View style={styles.smallRatingRow}>
-                                    {[1, 2, 3, 4, 5].map((star) => (
-                                        <IconSymbol
-                                            key={star}
-                                            name={star <= Math.floor(product.rating ?? 0) ? 'star' : 'star-border'}
-                                            size={10}
-                                            color="#facc15"
-                                        />
-                                    ))}
-                                    {product.reviews > 0 && (
-                                        <Text style={styles.smallReviewsText}>
-                                            ({product.reviews >= 1000 ? `${(product.reviews / 1000).toFixed(1)}k` : product.reviews})
+                                    {/* International badge */}
+                                    {product.isInternational && (
+                                        <InternationalBadge label={t('product:badges.international')} size="sm" />
+                                    )}
+
+                                    {/* Rating Row */}
+                                    <View style={styles.smallRatingRow}>
+                                        {[1, 2, 3, 4, 5].map((star) => (
+                                            <IconSymbol
+                                                key={star}
+                                                name={star <= Math.floor(product.rating ?? 0) ? 'star' : 'star-border'}
+                                                size={10}
+                                                color="#facc15"
+                                            />
+                                        ))}
+                                        {product.reviews > 0 && (
+                                            <Text style={styles.smallReviewsText}>
+                                                ({product.reviews >= 1000 ? `${(product.reviews / 1000).toFixed(1)}k` : product.reviews})
+                                            </Text>
+                                        )}
+                                    </View>
+
+                                    <View style={styles.smallPriceRow}>
+                                        <Text style={styles.smallPrice}>
+                                            {formatCurrency(product.price)}
+                                        </Text>
+                                        {product.originalPrice && product.originalPrice > product.price && (
+                                            <Text style={styles.smallOriginalPrice}>
+                                                {formatCurrency(product.originalPrice)}
+                                            </Text>
+                                        )}
+                                    </View>
+                                    {product.sold > 0 && (
+                                        <Text style={styles.smallSoldText}>
+                                            Đã bán {formatSoldCount(product.sold)}
                                         </Text>
                                     )}
                                 </View>
-
-                                <View style={styles.smallPriceRow}>
-                                    <Text style={styles.smallPrice}>
-                                        {formatCurrency(product.price)}
-                                    </Text>
-                                    {product.originalPrice && product.originalPrice > product.price && (
-                                        <Text style={styles.smallOriginalPrice}>
-                                            {formatCurrency(product.originalPrice)}
-                                        </Text>
-                                    )}
-                                </View>
-                                {product.sold > 0 && (
-                                    <Text style={styles.smallSoldText}>
-                                        Đã bán {formatSoldCount(product.sold)}
-                                    </Text>
-                                )}
                             </TouchableOpacity>
                         );
                     }}
@@ -393,16 +396,30 @@ const stylesheet = StyleSheet.create((theme) => ({
         paddingBottom: theme.margins.md,
     },
     smallCard: {
+        backgroundColor: theme.colors.surface,
+        borderRadius: theme.radius.m,
+        // Soft UI Shadow for depth
+        shadowColor: theme.colors.primary,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.06,
+        shadowRadius: 10,
+        elevation: 3,
+        overflow: 'hidden',
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: 'rgba(0,0,0,0.04)',
+        paddingBottom: 4,
     },
     smallSeparator: {
         width: theme.margins.sm,
     },
     smallImageContainer: {
         width: '100%',
-        borderRadius: theme.radius.m,
-        overflow: 'hidden',
         backgroundColor: theme.colors.backgroundInput,
-        marginBottom: theme.margins.sm,
+    },
+    smallCardContent: {
+        paddingHorizontal: 8,
+        paddingVertical: 8,
+        gap: 3,
     },
     smallImage: {
         width: '100%',
