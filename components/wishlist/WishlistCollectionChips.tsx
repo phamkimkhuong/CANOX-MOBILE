@@ -4,6 +4,7 @@
  * ==============================================
  */
 
+import { SkeletonBox, useShimmerAnimation } from '@/components/ui/feedback/Skeleton';
 import { IconSymbol } from '@/components/ui/Icon';
 import type { WishlistCardUI } from '@/types/wishlist';
 import React, { useCallback } from 'react';
@@ -27,6 +28,7 @@ export const WishlistCollectionChips: React.FC<WishlistCollectionChipsProps> = (
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
+    const shimmerStyle = useShimmerAnimation(!!isLoading);
 
     const renderChip = useCallback((item: WishlistCardUI) => {
         const isActive = activeId === item.id;
@@ -77,37 +79,37 @@ export const WishlistCollectionChips: React.FC<WishlistCollectionChipsProps> = (
         );
     }, [activeId, onSelect, styles, theme.colors.warning]);
 
-    if (isLoading) {
-        return (
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.container}
-            >
-                {Array.from({ length: 4 }).map((_, i) => (
-                    <View key={i} style={styles.chipSkeleton} />
-                ))}
-            </ScrollView>
-        );
-    }
-
     return (
         <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.container}
         >
-            {/* Wishlist chips */}
-            {wishlists.map(renderChip)}
+            {isLoading ? (
+                Array.from({ length: 4 }).map((_, i) => (
+                    <SkeletonBox
+                        key={i}
+                        width={90}
+                        height={36}
+                        borderRadius={20}
+                        animatedStyle={shimmerStyle}
+                    />
+                ))
+            ) : (
+                <>
+                    {/* Wishlist chips */}
+                    {wishlists.map(renderChip)}
 
-            {/* Create new chip */}
-            <Pressable
-                style={styles.createChip}
-                onPress={onCreate}
-            >
-                <IconSymbol name="add" size={16} color={theme.colors.newPrimary} />
-                <Text style={styles.createText}>Tạo mới</Text>
-            </Pressable>
+                    {/* Create new chip */}
+                    <Pressable
+                        style={styles.createChip}
+                        onPress={onCreate}
+                    >
+                        <IconSymbol name="add" size={16} color={theme.colors.newPrimary} />
+                        <Text style={styles.createText}>Tạo mới</Text>
+                    </Pressable>
+                </>
+            )}
         </ScrollView>
     );
 };

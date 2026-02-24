@@ -6,7 +6,7 @@
  * Similar to home page / search results style.
  */
 
-import { SkeletonBox, SkeletonText } from '@/components/ui/feedback/Skeleton';
+import { SkeletonBox, useShimmerAnimation } from '@/components/ui/feedback/Skeleton';
 import { ProductCard } from '@/components/ui/product/ProductCard';
 import { productRoutes } from '@/constants/routes';
 import type { WishlistItemUI } from '@/types/wishlist';
@@ -32,6 +32,7 @@ interface WishlistProductGridProps {
     items: WishlistItemUI[];
     isLoading?: boolean;
     onFavoritePress?: (variantId: string) => void;
+    onItemLongPress?: (item: WishlistItemUI) => void;
     ListHeaderComponent?: React.ReactElement;
     wishlistName?: string;
 }
@@ -41,16 +42,25 @@ interface WishlistProductGridProps {
  */
 const GridSkeleton: React.FC = () => {
     const styles = stylesheet;
+    const shimmerStyle = useShimmerAnimation();
 
     return (
         <View style={styles.skeletonGrid}>
-            {Array.from({ length: 6 }).map((_, i) => (
+            {Array.from({ length: 4 }).map((_, i) => (
                 <View key={i} style={styles.skeletonCard}>
-                    <SkeletonBox width={CARD_WIDTH} height={CARD_WIDTH} borderRadius={12} />
+                    <SkeletonBox
+                        width={CARD_WIDTH}
+                        height={CARD_WIDTH}
+                        borderRadius={12}
+                        animatedStyle={shimmerStyle}
+                    />
                     <View style={styles.skeletonContent}>
-                        <SkeletonText width="90%" height={14} />
-                        <SkeletonText width="60%" height={14} style={styles.skeletonMargin6} />
-                        <SkeletonText width="40%" height={16} style={styles.skeletonMargin8} />
+                        <SkeletonBox
+                            width="100%"
+                            height={40}
+                            borderRadius={8}
+                            animatedStyle={shimmerStyle}
+                        />
                     </View>
                 </View>
             ))}
@@ -85,6 +95,7 @@ export const WishlistProductGrid: React.FC<WishlistProductGridProps> = ({
     items,
     isLoading,
     onFavoritePress,
+    onItemLongPress,
     ListHeaderComponent,
     wishlistName,
 }) => {
@@ -100,6 +111,8 @@ export const WishlistProductGrid: React.FC<WishlistProductGridProps> = ({
         // Determine badge text for price target status
         const badgeText = item.isPriceTargetMet ? t('targetPriceMet') : undefined;
         const badgeColor = item.isPriceTargetMet ? '#dcfce7' : undefined;
+        // Determine if notes exist (non-null, non-empty)
+        const hasNotes = !!item.notes && item.notes.trim().length > 0;
 
         return (
             <View style={styles.cardWrapper}>
@@ -109,6 +122,7 @@ export const WishlistProductGrid: React.FC<WishlistProductGridProps> = ({
                     image={imageUrl}
                     route={productRoutes.detail(item.productId)}
                     onPress={() => handleProductPress(item.productId)}
+                    onLongPress={onItemLongPress ? () => onItemLongPress(item) : undefined}
                     variantId={item.variantId}
                     onFavoritePress={onFavoritePress}
                     priceDisplay={item.formattedPrice}
@@ -117,52 +131,55 @@ export const WishlistProductGrid: React.FC<WishlistProductGridProps> = ({
                     badgeColor={badgeColor}
                     hideSold
                     favoriteAlwaysFilled
+                    priority={item.priority}
+                    hasNotes={hasNotes}
                 />
             </View>
         );
     }, [
         handleProductPress,
         onFavoritePress,
+        onItemLongPress,
         styles.cardWrapper,
         t,
     ]);
 
-    if (isLoading) {
-        return (
-            <View>
-                {ListHeaderComponent}
-                <GridSkeleton />
-            </View>
-        );
-    }
-
-    if (items.length === 0) {
-        return (
-            <View>
-                {ListHeaderComponent}
-                <EmptyGrid wishlistName={wishlistName} />
-            </View>
-        );
-    }
-
     return (
-        <FlashList<WishlistItemUI>
-            data={items}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id}
-            numColumns={2}
-            masonry={true}
-            contentContainerStyle={styles.gridContent}
-            ListHeaderComponent={ListHeaderComponent}
-        />
+        <View style={styles.container}>
+            {isLoading ? (
+                <View>
+                    {ListHeaderComponent}
+                    <GridSkeleton />
+                </View>
+            ) : items.length === 0 ? (
+                <View>
+                    {ListHeaderComponent}
+                    <EmptyGrid wishlistName={wishlistName} />
+                </View>
+            ) : (
+                <FlashList<WishlistItemUI>
+                    data={items}
+                    renderItem={renderItem}
+                    keyExtractor={(item) => item.id}
+                    numColumns={2}
+                    masonry={true}
+                    contentContainerStyle={styles.gridContent}
+                    ListHeaderComponent={ListHeaderComponent}
+                />
+            )}
+        </View>
     );
 };
 
 const stylesheet = StyleSheet.create((theme) => ({
+    container: {
+        flex: 1,
+    },
     gridContent: {
         paddingHorizontal: HORIZONTAL_PADDING,
         paddingBottom: theme.margins.xl,
     },
+
     cardWrapper: {
         flex: 1,
         margin: COLUMN_GAP / 2,

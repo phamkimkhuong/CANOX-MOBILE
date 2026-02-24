@@ -27,24 +27,23 @@ interface ProductCardProps {
     onPressIn?: () => void;
     route: Href | string;
     priceDisplay?: string;
-    /** Variant ID for wishlist check */
     variantId?: string;
-    /** Called when favorite button is pressed — should open Wishlist Picker */
     onFavoritePress?: (variantId: string) => void;
-    /** Image resolution size, defaults to 'medium' */
     imageSize?: 'thumb' | 'medium' | 'large' | 'orig';
-    /** Small badge text below rating (e.g. "Đã giảm giá!") */
     badgeText?: string;
-    /** Badge background color */
     badgeColor?: string;
-    /** Hide sold count (e.g. when API doesn't provide it) */
     hideSold?: boolean;
-    /** Target/desired price to display below current price */
     targetPrice?: string;
-    /** Label for target price (e.g. "Mục tiêu") */
     targetPriceLabel?: string;
-    /** When true, heart is always filled red (for wishlist context) */
     favoriteAlwaysFilled?: boolean;
+    /** Priority level (0=Normal, 2=Urgent). Only Urgent (2) shows a badge */
+    priority?: number;
+    /** Whether this item has personal notes attached */
+    hasNotes?: boolean;
+    /** Called when "more" menu is pressed on card (for wishlist context) */
+    onMorePress?: (variantId: string) => void;
+    /** Called on long press (e.g. to open edit sheet in wishlist) */
+    onLongPress?: () => void;
 }
 
 export const ProductCard = React.memo(({
@@ -72,6 +71,10 @@ export const ProductCard = React.memo(({
     targetPrice,
     targetPriceLabel,
     favoriteAlwaysFilled,
+    priority,
+    hasNotes,
+    onMorePress,
+    onLongPress,
 }: ProductCardProps) => {
     const { t } = useTranslation(['product']);
     const { theme } = useUnistyles();
@@ -82,6 +85,7 @@ export const ProductCard = React.memo(({
             route={route}
             onPress={onPress}
             onPressIn={onPressIn}
+            onLongPress={onLongPress}
             style={styles.container}
         >
             {({ pressed }) => (
@@ -102,6 +106,13 @@ export const ProductCard = React.memo(({
                             {discount != null && discount > 0 && (
                                 <View style={styles.discountBadge}>
                                     <Text style={styles.discountText}>-{discount}%</Text>
+                                </View>
+                            )}
+
+                            {/* Urgent Priority Badge */}
+                            {priority === 2 && (
+                                <View style={styles.urgentBadge}>
+                                    <IconSymbol name="fire" size={10} color="#fff" />
                                 </View>
                             )}
 
@@ -196,6 +207,14 @@ export const ProductCard = React.memo(({
                                             <Text style={styles.location} numberOfLines={1}>{location}</Text>
                                         </View>
                                     )}
+                                </View>
+                            )}
+
+                            {/* Note Indicator (wishlist context) */}
+                            {hasNotes && (
+                                <View style={styles.noteIndicator}>
+                                    <IconSymbol name="note" size={10} color={theme.colors.typographySecondary} />
+                                    <Text style={styles.noteIndicatorText}>Có ghi chú</Text>
                                 </View>
                             )}
                         </View>
@@ -396,5 +415,32 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.typographySecondary,
         flexShrink: 1,
         fontWeight: '500',
+    },
+    urgentBadge: {
+        position: 'absolute',
+        bottom: 8,
+        right: 8,
+        width: 24,
+        height: 24,
+        borderRadius: 12,
+        backgroundColor: theme.colors.error,
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 2,
+        borderWidth: 1.5,
+        borderColor: 'rgba(255,255,255,0.6)',
+    },
+    noteIndicator: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 3,
+        marginTop: 3,
+        opacity: 0.6,
+    },
+    noteIndicatorText: {
+        fontSize: 10,
+        fontWeight: '500',
+        color: theme.colors.typographySecondary,
+        fontStyle: 'italic',
     },
 }));

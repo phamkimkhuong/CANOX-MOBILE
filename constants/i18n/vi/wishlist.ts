@@ -18,6 +18,7 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
         retry: 'Thử lại',
         loading: 'Đang tải...',
         errorTitle: 'Lỗi',
+        limitReached: 'Bạn đã đạt giới hạn 5 bộ sưu tập. Hãy xóa bớt bộ sưu tập cũ trước khi tạo mới!',
     },
     filter: {
         all: 'Tất cả',
@@ -62,5 +63,20 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
         renameSuccess: 'Đã đổi tên thành "{{name}}"',
         makePublicSuccess: 'Bộ sưu tập hiện đã công khai',
         makePrivateSuccess: 'Bộ sưu tập hiện đã được ẩn',
+    },
+    editItem: {
+        title: 'Chỉnh sửa mong muốn',
+        desiredPriceLabel: 'Giá mong muốn',
+        desiredPricePlaceholder: 'Nhập giá bạn muốn mua...',
+        notesLabel: 'Ghi chú cá nhân',
+        notesPlaceholder: 'Ví dụ: Mua tặng mẹ dịp 8/3...',
+        priorityLabel: 'Mức ưu tiên',
+        priorityNormal: 'Bình thường',
+        priorityUrgent: 'Khẩn cấp',
+        save: 'Lưu thay đổi',
+        saving: 'Đang lưu...',
+        cancel: 'Huỷ',
+        success: 'Đã cập nhật thành công',
+        clearPrice: 'Xoá giá mục tiêu',
     },
 };

@@ -14,6 +14,10 @@
 
 import { IconSymbol } from '@/components/ui/Icon';
 import { CreateWishlistModal, RenameWishlistModal } from '@/components/wishlist';
+import {
+    EditWishlistItemSheet,
+    type EditWishlistItemSheetRef,
+} from '@/components/wishlist/EditWishlistItemSheet';
 import { UndoSnackbar } from '@/components/wishlist/UndoSnackbar';
 import {
     WishlistActionSheet,
@@ -31,6 +35,7 @@ import {
     useDeleteWishlist,
     useShareWishlist,
     useUpdateWishlist,
+    useUpdateWishlistItem,
     useWishlistDetail,
     useWishlists,
 } from '@/hooks/api/wishlist';
@@ -39,7 +44,7 @@ import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import type { WishlistItemUI } from '@/types/wishlist';
 import { Alert as CustomAlert } from '@/utils/AlertHelper';
 import { Navigator } from '@/utils/navigation';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Pressable,
@@ -171,22 +176,18 @@ export default function WishlistHubScreen() {
     // Track active wishlist selection
     const [activeWishlistId, setActiveWishlistId] = useState<string | null>(null);
     const hasAutoSelected = useRef(false);
-    const effectiveWishlistId = useMemo(() => {
-        if (activeWishlistId) return activeWishlistId;
+    const effectiveWishlistId = activeWishlistId;
 
-        // Auto-select on first data arrival
-        if (sortedWishlists.length > 0 && !hasAutoSelected.current) {
+    // Auto-select first/default wishlist on initial data load
+    useEffect(() => {
+        if (!activeWishlistId && sortedWishlists.length > 0 && !hasAutoSelected.current) {
             const defaultWl = sortedWishlists.find(w => w.isDefault);
             const autoId = defaultWl?.id ?? sortedWishlists[0].id;
-            queueMicrotask(() => {
-                hasAutoSelected.current = true;
-                setActiveWishlistId(autoId);
-            });
-            return autoId;
+            hasAutoSelected.current = true;
+            setActiveWishlistId(autoId);
         }
-
-        return null;
     }, [activeWishlistId, sortedWishlists]);
+
 
     // Fetch items of selected wishlist
     const {
@@ -200,9 +201,12 @@ export default function WishlistHubScreen() {
     const deleteWishlistMutation = useDeleteWishlist();
     const updateWishlistMutation = useUpdateWishlist();
     const shareWishlistMutation = useShareWishlist();
+    const updateItemMutation = useUpdateWishlistItem();
 
     // ActionSheet ref
     const actionSheetRef = useRef<WishlistActionSheetRef>(null);
+    // Edit item sheet ref
+    const editItemSheetRef = useRef<EditWishlistItemSheetRef>(null);
 
     // ============================================
     // MODAL STATES
@@ -216,7 +220,8 @@ export default function WishlistHubScreen() {
     const pendingRemovalRef = useRef<PendingRemoval | null>(null);
 
     // ---- DERIVED STATE ----
-    const isLoading = isLoadingWishlists || (!!effectiveWishlistId && isLoadingItems);
+    const isPendingSelection = !isLoadingWishlists && sortedWishlists.length > 0 && !effectiveWishlistId;
+    const isLoading = isLoadingWishlists || isPendingSelection || (!!effectiveWishlistId && isLoadingItems);
 
     const activeWishlist = useMemo(
         () => sortedWishlists.find(w => w.id === effectiveWishlistId),
@@ -249,8 +254,16 @@ export default function WishlistHubScreen() {
     }, []);
 
     const handleCreate = useCallback(() => {
+        if (wishlists.length >= 5) {
+            Toast.show({
+                type: 'info',
+                text1: t('error.errorTitle'),
+                text2: t('error.limitReached'),
+            });
+            return;
+        }
         setShowCreateModal(true);
-    }, []);
+    }, [wishlists.length, t]);
 
     const handleCloseCreateModal = useCallback(() => {
         setShowCreateModal(false);
@@ -425,6 +438,54 @@ export default function WishlistHubScreen() {
         });
     }, [deleteWishlistMutation, sortedWishlists, t]);
 
+    // ---- EDIT ITEM HANDLERS ----
+
+    const handleItemLongPress = useCallback((item: WishlistItemUI) => {
+        editItemSheetRef.current?.present({
+            itemId: item.id,
+            wishlistId: item.wishlistId,
+            productName: item.productName,
+            currentPrice: item.price,
+            desiredPrice: item.desiredPrice,
+            notes: item.notes,
+            priority: item.priority,
+            imageUrl: item.imageUrl,
+        });
+    }, []);
+
+    const handleEditItemSubmit = useCallback((
+        itemId: string,
+        wishlistId: string,
+        result: { desiredPrice: number | null; notes: string | null; priority: number }
+    ) => {
+        updateItemMutation.mutate(
+            {
+                wishlistId,
+                itemId,
+                data: {
+                    desiredPrice: result.desiredPrice ?? undefined,
+                    notes: result.notes ?? undefined,
+                    priority: result.priority as 0 | 1 | 2,
+                },
+            },
+            {
+                onSuccess: () => {
+                    editItemSheetRef.current?.dismiss();
+                    Toast.show({
+                        type: 'success',
+                        text1: t('editItem.success'),
+                    });
+                },
+                onError: () => {
+                    Toast.show({
+                        type: 'error',
+                        text1: t('error.errorTitle'),
+                    });
+                },
+            }
+        );
+    }, [updateItemMutation, t]);
+
     // ---- RENDER ----
 
     // List header = Chips + Info bar
@@ -501,6 +562,7 @@ export default function WishlistHubScreen() {
                 items={displayItems}
                 isLoading={isLoading}
                 onFavoritePress={handleFavoritePress}
+                onItemLongPress={handleItemLongPress}
                 ListHeaderComponent={ListHeader}
                 wishlistName={activeWishlist?.name}
             />
@@ -537,6 +599,13 @@ export default function WishlistHubScreen() {
                 onTogglePublic={handleTogglePublic}
                 onShare={handleShare}
                 onDelete={handleDeleteWishlist}
+            />
+
+            {/* Edit Wishlist Item Sheet */}
+            <EditWishlistItemSheet
+                ref={editItemSheetRef}
+                onSubmit={handleEditItemSubmit}
+                isLoading={updateItemMutation.isPending}
             />
         </View>
     );

@@ -18,6 +18,7 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
         retry: 'Retry',
         loading: 'Loading...',
         errorTitle: 'Error',
+        limitReached: 'You have reached the limit of 5 collections. Please delete an older one to create a new one.',
     },
     filter: {
         all: 'All',
@@ -62,5 +63,20 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
         renameSuccess: 'Renamed to "{{name}}"',
         makePublicSuccess: 'Wishlist is now public',
         makePrivateSuccess: 'Wishlist is now private',
+    },
+    editItem: {
+        title: 'Edit Preferences',
+        desiredPriceLabel: 'Desired Price',
+        desiredPricePlaceholder: 'Enter your target price...',
+        notesLabel: 'Personal Note',
+        notesPlaceholder: 'e.g. Buy as gift for Mom...',
+        priorityLabel: 'Priority',
+        priorityNormal: 'Normal',
+        priorityUrgent: 'Urgent',
+        save: 'Save Changes',
+        saving: 'Saving...',
+        cancel: 'Cancel',
+        success: 'Updated successfully',
+        clearPrice: 'Clear target price',
     },
 };

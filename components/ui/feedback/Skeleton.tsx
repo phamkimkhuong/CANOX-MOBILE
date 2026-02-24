@@ -29,22 +29,24 @@ interface SkeletonTextProps {
     animatedStyle?: StyleProp<ViewStyle>;
 }
 
-const SHIMMER_DURATION = 800;
+const SHIMMER_DURATION = 1000;
+const OPACITY_MIN = 0.4;
+const OPACITY_MAX = 1.0;
 
 /**
  * Custom hook for shimmer animation
- * Returns an animated style with opacity pulsing effect
+ * Returns an animated style with opacity pulsing effect.
  */
-const useShimmerAnimation = (enabled: boolean = true) => {
-    const opacity = useSharedValue(0.3);
+export const useShimmerAnimation = (enabled: boolean = true) => {
+    const opacity = useSharedValue(OPACITY_MIN);
 
     useEffect(() => {
         if (!enabled) {
-            opacity.value = 0.3; // Static fallback
+            opacity.value = OPACITY_MIN;
             return;
         }
         opacity.value = withRepeat(
-            withTiming(1, { duration: SHIMMER_DURATION }),
+            withTiming(OPACITY_MAX, { duration: SHIMMER_DURATION }),
             -1, // infinite
             true // reverse
         );
@@ -59,10 +61,6 @@ const useShimmerAnimation = (enabled: boolean = true) => {
 
 /**
  * SkeletonBox - Base rectangular skeleton placeholder
- * 
- * @example
- * <SkeletonBox width={100} height={20} />
- * <SkeletonBox width="80%" height={16} borderRadius={8} />
  */
 export const SkeletonBox: React.FC<SkeletonBoxProps> = ({
     width,

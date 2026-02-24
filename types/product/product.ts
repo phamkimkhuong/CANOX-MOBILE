@@ -19,6 +19,11 @@ export const ReviewStatsRawSchema = z.object({
 export type ReviewStatsRaw = z.infer<typeof ReviewStatsRawSchema>;
 
 // Product Item Schema & Type
+// Variant Schema — Zod Pruning: only parse `id` for favorite check
+const VariantMinimalSchema = z.object({
+    id: z.string(),
+});
+
 export const ProductResponseItemSchema = z.object({
     id: z.string(),
     name: z.string().nullable().optional().default(''),
@@ -30,6 +35,7 @@ export const ProductResponseItemSchema = z.object({
         shop_location: z.string().nullable().optional().default(''),
     }).nullable().optional(),
     availableRegions: z.array(z.string()).nullable().optional().default([]),
+    variants: z.array(VariantMinimalSchema).nullable().optional().default([]),
 });
 export type ProductResponseItem = z.infer<typeof ProductResponseItemSchema>;
 
@@ -50,6 +56,8 @@ export interface ProductFeedItem {
     location: string;
     isMall?: boolean;
     isInternational?: boolean;
+    /** First variant ID — used for wishlist favorite check */
+    defaultVariantId?: string;
 }
 
 /**
@@ -74,4 +82,5 @@ export interface BaseProductDTO {
         shop_location?: string | null;
     } | null;
     availableRegions?: string[] | null;
+    variants?: { id: string }[] | null;
 }

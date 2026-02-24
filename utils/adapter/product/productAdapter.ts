@@ -64,5 +64,6 @@ export const transformProduct = (raw: BaseProductDTO): ProductFeedItem => {
         sold: raw.reviewStatistics?.verifiedPurchaseCount ?? 0,
         location,
         isInternational: isInternational || undefined,
+        defaultVariantId: raw.variants?.[0]?.id,
     };
 };

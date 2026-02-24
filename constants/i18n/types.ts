@@ -1540,6 +1540,7 @@ export interface WishlistTranslation {
         retry: string;
         loading: string;
         errorTitle: string;
+        limitReached: string;
     };
     filter: {
         all: string;
@@ -1584,6 +1585,21 @@ export interface WishlistTranslation {
         renameSuccess: string;
         makePublicSuccess: string;
         makePrivateSuccess: string;
+    };
+    editItem: {
+        title: string;
+        desiredPriceLabel: string;
+        desiredPricePlaceholder: string;
+        notesLabel: string;
+        notesPlaceholder: string;
+        priorityLabel: string;
+        priorityNormal: string;
+        priorityUrgent: string;
+        save: string;
+        saving: string;
+        cancel: string;
+        success: string;
+        clearPrice: string;
     };
 }
 

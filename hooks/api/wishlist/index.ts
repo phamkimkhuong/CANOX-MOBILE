@@ -13,6 +13,7 @@ export * from './useRemoveWishlistItem';
 export * from './useShareWishlist';
 export * from './useToggleFavorite';
 export * from './useUpdateWishlist';
+export * from './useUpdateWishlistItem';
 export * from './useWishlistDetail';
 export * from './useWishlists';
 
