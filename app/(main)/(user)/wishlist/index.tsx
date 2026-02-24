@@ -9,9 +9,11 @@
  * - Horizontal collection chips (from user's wishlists)
  * - 2-column product grid showing items of selected wishlist
  * - Default wishlist selected by default
+ * - Heart toggle: always red, tap to remove with undo snackbar
  */
 
 import { IconSymbol } from '@/components/ui/Icon';
+import { UndoSnackbar } from '@/components/wishlist/UndoSnackbar';
 import {
     WishlistCollectionChips,
 } from '@/components/wishlist/WishlistCollectionChips';
@@ -23,7 +25,9 @@ import {
     useWishlistDetail,
     useWishlists,
 } from '@/hooks/api/wishlist';
+import { useRemoveWishlistItem } from '@/hooks/api/wishlist/useRemoveWishlistItem';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
+import type { WishlistItemUI } from '@/types/wishlist';
 import { Navigator } from '@/utils/navigation';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -34,6 +38,15 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
+
+// ============================================
+// PENDING REMOVAL STATE
+// ============================================
+
+interface PendingRemoval {
+    item: WishlistItemUI;
+    wishlistId: string;
+}
 
 // ============================================
 // HEADER COMPONENT
@@ -168,6 +181,15 @@ export default function WishlistHubScreen() {
         isLoading: isLoadingItems,
     } = useWishlistDetail(effectiveWishlistId);
 
+    // Remove mutation
+    const removeItemMutation = useRemoveWishlistItem();
+
+    // ============================================
+    // UNDO SNACKBAR STATE
+    // ============================================
+    const [pendingRemoval, setPendingRemoval] = useState<PendingRemoval | null>(null);
+    const pendingRemovalRef = useRef<PendingRemoval | null>(null);
+
     // ---- DERIVED STATE ----
     const isLoading = isLoadingWishlists || (!!effectiveWishlistId && isLoadingItems);
 
@@ -180,6 +202,14 @@ export default function WishlistHubScreen() {
         () => wishlists.reduce((sum, w) => sum + w.itemCount, 0),
         [wishlists]
     );
+
+    // Items with pending removal filtered out visually
+    const displayItems = useMemo(() => {
+        const items = wishlistDetail?.items ?? [];
+        if (!pendingRemoval) return items;
+        // Lọc bỏ hẳn item đang chờ xoá khỏi danh sách hiển thị
+        return items.filter(item => item.id !== pendingRemoval.item.id);
+    }, [wishlistDetail?.items, pendingRemoval]);
 
     // ---- HANDLERS ----
 
@@ -195,8 +225,62 @@ export default function WishlistHubScreen() {
         setActiveWishlistId(wishlistId);
     }, []);
 
-    const handleFavoritePress = useCallback((_variantId: string) => {
-        // TODO: Open wishlist picker bottom sheet
+    // ============================================
+    // HEART PRESS → UNDO FLOW
+    // ============================================
+
+    /**
+     * User taps heart on a product in the grid.
+     * Since we're in wishlist, all items are already favorited.
+     * Tapping heart = request to remove from wishlist.
+     */
+    const handleFavoritePress = useCallback((variantId: string) => {
+        if (!wishlistDetail) return;
+
+        // Find the item by variantId
+        const item = wishlistDetail.items.find(i => i.variantId === variantId);
+        if (!item) return;
+
+        // If another item is already pending, commit that removal first
+        if (pendingRemovalRef.current) {
+            const prev = pendingRemovalRef.current;
+            removeItemMutation.mutate({
+                wishlistId: prev.wishlistId,
+                itemId: prev.item.id,
+                variantId: prev.item.variantId,
+            });
+        }
+
+        const newPending: PendingRemoval = {
+            item,
+            wishlistId: item.wishlistId,
+        };
+        pendingRemovalRef.current = newPending;
+        setPendingRemoval(newPending);
+    }, [wishlistDetail, removeItemMutation]);
+
+    /**
+     * Snackbar auto-dismisses → Actually delete
+     */
+    const handleSnackbarDismiss = useCallback(() => {
+        const current = pendingRemovalRef.current;
+        if (current) {
+            removeItemMutation.mutate({
+                wishlistId: current.wishlistId,
+                itemId: current.item.id,
+                variantId: current.item.variantId,
+            });
+        }
+        pendingRemovalRef.current = null;
+        setPendingRemoval(null);
+    }, [removeItemMutation]);
+
+    /**
+     * User taps "Undo" → Cancel the removal
+     */
+    const handleUndo = useCallback(() => {
+        pendingRemovalRef.current = null;
+        setPendingRemoval(null);
     }, []);
 
     // ---- RENDER ----
@@ -260,11 +344,19 @@ export default function WishlistHubScreen() {
 
             {/* Product Grid (includes chips as header) */}
             <WishlistProductGrid
-                items={wishlistDetail?.items ?? []}
+                items={displayItems}
                 isLoading={isLoading}
                 onFavoritePress={handleFavoritePress}
                 ListHeaderComponent={ListHeader}
                 wishlistName={activeWishlist?.name}
+            />
+
+            {/* Undo Snackbar */}
+            <UndoSnackbar
+                visible={pendingRemoval !== null}
+                productName={pendingRemoval?.item.productName ?? ''}
+                onUndo={handleUndo}
+                onDismiss={handleSnackbarDismiss}
             />
         </View>
     );

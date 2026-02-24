@@ -7,7 +7,8 @@
  * Features:
  * - View all items in wishlist
  * - Filter by priority
- * - Add to cart, edit, delete items
+ * - Heart toggle to remove with Undo Snackbar
+ * - Add to cart
  * - Share wishlist
  */
 
@@ -16,14 +17,16 @@ import {
     WishlistItemCard,
     WishlistItemListSkeleton,
 } from '@/components/wishlist';
+import { UndoSnackbar } from '@/components/wishlist/UndoSnackbar';
 import { productRoutes, ROUTES } from '@/constants/routes';
 import { useWishlistDetail } from '@/hooks/api/wishlist';
+import { useRemoveWishlistItem } from '@/hooks/api/wishlist/useRemoveWishlistItem';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import type { WishlistItemUI } from '@/types/wishlist';
 import { Navigator } from '@/utils/navigation';
 import { FlashList } from '@shopify/flash-list';
 import { useLocalSearchParams } from 'expo-router';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Pressable,
@@ -36,6 +39,15 @@ import Toast from 'react-native-toast-message';
 import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 
 type FilterOption = 'all' | 'urgent' | 'price-met';
+
+// ============================================
+// PENDING REMOVAL STATE
+// ============================================
+
+interface PendingRemoval {
+    item: WishlistItemUI;
+    wishlistId: string;
+}
 
 /**
  * Header component with back, title, and actions
@@ -214,10 +226,16 @@ export default function WishlistDetailScreen() {
     const { theme } = useUnistyles();
     const { t } = useTranslation('wishlist');
 
-    const styles = stylesheet;
+    const styles = screenStyles;
     const { id } = useLocalSearchParams<{ id: string }>();
 
     const [activeFilter, setActiveFilter] = useState<FilterOption>('all');
+
+    // ============================================
+    // UNDO SNACKBAR STATE
+    // ============================================
+    const [pendingRemoval, setPendingRemoval] = useState<PendingRemoval | null>(null);
+    const pendingRemovalRef = useRef<PendingRemoval | null>(null);
 
     const {
         data: wishlist,
@@ -227,8 +245,10 @@ export default function WishlistDetailScreen() {
         isError,
     } = useWishlistDetail(id || null);
 
+    const removeItemMutation = useRemoveWishlistItem();
+
     /**
-     * Calculate filter counts
+     * Calculate filter counts (excluding pending removal item)
      */
     const filterCounts = useMemo(() => {
         if (!wishlist) return { all: 0, urgent: 0, priceMet: 0 };
@@ -256,7 +276,10 @@ export default function WishlistDetailScreen() {
         }
     }, [wishlist, activeFilter]);
 
-    // Handlers
+    // ============================================
+    // HANDLERS
+    // ============================================
+
     const handleBack = useCallback(() => {
         Navigator.back();
     }, []);
@@ -298,27 +321,75 @@ export default function WishlistDetailScreen() {
         });
     }, [t]);
 
-    const handleEditItem = useCallback((_item: WishlistItemUI) => {
-        // TODO: Open edit item bottom sheet
-    }, []);
-
-    const handleDeleteItem = useCallback((_item: WishlistItemUI) => {
-        // TODO: Confirm and delete item
-    }, []);
-
     const handleAddProduct = useCallback(() => {
         Navigator.push(ROUTES.TABS.HOME);
     }, []);
 
+    // ============================================
+    //HEART PRESS → UNDO FLOW
+    // ============================================
+
+    /**
+     * Step 1: User taps heart on an item
+     * → Show snackbar, mark item as pending removal
+     */
+    const handleHeartPress = useCallback((item: WishlistItemUI) => {
+        // If another item is already pending, commit that removal first
+        if (pendingRemovalRef.current) {
+            const prev = pendingRemovalRef.current;
+            removeItemMutation.mutate({
+                wishlistId: prev.wishlistId,
+                itemId: prev.item.id,
+                variantId: prev.item.variantId,
+            });
+        }
+
+        const newPending: PendingRemoval = {
+            item,
+            wishlistId: item.wishlistId,
+        };
+        pendingRemovalRef.current = newPending;
+        setPendingRemoval(newPending);
+    }, [removeItemMutation]);
+
+    /**
+     * Step 2a: Snackbar auto-dismisses → Actually delete
+     */
+    const handleSnackbarDismiss = useCallback(() => {
+        const current = pendingRemovalRef.current;
+        if (current) {
+            removeItemMutation.mutate({
+                wishlistId: current.wishlistId,
+                itemId: current.item.id,
+                variantId: current.item.variantId,
+            });
+        }
+        pendingRemovalRef.current = null;
+        setPendingRemoval(null);
+    }, [removeItemMutation]);
+
+    /**
+     * Step 2b: User taps "Undo" → Cancel the removal
+     */
+    const handleUndo = useCallback(() => {
+        pendingRemovalRef.current = null;
+        setPendingRemoval(null);
+        // No API call needed — item was never actually deleted!
+    }, []);
+
+    // ============================================
+    // RENDER
+    // ============================================
+
     const renderItem = useCallback(({ item }: { item: WishlistItemUI }) => (
         <WishlistItemCard
             item={item}
+            isPendingRemoval={pendingRemoval?.item.id === item.id}
             onPress={handleItemPress}
             onAddToCart={handleAddToCart}
-            onEdit={handleEditItem}
-            onDelete={handleDeleteItem}
+            onHeartPress={handleHeartPress}
         />
-    ), [handleItemPress, handleAddToCart, handleEditItem, handleDeleteItem]);
+    ), [handleItemPress, handleAddToCart, handleHeartPress, pendingRemoval]);
 
     // Loading state
     if (isLoading) {
@@ -391,6 +462,7 @@ export default function WishlistDetailScreen() {
                     renderItem={renderItem}
                     keyExtractor={(item) => item.id}
                     contentContainerStyle={styles.listContent}
+                    extraData={pendingRemoval?.item.id}
                     refreshControl={
                         <RefreshControl
                             refreshing={isRefetching}
@@ -401,11 +473,19 @@ export default function WishlistDetailScreen() {
                     }
                 />
             )}
+
+            {/* Undo Snackbar */}
+            <UndoSnackbar
+                visible={pendingRemoval !== null}
+                productName={pendingRemoval?.item.productName ?? ''}
+                onUndo={handleUndo}
+                onDismiss={handleSnackbarDismiss}
+            />
         </View>
     );
 }
 
-const stylesheet = StyleSheet.create((theme) => ({
+const screenStyles = StyleSheet.create((theme) => ({
     container: {
         flex: 1,
         backgroundColor: theme.colors.background,

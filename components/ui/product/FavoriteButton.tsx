@@ -11,6 +11,8 @@ interface FavoriteButtonProps {
     onPress: (variantId: string) => void;
     /** Icon size (default: 18) */
     size?: number;
+    /** When true, always show filled red heart (for wishlist context) */
+    alwaysFilled?: boolean;
 }
 
 /**
@@ -25,10 +27,14 @@ export const FavoriteButton = React.memo(({
     variantId,
     onPress,
     size = 18,
+    alwaysFilled = false,
 }: FavoriteButtonProps) => {
-    const isLiked = useWishlistStore(
+    const isLikedFromStore = useWishlistStore(
         useCallback((state) => !!state.favoritesMap[variantId], [variantId])
     );
+
+    // In wishlist context, always show filled. Otherwise use store.
+    const isLiked = alwaysFilled || isLikedFromStore;
 
     const handlePress = useCallback((e: { stopPropagation: () => void }) => {
         e.stopPropagation();

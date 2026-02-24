@@ -6,23 +6,37 @@
  * - Product info, price, options
  * - Desired price tracking
  * - Priority indicator
- * - Quick actions (add to cart, edit, delete)
+ * - Red heart toggle (tap to remove with undo)
+ * - Quick add to cart
  */
 
 import { IconSymbol } from '@/components/ui/Icon';
 import type { WishlistItemUI } from '@/types/wishlist';
+import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
+import Animated, {
+    FadeIn,
+    FadeOut,
+    useAnimatedStyle,
+    useSharedValue,
+    withSequence,
+    withSpring,
+} from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 interface WishlistItemCardProps {
     item: WishlistItemUI;
+    /** Whether this item is pending removal (shown faded) */
+    isPendingRemoval?: boolean;
     onPress: (item: WishlistItemUI) => void;
     onAddToCart?: (item: WishlistItemUI) => void;
-    onEdit?: (item: WishlistItemUI) => void;
-    onDelete?: (item: WishlistItemUI) => void;
+    /** Called when user taps the heart (toggle unfavorite) */
+    onHeartPress?: (item: WishlistItemUI) => void;
 }
 
 /**
@@ -32,24 +46,41 @@ interface WishlistItemCardProps {
  * <WishlistItemCard 
  *   item={item} 
  *   onPress={handlePress}
+ *   onHeartPress={handleHeartPress}
  *   onAddToCart={handleAddToCart}
  * />
  */
 export const WishlistItemCard: React.FC<WishlistItemCardProps> = ({
     item,
+    isPendingRemoval = false,
     onPress,
     onAddToCart,
-    onEdit,
-    onDelete,
+    onHeartPress,
 }) => {
     const { t } = useTranslation(['wishlist', 'common']);
     const { theme } = useUnistyles();
     const styles = stylesheet;
 
-    const handlePress = () => onPress(item);
-    const handleAddToCart = () => onAddToCart?.(item);
-    const handleEdit = () => onEdit?.(item);
-    const handleDelete = () => onDelete?.(item);
+    // Heart beat animation
+    const heartScale = useSharedValue(1);
+
+    const heartAnimatedStyle = useAnimatedStyle(() => ({
+        transform: [{ scale: heartScale.value }],
+    }));
+
+    const handlePress = useCallback(() => onPress(item), [onPress, item]);
+    const handleAddToCart = useCallback(() => onAddToCart?.(item), [onAddToCart, item]);
+
+    const handleHeartPress = useCallback(() => {
+        // Heart-break animation: scale up then down
+        heartScale.value = withSequence(
+            withSpring(1.3, { damping: 4, stiffness: 300 }),
+            withSpring(0.8, { damping: 6, stiffness: 200 }),
+            withSpring(1, { damping: 8, stiffness: 250 }),
+        );
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        onHeartPress?.(item);
+    }, [onHeartPress, item, heartScale]);
 
     /**
      * Get priority badge style based on priority level
@@ -68,138 +99,139 @@ export const WishlistItemCard: React.FC<WishlistItemCardProps> = ({
     const priorityStyle = getPriorityStyle();
 
     return (
-        <Pressable
-            style={({ pressed }) => [
-                styles.container,
-                pressed && styles.pressed,
+        <Animated.View
+            entering={FadeIn.duration(300)}
+            exiting={FadeOut.duration(200)}
+            style={[
+                isPendingRemoval && { opacity: 0.35, transform: [{ scale: 0.97 }] },
             ]}
-            onPress={handlePress}
         >
-            {/* Product Image */}
-            <View style={styles.imageWrapper}>
-                {item.imageUrl ? (
-                    <Image
-                        source={{ uri: item.imageUrl }}
-                        style={styles.image}
-                        contentFit="cover"
-                        transition={200}
-                    />
-                ) : (
-                    <View style={styles.imagePlaceholder}>
-                        <IconSymbol
-                            name="cube"
-                            size={24}
-                            color={theme.colors.secondary}
+            <Pressable
+                style={({ pressed }) => [
+                    styles.container,
+                    pressed && styles.pressed,
+                ]}
+                onPress={handlePress}
+                disabled={isPendingRemoval}
+            >
+                {/* Product Image */}
+                <View style={styles.imageWrapper}>
+                    {item.imageUrl ? (
+                        <Image
+                            source={{ uri: item.imageUrl }}
+                            style={styles.image}
+                            contentFit="cover"
+                            transition={200}
                         />
-                    </View>
-                )}
+                    ) : (
+                        <View style={styles.imagePlaceholder}>
+                            <IconSymbol
+                                name="cube"
+                                size={24}
+                                color={theme.colors.secondary}
+                            />
+                        </View>
+                    )}
 
-                {/* Priority Badge */}
-                {priorityStyle && (
-                    <View style={[styles.priorityBadge, { backgroundColor: priorityStyle.bg }]}>
-                        <Text style={[styles.priorityText, { color: priorityStyle.color }]}>
-                            {item.priorityLabel}
-                        </Text>
-                    </View>
-                )}
-            </View>
-
-            {/* Product Info */}
-            <View style={styles.content}>
-                <Text style={styles.productName} numberOfLines={2}>
-                    {item.productName}
-                </Text>
-
-                {/* Variant Options */}
-                {item.optionsDisplay && (
-                    <Text style={styles.options} numberOfLines={1}>
-                        {item.optionsDisplay}
-                    </Text>
-                )}
-
-                {/* Price Section */}
-                <View style={styles.priceSection}>
-                    <Text style={styles.price}>{item.formattedPrice}</Text>
-                    {item.quantity > 1 && (
-                        <Text style={styles.quantity}>
-                            {t('common:actions.quantityTemplate', { count: item.quantity })}
-                        </Text>
+                    {/* Priority Badge */}
+                    {priorityStyle && (
+                        <View style={[styles.priorityBadge, { backgroundColor: priorityStyle.bg }]}>
+                            <Text style={[styles.priorityText, { color: priorityStyle.color }]}>
+                                {item.priorityLabel}
+                            </Text>
+                        </View>
                     )}
                 </View>
 
-                {/* Desired Price Tracking */}
-                {item.desiredPrice !== null && (
-                    <View style={[
-                        styles.targetPriceContainer,
-                        item.isPriceTargetMet ? styles.targetMet : styles.targetNotMet,
-                    ]}>
-                        <IconSymbol
-                            name={item.isPriceTargetMet ? 'check-circle' : 'time'}
-                            size={14}
-                            color={item.isPriceTargetMet ? theme.colors.success : theme.colors.warning}
-                        />
-                        <Text style={[
-                            styles.targetPriceText,
-                            { color: item.isPriceTargetMet ? theme.colors.success : theme.colors.warning },
+                {/* Product Info */}
+                <View style={styles.content}>
+                    <Text style={styles.productName} numberOfLines={2}>
+                        {item.productName}
+                    </Text>
+
+                    {/* Variant Options */}
+                    {item.optionsDisplay && (
+                        <Text style={styles.options} numberOfLines={1}>
+                            {item.optionsDisplay}
+                        </Text>
+                    )}
+
+                    {/* Price Section */}
+                    <View style={styles.priceSection}>
+                        <Text style={styles.price}>{item.formattedPrice}</Text>
+                        {item.quantity > 1 && (
+                            <Text style={styles.quantity}>
+                                {t('common:actions.quantityTemplate', { count: item.quantity })}
+                            </Text>
+                        )}
+                    </View>
+
+                    {/* Desired Price Tracking */}
+                    {item.desiredPrice !== null && (
+                        <View style={[
+                            styles.targetPriceContainer,
+                            item.isPriceTargetMet ? styles.targetMet : styles.targetNotMet,
                         ]}>
-                            {item.isPriceTargetMet
-                                ? t('targetPriceMet', { price: item.formattedDesiredPrice })
-                                : t('targetPriceGoal', { price: item.formattedDesiredPrice })
-                            }
-                        </Text>
-                    </View>
-                )}
+                            <IconSymbol
+                                name={item.isPriceTargetMet ? 'check-circle' : 'time'}
+                                size={14}
+                                color={item.isPriceTargetMet ? theme.colors.success : theme.colors.warning}
+                            />
+                            <Text style={[
+                                styles.targetPriceText,
+                                { color: item.isPriceTargetMet ? theme.colors.success : theme.colors.warning },
+                            ]}>
+                                {item.isPriceTargetMet
+                                    ? t('targetPriceMet', { price: item.formattedDesiredPrice })
+                                    : t('targetPriceGoal', { price: item.formattedDesiredPrice })
+                                }
+                            </Text>
+                        </View>
+                    )}
 
-                {/* Notes */}
-                {item.notes && (
-                    <View style={styles.notesContainer}>
-                        <IconSymbol name="note" size={12} color={theme.colors.secondary} />
-                        <Text style={styles.notes} numberOfLines={1}>
-                            {item.notes}
-                        </Text>
-                    </View>
-                )}
-            </View>
+                    {/* Notes */}
+                    {item.notes && (
+                        <View style={styles.notesContainer}>
+                            <IconSymbol name="note" size={12} color={theme.colors.secondary} />
+                            <Text style={styles.notes} numberOfLines={1}>
+                                {item.notes}
+                            </Text>
+                        </View>
+                    )}
+                </View>
 
-            {/* Quick Actions */}
-            <View style={styles.actions}>
-                <Pressable
-                    style={styles.actionButton}
-                    onPress={handleAddToCart}
-                    hitSlop={8}
-                >
-                    <IconSymbol
-                        name="cart"
-                        size={20}
-                        color={theme.colors.primary}
-                    />
-                </Pressable>
+                {/* Actions: Heart + Cart */}
+                <View style={styles.actions}>
+                    {/* Heart Toggle - Always Red */}
+                    <AnimatedPressable
+                        style={[styles.heartButton, heartAnimatedStyle]}
+                        onPress={handleHeartPress}
+                        hitSlop={10}
+                        disabled={isPendingRemoval}
+                    >
+                        <IconSymbol
+                            name="heart"
+                            size={22}
+                            color={theme.colors.error}
+                        />
+                    </AnimatedPressable>
 
-                <Pressable
-                    style={styles.actionButton}
-                    onPress={handleEdit}
-                    hitSlop={8}
-                >
-                    <IconSymbol
-                        name="edit"
-                        size={18}
-                        color={theme.colors.secondary}
-                    />
-                </Pressable>
-
-                <Pressable
-                    style={styles.actionButton}
-                    onPress={handleDelete}
-                    hitSlop={8}
-                >
-                    <IconSymbol
-                        name="delete"
-                        size={18}
-                        color={theme.colors.error}
-                    />
-                </Pressable>
-            </View>
-        </Pressable>
+                    {/* Add to Cart */}
+                    <Pressable
+                        style={styles.actionButton}
+                        onPress={handleAddToCart}
+                        hitSlop={8}
+                        disabled={isPendingRemoval}
+                    >
+                        <IconSymbol
+                            name="cart"
+                            size={20}
+                            color={theme.colors.primary}
+                        />
+                    </Pressable>
+                </View>
+            </Pressable>
+        </Animated.View>
     );
 };
 
@@ -310,8 +342,11 @@ const stylesheet = StyleSheet.create((theme) => ({
     actions: {
         justifyContent: 'center',
         alignItems: 'center',
-        gap: theme.margins.sm,
+        gap: theme.margins.smd,
         paddingLeft: theme.margins.sm,
+    },
+    heartButton: {
+        padding: theme.margins.sm,
     },
     actionButton: {
         padding: theme.margins.sm,

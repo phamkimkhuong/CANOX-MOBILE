@@ -4,6 +4,7 @@
  * ==============================================
  */
 
+export * from './UndoSnackbar';
 export * from './WishlistCard';
 export * from './WishlistCollectionChips';
 export * from './WishlistItemCard';

@@ -1553,6 +1553,10 @@ export interface WishlistTranslation {
     cart: {
         addSuccess: string;
     };
+    snackbar: {
+        removed: string;
+        undo: string;
+    };
 }
 
 /**

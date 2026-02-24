@@ -31,4 +31,8 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
     cart: {
         addSuccess: 'Đã thêm vào giỏ hàng',
     },
+    snackbar: {
+        removed: 'Đã xoá "{{name}}"',
+        undo: 'Hoàn tác',
+    },
 };

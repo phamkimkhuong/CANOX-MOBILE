@@ -97,7 +97,6 @@ export const WishlistProductGrid: React.FC<WishlistProductGridProps> = ({
 
     const renderItem = useCallback(({ item }: { item: WishlistItemUI }) => {
         const imageUrl = item.imageUrl || toPublicUrl(null) || '';
-
         // Determine badge text for price target status
         const badgeText = item.isPriceTargetMet ? t('targetPriceMet') : undefined;
         const badgeColor = item.isPriceTargetMet ? '#dcfce7' : undefined;
@@ -117,6 +116,7 @@ export const WishlistProductGrid: React.FC<WishlistProductGridProps> = ({
                     badgeText={badgeText}
                     badgeColor={badgeColor}
                     hideSold
+                    favoriteAlwaysFilled
                 />
             </View>
         );

@@ -43,6 +43,8 @@ interface ProductCardProps {
     targetPrice?: string;
     /** Label for target price (e.g. "Mục tiêu") */
     targetPriceLabel?: string;
+    /** When true, heart is always filled red (for wishlist context) */
+    favoriteAlwaysFilled?: boolean;
 }
 
 export const ProductCard = React.memo(({
@@ -69,6 +71,7 @@ export const ProductCard = React.memo(({
     hideSold,
     targetPrice,
     targetPriceLabel,
+    favoriteAlwaysFilled,
 }: ProductCardProps) => {
     const { t } = useTranslation(['product']);
     const { theme } = useUnistyles();
@@ -114,6 +117,7 @@ export const ProductCard = React.memo(({
                                 <FavoriteButton
                                     variantId={variantId}
                                     onPress={onFavoritePress}
+                                    alwaysFilled={favoriteAlwaysFilled}
                                 />
                             ) : (
                                 <View style={styles.favoriteBtn}>

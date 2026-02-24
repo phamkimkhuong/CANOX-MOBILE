@@ -31,4 +31,8 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
     cart: {
         addSuccess: 'Added to cart',
     },
+    snackbar: {
+        removed: 'Removed "{{name}}"',
+        undo: 'Undo',
+    },
 };
