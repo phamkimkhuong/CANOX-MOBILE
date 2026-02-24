@@ -101,7 +101,12 @@ export const MessageActionSheet = forwardRef<MessageActionSheetRef, MessageActio
                 handleIndicatorStyle={styles.indicator}
                 backgroundStyle={styles.background}
             >
-                <BottomSheetView style={[styles.content, { paddingBottom: Math.max(insets.bottom, 24) }]}>
+                <BottomSheetView
+                    style={[
+                        styles.content,
+                        { paddingBottom: insets.bottom > 0 ? insets.bottom + theme.margins.md : theme.margins.xl }
+                    ]}
+                >
                     {/* Copy Action - Always available for text messages */}
                     {!isDeleted && currentMessage?.type === 'TEXT' && (
                         <Pressable

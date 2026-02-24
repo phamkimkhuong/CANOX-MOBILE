@@ -153,7 +153,7 @@ const snackbarStyles = StyleSheet.create((theme) => ({
     undoText: {
         fontSize: 14,
         fontWeight: '700',
-        color: '#60A5FA',
+        color: '#FFA726',
         textTransform: 'uppercase',
         letterSpacing: 0.5,
     },

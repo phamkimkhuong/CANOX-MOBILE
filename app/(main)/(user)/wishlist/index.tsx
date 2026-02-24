@@ -13,7 +13,12 @@
  */
 
 import { IconSymbol } from '@/components/ui/Icon';
+import { CreateWishlistModal, RenameWishlistModal } from '@/components/wishlist';
 import { UndoSnackbar } from '@/components/wishlist/UndoSnackbar';
+import {
+    WishlistActionSheet,
+    type WishlistActionSheetRef,
+} from '@/components/wishlist/WishlistActionSheet';
 import {
     WishlistCollectionChips,
 } from '@/components/wishlist/WishlistCollectionChips';
@@ -22,21 +27,28 @@ import {
 } from '@/components/wishlist/WishlistProductGrid';
 import {
     flattenWishlists,
+    useCreateWishlist,
+    useDeleteWishlist,
+    useShareWishlist,
+    useUpdateWishlist,
     useWishlistDetail,
     useWishlists,
 } from '@/hooks/api/wishlist';
 import { useRemoveWishlistItem } from '@/hooks/api/wishlist/useRemoveWishlistItem';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import type { WishlistItemUI } from '@/types/wishlist';
+import { Alert as CustomAlert } from '@/utils/AlertHelper';
 import { Navigator } from '@/utils/navigation';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Pressable,
+    Share,
     Text,
     View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 
 // ============================================
@@ -78,7 +90,7 @@ const WishlistHeader: React.FC<{
 
             <Pressable style={styles.createButton} onPress={onCreate} hitSlop={8}>
                 <View style={styles.createIcon}>
-                    <IconSymbol name="add" size={20} color={theme.colors.primary} />
+                    <IconSymbol name="add" size={20} color={theme.colors.newPrimary} />
                 </View>
             </Pressable>
         </View>
@@ -121,7 +133,7 @@ const headerStyles = StyleSheet.create((theme) => ({
         width: 32,
         height: 32,
         borderRadius: 16,
-        backgroundColor: theme.colors.primaryMuted,
+        backgroundColor: theme.colors.activeLight,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -135,6 +147,7 @@ export default function WishlistHubScreen() {
     useNavigationUnlockOnFocus();
 
     const styles = stylesheet;
+    const { theme } = useUnistyles();
     const { bottom } = useSafeAreaInsets();
     const { t } = useTranslation('wishlist');
 
@@ -181,9 +194,21 @@ export default function WishlistHubScreen() {
         isLoading: isLoadingItems,
     } = useWishlistDetail(effectiveWishlistId);
 
-    // Remove mutation
+    // Mutations
     const removeItemMutation = useRemoveWishlistItem();
+    const createWishlistMutation = useCreateWishlist();
+    const deleteWishlistMutation = useDeleteWishlist();
+    const updateWishlistMutation = useUpdateWishlist();
+    const shareWishlistMutation = useShareWishlist();
 
+    // ActionSheet ref
+    const actionSheetRef = useRef<WishlistActionSheetRef>(null);
+
+    // ============================================
+    // MODAL STATES
+    // ============================================
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showRenameModal, setShowRenameModal] = useState(false);
     // ============================================
     // UNDO SNACKBAR STATE
     // ============================================
@@ -207,9 +232,15 @@ export default function WishlistHubScreen() {
     const displayItems = useMemo(() => {
         const items = wishlistDetail?.items ?? [];
         if (!pendingRemoval) return items;
-        // Lọc bỏ hẳn item đang chờ xoá khỏi danh sách hiển thị
         return items.filter(item => item.id !== pendingRemoval.item.id);
     }, [wishlistDetail?.items, pendingRemoval]);
+
+    // Adjusted counts: subtract pending removal from displayed counts
+    const pendingInActiveWishlist = pendingRemoval?.wishlistId === effectiveWishlistId;
+    const adjustedTotalItems = pendingRemoval ? totalItems - 1 : totalItems;
+    const adjustedActiveItemCount = activeWishlist
+        ? activeWishlist.itemCount - (pendingInActiveWishlist ? 1 : 0)
+        : 0;
 
     // ---- HANDLERS ----
 
@@ -218,8 +249,32 @@ export default function WishlistHubScreen() {
     }, []);
 
     const handleCreate = useCallback(() => {
-        // TODO: Open create wishlist modal/screen
+        setShowCreateModal(true);
     }, []);
+
+    const handleCloseCreateModal = useCallback(() => {
+        setShowCreateModal(false);
+    }, []);
+
+    const handleCreateSubmit = useCallback(({ name, isPublic }: { name: string; isPublic: boolean }) => {
+        createWishlistMutation.mutate(
+            { name, isPublic },
+            {
+                onSuccess: (response) => {
+                    setShowCreateModal(false);
+                    // Auto-select the newly created wishlist
+                    const newId = response?.data?.id;
+                    if (newId) {
+                        setActiveWishlistId(newId);
+                    }
+                    Toast.show({
+                        type: 'success',
+                        text1: t('create.success', { name }),
+                    });
+                },
+            }
+        );
+    }, [createWishlistMutation, t]);
 
     const handleSelectWishlist = useCallback((wishlistId: string) => {
         setActiveWishlistId(wishlistId);
@@ -283,6 +338,93 @@ export default function WishlistHubScreen() {
         setPendingRemoval(null);
     }, []);
 
+    // ---- ACTION SHEET HANDLERS ----
+
+    const handleOpenActionSheet = useCallback(() => {
+        if (!activeWishlist) return;
+        actionSheetRef.current?.present({
+            id: activeWishlist.id,
+            name: activeWishlist.name,
+            itemCount: adjustedActiveItemCount,
+            isDefault: activeWishlist.isDefault,
+            isPublic: activeWishlist.isPublic,
+        });
+    }, [activeWishlist, adjustedActiveItemCount]);
+
+    const handleRename = useCallback(() => {
+        setShowRenameModal(true);
+    }, []);
+
+    const handleRenameSubmit = useCallback((newName: string) => {
+        if (!activeWishlist) return;
+        updateWishlistMutation.mutate({
+            wishlistId: activeWishlist.id,
+            data: { name: newName }
+        }, {
+            onSuccess: () => {
+                setShowRenameModal(false);
+                Toast.show({
+                    type: 'success',
+                    text1: t('manage.renameSuccess', { name: newName }),
+                });
+            }
+        });
+    }, [activeWishlist, updateWishlistMutation, t]);
+
+    const handleTogglePublic = useCallback(() => {
+        if (!activeWishlist) return;
+        const newPublicStatus = !activeWishlist.isPublic;
+        updateWishlistMutation.mutate({
+            wishlistId: activeWishlist.id,
+            data: { isPublic: newPublicStatus }
+        }, {
+            onSuccess: () => {
+                Toast.show({
+                    type: 'success',
+                    text1: newPublicStatus ? t('manage.makePublicSuccess') : t('manage.makePrivateSuccess'),
+                });
+            }
+        });
+    }, [activeWishlist, updateWishlistMutation, t]);
+
+    const handleShare = useCallback(() => {
+        if (!activeWishlist) return;
+        shareWishlistMutation.mutate(activeWishlist.id, {
+            onSuccess: (response) => {
+                const token = response.data?.shareToken || response.data;
+                const url = `https://canox.com/wishlist/shared/${token}`;
+                Share.share({
+                    message: t('share.message', { name: activeWishlist.name, url }),
+                    url: url,
+                });
+            }
+        });
+    }, [activeWishlist, shareWishlistMutation, t]);
+
+    const handleDeleteWishlist = useCallback((wl: { id: string; name: string; itemCount: number }) => {
+        CustomAlert.show({
+            title: t('manage.deleteConfirmTitle'),
+            message: t('manage.deleteConfirmMessage', { count: wl.itemCount, name: wl.name }),
+            type: 'warning',
+            confirmText: t('manage.delete'),
+            cancelText: t('manage.cancel'),
+            showCancel: true,
+            onConfirm: () => {
+                deleteWishlistMutation.mutate(wl.id, {
+                    onSuccess: () => {
+                        // Switch to default wishlist
+                        const defaultWl = sortedWishlists.find(w => w.isDefault && w.id !== wl.id);
+                        setActiveWishlistId(defaultWl?.id ?? sortedWishlists[0]?.id ?? null);
+                        Toast.show({
+                            type: 'success',
+                            text1: t('manage.deleteSuccess', { name: wl.name }),
+                        });
+                    },
+                });
+            },
+        });
+    }, [deleteWishlistMutation, sortedWishlists, t]);
+
     // ---- RENDER ----
 
     // List header = Chips + Info bar
@@ -304,7 +446,7 @@ export default function WishlistHubScreen() {
                             {activeWishlist.name}
                         </Text>
                         <Text style={styles.infoCount}>
-                            {activeWishlist.itemCount} {t('productCount')}
+                            {adjustedActiveItemCount} {t('productCount')}
                         </Text>
                     </View>
                     {activeWishlist.isPublic && (
@@ -313,6 +455,14 @@ export default function WishlistHubScreen() {
                             <Text style={styles.publicText}>{t('isPublic')}</Text>
                         </View>
                     )}
+                    {/* More actions button */}
+                    <Pressable
+                        style={styles.moreButton}
+                        onPress={handleOpenActionSheet}
+                        hitSlop={8}
+                    >
+                        <IconSymbol name="more" size={20} color={theme.colors.typographySecondary} />
+                    </Pressable>
                 </View>
             )}
         </View>
@@ -324,12 +474,16 @@ export default function WishlistHubScreen() {
         isLoadingWishlists,
         isLoading,
         activeWishlist,
+        adjustedActiveItemCount,
+        handleOpenActionSheet,
         styles.infoBar,
         styles.infoLeft,
         styles.infoName,
         styles.infoCount,
         styles.publicBadge,
         styles.publicText,
+        styles.moreButton,
+        theme.colors.typographySecondary,
         t,
     ]);
 
@@ -339,7 +493,7 @@ export default function WishlistHubScreen() {
             <WishlistHeader
                 onBack={handleBack}
                 onCreate={handleCreate}
-                totalItems={totalItems}
+                totalItems={adjustedTotalItems}
             />
 
             {/* Product Grid (includes chips as header) */}
@@ -357,6 +511,32 @@ export default function WishlistHubScreen() {
                 productName={pendingRemoval?.item.productName ?? ''}
                 onUndo={handleUndo}
                 onDismiss={handleSnackbarDismiss}
+            />
+
+            {/* Create Wishlist Modal */}
+            <CreateWishlistModal
+                visible={showCreateModal}
+                onClose={handleCloseCreateModal}
+                onSubmit={handleCreateSubmit}
+                isLoading={createWishlistMutation.isPending}
+            />
+
+            {/* Rename Modal */}
+            <RenameWishlistModal
+                visible={showRenameModal}
+                currentName={activeWishlist?.name ?? ''}
+                onClose={() => setShowRenameModal(false)}
+                onSubmit={handleRenameSubmit}
+                isLoading={updateWishlistMutation.isPending}
+            />
+
+            {/* Action Sheet for collection management */}
+            <WishlistActionSheet
+                ref={actionSheetRef}
+                onRename={handleRename}
+                onTogglePublic={handleTogglePublic}
+                onShare={handleShare}
+                onDelete={handleDeleteWishlist}
             />
         </View>
     );
@@ -390,7 +570,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     publicBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: theme.colors.info,
+        backgroundColor: theme.colors.accent,
         paddingHorizontal: 8,
         paddingVertical: 3,
         borderRadius: 10,
@@ -400,5 +580,9 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: 10,
         fontWeight: '600',
         color: '#fff',
+    },
+    moreButton: {
+        padding: theme.margins.xs,
+        marginLeft: theme.margins.sm,
     },
 }));

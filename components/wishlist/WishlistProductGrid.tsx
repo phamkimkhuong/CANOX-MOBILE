@@ -49,8 +49,8 @@ const GridSkeleton: React.FC = () => {
                     <SkeletonBox width={CARD_WIDTH} height={CARD_WIDTH} borderRadius={12} />
                     <View style={styles.skeletonContent}>
                         <SkeletonText width="90%" height={14} />
-                        <SkeletonText width="60%" height={14} style={{ marginTop: 6 }} />
-                        <SkeletonText width="40%" height={16} style={{ marginTop: 8 }} />
+                        <SkeletonText width="60%" height={14} style={styles.skeletonMargin6} />
+                        <SkeletonText width="40%" height={16} style={styles.skeletonMargin8} />
                     </View>
                 </View>
             ))}
@@ -69,7 +69,7 @@ const EmptyGrid: React.FC<{ wishlistName?: string }> = ({ wishlistName }) => {
     return (
         <View style={styles.emptyContainer}>
             <View style={styles.emptyIconWrap}>
-                <IconSymbol name="favorite-border" size={48} color={theme.colors.primary} />
+                <IconSymbol name="favorite-border" size={48} color={theme.colors.newPrimary} />
             </View>
             <Text style={styles.emptyTitle}>
                 {wishlistName ? `"${wishlistName}" ${t('empty.productTitle')}` : t('empty.title')}
@@ -183,7 +183,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         width: 96,
         height: 96,
         borderRadius: 48,
-        backgroundColor: theme.colors.primaryMuted,
+        backgroundColor: theme.colors.activeLight,
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: theme.margins.lg,
@@ -215,5 +215,11 @@ const stylesheet = StyleSheet.create((theme) => ({
     skeletonContent: {
         paddingTop: theme.margins.sm,
         paddingHorizontal: 4,
+    },
+    skeletonMargin6: {
+        marginTop: 6,
+    },
+    skeletonMargin8: {
+        marginTop: 8,
     },
 }));

@@ -1557,6 +1557,34 @@ export interface WishlistTranslation {
         removed: string;
         undo: string;
     };
+    create: {
+        title: string;
+        nameLabel: string;
+        namePlaceholder: string;
+        publicLabel: string;
+        publicHint: string;
+        cancel: string;
+        submit: string;
+        creating: string;
+        success: string;
+    };
+    manage: {
+        rename: string;
+        makePublic: string;
+        makePrivate: string;
+        publicHint: string;
+        privateHint: string;
+        share: string;
+        delete: string;
+        cancel: string;
+        deleteConfirmTitle: string;
+        deleteConfirmMessage: string;
+        deleteSuccess: string;
+        renameConfirm: string;
+        renameSuccess: string;
+        makePublicSuccess: string;
+        makePrivateSuccess: string;
+    };
 }
 
 /**

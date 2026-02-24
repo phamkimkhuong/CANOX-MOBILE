@@ -105,7 +105,7 @@ export const WishlistCollectionChips: React.FC<WishlistCollectionChipsProps> = (
                 style={styles.createChip}
                 onPress={onCreate}
             >
-                <IconSymbol name="add" size={16} color={theme.colors.primary} />
+                <IconSymbol name="add" size={16} color={theme.colors.newPrimary} />
                 <Text style={styles.createText}>Tạo mới</Text>
             </Pressable>
         </ScrollView>
@@ -132,8 +132,8 @@ const stylesheet = StyleSheet.create((theme) => ({
         maxWidth: 150,
     },
     chipActive: {
-        backgroundColor: theme.colors.primary,
-        borderColor: theme.colors.primary,
+        backgroundColor: theme.colors.newPrimary,
+        borderColor: theme.colors.newPrimary,
     },
     chipText: {
         fontSize: 13,
@@ -171,14 +171,14 @@ const stylesheet = StyleSheet.create((theme) => ({
         paddingVertical: 8,
         borderRadius: 20,
         borderWidth: 1,
-        borderColor: theme.colors.primary,
+        borderColor: theme.colors.newPrimary,
         borderStyle: 'dashed',
         gap: 4,
     },
     createText: {
         fontSize: 13,
         fontWeight: '500',
-        color: theme.colors.primary,
+        color: theme.colors.newPrimary,
     },
     chipSkeleton: {
         width: 90,

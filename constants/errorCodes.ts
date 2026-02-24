@@ -47,6 +47,9 @@ const VI_MAP: Record<number, string> = {
     // GIỎ HÀNG & KHO (9400-9499)
     9402: "Sản phẩm đã hết hàng hoặc không đủ số lượng yêu cầu!",
     895: "Bạn chỉ được phép có tối đa 3 tài khoản ngân hàng",
+
+    // WISHLIST (3000-3099)
+    3005: "Tên bộ sưu tập đã tồn tại trong danh sách của bạn",
 } as const;
 
 export const getErrorMessageByCode = (code: number, lang: 'vi' | 'en' = 'vi'): string | undefined => {

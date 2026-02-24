@@ -116,5 +116,11 @@ export const wishlistService = {
     updateWishlistItem: async (wishlistId: string, itemId: string, data: UpdateWishlistItemRequest) => {
         const response = await apiClient.put(API_ROUTES.WISHLISTS.UPDATE_ITEM(wishlistId, itemId), data);
         return response.data;
-    }
+    },
+
+    /** Regenerate share token for a wishlist */
+    regenerateShareToken: async (wishlistId: string) => {
+        const response = await apiClient.post(API_ROUTES.WISHLISTS.REGENERATE_TOKEN(wishlistId));
+        return response.data;
+    },
 };

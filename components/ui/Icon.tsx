@@ -206,6 +206,7 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     bookmark: { ios: 'bookmark', android: 'bookmark' },
     'bookmark-outline': { ios: 'bookmark-outline', android: 'bookmark-outline' },
     trophy: { ios: 'trophy', android: 'trophy' },
+    collections: { ios: 'albums-outline', android: 'albums-outline' },
 
     // === SF Symbols Aliases (for cross-platform compatibility) ===
     shippingbox: { ios: 'cube', android: 'cube' },

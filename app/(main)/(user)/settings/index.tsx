@@ -118,8 +118,8 @@ export default function SettingsScreen() {
             if (fallbackUrl) Linking.openURL(fallbackUrl);
         } else {
             CustomAlert.show({
-                title: t('settings.version.upToDateTitle' as any),
-                message: t('settings.version.upToDateMessage' as any, { version: currentVersion }),
+                title: t('settings.version.upToDateTitle' as never),
+                message: t('settings.version.upToDateMessage' as never, { version: currentVersion }),
                 type: 'success',
                 confirmText: t('common:actions.done'),
             });
@@ -165,7 +165,7 @@ export default function SettingsScreen() {
             default:
                 return undefined;
         }
-    }, [handleNavigation, handleClearCache]);
+    }, [handleNavigation, handleClearCache, handleAppVersionPress]);
 
     // Get toggle handler
     const getToggleHandler = useCallback((item: SettingsItemType): ((value: boolean) => void) | undefined => {
@@ -183,8 +183,7 @@ export default function SettingsScreen() {
     const getDynamicLabel = useCallback((item: SettingsItemType): string => {
         // Try to translate label based on ID
         const key = `settings.items.${item.id}`;
-        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-        const translatedLabel = t(key as any);
+        const translatedLabel = t(key as never);
         return translatedLabel !== key ? translatedLabel : item.label;
     }, [t]);
 
@@ -262,8 +261,7 @@ export default function SettingsScreen() {
                 {visibleSections.map((section) => (
                     <SettingsSection
                         key={section.id}
-                        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-                        title={t(`settings.sections.${section.id}` as any)}
+                        title={t(`settings.sections.${section.id}` as never)}
                     >
                         {section.items.map((item, index) =>
                             renderItem(item, index, section.items.length)

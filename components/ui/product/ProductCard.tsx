@@ -166,7 +166,7 @@ export const ProductCard = React.memo(({
                             {/* Target Price Row */}
                             {targetPrice && (
                                 <View style={styles.targetPriceRow}>
-                                    <IconSymbol name="flag" size={11} color={theme.colors.primary} />
+                                    <IconSymbol name="flag" size={11} color={theme.colors.accent} />
                                     <Text style={styles.targetPriceLabel}>
                                         {targetPriceLabel ?? 'Mục tiêu'}:
                                     </Text>
@@ -178,7 +178,7 @@ export const ProductCard = React.memo(({
                             {badgeText && (
                                 <View style={[styles.infoBadge, badgeColor ? { backgroundColor: badgeColor } : undefined]}>
                                     <IconSymbol name="check-circle" size={11} color="#16a34a" />
-                                    <Text style={[styles.infoBadgeText, badgeColor === '#dcfce7' ? undefined : { color: '#fff' }]}>{badgeText}</Text>
+                                    <Text style={[styles.infoBadgeText, badgeColor === '#dcfce7' ? undefined : styles.badgeTextWhite]}>{badgeText}</Text>
                                 </View>
                             )}
 
@@ -348,12 +348,12 @@ const stylesheet = StyleSheet.create((theme) => ({
     targetPriceLabel: {
         fontSize: 10,
         fontWeight: '500',
-        color: theme.colors.primary,
+        color: theme.colors.accent,
     },
     targetPriceValue: {
         fontSize: 11,
         fontWeight: '600',
-        color: theme.colors.primary,
+        color: theme.colors.accent,
     },
     infoBadge: {
         alignSelf: 'flex-start',
@@ -370,6 +370,9 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: 10,
         fontWeight: '600',
         color: '#16a34a',
+    },
+    badgeTextWhite: {
+        color: '#fff',
     },
     metaRow: {
         flexDirection: 'row',

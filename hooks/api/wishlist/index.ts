@@ -5,10 +5,14 @@
  */
 
 export * from './useCheckVariantsWishlist';
+export * from './useCreateWishlist';
+export * from './useDeleteWishlist';
 export * from './usePriceTargetMet';
 export * from './usePublicWishlists';
 export * from './useRemoveWishlistItem';
+export * from './useShareWishlist';
 export * from './useToggleFavorite';
+export * from './useUpdateWishlist';
 export * from './useWishlistDetail';
 export * from './useWishlists';
 

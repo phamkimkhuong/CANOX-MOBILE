@@ -103,7 +103,7 @@ export const WishlistItemCard: React.FC<WishlistItemCardProps> = ({
             entering={FadeIn.duration(300)}
             exiting={FadeOut.duration(200)}
             style={[
-                isPendingRemoval && { opacity: 0.35, transform: [{ scale: 0.97 }] },
+                isPendingRemoval && styles.pendingRemoval,
             ]}
         >
             <Pressable
@@ -226,7 +226,7 @@ export const WishlistItemCard: React.FC<WishlistItemCardProps> = ({
                         <IconSymbol
                             name="cart"
                             size={20}
-                            color={theme.colors.primary}
+                            color={theme.colors.accent}
                         />
                     </Pressable>
                 </View>
@@ -246,7 +246,11 @@ const stylesheet = StyleSheet.create((theme) => ({
         ...theme.shadows.small,
     },
     pressed: {
-        opacity: 0.9,
+        opacity: 0.7,
+    },
+    pendingRemoval: {
+        opacity: 0.35,
+        transform: [{ scale: 0.97 }],
     },
     imageWrapper: {
         position: 'relative',
@@ -351,6 +355,6 @@ const stylesheet = StyleSheet.create((theme) => ({
     actionButton: {
         padding: theme.margins.sm,
         borderRadius: theme.radius.m,
-        backgroundColor: theme.colors.backgroundSurface,
+        backgroundColor: theme.colors.activeSurface,
     },
 }));
