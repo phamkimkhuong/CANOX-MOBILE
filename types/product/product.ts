@@ -56,8 +56,8 @@ export interface ProductFeedItem {
     location: string;
     isMall?: boolean;
     isInternational?: boolean;
-    /** First variant ID — used for wishlist favorite check */
     defaultVariantId?: string;
+    allVariantIds?: string[];
 }
 
 /**

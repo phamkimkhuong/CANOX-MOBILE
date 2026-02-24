@@ -73,7 +73,6 @@ export const ProductCard = React.memo(({
     favoriteAlwaysFilled,
     priority,
     hasNotes,
-    onMorePress,
     onLongPress,
 }: ProductCardProps) => {
     const { t } = useTranslation(['product']);

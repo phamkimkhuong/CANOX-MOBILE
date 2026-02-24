@@ -7,8 +7,10 @@ import { productRoutes } from '@/constants/routes';
 import { useScrollToTopHandler } from '@/contexts/ScrollToTopContext';
 import { usePrefetchProductDetail } from '@/hooks/api/product/useProductDetail';
 import { FeedType, useProductFeed, useRefreshProductFeed } from '@/hooks/api/useHomeProducts';
+import { useFavoriteSync, useToggleFavorite } from '@/hooks/api/wishlist';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { PREFETCH_GRACE_PERIOD_MS } from '@/hooks/usePrefetchTiming';
+import { useWishlistStore } from '@/store/useWishlistStore';
 import type { ProductFeedItem } from '@/types/product/product';
 import { createLogger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
@@ -77,11 +79,14 @@ TabsRowItem.displayName = 'TabsRowItem';
  * ProductRowItem - Hybrid Pattern Navigation
  * - PressIn: Start prefetch + record timing
  * - Press: Navigate with instant flag based on elapsed time
+ * - Favorite: heart icon with progressive fade-in
  */
 const ProductRowItem = memo(({
   item,
+  onFavoritePress,
 }: {
   item: ProductFeedItem;
+  onFavoritePress: (variantId: string) => void;
 }) => {
   const prefetchProduct = usePrefetchProductDetail();
   const pressInTimeRef = useRef(0);
@@ -114,6 +119,8 @@ const ProductRowItem = memo(({
       onPress={handlePress}
       onPressIn={handlePressIn}
       route={productRoutes.detail(item.id)}
+      variantId={item.defaultVariantId}
+      onFavoritePress={onFavoritePress}
     />
   );
 });
@@ -198,11 +205,31 @@ export default function HomeScreen() {
     isFetchingNextPage,
   } = useProductFeed(activeTab);
 
+  // ---- FAVORITE SYSTEM ----
+  const { syncFromProducts, resetCheckedIds } = useFavoriteSync();
+  const toggleFavoriteMutation = useToggleFavorite();
+
+  // Sync favorite status incrementally when product data changes
+  useEffect(() => {
+    if (data?.pages) {
+      const allProducts = data.pages.flatMap(page => page.items);
+      syncFromProducts(allProducts);
+    }
+  }, [data?.pages, syncFromProducts]);
+
+  // Read state at tap-time via getState() — avoids stale closure & HomeScreen re-render
+  const handleFavoritePress = useCallback((variantId: string) => {
+    const isCurrentlyLiked = !!useWishlistStore.getState().favoritesMap[variantId];
+    toggleFavoriteMutation.mutate({ variantId, isCurrentlyLiked });
+  }, [toggleFavoriteMutation]);
+
   // Smart refresh: only fetch page 0 instead of all loaded pages
   const { refresh: smartRefreshProducts } = useRefreshProductFeed(activeTab);
   const queryClient = useQueryClient();
 
   const handleRefresh = useCallback(async () => {
+    // Reset favorite cache to re-check on refresh
+    resetCheckedIds();
     // Refresh products feed (smart way - page 0 only)
     const refreshPromise = smartRefreshProducts();
 
@@ -210,7 +237,7 @@ export default function HomeScreen() {
     queryClient.invalidateQueries({ queryKey: ['campaigns', 'slots', 'active'] });
 
     await refreshPromise;
-  }, [smartRefreshProducts, queryClient]);
+  }, [smartRefreshProducts, queryClient, resetCheckedIds]);
 
   /**
    * Scroll to Top Handler - Register with context to handle when user returns to Home tab
@@ -308,6 +335,9 @@ export default function HomeScreen() {
   const handleTabChange = useCallback((newTab: FeedType) => {
     if (newTab === activeTab) return;
 
+    // Reset favorite cache for new tab's products
+    resetCheckedIds();
+
     const isTabsSticky = scrollYRef.current >= headerHeightRef.current && headerHeightRef.current > 0;
 
     if (isTabsSticky) {
@@ -351,7 +381,7 @@ export default function HomeScreen() {
     } else {
       setActiveTab(newTab);
     }
-  }, [activeTab, scrollY]);
+  }, [activeTab, scrollY, resetCheckedIds]);
 
   /**
    * Navigate tới Product Detail
@@ -406,6 +436,7 @@ export default function HomeScreen() {
         return (
           <ProductRowItem
             item={item.data}
+            onFavoritePress={handleFavoritePress}
           />
         );
       case 'skeleton':
@@ -413,7 +444,7 @@ export default function HomeScreen() {
       default:
         return null;
     }
-  }, [activeTab, handleTabChange, handleProductPress, handleMarketingHeaderLayout, shimmerAnimatedStyle]);
+  }, [activeTab, handleTabChange, handleProductPress, handleMarketingHeaderLayout, shimmerAnimatedStyle, handleFavoritePress]);
 
   /**
    * Item type cho FlashList recycling optimization

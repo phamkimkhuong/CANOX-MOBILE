@@ -52,6 +52,11 @@ export const transformProduct = (raw: BaseProductDTO): ProductFeedItem => {
     const regions = raw.availableRegions ?? [];
     const isInternational = regions.includes('INTERNATIONAL');
 
+    // 5. Variants — sort by id for deterministic defaultVariantId
+    const sortedVariantIds = (raw.variants ?? [])
+        .map(v => v.id)
+        .sort(); // lexicographic sort = deterministic
+
     return {
         id: raw.id,
         title: raw.name ?? '',
@@ -64,6 +69,7 @@ export const transformProduct = (raw: BaseProductDTO): ProductFeedItem => {
         sold: raw.reviewStatistics?.verifiedPurchaseCount ?? 0,
         location,
         isInternational: isInternational || undefined,
-        defaultVariantId: raw.variants?.[0]?.id,
+        defaultVariantId: sortedVariantIds[0],
+        allVariantIds: sortedVariantIds.length > 0 ? sortedVariantIds : undefined,
     };
 };
