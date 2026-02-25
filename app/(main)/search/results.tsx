@@ -54,7 +54,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 type ListItemType =
-    | { type: 'emptyHeader'; id: string; keyword: string }
+    | { type: 'emptyHeader'; id: string; keyword: string; hasRecommendations: boolean }
     | { type: 'product'; data: SearchProductUI };
 
 // ============================================
@@ -245,8 +245,14 @@ export default function SearchResultsScreen() {
         const items: ListItemType[] = [];
 
         // If empty, show recommendation header + recommended products
-        if (isEmpty && recommendedProducts.length > 0) {
-            items.push({ type: 'emptyHeader', id: 'emptyHeader', keyword });
+        if (isEmpty) {
+            items.push({
+                type: 'emptyHeader',
+                id: 'emptyHeader',
+                keyword,
+                hasRecommendations: recommendedProducts.length > 0
+            });
+
             recommendedProducts.forEach((product) => {
                 items.push({ type: 'product', data: product });
             });
@@ -270,9 +276,11 @@ export default function SearchResultsScreen() {
                     <Text style={styles.emptyTitle}>
                         {t('empty.subtitle', { keyword: item.keyword })}
                     </Text>
-                    <Text style={styles.emptySubtitle}>
-                        {t('empty.suggestion')}
-                    </Text>
+                    {item.hasRecommendations && (
+                        <Text style={styles.emptySubtitle}>
+                            {t('empty.suggestion')}
+                        </Text>
+                    )}
                 </View>
             );
         }
@@ -384,12 +392,16 @@ export default function SearchResultsScreen() {
                                 <Text style={styles.emptyTitle}>
                                     {t('empty.subtitle', { keyword })}
                                 </Text>
-                                <Text style={styles.emptySubtitle}>
-                                    {t('empty.suggestion')}
-                                </Text>
+                                {(isLoadingRecommended || recommendedProducts.length > 0) && (
+                                    <Text style={styles.emptySubtitle}>
+                                        {t('empty.suggestion')}
+                                    </Text>
+                                )}
                             </View>
                         )}
-                        <ProductGridSkeleton count={6} animatedStyle={shimmerAnimatedStyle} />
+                        {(isLoadingRecommended || recommendedProducts.length > 0) && (
+                            <ProductGridSkeleton count={6} animatedStyle={shimmerAnimatedStyle} />
+                        )}
                     </Animated.View>
                 )}
             </View>

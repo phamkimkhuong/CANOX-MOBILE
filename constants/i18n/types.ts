@@ -1606,7 +1606,10 @@ export interface WishlistTranslation {
         notesPlaceholder: string;
         priorityLabel: string;
         priorityNormal: string;
+        priorityNormalDesc: string;
         priorityUrgent: string;
+        priorityUrgentDesc: string;
+        wishlistLabel: string;
         save: string;
         saving: string;
         cancel: string;

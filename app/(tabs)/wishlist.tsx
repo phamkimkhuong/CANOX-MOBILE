@@ -1,7 +1,9 @@
+import { CartHeaderButton, ChatHeaderButton } from '@/components/ui/navigation/HeaderButtons';
 import { PriceTargetTab } from '@/components/wishlist/PriceTargetTab';
 import { PrivateWishlistTab } from '@/components/wishlist/PrivateWishlistTab';
 import { usePriceTargetMetCount } from '@/hooks/api/wishlist/usePriceTargetMet';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
@@ -36,55 +38,66 @@ export default function WishlistTabsScreen() {
     return (
         <View style={styles.container}>
             {/* Header */}
-            <View style={[styles.header, { paddingTop: insets.top }]}>
+            <LinearGradient
+                colors={[theme.colors.newPrimary, '#FF512F']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={[styles.header, { paddingTop: insets.top }]}
+            >
                 <View style={styles.headerContent}>
                     <Text style={styles.title}>{t('title', { defaultValue: 'Yêu thích' })}</Text>
+
+                    <View style={styles.actions}>
+                        <CartHeaderButton color="#FFFFFF" badgeBorderColor={theme.colors.newPrimary} />
+                        <ChatHeaderButton color="#FFFFFF" badgeBorderColor={theme.colors.newPrimary} />
+                    </View>
                 </View>
 
                 {/* Segmented Tabs */}
-                <View style={styles.tabBar}>
-                    <Pressable
-                        style={[
-                            styles.tab,
-                            activeTab === 'price_target' && styles.tabActive,
-                        ]}
-                        onPress={() => setActiveTab('price_target')}
-                    >
-                        <Text
+                <View style={styles.tabBarContainer}>
+                    <View style={styles.tabBar}>
+                        <Pressable
                             style={[
-                                styles.tabText,
-                                activeTab === 'price_target' && styles.tabTextActive,
+                                styles.tab,
+                                activeTab === 'price_target' && styles.tabActive,
                             ]}
+                            onPress={() => setActiveTab('price_target')}
                         >
-                            {t('tabs.priceTarget')}
-                        </Text>
-                        {priceTargetCount > 0 && (
-                            <View style={styles.badge}>
-                                <Text style={styles.badgeText}>
-                                    {priceTargetCount > 99 ? '99+' : priceTargetCount}
-                                </Text>
-                            </View>
-                        )}
-                    </Pressable>
+                            <Text
+                                style={[
+                                    styles.tabText,
+                                    activeTab === 'price_target' && styles.tabTextActive,
+                                ]}
+                            >
+                                {t('tabs.priceTarget')}
+                            </Text>
+                            {priceTargetCount > 0 && (
+                                <View style={styles.badge}>
+                                    <Text style={styles.badgeText}>
+                                        {priceTargetCount > 99 ? '99+' : priceTargetCount}
+                                    </Text>
+                                </View>
+                            )}
+                        </Pressable>
 
-                    <Pressable
-                        style={[
-                            styles.tab,
-                            activeTab === 'private' && styles.tabActive,
-                        ]}
-                        onPress={() => setActiveTab('private')}
-                    >
-                        <Text
+                        <Pressable
                             style={[
-                                styles.tabText,
-                                activeTab === 'private' && styles.tabTextActive,
+                                styles.tab,
+                                activeTab === 'private' && styles.tabActive,
                             ]}
+                            onPress={() => setActiveTab('private')}
                         >
-                            {t('tabs.private')}
-                        </Text>
-                    </Pressable>
+                            <Text
+                                style={[
+                                    styles.tabText,
+                                    activeTab === 'private' && styles.tabTextActive,
+                                ]}
+                            >
+                                {t('tabs.private')}
+                            </Text>
+                        </Pressable>
 
-                    {/* TEMPORARILY HIDDEN: Discover/Public Tab
+                        {/* TEMPORARILY HIDDEN: Discover/Public Tab
                     <Pressable
                         style={[
                             styles.tab,
@@ -102,8 +115,9 @@ export default function WishlistTabsScreen() {
                         </Text>
                     </Pressable>
                     */}
+                    </View>
                 </View>
-            </View>
+            </LinearGradient>
 
             {/* Content */}
             <View style={styles.content}>
@@ -121,7 +135,19 @@ const stylesheet = StyleSheet.create((theme) => ({
         backgroundColor: theme.colors.background,
     },
     header: {
-        backgroundColor: theme.colors.surface,
+        borderBottomLeftRadius: 20,
+        borderBottomRightRadius: 20,
+        paddingBottom: theme.margins.md,
+        // Premium subtle soft shadow
+        shadowColor: theme.colors.newPrimary,
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.2,
+        shadowRadius: 12,
+        elevation: 6,
+        zIndex: 10,
     },
     headerContent: {
         flexDirection: 'row',
@@ -129,41 +155,58 @@ const stylesheet = StyleSheet.create((theme) => ({
         justifyContent: 'center',
         paddingHorizontal: theme.margins.md,
         height: 56,
+        marginBottom: 8,
     },
     title: {
-        fontSize: 20,
-        fontWeight: '700',
-        color: theme.colors.typography,
-        letterSpacing: -0.3,
+        fontSize: 22,
+        fontWeight: '800',
+        color: '#FFFFFF',
+        letterSpacing: -0.5,
+    },
+    actions: {
+        position: 'absolute',
+        right: theme.margins.md,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    tabBarContainer: {
+        paddingHorizontal: theme.margins.md,
     },
     tabBar: {
         flexDirection: 'row',
-        backgroundColor: theme.colors.surface,
-        borderBottomWidth: 1,
-        borderBottomColor: theme.colors.borderMuted,
-        paddingBottom: 2,
+        backgroundColor: 'rgba(255, 255, 255, 0.25)',
+        borderRadius: 100,
+        padding: 4,
     },
     tab: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: theme.margins.sm,
-        borderBottomWidth: 2,
-        borderBottomColor: 'transparent',
+        paddingVertical: 8,
+        borderRadius: 100, // Inner indicator pill shape
         gap: 6,
     },
     tabActive: {
-        borderBottomColor: theme.colors.newPrimary,
+        backgroundColor: '#FFFFFF', // Pop out as a white pill
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 6,
+        elevation: 3,
     },
     tabText: {
         fontSize: 14,
-        fontWeight: '500',
-        color: theme.colors.typographySecondary,
+        fontWeight: '600',
+        color: 'rgba(255, 255, 255, 0.9)',
     },
     tabTextActive: {
         color: theme.colors.newPrimary,
-        fontWeight: 'bold',
+        fontWeight: '800',
     },
     badge: {
         backgroundColor: theme.colors.error,

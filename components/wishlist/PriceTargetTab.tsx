@@ -11,9 +11,10 @@ import {
     ActivityIndicator,
     Image,
     Pressable,
+    RefreshControl,
     ScrollView,
     Text,
-    View,
+    View
 } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -26,7 +27,7 @@ export const PriceTargetTab: React.FC<PriceTargetTabProps> = ({ onSwitchToPrivat
     const styles = stylesheet;
     const { t } = useTranslation('wishlist');
 
-    const { data: targetData, isLoading } = usePriceTargetMet();
+    const { data: targetData, isLoading, isRefetching, refetch } = usePriceTargetMet();
 
     const handleBuyNow = useCallback((item: WishlistItemUI) => {
         // Navigate to product with instant buy action
@@ -46,7 +47,17 @@ export const PriceTargetTab: React.FC<PriceTargetTabProps> = ({ onSwitchToPrivat
 
     if (groups.length === 0) {
         return (
-            <View style={styles.emptyContainer}>
+            <ScrollView
+                contentContainerStyle={styles.emptyContainer}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={isRefetching}
+                        onRefresh={refetch}
+                        tintColor={theme.colors.newPrimary}
+                        colors={[theme.colors.newPrimary]}
+                    />
+                }
+            >
                 <IconSymbol name="favorite" size={64} color={theme.colors.border} />
                 <Text style={styles.emptyTitle}>{t('priceTargetTab.emptyTitle')}</Text>
                 <Text style={styles.emptySubtitle}>
@@ -55,12 +66,23 @@ export const PriceTargetTab: React.FC<PriceTargetTabProps> = ({ onSwitchToPrivat
                 <Pressable style={styles.emptyButton} onPress={onSwitchToPrivateTab}>
                     <Text style={styles.emptyButtonText}>{t('priceTargetTab.manageButton')}</Text>
                 </Pressable>
-            </View>
+            </ScrollView>
         );
     }
 
     return (
-        <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+        <ScrollView
+            style={styles.container}
+            contentContainerStyle={styles.content}
+            refreshControl={
+                <RefreshControl
+                    refreshing={isRefetching}
+                    onRefresh={refetch}
+                    tintColor={theme.colors.newPrimary}
+                    colors={[theme.colors.newPrimary]}
+                />
+            }
+        >
             <View style={styles.headerBox}>
                 <View style={styles.headerBoxContent}>
                     <IconSymbol name="celebration" size={20} color={theme.colors.newPrimary} />

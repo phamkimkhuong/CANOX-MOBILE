@@ -8,6 +8,7 @@ export * from './useCheckVariantsWishlist';
 export * from './useCreateWishlist';
 export * from './useDeleteWishlist';
 export * from './useFavoriteSync';
+export * from './useMoveWishlistItem';
 export * from './usePriceTargetMet';
 export * from './usePublicWishlists';
 export * from './useRemoveWishlistItem';

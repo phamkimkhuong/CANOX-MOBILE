@@ -197,6 +197,7 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     'more-horiz': { ios: 'ellipsis-horizontal', android: 'ellipsis-horizontal' },
     'add-circle': { ios: 'add-circle', android: 'add-circle' },
     'verified': { ios: 'checkmark-circle', android: 'checkmark-circle' },
+    'priority-high': { ios: 'alert-circle', android: 'alert-circle' },
 
     // === Wishlist Icons ===
     explore: { ios: 'compass-outline', android: 'compass-outline' },

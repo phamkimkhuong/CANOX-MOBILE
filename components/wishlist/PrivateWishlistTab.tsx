@@ -33,6 +33,7 @@ import {
     flattenWishlists,
     useCreateWishlist,
     useDeleteWishlist,
+    useMoveWishlistItem,
     useShareWishlist,
     useUpdateWishlist,
     useUpdateWishlistItem,
@@ -80,6 +81,8 @@ export const PrivateWishlistTab = () => {
     const {
         data: wishlistsData,
         isLoading: isLoadingWishlists,
+        isRefetching: isRefetchingWishlists,
+        refetch: refetchWishlists,
     } = useWishlists();
 
     const wishlists = useMemo(() => flattenWishlists(wishlistsData), [wishlistsData]);
@@ -113,6 +116,8 @@ export const PrivateWishlistTab = () => {
     const {
         data: wishlistDetail,
         isLoading: isLoadingItems,
+        isRefetching: isRefetchingItems,
+        refetch: refetchItems,
     } = useWishlistDetail(effectiveWishlistId);
 
     // Mutations
@@ -122,6 +127,7 @@ export const PrivateWishlistTab = () => {
     const updateWishlistMutation = useUpdateWishlist();
     const shareWishlistMutation = useShareWishlist();
     const updateItemMutation = useUpdateWishlistItem();
+    const moveItemMutation = useMoveWishlistItem();
 
     // ActionSheet ref
     const actionSheetRef = useRef<WishlistActionSheetRef>(null);
@@ -210,6 +216,13 @@ export const PrivateWishlistTab = () => {
     const handleSelectWishlist = useCallback((wishlistId: string) => {
         setActiveWishlistId(wishlistId);
     }, []);
+
+    const handleRefresh = useCallback(() => {
+        refetchWishlists();
+        if (effectiveWishlistId) {
+            refetchItems();
+        }
+    }, [refetchWishlists, refetchItems, effectiveWishlistId]);
 
     // ============================================
     // HEART PRESS → UNDO FLOW
@@ -361,6 +374,7 @@ export const PrivateWishlistTab = () => {
     const handleItemLongPress = useCallback((item: WishlistItemUI) => {
         editItemSheetRef.current?.present({
             itemId: item.id,
+            variantId: item.variantId,
             wishlistId: item.wishlistId,
             productName: item.productName,
             currentPrice: item.price,
@@ -373,36 +387,77 @@ export const PrivateWishlistTab = () => {
 
     const handleEditItemSubmit = useCallback((
         itemId: string,
-        wishlistId: string,
-        result: { desiredPrice: number | null; notes: string | null; priority: number }
+        fromWishlistId: string,
+        result: {
+            desiredPrice: number | null;
+            notes: string | null;
+            priority: number;
+            targetWishlistId: string;
+            variantId: string;
+        }
     ) => {
-        updateItemMutation.mutate(
-            {
-                wishlistId,
-                itemId,
-                data: {
-                    desiredPrice: result.desiredPrice ?? undefined,
-                    notes: result.notes ?? undefined,
-                    priority: result.priority as 0 | 1 | 2,
+        const { targetWishlistId, variantId, ...data } = result;
+
+        // CHECK IF MOVING OR JUST UPDATING
+        if (targetWishlistId && targetWishlistId !== fromWishlistId) {
+            moveItemMutation.mutate(
+                {
+                    itemId,
+                    sourceWishlistId: fromWishlistId,
+                    targetWishlistId,
+                    variantId,
+                    data: {
+                        desiredPrice: data.desiredPrice ?? undefined,
+                        notes: data.notes ?? undefined,
+                        priority: data.priority as 0 | 1 | 2,
+                    }
                 },
-            },
-            {
-                onSuccess: () => {
-                    editItemSheetRef.current?.dismiss();
-                    Toast.show({
-                        type: 'success',
-                        text1: t('editItem.success'),
-                    });
+                {
+                    onSuccess: () => {
+                        editItemSheetRef.current?.dismiss();
+                        Toast.show({
+                            type: 'success',
+                            text1: t('editItem.success'),
+                        });
+                    },
+                    onError: () => {
+                        Toast.show({
+                            type: 'error',
+                            text1: t('error.errorTitle'),
+                        });
+                    },
+                }
+            );
+        } else {
+            // JUST UPDATE
+            updateItemMutation.mutate(
+                {
+                    wishlistId: fromWishlistId,
+                    itemId,
+                    data: {
+                        desiredPrice: data.desiredPrice ?? undefined,
+                        notes: data.notes ?? undefined,
+                        priority: data.priority as 0 | 1 | 2,
+                    },
                 },
-                onError: () => {
-                    Toast.show({
-                        type: 'error',
-                        text1: t('error.errorTitle'),
-                    });
-                },
-            }
-        );
-    }, [updateItemMutation, t]);
+                {
+                    onSuccess: () => {
+                        editItemSheetRef.current?.dismiss();
+                        Toast.show({
+                            type: 'success',
+                            text1: t('editItem.success'),
+                        });
+                    },
+                    onError: () => {
+                        Toast.show({
+                            type: 'error',
+                            text1: t('error.errorTitle'),
+                        });
+                    },
+                }
+            );
+        }
+    }, [updateItemMutation, moveItemMutation, t]);
 
     // ---- RENDER ----
 
@@ -476,6 +531,8 @@ export const PrivateWishlistTab = () => {
                 onItemLongPress={handleItemLongPress}
                 ListHeaderComponent={ListHeader}
                 wishlistName={activeWishlist?.name}
+                isRefetching={isRefetchingWishlists || isRefetchingItems}
+                onRefresh={handleRefresh}
             />
 
             {/* Undo Snackbar */}

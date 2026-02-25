@@ -8,7 +8,10 @@
  * - Priority (Normal / Urgent)
  */
 
+import { SkeletonBox, useShimmerAnimation } from '@/components/ui/feedback/Skeleton';
 import { IconSymbol } from '@/components/ui/Icon';
+import { useWishlists } from '@/hooks/api/wishlist';
+import type { WishlistCardUI } from '@/types/wishlist';
 import { formatCurrency } from '@/utils/format';
 import {
     BottomSheetBackdrop,
@@ -29,6 +32,7 @@ import { useTranslation } from 'react-i18next';
 import {
     Keyboard,
     Pressable,
+    ScrollView,
     Text,
     View,
 } from 'react-native';
@@ -41,6 +45,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 export interface EditWishlistItemData {
     itemId: string;
+    variantId: string;
     wishlistId: string;
     productName: string;
     currentPrice: number;
@@ -51,9 +56,11 @@ export interface EditWishlistItemData {
 }
 
 export interface EditWishlistItemResult {
+    variantId: string;
     desiredPrice: number | null;
     notes: string | null;
     priority: number;
+    targetWishlistId: string;
 }
 
 export interface EditWishlistItemSheetRef {
@@ -85,6 +92,12 @@ export const EditWishlistItemSheet = forwardRef<
     const [priceText, setPriceText] = useState('');
     const [notes, setNotes] = useState('');
     const [priority, setPriority] = useState(0);
+    const [targetWishlistId, setTargetWishlistId] = useState<string>('');
+
+    // Fetch cached wishlists for Move functionality
+    const { data: wishlistsPage, isLoading: isLoadingWishlists } = useWishlists();
+    const wishlists = wishlistsPage?.pages.flatMap(p => p.content) || [];
+    const shimmerStyle = useShimmerAnimation(!!isLoadingWishlists);
 
     useImperativeHandle(ref, () => ({
         present: (itemData: EditWishlistItemData) => {
@@ -96,6 +109,7 @@ export const EditWishlistItemSheet = forwardRef<
             );
             setNotes(itemData.notes ?? '');
             setPriority(itemData.priority);
+            setTargetWishlistId(itemData.wishlistId);
             bottomSheetRef.current?.present();
         },
         dismiss: () => {
@@ -128,11 +142,13 @@ export const EditWishlistItemSheet = forwardRef<
         const parsedPrice = priceText.trim() ? Number(priceText.replace(/[^\d]/g, '')) : null;
 
         onSubmit(data.itemId, data.wishlistId, {
+            variantId: data.variantId,
             desiredPrice: parsedPrice && parsedPrice > 0 ? parsedPrice : null,
             notes: notes.trim() || null,
             priority,
+            targetWishlistId: targetWishlistId || data.wishlistId,
         });
-    }, [data, isLoading, priceText, notes, priority, onSubmit]);
+    }, [data, isLoading, priceText, notes, priority, targetWishlistId, onSubmit]);
 
     const handleClearPrice = useCallback(() => {
         setPriceText('');
@@ -161,7 +177,8 @@ export const EditWishlistItemSheet = forwardRef<
         return (
             parsedPrice !== originalPrice ||
             (notes.trim() || null) !== (data.notes || null) ||
-            priority !== data.priority
+            priority !== data.priority ||
+            targetWishlistId !== data.wishlistId
         );
     })();
 
@@ -273,62 +290,105 @@ export const EditWishlistItemSheet = forwardRef<
                     </Text>
                 </View>
 
-                {/* Priority Selector */}
+                {/* Target Wishlist Selection (Move Functionality) */}
+                <View style={styles.inputSection}>
+                    <Text style={styles.inputLabel}>{t('editItem.wishlistLabel', { defaultValue: 'Lưu ở Bộ sưu tập' })}</Text>
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={{ gap: 8, paddingVertical: 4 }}
+                    >
+                        {isLoadingWishlists ? (
+                            Array.from({ length: 3 }).map((_, i) => (
+                                <SkeletonBox
+                                    key={i}
+                                    width={100}
+                                    height={36}
+                                    borderRadius={20}
+                                    animatedStyle={shimmerStyle}
+                                />
+                            ))
+                        ) : (
+                            wishlists.map((w: WishlistCardUI) => {
+                                const isActive = targetWishlistId === w.id;
+                                return (
+                                    <Pressable
+                                        key={w.id}
+                                        style={[
+                                            styles.wlChip,
+                                            isActive && styles.wlChipActive
+                                        ]}
+                                        onPress={() => setTargetWishlistId(w.id)}
+                                    >
+                                        <Text style={[
+                                            styles.wlChipText,
+                                            isActive && styles.wlChipTextActive
+                                        ]}>
+                                            {w.name}
+                                        </Text>
+                                    </Pressable>
+                                );
+                            })
+                        )}
+                    </ScrollView>
+                </View>
+
+                {/* Priority Selection */}
                 <View style={styles.inputSection}>
                     <Text style={styles.inputLabel}>{t('editItem.priorityLabel')}</Text>
                     <View style={styles.priorityRow}>
-                        {/* Normal */}
                         <Pressable
                             style={[
-                                styles.priorityChip,
-                                priority === 0 && styles.priorityChipActive,
+                                styles.priorityCard,
+                                priority === 0 && styles.priorityCardActive,
+                                { flex: 1 },
                             ]}
                             onPress={() => setPriority(0)}
                             disabled={isLoading}
                         >
                             <IconSymbol
-                                name="bookmark-outline"
-                                size={16}
-                                color={priority === 0 ? '#fff' : theme.colors.typography}
+                                name="check-circle"
+                                size={20}
+                                color={priority === 0 ? theme.colors.newPrimary : theme.colors.typographySecondary}
                             />
-                            <Text
-                                style={[
-                                    styles.priorityChipText,
-                                    priority === 0 && styles.priorityChipTextActive,
-                                ]}
-                            >
-                                {t('editItem.priorityNormal')}
-                            </Text>
+                            <View style={styles.priorityContent}>
+                                <Text style={[styles.priorityTitle, priority === 0 && styles.priorityTitleActive]}>
+                                    {t('editItem.priorityNormal')}
+                                </Text>
+                                <Text style={styles.priorityDesc}>
+                                    {t('editItem.priorityNormalDesc')}
+                                </Text>
+                            </View>
                         </Pressable>
 
-                        {/* Urgent */}
                         <Pressable
                             style={[
-                                styles.priorityChip,
-                                priority === 2 && styles.priorityChipUrgent,
+                                styles.priorityCard,
+                                priority === 2 && styles.priorityCardUrgentActive,
+                                { flex: 1 },
                             ]}
                             onPress={() => setPriority(2)}
                             disabled={isLoading}
                         >
                             <IconSymbol
-                                name="fire"
-                                size={16}
-                                color={priority === 2 ? '#fff' : theme.colors.error}
+                                name="priority-high"
+                                size={20}
+                                color={priority === 2 ? theme.colors.error : theme.colors.typographySecondary}
                             />
-                            <Text
-                                style={[
-                                    styles.priorityChipText,
-                                    priority === 2 && styles.priorityChipTextUrgent,
-                                ]}
-                            >
-                                {t('editItem.priorityUrgent')}
-                            </Text>
+                            <View style={styles.priorityContent}>
+                                <Text style={[styles.priorityTitle, priority === 2 && styles.priorityTitleUrgentActive]}>
+                                    {t('editItem.priorityUrgent')}
+                                </Text>
+                                <Text style={styles.priorityDesc}>
+                                    {t('editItem.priorityUrgentDesc')}
+                                </Text>
+                            </View>
                         </Pressable>
                     </View>
                 </View>
 
                 {/* Actions */}
-                <View style={styles.actions}>
+                <View style={styles.footer}>
                     <Pressable
                         style={styles.cancelButton}
                         onPress={() => bottomSheetRef.current?.dismiss()}
@@ -508,43 +568,77 @@ const sheetStyles = StyleSheet.create((theme) => ({
         flexDirection: 'row',
         gap: theme.margins.smd,
     },
-    priorityChip: {
-        flex: 1,
+    priorityCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
-        gap: 6,
-        paddingVertical: theme.margins.smd,
+        gap: 12,
+        padding: 12,
         borderRadius: theme.radius.m,
         borderWidth: 1.5,
         borderColor: theme.colors.border,
         backgroundColor: theme.colors.surface,
     },
-    priorityChipActive: {
+    priorityCardActive: {
+        borderColor: theme.colors.newPrimary,
+        backgroundColor: theme.colors.backgroundNewInput,
+    },
+    priorityCardUrgentActive: {
+        borderColor: theme.colors.error,
+        backgroundColor: '#FFF5F5',
+    },
+    priorityContent: {
+        flex: 1,
+    },
+    priorityTitle: {
+        fontSize: 14,
+        fontWeight: '700',
+        color: theme.colors.typography,
+    },
+    priorityTitleActive: {
+        color: theme.colors.newPrimary,
+    },
+    priorityTitleUrgentActive: {
+        color: theme.colors.error,
+    },
+    priorityDesc: {
+        fontSize: 11,
+        color: theme.colors.typographySecondary,
+        marginTop: 2,
+    },
+
+    // Wishlist horizontal selection
+    wishlistList: {
+        paddingVertical: theme.margins.xs,
+    },
+    wlChip: {
+        paddingHorizontal: theme.margins.md,
+        paddingVertical: 8,
+        borderRadius: 20,
+        backgroundColor: theme.colors.backgroundNewInput,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        marginRight: theme.margins.sm,
+    },
+    wlChipActive: {
         backgroundColor: theme.colors.newPrimary,
         borderColor: theme.colors.newPrimary,
     },
-    priorityChipUrgent: {
-        backgroundColor: theme.colors.error,
-        borderColor: theme.colors.error,
+    wlChipText: {
+        fontSize: 13,
+        fontWeight: '500',
+        color: theme.colors.typographySecondary,
     },
-    priorityChipText: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: theme.colors.typography,
-    },
-    priorityChipTextActive: {
+    wlChipTextActive: {
         color: '#fff',
-    },
-    priorityChipTextUrgent: {
-        color: '#fff',
+        fontWeight: '700',
     },
 
     // Actions
-    actions: {
+    footer: {
         flexDirection: 'row',
         gap: theme.margins.smd,
         marginTop: theme.margins.sm,
+        paddingTop: theme.margins.md,
     },
     cancelButton: {
         flex: 1,

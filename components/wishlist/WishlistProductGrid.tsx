@@ -17,6 +17,7 @@ import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Dimensions,
+    RefreshControl,
     Text,
     View
 } from 'react-native';
@@ -35,6 +36,8 @@ interface WishlistProductGridProps {
     onItemLongPress?: (item: WishlistItemUI) => void;
     ListHeaderComponent?: React.ReactElement;
     wishlistName?: string;
+    isRefetching?: boolean;
+    onRefresh?: () => void;
 }
 
 /**
@@ -98,7 +101,10 @@ export const WishlistProductGrid: React.FC<WishlistProductGridProps> = ({
     onItemLongPress,
     ListHeaderComponent,
     wishlistName,
+    isRefetching = false,
+    onRefresh,
 }) => {
+    const { theme } = useUnistyles();
     const { t } = useTranslation('wishlist');
     const styles = stylesheet;
 
@@ -152,11 +158,6 @@ export const WishlistProductGrid: React.FC<WishlistProductGridProps> = ({
                     {ListHeaderComponent}
                     <GridSkeleton />
                 </View>
-            ) : items.length === 0 ? (
-                <View>
-                    {ListHeaderComponent}
-                    <EmptyGrid wishlistName={wishlistName} />
-                </View>
             ) : (
                 <FlashList<WishlistItemUI>
                     data={items}
@@ -166,6 +167,17 @@ export const WishlistProductGrid: React.FC<WishlistProductGridProps> = ({
                     masonry={true}
                     contentContainerStyle={styles.gridContent}
                     ListHeaderComponent={ListHeaderComponent}
+                    ListEmptyComponent={<EmptyGrid wishlistName={wishlistName} />}
+                    refreshControl={
+                        onRefresh ? (
+                            <RefreshControl
+                                refreshing={isRefetching}
+                                onRefresh={onRefresh}
+                                tintColor={theme.colors.newPrimary}
+                                colors={[theme.colors.newPrimary]}
+                            />
+                        ) : undefined
+                    }
                 />
             )}
         </View>

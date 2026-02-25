@@ -32,11 +32,11 @@ interface Category {
 const CATEGORIES: Category[] = [
     { id: 1, name: 'Flash Sale', icon: 'flash', color: '#f59e0b', route: ROUTES.CAMPAIGN.FLASH_SALE },
     { id: 2, name: 'Danh mục', icon: 'category', color: '#22c55e', route: ROUTES.CATEGORY.INDEX },
-    { id: 3, name: 'Free Ship', icon: 'shipping', color: '#3b82f6' },
+    { id: 3, name: 'Coins', icon: 'cash', color: '#facc15', route: ROUTES.PROFILE.COINS },
     { id: 4, name: 'Vouchers', icon: 'ticket', color: '#fb923c', route: ROUTES.PROFILE.VOUCHERS },
-    { id: 5, name: 'Top Up', icon: 'smartphone', color: '#a855f7' },
-    { id: 6, name: 'Fashion', icon: 'shirt', color: '#f472b6' },
-    { id: 7, name: 'Coins', icon: 'cash', color: '#facc15', route: ROUTES.PROFILE.COINS },
+    { id: 5, name: 'Free Ship', icon: 'shipping', color: '#3b82f6' },
+    { id: 6, name: 'Top Up', icon: 'smartphone', color: '#a855f7' },
+    { id: 7, name: 'Fashion', icon: 'shirt', color: '#f472b6' },
     { id: 8, name: 'Global', icon: 'globe', color: '#2dd4bf', route: ROUTES.PROFILE.INTERNATIONAL_SHIPPING },
 ];
 
