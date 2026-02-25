@@ -272,7 +272,7 @@ export default function HomeScreen() {
 
     // Show skeletons if either loading OR not yet ready for heavy render (maintain jank-free transition)
     if (!isReady || (isLoading && products.length === 0)) {
-      for (let i = 0; i < 6; i++) {
+      for (let i = 0; i < 4; i++) {
         items.push({ type: 'skeleton', id: `skeleton-${i}` });
       }
     } else {
@@ -386,8 +386,8 @@ export default function HomeScreen() {
   /**
    * Navigate tới Product Detail
    */
-  const handleProductPress = useCallback((productId: string) => {
-    Navigator.push(productRoutes.detail(productId));
+  const handleProductPress = useCallback((productId: string, action?: 'buy-now' | 'add-to-cart') => {
+    Navigator.push(productRoutes.detail(productId, { action }));
   }, []);
 
   /**

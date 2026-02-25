@@ -160,6 +160,12 @@ export const PRODUCT_STRINGS: ProductTranslation = {
         legalNote: '* Giá cuối cùng có thể thay đổi tùy thuộc vào phí vận chuyển và các ưu đãi khác khi thanh toán.',
         afterVoucher: 'Giá sau voucher',
     },
+    // === Wishlist Notices in Card ===
+    wishlist: {
+        targetPrice: 'Mục tiêu',
+        setupTargetPrice: 'Cài giá săn (Ấn giữ)',
+        hasNotes: 'Có ghi chú',
+    }
 } as const;
 
 // Type-safe key extraction

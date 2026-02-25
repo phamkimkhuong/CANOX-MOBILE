@@ -199,7 +199,7 @@ export const EditWishlistItemSheet = forwardRef<
                 {/* Current Price Info */}
                 {data && (
                     <View style={styles.currentPriceRow}>
-                        <Text style={styles.currentPriceLabel}>Giá hiện tại:</Text>
+                        <Text style={styles.currentPriceLabel}>{t('editItem.currentPriceLabel')}</Text>
                         <Text style={styles.currentPriceValue}>
                             {formatCurrency(data.currentPrice)}
                         </Text>

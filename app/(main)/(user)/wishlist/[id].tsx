@@ -57,8 +57,7 @@ const DetailHeader: React.FC<{
     isPublic: boolean;
     onBack: () => void;
     onShare: () => void;
-    onEdit: () => void;
-}> = ({ title, isPublic, onBack, onShare, onEdit }) => {
+}> = ({ title, isPublic, onBack, onShare }) => {
     const { theme } = useUnistyles();
     const styles = headerStyles;
 
@@ -82,9 +81,6 @@ const DetailHeader: React.FC<{
             <View style={styles.actions}>
                 <Pressable style={styles.actionButton} onPress={onShare}>
                     <IconSymbol name="share" size={22} color={theme.colors.primary} />
-                </Pressable>
-                <Pressable style={styles.actionButton} onPress={onEdit}>
-                    <IconSymbol name="edit" size={22} color={theme.colors.typography} />
                 </Pressable>
             </View>
         </View>
@@ -300,10 +296,6 @@ export default function WishlistDetailScreen() {
         }
     }, [wishlist, t]);
 
-    const handleEdit = useCallback(() => {
-        // TODO: Open edit wishlist bottom sheet
-    }, []);
-
     const handleRefresh = useCallback(() => {
         refetch();
     }, [refetch]);
@@ -400,7 +392,6 @@ export default function WishlistDetailScreen() {
                     isPublic={false}
                     onBack={handleBack}
                     onShare={() => { }}
-                    onEdit={() => { }}
                 />
                 <WishlistItemListSkeleton count={5} />
             </View>
@@ -416,7 +407,6 @@ export default function WishlistDetailScreen() {
                     isPublic={false}
                     onBack={handleBack}
                     onShare={() => { }}
-                    onEdit={() => { }}
                 />
                 <View style={styles.errorContainer}>
                     <IconSymbol name="error" size={48} color={theme.colors.error} />
@@ -437,7 +427,6 @@ export default function WishlistDetailScreen() {
                 isPublic={wishlist.isPublic}
                 onBack={handleBack}
                 onShare={handleShare}
-                onEdit={handleEdit}
             />
 
             {/* Filter Pills */}

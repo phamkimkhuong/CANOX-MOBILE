@@ -17,11 +17,17 @@ export const ROUTES = {
     TABS: {
         HOME: '/(tabs)' as const,
         INDEX: '/(tabs)/' as const,
-        CATEGORY: '/(tabs)/category' as const,
+        WISHLIST: '/(tabs)/wishlist' as const,
         NOTIFY: '/(tabs)/notify' as const,
         ME: '/(tabs)/me' as const,
         CHAT: '/(main)/chat' as const,
     },
+
+    // ============ CATEGORY ============
+    CATEGORY: {
+        INDEX: '/(main)/category' as const,
+    },
+
 
     // ============ AUTH ============
     AUTH: {
@@ -87,7 +93,7 @@ export const ROUTES = {
 
     // ============ WISHLIST ============
     WISHLIST: {
-        INDEX: '/wishlist' as const,
+        INDEX: '/(tabs)/wishlist' as const,
     },
 
     // ============ SETTINGS ============
@@ -126,6 +132,7 @@ export const ROUTES = {
  */
 export type StaticRoute =
     | (typeof ROUTES.TABS)[keyof typeof ROUTES.TABS]
+    | (typeof ROUTES.CATEGORY)[keyof typeof ROUTES.CATEGORY]
     | (typeof ROUTES.AUTH)[keyof typeof ROUTES.AUTH]
     | (typeof ROUTES.CART)[keyof typeof ROUTES.CART]
     | (typeof ROUTES.CHECKOUT)[keyof typeof ROUTES.CHECKOUT]
@@ -134,6 +141,7 @@ export type StaticRoute =
     | (typeof ROUTES.PROFILE)[keyof typeof ROUTES.PROFILE]
     | (typeof ROUTES.ORDERS)[keyof typeof ROUTES.ORDERS]
     | (typeof ROUTES.USER)[keyof typeof ROUTES.USER]
+    | (typeof ROUTES.WISHLIST)[keyof typeof ROUTES.WISHLIST]
     | (typeof ROUTES.SETTINGS)[keyof typeof ROUTES.SETTINGS]
     | (typeof ROUTES.SEARCH)[keyof typeof ROUTES.SEARCH];
 
@@ -147,11 +155,12 @@ export type StaticRoute =
  * Product routes with dynamic ID
  */
 export const productRoutes = {
-    detail: (id: string, params?: { instantNav?: boolean }): Href => ({
+    detail: (id: string, params?: { instantNav?: boolean; action?: 'buy-now' | 'add-to-cart' }): Href => ({
         pathname: '/product/[id]',
         params: {
             id,
             ...(params?.instantNav && { instantNav: 'true' }),
+            ...(params?.action && { action: params.action }),
         },
     }),
 
@@ -427,6 +436,7 @@ export const href = <T extends StaticRoute>(route: T): Href => route as Href;
 export const isValidRoute = (route: string): route is StaticRoute => {
     const allRoutes = [
         ...Object.values(ROUTES.TABS),
+        ...Object.values(ROUTES.CATEGORY),
         ...Object.values(ROUTES.AUTH),
         ...Object.values(ROUTES.CART),
         ...Object.values(ROUTES.CHECKOUT),
@@ -435,6 +445,7 @@ export const isValidRoute = (route: string): route is StaticRoute => {
         ...Object.values(ROUTES.PROFILE),
         ...Object.values(ROUTES.ORDERS),
         ...Object.values(ROUTES.USER),
+        ...Object.values(ROUTES.WISHLIST),
         ...Object.values(ROUTES.SETTINGS),
         ...Object.values(ROUTES.SEARCH),
     ];

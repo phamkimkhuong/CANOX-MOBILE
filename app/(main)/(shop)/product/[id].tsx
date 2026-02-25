@@ -62,7 +62,7 @@ export default function ProductDetailScreen() {
     // Unlock navigation when screen gains focus (for faster subsequent navigations)
     useNavigationUnlockOnFocus();
 
-    const { id, instantNav } = useLocalSearchParams<{ id: string; instantNav?: string }>();
+    const { id, instantNav, action } = useLocalSearchParams<{ id: string; instantNav?: string; action?: 'buy-now' | 'add-to-cart' }>();
 
     const { theme } = useUnistyles();
     const { t } = useTranslation(['product', 'chat', 'common']);
@@ -140,6 +140,31 @@ export default function ProductDetailScreen() {
 
     // Minimum skeleton duration for instant nav (prevents flash)
     const [minSkeletonComplete, setMinSkeletonComplete] = React.useState(!isInstantNav);
+
+    // Auto-open action sheet if action is present in params
+    const hasHandledActionRef = React.useRef(false);
+
+    React.useEffect(() => {
+        if (product && action && !hasHandledActionRef.current && isTransitionFinished) {
+            hasHandledActionRef.current = true;
+            if (!isAuthenticated) {
+                Toast.show({
+                    type: 'info',
+                    text1: t('product:error.authRequiredTitle'),
+                    text2: action === 'add-to-cart'
+                        ? t('product:error.authRequiredCart')
+                        : t('product:error.authRequiredBuyNow'),
+                });
+                Navigator.push(ROUTES.AUTH.LOGIN);
+                return;
+            }
+            // Delay slightly to ensure smooth render
+            setTimeout(() => {
+                setVariantSheetMode(action);
+                setVariantSheetVisible(true);
+            }, 100);
+        }
+    }, [product, action, isTransitionFinished, isAuthenticated, t]);
 
     React.useEffect(() => {
         const timer = setTimeout(() => setMinSkeletonComplete(true), MINIMUM_SKELETON_DURATION_MS);
@@ -503,6 +528,7 @@ export default function ProductDetailScreen() {
                         location={item.data.location}
                         discount={item.data.discountPercentage}
                         isMall={item.data.isMall}
+                        isInternational={item.data.isInternational}
                         onPress={() => Navigator.push(productRoutes.detail(item.data.id))}
                         route={productRoutes.detail(item.data.id)}
                     />
@@ -667,7 +693,7 @@ export default function ProductDetailScreen() {
                 onBuyNowPress={handleBuyNow}
             />
 
-            {product && product.hasVariants && (
+            {product && (
                 <VariantBottomSheet
                     visible={variantSheetVisible}
                     onClose={handleCloseVariantSheet}

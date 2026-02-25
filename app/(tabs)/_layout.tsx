@@ -76,12 +76,13 @@ export default function TabLayout() {
           tabPress: handleHomeTabPress,
         }}
       />
-      {/* 2. Danh mục/Category ( app/(tabs)/category.tsx) */}
+      {/* 2. Yêu thích/Wishlist ( app/(tabs)/wishlist.tsx) */}
       <Tabs.Screen
-        name="category"
+        name="wishlist"
         options={{
-          title: t('bottomTab.category'),
-          tabBarIcon: ({ color }) => <TabBarIcon name="category" color={color} />,
+          // Use 'Yêu thích' until translations are added
+          title: t('bottomTab.wishlist', 'Yêu thích'),
+          tabBarIcon: ({ color }) => <TabBarIcon name="favorite" color={color} />,
           headerShown: false,
         }}
       />

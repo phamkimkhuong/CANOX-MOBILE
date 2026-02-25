@@ -8,6 +8,7 @@ import { SkeletonBox, useShimmerAnimation } from '@/components/ui/feedback/Skele
 import { IconSymbol } from '@/components/ui/Icon';
 import type { WishlistCardUI } from '@/types/wishlist';
 import React, { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -26,6 +27,7 @@ export const WishlistCollectionChips: React.FC<WishlistCollectionChipsProps> = (
     onCreate,
     isLoading,
 }) => {
+    const { t } = useTranslation('wishlist');
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const shimmerStyle = useShimmerAnimation(!!isLoading);
@@ -106,7 +108,7 @@ export const WishlistCollectionChips: React.FC<WishlistCollectionChipsProps> = (
                         onPress={onCreate}
                     >
                         <IconSymbol name="add" size={16} color={theme.colors.newPrimary} />
-                        <Text style={styles.createText}>Tạo mới</Text>
+                        <Text style={styles.createText}>{t('create.newButton')}</Text>
                     </Pressable>
                 </>
             )}

@@ -118,7 +118,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         flexDirection: 'row',
     },
     sidebar: {
-        width: 96, // Fixed width như HTML design
+        width: 96,
         backgroundColor: theme.colors.background,
     },
     content: {

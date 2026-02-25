@@ -43,7 +43,6 @@ import { useRemoveWishlistItem } from '@/hooks/api/wishlist/useRemoveWishlistIte
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import type { WishlistItemUI } from '@/types/wishlist';
 import { Alert as CustomAlert } from '@/utils/AlertHelper';
-import { Navigator } from '@/utils/navigation';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -54,7 +53,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
-import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 // ============================================
 // PENDING REMOVAL STATE
@@ -66,89 +65,10 @@ interface PendingRemoval {
 }
 
 // ============================================
-// HEADER COMPONENT
-// ============================================
-
-const WishlistHeader: React.FC<{
-    onBack: () => void;
-    onCreate: () => void;
-    totalItems: number;
-}> = ({ onBack, onCreate, totalItems }) => {
-    const { theme } = useUnistyles();
-    const { t } = useTranslation('wishlist');
-    const styles = headerStyles;
-
-    return (
-        <View style={styles.container}>
-            <Pressable style={styles.backButton} onPress={onBack} hitSlop={8}>
-                <IconSymbol name="back" size={24} color={theme.colors.typography} />
-            </Pressable>
-
-            <View style={styles.titleContainer}>
-                <Text style={styles.title}>{t('title')}</Text>
-                {totalItems > 0 && (
-                    <Text style={styles.subtitle}>
-                        {totalItems} {t('productCount')}
-                    </Text>
-                )}
-            </View>
-
-            <Pressable style={styles.createButton} onPress={onCreate} hitSlop={8}>
-                <View style={styles.createIcon}>
-                    <IconSymbol name="add" size={20} color={theme.colors.newPrimary} />
-                </View>
-            </Pressable>
-        </View>
-    );
-};
-
-const headerStyles = StyleSheet.create((theme) => ({
-    container: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingTop: UnistylesRuntime.insets.top + 4,
-        paddingBottom: 8,
-        paddingHorizontal: theme.margins.md,
-        backgroundColor: theme.colors.surface,
-    },
-    backButton: {
-        padding: theme.margins.sm,
-        marginLeft: -theme.margins.sm,
-    },
-    titleContainer: {
-        flex: 1,
-        marginLeft: theme.margins.sm,
-    },
-    title: {
-        fontSize: 20,
-        fontWeight: '700',
-        color: theme.colors.typography,
-        letterSpacing: -0.3,
-    },
-    subtitle: {
-        fontSize: 12,
-        color: theme.colors.typographySecondary,
-        marginTop: 1,
-    },
-    createButton: {
-        padding: theme.margins.sm,
-        marginRight: -theme.margins.sm,
-    },
-    createIcon: {
-        width: 32,
-        height: 32,
-        borderRadius: 16,
-        backgroundColor: theme.colors.activeLight,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-}));
-
-// ============================================
 // MAIN SCREEN
 // ============================================
 
-export default function WishlistHubScreen() {
+export const PrivateWishlistTab = () => {
     useNavigationUnlockOnFocus();
 
     const styles = stylesheet;
@@ -249,9 +169,7 @@ export default function WishlistHubScreen() {
 
     // ---- HANDLERS ----
 
-    const handleBack = useCallback(() => {
-        Navigator.back();
-    }, []);
+    // Removed handleBack since its handled by the main screen
 
     const handleCreate = useCallback(() => {
         if (wishlists.length >= 5) {
@@ -549,14 +467,7 @@ export default function WishlistHubScreen() {
     ]);
 
     return (
-        <View style={[styles.container, { paddingBottom: bottom }]}>
-            {/* Header */}
-            <WishlistHeader
-                onBack={handleBack}
-                onCreate={handleCreate}
-                totalItems={adjustedTotalItems}
-            />
-
+        <View style={styles.container}>
             {/* Product Grid (includes chips as header) */}
             <WishlistProductGrid
                 items={displayItems}
@@ -615,6 +526,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     container: {
         flex: 1,
         backgroundColor: theme.colors.background,
+        paddingTop: theme.margins.md,
     },
     infoBar: {
         flexDirection: 'row',

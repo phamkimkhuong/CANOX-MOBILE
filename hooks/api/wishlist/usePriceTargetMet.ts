@@ -18,8 +18,14 @@ import { wishlistKeys } from './useWishlists';
 // TYPES
 // ============================================
 
-export interface PriceTargetMetUI {
+export interface PriceTargetGroupUI {
+    wishlistId: string;
+    wishlistName: string;
     items: WishlistItemUI[];
+}
+
+export interface PriceTargetMetUI {
+    groups: PriceTargetGroupUI[];
     totalItems: number;
     totalWishlists: number;
 }
@@ -45,12 +51,6 @@ const fetchPriceTargetMet = async (): Promise<PriceTargetMetDTO> => {
  * Hook to fetch items that reached desired price
  * 
  * Used in "Săn giá" tab to show price alerts
- * 
- * @example
- * const { data, isLoading } = usePriceTargetMet();
- * if (data.totalItems > 0) {
- *   // Show notification badge
- * }
  */
 export const usePriceTargetMet = () => {
     return useQuery({
@@ -59,13 +59,14 @@ export const usePriceTargetMet = () => {
         staleTime: 1000 * 60 * 5, // 5 minutes
         refetchInterval: 1000 * 60 * 15, // Refetch every 15 minutes for price updates
         select: (data): PriceTargetMetUI => {
-            // Flatten all items from all wishlists
-            const allItems = data.wishlists.flatMap(wishlist =>
-                wishlist.items.filter(item => item.isPriceTargetMet)
-            );
+            const mappedGroups = data.wishlists.filter(w => w.items.some(i => i.isPriceTargetMet)).map(wishlist => ({
+                wishlistId: wishlist.id,
+                wishlistName: wishlist.name,
+                items: wishlist.items.filter(item => item.isPriceTargetMet).map(adaptWishlistItem)
+            }));
 
             return {
-                items: allItems.map(adaptWishlistItem),
+                groups: mappedGroups,
                 totalItems: data.totalItems,
                 totalWishlists: data.totalWishlists,
             };

@@ -6,6 +6,11 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
     targetPriceMet: 'Target reached!',
     targetPriceGoal: 'Goal: {{price}}',
     isPublic: 'Public',
+    tabs: {
+        priceTarget: 'Price Alert',
+        private: 'Personal',
+        public: 'Discover',
+    },
     empty: {
         title: 'No items yet',
         subtitle: 'Discover and add your favorite items to this collection!',
@@ -46,6 +51,7 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
         submit: 'Create',
         creating: 'Creating...',
         success: 'Created collection "{{name}}"',
+        newButton: 'Create new',
     },
     manage: {
         rename: 'Rename',
@@ -66,6 +72,7 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
     },
     editItem: {
         title: 'Edit Preferences',
+        currentPriceLabel: 'Current Price:',
         desiredPriceLabel: 'Desired Price',
         desiredPricePlaceholder: 'Enter your target price...',
         notesLabel: 'Personal Note',
@@ -78,5 +85,18 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
         cancel: 'Cancel',
         success: 'Updated successfully',
         clearPrice: 'Clear target price',
+    },
+    publicTab: {
+        searchPlaceholder: 'Search collections (e.g., electronics)...',
+        emptySearch: 'No collections found.',
+        popularTitle: 'Popular Collections',
+        latestTitle: 'Latest',
+    },
+    priceTargetTab: {
+        emptyTitle: 'Still waiting!',
+        emptySubtitle: 'No matching deals today. Keep hunting for your target price!',
+        manageButton: 'Manage Collections',
+        successMessage: 'Congratulations! {{totalItems}} items have reached your target price!',
+        deepDiscountBadge: 'DEEP DISCT',
     },
 };

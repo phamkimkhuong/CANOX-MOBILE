@@ -15,7 +15,7 @@ import {
     useUserProfile,
     useWalletBalance,
 } from '@/hooks/api/profile/useProfile';
-import { useWishlists } from '@/hooks/api/profile/useWishlists';
+// import { useWishlists } from '@/hooks/api/profile/useWishlists';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Navigator } from '@/utils/navigation';
@@ -60,17 +60,18 @@ export default function MeScreen() {
         data: loyaltyOverview,
     } = useLoyaltyOverview();
 
-    const {
-        data: wishlistData,
-    } = useWishlists();
+    // Wishlist tab replaces this, we don't need to fetch
+    // const {
+    //     data: wishlistData,
+    // } = useWishlists();
 
     // Total items across all wishlists
-    const favoriteCount = useMemo(() => {
-        return wishlistData?.items?.reduce(
-            (sum, wishlist) => sum + wishlist.itemCount,
-            0
-        ) ?? 0;
-    }, [wishlistData]);
+    // const favoriteCount = useMemo(() => {
+    //     return wishlistData?.items?.reduce(
+    //         (sum, wishlist) => sum + wishlist.itemCount,
+    //         0
+    //     ) ?? 0;
+    // }, [wishlistData]);
 
     // TODO: Enable when BE has follow shop API
     // const {
@@ -167,7 +168,7 @@ export default function MeScreen() {
                     coinsBalance={loyaltyOverview?.totalPoints ?? 0}
                     voucherCount={walletBalance?.vouchers ?? 0}
                     reviewCount={orderStats?.review ?? 0}
-                    favoriteCount={favoriteCount}
+                    favoriteCount={0} // Passed 0 since it is commented out but might be required by component types
                     isLoading={isLoadingWallet}
                 />
 

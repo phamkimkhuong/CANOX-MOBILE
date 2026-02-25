@@ -124,6 +124,11 @@ export interface ProductTranslation {
         legalNote: string;
         afterVoucher: string;
     };
+    wishlist: {
+        targetPrice: string;
+        setupTargetPrice: string;
+        hasNotes: string;
+    };
 }
 
 /**
@@ -1528,6 +1533,11 @@ export interface WishlistTranslation {
     targetPriceMet: string;
     targetPriceGoal: string;
     isPublic: string;
+    tabs: {
+        priceTarget: string;
+        private: string;
+        public: string;
+    };
     empty: {
         title: string;
         subtitle: string;
@@ -1568,6 +1578,7 @@ export interface WishlistTranslation {
         submit: string;
         creating: string;
         success: string;
+        newButton: string;
     };
     manage: {
         rename: string;
@@ -1588,6 +1599,7 @@ export interface WishlistTranslation {
     };
     editItem: {
         title: string;
+        currentPriceLabel: string;
         desiredPriceLabel: string;
         desiredPricePlaceholder: string;
         notesLabel: string;
@@ -1600,6 +1612,19 @@ export interface WishlistTranslation {
         cancel: string;
         success: string;
         clearPrice: string;
+    };
+    publicTab: {
+        searchPlaceholder: string;
+        emptySearch: string;
+        popularTitle: string;
+        latestTitle: string;
+    };
+    priceTargetTab: {
+        emptyTitle: string;
+        emptySubtitle: string;
+        manageButton: string;
+        successMessage: string;
+        deepDiscountBadge: string;
     };
 }
 

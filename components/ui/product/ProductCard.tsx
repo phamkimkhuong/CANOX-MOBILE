@@ -44,6 +44,8 @@ interface ProductCardProps {
     onMorePress?: (variantId: string) => void;
     /** Called on long press (e.g. to open edit sheet in wishlist) */
     onLongPress?: () => void;
+    /** If true and targetPrice is not set, a prompt to set it up will be shown */
+    showSetupTargetPrice?: boolean;
 }
 
 export const ProductCard = React.memo(({
@@ -74,6 +76,7 @@ export const ProductCard = React.memo(({
     priority,
     hasNotes,
     onLongPress,
+    showSetupTargetPrice,
 }: ProductCardProps) => {
     const { t } = useTranslation(['product']);
     const { theme } = useUnistyles();
@@ -174,15 +177,20 @@ export const ProductCard = React.memo(({
                             </View>
 
                             {/* Target Price Row */}
-                            {targetPrice && (
+                            {targetPrice ? (
                                 <View style={styles.targetPriceRow}>
                                     <IconSymbol name="flag" size={11} color={theme.colors.accent} />
                                     <Text style={styles.targetPriceLabel}>
-                                        {targetPriceLabel ?? 'Mục tiêu'}:
+                                        {targetPriceLabel ?? t('wishlist.targetPrice')}:
                                     </Text>
                                     <Text style={styles.targetPriceValue}>{targetPrice}</Text>
                                 </View>
-                            )}
+                            ) : showSetupTargetPrice ? (
+                                <View style={styles.setupTargetPriceRow}>
+                                    <IconSymbol name="notifications-outline" size={11} color={theme.colors.newPrimary} />
+                                    <Text style={styles.setupTargetPriceText}>{t('wishlist.setupTargetPrice')}</Text>
+                                </View>
+                            ) : null}
 
                             {/* Badge (e.g. "Đã giảm giá!") */}
                             {badgeText && (
@@ -213,7 +221,7 @@ export const ProductCard = React.memo(({
                             {hasNotes && (
                                 <View style={styles.noteIndicator}>
                                     <IconSymbol name="note" size={10} color={theme.colors.typographySecondary} />
-                                    <Text style={styles.noteIndicatorText}>Có ghi chú</Text>
+                                    <Text style={styles.noteIndicatorText}>{t('wishlist.hasNotes')}</Text>
                                 </View>
                             )}
                         </View>
@@ -372,6 +380,25 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: 11,
         fontWeight: '600',
         color: theme.colors.accent,
+    },
+    setupTargetPriceRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        marginTop: 4,
+        paddingVertical: 2.5,
+        paddingHorizontal: 6,
+        backgroundColor: theme.colors.errorSoft,
+        borderRadius: 6,
+        alignSelf: 'flex-start',
+        borderWidth: 1,
+        borderColor: theme.colors.errorLight,
+        borderStyle: 'dashed',
+    },
+    setupTargetPriceText: {
+        fontSize: 10,
+        fontWeight: '600',
+        color: theme.colors.newPrimary,
     },
     infoBadge: {
         alignSelf: 'flex-start',

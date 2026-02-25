@@ -54,7 +54,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 type ListItemType =
-    | { type: 'controls'; id: string }
     | { type: 'emptyHeader'; id: string; keyword: string }
     | { type: 'product'; data: SearchProductUI };
 
@@ -243,9 +242,7 @@ export default function SearchResultsScreen() {
     // ========================================
 
     const listData = useMemo((): ListItemType[] => {
-        const items: ListItemType[] = [
-            { type: 'controls', id: 'controls' },
-        ];
+        const items: ListItemType[] = [];
 
         // If empty, show recommendation header + recommended products
         if (isEmpty && recommendedProducts.length > 0) {
@@ -267,18 +264,6 @@ export default function SearchResultsScreen() {
     // ========================================
 
     const renderItem = useCallback(({ item }: ListRenderItemInfo<ListItemType>) => {
-        if (item.type === 'controls') {
-            return (
-                <View style={styles.controlsWrapper}>
-                    <SortBar currentSort={sortBy} onSortChange={handleSortChange} />
-                    <QuickFilters
-                        activeFilters={quickFilters}
-                        onFilterToggle={handleQuickFilterToggle}
-                    />
-                </View>
-            );
-        }
-
         if (item.type === 'emptyHeader') {
             return (
                 <View style={styles.emptyHeader}>
@@ -307,7 +292,6 @@ export default function SearchResultsScreen() {
     }, [isFetchingNextPage, theme.colors.buttonActive]);
 
     const keyExtractor = useCallback((item: ListItemType) => {
-        if (item.type === 'controls') return item.id;
         if (item.type === 'emptyHeader') return item.id;
         return item.data.id;
     }, []);
@@ -321,7 +305,7 @@ export default function SearchResultsScreen() {
         layout: { span?: number; size?: number },
         item: ListItemType,
     ) => {
-        if (item.type === 'controls' || item.type === 'emptyHeader') {
+        if (item.type === 'emptyHeader') {
             layout.span = 2;
         }
     }, []);

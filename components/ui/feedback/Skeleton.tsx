@@ -10,7 +10,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface SkeletonBoxProps {
     width: number | `${number}%`;
-    height: number;
+    height: number | undefined;
     borderRadius?: number;
     style?: ViewStyle;
     animatedStyle?: StyleProp<ViewStyle>;

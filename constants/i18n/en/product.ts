@@ -144,4 +144,10 @@ export const PRODUCT_STRINGS: ProductTranslation = {
         legalNote: '* Final price may vary depending on shipping fees and other offers at checkout.',
         afterVoucher: 'Price after voucher',
     },
+    // === Wishlist Notices in Card ===
+    wishlist: {
+        targetPrice: 'Target Price',
+        setupTargetPrice: 'Set a Target Price (Hold)',
+        hasNotes: 'Has Notes',
+    }
 };

@@ -49,7 +49,7 @@ export const useToggleFavorite = () => {
                 }
             }
         },
-        onError: (err, { variantId }, context) => {
+        onError: (err, { variantId }) => {
             // Revert to the ORIGINAL state before the click storm
             const rollbackState = previousStates.current[variantId];
             if (rollbackState !== undefined) {
@@ -92,7 +92,7 @@ export const useToggleFavorite = () => {
      * - Immediate UI update
      * - Debounced network request
      */
-    const toggleDebounced = ({ variantId, isCurrentlyLiked }: { variantId: string, isCurrentlyLiked: boolean }) => {
+    const toggleDebounced = ({ variantId, isCurrentlyLiked: _isCurrentlyLiked }: { variantId: string, isCurrentlyLiked: boolean }) => {
         // Here we read the LIVE fresh state manually in case the parent passed a stale `isCurrentlyLiked` during rapid clicks
         const currentState = !!useWishlistStore.getState().favoritesMap[variantId];
         const targetState = !currentState;

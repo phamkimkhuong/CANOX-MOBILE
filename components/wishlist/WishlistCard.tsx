@@ -189,7 +189,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     itemCount: {
         fontSize: 12,
-        color: theme.colors.primary,
+        color: theme.colors.newPrimary,
         fontWeight: '500',
     },
     dot: {

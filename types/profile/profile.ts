@@ -208,16 +208,17 @@ export const QUICK_STATS_CONFIG: QuickStatCard[] = [];
  * Service menu items
  */
 export const SERVICE_MENU_CONFIG: ProfileMenuItem[] = [
-    {
-        id: 'favorites',
-        key: 'favorites',
-        icon: 'heart',
-        label: 'Yêu thích',
-        route: ROUTES.WISHLIST.INDEX,
-        iconBgColor: 'rgba(244, 63, 94, 0.1)',
-        backgroundColor: 'rgba(244, 63, 94, 0.1)',
-        iconColor: '#f43f5e',
-    },
+    // TODO: Wishlist tab replaces this
+    // {
+    //     id: 'favorites',
+    //     key: 'favorites',
+    //     icon: 'heart',
+    //     label: 'Yêu thích',
+    //     route: ROUTES.WISHLIST.INDEX,
+    //     iconBgColor: 'rgba(244, 63, 94, 0.1)',
+    //     backgroundColor: 'rgba(244, 63, 94, 0.1)',
+    //     iconColor: '#f43f5e',
+    // },
     {
         id: 'coins',
         key: 'coins',

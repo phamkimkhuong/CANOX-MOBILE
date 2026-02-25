@@ -6,6 +6,11 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
     targetPriceMet: 'Đã đạt giá!',
     targetPriceGoal: 'Mục tiêu: {{price}}',
     isPublic: 'Công khai',
+    tabs: {
+        priceTarget: 'Săn giá',
+        private: 'Của bạn',
+        public: 'Khám phá',
+    },
     empty: {
         title: 'Chưa có sản phẩm nào',
         subtitle: 'Khám phá và thêm sản phẩm yêu thích vào bộ sưu tập này!',
@@ -46,6 +51,7 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
         submit: 'Tạo mới',
         creating: 'Đang tạo...',
         success: 'Đã tạo bộ sưu tập "{{name}}"',
+        newButton: 'Tạo mới',
     },
     manage: {
         rename: 'Đổi tên',
@@ -66,6 +72,7 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
     },
     editItem: {
         title: 'Chỉnh sửa mong muốn',
+        currentPriceLabel: 'Giá hiện tại:',
         desiredPriceLabel: 'Giá mong muốn',
         desiredPricePlaceholder: 'Nhập giá bạn muốn mua...',
         notesLabel: 'Ghi chú cá nhân',
@@ -78,5 +85,18 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
         cancel: 'Huỷ',
         success: 'Đã cập nhật thành công',
         clearPrice: 'Xoá giá mục tiêu',
+    },
+    publicTab: {
+        searchPlaceholder: 'Tìm kiếm bộ sưu tập (vd: đồ điện tử)...',
+        emptySearch: 'Không tìm thấy bộ sưu tập nào.',
+        popularTitle: 'Bộ sưu tập phổ biến',
+        latestTitle: 'Mới nhất',
+    },
+    priceTargetTab: {
+        emptyTitle: 'Lưới tình vẫn đang chờ!',
+        emptySubtitle: 'Chưa có deal nào rớt xuống mức giá bạn mong muốn hôm nay. Hãy tiếp tục săn nhé!',
+        manageButton: 'Quản lý bộ sưu tập',
+        successMessage: 'Chúc mừng! Có {{totalItems}} sản phẩm đã về đúng giá bạn mơ ước!',
+        deepDiscountBadge: 'GIẢM SÂU',
     },
 };

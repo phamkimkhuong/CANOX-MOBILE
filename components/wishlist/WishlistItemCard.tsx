@@ -102,13 +102,11 @@ export const WishlistItemCard: React.FC<WishlistItemCardProps> = ({
         <Animated.View
             entering={FadeIn.duration(300)}
             exiting={FadeOut.duration(200)}
-            style={[
-                isPendingRemoval && styles.pendingRemoval,
-            ]}
         >
             <Pressable
                 style={({ pressed }) => [
                     styles.container,
+                    isPendingRemoval && styles.pendingRemoval,
                     pressed && styles.pressed,
                 ]}
                 onPress={handlePress}

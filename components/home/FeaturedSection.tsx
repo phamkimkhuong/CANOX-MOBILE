@@ -62,7 +62,7 @@ const getDiscountBadge = (item: ProductFeedItem): string | null => {
  * - products.slice(1, 4) → Small Products (3 sản phẩm nhỏ)
  */
 interface FeaturedSectionProps {
-    onProductPress?: (productId: string) => void;
+    onProductPress?: (productId: string, action?: 'buy-now' | 'add-to-cart') => void;
 }
 
 export const FeaturedSection = memo(({ onProductPress }: FeaturedSectionProps = {}) => {
@@ -180,7 +180,10 @@ export const FeaturedSection = memo(({ onProductPress }: FeaturedSectionProps = 
                                     Đã bán {formatSoldCount(mainProduct.sold)}
                                 </Text>
                             )}
-                            <TouchableOpacity style={styles.buyNowBtn}>
+                            <TouchableOpacity
+                                style={styles.buyNowBtn}
+                                onPress={() => onProductPress?.(mainProduct.id, 'buy-now')}
+                            >
                                 <Text style={styles.buyNowText}>{t('product:variant.buyNow')}</Text>
                             </TouchableOpacity>
                         </View>

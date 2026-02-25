@@ -133,6 +133,7 @@ export const WishlistProductGrid: React.FC<WishlistProductGridProps> = ({
                     favoriteAlwaysFilled
                     priority={item.priority}
                     hasNotes={hasNotes}
+                    showSetupTargetPrice={!item.formattedDesiredPrice}
                 />
             </View>
         );

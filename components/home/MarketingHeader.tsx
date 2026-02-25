@@ -17,7 +17,7 @@ interface MarketingHeaderProps {
     /**
      * Callback khi user tap vào sản phẩm
      */
-    onProductPress?: (productId: string) => void;
+    onProductPress?: (productId: string, action?: 'buy-now' | 'add-to-cart') => void;
 }
 
 /**
