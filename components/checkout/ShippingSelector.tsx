@@ -279,20 +279,24 @@ const stylesheet = StyleSheet.create((theme) => ({
 
     methodRow: {
         flexDirection: 'row',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         justifyContent: 'space-between',
+        flexWrap: 'wrap',
     },
 
     methodName: {
         fontSize: 14,
         fontWeight: '500',
         color: theme.colors.typography,
+        flexShrink: 1,
+        marginRight: theme.margins.xs,
     },
 
     price: {
         fontSize: 14,
         fontWeight: '600',
         color: theme.colors.error,
+        marginLeft: 'auto',
     },
 
     description: {

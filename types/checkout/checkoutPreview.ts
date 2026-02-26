@@ -89,19 +89,23 @@ export interface CheckoutShippingOptionDTO {
 
 /** Voucher detail từ API */
 export interface CheckoutVoucherDetailDTO {
-    voucherCode?: string | null;
-    voucherType?: string | null;
-    discountAmount?: number | null;
-    discountMethod?: string | null;
-    discountTarget?: string | null;
+    code?: string | null;
+    name?: string | null;
+    target?: string | null;
+    type?: string | null;
+    method?: string | null;
+    discountValue?: number | null;
+    maxDiscount?: number | null;
+    minOrderAmount?: number | null;
+    discount?: number | null;
     reason?: string | null;
-    valid?: boolean | null;
 }
 
 /** Voucher result từ API */
 export interface CheckoutVoucherResultDTO {
-    shopId?: string | null;
-    discountDetails?: CheckoutVoucherDetailDTO[] | null;
+    input?: string[] | null;
+    valid?: CheckoutVoucherDetailDTO[] | null;
+    invalid?: CheckoutVoucherDetailDTO[] | null;
 }
 
 /** Loyalty info từ API */
@@ -118,7 +122,6 @@ export interface CheckoutLoyaltyInfoDTO {
 
 /** Shop summary từ API - sẽ được transform sang ShopSubtotal */
 export interface CheckoutShopSummaryDTO {
-    itemCount?: number | null;
     subtotal?: number | null;
     productDiscount?: number | null;
     shippingDiscount?: number | null;
@@ -233,18 +236,22 @@ const CheckoutShippingOptionSchema = z.object({
 }));
 
 const CheckoutVoucherDetailSchema = z.object({
-    voucherCode: z.string().nullish().transform(val => val ?? ''),
-    voucherType: z.string().nullish().transform(val => val ?? ''),
-    discountAmount: z.coerce.number().nullish().transform(val => val ?? 0),
-    discountMethod: z.string().nullish().transform(val => val ?? 'FIXED_AMOUNT'),
-    discountTarget: z.string().nullish().transform(val => val ?? ''),
+    code: z.string().nullish().transform(val => val ?? ''),
+    name: z.string().nullish().transform(val => val ?? ''),
+    target: z.string().nullish().transform(val => val ?? ''),
+    type: z.string().nullish().transform(val => val ?? ''),
+    method: z.string().nullish().transform(val => val ?? 'FIXED_AMOUNT'),
+    discountValue: z.coerce.number().nullish().transform(val => val ?? 0),
+    maxDiscount: z.coerce.number().nullish().transform(val => val ?? 0),
+    minOrderAmount: z.coerce.number().nullish().transform(val => val ?? 0),
+    discount: z.coerce.number().nullish().transform(val => val ?? 0),
     reason: z.string().nullish().transform(val => val ?? ''),
-    valid: z.boolean().nullish().transform(val => val ?? false),
 });
 
 const CheckoutVoucherResultSchema = z.object({
-    shopId: z.string().nullish(),
-    discountDetails: z.array(CheckoutVoucherDetailSchema).nullish().transform(val => val ?? []),
+    input: z.array(z.string()).nullish(),
+    valid: z.array(CheckoutVoucherDetailSchema).nullish().transform(val => val ?? []),
+    invalid: z.array(CheckoutVoucherDetailSchema).nullish().transform(val => val ?? []),
 });
 
 const CheckoutLoyaltyInfoSchema = z.object({

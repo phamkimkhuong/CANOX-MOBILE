@@ -50,9 +50,7 @@ export const useRecommendPlatformVouchers = (
 
             logger.api.info('Fetched recommended platform vouchers:', response.data);
 
-            if (!response.success) {
-                // If the API fails but returns success: false, we'll return an empty list
-                // rather than throwing an error to keep the checkout experience smooth.
+            if (!response.success || !response.data) {
                 logger.api.error('Failed to fetch platform vouchers:', response.message);
                 return [];
             }

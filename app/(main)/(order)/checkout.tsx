@@ -170,12 +170,48 @@ export default function CheckoutScreen() {
     }, [calculationData]);
 
     const platformVoucherWarning = useMemo(() => {
+        if (selectedPlatformDiscountVoucher || selectedPlatformShippingVoucher) {
+            for (const shop of shops) {
+                const invalidSelected = shop.availableVouchers.find(
+                    (v) => !v.isApplicable &&
+                        (v.code === selectedPlatformDiscountVoucher || v.code === selectedPlatformShippingVoucher)
+                );
+                if (invalidSelected && invalidSelected.description) {
+                    return invalidSelected.description;
+                }
+            }
+        }
+
+        if (calculation.platformVoucherValidation && !calculation.platformVoucherValidation.isValid) {
+            return calculation.platformVoucherValidation.invalidReason ?? 'Mã giảm giá sàn không hợp lệ cho đơn hàng này';
+        }
+
         const voucherWarning = warnings.find(
             (w) => w.toLowerCase().includes('voucher') || w.toLowerCase().includes('mã giảm')
         );
         return voucherWarning ?? null;
-    }, [warnings]);
+    }, [warnings, calculation.platformVoucherValidation, shops, selectedPlatformDiscountVoucher, selectedPlatformShippingVoucher]);
+
     const isPlatformVoucherValid = platformVoucherWarning === null;
+
+    // Toast error when platform voucher becomes invalid
+    const lastToastRef = useRef<string | null>(null);
+    useEffect(() => {
+        if (platformVoucherWarning) {
+            if (lastToastRef.current !== platformVoucherWarning) {
+                Toast.show({
+                    type: 'error',
+                    text1: 'CanoX Voucher',
+                    text2: platformVoucherWarning,
+                    position: 'bottom',
+                    visibilityTime: 4000,
+                });
+                lastToastRef.current = platformVoucherWarning;
+            }
+        } else {
+            lastToastRef.current = null;
+        }
+    }, [platformVoucherWarning]);
 
     // Address from Global Store
     const selectedAddressId = useUserAddressStore((s) => s.selectedAddressId);
@@ -335,13 +371,20 @@ export default function CheckoutScreen() {
                 const voucherCode = selectedShopVouchers.get(shop.shopId);
                 const userShippingCode = selectedShipping.get(shop.shopId);
 
+                // Lấy server default ID (với Fallback nếu user chưa chọn)
+                const currentPreviewOption = useCheckoutStore.getState().previewData?.shops.find(
+                    (s: CheckoutShopUI) => s.shopId === shop.shopId
+                )?.shippingOptions.selectedMethodId;
+
+                const finalShippingCode = userShippingCode || currentPreviewOption;
+
                 return {
                     shopId: shop.shopId,
                     items: shop.items,
                     vouchers: voucherCode ? [voucherCode] : undefined,
                     // Use distributed global vouchers inside each shop
                     globalVouchers: globalVouchersArray.length > 0 ? globalVouchersArray : undefined,
-                    serviceCode: userShippingCode ? Number(userShippingCode) : undefined,
+                    serviceCode: finalShippingCode ? Number(finalShippingCode) : undefined,
                     shippingFee: undefined,
                 };
             }),

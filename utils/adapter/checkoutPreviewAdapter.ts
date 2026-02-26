@@ -13,6 +13,7 @@ import type {
     ShippingMethod,
     ShopShippingOptions,
     ShopSubtotal,
+    VoucherValidationResult,
 } from '@/types/checkout';
 import type {
     CheckoutOrderSummaryDTO,
@@ -110,17 +111,17 @@ export const toShopShippingOptions = (
  * Transform voucher detail DTO to VoucherUI.
  * Used to show applied/invalid vouchers in UI.
  */
-export const toVoucherUI = (dto: CheckoutVoucherDetailDTO): VoucherUI => ({
-    id: dto.voucherCode ?? '',
-    code: dto.voucherCode ?? '',
-    title: dto.voucherType ?? '',  // "SHOP" or "PLATFORM"
+export const toVoucherUI = (dto: CheckoutVoucherDetailDTO, isValid: boolean): VoucherUI => ({
+    id: dto.code ?? '',
+    code: dto.code ?? '',
+    title: dto.type ?? '',  // "SHOP" or "PLATFORM"
     description: dto.reason ?? '',
-    discountDisplay: formatDiscountDisplay(dto.discountAmount ?? 0, dto.discountMethod ?? 'FIXED_AMOUNT'),
-    minOrderDisplay: '', // Not available in DTO
-    isApplicable: dto.valid ?? false,
+    discountDisplay: formatDiscountDisplay(dto.discount ?? 0, dto.method ?? 'FIXED_AMOUNT'),
+    minOrderDisplay: dto.minOrderAmount ? `Đơn tối thiểu ${formatCurrency(dto.minOrderAmount)}` : 'Mọi đơn hàng',
+    isApplicable: isValid,
     expiresAt: null,
     // Map discountTarget to category for UI filtering
-    category: dto.discountTarget === 'SHIP' ? 'SHIPPING' : 'DISCOUNT',
+    category: dto.target === 'SHIP' || dto.target === 'SHIPPING' ? 'SHIPPING' : 'DISCOUNT',
 });
 
 /**
@@ -181,7 +182,7 @@ export const transformVoucherDTOToUI = (
  * Format discount amount for display.
  */
 const formatDiscountDisplay = (amount: number, method: string): string => {
-    if (method === 'percentage') {
+    if (method === 'percentage' || method === 'PERCENTAGE') {
         const roundedPercent = Math.round(amount);
         return `Giảm\u00A0${roundedPercent}%`;
     }
@@ -202,13 +203,17 @@ export const toCheckoutShopUI = (dto: CheckoutPreviewShopDTO): CheckoutShopUI =>
         shopId: dto.shopId ?? '',
     }));
 
-    // Transform all vouchers from discountDetails (with null safety)
-    const discountDetails = dto.voucher?.discountDetails ?? [];
-    const allVouchers = discountDetails.map(toVoucherUI);
+    // Transform all vouchers from valid and invalid
+    const validVouchers = dto.voucher?.valid ?? [];
+    const invalidVouchers = dto.voucher?.invalid ?? [];
+    const allVouchers = [
+        ...validVouchers.map(v => toVoucherUI(v, true)),
+        ...invalidVouchers.map(v => toVoucherUI(v, false))
+    ];
 
     // Find first SHOP voucher code for appliedVoucherId
-    const firstShopVoucher = discountDetails.find(
-        (v: CheckoutVoucherDetailDTO) => v.voucherType === 'SHOP' && v.valid
+    const firstShopVoucher = validVouchers.find(
+        (v: CheckoutVoucherDetailDTO) => v.type === 'SHOP'
     );
 
     return {
@@ -221,7 +226,7 @@ export const toCheckoutShopUI = (dto: CheckoutPreviewShopDTO): CheckoutShopUI =>
             dto.shipping.options,
             dto.shipping.selectedMethodId
         ),
-        appliedVoucherId: firstShopVoucher?.voucherCode ?? null,
+        appliedVoucherId: firstShopVoucher?.code ?? null,
         availableVouchers: allVouchers,  // Contains both SHOP and PLATFORM for UI to filter
         note: '', // Not in API response, managed client-side
         loyaltyPoints: dto.loyaltyInfo?.pointsToRedeem ?? 0,
@@ -233,14 +238,14 @@ export const toCheckoutShopUI = (dto: CheckoutPreviewShopDTO): CheckoutShopUI =>
 // ============================================
 
 /**
- * Calculate shop voucher discount from voucherResult.discountDetails.
+ * Calculate shop voucher discount from voucherResult.valid.
  * Only sum SHOP type vouchers, not PLATFORM.
  */
 const calculateShopVoucherDiscount = (voucherResult?: CheckoutVoucherResultDTO | null): number => {
-    if (!voucherResult?.discountDetails) return 0;
-    return voucherResult.discountDetails
-        .filter((v: CheckoutVoucherDetailDTO) => v.voucherType === 'SHOP' && v.valid)
-        .reduce((sum, v) => sum + (v.discountAmount || 0), 0);
+    if (!voucherResult?.valid) return 0;
+    return voucherResult.valid
+        .filter((v: CheckoutVoucherDetailDTO) => v.type === 'SHOP')
+        .reduce((sum, v) => sum + (v.discount || 0), 0);
 };
 
 /**
@@ -249,16 +254,22 @@ const calculateShopVoucherDiscount = (voucherResult?: CheckoutVoucherResultDTO |
 export const toShopSubtotal = (
     shopId: string,
     dto: CheckoutShopSummaryDTO,
-    voucherResult?: CheckoutVoucherResultDTO | null
-): ShopSubtotal => ({
-    shopId,
-    itemsTotal: dto.subtotal ?? 0,
-    shippingFee: dto.shippingFee ?? 0,
-    // Use calculated shop voucher discount from voucherResult instead of productDiscount
-    shopVoucherDiscount: calculateShopVoucherDiscount(voucherResult),
-    shopTotal: dto.shopTotal ?? 0,
-    itemCount: dto.itemCount ?? 0,
-});
+    voucherResult?: CheckoutVoucherResultDTO | null,
+    items?: CheckoutPreviewItemDTO[]
+): ShopSubtotal => {
+    // Tự tính tổng số lượng món hàng từ danh sách items trả về
+    const itemCount = items?.reduce((sum, item) => sum + (item.quantity ?? 0), 0) ?? 0;
+
+    return {
+        shopId,
+        itemsTotal: dto.subtotal ?? 0,
+        shippingFee: dto.shippingFee ?? 0,
+        // Use calculated shop voucher discount from voucherResult instead of productDiscount
+        shopVoucherDiscount: calculateShopVoucherDiscount(voucherResult),
+        shopTotal: dto.shopTotal ?? 0,
+        itemCount,
+    };
+};
 
 /**
  * Transform order summary DTO to CheckoutCalculationResult.
@@ -276,23 +287,37 @@ export const toCheckoutCalculation = (
     );
     const platformVoucherDiscount = Math.max(0, (dto.discounts.voucherTotal ?? 0) - totalShopVoucherDiscount - (dto.discounts.voucherShipping ?? 0));
 
+    // Determine platform voucher validity
+    const invalidPlatform = shops.flatMap(s => s.voucher?.invalid || [])
+        .find(v => v.type === 'PLATFORM');
+
+    let platformVoucherValidation: VoucherValidationResult | null = null;
+    if (invalidPlatform) {
+        platformVoucherValidation = {
+            isValid: false,
+            invalidReason: invalidPlatform.reason || 'Voucher không hợp lệ cho đơn hàng này',
+            discountAmount: 0,
+            shouldAutoRemove: true,
+        };
+    }
+
     return {
         subtotal: dto.subtotal ?? 0,
         totalShippingFee: dto.totalShippingFee ?? 0,
         totalShopVoucherDiscount,
         platformVoucherDiscount,
         shippingDiscount: dto.discounts.voucherShipping ?? 0,
-        appliedPlatformVoucherId: shops.flatMap(s => s.voucher?.discountDetails || [])
-            .find(v => v.voucherType === 'PLATFORM' && v.discountTarget !== 'SHIP' && v.valid)?.voucherCode ?? null,
-        appliedShippingVoucherId: shops.flatMap(s => s.voucher?.discountDetails || [])
-            .find(v => v.voucherType === 'PLATFORM' && v.discountTarget === 'SHIP' && v.valid)?.voucherCode ?? null,
+        appliedPlatformVoucherId: shops.flatMap(s => s.voucher?.valid || [])
+            .find(v => v.type === 'PLATFORM' && v.target !== 'SHIP' && v.target !== 'SHIPPING')?.code ?? null,
+        appliedShippingVoucherId: shops.flatMap(s => s.voucher?.valid || [])
+            .find(v => v.type === 'PLATFORM' && (v.target === 'SHIP' || v.target === 'SHIPPING'))?.code ?? null,
         totalAmount: dto.grandTotal ?? 0,
         taxAmount: dto.totalTaxAmount ?? 0,
         totalSavings: dto.discounts.voucherTotal ?? 0,
         totalItemCount: dto.totalItems ?? 0,
-        shopSubtotals: shops.map((shop) => toShopSubtotal(shop.shopId ?? '', shop.pricing, shop.voucher)),
+        shopSubtotals: shops.map((shop) => toShopSubtotal(shop.shopId ?? '', shop.pricing, shop.voucher, shop.items)),
         isCalculatingShipping: false,
-        platformVoucherValidation: null,
+        platformVoucherValidation,
         loyaltyPoints: shops.reduce((sum, shop) => sum + (shop.loyaltyInfo?.pointsToRedeem ?? 0), 0),
     };
 };

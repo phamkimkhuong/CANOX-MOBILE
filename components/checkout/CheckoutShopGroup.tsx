@@ -190,7 +190,7 @@ export const CheckoutShopGroup = memo<CheckoutShopGroupProps>(({ shop }) => {
                         {t('shopGroup.totalItems', { count: shopSubtotal.itemCount })}
                     </Text>
                     <Text style={styles.subtotalValue}>
-                        {formatCurrency(shopSubtotal.shopTotal)}
+                        {formatCurrency(shopSubtotal.itemsTotal + shopSubtotal.shippingFee)}
                     </Text>
                 </View>
             )}
