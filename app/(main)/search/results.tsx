@@ -286,7 +286,7 @@ export default function SearchResultsScreen() {
         }
 
         return <ProductItem item={item.data} />;
-    }, [sortBy, quickFilters, handleSortChange, handleQuickFilterToggle, t]);
+    }, [t]);
 
     const renderFooter = useCallback(() => {
         if (isFetchingNextPage) {

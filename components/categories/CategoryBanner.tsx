@@ -24,6 +24,7 @@ import { Image } from 'expo-image';
 import React, { memo, useCallback } from 'react';
 import { Pressable, View, type StyleProp, type ViewStyle } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+
 import { StyleSheet } from 'react-native-unistyles';
 
 // ============================================
@@ -78,12 +79,6 @@ export const CategoryBanner = memo(({
                 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
                 Navigator.push(primaryBanner.href as any);
             }
-        }
-
-        // Track click event
-        if (primaryBanner.trackingId) {
-            // TODO: Send analytics event
-            // console.log('[Banner] Click tracked:', primaryBanner.trackingId);
         }
     }, [primaryBanner, onPress]);
 

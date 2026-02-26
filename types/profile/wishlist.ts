@@ -15,15 +15,12 @@ export {
 export { type WishlistQueryParams as WishlistFilterParams } from '@/types/wishlist/request';
 export { type WishlistCardUI as WishlistUI } from '@/types/wishlist/ui';
 
-// Create compatible paginated response schema
 import { WishlistPageSchema } from '@/types/wishlist/wishlistSchema';
 import { z } from 'zod';
+import { ResponseDefaultSchema } from '../responseSchema';
 
-export const WishlistsResponseSchema = z.object({
-    code: z.number(),
-    success: z.boolean(),
-    message: z.string(),
-    data: WishlistPageSchema,
+export const WishlistsResponseSchema = ResponseDefaultSchema.extend({
+    data: WishlistPageSchema.shape.data,
 });
 
 export type WishlistsResponse = z.infer<typeof WishlistsResponseSchema>;

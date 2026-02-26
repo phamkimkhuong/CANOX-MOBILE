@@ -59,7 +59,6 @@ export type BannerDeviceTarget = z.infer<typeof BannerDeviceTargetSchema>;
 export const BannerSchema = z.object({
     id: z.string(),
     title: z.string().nullable().optional(),
-    subtitle: z.string().nullable().optional(),
 
     /** Assets */
     imageAssetId: z.string().nullable().optional(),
@@ -69,7 +68,6 @@ export const BannerSchema = z.object({
 
     /** Action & Tracking */
     href: z.string().nullable().optional(),
-    trackingId: z.string().nullable().optional(),
 });
 
 export type Banner = z.infer<typeof BannerSchema>;
@@ -151,8 +149,6 @@ export interface BannerUI {
     imageUrl: string;
     href?: string;
     title?: string;
-    subtitle?: string;
-    trackingId?: string;
     // Default aspect ratio for UI components
     aspectRatio?: number;
 }

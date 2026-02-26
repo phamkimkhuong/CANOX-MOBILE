@@ -52,7 +52,6 @@ import {
     Text,
     View,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -74,7 +73,6 @@ export const PrivateWishlistTab = () => {
 
     const styles = stylesheet;
     const { theme } = useUnistyles();
-    const { bottom } = useSafeAreaInsets();
     const { t } = useTranslation('wishlist');
 
     // Fetch all wishlists for chips
@@ -154,11 +152,6 @@ export const PrivateWishlistTab = () => {
         [sortedWishlists, effectiveWishlistId]
     );
 
-    const totalItems = useMemo(
-        () => wishlists.reduce((sum, w) => sum + w.itemCount, 0),
-        [wishlists]
-    );
-
     // Items with pending removal filtered out visually
     const displayItems = useMemo(() => {
         const items = wishlistDetail?.items ?? [];
@@ -168,7 +161,6 @@ export const PrivateWishlistTab = () => {
 
     // Adjusted counts: subtract pending removal from displayed counts
     const pendingInActiveWishlist = pendingRemoval?.wishlistId === effectiveWishlistId;
-    const adjustedTotalItems = pendingRemoval ? totalItems - 1 : totalItems;
     const adjustedActiveItemCount = activeWishlist
         ? activeWishlist.itemCount - (pendingInActiveWishlist ? 1 : 0)
         : 0;

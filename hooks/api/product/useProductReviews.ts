@@ -1,7 +1,7 @@
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { request } from '@/services/api/client';
-import { ReviewPaginatedResponseSchema, ReviewUI } from '@/types/product/review';
-import { toReviewsUI } from '@/utils/adapter/product/reviewAdapter';
+import { ProductReviewUI, ProductReviewsResponseSchema } from '@/types/review/productReview';
+import { toProductReviewsUI } from '@/utils/adapter/review/productReviewAdapter';
 import { useQuery } from '@tanstack/react-query';
 
 /**
@@ -20,18 +20,18 @@ export const fetchProductReviews = async (
     type: string = 'PRODUCT',
     page: number = 0,
     size: number = 2
-): Promise<ReviewUI[]> => {
+): Promise<ProductReviewUI[]> => {
     const response = await request(
         {
             url: API_ROUTES.REVIEWS.LIST(type, productId),
             method: 'GET',
             params: { page, size },
         },
-        ReviewPaginatedResponseSchema
+        ProductReviewsResponseSchema
     );
 
     // Transform DTOs to UI models
-    return toReviewsUI(response.data.content);
+    return toProductReviewsUI(response.data?.content || []);
 };
 
 /**

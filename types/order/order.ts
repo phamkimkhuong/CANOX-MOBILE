@@ -64,8 +64,6 @@ export interface OrderPricing {
 export interface OrderPayment {
     method: PaymentMethod;
     url: string | null;
-    intentId: string | null;
-    groupId: string | null;
     expiresAt: string | null;
 }
 
@@ -89,7 +87,6 @@ export interface OrderShippingAddress {
     province: string;
     postalCode: string;
     country: string;
-    email: string;
 }
 
 /**
@@ -113,9 +110,6 @@ export interface OrderShopInfo {
     logoUrl: string | null;
     bannerUrl: string | null;
     status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'PENDING' | string;
-    rejectedReason: string | null;
-    verifyBy: string | null;
-    verifyDate: string | null;
     userId: string;
     username: string;
 }
@@ -128,9 +122,6 @@ export interface OrderItem {
     sku: string;
     productName: string;
     imagePath?: string | null;      // New field: template path with '*'
-    imageAssetId?: string | null;   // New field: asset identifier
-    imageBasePath?: string | null;  // Legacy
-    imageExtension?: string | null; // Legacy
     variantAttributes: string | null;
     unitPrice: number;
     quantity: number;

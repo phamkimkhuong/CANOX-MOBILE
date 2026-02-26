@@ -1,5 +1,6 @@
 import { useProductReviews } from '@/hooks/api/product/useProductReviews';
 import type { ReviewStatistics } from '@/types/product/productDetail';
+import type { ProductReviewUI } from '@/types/review/productReview';
 import { formatTime } from '@/utils/date';
 import { createLogger } from '@/utils/logger';
 import { toSizedImageUrl } from '@/utils/url';
@@ -303,7 +304,7 @@ export const ProductReviews = memo<ProductReviewsProps>(({
                     </View>
                 ) : previewReviews && previewReviews.length > 0 ? (
                     <View style={styles.reviewList}>
-                        {previewReviews.map((review) => (
+                        {previewReviews.map((review: ProductReviewUI) => (
                             <View key={review.id} style={styles.reviewItem}>
                                 <View style={styles.reviewHeader}>
                                     <View style={styles.reviewerInfo}>
@@ -322,7 +323,7 @@ export const ProductReviews = memo<ProductReviewsProps>(({
                                             </View>
                                         )}
                                         <View>
-                                            <Text style={styles.reviewerName}>{review.username}</Text>
+                                            <Text style={styles.reviewerName}>{review.userName}</Text>
                                             <View style={styles.reviewStars}>
                                                 {[1, 2, 3, 4, 5].map((s) => (
                                                     <IconSymbol

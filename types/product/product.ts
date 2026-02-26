@@ -10,11 +10,11 @@ export const ProductMediaRawSchema = z.object({
 });
 export type ProductMediaRaw = z.infer<typeof ProductMediaRawSchema>;
 
-//Review Stats Schema & Type
+// Review Stats Schema & Type
 export const ReviewStatsRawSchema = z.object({
-    averageRating: z.number().nullable().optional().default(0),
-    totalReviews: z.number().nullable().optional().default(0),
-    verifiedPurchaseCount: z.number().nullable().optional().default(0),
+    averageRating: z.coerce.number().nullish().transform(val => val ?? 0),
+    totalReviews: z.coerce.number().nullish().transform(val => val ?? 0),
+    verifiedPurchaseCount: z.coerce.number().nullish().transform(val => val ?? 0),
 });
 export type ReviewStatsRaw = z.infer<typeof ReviewStatsRawSchema>;
 
@@ -25,17 +25,17 @@ const VariantMinimalSchema = z.object({
 });
 
 export const ProductResponseItemSchema = z.object({
-    id: z.string(),
-    name: z.string().nullable().optional().default(''),
-    priceBeforeDiscount: z.number().nullable().optional().default(0),
-    priceAfterBestVoucher: z.number().nullable().optional().default(0),
-    media: z.array(ProductMediaRawSchema).nullable().optional().default([]),
-    reviewStatistics: ReviewStatsRawSchema.nullable().optional(),
+    id: z.string().nullish().transform(val => val ?? ''),
+    name: z.string().nullish().transform(val => val ?? ''),
+    priceBeforeDiscount: z.coerce.number().nullish().transform(val => val ?? 0),
+    priceAfterBestVoucher: z.coerce.number().nullish().transform(val => val ?? 0),
+    media: z.array(ProductMediaRawSchema).nullish().transform(val => val ?? []),
+    reviewStatistics: ReviewStatsRawSchema.nullish().transform(val => val ?? { averageRating: 0, totalReviews: 0, verifiedPurchaseCount: 0 }),
     shop: z.object({
-        shop_location: z.string().nullable().optional().default(''),
-    }).nullable().optional(),
-    availableRegions: z.array(z.string()).nullable().optional().default([]),
-    variants: z.array(VariantMinimalSchema).nullable().optional().default([]),
+        shop_location: z.string().nullish().transform(val => val ?? ''),
+    }).nullish().transform(val => val ?? { shop_location: '' }),
+    availableRegions: z.array(z.string()).nullish().transform(val => val ?? []),
+    variants: z.array(VariantMinimalSchema).nullish().transform(val => val ?? []),
 });
 export type ProductResponseItem = z.infer<typeof ProductResponseItemSchema>;
 

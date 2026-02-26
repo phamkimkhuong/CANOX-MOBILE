@@ -80,7 +80,6 @@ export const useActiveFlashSale = () => {
                     stockRemaining: p.stockRemaining || 0,
                     progress: progress,
                     isSoldOut: p.isSoldOut || (p.stockRemaining === 0),
-                    purchaseLimitPerUser: p.purchaseLimitPerUser,
                 };
             });
 

@@ -566,7 +566,6 @@ export default function CheckoutScreen() {
                 }),
                 buyerAddressData: {
                     addressId: previewData.addressId,
-                    buyerAddressId: previewData.addressId,
                 },
                 loyaltyPoints: calculation.loyaltyPoints,
                 paymentMethod: paymentMethod === 'cod' ? 'COD' : 'PAYOS',

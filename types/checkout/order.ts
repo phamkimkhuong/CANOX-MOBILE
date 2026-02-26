@@ -24,11 +24,15 @@ export interface CreateOrderRequest {
     shops: CreateOrderShopRequest[];
     buyerAddressData: {
         addressId: string;
-        buyerAddressId: string;
+        addressType?: number;
+        taxAddress?: string;
     };
-    loyaltyPoints: number;
-    paymentMethod: 'COD' | 'BANK_TRANSFER' | 'PAYOS';
-    customerNote: string;
+    loyaltyPoints?: number;
+    paymentMethod: 'COD' | 'BANK_TRANSFER' | 'PAYOS' | 'CREDIT_CARD';
+    customerNote?: string;
+    previewId?: string;
+    previewChecksum?: string;
+    previewAt?: string;
 }
 
 // ============================================
@@ -146,28 +150,28 @@ export interface OrderDTO {
 
 export interface PaymentInfoDTO {
     paymentMethod: string;
-    depositId: string | null;
-    paymentLink: string | null;
-    qrCode: string | null;
-    accountNumber: string | null;
-    accountName: string | null;
-    orderCode: string | null;
+    depositId?: string | null;
+    paymentLink?: string | null;
+    qrCode?: string | null;
+    accountNumber?: string | null;
+    accountName?: string | null;
+    orderCode?: string | null;
     amount: number;
     currency: string;
-    description: string | null;
-    expiredAt: number | null;
+    description?: string | null;
+    expiredAt?: number | null;
     success: boolean;
-    errorMessage: string | null;
+    errorMessage?: string | null;
 }
 
 export interface CreateOrderResponse {
-    code?: number | null;
-    success?: boolean | null;
-    message?: string | null;
-    data?: {
-        orders?: OrderDTO[] | null;
+    code: number;
+    success: boolean;
+    message: string;
+    data: {
+        orders: OrderDTO[];
         paymentInfo?: PaymentInfoDTO | null;
-    } | null;
+    };
 }
 
 // ============================================
@@ -175,114 +179,120 @@ export interface CreateOrderResponse {
 // ============================================
 
 const OrderPricingSchema = z.object({
-    subtotal: z.number().optional().nullable().default(0),
-    shopDiscount: z.number().optional().nullable().default(0),
-    platformDiscount: z.number().optional().nullable().default(0),
-    shippingDiscount: z.number().optional().nullable().default(0),
-    totalDiscount: z.number().optional().nullable().default(0),
-    shippingFee: z.number().optional().nullable().default(0),
-    grandTotal: z.number().optional().nullable().default(0),
+    subtotal: z.coerce.number().nullish().transform(val => val ?? 0),
+    shopDiscount: z.coerce.number().nullish().transform(val => val ?? 0),
+    platformDiscount: z.coerce.number().nullish().transform(val => val ?? 0),
+    shippingDiscount: z.coerce.number().nullish().transform(val => val ?? 0),
+    totalDiscount: z.coerce.number().nullish().transform(val => val ?? 0),
+    shippingFee: z.coerce.number().nullish().transform(val => val ?? 0),
+    grandTotal: z.coerce.number().nullish().transform(val => val ?? 0),
+    taxAmount: z.coerce.number().nullish().transform(val => val ?? 0),
 });
 
 const OrderPaymentSchema = z.object({
-    paymentMethod: z.string().optional().nullable(),
-    success: z.boolean().optional().nullable(),
-    paymentLink: z.string().optional().nullable(),
-    orderCode: z.string().optional().nullable(),
-    expiredAt: z.number().optional().nullable(),
-    description: z.string().optional().nullable(),
-    depositId: z.string().optional().nullable(),
+    paymentMethod: z.string().nullish().transform(val => val ?? 'COD'),
+    success: z.boolean().nullish().transform(val => val ?? false),
+    paymentLink: z.string().nullish(),
+    orderCode: z.string().nullish(),
+    expiredAt: z.coerce.number().nullish(),
+    description: z.string().nullish(),
+    depositId: z.string().nullish(),
 });
 
 const OrderShipmentSchema = z.object({
-    carrier: z.string().optional().nullable(),
-    trackingNumber: z.string().optional().nullable(),
+    carrier: z.string().nullish(),
+    trackingNumber: z.string().nullish(),
 });
 
 const OrderShippingAddressSchema = z.object({
-    recipientName: z.string().optional().nullable(),
-    phoneNumber: z.string().optional().nullable(),
-    addressLine1: z.string().optional().nullable(),
-    city: z.string().optional().nullable(),
-    province: z.string().optional().nullable(),
+    recipientName: z.string().nullish(),
+    phoneNumber: z.string().nullish(),
+    addressLine1: z.string().nullish(),
+    addressLine2: z.string().nullish(),
+    city: z.string().nullish(),
+    province: z.string().nullish(),
 });
 
 const OrderLoyaltySchema = z.object({
-    pointsUsed: z.number().optional().nullable().default(0),
-    pointsEarned: z.number().optional().nullable().default(0),
-    discountAmount: z.number().optional().nullable().default(0),
+    pointsUsed: z.coerce.number().nullish().transform(val => val ?? 0),
+    pointsEarned: z.coerce.number().nullish().transform(val => val ?? 0),
+    discountAmount: z.coerce.number().nullish().transform(val => val ?? 0),
 });
 
 const OrderItemSchema = z.object({
-    itemId: z.string().optional().nullable(),
-    productId: z.string(),
-    variantId: z.string().optional().nullable(),
-    sku: z.string().optional().nullable(),
-    productName: z.string().optional().nullable(),
-    imagePath: z.string().optional().nullable(),
-    imageAssetId: z.string().optional().nullable(),
-    variantAttributes: z.string().optional().nullable(),
-    unitPrice: z.number().optional().nullable().default(0),
-    quantity: z.number().optional().nullable().default(1),
-    lineTotal: z.number().optional().nullable().default(0),
-    reviewed: z.boolean().optional().nullable().default(false),
+    itemId: z.string().nullish(),
+    productId: z.string().nullish().transform(val => val ?? ''),
+    variantId: z.string().nullish().transform(val => val ?? ''),
+    sku: z.string().nullish(),
+    productName: z.string().nullish().transform(val => val ?? ''),
+    imagePath: z.string().nullish(),
+    variantAttributes: z.string().nullish().transform(val => val ?? ''),
+    unitPrice: z.coerce.number().nullish().transform(val => val ?? 0),
+    quantity: z.coerce.number().nullish().transform(val => val ?? 1),
+    lineTotal: z.coerce.number().nullish().transform(val => val ?? 0),
+    reviewed: z.boolean().nullish().transform(val => val ?? false),
 });
 
 const OrderShopInfoSchema = z.object({
-    shopId: z.string(),
-    shopName: z.string().optional().nullable(),
-    logoUrl: z.string().optional().nullable(),
-    userId: z.string().optional().nullable(),
-    username: z.string().optional().nullable(),
+    shopId: z.string().nullish().transform(val => val ?? ''),
+    shopName: z.string().nullish().transform(val => val ?? ''),
+    logoUrl: z.string().nullish(),
+    userId: z.string().nullish(),
+    username: z.string().nullish(),
 });
 
 const OrderSchema = z.object({
-    orderId: z.string(),
-    orderNumber: z.string().optional().nullable(),
-    shopId: z.string().optional().nullable(),
-    shopInfo: OrderShopInfoSchema.optional().nullable(),
-    buyerId: z.string().optional().nullable(),
-    status: z.string().optional().nullable(),
-    currency: z.string().optional().nullable().default('VND'),
+    orderId: z.string().nullish().transform(val => val ?? ''),
+    orderNumber: z.string().nullish(),
+    shopId: z.string().nullish(),
+    shopInfo: OrderShopInfoSchema.nullish(),
+    buyerId: z.string().nullish(),
+    status: z.string().nullish().transform(val => val ?? 'CREATED'),
+    currency: z.string().nullish().transform(val => val ?? 'VND'),
 
     // Nested objects in schema
-    pricing: OrderPricingSchema.optional().nullable(),
-    payment: OrderPaymentSchema.optional().nullable(),
-    shipment: OrderShipmentSchema.optional().nullable(),
-    shippingAddress: OrderShippingAddressSchema.optional().nullable(),
-    loyalty: OrderLoyaltySchema.optional().nullable(),
+    pricing: OrderPricingSchema.nullish(),
+    payment: OrderPaymentSchema.nullish(),
+    shipment: OrderShipmentSchema.nullish(),
+    shippingAddress: OrderShippingAddressSchema.nullish(),
+    loyalty: OrderLoyaltySchema.nullish(),
 
-    itemCount: z.number().optional().nullable().default(0),
-    totalQuantity: z.number().optional().nullable().default(0),
-    customerNote: z.string().optional().nullable(),
-    internalNote: z.string().optional().nullable(),
-    cancellationReason: z.string().optional().nullable(),
-    createdAt: z.string().optional().nullable(),
-    items: z.array(OrderItemSchema).optional().nullable().default([]),
+    itemCount: z.coerce.number().nullish().transform(val => val ?? 0),
+    totalQuantity: z.coerce.number().nullish().transform(val => val ?? 0),
+    customerNote: z.string().nullish(),
+    cancellationReason: z.string().nullish(),
+    createdAt: z.string().nullish(),
+    items: z.array(OrderItemSchema).nullish().transform(val => val ?? []),
 });
 
 const PaymentInfoSchema = z.object({
-    paymentMethod: z.string(),
-    depositId: z.string().nullable(),
-    paymentLink: z.string().nullable(),
-    qrCode: z.string().nullable(),
-    accountNumber: z.string().nullable(),
-    accountName: z.string().nullable(),
-    orderCode: z.string().nullable(),
-    amount: z.number(),
-    currency: z.string(),
-    description: z.string().nullable(),
-    expiredAt: z.number().nullable(),
-    success: z.boolean(),
-    errorMessage: z.string().nullable(),
+    paymentMethod: z.string().nullish().transform(val => val ?? 'COD'),
+    depositId: z.string().nullish(),
+    paymentLink: z.string().nullish(),
+    qrCode: z.string().nullish(),
+    accountNumber: z.string().nullish(),
+    accountName: z.string().nullish(),
+    orderCode: z.string().nullish(),
+    amount: z.coerce.number().nullish().transform(val => val ?? 0),
+    currency: z.string().nullish().transform(val => val ?? 'VND'),
+    description: z.string().nullish(),
+    expiredAt: z.coerce.number().nullish(),
+    success: z.boolean().nullish().transform(val => val ?? false),
+    errorMessage: z.string().nullish(),
 });
 
 export const CreateOrderResponseSchema = z.object({
-    code: z.number().optional().nullable(),
-    success: z.boolean().optional().nullable().default(false),
-    message: z.string().optional().nullable(),
+    code: z.coerce.number().nullish().transform(val => val ?? 200),
+    success: z.boolean().nullish().transform(val => val ?? true),
+    message: z.string().nullish().transform(val => val ?? ''),
     data: z.object({
-        orders: z.array(OrderSchema).optional().nullable().default([]),
-        paymentInfo: PaymentInfoSchema.optional().nullable(),
-    }).optional().nullable(),
-});
+        orders: z.array(OrderSchema).nullish().transform(val => val ?? []),
+        paymentInfo: PaymentInfoSchema.nullish(),
+    }).nullish().transform(val => val ?? ({
+        orders: [],
+        paymentInfo: null
+    })),
+}).transform(res => ({
+    ...res,
+    data: res.data // Ensure data is not null if parsed correctly
+}));

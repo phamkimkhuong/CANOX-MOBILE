@@ -83,15 +83,7 @@ export const AuthResponseSchema = ResponseDefaultSchema.extend({
             userId: z.string(),
             username: z.string(),
             email: z.email(),
-            roles: z.array(z.string()).optional(),
             image: z.string().nullable().optional(),
-            fullNameBuyer: z.string().nullable().optional(),
-            fullNameEmployee: z.string().nullable().optional(),
-            shopId: z.string().nullable().optional(),
-            shopName: z.string().nullable().optional(),
-            logoUrl: z.string().nullable().optional(),
-            // Legacy/Optional fields
-            status: z.string().optional(),
             buyerId: z.string().nullable().optional(),
         }),
     }),
@@ -104,21 +96,12 @@ export const SocialLoginResponseSchema = ResponseDefaultSchema.extend({
         accessToken: z.string().optional(),
         refreshToken: z.string().optional(),
         emailVerified: z.boolean(),
-        hasShopRole: z.boolean().optional(),
-        hasBuyerRole: z.boolean().optional(),
-        shopProfileExists: z.boolean().optional(),
-        requiresShopProfile: z.boolean().optional(),
-        requiresShopVerification: z.boolean().optional(),
-        loginContextRole: z.string().optional(),
         user: z.object({
             userId: z.string(),
             username: z.string(),
             email: z.email(),
-            status: z.string().optional(),
-            roles: z.array(z.string()).optional(),
             image: z.string().nullable().optional(),
             buyerId: z.string().nullable().optional(),
-            buyer: z.unknown().nullable().optional(),
         }),
     }),
 });
@@ -129,10 +112,8 @@ export const RegisterResponseSchema = ResponseDefaultSchema.extend({
     data: z.object({
         userId: z.string(),
         username: z.string(),
-        email: z.string(),
-        image: z.string().nullable().optional(),
+        email: z.email(),
         status: z.string(), // 'INACTIVE' -> cần verify OTP
-        roleName: z.string(),
     }),
 });
 

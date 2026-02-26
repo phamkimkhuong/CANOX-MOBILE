@@ -48,7 +48,7 @@ const DEFAULT_LOYALTY: OrderLoyalty = {
  */
 export const transformOrderItem = (item: OrderItem): OrderItemUI => {
     // Prioritize new imagePath format, fallback to legacy basePath/ext
-    const imageUrl = toSizedImageUrl(item.imagePath || item.imageBasePath, item.imageExtension, 'thumb')
+    const imageUrl = toSizedImageUrl(item.imagePath, null, 'thumb')
         || 'https://via.placeholder.com/72';
 
     return {

@@ -59,7 +59,7 @@ export const PublicWishlistTab: React.FC = () => {
                         returnKeyType="search"
                     />
                     {keyword.length > 0 && (
-                        <Pressable onPress={() => setKeyword('')} style={{ padding: 4 }}>
+                        <Pressable onPress={() => setKeyword('')} style={styles.clearIconButton}>
                             <IconSymbol
                                 name="close-circle"
                                 size={20}
@@ -167,6 +167,9 @@ const stylesheet = StyleSheet.create((theme) => ({
         marginLeft: theme.margins.sm,
         fontSize: 14,
         color: theme.colors.typography,
+    },
+    clearIconButton: {
+        padding: 4,
     },
     listContainer: {
         flex: 1,

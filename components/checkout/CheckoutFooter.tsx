@@ -54,8 +54,9 @@ export const CheckoutFooter: React.FC<CheckoutFooterProps> = ({
                         name="alert-circle-outline"
                         size={16}
                         color={theme.colors.warning}
+                        style={styles.warningIcon}
                     />
-                    <Text style={styles.warningText} numberOfLines={1}>
+                    <Text style={styles.warningText}>
                         {firstBlockReason}
                     </Text>
                 </View>
@@ -120,18 +121,23 @@ const stylesheet = StyleSheet.create((theme) => ({
 
     warningRow: {
         flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
+        alignItems: 'flex-start',
         paddingVertical: theme.margins.sm,
         paddingHorizontal: theme.margins.md,
         backgroundColor: `${theme.colors.warning}12`,
-        gap: 6,
+        gap: 8,
+    },
+
+    warningIcon: {
+        marginTop: 2,
     },
 
     warningText: {
+        flex: 1,
         fontSize: 13,
         color: theme.colors.warning,
         fontWeight: '500',
+        lineHeight: 18,
     },
 
     mainRow: {

@@ -101,33 +101,36 @@ export type FlattenedCategoryItem =
     | CategoryBannerItem;
 
 
-export const CategoryNodeSchema: z.ZodType<CategoryNode> = z.lazy(() =>
-    z.object({
-        id: z.string(),
-        name: z.string(),
-        slug: z.string(),
-        imagePath: z.string().nullable().optional(),
-        imageAssetId: z.string().nullable().optional(),
-        imageExtension: z.string().nullable().optional(),
-        children: z.array(z.lazy(() => CategoryNodeSchema)).nullable().optional(),
-    })
-);
-
 export type CategoryNode = {
     id: string;
     name: string;
     slug: string;
     imagePath?: string | null;
-    imageAssetId?: string | null;
     imageExtension?: string | null;
     children?: CategoryNode[] | null;
 };
 
+export const CategoryNodeSchema: z.ZodType<CategoryNode> = z.lazy(() =>
+    z.object({
+        id: z.string(),
+        name: z.string().default(''),
+        slug: z.string().default(''),
+        imagePath: z.string().nullable().optional().default(null),
+        imageExtension: z.string().nullable().optional().default(null),
+        children: z.array(z.lazy(() => CategoryNodeSchema)).nullable().optional().default([]),
+    })
+);
+
+/**
+ * Category API Responses
+ */
 export const CategoryTreeResponseSchema = ResponseDefaultSchema.extend({
-    message: z.string(),
-    data: z.array(CategoryNodeSchema),
+    data: z.array(CategoryNodeSchema).default([]),
 });
 
 export const CategoryListResponseSchema = ResponseDefaultSchema.extend({
-    data: z.array(CategoryNodeSchema),
+    data: z.array(CategoryNodeSchema).default([]),
 });
+
+export type CategoryTreeResponse = z.infer<typeof CategoryTreeResponseSchema>;
+export type CategoryListResponse = z.infer<typeof CategoryListResponseSchema>;

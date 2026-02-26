@@ -16,7 +16,7 @@ import { Navigator } from '@/utils/navigation';
 import { buildImageUrl, toSizedImageUrl } from '@/utils/url';
 import * as Clipboard from 'expo-clipboard';
 import { Image } from 'expo-image';
-import React, { useCallback, useState } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import { ActivityIndicator, Pressable, Text, TouchableOpacity, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -587,39 +587,39 @@ const MessageTime: React.FC<{
     status: string;
     onImage?: boolean;
     forceDark?: boolean;
-}> = ({
+}> = memo(({
     sentAt,
     isMe,
     status,
     onImage,
     forceDark = false,
 }) => {
-        const { theme } = useUnistyles();
-        const styles = stylesheet;
-        const time = formatMessageTime(sentAt);
+    const { theme } = useUnistyles();
+    const styles = stylesheet;
+    const time = formatMessageTime(sentAt);
 
-        const getTimeStyle = () => {
-            if (onImage) return styles.timeOnImage;
-            if (forceDark) return styles.timeSecondary;
-            return isMe ? styles.timeInsideMe : styles.timeInsideOther;
-        };
-
-        if (status === 'PENDING') {
-            return (
-                <View style={styles.pendingIndicator}>
-                    <ActivityIndicator size="small" color={onImage ? '#fff' : (isMe ? '#fff' : theme.colors.primary)} />
-                </View>
-            );
-        }
-
-        return (
-            <Text numberOfLines={1} style={[styles.timeInside, getTimeStyle()]}>
-                {time}
-            </Text>
-        );
+    const getTimeStyle = () => {
+        if (onImage) return styles.timeOnImage;
+        if (forceDark) return styles.timeSecondary;
+        return isMe ? styles.timeInsideMe : styles.timeInsideOther;
     };
 
-const TextContent: React.FC<{ content: string; isMe: boolean; sentAt: string; status: string }> = ({
+    if (status === 'PENDING') {
+        return (
+            <View style={styles.pendingIndicator}>
+                <ActivityIndicator size="small" color={onImage ? '#fff' : (isMe ? '#fff' : theme.colors.primary)} />
+            </View>
+        );
+    }
+
+    return (
+        <Text numberOfLines={1} style={[styles.timeInside, getTimeStyle()]}>
+            {time}
+        </Text>
+    );
+});
+
+const TextContent: React.FC<{ content: string; isMe: boolean; sentAt: string; status: string }> = memo(({
     content,
     isMe,
     sentAt,
@@ -638,7 +638,7 @@ const TextContent: React.FC<{ content: string; isMe: boolean; sentAt: string; st
             </View>
         </View>
     );
-};
+});
 
 const ImageContent: React.FC<{
     content?: string;

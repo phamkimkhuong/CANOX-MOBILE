@@ -13,7 +13,6 @@ export interface BankResponseDTO {
 
 export interface UserBankAccountDTO {
     bankAccountId: string;
-    userId: string;
     accountType: BankAccountType;
     bankAccountNumber: string;
     bankName: string;
@@ -21,7 +20,6 @@ export interface UserBankAccountDTO {
     branch?: string | null;
     default: boolean;
     deleted: boolean;
-    createdDate?: string | null;
 }
 
 export interface BankAccountInitVerificationDTO {

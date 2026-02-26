@@ -10,6 +10,7 @@ import type {
     ProductOptionUI,
     ProductSpec,
     ProductVariant,
+    ReviewStatistics,
     ShopUI,
     VariantMatrix,
     VariantMatrixKey,
@@ -594,19 +595,13 @@ export const transformProductDetail = (
     const flashSale = buildFlashSaleInfo(data, totalStock);
 
     // Transform reviewStatistics to match expected type
-    const reviewStats = data.reviewStatistics ?? { totalReviews: 0, averageRating: 0 };
-    const reviewStatistics = {
-        reviewableId: reviewStats.reviewableId ?? undefined,
-        totalReviews: reviewStats.totalReviews ?? 0,
-        averageRating: reviewStats.averageRating ?? 0,
-        ratingDistribution: reviewStats.ratingDistribution ?? undefined,
-        ratingPercentage: reviewStats.ratingPercentage ?? undefined,
-        verifiedPurchaseCount: reviewStats.verifiedPurchaseCount ?? undefined,
-        verifiedPurchasePercentage: reviewStats.verifiedPurchasePercentage ?? undefined,
-        commentCount: reviewStats.commentCount ?? undefined,
-        mediaReviewCount: reviewStats.mediaReviewCount ?? undefined,
-        imageReviewCount: reviewStats.imageReviewCount ?? undefined,
-        videoReviewCount: reviewStats.videoReviewCount ?? undefined,
+    const reviewStatistics: ReviewStatistics = {
+        reviewableId: data.reviewStatistics?.reviewableId ?? undefined,
+        totalReviews: data.reviewStatistics?.totalReviews ?? 0,
+        averageRating: data.reviewStatistics?.averageRating ?? 0,
+        ratingDistribution: data.reviewStatistics?.ratingDistribution ?? {},
+        ratingPercentage: data.reviewStatistics?.ratingPercentage ?? {},
+        mediaReviewCount: data.reviewStatistics?.mediaReviewCount ?? 0,
     };
 
     return {

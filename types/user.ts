@@ -17,39 +17,21 @@ export const BuyerInfoSchema = z.object({
     phone: z.string().nullable().optional(),
     dateOfBirth: z.string().nullable().optional(),
     gender: z.enum(['MALE', 'FEMALE', 'OTHER']).nullable().optional(),
+    profileCompleted: z.boolean().optional(),
 });
 
 export type BuyerInfo = z.infer<typeof BuyerInfoSchema>;
 
-/**
- * Shop Info from API
- */
-export const ShopInfoSchema = z.object({
-    shopId: z.string(),
-    shopName: z.string(),
-    description: z.string().nullable().optional(),
-    logoUrl: z.string().nullable().optional(),
-    bannerUrl: z.string().nullable().optional(),
-    status: z.enum(['ACTIVE', 'INACTIVE', 'SUSPENDED']),
-    rejectedReason: z.string().nullable().optional(),
-    verifyBy: z.string().nullable().optional(),
-    verifyDate: z.string().nullable().optional(),
-    userId: z.string(),
-    username: z.string(),
-});
-
-export type ShopInfo = z.infer<typeof ShopInfoSchema>;
+// ShopInfoSchema has been pruned as it's not used by the UI
 
 /**
  * User Me Data from API
  */
 export const UserMeDataSchema = z.object({
     userId: z.string(),
-    username: z.string(),
-    email: z.email(),
-    image: z.string().nullable().optional(),
-    status: z.enum(['ACTIVE', 'INACTIVE', 'SUSPENDED']),
-    roleName: z.string(),
+    username: z.string().nullable().optional(),
+    email: z.email().nullable().optional(),
+    avatar: z.string().nullable().optional(),
     buyerId: z.string().nullable().optional(),
     shopId: z.string().nullable().optional(),
     buyer: BuyerInfoSchema.nullable().optional(),

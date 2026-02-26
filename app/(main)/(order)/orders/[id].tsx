@@ -402,7 +402,6 @@ export default function OrderDetailScreen() {
                                     recipientName={order.recipientName}
                                     phoneNumber={order.phoneNumber}
                                     fullAddress={order.fullAddress}
-                                    email={rawOrder?.shippingAddress?.email}
                                 />
                             </View>
 

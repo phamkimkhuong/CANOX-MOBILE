@@ -62,32 +62,29 @@ export interface CheckoutPreviewItemDTO {
     productId: string;
     variantId: string;
     productName: string;
-    sku?: string | null;
-    imagePath?: string | null;      // New template path
-    imageAssetId?: string | null;   // New asset ID
-    basePath?: string | null;       // Legacy
-    extension?: string | null;      // Legacy
+    imagePath?: string | null;
+    basePath?: string | null;
+    extension?: string | null;
     variantAttributes?: string | null;
     unitPrice?: number | null;
     quantity?: number | null;
-    discountAmount?: number | null;
     lineTotal?: number | null;
-    isAvailable?: boolean | null;
-    availabilityMessage?: string | null;
-    lengthCm?: number | null;
-    widthCm?: number | null;
-    heightCm?: number | null;
-    weightGrams?: number | null;
     promotion?: CheckoutPromotionDTO | null;
 }
 
 /** Shipping option từ API */
 export interface CheckoutShippingOptionDTO {
-    serviceCode?: number | null;
     serviceType?: string | null;
-    displayName?: string | null;
-    fee?: number | null;
-    estimatedDeliveryTime?: string | null;
+    label?: string | null;
+    totalFee?: number | null;
+    estimated?: string | null;
+    isSelected?: boolean | null;
+    serviceCode?: number | null;
+    servicePlan?: {
+        serviceCode?: number | null;
+        firstMile?: number | null;
+        international?: number | null;
+    } | null;
 }
 
 /** Voucher detail từ API */
@@ -104,11 +101,7 @@ export interface CheckoutVoucherDetailDTO {
 /** Voucher result từ API */
 export interface CheckoutVoucherResultDTO {
     shopId?: string | null;
-    validVouchers?: string[] | null;
-    invalidVouchers?: string[] | null;
-    totalDiscount?: number | null;
     discountDetails?: CheckoutVoucherDetailDTO[] | null;
-    hasValidVouchers?: boolean | null;
 }
 
 /** Loyalty info từ API */
@@ -126,39 +119,38 @@ export interface CheckoutLoyaltyInfoDTO {
 /** Shop summary từ API - sẽ được transform sang ShopSubtotal */
 export interface CheckoutShopSummaryDTO {
     itemCount?: number | null;
-    totalQuantity?: number | null;
     subtotal?: number | null;
     productDiscount?: number | null;
     shippingDiscount?: number | null;
-    totalDiscount?: number | null;
+    voucherDiscount?: number | null;
     shippingFee?: number | null;
-    taxAmount?: number | null;
     shopTotal?: number | null;
 }
 
-/** Shop từ API - sẽ được transform sang CheckoutShopUI */
 export interface CheckoutPreviewShopDTO {
     shopId?: string;
     shopName?: string;
     logoUrl?: string | null;
     items?: CheckoutPreviewItemDTO[];
-    summary: CheckoutShopSummaryDTO;
-    selectedShippingMethod: string | null;
-    availableShippingOptions: CheckoutShippingOptionDTO[] | null;
-    validationErrors?: string[] | null;
-    warnings?: string[] | null;
+    pricing: CheckoutShopSummaryDTO;
+    shipping: {
+        type: string;
+        options: CheckoutShippingOptionDTO[];
+        selectedMethodId?: string | null;
+    };
     loyaltyInfo?: CheckoutLoyaltyInfoDTO | null;
-    voucherResult?: CheckoutVoucherResultDTO;
+    voucher?: CheckoutVoucherResultDTO | null;
 }
 
-/** Order summary từ API - sẽ được transform sang CheckoutCalculationResult */
 export interface CheckoutOrderSummaryDTO {
     totalItems?: number | null;
     totalQuantity?: number | null;
     subtotal?: number | null;
-    totalDiscount?: number | null;
-    shippingDiscount?: number | null;
-    productDiscount?: number | null;
+    discounts: {
+        voucherProduct: number;
+        voucherShipping: number;
+        voucherTotal: number;
+    };
     totalShippingFee?: number | null;
     totalTaxAmount?: number | null;
     grandTotal?: number | null;
@@ -171,18 +163,20 @@ export interface CheckoutBuyerAddressDTO {
     taxAddress?: string | null;
 }
 
-/** Main data từ API response */
 export interface CheckoutPreviewDataDTO {
-    previewId?: string;
+    previewId: string;
     cartId: string;
     currency: string;
     previewAt: string;
-    buyerAddressData?: CheckoutBuyerAddressDTO;
+    previewChecksum?: string | null;
+    buyerAddressData?: CheckoutBuyerAddressDTO | null;
     shops: CheckoutPreviewShopDTO[];
     summary: CheckoutOrderSummaryDTO;
-    isValid: boolean;
-    validationErrors: string[];
-    warnings: string[];
+    validation: {
+        isValid: boolean;
+        errors: string[];
+        warnings: string[];
+    };
 }
 
 /** Full API response wrapper */
@@ -198,112 +192,149 @@ export interface CheckoutPreviewResponse {
 // ============================================
 
 const CheckoutPreviewItemSchema = z.object({
-    itemId: z.string(),
-    productId: z.string(),
-    variantId: z.string(),
-    productName: z.string(),
-    imagePath: z.string().nullable().optional(),
-    imageAssetId: z.string().nullable().optional(),
-    variantAttributes: z.string().nullable().optional(),
-    unitPrice: z.number().nullable().optional().default(0),
-    quantity: z.number().int().positive().nullable().optional().default(1),
-    lineTotal: z.number().nullable().optional().default(0),
+    itemId: z.string().nullish().transform(val => val ?? ''),
+    productId: z.string().nullish().transform(val => val ?? ''),
+    variantId: z.string().nullish().transform(val => val ?? ''),
+    productName: z.string().nullish().transform(val => val ?? ''),
+    imagePath: z.string().nullish(),
+    basePath: z.string().nullish(),
+    extension: z.string().nullish(),
+    variantAttributes: z.string().nullish().transform(val => val ?? ''),
+    unitPrice: z.coerce.number().nullish().transform(val => val ?? 0),
+    quantity: z.coerce.number().nullish().transform(val => val ?? 1),
+    lineTotal: z.coerce.number().nullish().transform(val => val ?? 0),
     promotion: z.object({
-        promotionId: z.string(),
-        campaignId: z.string().optional().default(''),
-        campaignName: z.string().optional().default(''),
-        campaignType: z.string().optional().default(''),
-        originalPrice: z.number().optional().default(0),
-        salePrice: z.number().optional().default(0),
-        discountPercent: z.number().optional().default(0),
-    }).nullable().optional(),
+        promotionId: z.string().nullish().transform(val => val ?? ''),
+        campaignId: z.string().nullish().transform(val => val ?? ''),
+        campaignName: z.string().nullish().transform(val => val ?? ''),
+        campaignType: z.string().nullish().transform(val => val ?? ''),
+        originalPrice: z.coerce.number().nullish().transform(val => val ?? 0),
+        salePrice: z.coerce.number().nullish().transform(val => val ?? 0),
+        discountPercent: z.coerce.number().nullish().transform(val => val ?? 0),
+    }).nullish(),
 });
 
 const CheckoutShippingOptionSchema = z.object({
-    serviceCode: z.number().nullable().optional(),
-    serviceType: z.string().nullable().optional(),
-    displayName: z.string().nullable().optional(),
-    fee: z.number().nullable().optional(),
-    estimatedDeliveryTime: z.string().nullable().optional(),
-});
+    serviceType: z.string().nullish().transform(val => val ?? 'standard'),
+    label: z.string().nullish().transform(val => val ?? ''),
+    totalFee: z.coerce.number().nullish().transform(val => val ?? 0),
+    estimated: z.string().nullish().transform(val => val ?? ''),
+    isSelected: z.boolean().nullish(),
+
+    serviceCode: z.coerce.number().nullish(),
+    servicePlan: z.object({
+        serviceCode: z.coerce.number().nullish(),
+        firstMile: z.coerce.number().nullish(),
+        international: z.coerce.number().nullish(),
+    }).nullish()
+}).transform((val) => ({
+    ...val,
+    serviceCode: val.servicePlan?.international ?? val.servicePlan?.serviceCode ?? val.serviceCode ?? 0,
+}));
 
 const CheckoutVoucherDetailSchema = z.object({
-    voucherCode: z.string().nullable().optional(),
-    voucherType: z.string().nullable().optional(),
-    discountAmount: z.number().nullable().optional(),
-    discountMethod: z.string().nullable().optional(),
-    discountTarget: z.string().nullable().optional(),
-    reason: z.string().nullable().optional(),
-    valid: z.boolean().nullable().optional(),
+    voucherCode: z.string().nullish().transform(val => val ?? ''),
+    voucherType: z.string().nullish().transform(val => val ?? ''),
+    discountAmount: z.coerce.number().nullish().transform(val => val ?? 0),
+    discountMethod: z.string().nullish().transform(val => val ?? 'FIXED_AMOUNT'),
+    discountTarget: z.string().nullish().transform(val => val ?? ''),
+    reason: z.string().nullish().transform(val => val ?? ''),
+    valid: z.boolean().nullish().transform(val => val ?? false),
 });
 
 const CheckoutVoucherResultSchema = z.object({
-    shopId: z.string().nullable().optional(),
-    discountDetails: z.array(CheckoutVoucherDetailSchema).nullable().optional().default([]),
+    shopId: z.string().nullish(),
+    discountDetails: z.array(CheckoutVoucherDetailSchema).nullish().transform(val => val ?? []),
 });
 
 const CheckoutLoyaltyInfoSchema = z.object({
-    pointsToRedeem: z.number().nullable().optional(),
+    pointsToRedeem: z.coerce.number().nullish().transform(val => val ?? 0),
 });
 
 const CheckoutShopSummarySchema = z.object({
-    itemCount: z.number().int().nullable().optional().default(0),
-    subtotal: z.number().nullable().optional().default(0),
-    shippingFee: z.number().nullable().optional().default(0),
-    shopTotal: z.number().nullable().optional().default(0),
+    itemCount: z.coerce.number().nullish().transform(val => val ?? 0),
+    subtotal: z.coerce.number().nullish().transform(val => val ?? 0),
+    productDiscount: z.coerce.number().nullish().transform(val => val ?? 0),
+    shippingDiscount: z.coerce.number().nullish().transform(val => val ?? 0),
+    voucherDiscount: z.coerce.number().nullish().transform(val => val ?? 0),
+    shippingFee: z.coerce.number().nullish().transform(val => val ?? 0),
+    shopTotal: z.coerce.number().nullish().transform(val => val ?? 0),
 });
 
 const CheckoutPreviewShopSchema = z.object({
-    shopId: z.string().optional(),
-    shopName: z.string().optional(),
-    logoUrl: z.string().nullable().optional(),
-    items: z.array(CheckoutPreviewItemSchema).optional().default([]),
-    summary: CheckoutShopSummarySchema,
-    selectedShippingMethod: z.string().nullable(),
-    availableShippingOptions: z.array(CheckoutShippingOptionSchema).nullable().optional().default([]),
-    loyaltyInfo: CheckoutLoyaltyInfoSchema.nullable().optional(),
-    voucherResult: CheckoutVoucherResultSchema.optional(),
+    shopId: z.string().nullish().transform(val => val ?? ''),
+    shopName: z.string().nullish().transform(val => val ?? ''),
+    logoUrl: z.string().nullish(),
+    items: z.array(CheckoutPreviewItemSchema).nullish().transform(val => val ?? []),
+    pricing: CheckoutShopSummarySchema,
+    shipping: z.object({
+        type: z.string().nullish().transform(val => val ?? 'DOMESTIC'),
+        options: z.array(CheckoutShippingOptionSchema).nullish().transform(val => val ?? []),
+        selectedMethodId: z.string().nullish(),
+    }),
+    loyaltyInfo: CheckoutLoyaltyInfoSchema.nullish(),
+    voucher: CheckoutVoucherResultSchema.nullish(),
 });
 
 const CheckoutOrderSummarySchema = z.object({
-    totalItems: z.number().int().nullable().optional().default(0),
-    subtotal: z.number().nullable().optional().default(0),
-    totalDiscount: z.number().nullable().optional().default(0),
-    shippingDiscount: z.number().nullable().optional().default(0),
-    totalShippingFee: z.number().nullable().optional().default(0),
-    grandTotal: z.number().nullable().optional().default(0),
+    totalItems: z.coerce.number().nullish().transform(val => val ?? 0),
+    totalQuantity: z.coerce.number().nullish().transform(val => val ?? 0),
+    subtotal: z.coerce.number().nullish().transform(val => val ?? 0),
+    discounts: z.object({
+        voucherProduct: z.coerce.number().nullish().transform(val => val ?? 0),
+        voucherShipping: z.coerce.number().nullish().transform(val => val ?? 0),
+        voucherTotal: z.coerce.number().nullish().transform(val => val ?? 0),
+    }).nullish().transform(val => val ?? ({
+        voucherProduct: 0,
+        voucherShipping: 0,
+        voucherTotal: 0,
+    })),
+    totalShippingFee: z.coerce.number().nullish().transform(val => val ?? 0),
+    grandTotal: z.coerce.number().nullish().transform(val => val ?? 0),
+    totalTaxAmount: z.coerce.number().nullish().transform(val => val ?? 0),
 });
 
 const CheckoutBuyerAddressSchema = z.object({
-    addressId: z.string().optional(),
-    addressType: z.number().nullable().optional(),
-    taxAddress: z.string().nullable().optional(),
+    addressId: z.string().nullish().transform(val => val ?? ''),
+    addressType: z.coerce.number().nullish().transform(val => val ?? 0),
+    taxAddress: z.string().nullish(),
 });
 
 const CheckoutPreviewDataSchema = z.object({
-    previewId: z.string().optional(),
-    cartId: z.string().optional().default(''),
-    currency: z.string().optional().default('VND'),
-    previewAt: z.string().optional().default(new Date().toISOString()),
-    buyerAddressData: CheckoutBuyerAddressSchema.optional(),
-    shops: z.array(CheckoutPreviewShopSchema).optional().default([]),
-    summary: CheckoutOrderSummarySchema.optional().default({
+    previewId: z.string().nullish().transform(val => val ?? ''),
+    cartId: z.string().nullish().transform(val => val ?? ''),
+    currency: z.string().nullish().transform(val => val ?? 'VND'),
+    previewAt: z.string().nullish().transform(val => val ?? new Date().toISOString()),
+    previewChecksum: z.string().nullish(),
+    buyerAddressData: CheckoutBuyerAddressSchema.nullish(),
+    shops: z.array(CheckoutPreviewShopSchema).nullish().transform(val => val ?? []),
+    summary: CheckoutOrderSummarySchema.nullish().transform(val => val ?? ({
         totalItems: 0,
+        totalQuantity: 0,
         subtotal: 0,
-        totalDiscount: 0,
-        shippingDiscount: 0,
+        discounts: { voucherProduct: 0, voucherShipping: 0, voucherTotal: 0 },
         totalShippingFee: 0,
         grandTotal: 0,
-    }),
-    isValid: z.boolean().optional().default(true),
-    validationErrors: z.array(z.string()).optional().default([]),
-    warnings: z.array(z.string()).optional().default([]),
+        totalTaxAmount: 0,
+    })),
+    validation: z.object({
+        isValid: z.boolean().nullish().transform(val => val ?? true),
+        errors: z.array(z.string()).nullish().transform(val => val ?? []),
+        warnings: z.array(z.string()).nullish().transform(val => val ?? []),
+    }).nullish().transform(val => val ?? ({
+        isValid: true,
+        errors: [],
+        warnings: [],
+    })),
 });
 
 /** Schema để validate full API response */
 export const CheckoutPreviewResponseSchema = z.object({
-    code: z.number().optional().default(200),
-    success: z.boolean().optional().default(true),
-    message: z.string().optional().nullable(),
+    code: z.coerce.number().nullish().transform(val => val ?? 200),
+    success: z.boolean().nullish().transform(val => val ?? true),
+    message: z.string().nullish().transform(val => val ?? ''),
     data: CheckoutPreviewDataSchema,
-});
+}).transform(res => ({
+    ...res,
+    data: res.data // Ensure data is not null if parsed correctly
+}));

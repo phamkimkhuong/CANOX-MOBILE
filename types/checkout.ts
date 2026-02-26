@@ -90,6 +90,16 @@ export const getShippingMethodConfig = (method?: ShippingMethod | null): Shippin
     if (method.type === 'fast' || name.includes('nhanh')) {
         return SHIPPING_CONFIG.fast;
     }
+
+    // Check vận chuyển quốc tế
+    if (name.includes('fedex') || name.includes('ups') || name.includes('tuyến') || name.includes('international')) {
+        return {
+            icon: 'airplane',
+            color: '#8B5CF6', // violet
+            label: 'Quốc tế',
+        };
+    }
+
     if (method.type === 'supper_ship' || name.includes('tiêu chuẩn')) {
         return SHIPPING_CONFIG.supper_ship;
     }

@@ -55,10 +55,7 @@ export type HotKeywordsResponse = z.infer<typeof HotKeywordsResponseSchema>;
  */
 export const SearchSuggestionItemSchema = z.object({
     keyword: z.string(),
-    searchCount: z.number().default(0),
     source: z.string().default('KEYWORD'),
-    rankScore: z.number().optional(),
-    position: z.number().optional(),
 });
 
 export type SearchSuggestionItem = z.infer<typeof SearchSuggestionItemSchema>;
@@ -130,8 +127,6 @@ export interface SearchSuggestionUI {
     remainingPart: string;
     /** Text to highlight in the suggestion */
     highlightedText?: string;
-    /** Category name if available */
-    categoryName?: string;
     source: 'KEYWORD' | 'SHOP' | 'CATEGORY';
 }
 

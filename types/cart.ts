@@ -15,7 +15,6 @@ export const CartItemSchema = z.object({
     variantAttributes: z.string().nullable().optional().default(''),
     shopId: z.string().nullable().optional(),
     imagePath: z.string().nullable().optional(),
-    imageAssetId: z.string().nullable().optional(),
 
     // Pricing
     priceBeforeDiscount: z.number().nullable().optional().default(0),
@@ -23,7 +22,6 @@ export const CartItemSchema = z.object({
     quantity: z.number().nullable().optional().default(1),
     totalPrice: z.number().nullable().optional().default(0),
     discountAmount: z.number().nullable().optional().default(0),
-    promotionPercent: z.number().nullable().optional(),
     promotion: z.object({
         discountPercent: z.number().nullable().optional(),
     }).nullable().optional(),
@@ -42,7 +40,6 @@ export const CartShopSchema = z.object({
     shopId: z.string(),
     shopName: z.string().nullable().optional().default(''),
     logoPath: z.string().nullable().optional(),
-    logoAssetId: z.string().nullable().optional(),
     items: z.array(CartItemSchema).default([]),
 
     // Shop totals (from API)

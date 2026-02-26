@@ -146,7 +146,7 @@ export const NotificationResponseItemSchema = z.object({
     category: z.string().nullable(), // ORDER, PROMO...
     imageUrl: z.string().nullable(),
     createdDate: z.string(),
-}).loose(); // Allow extra fields
+});
 
 export type NotificationResponseItem = z.infer<typeof NotificationResponseItemSchema>;
 

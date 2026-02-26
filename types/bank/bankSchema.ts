@@ -7,7 +7,6 @@ import { ResponseDefaultSchema } from '../responseSchema';
 
 export const UserBankAccountSchema = z.object({
     bankAccountId: z.string().catch(''),
-    userId: z.string().catch(''),
     accountType: z.enum(['SHOP', 'BUYER', 'ADMIN']).catch('BUYER'),
     bankAccountNumber: z.string().catch(''),
     bankName: z.string().catch(''),
@@ -15,7 +14,6 @@ export const UserBankAccountSchema = z.object({
     branch: z.string().nullish(),
     default: z.boolean().nullish().transform(val => !!val),
     deleted: z.boolean().nullish().catch(false).transform(val => !!val),
-    createdDate: z.string().nullish().catch(new Date().toISOString()),
 });
 
 export const BankInitVerificationSchema = z.object({

@@ -70,9 +70,8 @@ export type ProductOptionValue = OptionValue;
 // ============================================
 
 export const VariantInventorySchema = z.object({
-    quantity: z.number().nullable().optional().default(0),
-    available: z.number().nullable().optional().default(0),
-    stock: z.number().nullable().optional().default(0),
+    available: z.coerce.number().nullish().transform(val => val ?? 0),
+    stock: z.coerce.number().nullish().transform(val => val ?? 0),
 });
 export type VariantInventory = z.infer<typeof VariantInventorySchema>;
 
@@ -177,17 +176,12 @@ export type Voucher = z.infer<typeof VoucherSchema>;
 // ============================================
 
 export const ReviewStatsSchema = z.object({
-    reviewableId: z.string().nullable().optional(),
-    totalReviews: z.number().nullable().optional().default(0),
-    averageRating: z.number().nullable().optional().default(0),
-    ratingDistribution: z.record(z.string(), z.number()).nullable().optional(),
-    ratingPercentage: z.record(z.string(), z.number()).nullable().optional(),
-    verifiedPurchaseCount: z.number().nullable().optional(),
-    verifiedPurchasePercentage: z.number().nullable().optional(),
-    commentCount: z.number().nullable().optional(),
-    mediaReviewCount: z.number().nullable().optional(),
-    imageReviewCount: z.number().nullable().optional(),
-    videoReviewCount: z.number().nullable().optional(),
+    reviewableId: z.string().nullish(),
+    totalReviews: z.coerce.number().nullish().transform(val => val ?? 0),
+    averageRating: z.coerce.number().nullish().transform(val => val ?? 0),
+    ratingDistribution: z.record(z.string(), z.number()).nullish().transform(val => val ?? {}),
+    ratingPercentage: z.record(z.string(), z.number()).nullish().transform(val => val ?? {}),
+    mediaReviewCount: z.coerce.number().nullish().transform(val => val ?? 0),
 });
 export type ReviewStats = z.infer<typeof ReviewStatsSchema>;
 
@@ -284,7 +278,10 @@ export type ProductDetailResponse = z.infer<typeof ProductDetailResponseSchema>;
 export const ProductDetailAPIResponseSchema = ResponseDefaultSchema.extend({
     message: z.string().optional(),
     data: ProductDetailResponseSchema,
-});
+}).transform(res => ({
+    ...res,
+    data: res.data // Ensure data is not null if parsed correctly
+}));
 export type ProductDetailAPIResponse = z.infer<typeof ProductDetailAPIResponseSchema>;
 
 // ============================================
@@ -445,12 +442,7 @@ export interface ReviewStatistics {
     averageRating: number;
     ratingDistribution?: Record<string, number>;
     ratingPercentage?: Record<string, number>;
-    verifiedPurchaseCount?: number;
-    verifiedPurchasePercentage?: number;
-    commentCount?: number;
     mediaReviewCount?: number;
-    imageReviewCount?: number;
-    videoReviewCount?: number;
 }
 
 /**

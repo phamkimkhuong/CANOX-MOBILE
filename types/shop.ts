@@ -17,9 +17,9 @@ export * from './shop/shopIdentity';
  * Shop Statistics Schema
  */
 export const ShopStatisticsSchema = z.object({
-    totalProducts: z.number().catch(0),
-    averageRating: z.number().catch(0),
-    totalReviews: z.number().catch(0),
+    totalProducts: z.coerce.number().nullish().transform(val => val ?? 0),
+    averageRating: z.coerce.number().nullish().transform(val => val ?? 0),
+    totalReviews: z.coerce.number().nullish().transform(val => val ?? 0),
 });
 
 /**
@@ -27,15 +27,15 @@ export const ShopStatisticsSchema = z.object({
  * Endpoint: GET /api/v1/public/shops/{shopId}
  */
 export const ShopDetailDTOSchema = z.object({
-    shopId: z.string(),
-    userId: z.string().nullable().optional(),
-    shopName: z.string().default('Shop'),
-    description: z.string().nullable().optional(),
-    logoUrl: z.string().nullable().optional(),
-    bannerUrl: z.string().nullable().optional(),
-    onVacation: z.boolean().nullable().optional().default(false),
-    createdAt: z.string().nullable().optional().default(''),
-    statistics: ShopStatisticsSchema.nullable().optional(),
+    shopId: z.string().nullish().transform(val => val ?? ''),
+    userId: z.string().nullish(),
+    shopName: z.string().nullish().transform(val => val ?? 'Shop'),
+    description: z.string().nullish(),
+    logoUrl: z.string().nullish(),
+    bannerUrl: z.string().nullish(),
+    onVacation: z.boolean().nullish().transform(val => val ?? false),
+    createdAt: z.string().nullish(),
+    statistics: ShopStatisticsSchema.nullish(),
 });
 
 export type ShopDetailDTO = z.infer<typeof ShopDetailDTOSchema>;
@@ -45,7 +45,10 @@ export type ShopDetailDTO = z.infer<typeof ShopDetailDTOSchema>;
  */
 export const ShopDetailResponseSchema = ResponseDefaultSchema.extend({
     data: ShopDetailDTOSchema,
-});
+}).transform(res => ({
+    ...res,
+    data: res.data // Ensure data is not null if parsed correctly
+}));
 
 export type ShopDetailResponse = z.infer<typeof ShopDetailResponseSchema>;
 
@@ -57,10 +60,10 @@ export type ShopDetailResponse = z.infer<typeof ShopDetailResponseSchema>;
  * Product Media Schema (for shop products)
  */
 export const ShopProductMediaSchema = z.object({
-    id: z.string(),
-    imageAssetId: z.string().nullable().optional(),
-    url: z.string().nullable().optional().default(''),
-    isPrimary: z.boolean().nullable().optional().default(false),
+    id: z.string().nullish().transform(val => val ?? ''),
+    imageAssetId: z.string().nullish(),
+    url: z.string().nullish().transform(val => val ?? ''),
+    isPrimary: z.boolean().nullish().transform(val => val ?? false),
 });
 
 export type ShopProductMedia = z.infer<typeof ShopProductMediaSchema>;
@@ -69,27 +72,26 @@ export type ShopProductMedia = z.infer<typeof ShopProductMediaSchema>;
  * Product Review Statistics Schema
  */
 export const ShopProductReviewStatisticsSchema = z.object({
-    reviewableId: z.string(),
-    totalReviews: z.number(),
-    averageRating: z.number(),
-    verifiedPurchaseCount: z.number().nullable().optional(),
-}).nullable().optional();
+    reviewableId: z.string().nullish(),
+    totalReviews: z.coerce.number().nullish().transform(val => val ?? 0),
+    averageRating: z.coerce.number().nullish().transform(val => val ?? 0),
+});
 
 /**
  * Shop Product DTO Schema - Matches API Response for shop products
  * Endpoint: GET /api/v1/public/products/shop/{shopId}
  */
 export const ShopProductDTOSchema = z.object({
-    id: z.string(),
-    name: z.string().nullable().optional().default(''),
-    priceBeforeDiscount: z.number().nullable().optional().default(0),
-    priceAfterBestVoucher: z.number().nullable().optional().default(0),
+    id: z.string().nullish().transform(val => val ?? ''),
+    name: z.string().nullish().transform(val => val ?? ''),
+    priceBeforeDiscount: z.coerce.number().nullish().transform(val => val ?? 0),
+    priceAfterBestVoucher: z.coerce.number().nullish().transform(val => val ?? 0),
     shop: z.object({
-        shop_location: z.string().nullable().optional().default(''),
-    }).nullable().optional(),
-    media: z.array(ShopProductMediaSchema).nullable().optional().default([]),
-    reviewStatistics: ShopProductReviewStatisticsSchema,
-    availableRegions: z.array(z.string()).nullable().optional().default([]),
+        shop_location: z.string().nullish().transform(val => val ?? ''),
+    }).nullish().transform(val => val ?? { shop_location: '' }),
+    media: z.array(ShopProductMediaSchema).nullish().transform(val => val ?? []),
+    reviewStatistics: ShopProductReviewStatisticsSchema.nullish(),
+    availableRegions: z.array(z.string()).nullish().transform(val => val ?? []),
 });
 
 export type ShopProductDTO = z.infer<typeof ShopProductDTOSchema>;

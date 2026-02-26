@@ -6,6 +6,7 @@
  */
 
 import { z } from 'zod';
+import { createPaginatedResponseSchema } from './responseSchema';
 
 // ============================================
 // SORT TYPES
@@ -154,70 +155,42 @@ export const SearchProductItemSchema = z.object({
     priceBeforeDiscount: z.number().nullable().optional().default(0),
     priceAfterBestVoucher: z.number().nullable().optional().default(0),
     showDiscount: z.number().nullable().optional().default(0),
-    // Category
+    // Category - pruned
     category: z.object({
         name: z.string().nullable().optional().default(''),
     }).nullable().optional(),
-    // Shop
+    // Shop - pruned + added place
     shop: z.object({
         shopId: z.string().nullable().optional(),
         shopName: z.string().nullable().optional().default(''),
+        place: z.string().nullable().optional().default(''),
     }).nullable().optional(),
-    // Media
+    // Media - pruned imagePath (used for toSizedImageUrl)
     media: z.array(z.object({
         imagePath: z.string().nullable().optional(),
         url: z.string().nullable().optional().default(''),
         isPrimary: z.boolean().nullable().optional().default(false),
     })).nullable().optional().default([]),
-    // Review stats
+    // Review stats - pruned to essentials
     reviewStatistics: z.object({
         totalReviews: z.number().nullable().optional().default(0),
         averageRating: z.number().nullable().optional().default(0),
         verifiedPurchaseCount: z.number().nullable().optional().default(0),
     }).nullable().optional(),
-    // Active campaigns (for flash sale badge)
+    // Active campaigns - pruned
     activeCampaigns: z.array(z.object({
         campaignType: z.string(),
     })).nullable().optional().default([]),
-    // Best voucher info
-    bestShopVoucher: z.object({
-        voucherId: z.string(),
-    }).nullable().optional(),
+    // Best voucher info - pruned to check presence only
+    bestShopVoucher: z.object({}).nullable().optional(),
 });
 
 export type SearchProductItem = z.infer<typeof SearchProductItemSchema>;
 
-// ============================================
-// SEARCH RESPONSE
-// ============================================
-
 /**
- * Paginated search response data
+ * Search results response schema using helper
  */
-export const SearchResponseDataSchema = z.object({
-    content: z.array(SearchProductItemSchema).default([]),
-    page: z.number().catch(0),
-    size: z.number().catch(20),
-    totalElements: z.number().optional().catch(0),
-    totalPages: z.number().catch(0),
-    hasNext: z.boolean().catch(false),
-    hasPrevious: z.boolean().optional().catch(false),
-    nextPage: z.number().nullable().optional(),
-    previousPage: z.number().nullable().optional(),
-    empty: z.boolean().optional(),
-    first: z.boolean().optional(),
-    last: z.boolean().optional(),
-});
-
-/**
- * Full search response schema
- */
-export const SearchProductsResponseSchema = z.object({
-    code: z.number().nullable().optional().default(0),
-    success: z.boolean().nullable().optional().default(true),
-    message: z.string().nullable().optional().default(''),
-    data: SearchResponseDataSchema.nullable().optional(),
-});
+export const SearchProductsResponseSchema = createPaginatedResponseSchema(SearchProductItemSchema);
 
 export type SearchProductsResponse = z.infer<typeof SearchProductsResponseSchema>;
 

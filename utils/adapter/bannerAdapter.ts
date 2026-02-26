@@ -18,8 +18,6 @@ export function toBannerUI(banner: Banner, isMobile = true): BannerUI {
         imageUrl,
         href: banner.href || undefined,
         title: banner.title || undefined,
-        subtitle: banner.subtitle || undefined,
-        trackingId: banner.trackingId || undefined,
         aspectRatio: 1,
     };
 }

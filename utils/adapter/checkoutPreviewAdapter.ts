@@ -65,10 +65,10 @@ export const toCheckoutItemUI = (dto: CheckoutPreviewItemDTO): CheckoutItemUI =>
 export const toShippingMethod = (dto: CheckoutShippingOptionDTO): ShippingMethod => ({
     id: String(dto.serviceCode ?? ''),
     type: (dto.serviceType ?? 'standard') as 'standard' | 'fast' | 'express',
-    name: dto.displayName ?? '',
-    description: dto.estimatedDeliveryTime ?? '',
-    estimatedDays: parseEstimatedDays(dto.estimatedDeliveryTime ?? ''),
-    fee: dto.fee ?? 0,
+    name: dto.label ?? '',
+    description: dto.estimated ?? '',
+    estimatedDays: parseEstimatedDays(dto.estimated ?? ''),
+    fee: dto.totalFee ?? 0,
 });
 
 /**
@@ -203,12 +203,12 @@ export const toCheckoutShopUI = (dto: CheckoutPreviewShopDTO): CheckoutShopUI =>
     }));
 
     // Transform all vouchers from discountDetails (with null safety)
-    const discountDetails = dto.voucherResult?.discountDetails ?? [];
+    const discountDetails = dto.voucher?.discountDetails ?? [];
     const allVouchers = discountDetails.map(toVoucherUI);
 
     // Find first SHOP voucher code for appliedVoucherId
     const firstShopVoucher = discountDetails.find(
-        v => v.voucherType === 'SHOP' && v.valid
+        (v: CheckoutVoucherDetailDTO) => v.voucherType === 'SHOP' && v.valid
     );
 
     return {
@@ -218,8 +218,8 @@ export const toCheckoutShopUI = (dto: CheckoutPreviewShopDTO): CheckoutShopUI =>
         items,
         shippingOptions: toShopShippingOptions(
             dto.shopId ?? '',
-            dto.availableShippingOptions,
-            dto.selectedShippingMethod
+            dto.shipping.options,
+            dto.shipping.selectedMethodId
         ),
         appliedVoucherId: firstShopVoucher?.voucherCode ?? null,
         availableVouchers: allVouchers,  // Contains both SHOP and PLATFORM for UI to filter
@@ -236,10 +236,10 @@ export const toCheckoutShopUI = (dto: CheckoutPreviewShopDTO): CheckoutShopUI =>
  * Calculate shop voucher discount from voucherResult.discountDetails.
  * Only sum SHOP type vouchers, not PLATFORM.
  */
-const calculateShopVoucherDiscount = (voucherResult?: CheckoutVoucherResultDTO): number => {
+const calculateShopVoucherDiscount = (voucherResult?: CheckoutVoucherResultDTO | null): number => {
     if (!voucherResult?.discountDetails) return 0;
     return voucherResult.discountDetails
-        .filter(v => v.voucherType === 'SHOP' && v.valid)
+        .filter((v: CheckoutVoucherDetailDTO) => v.voucherType === 'SHOP' && v.valid)
         .reduce((sum, v) => sum + (v.discountAmount || 0), 0);
 };
 
@@ -249,7 +249,7 @@ const calculateShopVoucherDiscount = (voucherResult?: CheckoutVoucherResultDTO):
 export const toShopSubtotal = (
     shopId: string,
     dto: CheckoutShopSummaryDTO,
-    voucherResult?: CheckoutVoucherResultDTO
+    voucherResult?: CheckoutVoucherResultDTO | null
 ): ShopSubtotal => ({
     shopId,
     itemsTotal: dto.subtotal ?? 0,
@@ -271,26 +271,26 @@ export const toCheckoutCalculation = (
 ): CheckoutCalculationResult => {
     // Calculate total shop voucher discount from each shop's voucherResult
     const totalShopVoucherDiscount = shops.reduce(
-        (sum, shop) => sum + calculateShopVoucherDiscount(shop.voucherResult),
+        (sum, shop) => sum + calculateShopVoucherDiscount(shop.voucher),
         0
     );
-    const platformVoucherDiscount = Math.max(0, (dto.totalDiscount ?? 0) - totalShopVoucherDiscount - (dto.shippingDiscount ?? 0));
+    const platformVoucherDiscount = Math.max(0, (dto.discounts.voucherTotal ?? 0) - totalShopVoucherDiscount - (dto.discounts.voucherShipping ?? 0));
 
     return {
         subtotal: dto.subtotal ?? 0,
         totalShippingFee: dto.totalShippingFee ?? 0,
         totalShopVoucherDiscount,
         platformVoucherDiscount,
-        shippingDiscount: dto.shippingDiscount ?? 0,
-        appliedPlatformVoucherId: shops.flatMap(s => s.voucherResult?.discountDetails || [])
+        shippingDiscount: dto.discounts.voucherShipping ?? 0,
+        appliedPlatformVoucherId: shops.flatMap(s => s.voucher?.discountDetails || [])
             .find(v => v.voucherType === 'PLATFORM' && v.discountTarget !== 'SHIP' && v.valid)?.voucherCode ?? null,
-        appliedShippingVoucherId: shops.flatMap(s => s.voucherResult?.discountDetails || [])
+        appliedShippingVoucherId: shops.flatMap(s => s.voucher?.discountDetails || [])
             .find(v => v.voucherType === 'PLATFORM' && v.discountTarget === 'SHIP' && v.valid)?.voucherCode ?? null,
         totalAmount: dto.grandTotal ?? 0,
         taxAmount: dto.totalTaxAmount ?? 0,
-        totalSavings: dto.totalDiscount ?? 0,
+        totalSavings: dto.discounts.voucherTotal ?? 0,
         totalItemCount: dto.totalItems ?? 0,
-        shopSubtotals: shops.map((shop) => toShopSubtotal(shop.shopId ?? '', shop.summary, shop.voucherResult)),
+        shopSubtotals: shops.map((shop) => toShopSubtotal(shop.shopId ?? '', shop.pricing, shop.voucher)),
         isCalculatingShipping: false,
         platformVoucherValidation: null,
         loyaltyPoints: shops.reduce((sum, shop) => sum + (shop.loyaltyInfo?.pointsToRedeem ?? 0), 0),
@@ -326,7 +326,7 @@ export interface CheckoutPreviewUI {
  */
 export const toCheckoutPreviewUI = (dto: CheckoutPreviewDataDTO): CheckoutPreviewUI => {
     return {
-        previewId: dto.cartId,
+        previewId: dto.previewId || dto.cartId,
         cartId: dto.cartId,
         currency: dto.currency,
         previewAt: dto.previewAt,
@@ -334,10 +334,10 @@ export const toCheckoutPreviewUI = (dto: CheckoutPreviewDataDTO): CheckoutPrevie
         addressType: dto.buyerAddressData?.addressType ?? null,
         taxAddress: dto.buyerAddressData?.taxAddress ?? null,
         shops: dto.shops.map(toCheckoutShopUI),
-        calculation: toCheckoutCalculation(dto.summary, dto.shops, dto.isValid),
-        isValid: dto.isValid,
-        validationErrors: dto.validationErrors,
-        warnings: dto.warnings,
+        calculation: toCheckoutCalculation(dto.summary, dto.shops, dto.validation.isValid),
+        isValid: dto.validation.isValid,
+        validationErrors: dto.validation.errors,
+        warnings: dto.validation.warnings,
     };
 };
 

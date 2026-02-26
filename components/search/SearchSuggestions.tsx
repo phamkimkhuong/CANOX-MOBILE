@@ -107,8 +107,6 @@ const SuggestionItem = React.memo(({
     onPress: () => void;
 }) => {
     const { theme } = useUnistyles();
-    const { t } = useTranslation('search');
-
     return (
         <Pressable
             style={({ pressed }) => [
@@ -128,11 +126,6 @@ const SuggestionItem = React.memo(({
                     text={suggestion.keyword}
                     highlightedText={suggestion.highlightedText}
                 />
-                {suggestion.categoryName && (
-                    <Text style={styles.categoryText} numberOfLines={1}>
-                        {t('suggestions.searchIn')} {suggestion.categoryName}
-                    </Text>
-                )}
             </View>
             {/* Arrow to fill in suggestion */}
             <Pressable

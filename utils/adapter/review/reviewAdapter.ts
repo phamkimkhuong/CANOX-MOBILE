@@ -31,7 +31,7 @@ export const toPendingReviewItemUI = (
     productId: item.productId,
     variantId: item.variantId,
     productName: item.productName,
-    imageUrl: buildImageUrl(item.imagePath || item.imageBasePath, item.imageExtension, 'medium'),
+    imageUrl: buildImageUrl(item.imagePath, '', 'medium'),
     variantAttributes: item.variantAttributes,
     price: item.unitPrice,
     formattedPrice: formatCurrency(item.unitPrice),

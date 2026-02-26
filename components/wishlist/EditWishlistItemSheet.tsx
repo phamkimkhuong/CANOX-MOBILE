@@ -296,7 +296,7 @@ export const EditWishlistItemSheet = forwardRef<
                     <ScrollView
                         horizontal
                         showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={{ gap: 8, paddingVertical: 4 }}
+                        contentContainerStyle={styles.wishlistList}
                     >
                         {isLoadingWishlists ? (
                             Array.from({ length: 3 }).map((_, i) => (
@@ -340,8 +340,8 @@ export const EditWishlistItemSheet = forwardRef<
                         <Pressable
                             style={[
                                 styles.priorityCard,
+                                styles.flex1,
                                 priority === 0 && styles.priorityCardActive,
-                                { flex: 1 },
                             ]}
                             onPress={() => setPriority(0)}
                             disabled={isLoading}
@@ -364,8 +364,8 @@ export const EditWishlistItemSheet = forwardRef<
                         <Pressable
                             style={[
                                 styles.priorityCard,
+                                styles.flex1,
                                 priority === 2 && styles.priorityCardUrgentActive,
-                                { flex: 1 },
                             ]}
                             onPress={() => setPriority(2)}
                             disabled={isLoading}
@@ -606,9 +606,12 @@ const sheetStyles = StyleSheet.create((theme) => ({
         marginTop: 2,
     },
 
-    // Wishlist horizontal selection
     wishlistList: {
-        paddingVertical: theme.margins.xs,
+        paddingVertical: 4,
+        gap: 8,
+    },
+    flex1: {
+        flex: 1,
     },
     wlChip: {
         paddingHorizontal: theme.margins.md,

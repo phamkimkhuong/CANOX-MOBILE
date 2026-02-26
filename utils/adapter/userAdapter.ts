@@ -18,7 +18,7 @@ import { Gender, UserMeData } from '@/types/user';
 export const transformUserMe = (apiData: UserMeData): UserProfile => {
     // Extract buyer info
     const buyer = apiData.buyer;
-    const displayName = buyer?.fullName || apiData.username;
+    const displayName = buyer?.fullName || apiData.username || '';
 
     // Determine if user is truly verified:
     const hasValidFullName = Boolean(
@@ -31,17 +31,18 @@ export const transformUserMe = (apiData: UserMeData): UserProfile => {
         buyer.phone.trim() !== '' &&
         buyer.phone !== '-'
     );
-    const isVerified = hasValidFullName && hasValidPhone;
+    // Use API profileCompleted flag if available, fallback to manual validation
+    const isVerified = buyer?.profileCompleted ?? (hasValidFullName && hasValidPhone);
 
     return {
         id: apiData.userId,
-        username: apiData.username,
+        username: apiData.username || '',
         fullName: displayName,
-        email: apiData.email,
+        email: apiData.email || undefined,
         phone: buyer?.phone || undefined,
-        avatar: apiData.image || null,
-        dateOfBirth: buyer?.dateOfBirth || null,
-        gender: (buyer?.gender as Gender) || null,
+        avatar: apiData.avatar?.replace(/\s+/g, '') || null,
+        dateOfBirth: buyer?.dateOfBirth || undefined,
+        gender: (buyer?.gender as Gender) || undefined,
         // Default to BRONZE - can be enhanced with member level API later
         memberLevel: 'BRONZE',
         isVerified,

@@ -55,11 +55,9 @@ export type MessageStatus = (typeof MessageStatus)[keyof typeof MessageStatus];
 export interface MessageUserDTO {
     userId: string;
     username?: string | null;
-    email?: string | null;
     image?: string | null;
     roles?: string[] | null;
     fullNameBuyer?: string | null;
-    fullNameEmployee?: string | null;
     shopId?: string | null;
     shopName?: string | null;
     logoUrl?: string | null;
@@ -120,19 +118,8 @@ export interface MessageDTO {
     metadata?: string | null;
     isDeleted?: boolean | null;
     deletedType?: string | null;
-    deletedBy?: string | null;
-    deletedAt?: string | null;
     isEdited: boolean;
     sentAt: string;
-    deliveredAt?: string | null;
-    readAt?: string | null;
-    editedAt?: string | null;
-    createdBy: string;
-    createdDate: string;
-    lastModifiedBy: string;
-    lastModifiedDate: string;
-    deleted: boolean;
-    version: number;
 }
 
 /**
@@ -141,16 +128,8 @@ export interface MessageDTO {
 export interface MessagePageDTO {
     content: MessageDTO[];
     page: number;
-    size: number;
     totalElements: number;
-    totalPages: number;
     hasNext: boolean;
-    hasPrevious: boolean;
-    previousPage: number;
-    nextPage: number;
-    empty: boolean;
-    first: boolean;
-    last: boolean;
 }
 
 /**
@@ -244,7 +223,6 @@ export interface MessageDateGroup {
 const MessageUserDTOSchema = z.object({
     userId: z.string(),
     username: z.string().optional().nullable(),
-    email: z.string().optional().nullable(),
     image: z.string().nullable().optional(),
     roles: z.array(z.string()).optional().nullable().default([]),
     fullNameBuyer: z.string().nullable().optional(),
@@ -300,30 +278,13 @@ const MessageDTOSchema = z.object({
     deletedType: z.string().nullable().optional(),
     isEdited: z.boolean().optional().nullable().transform(v => v ?? false),
     sentAt: z.string().optional().nullable().transform(v => v || new Date().toISOString()),
-    deliveredAt: z.string().nullable().optional(),
-    readAt: z.string().nullable().optional(),
-    editedAt: z.string().nullable().optional(),
-    createdBy: z.string().optional().default('system'),
-    createdDate: z.string().optional().default(new Date().toISOString()),
-    lastModifiedBy: z.string().optional().default('system'),
-    lastModifiedDate: z.string().optional().default(new Date().toISOString()),
-    deleted: z.boolean().optional().default(false),
-    version: z.number().optional().default(0),
 });
 
 const MessagePageDTOSchema = z.object({
     content: z.array(MessageDTOSchema),
     page: z.number(),
-    size: z.number(),
     totalElements: z.number(),
-    totalPages: z.number(),
     hasNext: z.boolean(),
-    hasPrevious: z.boolean(),
-    previousPage: z.number(),
-    nextPage: z.number(),
-    empty: z.boolean(),
-    first: z.boolean(),
-    last: z.boolean(),
 });
 
 /**

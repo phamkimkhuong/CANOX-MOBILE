@@ -55,11 +55,8 @@ export type ParticipantRole = (typeof ParticipantRole)[keyof typeof ParticipantR
 export interface UserDTO {
     userId: string;
     username: string;
-    email: string;
     image?: string | null;
-    roles: string[];
     fullNameBuyer?: string | null;
-    fullNameEmployee?: string | null;
     shopId?: string | null;
     shopName?: string | null;
     logoUrl?: string | null;
@@ -71,26 +68,10 @@ export interface UserDTO {
 export interface ParticipantDTO {
     id: string;
     user: UserDTO;
-    role: ParticipantRole;
-    nickname?: string | null;
     unreadCount: number;
     isMuted: boolean;
     isPinned: boolean;
-    isArchived: boolean;
-    isActive: boolean;
-    lastReadAt?: string | null;
-    joinedAt: string;
-    leftAt?: string | null;
-    addedByUserId?: string | null;
     isOnline?: boolean | null;
-    presenceStatus?: string | null;
-    lastSeen?: string | null;
-    createdBy: string;
-    createdDate: string;
-    lastModifiedBy: string;
-    lastModifiedDate: string;
-    deleted: boolean;
-    version: number;
 }
 
 /**
@@ -105,19 +86,13 @@ export interface ConversationDTO {
     lastMessageId?: string | null;
     lastMessageAt?: string | null;
     lastMessagePreview?: string | null;
-    totalMessages: number;
     unreadCount?: number | null;
     isMuted?: boolean | null;
     isPinned?: boolean | null;
-    isArchived?: boolean | null;
     participants: ParticipantDTO[];
-    metadata?: string | null;
     createdBy: string;
-    createdDate: string;
     lastModifiedBy: string;
     lastModifiedDate: string;
-    deleted: boolean;
-    version: number;
 }
 
 /**
@@ -126,16 +101,8 @@ export interface ConversationDTO {
 export interface ConversationPageDTO {
     content: ConversationDTO[];
     page: number;
-    size: number;
     totalElements: number;
-    totalPages: number;
     hasNext: boolean;
-    hasPrevious: boolean;
-    previousPage: number;
-    nextPage: number;
-    empty: boolean;
-    first: boolean;
-    last: boolean;
 }
 
 /**
@@ -155,9 +122,7 @@ export interface ConversationListResponse {
 const UserDTOSchema = z.object({
     userId: z.string(),
     username: z.string(),
-    email: z.string().optional().default(''),
     image: z.string().nullable().optional(),
-    roles: z.array(z.string()).optional().default([]),
     fullNameBuyer: z.string().nullable().optional(),
     shopId: z.string().nullable().optional(),
     shopName: z.string().nullable().optional(),
@@ -167,20 +132,10 @@ const UserDTOSchema = z.object({
 const ParticipantDTOSchema = z.object({
     id: z.string(),
     user: UserDTOSchema,
-    role: z.string().optional().default('MEMBER') as z.ZodType<ParticipantRole>,
     unreadCount: z.number(),
     isMuted: z.boolean(),
     isPinned: z.boolean(),
-    isArchived: z.boolean(),
-    isActive: z.boolean(),
-    joinedAt: z.string(),
     isOnline: z.boolean().nullable().optional(),
-    createdBy: z.string().optional().default('system'),
-    createdDate: z.string().optional().default(new Date().toISOString()),
-    lastModifiedBy: z.string().optional().default('system'),
-    lastModifiedDate: z.string().optional().default(new Date().toISOString()),
-    deleted: z.boolean().optional().default(false),
-    version: z.number().optional().default(0),
 });
 
 const ConversationDTOSchema = z.object({
@@ -200,33 +155,20 @@ const ConversationDTOSchema = z.object({
     lastMessageId: z.string().nullable().optional(),
     lastMessageAt: z.string().nullable().optional(),
     lastMessagePreview: z.string().nullable().optional(),
-    totalMessages: z.number(),
     unreadCount: z.number().nullable().optional(),
     isMuted: z.boolean().nullable().optional(),
     isPinned: z.boolean().nullable().optional(),
-    isArchived: z.boolean().nullable().optional(),
     participants: z.array(ParticipantDTOSchema),
     createdBy: z.string().optional().default('system'),
-    createdDate: z.string().optional().default(new Date().toISOString()),
     lastModifiedBy: z.string().optional().default('system'),
     lastModifiedDate: z.string().optional().default(new Date().toISOString()),
-    deleted: z.boolean().optional().default(false),
-    version: z.number().optional().default(0),
 });
 
 const ConversationPageDTOSchema = z.object({
     content: z.array(ConversationDTOSchema),
     page: z.number(),
-    size: z.number(),
     totalElements: z.number(),
-    totalPages: z.number(),
     hasNext: z.boolean(),
-    hasPrevious: z.boolean(),
-    previousPage: z.number(),
-    nextPage: z.number(),
-    empty: z.boolean(),
-    first: z.boolean(),
-    last: z.boolean(),
 });
 
 /**

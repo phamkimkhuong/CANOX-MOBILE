@@ -6,6 +6,7 @@
  */
 
 import { z } from 'zod';
+import { createPaginatedResponseSchema, ResponseDefaultSchema } from '../responseSchema';
 
 // Helper to transform nullish arrays to empty arrays
 const arrayOrEmpty = <T extends z.ZodType>(schema: T) =>
@@ -36,21 +37,16 @@ export const WishlistItemSchema = z.object({
     id: z.string().nullish().transform((val) => val ?? ''),
     wishlistId: z.string().nullish().transform((val) => val ?? ''),
     variantId: z.string().nullish().transform((val) => val ?? ''),
-    sku: z.string().nullish().transform((val) => val ?? ''),
     productId: z.string().nullish().transform((val) => val ?? ''),
     productName: z.string().nullish().transform((val) => val ?? ''),
-    imagePath: z.string().nullish(),
-    imageAssetId: z.string().nullish(),
-    imageBasePath: z.string().nullish(),
-    imageExtension: z.string().nullish(),
-    productImage: z.string().nullish(),
+    imagePath: z.string().nullish().default(null),
+    imageBasePath: z.string().nullish().default(null),
+    imageExtension: z.string().nullish().default(null),
     productPrice: numberOrDefault(0),
-    productDescription: z.string().nullish().transform((val) => val ?? ''),
     quantity: numberOrDefault(1),
-    notes: z.string().nullish(),
+    notes: z.string().nullish().default(null),
     priority: z.coerce.number().nullish().transform((val) => val ?? 0),
-    priorityText: z.string().nullish().transform((val) => val ?? 'Normal'),
-    desiredPrice: z.number().nullish(),
+    desiredPrice: z.number().nullish().default(null),
     isPriceTargetMet: booleanOrDefault(false),
     createdDate: z.string().nullish().transform((val) => val ?? new Date().toISOString()),
     lastModifiedDate: z.string().nullish().transform((val) => val ?? new Date().toISOString()),
@@ -64,18 +60,15 @@ export const WishlistItemSchema = z.object({
 export const WishlistSummarySchema = z.object({
     id: z.string().nullish().transform((val) => val ?? ''),
     name: z.string().nullish().transform((val) => val ?? 'Untitled Wishlist'),
-    description: z.string().nullish(),
+    description: z.string().nullish().default(null),
     isPublic: z.coerce.boolean().nullish().transform(val => val ?? false),
     isDefault: z.coerce.boolean().nullish().transform(val => val ?? false),
-    buyerId: z.string().nullish().transform((val) => val ?? ''),
     buyerName: z.string().nullish().transform((val) => val ?? ''),
     itemCount: numberOrDefault(0),
     createdDate: z.string().nullish().transform((val) => val ?? new Date().toISOString()),
-    lastModifiedDate: z.string().nullish().transform((val) => val ?? new Date().toISOString()),
-    imagePath: z.string().nullish(),
-    imageAssetId: z.string().nullish(),
-    imageBasePath: z.string().nullish(),
-    imageExtension: z.string().nullish(),
+    imagePath: z.string().nullish().default(null),
+    imageBasePath: z.string().nullish().default(null),
+    imageExtension: z.string().nullish().default(null),
 });
 
 // ============================================
@@ -93,20 +86,7 @@ export const WishlistDetailSchema = WishlistSummarySchema.extend({
 // PAGINATED RESPONSE SCHEMA
 // ============================================
 
-export const WishlistPageSchema = z.object({
-    content: arrayOrEmpty(WishlistSummarySchema),
-    page: numberOrDefault(0),
-    size: numberOrDefault(10),
-    totalElements: numberOrDefault(0),
-    totalPages: numberOrDefault(0),
-    hasNext: booleanOrDefault(false),
-    hasPrevious: booleanOrDefault(false),
-    previousPage: numberOrDefault(0),
-    nextPage: numberOrDefault(0),
-    empty: booleanOrDefault(true),
-    first: booleanOrDefault(true),
-    last: booleanOrDefault(true),
-});
+export const WishlistPageSchema = createPaginatedResponseSchema(WishlistSummarySchema);
 
 // ============================================
 // PRICE TARGET MET SCHEMA
@@ -122,31 +102,19 @@ export const PriceTargetMetSchema = z.object({
 // API RESPONSE SCHEMAS
 // ============================================
 
-export const WishlistListResponseSchema = z.object({
-    code: z.number(),
-    success: z.boolean(),
-    message: z.string(),
-    data: WishlistPageSchema,
+export const WishlistListResponseSchema = ResponseDefaultSchema.extend({
+    data: WishlistPageSchema.shape.data.unwrap().unwrap(),
 });
 
-export const WishlistDetailResponseSchema = z.object({
-    code: z.number(),
-    success: z.boolean(),
-    message: z.string(),
+export const WishlistDetailResponseSchema = ResponseDefaultSchema.extend({
     data: WishlistDetailSchema,
 });
 
-export const WishlistItemsResponseSchema = z.object({
-    code: z.number(),
-    success: z.boolean(),
-    message: z.string(),
-    data: z.array(WishlistItemSchema),
+export const WishlistItemsResponseSchema = ResponseDefaultSchema.extend({
+    data: z.array(WishlistItemSchema).default([]),
 });
 
-export const PriceTargetMetResponseSchema = z.object({
-    code: z.number(),
-    success: z.boolean(),
-    message: z.string(),
+export const PriceTargetMetResponseSchema = ResponseDefaultSchema.extend({
     data: PriceTargetMetSchema,
 });
 

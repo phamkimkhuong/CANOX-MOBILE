@@ -51,4 +51,5 @@ export const EN_MAP: Record<number, string> = {
 
     // OTHER
     895: "You are only allowed a maximum of 3 bank accounts",
+    70056: "Cannot delete the default bank account. Please set another account as default first.",
 } as const;

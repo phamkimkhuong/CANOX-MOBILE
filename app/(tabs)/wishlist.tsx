@@ -28,11 +28,14 @@ export default function WishlistTabsScreen() {
 
     // Default to private if no deals
     React.useEffect(() => {
-        if (priceTargetCount === 0 && activeTab === 'price_target') {
-            setActiveTab('private');
-        } else if (priceTargetCount > 0 && activeTab === 'private') {
-            setActiveTab('price_target');
-        }
+        setActiveTab((prev) => {
+            if (priceTargetCount === 0 && prev === 'price_target') {
+                return 'private';
+            } else if (priceTargetCount > 0 && prev === 'private') {
+                return 'price_target';
+            }
+            return prev;
+        });
     }, [priceTargetCount]);
 
     return (
