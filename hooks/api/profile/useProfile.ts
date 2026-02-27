@@ -1,6 +1,7 @@
 import { API_ROUTES } from '@/constants/apiRoutes';
-import { request } from '@/services/api/client';
+import { apiClient, request } from '@/services/api/client';
 import { useAuthStore } from '@/store/useAuthStore';
+import { OrdersApiResponse } from '@/types/order/order';
 import { OrderCountResponseSchema } from '@/types/order/orderCount';
 import {
     FollowedShop,
@@ -39,6 +40,7 @@ export const profileQueryKeys = {
     orderStats: () => [...profileQueryKeys.all, 'order-stats'] as const,
     wallet: () => [...profileQueryKeys.all, 'wallet'] as const,
     followedShops: () => [...profileQueryKeys.all, 'followed-shops'] as const,
+    pendingReviews: () => [...profileQueryKeys.all, 'pending-reviews'] as const,
 };
 
 // ============================================
@@ -107,6 +109,41 @@ export const useOrderStats = () => {
 };
 
 /**
+ * Hook to fetch pending reviews count for SmartInsightBanner
+ * Cache: Short (2 minutes)
+ */
+export const usePendingReviewsCount = () => {
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
+    return useQuery({
+        queryKey: profileQueryKeys.pendingReviews(),
+        queryFn: async (): Promise<number> => {
+            const response = await apiClient.get<OrdersApiResponse>(API_ROUTES.ORDERS.LIST, {
+                params: {
+                    status: 'UI_COMPLETED',
+                    page: 0,
+                    size: 20, // Only fetch first 20 for optimization
+                },
+            });
+
+            // Calculate unreviewed items count 
+            let unreviewedCount = 0;
+            response.data.data?.content?.forEach((order) => {
+                order.items?.forEach((item) => {
+                    if (item.reviewed === false) {
+                        unreviewedCount++;
+                    }
+                });
+            });
+            return unreviewedCount;
+        },
+        enabled: isAuthenticated,
+        staleTime: 1000 * 60 * 2, // 2 minutes
+        gcTime: 1000 * 60 * 10, // 10 minutes
+    });
+};
+
+/**
  * Hook to fetch wallet balance (coins, vouchers)
  * Cache: Medium (5 minutes)
  */
@@ -151,6 +188,7 @@ export const useRefreshProfile = () => {
                 queryClient.invalidateQueries({ queryKey: profileQueryKeys.orderStats() }),
                 queryClient.invalidateQueries({ queryKey: profileQueryKeys.wallet() }),
                 queryClient.invalidateQueries({ queryKey: profileQueryKeys.followedShops() }),
+                queryClient.invalidateQueries({ queryKey: profileQueryKeys.pendingReviews() }),
                 queryClient.invalidateQueries({ queryKey: ['wishlists'] }),
                 queryClient.invalidateQueries({ queryKey: ['loyalty'] }),
             ]);

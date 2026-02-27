@@ -13,7 +13,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 interface ShopPointItemProps {
     shop: ShopPointSummaryUI;
     index: number;
-    onPress: (shopId: string) => void;
+    onPress: (shopId: string, shopName?: string, shopLogo?: string) => void;
 }
 
 export const ShopPointItem: React.FC<ShopPointItemProps> = memo(({ shop, index, onPress }) => {
@@ -24,7 +24,7 @@ export const ShopPointItem: React.FC<ShopPointItemProps> = memo(({ shop, index, 
         <Animated.View entering={FadeInDown.duration(350).delay(200 + index * 80)}>
             <Pressable
                 style={({ pressed }) => [styles.shopItem, pressed && styles.shopItemPressed]}
-                onPress={() => onPress(shop.shopId)}
+                onPress={() => onPress(shop.shopId, shop.shopName, shop.shopLogo)}
             >
                 {/* Shop Avatar */}
                 <View style={styles.shopAvatar}>

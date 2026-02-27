@@ -2,6 +2,24 @@ import { ProfileTranslation } from '../types';
 
 export const PROFILE_STRINGS: ProfileTranslation = {
     title: 'Hồ sơ',
+    smartInsight: {
+        urgentCoin: {
+            message: 'Bạn đang có {{- points}} Xu sắp hết hạn chớp nhoáng. Tiêu dùng ngay kẻo phí nhé!',
+            action: 'Tiêu Ngay',
+        },
+        profileIncomplete: {
+            message: 'Hoàn tất hồ sơ ngay! Cập nhật SĐT để đơn hàng được giao siêu tốc tới tận tay',
+            action: 'Cập nhật',
+        },
+        pendingReview: {
+            message: 'Bạn đang có đơn hàng chờ đánh giá. Nhận xét chân thực, rinh Xu cực bốc!',
+            action: 'Đánh giá ngay',
+        },
+        idleCoin: {
+            message: 'Kho báu {{- points}} Xu đang phủ bụi. Khám phá cách đổi thưởng cực hời ngay!',
+            action: 'Đổi thưởng',
+        },
+    },
     header: {
         login: 'Đăng nhập',
         register: 'Đăng ký',

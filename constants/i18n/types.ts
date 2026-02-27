@@ -816,6 +816,24 @@ export interface ChatTranslation {
  */
 export interface ProfileTranslation {
     title: string;
+    smartInsight: {
+        urgentCoin: {
+            message: string;
+            action: string;
+        };
+        profileIncomplete: {
+            message: string;
+            action: string;
+        };
+        pendingReview: {
+            message: string;
+            action: string;
+        };
+        idleCoin: {
+            message: string;
+            action: string;
+        };
+    };
     header: {
         login: string;
         register: string;
@@ -1656,6 +1674,30 @@ export interface LoyaltyTranslation {
             buy: { title: string; desc: string };
             accumulate: { title: string; desc: string };
             use: { title: string; desc: string };
+        };
+    };
+    shopDetail: {
+        title: string;
+        tabs: {
+            batches: string;
+            history: string;
+        };
+        hero: {
+            availableCoins: string;
+            equivalent: string;
+            warningMsg: string;
+            urgentText: string;
+            buyNow: string;
+            defaultShopName: string;
+        };
+        batchesTab: {
+            empty: string;
+            available: string;
+            unit: string;
+        };
+        historyTab: {
+            expired: string;
+            empty: string;
         };
     };
 }

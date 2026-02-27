@@ -5,12 +5,14 @@ import {
     ProfileHeader,
     ServiceGrid,
     SettingsMenu,
+    SmartInsightBanner,
     UserInfoCard,
 } from '@/components/profile';
 import { useLoyaltyOverview } from '@/hooks/api/loyalty/useLoyalty';
 import {
     // useFollowedShops,
     useOrderStats,
+    usePendingReviewsCount,
     useRefreshProfile,
     useUserProfile,
     useWalletBalance,
@@ -58,7 +60,13 @@ export default function MeScreen() {
 
     const {
         data: loyaltyOverview,
+        isLoading: isLoadingLoyalty,
     } = useLoyaltyOverview();
+
+    const {
+        data: pendingReviewsCount = 0,
+        isLoading: isLoadingPendingReviews,
+    } = usePendingReviewsCount();
 
     // Wishlist tab replaces this, we don't need to fetch
     // const {
@@ -146,9 +154,17 @@ export default function MeScreen() {
                     isLoading={isLoadingProfile}
                 />
 
+                {/* Smart Insight Reminder Banner */}
+                <SmartInsightBanner
+                    userProfile={userProfile}
+                    loyaltyOverview={loyaltyOverview}
+                    pendingReviewsCount={pendingReviewsCount}
+                    isLoading={isLoadingProfile || isLoadingLoyalty || isLoadingPendingReviews}
+                />
+
                 {/* Order Status Rail */}
                 <OrderStatusRail
-                    stats={orderStats}
+                    stats={{ ...orderStats, review: pendingReviewsCount } as any}
                     isLoading={isLoadingOrders}
                     isError={isOrdersError}
                     onRetry={handleOrdersRetry}
@@ -167,7 +183,7 @@ export default function MeScreen() {
                     walletBalance={walletBalance?.balance ?? 0}
                     coinsBalance={loyaltyOverview?.totalPoints ?? 0}
                     voucherCount={walletBalance?.vouchers ?? 0}
-                    reviewCount={orderStats?.review ?? 0}
+                    reviewCount={pendingReviewsCount}
                     favoriteCount={0} // Passed 0 since it is commented out but might be required by component types
                     isLoading={isLoadingWallet}
                 />

@@ -2,6 +2,24 @@ import { ProfileTranslation } from '../types';
 
 export const PROFILE_STRINGS: ProfileTranslation = {
     title: 'Me',
+    smartInsight: {
+        urgentCoin: {
+            message: 'You have {{- points}} Coins expiring soon. Spend them now before they are gone!',
+            action: 'Spend Now',
+        },
+        profileIncomplete: {
+            message: 'Complete your profile! Update phone number for faster delivery',
+            action: 'Update',
+        },
+        pendingReview: {
+            message: 'You have pending reviews. Give honest feedback and earn Coins now!',
+            action: 'Review Now',
+        },
+        idleCoin: {
+            message: 'A treasure of {{- points}} Coins is collecting dust. Discover great rewards now!',
+            action: 'Redeem',
+        },
+    },
     header: {
         login: 'Login',
         register: 'Register',

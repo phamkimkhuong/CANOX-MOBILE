@@ -13,9 +13,7 @@ import { ResponseDefaultSchema } from '../responseSchema';
 
 export const UserShopPointSchema = z.object({
     batchId: z.string(),
-    initialAmount: z.number().default(0),
     remainingAmount: z.number().default(0),
-    earnedAt: z.string(),
     expiryAt: z.string(),
     status: z.enum(['ACTIVE', 'USED_UP', 'EXPIRED']),
     sourceOrderNumber: z.string().nullish(),
@@ -30,7 +28,6 @@ export const PointBalanceSchema = z.object({
     totalAvailable: z.number().default(0),
     activeBatchCount: z.number().default(0),
     expiringPoints: z.number().default(0),
-    batches: z.array(UserShopPointSchema).default([]),
     queriedAt: z.string(),
 });
 
@@ -50,14 +47,16 @@ export const PointBatchesResponseSchema = ResponseDefaultSchema.extend({
 // HISTORY (PointHistoryResponse)
 // ============================================
 
+export const PointTransactionSchema = z.object({
+    type: z.enum(['EARNED', 'SPENT', 'EXPIRED', 'REFUNDED']),
+    amount: z.number().default(0),
+    transactionDate: z.string(),
+    description: z.string().default(''),
+});
+
 const PointHistoryPageSchema = z.object({
-    content: z.array(z.record(z.string(), z.unknown())).default([]),
-    totalElements: z.number().default(0),
+    content: z.array(PointTransactionSchema).default([]),
     totalPages: z.number().default(0),
-    number: z.number().default(0),
-    size: z.number().default(20),
-    first: z.boolean().default(true),
-    last: z.boolean().default(true),
     empty: z.boolean().default(true),
 });
 

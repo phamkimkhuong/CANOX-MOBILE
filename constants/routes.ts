@@ -278,6 +278,13 @@ export const orderRoutes = {
     } as unknown as Href),
 } as const;
 
+export const loyaltyRoutes = {
+    shopDetail: (shopId: string, shopName?: string, shopLogo?: string): Href => ({
+        pathname: '/(main)/(user)/coins/[shopId]',
+        params: { shopId, shopName, shopLogo },
+    } as unknown as Href),
+} as const;
+
 /**
  * Shop routes with dynamic ID
  */

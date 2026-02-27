@@ -67,6 +67,14 @@ export const transformPointHistory = (dto: PointHistoryDTO): PointHistoryUI => (
     totalExpired: dto.totalExpired,
     hasTransactions: !dto.transactions.empty,
     totalPages: dto.transactions.totalPages,
+    transactions: dto.transactions.content.map(tx => ({
+        id: tx.transactionDate,
+        type: tx.type,
+        amount: tx.amount,
+        date: formatDate(tx.transactionDate),
+        description: tx.description,
+        isPositive: tx.type === 'EARNED' || tx.type === 'REFUNDED',
+    })),
 });
 
 // ============================================

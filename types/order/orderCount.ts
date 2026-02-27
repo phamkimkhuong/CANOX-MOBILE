@@ -10,12 +10,12 @@ import { z } from 'zod';
  * API Response Schema
  */
 export const OrderCountApiResponseSchema = z.object({
-    awaitingPayment: z.number().default(0), // Chờ thanh toán
-    processing: z.number().default(0),      // Đang xử lý (CREATED, FULFILLING)
+    await_payment: z.number().default(0),         // Chờ thanh toán
+    pending: z.number().default(0),         // Chờ xác nhận
+    processing: z.number().default(0),      // Đang xử lý
     shipping: z.number().default(0),        // Đang giao
-    delivered: z.number().default(0),       // Đã giao
-    completed: z.number().default(0),       // Hoàn thành
-    returning: z.number().default(0),       // Đang hoàn/trả hàng
+    completed: z.number().default(0),       // Đã giao (Xác nhận nhận hàng)
+    returnRefund: z.number().default(0),    // Đang hoàn/trả hàng  
     cancelled: z.number().default(0),       // Đã hủy
     total: z.number().default(0),           // Tổng số đơn
 });

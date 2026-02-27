@@ -23,5 +23,29 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
             accumulate: { title: 'Tích lũy', desc: 'Xu tự động cộng vào tài khoản' },
             use: { title: 'Sử dụng', desc: 'Đổi xu lấy giảm giá khi thanh toán' }
         }
-    }
+    },
+    shopDetail: {
+        title: 'Hội viên Cửa hàng',
+        tabs: {
+            batches: 'Lô xu chờ duyệt',
+            history: 'Lịch sử',
+        },
+        hero: {
+            availableCoins: 'Số Xu Khả Dụng',
+            equivalent: 'Tương đương {{amount}}₫',
+            warningMsg: 'Thẻ đỏ: {{amount}} Xu sắp hết hạn',
+            urgentText: 'Dùng ngay kẻo lỡ!',
+            buyNow: 'MUA NGAY',
+            defaultShopName: 'Cửa hàng',
+        },
+        batchesTab: {
+            empty: 'Hiện chưa có lô xu nào đang chờ.',
+            available: 'KHẢ DỤNG',
+            unit: 'Xu',
+        },
+        historyTab: {
+            expired: 'Đã quá hạn',
+            empty: 'Chưa có giao dịch xu nào.',
+        },
+    },
 };

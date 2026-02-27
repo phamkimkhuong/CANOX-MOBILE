@@ -33,6 +33,15 @@ export interface PointBalanceUI {
 // POINT HISTORY
 // ============================================
 
+export interface PointTransactionUI {
+    id: string;
+    type: 'EARNED' | 'SPENT' | 'EXPIRED' | 'REFUNDED';
+    amount: number;
+    date: string;
+    description: string;
+    isPositive: boolean;
+}
+
 export interface PointHistoryUI {
     currentBalance: number;
     totalEarned: number;
@@ -40,6 +49,7 @@ export interface PointHistoryUI {
     totalExpired: number;
     hasTransactions: boolean;
     totalPages: number;
+    transactions: PointTransactionUI[];
 }
 
 // ============================================

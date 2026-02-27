@@ -15,9 +15,7 @@
  */
 export interface UserShopPointDTO {
     batchId: string;
-    initialAmount: number;
     remainingAmount: number;
-    earnedAt: string; // ISO Date
     expiryAt: string; // ISO Date
     status: 'ACTIVE' | 'USED_UP' | 'EXPIRED';
     sourceOrderNumber?: string | null;
@@ -36,7 +34,6 @@ export interface PointBalanceDTO {
     totalAvailable: number;
     activeBatchCount: number;
     expiringPoints: number;
-    batches: UserShopPointDTO[];
     queriedAt: string; // ISO Date
 }
 
@@ -56,14 +53,16 @@ export interface PointHistoryDTO {
     transactions: PointHistoryPageDTO;
 }
 
+export interface PointTransactionDTO {
+    type: 'EARNED' | 'SPENT' | 'EXPIRED' | 'REFUNDED';
+    amount: number;
+    transactionDate: string;
+    description: string;
+}
+
 export interface PointHistoryPageDTO {
-    content: object[];
-    totalElements: number;
+    content: PointTransactionDTO[];
     totalPages: number;
-    number: number; // current page (0-indexed)
-    size: number;
-    first: boolean;
-    last: boolean;
     empty: boolean;
 }
 

@@ -15,7 +15,7 @@ import {
     LoyaltyHeroCard,
     ShopPointItem,
 } from '@/components/loyalty';
-import { ROUTES } from '@/constants/routes';
+import { ROUTES, loyaltyRoutes } from '@/constants/routes';
 import { useLoyaltyOverview } from '@/hooks/api/loyalty/useLoyalty';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import type { LoyaltyOverviewUI } from '@/types/loyalty/ui';
@@ -46,9 +46,8 @@ export default function LoyaltyOverviewScreen() {
         Navigator.back();
     }, []);
 
-    const handleShopPress = useCallback((shopId: string) => {
-        // TODO: Navigate to coins/[shopId]
-        // Navigator.push(loyaltyRoutes.shopDetail(shopId));
+    const handleShopPress = useCallback((shopId: string, shopName?: string, shopLogo?: string) => {
+        Navigator.push(loyaltyRoutes.shopDetail(shopId, shopName, shopLogo));
     }, []);
 
     const handleShopNow = useCallback(() => {
