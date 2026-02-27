@@ -7,6 +7,7 @@ import {
     ProductNavBar,
     ProductReviews,
     ProductSpecs,
+    ShippingDeliveryCard,
     ShopInfoCard,
     StickyBottomBar,
     VariantBottomSheet,
@@ -49,6 +50,7 @@ const log = createLogger('ProductDetail');
 type ProductDetailListItem =
     | { type: 'gallery'; id: string }
     | { type: 'info'; id: string }
+    | { type: 'shipping'; id: string }
     | { type: 'variants'; id: string }
     | { type: 'reviews'; id: string }
     | { type: 'shop'; id: string }
@@ -433,6 +435,7 @@ export default function ProductDetailScreen() {
         const items: ProductDetailListItem[] = [
             { type: 'gallery', id: 'gallery' },
             { type: 'info', id: 'info' },
+            { type: 'shipping', id: 'shipping' },
         ];
         if (product.hasVariants) items.push({ type: 'variants', id: 'variants' });
         items.push({ type: 'reviews', id: 'reviews' }, { type: 'shop', id: 'shop' });
@@ -466,6 +469,12 @@ export default function ProductDetailScreen() {
                             flashSale={product.flashSale}
                             onShowPriceBreakdown={handleOpenPriceBreakdown}
                         />
+                    </View>
+                );
+            case 'shipping':
+                return (
+                    <View style={styles.fullWidthSection}>
+                        <ShippingDeliveryCard productId={product.id} />
                     </View>
                 );
             case 'variants':

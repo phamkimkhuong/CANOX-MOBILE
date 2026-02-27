@@ -7,8 +7,10 @@ export { ProductInfoSection } from './ProductInfoSection';
 export { ProductNavBar } from './ProductNavBar';
 export { ProductReviews } from './ProductReviews';
 export { ProductSpecs } from './ProductSpecs';
+export { ShippingDeliveryCard } from './ShippingDeliveryCard';
 export { ShopInfoCard } from './ShopInfoCard';
 export { StickyBottomBar } from './StickyBottomBar';
 export { VariantBottomSheet, VariantSelectorRow } from './VariantSelector';
 export type { VariantSheetMode } from './VariantSelector';
+
 

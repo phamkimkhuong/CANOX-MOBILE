@@ -526,3 +526,29 @@ export interface NormalizedOptionValue {
     valueId: string;
     valueName: string;
 }
+
+// ============================================
+// SHIPPING ELIGIBILITY SCHEMAS
+// ============================================
+
+export const ShippingDistanceWarningSchema = z.object({
+    distance: z.number().optional(),
+    maxDistance: z.number().optional()
+}).catchall(z.any());
+
+export const ShippingEligibilityResponseSchema = z.object({
+    productId: z.string(),
+    addressId: z.string(),
+    eligible: z.boolean(),
+    message: z.string().nullable().optional(),
+    warning: ShippingDistanceWarningSchema.nullable().optional(),
+});
+
+export type ShippingEligibilityResponse = z.infer<typeof ShippingEligibilityResponseSchema>;
+
+export const ShippingEligibilityAPIResponseSchema = ResponseDefaultSchema.extend({
+    data: ShippingEligibilityResponseSchema,
+}).transform(res => ({
+    ...res,
+    data: res.data
+}));
