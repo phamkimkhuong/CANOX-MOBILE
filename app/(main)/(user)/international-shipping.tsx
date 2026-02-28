@@ -306,13 +306,20 @@ export default function InternationalShippingScreen() {
         <View style={styles.container}>
             <Stack.Screen
                 options={{
-                    headerTitle: 'Hàng Quốc Tế',
-                    headerStyle: { backgroundColor: theme.colors.surface },
-                    headerTintColor: theme.colors.typography,
-                    headerShadowVisible: false,
-                    headerBackTitle: '',
+                    headerShown: false,
                 }}
             />
+            {/* Custom Floating Back Button */}
+            <View style={[styles.floatingHeader, { top: Math.max(top, 16) }]}>
+                <TouchableOpacity
+                    style={styles.floatingBackButton}
+                    onPress={() => Navigator.back()}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    activeOpacity={0.8}
+                >
+                    <IconSymbol name="chevron-left" size={24} color="#FFFFFF" />
+                </TouchableOpacity>
+            </View>
             <FlashList
                 ref={listRef}
                 data={listData}
@@ -357,9 +364,9 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     heroBannerContainer: {
         height: 220,
-        marginHorizontal: 0,
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
+        marginHorizontal: -theme.margins.sm,
+        borderBottomLeftRadius: 0,
+        borderBottomRightRadius: 0,
         overflow: 'hidden',
         backgroundColor: '#1E1E2A',
     },
@@ -472,6 +479,19 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     footerLoader: {
         padding: theme.margins.lg,
+        alignItems: 'center',
+    },
+    floatingHeader: {
+        position: 'absolute',
+        left: theme.margins.md,
+        zIndex: 100, // Ensure it's above the FlashList and HeroBanner
+    },
+    floatingBackButton: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: 'rgba(0, 0, 0, 0.45)', // Semi-transparent black for contrast
+        justifyContent: 'center',
         alignItems: 'center',
     },
 }));

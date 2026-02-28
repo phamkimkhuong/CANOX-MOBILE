@@ -31,8 +31,8 @@ import { Alert } from '@/utils/AlertHelper';
 import { createLogger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
 import { toSizedImageUrl } from '@/utils/url';
-import { useQueryClient } from '@tanstack/react-query';
 import { FlashList, FlashListRef, ListRenderItemInfo } from '@shopify/flash-list';
+import { useQueryClient } from '@tanstack/react-query';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -135,16 +135,13 @@ export default function ProductDetailScreen() {
 
     useFocusEffect(
         useCallback(() => {
-            // Screen focused + animation done
+            // Screen focused + animation done → safe to render heavy content
             const task = requestAnimationFrame(() => {
                 setIsTransitionFinished(true);
             });
             return () => {
                 cancelAnimationFrame(task);
-                // We keep it true once loaded for a smoother experience if user comes back
-                // or we can reset it to false - in this case product detail is heavy, 
-                // resetting to false ensures smooth re-entry.
-                setIsTransitionFinished(false);
+
             };
         }, [])
     );
@@ -353,7 +350,7 @@ export default function ProductDetailScreen() {
     const handleSharePress = useCallback(async () => {
         if (!product) return;
 
-        const productUrl = `https://calatha.com/product/${product.id}`;
+        const productUrl = `https://canox.com/product/${product.id}`;
         const message = t('product:share.msgTemplate', {
             name: product.name,
             url: Platform.OS === 'android' ? productUrl : '', // Android needs it in message, iOS likes it in url field
@@ -608,11 +605,11 @@ export default function ProductDetailScreen() {
                 setIsActuallyReady(true);
             }, 100);
             return () => clearTimeout(timer);
-        } else {
-            contentOpacity.value = 0;
-            setIsActuallyReady(false);
         }
-    }, [isScreenReady, contentOpacity]);
+        if (!isActuallyReady) {
+            contentOpacity.value = 0;
+        }
+    }, [isScreenReady, contentOpacity, isActuallyReady]);
 
     const contentAnimatedStyle = useAnimatedStyle(() => ({
         opacity: contentOpacity.value,

@@ -37,4 +37,13 @@ export const HOME_STRINGS: HomeTranslation = {
         loadingMore: 'Loading more...',
         noMore: 'All products caught up',
     },
+    categories: {
+        flashSale: 'Flash Sale',
+        allCategories: 'Categories',
+        coins: 'Coins',
+        global: 'Global',
+        vouchers: 'Vouchers',
+        freeShip: 'Free Ship',
+        fashion: 'Fashion',
+    },
 };

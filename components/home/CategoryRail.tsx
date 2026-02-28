@@ -2,6 +2,7 @@ import { ROUTES } from '@/constants/routes';
 import { Navigator } from '@/utils/navigation';
 import { Image } from 'expo-image';
 import React, { memo, useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     NativeScrollEvent,
     NativeSyntheticEvent,
@@ -23,19 +24,19 @@ const INDICATOR_HEIGHT = 4;
 
 interface Category {
     id: number;
-    name: string;
-    imageUrl: string;
+    nameKey: string;
+    imageSource: any;
     route?: string;
 }
 
 const CATEGORIES: Category[] = [
-    { id: 1, name: 'Flash Sale', imageUrl: 'https://img.icons8.com/3d-fluency/94/flash-on.png', route: ROUTES.CAMPAIGN.FLASH_SALE },
-    { id: 2, name: 'Danh mục', imageUrl: 'https://img.icons8.com/3d-fluency/94/category.png', route: ROUTES.CATEGORY.INDEX }, // perfectly matches 'category' label
-    { id: 3, name: 'Coins', imageUrl: 'https://img.icons8.com/3d-fluency/94/stack-of-coins.png', route: ROUTES.PROFILE.COINS },
-    { id: 4, name: 'Global', imageUrl: 'https://img.icons8.com/3d-fluency/94/globe.png', route: ROUTES.PROFILE.INTERNATIONAL_SHIPPING },
-    { id: 5, name: 'Vouchers', imageUrl: 'https://img.icons8.com/3d-fluency/94/discount.png', route: ROUTES.PROFILE.VOUCHERS },
-    { id: 6, name: 'Free Ship', imageUrl: 'https://img.icons8.com/3d-fluency/94/delivery.png' }, // 'delivery' for shipping box
-    { id: 7, name: 'Fashion', imageUrl: 'https://img.icons8.com/3d-fluency/94/shopping-bag.png' }, // 'shopping-bag' instead of specific clothes
+    { id: 1, nameKey: 'home:categories.flashSale', imageSource: require('@/assets/images/categories/flash-on.png'), route: ROUTES.CAMPAIGN.FLASH_SALE },
+    { id: 2, nameKey: 'home:categories.allCategories', imageSource: require('@/assets/images/categories/category.png'), route: ROUTES.CATEGORY.INDEX },
+    { id: 3, nameKey: 'home:categories.coins', imageSource: require('@/assets/images/categories/stack-of-coins.png'), route: ROUTES.PROFILE.COINS },
+    { id: 4, nameKey: 'home:categories.global', imageSource: require('@/assets/images/categories/globe.png'), route: ROUTES.PROFILE.INTERNATIONAL_SHIPPING },
+    { id: 5, nameKey: 'home:categories.vouchers', imageSource: require('@/assets/images/categories/discount.png'), route: ROUTES.PROFILE.VOUCHERS },
+    { id: 6, nameKey: 'home:categories.freeShip', imageSource: require('@/assets/images/categories/delivery.png') },
+    { id: 7, nameKey: 'home:categories.fashion', imageSource: require('@/assets/images/categories/shopping-bag.png') },
 ];
 
 export const CategoryRail = memo(() => {
@@ -73,8 +74,11 @@ export const CategoryRail = memo(() => {
         );
         return {
             transform: [{ translateX }],
+            top: 0,
         };
     });
+
+    const { t } = useTranslation();
 
     const handleScroll = useCallback(
         (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -110,13 +114,14 @@ export const CategoryRail = memo(() => {
                     >
                         <View style={styles.iconBox}>
                             <Image
-                                source={{ uri: cat.imageUrl }}
+                                source={cat.imageSource}
                                 style={styles.categoryImage}
                                 contentFit="contain"
+                                cachePolicy="memory-disk"
                             />
                         </View>
                         <Text style={styles.text} numberOfLines={2}>
-                            {cat.name}
+                            {t(cat.nameKey as any)}
                         </Text>
                     </TouchableOpacity>
                 ))}
@@ -152,7 +157,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         gap: 12, // Khoảng cách giữa các item
     },
     item: {
-        width: 64, // Cố định width để căn text đều nhau
+        width: 72, // Cố định width để căn text đều nhau
         alignItems: 'center',
         gap: 6,
     },

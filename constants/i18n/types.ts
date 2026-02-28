@@ -171,6 +171,15 @@ export interface HomeTranslation {
         loadingMore: string;
         noMore: string;
     };
+    categories: {
+        flashSale: string;
+        allCategories: string;
+        coins: string;
+        global: string;
+        vouchers: string;
+        freeShip: string;
+        fashion: string;
+    };
 }
 
 /**

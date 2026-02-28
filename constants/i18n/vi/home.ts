@@ -37,4 +37,13 @@ export const HOME_STRINGS: HomeTranslation = {
         loadingMore: 'Đang tải thêm...',
         noMore: 'Đã hiển thị hết sản phẩm',
     },
+    categories: {
+        flashSale: 'Flash Sale',
+        allCategories: 'Danh mục',
+        coins: 'Coins',
+        global: 'Hàng quốc tế',
+        vouchers: 'Vouchers',
+        freeShip: 'Free Ship',
+        fashion: 'Thời trang',
+    },
 };
