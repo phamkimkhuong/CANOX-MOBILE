@@ -30,6 +30,7 @@ export const COMMON_STRINGS: CommonTranslation = {
     },
     bottomTab: {
         home: 'Trang chủ',
+        wishlist: 'Yêu thích',
         category: 'Danh mục',
         video: 'Video',
         chat: 'Chat',

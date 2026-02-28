@@ -30,6 +30,7 @@ export const COMMON_STRINGS: CommonTranslation = {
     },
     bottomTab: {
         home: 'Home',
+        wishlist: 'Wishlist',
         category: 'Category',
         video: 'Video',
         chat: 'Chat',

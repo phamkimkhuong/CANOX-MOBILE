@@ -1,6 +1,13 @@
 import { OrderTranslation } from '../types';
 
 export const ORDER_STRINGS: OrderTranslation = {
+    myOrders: 'My Orders',
+    paymentMethods: {
+        COD: 'Cash on Delivery',
+        PAYOS: 'PayOS',
+        STRIPE: 'Stripe',
+        BANK_TRANSFER: 'Bank Transfer',
+    },
     tabs: {
         all: 'All',
         awaitingPayment: 'To Pay',

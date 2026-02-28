@@ -1,6 +1,13 @@
 import { OrderTranslation } from '../types';
 
 export const ORDER_STRINGS: OrderTranslation = {
+    myOrders: 'Đơn hàng của tôi',
+    paymentMethods: {
+        COD: 'Thanh toán khi nhận hàng',
+        PAYOS: 'PayOS',
+        STRIPE: 'Stripe',
+        BANK_TRANSFER: 'Chuyển khoản ngân hàng',
+    },
     tabs: {
         all: 'Tất cả',
         awaitingPayment: 'Chờ thanh toán',

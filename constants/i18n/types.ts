@@ -322,6 +322,7 @@ export interface CommonTranslation {
     };
     bottomTab: {
         home: string;
+        wishlist: string;
         category: string;
         video: string;
         chat: string;
@@ -606,6 +607,13 @@ export interface CheckoutTranslation {
  * Order module translations
  */
 export interface OrderTranslation {
+    paymentMethods: {
+        COD: string;
+        PAYOS: string;
+        STRIPE: string;
+        BANK_TRANSFER: string;
+    };
+    myOrders: string;
     tabs: {
         all: string;
         awaitingPayment: string;

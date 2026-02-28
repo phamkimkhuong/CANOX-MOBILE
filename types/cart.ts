@@ -33,6 +33,10 @@ export const CartItemSchema = z.object({
     availableStock: z.number().nullable().optional().default(0),
     stockStatus: z.string().nullable().optional().default('IN_STOCK'),
     stockMessage: z.string().nullable().optional().default(''),
+
+    // Region / Address filtering
+    availableRegions: z.array(z.string()).nullable().optional().default([]),
+    regionLabel: z.string().nullable().optional(),
 });
 
 // Schema cho Shop trong giỏ
@@ -135,6 +139,10 @@ export interface CartItemUI {
     discountAmount: number;
     originalPrice: number | null;
     discountPercent: number | null;
+
+    // Region Delivery
+    availableRegions: string[];
+    regionLabel: string | null;
 }
 
 /**

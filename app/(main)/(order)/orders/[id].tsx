@@ -429,7 +429,7 @@ export default function OrderDetailScreen() {
                                     shippingFee={order.shippingFee}
                                     taxAmount={order.taxAmount}
                                     grandTotal={order.grandTotal}
-                                    paymentMethod={order.paymentMethodDisplay}
+                                    paymentMethod={order.paymentMethod}
                                 />
                             </View>
 

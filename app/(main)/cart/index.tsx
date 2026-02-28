@@ -39,6 +39,7 @@ import { PREFETCH_GRACE_PERIOD_MS } from '@/hooks/usePrefetchTiming';
 import { useIsAuthenticated } from '@/store/useAuthStore';
 import { useCartStore } from '@/store/useCartStore';
 import { useCheckoutStore } from '@/store/useCheckoutStore';
+import { useUserAddressStore } from '@/store/useUserAddressStore';
 import type { CartShopUI } from '@/types/cart';
 import { getShopCheckboxState } from '@/utils/adapter/cartAdapter';
 import { Alert as CustomAlert } from '@/utils/AlertHelper';
@@ -94,6 +95,32 @@ const CartHeader: React.FC<CartHeaderProps> = ({ onEditPress, isEditMode }) => {
                 </Pressable>
             </View>
         </View>
+    );
+};
+
+const CompactAddressBar: React.FC = () => {
+    const { theme } = useUnistyles();
+    const { t } = useTranslation('cart');
+    const addresses = useUserAddressStore((state) => state.addresses);
+    const selectedAddressId = useUserAddressStore((state) => state.selectedAddressId);
+    const selectedAddress = addresses.find(a => a.id === selectedAddressId) || null;
+
+    const addressText = selectedAddress
+        ? `Giao đến: ${[selectedAddress.streetAddress, selectedAddress.wardName, selectedAddress.districtName, selectedAddress.provinceName].filter(Boolean).join(', ')}`
+        : 'Chọn địa chỉ nhận hàng để xem phí ship & hỗ trợ giao';
+
+    return (
+        <Pressable
+            style={styles.addressBar}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            onPress={() => Navigator.push(ROUTES.ADDRESS.LIST as any)}
+        >
+            <IconSymbol name="location.on" size={16} color={theme.colors.buttonActive} />
+            <Text style={styles.addressBarText} numberOfLines={1}>
+                {addressText}
+            </Text>
+            <IconSymbol name="chevron.right" size={16} color={theme.colors.typographySecondary} />
+        </Pressable>
     );
 };
 
@@ -481,6 +508,9 @@ export default function CartScreen() {
         }
         return (
             <View style={styles.flex1}>
+                {/* ALWAYS show the compact address bar at the top as requested unless empty cart */}
+                <CompactAddressBar />
+
                 {cartData && shops.length > 0 && (
                     <Animated.View
                         entering={FadeIn.duration(400)}
@@ -584,6 +614,22 @@ const styles = StyleSheet.create((theme, runtime) => ({
         borderBottomWidth: 1,
         borderBottomColor: theme.colors.border,
         paddingTop: runtime.insets.top,
+    },
+    addressBar: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: theme.colors.surface,
+        paddingHorizontal: theme.margins.md,
+        paddingVertical: theme.margins.sm,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors.border,
+        gap: theme.margins.sm,
+    },
+    addressBarText: {
+        flex: 1,
+        fontSize: 13,
+        color: theme.colors.typography,
+        fontWeight: '500',
     },
     headerContent: {
         flexDirection: 'row',

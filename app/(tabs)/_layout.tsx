@@ -59,10 +59,7 @@ export default function TabLayout() {
         tabBarActiveTintColor: theme.colors.buttonActive,
         tabBarInactiveTintColor: theme.colors.typographySecondary,
         tabBarStyle: styles.tabBar,
-        // Disable the static render of the header on web
-        // to prevent a hydration error in React Navigation v6.
         headerShown: useClientOnlyValue(false, true),
-        // headerShown: false,
       }}>
       {/* 1. Trang chủ app/(tabs)/index.tsx */}
       <Tabs.Screen
@@ -80,8 +77,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="wishlist"
         options={{
-          // Use 'Yêu thích' until translations are added
-          title: t('bottomTab.wishlist', 'Yêu thích'),
+          title: t('bottomTab.wishlist'),
           tabBarIcon: ({ color }) => <TabBarIcon name="favorite" color={color} />,
           headerShown: false,
         }}

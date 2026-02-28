@@ -13,6 +13,7 @@
 import { productRoutes } from '@/constants/routes';
 import { createScaledFontSize } from '@/constants/unistyles';
 import { useCartStore } from '@/store/useCartStore';
+import { useUserAddressStore } from '@/store/useUserAddressStore';
 import type { CartItemUI } from '@/types/cart';
 import { formatCurrency } from '@/utils/format';
 import { Navigator } from '@/utils/navigation';
@@ -56,6 +57,23 @@ export const CartItem: React.FC<CartItemProps> = memo(({
     const { t } = useTranslation('cart');
     const isSelected = useCartStore(state => state.selectedItemIds.has(item.id));
 
+    // Evaluate region support
+    const selectedAddressId = useUserAddressStore(state => state.selectedAddressId);
+    const selectedAddress = useUserAddressStore(state =>
+        state.addresses.find(a => a.id === selectedAddressId)
+    );
+
+    const addressCountry = selectedAddress?.countryName?.toLowerCase() || '';
+    const isVietnam = addressCountry.includes('vietnam') || addressCountry.includes('việt nam') || addressCountry === 'vn' || addressCountry === 'viet nam';
+    const currentAddressRegion = selectedAddress ? (isVietnam ? 'VIETNAM' : 'INTERNATIONAL') : null;
+
+    // Check if the current region is NOT supported by this item
+    const isUnsupportedRegion = currentAddressRegion !== null &&
+        item.availableRegions?.length > 0 &&
+        !item.availableRegions.includes(currentAddressRegion);
+
+    const isDisabled = item.isOutOfStock || isUnsupportedRegion;
+
     const handleProductPress = useCallback(() => {
         if (!item.productId) return;
         Navigator.push(productRoutes.detail(item.productId));
@@ -72,15 +90,16 @@ export const CartItem: React.FC<CartItemProps> = memo(({
         maxQuantity,
         isOutOfStock,
         lowStockWarning,
+        regionLabel,
     } = item;
     return (
-        <View style={[styles.container, isOutOfStock && styles.outOfStockContainer]}>
+        <View style={[styles.container, isDisabled && styles.outOfStockContainer]}>
             {/* Checkbox Column */}
             <View style={styles.checkboxColumn}>
                 <CartCheckbox
                     checked={isSelected}
                     onToggle={() => onToggleSelect(item.id)}
-                    disabled={isOutOfStock}
+                    disabled={isDisabled}
                 />
             </View>
 
@@ -141,7 +160,7 @@ export const CartItem: React.FC<CartItemProps> = memo(({
                         <Pressable
                             onPress={() => onVariantPress?.(item.id)}
                             style={styles.variantSelector}
-                            disabled={isOutOfStock}
+                            disabled={isDisabled}
                             accessibilityLabel={t('item.selectVariation')}
                             accessibilityRole="button"
                         >
@@ -203,9 +222,15 @@ export const CartItem: React.FC<CartItemProps> = memo(({
                                 max={maxQuantity}
                                 onValueChange={(newQty) => onQuantityChange(item.id, newQty)}
                                 size="small"
+                                disabled={isUnsupportedRegion}
                             />
                         )}
                     </View>
+
+                    {/* Region Validation Warning Label */}
+                    {isUnsupportedRegion && regionLabel && (
+                        <Text style={styles.regionWarningText}>{regionLabel}</Text>
+                    )}
                 </View>
             </View>
         </View>
@@ -365,5 +390,11 @@ const styles = StyleSheet.create((theme, rt) => {
             color: theme.colors.error,
             fontWeight: '600',
         },
+        regionWarningText: {
+            fontSize: f(theme.fontSizes.xs),
+            fontWeight: '500',
+            color: theme.colors.error,
+            marginTop: 4,
+        }
     };
 });

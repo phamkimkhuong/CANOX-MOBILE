@@ -3,6 +3,7 @@ import { request } from '@/services/api/client';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useCartStore } from '@/store/useCartStore';
 import { hideGlobalLoading, showGlobalLoading } from '@/store/useLoadingStore';
+import { useUserAddressStore } from '@/store/useUserAddressStore';
 import { AddToCartApiResponseSchema, AddToCartResponse, CartApiResponseSchema, CartUI } from '@/types/cart';
 import { transformCart } from '@/utils/adapter/cartAdapter';
 import { logger } from '@/utils/logger';
@@ -13,14 +14,31 @@ import 'react-native-get-random-values';
 import Toast from 'react-native-toast-message';
 import { v4 as uuidv4 } from 'uuid';
 
-export const CART_QUERY_KEY = ['cart'];
+export const CART_QUERY_KEY = ['cart'] as const;
+
+export const getCartQueryKey = (addressId: string | null) => {
+    return [...CART_QUERY_KEY, addressId] as const;
+};
+
+interface FetchCartParams {
+    addressId?: string | null;
+    region?: string | null;
+}
 
 /**
  * Fetch cart data from API and transform it for UI
  */
-export const fetchCart = async (): Promise<CartUI> => {
+export const fetchCart = async (params?: FetchCartParams): Promise<CartUI> => {
+    const queryParams: Record<string, string> = {};
+    if (params?.addressId) queryParams.addressId = params.addressId;
+    if (params?.region) queryParams.region = params.region;
+
     const response = await request(
-        { url: API_ROUTES.CART.GET, method: 'GET' },
+        {
+            url: API_ROUTES.CART.GET,
+            method: 'GET',
+            params: queryParams,
+        },
         CartApiResponseSchema
     );
     if (!response.data) {
@@ -37,9 +55,12 @@ export const useCart = () => {
     const setTotalQuantity = useCartStore((state) => state.setTotalQuantity);
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-    const query = useQuery({
-        queryKey: CART_QUERY_KEY,
-        queryFn: fetchCart,
+    // Subscribe to default address ID
+    const selectedAddressId = useUserAddressStore((state) => state.selectedAddressId);
+
+    const queryInfo = useQuery({
+        queryKey: getCartQueryKey(selectedAddressId),
+        queryFn: () => fetchCart({ addressId: selectedAddressId }),
         enabled: isAuthenticated,
         staleTime: 1000 * 10,
         gcTime: 1000 * 60 * 10,
@@ -49,12 +70,12 @@ export const useCart = () => {
 
     // Sync cart count to Zustand badge
     useEffect(() => {
-        if (query.data) {
-            setTotalQuantity(query.data.itemCount);
+        if (queryInfo.data) {
+            setTotalQuantity(queryInfo.data.itemCount);
         }
-    }, [query.data, setTotalQuantity]);
+    }, [queryInfo.data, setTotalQuantity]);
 
-    return query;
+    return queryInfo;
 };
 
 /**
@@ -63,16 +84,17 @@ export const useCart = () => {
 export const usePrefetchCart = () => {
     const queryClient = useQueryClient();
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+    const selectedAddressId = useUserAddressStore((state) => state.selectedAddressId);
 
     const prefetch = useCallback(() => {
         if (isAuthenticated) {
             queryClient.prefetchQuery({
-                queryKey: CART_QUERY_KEY,
-                queryFn: fetchCart,
+                queryKey: getCartQueryKey(selectedAddressId),
+                queryFn: () => fetchCart({ addressId: selectedAddressId }),
                 staleTime: 1000 * 10,
             });
         }
-    }, [isAuthenticated, queryClient]);
+    }, [isAuthenticated, queryClient, selectedAddressId]);
 
     return prefetch;
 };

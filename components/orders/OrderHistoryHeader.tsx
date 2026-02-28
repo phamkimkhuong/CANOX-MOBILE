@@ -9,6 +9,7 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { Navigator } from '@/utils/navigation';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -25,6 +26,7 @@ export const OrderHistoryHeader: React.FC<OrderHistoryHeaderProps> = ({
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
+    const { t } = useTranslation('order');
 
     return (
         <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -45,7 +47,7 @@ export const OrderHistoryHeader: React.FC<OrderHistoryHeaderProps> = ({
                 </Pressable>
 
                 {/* Title */}
-                <Text style={styles.title}>Đơn hàng của tôi</Text>
+                <Text style={styles.title}>{t('myOrders')}</Text>
 
                 {/* Cart Button */}
                 <Pressable

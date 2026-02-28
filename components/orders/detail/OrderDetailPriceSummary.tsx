@@ -10,6 +10,7 @@
  */
 
 import { IconSymbol } from '@/components/ui/Icon';
+import { PaymentMethod } from '@/types/order/order';
 import { formatCurrency } from '@/utils/format';
 import React, { memo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -72,7 +73,7 @@ interface OrderDetailPriceSummaryProps {
     shippingFee: number;
     taxAmount?: number;
     grandTotal: number;
-    paymentMethod: string;
+    paymentMethod: PaymentMethod | string;
 }
 
 export const OrderDetailPriceSummary: React.FC<OrderDetailPriceSummaryProps> = ({
@@ -172,7 +173,10 @@ export const OrderDetailPriceSummary: React.FC<OrderDetailPriceSummaryProps> = (
                     color={theme.colors.typographySecondary}
                 />
                 <Text style={styles.paymentLabel}>{t('order:detail.paymentMethod')}</Text>
-                <Text style={styles.paymentValue}>{paymentMethod}</Text>
+                <Text style={styles.paymentValue}>
+                    {/* Translate if known payment method, else render fallback string */}
+                    {t(`order:paymentMethods.${paymentMethod}` as any, { defaultValue: paymentMethod })}
+                </Text>
             </View>
         </View>
     );

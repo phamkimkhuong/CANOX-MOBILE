@@ -115,6 +115,10 @@ export const transformCartItem = (item: CartItem): CartItemUI => {
         discountAmount: item.discountAmount ?? 0,
         originalPrice: hasDiscount ? priceBeforeDiscount : null,
         discountPercent,
+
+        // Region Delivery
+        availableRegions: item.availableRegions ?? [],
+        regionLabel: item.regionLabel ?? null,
     };
 };
 
