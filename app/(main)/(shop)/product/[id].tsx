@@ -20,7 +20,7 @@ import { ProductCard } from '@/components/ui/product/ProductCard';
 import { ROUTES, chatRoutes, checkoutRoutes, productRoutes, shopRoutes } from '@/constants/routes';
 import { useAddToCart } from '@/hooks/api/cart';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
-import { useProductDetail, useRelatedProducts } from '@/hooks/api/product/useProductDetail';
+import { PRODUCT_DETAIL_QUERY_KEYS, useProductDetail, useRelatedProducts } from '@/hooks/api/product/useProductDetail';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { MINIMUM_SKELETON_DURATION_MS } from '@/hooks/usePrefetchTiming';
 import { useProductVariant } from '@/hooks/useProductVariant';
@@ -31,6 +31,7 @@ import { Alert } from '@/utils/AlertHelper';
 import { createLogger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
 import { toSizedImageUrl } from '@/utils/url';
+import { useQueryClient } from '@tanstack/react-query';
 import { FlashList, FlashListRef, ListRenderItemInfo } from '@shopify/flash-list';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
@@ -81,8 +82,16 @@ export default function ProductDetailScreen() {
     // Instant Nav: If true, enforce minimum skeleton duration to avoid flash
     const isInstantNav = instantNav === 'true';
 
+    // Check if TanStack Query cache already has fresh data for this product
+    // If cache exists → skip minimum skeleton duration entirely (no flash possible)
+    const queryClient = useQueryClient();
+    const hasCachedData = !!queryClient.getQueryData(
+        PRODUCT_DETAIL_QUERY_KEYS.detail(id ?? '')
+    );
+
     // Flag để hoãn render UI nặng cho đến khi kết thúc animation chuyển màn hình
-    const [isTransitionFinished, setIsTransitionFinished] = useState(false);
+    // When cache exists → skip deferred rendering, show content immediately
+    const [isTransitionFinished, setIsTransitionFinished] = useState(hasCachedData);
 
     // === Data Fetching ===
     const {
@@ -141,7 +150,10 @@ export default function ProductDetailScreen() {
     );
 
     // Minimum skeleton duration for instant nav (prevents flash)
-    const [minSkeletonComplete, setMinSkeletonComplete] = React.useState(!isInstantNav);
+    // Skip if cache already has data — no flash possible when data is immediate
+    const [minSkeletonComplete, setMinSkeletonComplete] = React.useState(
+        !isInstantNav || hasCachedData
+    );
 
     // Auto-open action sheet if action is present in params
     const hasHandledActionRef = React.useRef(false);
@@ -583,8 +595,9 @@ export default function ProductDetailScreen() {
     const isScreenReady = !shouldShowSkeleton && isTransitionFinished;
 
     // === Cross-fade Handling ===
-    const contentOpacity = useSharedValue(0);
-    const [isActuallyReady, setIsActuallyReady] = useState(false);
+    // When cache exists → start fully visible, no cross-fade needed
+    const contentOpacity = useSharedValue(hasCachedData ? 1 : 0);
+    const [isActuallyReady, setIsActuallyReady] = useState(hasCachedData);
 
     // Sync content opacity with readiness
     React.useEffect(() => {

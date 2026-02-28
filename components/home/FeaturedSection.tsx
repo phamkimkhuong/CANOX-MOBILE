@@ -3,10 +3,20 @@ import { useProductFeed } from '@/hooks/api/useHomeProducts';
 import type { ProductFeedItem } from '@/types/product/product';
 import { formatCurrency, formatSoldCount } from '@/utils/format';
 import { toSizedImageUrl } from '@/utils/url';
+import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
-import React, { memo, useMemo } from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
+import React, { memo, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, Text, TouchableOpacity, useWindowDimensions, View, ViewStyle } from 'react-native';
+import Animated, {
+    useAnimatedStyle,
+    useSharedValue,
+    withDelay,
+    withRepeat,
+    withSequence,
+    withTiming,
+} from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { IconSymbol } from '../ui/Icon';
 import { InternationalBadge } from '../ui/product/InternationalBadge';
@@ -63,13 +73,33 @@ const getDiscountBadge = (item: ProductFeedItem): string | null => {
  */
 interface FeaturedSectionProps {
     onProductPress?: (productId: string, action?: 'buy-now' | 'add-to-cart') => void;
+    /** Shared shimmer animation from MarketingHeader — avoids multiple animation loops */
+    shimmerAnimatedStyle?: object;
 }
 
-export const FeaturedSection = memo(({ onProductPress }: FeaturedSectionProps = {}) => {
+export const FeaturedSection = memo(({ onProductPress, shimmerAnimatedStyle }: FeaturedSectionProps = {}) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const { t } = useTranslation(['home', 'product']);
     const { width: screenWidth } = useWindowDimensions();
+
+    const shimmerX = useSharedValue(-50);
+
+    useEffect(() => {
+        shimmerX.value = withRepeat(
+            withSequence(
+                withTiming(-50, { duration: 0 }),
+                withDelay(4000, withTiming(120, { duration: 600 })),
+            ),
+            -1,
+            false,
+        );
+    }, [shimmerX]);
+
+    const liquidGlassShimmerStyle = useAnimatedStyle(() => ({
+        transform: [{ translateX: `${shimmerX.value}%` as unknown as number }],
+    }));
+
     const VISIBLE_CARDS = 2.6;
     const horizontalPadding = theme.margins.md * 2;
     const gapBetweenCards = theme.margins.sm;
@@ -91,7 +121,7 @@ export const FeaturedSection = memo(({ onProductPress }: FeaturedSectionProps = 
 
     // Loading state
     if (isLoading) {
-        return <FeaturedSectionSkeleton />;
+        return <FeaturedSectionSkeleton animatedStyle={shimmerAnimatedStyle} />;
     }
 
     // Error hoặc không có data
@@ -131,14 +161,43 @@ export const FeaturedSection = memo(({ onProductPress }: FeaturedSectionProps = 
                 onPress={() => onProductPress?.(mainProduct.id)}
             >
                 <Image
-                    source={{ uri: toSizedImageUrl(mainProduct.thumbnail, null, 'medium') ?? mainProduct.thumbnail }}
+                    source={{ uri: toSizedImageUrl(mainProduct.thumbnail, null, 'large') ?? mainProduct.thumbnail }}
                     style={styles.mainImage}
                     contentFit="cover"
                     accessibilityLabel={mainProduct.title}
                 />
                 <View style={styles.mainOverlay}>
-                    <View style={styles.editorBadge}>
-                        <Text style={styles.editorBadgeText}>Yêu thích</Text>
+                    <View style={styles.mainBadgesRow}>
+                        <View style={styles.editorBadge}>
+                            <Text style={styles.editorBadgeText}>Yêu thích</Text>
+                        </View>
+                        {mainProduct.isInternational && (
+                            <View style={styles.liquidGlassBadgeContainer}>
+                                <BlurView intensity={20} tint="light" style={StyleSheet.absoluteFillObject} />
+                                <LinearGradient
+                                    colors={['rgba(79, 70, 229, 0.85)', 'rgba(0, 229, 255, 0.85)']}
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 1 }}
+                                    style={StyleSheet.absoluteFillObject}
+                                />
+                                <View style={styles.shimmerMask}>
+                                    <Animated.View style={[styles.shimmerStrip, liquidGlassShimmerStyle]}>
+                                        <LinearGradient
+                                            colors={['transparent', 'rgba(255,255,255,0.45)', 'transparent']}
+                                            start={{ x: 0, y: 0 }}
+                                            end={{ x: 1, y: 0 }}
+                                            style={styles.shimmerGradient}
+                                        />
+                                    </Animated.View>
+                                </View>
+                                <View style={styles.liquidGlassBadgeContent}>
+                                    <IconSymbol name="globe" size={11} color="#FFFFFF" />
+                                    <Text style={styles.liquidGlassBadgeText}>
+                                        {t('product:badges.international')}
+                                    </Text>
+                                </View>
+                            </View>
+                        )}
                     </View>
                     <Text style={styles.mainTitle} numberOfLines={2}>
                         {mainProduct.title}
@@ -313,13 +372,58 @@ const stylesheet = StyleSheet.create((theme) => ({
         padding: theme.margins.md,
         justifyContent: 'flex-end',
     },
+    mainBadgesRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: theme.margins.sm,
+        marginBottom: theme.margins.sm,
+    },
     editorBadge: {
         alignSelf: 'flex-start',
         backgroundColor: theme.colors.accent,
         paddingHorizontal: 10,
         paddingVertical: 4,
         borderRadius: theme.radius.s,
-        marginBottom: theme.margins.sm,
+    },
+    liquidGlassBadgeContainer: {
+        borderRadius: theme.radius.s,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.6)',
+        shadowColor: '#00E5FF',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.8,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    liquidGlassBadgeContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+    },
+    liquidGlassBadgeText: {
+        fontSize: theme.fontSizes.xs,
+        fontWeight: '700',
+        color: '#FFFFFF',
+        textShadowColor: 'rgba(0, 0, 0, 0.3)',
+        textShadowOffset: { width: 0, height: 1 },
+        textShadowRadius: 2,
+        letterSpacing: 0.3,
+    },
+    shimmerMask: {
+        ...StyleSheet.absoluteFillObject,
+        overflow: 'hidden',
+    },
+    shimmerStrip: {
+        position: 'absolute',
+        top: 0,
+        bottom: 0,
+        width: '35%',
+    },
+    shimmerGradient: {
+        flex: 1,
     },
     editorBadgeText: {
         fontSize: theme.fontSizes.xs,

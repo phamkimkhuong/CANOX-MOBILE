@@ -1,38 +1,38 @@
 import { SkeletonBox } from '@/components/ui/feedback/Skeleton';
 import React, { memo } from 'react';
-import { ScrollView, useWindowDimensions, View } from 'react-native';
+import { type StyleProp, useWindowDimensions, View, type ViewStyle } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 // Constants matching FeaturedSection styling
 const MAIN_BANNER_HEIGHT = 180;
 
 /**
- * Small product card skeleton matching exactly the dimensions of the real one
+ * Small product card skeleton — simplified shell
  */
-const SmallCardSkeleton: React.FC<{ cardWidth: number, imageHeight: number }> = ({ cardWidth, imageHeight }) => {
+const SmallCardSkeleton: React.FC<{
+    cardWidth: number;
+    imageHeight: number;
+    animatedStyle?: StyleProp<ViewStyle>;
+}> = ({ cardWidth, imageHeight, animatedStyle }) => {
     const styles = stylesheet;
 
     return (
         <View style={[styles.smallCard, { width: cardWidth }]}>
-            {/* Image container matching exactly */}
+            {/* Image block */}
             <View style={[styles.smallImageContainer, { height: imageHeight }]}>
                 <SkeletonBox
                     width="100%"
                     height={undefined}
                     style={styles.imageBlock}
                     borderRadius={0}
+                    animatedStyle={animatedStyle}
                 />
             </View>
 
+            {/* Content — simplified: 1 title block + 1 price block */}
             <View style={styles.smallCardContent}>
-                {/* Title skeleton - 2 lines */}
-                <SkeletonBox width="90%" height={12} />
-                <SkeletonBox width="60%" height={12} />
-
-                {/* Price skeleton */}
-                <View style={styles.smallPriceRow}>
-                    <SkeletonBox width="50%" height={14} />
-                </View>
+                <SkeletonBox width="85%" height={12} animatedStyle={animatedStyle} />
+                <SkeletonBox width="50%" height={14} animatedStyle={animatedStyle} />
             </View>
         </View>
     );
@@ -40,11 +40,15 @@ const SmallCardSkeleton: React.FC<{ cardWidth: number, imageHeight: number }> = 
 
 SmallCardSkeleton.displayName = 'SmallCardSkeleton';
 
+interface FeaturedSectionSkeletonProps {
+    /** Shared shimmer animation from parent — prevents multiple animation loops */
+    animatedStyle?: StyleProp<ViewStyle>;
+}
+
 /**
- * FeaturedSectionSkeleton - Loading placeholder for FeaturedSection
- * Matches exact layout and dimensions to prevent layout shift
+ * FeaturedSectionSkeleton - Optimized shell-based loading placeholder
  */
-export const FeaturedSectionSkeleton: React.FC = memo(() => {
+export const FeaturedSectionSkeleton: React.FC<FeaturedSectionSkeletonProps> = memo(({ animatedStyle }) => {
     const styles = stylesheet;
     const { theme } = useUnistyles();
     const { width: screenWidth } = useWindowDimensions();
@@ -61,29 +65,25 @@ export const FeaturedSectionSkeleton: React.FC = memo(() => {
         <View style={styles.container}>
             {/* Header skeleton */}
             <View style={styles.headerPadding}>
-                <SkeletonBox width={150} height={20} />
+                <SkeletonBox width={150} height={20} animatedStyle={animatedStyle} />
             </View>
 
             {/* Main Banner skeleton */}
             <View style={styles.mainBanner}>
-                <SkeletonBox width="100%" height={MAIN_BANNER_HEIGHT} borderRadius={theme.radius.l} />
+                <SkeletonBox width="100%" height={MAIN_BANNER_HEIGHT} borderRadius={theme.radius.l} animatedStyle={animatedStyle} />
             </View>
 
-            {/* Small Products scroll skeleton */}
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                scrollEnabled={false}
-                contentContainerStyle={styles.scrollContent}
-            >
+            {/* Small Products — static View row instead of ScrollView */}
+            <View style={styles.scrollContent}>
                 {Array.from({ length: Math.ceil(VISIBLE_CARDS) }).map((_, index) => (
                     <SmallCardSkeleton
-                        key={`featured-small-skeleton-${index}`}
+                        key={`feat-sk-${index}`}
                         cardWidth={cardWidth}
                         imageHeight={imageHeight}
+                        animatedStyle={animatedStyle}
                     />
                 ))}
-            </ScrollView>
+            </View>
         </View>
     );
 });
@@ -109,14 +109,15 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderRadius: theme.radius.l,
     },
     scrollContent: {
+        flexDirection: 'row',
         paddingHorizontal: theme.margins.md,
         paddingBottom: theme.margins.md,
         gap: theme.margins.sm,
+        overflow: 'hidden',
     },
     smallCard: {
         backgroundColor: theme.colors.surface,
         borderRadius: theme.radius.m,
-        // Match shadow exactly
         shadowColor: theme.colors.primary,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.06,
@@ -140,7 +141,4 @@ const stylesheet = StyleSheet.create((theme) => ({
         paddingVertical: 8,
         gap: 6,
     },
-    smallPriceRow: {
-        marginTop: 4,
-    }
 }));

@@ -6,41 +6,17 @@ import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyl
 const SHIMMER_DURATION = 1000;
 
 // ============================================
-// ANIMATED SKELETON BOX
+// LIGHTWEIGHT SKELETON BOX (No internal animation — uses parent's shared style)
+// Eliminates 33× redundant useSharedValue + useEffect + useAnimatedStyle allocations
 // ============================================
-interface SkeletonBoxProps {
+const SkeletonBox: React.FC<{
     width: number | string;
     height: number;
     borderRadius?: number;
     style?: object;
-    animatedStyle?: object;
-}
-
-const SkeletonBox: React.FC<SkeletonBoxProps> = ({
-    width,
-    height,
-    borderRadius = 4,
-    style,
-    animatedStyle,
-}) => {
+    animatedStyle: object;
+}> = ({ width, height, borderRadius = 4, style, animatedStyle }) => {
     const { theme } = useUnistyles();
-
-    // Internal shimmer if no animatedStyle provided
-    const opacity = useSharedValue(0.4);
-    useEffect(() => {
-        if (animatedStyle) return;
-        opacity.value = withRepeat(
-            withTiming(1, { duration: SHIMMER_DURATION }),
-            -1,
-            true
-        );
-    }, [animatedStyle, opacity]);
-
-    const internalAnimatedStyle = useAnimatedStyle(() => ({
-        opacity: opacity.value,
-    }));
-
-    const finalAnimatedStyle = animatedStyle ?? internalAnimatedStyle;
 
     return (
         <Animated.View
@@ -51,7 +27,7 @@ const SkeletonBox: React.FC<SkeletonBoxProps> = ({
                     borderRadius,
                     backgroundColor: theme.colors.secondaryLight,
                 },
-                finalAnimatedStyle,
+                animatedStyle,
                 style,
             ]}
         />
@@ -125,20 +101,16 @@ export const ProductDetailSkeleton: React.FC<{
                     </View>
                     <SkeletonBox width={70} height={32} borderRadius={8} animatedStyle={finalAnimatedStyle} />
                 </View>
+                {/* Shop Stats — simplified: 1 combined block instead of 4×2 items */}
                 <View style={styles.shopStats}>
-                    {[1, 2, 3, 4].map((i) => (
-                        <View key={i} style={styles.statItem}>
-                            <SkeletonBox width={40} height={16} borderRadius={4} animatedStyle={finalAnimatedStyle} />
-                            <SkeletonBox width={60} height={12} borderRadius={4} style={styles.mt4} animatedStyle={finalAnimatedStyle} />
-                        </View>
-                    ))}
+                    <SkeletonBox width="100%" height={16} borderRadius={4} animatedStyle={finalAnimatedStyle} />
                 </View>
             </View>
 
-            {/* Specs Section */}
+            {/* Specs Section — reduced from 5 rows to 3 (only ~3 visible above fold) */}
             <View style={styles.specsSection}>
                 <SkeletonBox width={120} height={18} borderRadius={4} style={styles.mb12} animatedStyle={finalAnimatedStyle} />
-                {[1, 2, 3, 4, 5].map((i) => (
+                {[1, 2, 3].map((i) => (
                     <View key={i} style={styles.specRow}>
                         <SkeletonBox width={100} height={14} borderRadius={4} animatedStyle={finalAnimatedStyle} />
                         <SkeletonBox width={150} height={14} borderRadius={4} animatedStyle={finalAnimatedStyle} />
@@ -224,9 +196,6 @@ const styles = StyleSheet.create((theme) => ({
         paddingTop: theme.margins.md,
         borderTopWidth: 1,
         borderTopColor: theme.colors.border,
-    },
-    statItem: {
-        alignItems: 'center',
     },
     specsSection: {
         backgroundColor: theme.colors.surface,

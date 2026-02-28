@@ -1,7 +1,6 @@
 /**
  * CheckoutSkeleton Component
  * 
- * Loading placeholder for the Checkout screen.
  * Mirrors the structure of actual checkout components:
  * - Address Card
  * - Shop Groups (Items + Voucher + Shipping + Note)
@@ -10,118 +9,128 @@
  * - Bill Summary
  */
 
-import { SkeletonBox, SkeletonCircle, SkeletonText } from '@/components/ui/feedback/Skeleton';
 import React from 'react';
-import { View } from 'react-native';
+import { type DimensionValue, type StyleProp, View, type ViewStyle } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-interface SkeletonSubProps {
-    animatedStyle?: object;
+interface CheckoutSkeletonProps {
+    /** Shared shimmer animation from parent — REQUIRED for performance */
+    animatedStyle?: StyleProp<ViewStyle>;
 }
+
+/**
+ * Lightweight skeleton block — no internal hooks, just Animated.View + shared style
+ * Eliminates useSharedValue + useEffect + useAnimatedStyle overhead per element
+ */
+const Block: React.FC<{
+    w: DimensionValue;
+    h: number;
+    r?: number;
+    style?: ViewStyle;
+    animatedStyle?: StyleProp<ViewStyle>;
+}> = ({ w, h, r = 4, style, animatedStyle }) => {
+    const { theme } = useUnistyles();
+    return (
+        <Animated.View
+            style={[
+                { width: w, height: h, borderRadius: r, backgroundColor: theme.colors.secondaryLight },
+                animatedStyle,
+                style,
+            ]}
+        />
+    );
+};
 
 /**
  * Skeleton for Address Card section
  */
-const SkeletonAddressCard: React.FC<SkeletonSubProps> = ({ animatedStyle }) => {
+const SkeletonAddressCard: React.FC<CheckoutSkeletonProps> = ({ animatedStyle }) => {
     const styles = stylesheet;
 
     return (
         <View style={styles.addressCard}>
-            <SkeletonCircle size={32} animatedStyle={animatedStyle} />
+            <Block w={32} h={32} r={16} animatedStyle={animatedStyle} />
             <View style={styles.addressContent}>
-                <SkeletonText width="50%" height={14} animatedStyle={animatedStyle} />
-                <SkeletonText width="30%" height={12} animatedStyle={animatedStyle} />
-                <SkeletonText width="80%" height={12} animatedStyle={animatedStyle} />
+                <Block w="50%" h={14} animatedStyle={animatedStyle} />
+                <Block w="30%" h={12} animatedStyle={animatedStyle} />
+                <Block w="80%" h={12} animatedStyle={animatedStyle} />
             </View>
-            <SkeletonBox width={20} height={20} borderRadius={4} animatedStyle={animatedStyle} />
+            <Block w={20} h={20} animatedStyle={animatedStyle} />
         </View>
     );
 };
 
 /**
- * Skeleton for a single checkout item
+ * Skeleton for a single checkout item — simplified shell
  */
-const SkeletonCheckoutItem: React.FC<SkeletonSubProps> = ({ animatedStyle }) => {
+const SkeletonCheckoutItem: React.FC<CheckoutSkeletonProps> = ({ animatedStyle }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
 
     return (
         <View style={styles.itemRow}>
-            {/* Product Image */}
-            <SkeletonBox width={72} height={72} borderRadius={theme.radius.m} animatedStyle={animatedStyle} />
-
-            {/* Product Info */}
+            <Block w={72} h={72} r={theme.radius.m} animatedStyle={animatedStyle} />
             <View style={styles.itemInfo}>
-                <SkeletonText width="90%" height={14} animatedStyle={animatedStyle} />
-                <SkeletonBox width={100} height={20} borderRadius={4} style={styles.mt4} animatedStyle={animatedStyle} />
-                <View style={styles.itemPriceRow}>
-                    <SkeletonText width={80} height={14} animatedStyle={animatedStyle} />
-                </View>
+                <Block w="90%" h={14} animatedStyle={animatedStyle} />
+                <Block w={100} h={20} style={styles.mt4} animatedStyle={animatedStyle} />
+                <Block w={80} h={14} style={styles.mt6} animatedStyle={animatedStyle} />
             </View>
         </View>
     );
 };
 
-
 /**
  * Skeleton for Shop Group section
+ * Optimized: 1 item instead of 2 (reduces 3 elements)
  */
-const SkeletonShopGroup: React.FC<SkeletonSubProps> = ({ animatedStyle }) => {
+const SkeletonShopGroup: React.FC<CheckoutSkeletonProps> = ({ animatedStyle }) => {
     const styles = stylesheet;
 
     return (
         <View style={styles.shopGroup}>
             {/* Shop Header */}
             <View style={styles.shopHeader}>
-                <SkeletonBox width={32} height={32} borderRadius={10} animatedStyle={animatedStyle} />
-                <SkeletonText width={120} height={15} animatedStyle={animatedStyle} />
-                <SkeletonBox width={18} height={18} borderRadius={4} animatedStyle={animatedStyle} />
+                <Block w={32} h={32} r={10} animatedStyle={animatedStyle} />
+                <Block w={120} h={15} animatedStyle={animatedStyle} />
+                <Block w={18} h={18} animatedStyle={animatedStyle} />
             </View>
 
-            {/* Divider */}
             <View style={styles.divider} />
 
-            {/* Items */}
+            {/* Single representative item (was 2) */}
             <View style={styles.itemsContainer}>
-                <SkeletonCheckoutItem animatedStyle={animatedStyle} />
                 <SkeletonCheckoutItem animatedStyle={animatedStyle} />
             </View>
 
-            {/* Divider */}
             <View style={styles.divider} />
 
             {/* Voucher Row */}
             <View style={styles.sectionRow}>
-                <SkeletonBox width={36} height={36} borderRadius={10} animatedStyle={animatedStyle} />
-                <SkeletonText width={150} height={14} animatedStyle={animatedStyle} />
+                <Block w={36} h={36} r={10} animatedStyle={animatedStyle} />
+                <Block w={150} h={14} animatedStyle={animatedStyle} />
             </View>
 
-            {/* Divider */}
             <View style={styles.divider} />
 
-            {/* Shipping Row */}
+            {/* Shipping Row — simplified: icon + 1 combined text block */}
             <View style={styles.sectionRow}>
-                <SkeletonBox width={40} height={40} borderRadius={12} animatedStyle={animatedStyle} />
-                <View style={styles.shippingContent}>
-                    <SkeletonText width="60%" height={14} animatedStyle={animatedStyle} />
-                    <SkeletonText width="40%" height={12} style={styles.mt4} animatedStyle={animatedStyle} />
-                </View>
+                <Block w={40} h={40} r={12} animatedStyle={animatedStyle} />
+                <Block w="60%" h={14} animatedStyle={animatedStyle} />
             </View>
 
-
-            {/* Divider */}
             <View style={styles.divider} />
 
             {/* Note Row */}
             <View style={styles.sectionRow}>
-                <SkeletonBox width={36} height={36} borderRadius={10} animatedStyle={animatedStyle} />
-                <SkeletonText width={120} height={14} animatedStyle={animatedStyle} />
+                <Block w={36} h={36} r={10} animatedStyle={animatedStyle} />
+                <Block w={120} h={14} animatedStyle={animatedStyle} />
             </View>
 
             {/* Subtotal Row */}
             <View style={styles.subtotalRow}>
-                <SkeletonText width={100} height={14} animatedStyle={animatedStyle} />
-                <SkeletonText width={80} height={16} animatedStyle={animatedStyle} />
+                <Block w={100} h={14} animatedStyle={animatedStyle} />
+                <Block w={80} h={16} animatedStyle={animatedStyle} />
             </View>
         </View>
     );
@@ -130,18 +139,18 @@ const SkeletonShopGroup: React.FC<SkeletonSubProps> = ({ animatedStyle }) => {
 /**
  * Skeleton for Platform Voucher section
  */
-const SkeletonPlatformVoucher: React.FC<SkeletonSubProps> = ({ animatedStyle }) => {
+const SkeletonPlatformVoucher: React.FC<CheckoutSkeletonProps> = ({ animatedStyle }) => {
     const styles = stylesheet;
 
     return (
         <View style={styles.section}>
             <View style={styles.sectionHeader}>
-                <SkeletonBox width={32} height={32} borderRadius={10} animatedStyle={animatedStyle} />
-                <SkeletonText width={120} height={15} animatedStyle={animatedStyle} />
+                <Block w={32} h={32} r={10} animatedStyle={animatedStyle} />
+                <Block w={120} h={15} animatedStyle={animatedStyle} />
             </View>
             <View style={styles.sectionRow}>
-                <SkeletonText width={200} height={14} animatedStyle={animatedStyle} />
-                <SkeletonBox width={18} height={18} borderRadius={4} animatedStyle={animatedStyle} />
+                <Block w={200} h={14} animatedStyle={animatedStyle} />
+                <Block w={18} h={18} animatedStyle={animatedStyle} />
             </View>
         </View>
     );
@@ -150,19 +159,19 @@ const SkeletonPlatformVoucher: React.FC<SkeletonSubProps> = ({ animatedStyle }) 
 /**
  * Skeleton for Payment Method section
  */
-const SkeletonPaymentMethod: React.FC<SkeletonSubProps> = ({ animatedStyle }) => {
+const SkeletonPaymentMethod: React.FC<CheckoutSkeletonProps> = ({ animatedStyle }) => {
     const styles = stylesheet;
 
     return (
         <View style={styles.section}>
             <View style={styles.sectionHeader}>
-                <SkeletonBox width={32} height={32} borderRadius={10} animatedStyle={animatedStyle} />
-                <SkeletonText width={160} height={15} animatedStyle={animatedStyle} />
+                <Block w={32} h={32} r={10} animatedStyle={animatedStyle} />
+                <Block w={160} h={15} animatedStyle={animatedStyle} />
             </View>
             <View style={styles.sectionRow}>
-                <SkeletonBox width={40} height={40} borderRadius={12} animatedStyle={animatedStyle} />
-                <SkeletonText width={180} height={14} animatedStyle={animatedStyle} />
-                <SkeletonBox width={18} height={18} borderRadius={4} animatedStyle={animatedStyle} />
+                <Block w={40} h={40} r={12} animatedStyle={animatedStyle} />
+                <Block w={180} h={14} animatedStyle={animatedStyle} />
+                <Block w={18} h={18} animatedStyle={animatedStyle} />
             </View>
         </View>
     );
@@ -170,29 +179,26 @@ const SkeletonPaymentMethod: React.FC<SkeletonSubProps> = ({ animatedStyle }) =>
 
 /**
  * Skeleton for Bill Summary section
+ * Optimized: 3 summary rows → 2 rows + 1 total (was 3 rows + divider)
  */
-const SkeletonBillSummary: React.FC<SkeletonSubProps> = ({ animatedStyle }) => {
+const SkeletonBillSummary: React.FC<CheckoutSkeletonProps> = ({ animatedStyle }) => {
     const styles = stylesheet;
 
     return (
         <View style={styles.section}>
             <View style={styles.sectionHeader}>
-                <SkeletonBox width={32} height={32} borderRadius={10} animatedStyle={animatedStyle} />
-                <SkeletonText width={140} height={15} animatedStyle={animatedStyle} />
+                <Block w={32} h={32} r={10} animatedStyle={animatedStyle} />
+                <Block w={140} h={15} animatedStyle={animatedStyle} />
             </View>
             <View style={styles.summaryContent}>
                 <View style={styles.summaryRow}>
-                    <SkeletonText width={120} height={14} animatedStyle={animatedStyle} />
-                    <SkeletonText width={80} height={14} animatedStyle={animatedStyle} />
-                </View>
-                <View style={styles.summaryRow}>
-                    <SkeletonText width={140} height={14} animatedStyle={animatedStyle} />
-                    <SkeletonText width={60} height={14} animatedStyle={animatedStyle} />
+                    <Block w={120} h={14} animatedStyle={animatedStyle} />
+                    <Block w={80} h={14} animatedStyle={animatedStyle} />
                 </View>
                 <View style={styles.summaryDivider} />
                 <View style={styles.summaryRow}>
-                    <SkeletonText width={100} height={16} animatedStyle={animatedStyle} />
-                    <SkeletonText width={100} height={20} animatedStyle={animatedStyle} />
+                    <Block w={100} h={16} animatedStyle={animatedStyle} />
+                    <Block w={100} h={20} animatedStyle={animatedStyle} />
                 </View>
             </View>
         </View>
@@ -200,46 +206,29 @@ const SkeletonBillSummary: React.FC<SkeletonSubProps> = ({ animatedStyle }) => {
 };
 
 /**
- * CheckoutSkeleton - Main loading placeholder for Checkout screen
+ * CheckoutSkeleton - Main optimized loading placeholder for Checkout screen
  * 
  * @example
  * if (!isInitialized) return <CheckoutSkeleton />;
  */
-export const CheckoutSkeleton: React.FC<{
-    animatedStyle?: object;
-}> = ({ animatedStyle }) => {
+export const CheckoutSkeleton: React.FC<CheckoutSkeletonProps> = ({ animatedStyle }) => {
     const styles = stylesheet;
 
     return (
         <View style={styles.container}>
-            {/* Address Card */}
             <SkeletonAddressCard animatedStyle={animatedStyle} />
-
-            {/* Shop Groups */}
             <SkeletonShopGroup animatedStyle={animatedStyle} />
-
-            {/* Platform Voucher */}
             <SkeletonPlatformVoucher animatedStyle={animatedStyle} />
-
-            {/* Payment Method */}
             <SkeletonPaymentMethod animatedStyle={animatedStyle} />
-
-            {/* Bill Summary */}
             <SkeletonBillSummary animatedStyle={animatedStyle} />
         </View>
     );
 };
 
 const stylesheet = StyleSheet.create((theme) => ({
-    mt4: {
-        marginTop: 4,
-    },
     container: {
         flex: 1,
         backgroundColor: theme.colors.background,
-    },
-    shippingContent: {
-        flex: 1,
     },
     // Address Card
     addressCard: {
@@ -285,9 +274,10 @@ const stylesheet = StyleSheet.create((theme) => ({
         flex: 1,
         justifyContent: 'center',
     },
-    itemPriceRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
+    mt4: {
+        marginTop: 4,
+    },
+    mt6: {
         marginTop: 6,
     },
     sectionRow: {

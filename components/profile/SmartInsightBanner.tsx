@@ -152,7 +152,7 @@ export const SmartInsightBanner: React.FC<SmartInsightBannerProps> = ({
 
                 <View style={styles.contentRow}>
                     <View style={styles.iconBox}>
-                        <IconSymbol name={config.icon as any} size={28} color={config.iconColor} />
+                        <IconSymbol name={config.icon as React.ComponentProps<typeof IconSymbol>['name']} size={28} color={config.iconColor} />
                     </View>
 
                     <View style={styles.textWrap}>

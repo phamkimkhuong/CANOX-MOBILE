@@ -1,5 +1,11 @@
-import React, { memo, useCallback, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useRef } from 'react';
 import { LayoutChangeEvent, View } from 'react-native';
+import {
+    useAnimatedStyle,
+    useSharedValue,
+    withRepeat,
+    withTiming,
+} from 'react-native-reanimated';
 import { StyleSheet } from 'react-native-unistyles';
 import { CategoryRail } from './CategoryRail';
 import { FeaturedSection } from './FeaturedSection';
@@ -38,6 +44,20 @@ export const MarketingHeader = memo(({ onHeightMeasured, onProductPress }: Marke
     const styles = stylesheet;
     const lastHeight = useRef(0);
 
+    // Shared Animation Pattern: ONE animation loop for ALL skeletons in MarketingHeader
+    const shimmerValue = useSharedValue(0.4);
+    useEffect(() => {
+        shimmerValue.value = withRepeat(
+            withTiming(1, { duration: 1000 }),
+            -1,
+            true
+        );
+    }, [shimmerValue]);
+
+    const shimmerAnimatedStyle = useAnimatedStyle(() => ({
+        opacity: shimmerValue.value,
+    }));
+
     /**
      * Đo chiều cao của Marketing Header
      * Chỉ gọi callback khi height thay đổi đáng kể (> threshold)
@@ -56,8 +76,8 @@ export const MarketingHeader = memo(({ onHeightMeasured, onProductPress }: Marke
             <View style={styles.categoryContainer}>
                 <CategoryRail />
             </View>
-            <FlashSale onProductPress={onProductPress} />
-            <FeaturedSection onProductPress={onProductPress} />
+            <FlashSale onProductPress={onProductPress} shimmerAnimatedStyle={shimmerAnimatedStyle} />
+            <FeaturedSection onProductPress={onProductPress} shimmerAnimatedStyle={shimmerAnimatedStyle} />
         </View>
     );
 });

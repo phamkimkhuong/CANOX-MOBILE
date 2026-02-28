@@ -1,6 +1,6 @@
-import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
 import { Navigator } from '@/utils/navigation';
+import { Image } from 'expo-image';
 import React, { memo, useCallback, useState } from 'react';
 import {
     NativeScrollEvent,
@@ -24,20 +24,18 @@ const INDICATOR_HEIGHT = 4;
 interface Category {
     id: number;
     name: string;
-    icon: IconSymbolName;
-    color: string;
+    imageUrl: string;
     route?: string;
 }
 
 const CATEGORIES: Category[] = [
-    { id: 1, name: 'Flash Sale', icon: 'flash', color: '#f59e0b', route: ROUTES.CAMPAIGN.FLASH_SALE },
-    { id: 2, name: 'Danh mục', icon: 'category', color: '#22c55e', route: ROUTES.CATEGORY.INDEX },
-    { id: 3, name: 'Coins', icon: 'cash', color: '#facc15', route: ROUTES.PROFILE.COINS },
-    { id: 4, name: 'Vouchers', icon: 'ticket', color: '#fb923c', route: ROUTES.PROFILE.VOUCHERS },
-    { id: 5, name: 'Free Ship', icon: 'shipping', color: '#3b82f6' },
-    { id: 6, name: 'Top Up', icon: 'smartphone', color: '#a855f7' },
-    { id: 7, name: 'Fashion', icon: 'shirt', color: '#f472b6' },
-    { id: 8, name: 'Global', icon: 'globe', color: '#2dd4bf', route: ROUTES.PROFILE.INTERNATIONAL_SHIPPING },
+    { id: 1, name: 'Flash Sale', imageUrl: 'https://img.icons8.com/3d-fluency/94/flash-on.png', route: ROUTES.CAMPAIGN.FLASH_SALE },
+    { id: 2, name: 'Danh mục', imageUrl: 'https://img.icons8.com/3d-fluency/94/category.png', route: ROUTES.CATEGORY.INDEX }, // perfectly matches 'category' label
+    { id: 3, name: 'Coins', imageUrl: 'https://img.icons8.com/3d-fluency/94/stack-of-coins.png', route: ROUTES.PROFILE.COINS },
+    { id: 4, name: 'Global', imageUrl: 'https://img.icons8.com/3d-fluency/94/globe.png', route: ROUTES.PROFILE.INTERNATIONAL_SHIPPING },
+    { id: 5, name: 'Vouchers', imageUrl: 'https://img.icons8.com/3d-fluency/94/discount.png', route: ROUTES.PROFILE.VOUCHERS },
+    { id: 6, name: 'Free Ship', imageUrl: 'https://img.icons8.com/3d-fluency/94/delivery.png' }, // 'delivery' for shipping box
+    { id: 7, name: 'Fashion', imageUrl: 'https://img.icons8.com/3d-fluency/94/shopping-bag.png' }, // 'shopping-bag' instead of specific clothes
 ];
 
 export const CategoryRail = memo(() => {
@@ -58,7 +56,7 @@ export const CategoryRail = memo(() => {
     // Kiểm tra xem có cần hiện thanh scroll không (nếu nội dung ngắn quá thì ẩn)
     const showIndicator = contentWidth > containerWidth && containerWidth > 0;
 
-    // 2. Tính độ rộng của cục thumb (cục chạy)
+    // Tính độ rộng của cục thumb
     // Tỷ lệ nghịch: View càng nhỏ so với Content thì Thumb càng nhỏ
     // Giới hạn thumb không nhỏ hơn 10px để vẫn nhìn thấy được
     const thumbWidth = showIndicator
@@ -110,8 +108,12 @@ export const CategoryRail = memo(() => {
                         activeOpacity={0.7}
                         onPress={() => handlePress(cat.route)}
                     >
-                        <View style={styles.iconCircle}>
-                            <IconSymbol name={cat.icon} size={20} color={cat.color} />
+                        <View style={styles.iconBox}>
+                            <Image
+                                source={{ uri: cat.imageUrl }}
+                                style={styles.categoryImage}
+                                contentFit="contain"
+                            />
                         </View>
                         <Text style={styles.text} numberOfLines={2}>
                             {cat.name}
@@ -152,29 +154,34 @@ const stylesheet = StyleSheet.create((theme) => ({
     item: {
         width: 64, // Cố định width để căn text đều nhau
         alignItems: 'center',
-        gap: 4,
+        gap: 6,
     },
-    iconCircle: {
-        width: 40,
-        height: 40,
-        borderRadius: 12,
-        backgroundColor: theme.colors.surface,
+    iconBox: {
+        width: 48,
+        height: 48,
+        borderRadius: 16, // Smooth squircle appearance
+        backgroundColor: '#ffffff',
         justifyContent: 'center',
         alignItems: 'center',
-        borderWidth: 1,
-        borderColor: '#f1f5f9',
-        shadowColor: theme.colors.primary,
+        shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
+        shadowOpacity: 0.1,
         shadowRadius: 4,
-        elevation: 1,
+        elevation: 2,
+    },
+    categoryImage: {
+        width: 32, // Slightly smaller to fit perfectly inside the box
+        height: 32,
     },
     text: {
         fontSize: theme.fontSizes.xs,
-        color: theme.colors.header.onHeader,
+        color: theme.colors.header.onHeader || '#ffffff',
         textAlign: 'center',
-        fontWeight: '500',
-        lineHeight: 12,
+        fontWeight: '700',
+        lineHeight: 14,
+        textShadowColor: 'rgba(0, 0, 0, 0.15)',
+        textShadowOffset: { width: 0, height: 1 },
+        textShadowRadius: 2,
     },
     // Style cho thanh chỉ báo
     indicatorContainer: {

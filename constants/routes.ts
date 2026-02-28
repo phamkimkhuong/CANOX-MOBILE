@@ -66,7 +66,7 @@ export const ROUTES = {
         WALLET: '/wallet' as const,
         COINS: '/(main)/(user)/coins' as const,
         VOUCHERS: '/voucher' as const,
-        INTERNATIONAL_SHIPPING: '/international-shipping' as const,
+        INTERNATIONAL_SHIPPING: '/(main)/(user)/international-shipping' as const,
         SUPPORT: '/support' as const,
         SETTINGS_SECURITY: '/settings/security' as const,
     },

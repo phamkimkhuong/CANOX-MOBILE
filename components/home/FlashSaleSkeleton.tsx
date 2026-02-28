@@ -1,81 +1,67 @@
-import { SkeletonBox, SkeletonText } from '@/components/ui/feedback/Skeleton';
+import { SkeletonBox } from '@/components/ui/feedback/Skeleton';
 import React from 'react';
-import { ScrollView, View } from 'react-native';
+import { type StyleProp, View, type ViewStyle } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 // Constants matching FlashSale dimensions
 const PRODUCT_CARD_WIDTH = 140;
 const PRODUCT_IMAGE_SIZE = 140;
-const PRODUCT_COUNT = 4;
+const PRODUCT_COUNT = 3;
 
 /**
  * Single product card skeleton for FlashSale
  */
-const ProductCardSkeleton: React.FC = () => {
+const FlashProductSkeleton: React.FC<{ animatedStyle?: StyleProp<ViewStyle> }> = ({ animatedStyle }) => {
     const styles = stylesheet;
 
     return (
         <View style={styles.productCard}>
-            {/* Image skeleton */}
             <SkeletonBox
                 width={PRODUCT_IMAGE_SIZE}
                 height={PRODUCT_IMAGE_SIZE}
                 borderRadius={12}
+                animatedStyle={animatedStyle}
             />
-
-            {/* Product info */}
+            {/* Combined info block: price + progress merged into single block */}
             <View style={styles.productInfo}>
-                {/* Price skeleton */}
-                <SkeletonText width="70%" height={15} />
-
-                {/* Progress bar skeleton */}
-                <SkeletonBox width="100%" height={16} borderRadius={8} />
+                <SkeletonBox width="70%" height={14} animatedStyle={animatedStyle} />
+                <SkeletonBox width="100%" height={16} borderRadius={8} animatedStyle={animatedStyle} />
             </View>
         </View>
     );
 };
 
+interface FlashSaleSkeletonProps {
+    /** Shared shimmer animation from parent — prevents multiple animation loops */
+    animatedStyle?: StyleProp<ViewStyle>;
+}
+
 /**
- * FlashSaleSkeleton - Loading placeholder for FlashSale section
- * Matches exact layout and dimensions of FlashSale component to prevent layout shift
- * 
- * @example
- * if (isLoading) return <FlashSaleSkeleton />;
+ * FlashSaleSkeleton - Optimized shell-based loading placeholder
  */
-export const FlashSaleSkeleton: React.FC = () => {
+export const FlashSaleSkeleton: React.FC<FlashSaleSkeletonProps> = ({ animatedStyle }) => {
     const styles = stylesheet;
 
     return (
         <View style={styles.container}>
-            {/* Header skeleton */}
+            {/* Header skeleton — simplified */}
             <View style={styles.header}>
                 <View style={styles.titleRow}>
-                    {/* Flash Sale title skeleton */}
-                    <SkeletonText width={100} height={18} />
-
-                    {/* Timer boxes skeleton */}
-                    <View style={styles.timerRow}>
-                        <SkeletonBox width={28} height={20} borderRadius={4} />
-                        <SkeletonBox width={28} height={20} borderRadius={4} />
-                        <SkeletonBox width={28} height={20} borderRadius={4} />
-                    </View>
+                    {/* Flash Sale title */}
+                    <SkeletonBox width={100} height={18} animatedStyle={animatedStyle} />
+                    {/* Timer: 3 boxes merged into 1 block */}
+                    <SkeletonBox width={96} height={20} borderRadius={4} animatedStyle={animatedStyle} />
                 </View>
-
-                {/* See all button skeleton */}
-                <SkeletonText width={70} height={12} />
+                {/* See all */}
+                <SkeletonBox width={70} height={12} animatedStyle={animatedStyle} />
             </View>
 
-            {/* Products scroll skeleton */}
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                scrollEnabled={false}
-                contentContainerStyle={styles.scrollContent}
-            >
+            {/* Products row — static View instead of ScrollView (not scrollable anyway) */}
+            <View style={styles.scrollContent}>
                 {Array.from({ length: PRODUCT_COUNT }).map((_, index) => (
-                    <ProductCardSkeleton key={`flash-product-skeleton-${index}`} />
+                    <FlashProductSkeleton key={`flash-sk-${index}`} animatedStyle={animatedStyle} />
                 ))}
-            </ScrollView>
+            </View>
         </View>
     );
 };
@@ -104,12 +90,8 @@ const stylesheet = StyleSheet.create((theme) => ({
         alignItems: 'center',
         gap: 12,
     },
-    timerRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-    },
     scrollContent: {
+        flexDirection: 'row',
         paddingHorizontal: theme.margins.md,
         gap: 12,
     },

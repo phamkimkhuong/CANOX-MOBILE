@@ -16,9 +16,11 @@ import { FlashSaleSkeleton } from './FlashSaleSkeleton';
  */
 interface FlashSaleProps {
     onProductPress?: (productId: string) => void;
+    /** Shared shimmer animation from MarketingHeader — avoids multiple animation loops */
+    shimmerAnimatedStyle?: object;
 }
 
-export const FlashSale = memo(({ onProductPress }: FlashSaleProps = {}) => {
+export const FlashSale = memo(({ onProductPress, shimmerAnimatedStyle }: FlashSaleProps = {}) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const { t } = useTranslation('home');
@@ -55,7 +57,7 @@ export const FlashSale = memo(({ onProductPress }: FlashSaleProps = {}) => {
     }, [flashSaleData?.slot?.endTime, refetch]);
 
     if (isLoading) {
-        return <FlashSaleSkeleton />;
+        return <FlashSaleSkeleton animatedStyle={shimmerAnimatedStyle} />;
     }
 
     if (isError || !flashSaleData || flashSaleData.items.length === 0) {
