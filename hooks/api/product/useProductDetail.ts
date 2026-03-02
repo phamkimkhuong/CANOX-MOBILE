@@ -94,14 +94,24 @@ const fetchRelatedProducts = async (productId: string) => {
     };
 };
 
+interface UseRelatedProductsOptions {
+    /** Enable/disable the query (default: true) */
+    enabled?: boolean;
+}
+
 /**
  * Hook to fetch related products
  */
-export const useRelatedProducts = (productId: string) => {
+export const useRelatedProducts = (
+    productId: string,
+    options: UseRelatedProductsOptions = {}
+) => {
+    const { enabled = true } = options;
+
     return useQuery({
         queryKey: PRODUCT_DETAIL_QUERY_KEYS.related(productId),
         queryFn: () => fetchRelatedProducts(productId),
-        enabled: !!productId,
+        enabled: enabled && !!productId,
         staleTime: 5 * 60 * 1000,
     });
 };

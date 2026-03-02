@@ -91,33 +91,6 @@ export const ProductDetailSkeleton: React.FC<{
                 <SkeletonBox width={100} height={14} borderRadius={4} animatedStyle={finalAnimatedStyle} />
             </View>
 
-            {/* Shop Info */}
-            <View style={styles.shopSection}>
-                <View style={styles.shopHeader}>
-                    <SkeletonBox width={56} height={56} borderRadius={28} animatedStyle={finalAnimatedStyle} />
-                    <View style={styles.shopInfo}>
-                        <SkeletonBox width={120} height={16} borderRadius={4} animatedStyle={finalAnimatedStyle} />
-                        <SkeletonBox width={80} height={12} borderRadius={4} style={styles.mt8} animatedStyle={finalAnimatedStyle} />
-                    </View>
-                    <SkeletonBox width={70} height={32} borderRadius={8} animatedStyle={finalAnimatedStyle} />
-                </View>
-                {/* Shop Stats — simplified: 1 combined block instead of 4×2 items */}
-                <View style={styles.shopStats}>
-                    <SkeletonBox width="100%" height={16} borderRadius={4} animatedStyle={finalAnimatedStyle} />
-                </View>
-            </View>
-
-            {/* Specs Section — reduced from 5 rows to 3 (only ~3 visible above fold) */}
-            <View style={styles.specsSection}>
-                <SkeletonBox width={120} height={18} borderRadius={4} style={styles.mb12} animatedStyle={finalAnimatedStyle} />
-                {[1, 2, 3].map((i) => (
-                    <View key={i} style={styles.specRow}>
-                        <SkeletonBox width={100} height={14} borderRadius={4} animatedStyle={finalAnimatedStyle} />
-                        <SkeletonBox width={150} height={14} borderRadius={4} animatedStyle={finalAnimatedStyle} />
-                    </View>
-                ))}
-            </View>
-
             {/* Bottom Bar Skeleton */}
             {!hideBottomBar && (
                 <View style={[styles.bottomBar, styles.safeBottom]}>
@@ -137,15 +110,6 @@ export const ProductDetailSkeleton: React.FC<{
 
 
 const styles = StyleSheet.create((theme) => ({
-    mt4: {
-        marginTop: 4,
-    },
-    mt8: {
-        marginTop: 8,
-    },
-    mb12: {
-        marginBottom: 12,
-    },
     safeTop: {
         paddingTop: UnistylesRuntime.insets.top,
     },
@@ -175,42 +139,6 @@ const styles = StyleSheet.create((theme) => ({
         marginTop: theme.margins.sm,
         flexDirection: 'row',
         justifyContent: 'space-between',
-    },
-    shopSection: {
-        backgroundColor: theme.colors.surface,
-        padding: theme.margins.md,
-        marginTop: theme.margins.sm,
-    },
-    shopHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    shopInfo: {
-        flex: 1,
-        marginLeft: theme.margins.smd,
-    },
-    shopStats: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        marginTop: theme.margins.md,
-        paddingTop: theme.margins.md,
-        borderTopWidth: 1,
-        borderTopColor: theme.colors.border,
-    },
-    specsSection: {
-        backgroundColor: theme.colors.surface,
-        padding: theme.margins.md,
-        marginTop: theme.margins.sm,
-    },
-    specRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        paddingVertical: theme.margins.sm,
-    },
-    descSection: {
-        backgroundColor: theme.colors.surface,
-        padding: theme.margins.md,
-        marginTop: theme.margins.sm,
     },
     bottomBar: {
         position: 'absolute',

@@ -23,7 +23,7 @@ interface ProductCardProps {
     discount?: number;
     isMall?: boolean;
     isInternational?: boolean;
-    onPress: () => void;
+    onPress?: () => void;
     onPressIn?: () => void;
     route: Href | string;
     priceDisplay?: string;

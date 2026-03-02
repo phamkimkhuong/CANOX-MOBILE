@@ -5,11 +5,9 @@ import { ProductCard } from '@/components/ui/product/ProductCard';
 import { ProductCardSkeleton } from '@/components/ui/product/ProductCardSkeleton';
 import { productRoutes } from '@/constants/routes';
 import { useScrollToTopHandler } from '@/contexts/ScrollToTopContext';
-import { usePrefetchProductDetail } from '@/hooks/api/product/useProductDetail';
 import { FeedType, useProductFeed, useRefreshProductFeed } from '@/hooks/api/useHomeProducts';
 import { useFavoriteSync, useToggleFavorite } from '@/hooks/api/wishlist';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
-import { PREFETCH_GRACE_PERIOD_MS } from '@/hooks/usePrefetchTiming';
 import { useWishlistStore } from '@/store/useWishlistStore';
 import type { ProductFeedItem } from '@/types/product/product';
 import { createLogger } from '@/utils/logger';
@@ -76,10 +74,8 @@ const TabsRowItem = memo(({
 TabsRowItem.displayName = 'TabsRowItem';
 
 /**
- * ProductRowItem - Hybrid Pattern Navigation
- * - PressIn: Start prefetch + record timing
- * - Press: Navigate with instant flag based on elapsed time
- * - Favorite: heart icon with progressive fade-in
+ * ProductRowItem - Simple direct navigation (like bank account pattern)
+ * SmartNavButton handles navigation via route prop — no prefetch, no timing logic.
  */
 const ProductRowItem = memo(({
   item,
@@ -88,21 +84,6 @@ const ProductRowItem = memo(({
   item: ProductFeedItem;
   onFavoritePress: (variantId: string) => void;
 }) => {
-  const prefetchProduct = usePrefetchProductDetail();
-  const pressInTimeRef = useRef(0);
-
-  const handlePressIn = useCallback(() => {
-    pressInTimeRef.current = Date.now();
-    prefetchProduct(item.id);
-  }, [item.id, prefetchProduct]);
-
-  const handlePress = useCallback(() => {
-    const elapsed = pressInTimeRef.current ? Date.now() - pressInTimeRef.current : 0;
-    pressInTimeRef.current = 0;
-    const isInstantTap = elapsed > 0 && elapsed < PREFETCH_GRACE_PERIOD_MS;
-    Navigator.push(productRoutes.detail(item.id, { instantNav: isInstantTap }));
-  }, [item.id]);
-
   return (
     <ProductCard
       title={item.title}
@@ -116,8 +97,6 @@ const ProductRowItem = memo(({
       discount={item.discountPercentage}
       isMall={item.isMall}
       isInternational={item.isInternational}
-      onPress={handlePress}
-      onPressIn={handlePressIn}
       route={productRoutes.detail(item.id)}
       variantId={item.defaultVariantId}
       onFavoritePress={onFavoritePress}
