@@ -187,7 +187,7 @@ export interface CheckoutPreviewResponse {
     code: number;
     success: boolean;
     message: string;
-    data: CheckoutPreviewDataDTO;
+    data?: CheckoutPreviewDataDTO | null;
 }
 
 // ============================================
@@ -340,8 +340,8 @@ export const CheckoutPreviewResponseSchema = z.object({
     code: z.coerce.number().nullish().transform(val => val ?? 200),
     success: z.boolean().nullish().transform(val => val ?? true),
     message: z.string().nullish().transform(val => val ?? ''),
-    data: CheckoutPreviewDataSchema,
+    data: CheckoutPreviewDataSchema.nullish(),
 }).transform(res => ({
     ...res,
-    data: res.data // Ensure data is not null if parsed correctly
+    data: res.data ?? null,
 }));
