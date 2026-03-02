@@ -25,7 +25,7 @@ import {
     RecommendedProducts
 } from '@/components/cart';
 import { IconSymbol } from '@/components/ui/Icon';
-import { ROUTES, shopRoutes } from '@/constants/routes';
+import { ROUTES, addressRoutes, shopRoutes } from '@/constants/routes';
 import {
     useBatchRemoveCartItems,
     useCart,
@@ -47,7 +47,7 @@ import { logger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
 import { FlashList } from '@shopify/flash-list';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, RefreshControl, Text, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
@@ -112,11 +112,10 @@ const CompactAddressBar: React.FC = () => {
     return (
         <Pressable
             style={styles.addressBar}
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            onPress={() => Navigator.push(ROUTES.ADDRESS.LIST as any)}
+            onPress={() => Navigator.push(addressRoutes.list({ mode: 'selection' }))}
         >
             <IconSymbol name="location.on" size={16} color={theme.colors.buttonActive} />
-            <Text style={styles.addressBarText} numberOfLines={1}>
+            <Text style={styles.addressBarText} numberOfLines={2}>
                 {addressText}
             </Text>
             <IconSymbol name="chevron.right" size={16} color={theme.colors.typographySecondary} />
@@ -280,6 +279,35 @@ export default function CartScreen() {
     // CALCULATIONS (Client-side selection)
     // ========================================
 
+    const addresses = useUserAddressStore((state) => state.addresses);
+    const selectedAddressId = useUserAddressStore((state) => state.selectedAddressId);
+
+    // Derived state for items that cannot be selected (unsupported shipping region or out of stock)
+    const disabledItemIds = useMemo(() => {
+        const ids = new Set<string>();
+        if (!cartData) return ids;
+
+        const selectedAddress = addresses.find(a => a.id === selectedAddressId) || null;
+
+        cartData.shops.forEach(shop => {
+            shop.items.forEach(item => {
+                let isUnsupported = false;
+                if (selectedAddress) {
+                    const regions = item.availableRegions ?? [];
+                    if (regions.length > 0 && !(regions.includes('VIETNAM') && regions.includes('INTERNATIONAL'))) {
+                        const isIntlItemForDomestic = regions.includes('INTERNATIONAL') && !selectedAddress.isInternational;
+                        const isDomItemForIntl = regions.includes('VIETNAM') && selectedAddress.isInternational;
+                        isUnsupported = isIntlItemForDomestic || isDomItemForIntl;
+                    }
+                }
+                if (isUnsupported || item.isOutOfStock) {
+                    ids.add(item.id);
+                }
+            });
+        });
+        return ids;
+    }, [cartData, addresses, selectedAddressId]);
+
     const {
         calculation,
         selectAllState,
@@ -289,6 +317,7 @@ export default function CartScreen() {
     } = useCartCalculations({
         cartData: cartData ?? null, // Convert undefined to null
         selectedIds: selectedItemIds,
+        disabledItemIds,
         appliedShopVouchers,
         appliedPlatformVoucherId,
         onSelectionChange: setSelectedItemIds,

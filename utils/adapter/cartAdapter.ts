@@ -265,9 +265,10 @@ export const getAllItemsCheckboxState = (shops: CartShopUI[]): CheckboxState => 
  */
 export const getShopCheckboxState = (
     shop: CartShopUI,
-    selectedIds: Set<string>
+    selectedIds: Set<string>,
+    disabledItemIds?: Set<string>
 ): CheckboxState => {
-    const selectableItems = shop.items.filter(item => !item.isOutOfStock);
+    const selectableItems = shop.items.filter(item => !item.isOutOfStock && !(disabledItemIds?.has(item.id)));
     if (selectableItems.length === 0) return 'unchecked';
 
     const selectedCount = selectableItems.filter(item => selectedIds.has(item.id)).length;
@@ -282,10 +283,11 @@ export const getShopCheckboxState = (
  */
 export const getAllCheckboxState = (
     shops: CartShopUI[],
-    selectedIds: Set<string>
+    selectedIds: Set<string>,
+    disabledItemIds?: Set<string>
 ): CheckboxState => {
     const allSelectableItems = shops.flatMap(shop =>
-        shop.items.filter(item => !item.isOutOfStock)
+        shop.items.filter(item => !item.isOutOfStock && !(disabledItemIds?.has(item.id)))
     );
 
     if (allSelectableItems.length === 0) return 'unchecked';
@@ -302,10 +304,13 @@ export const getAllCheckboxState = (
 /**
  * Get all selectable item IDs from shops
  */
-export const getSelectableItemIds = (shops: CartShopUI[]): string[] => {
+export const getSelectableItemIds = (
+    shops: CartShopUI[],
+    disabledItemIds?: Set<string>
+): string[] => {
     return shops.flatMap(shop =>
         shop.items
-            .filter(item => !item.isOutOfStock)
+            .filter(item => !item.isOutOfStock && !(disabledItemIds?.has(item.id)))
             .map(item => item.id)
     );
 };
@@ -313,9 +318,12 @@ export const getSelectableItemIds = (shops: CartShopUI[]): string[] => {
 /**
  * Get all item IDs from a shop (including out of stock)
  */
-export const getShopItemIds = (shop: CartShopUI): string[] => {
+export const getShopItemIds = (
+    shop: CartShopUI,
+    disabledItemIds?: Set<string>
+): string[] => {
     return shop.items
-        .filter(item => !item.isOutOfStock)
+        .filter(item => !item.isOutOfStock && !(disabledItemIds?.has(item.id)))
         .map(item => item.id);
 };
 

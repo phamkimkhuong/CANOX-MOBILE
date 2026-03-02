@@ -3,7 +3,6 @@ import { request } from '@/services/api/client';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useCartStore } from '@/store/useCartStore';
 import { hideGlobalLoading, showGlobalLoading } from '@/store/useLoadingStore';
-import { useUserAddressStore } from '@/store/useUserAddressStore';
 import { AddToCartApiResponseSchema, AddToCartResponse, CartApiResponseSchema, CartUI } from '@/types/cart';
 import { transformCart } from '@/utils/adapter/cartAdapter';
 import { logger } from '@/utils/logger';
@@ -16,12 +15,16 @@ import { v4 as uuidv4 } from 'uuid';
 
 export const CART_QUERY_KEY = ['cart'] as const;
 
-export const getCartQueryKey = (addressId: string | null) => {
-    return [...CART_QUERY_KEY, addressId] as const;
+/**
+ * Cart query key - no longer depends on addressId.
+ * Cart fetches ALL items; region filtering is done client-side
+ * using address.isInternational + item.availableRegions.
+ */
+export const getCartQueryKey = () => {
+    return CART_QUERY_KEY;
 };
 
 interface FetchCartParams {
-    addressId?: string | null;
     region?: string | null;
 }
 
@@ -30,7 +33,6 @@ interface FetchCartParams {
  */
 export const fetchCart = async (params?: FetchCartParams): Promise<CartUI> => {
     const queryParams: Record<string, string> = {};
-    if (params?.addressId) queryParams.addressId = params.addressId;
     if (params?.region) queryParams.region = params.region;
 
     const response = await request(
@@ -55,12 +57,9 @@ export const useCart = () => {
     const setTotalQuantity = useCartStore((state) => state.setTotalQuantity);
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-    // Subscribe to default address ID
-    const selectedAddressId = useUserAddressStore((state) => state.selectedAddressId);
-
     const queryInfo = useQuery({
-        queryKey: getCartQueryKey(selectedAddressId),
-        queryFn: () => fetchCart({ addressId: selectedAddressId }),
+        queryKey: getCartQueryKey(),
+        queryFn: () => fetchCart(),
         enabled: isAuthenticated,
         staleTime: 1000 * 10,
         gcTime: 1000 * 60 * 10,
@@ -84,17 +83,16 @@ export const useCart = () => {
 export const usePrefetchCart = () => {
     const queryClient = useQueryClient();
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-    const selectedAddressId = useUserAddressStore((state) => state.selectedAddressId);
 
     const prefetch = useCallback(() => {
         if (isAuthenticated) {
             queryClient.prefetchQuery({
-                queryKey: getCartQueryKey(selectedAddressId),
-                queryFn: () => fetchCart({ addressId: selectedAddressId }),
+                queryKey: getCartQueryKey(),
+                queryFn: () => fetchCart(),
                 staleTime: 1000 * 10,
             });
         }
-    }, [isAuthenticated, queryClient, selectedAddressId]);
+    }, [isAuthenticated, queryClient]);
 
     return prefetch;
 };

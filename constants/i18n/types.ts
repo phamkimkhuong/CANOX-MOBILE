@@ -478,6 +478,7 @@ export interface CartTranslation {
         outOfStock: string;
         findSimilar: string;
         selectVariation: string;
+        unsupportedRegion: string;
     };
     status: {
         syncing: string;

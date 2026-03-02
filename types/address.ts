@@ -229,6 +229,7 @@ export interface ShippingAddress {
     countryName: string;
     label: AddressLabel;
     isDefault: boolean;
+    isInternational: boolean;
     createdAt?: string;
     updatedAt?: string;
 }

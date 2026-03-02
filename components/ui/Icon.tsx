@@ -173,6 +173,7 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     gender: { ios: 'male-female-outline', android: 'male-female-outline' },
     transgender: { ios: 'transgender-outline', android: 'transgender-outline' },
     'location-on': { ios: 'location-outline', android: 'location-outline' },
+    'location.on': { ios: 'location-outline', android: 'location-outline' },
     'content-copy': { ios: 'copy-outline', android: 'copy-outline' },
     'account-balance-wallet': { ios: 'wallet-outline', android: 'wallet-outline' },
     'flight-takeoff': { ios: 'airplane-outline', android: 'airplane-outline' },

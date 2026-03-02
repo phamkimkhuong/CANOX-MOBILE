@@ -47,6 +47,7 @@ export const toBuyerAddressUI = (dto: BuyerAddressDTO): ShippingAddress => ({
     countryName: dto.address?.country ?? '',
     label: mapAddressType(dto.type),
     isDefault: dto.isDefault,
+    isInternational: dto.address?.isInternational ?? false,
     createdAt: dto.createdDate,
     updatedAt: dto.lastModifiedDate,
 });

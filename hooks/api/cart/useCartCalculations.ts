@@ -52,6 +52,8 @@ export interface UseCartCalculationsOptions {
     cartData: CartUI | null;
     /** Selected item IDs (từ Zustand store) */
     selectedIds: Set<string>;
+    /** Disabled items IDs not selectable (e.g., unsupported region) */
+    disabledItemIds?: Set<string>;
     /** Applied shop vouchers Map */
     appliedShopVouchers: Map<string, string>;
     /** Applied platform voucher ID */
@@ -65,6 +67,7 @@ export interface UseCartCalculationsOptions {
 export const useCartCalculations = ({
     cartData,
     selectedIds,
+    disabledItemIds,
     appliedShopVouchers,
     appliedPlatformVoucherId,
     onSelectionChange,
@@ -122,8 +125,8 @@ export const useCartCalculations = ({
      * "Select All" checkbox state
      */
     const selectAllState = useMemo<CheckboxState>(() => {
-        return getAllCheckboxState(shops, selectedIds);
-    }, [shops, selectedIds]);
+        return getAllCheckboxState(shops, selectedIds, disabledItemIds);
+    }, [shops, selectedIds, disabledItemIds]);
 
     // ========================================
     // SELECTION HELPERS
@@ -136,9 +139,9 @@ export const useCartCalculations = ({
         (shopId: string): CheckboxState => {
             const shop = shops.find((s) => s.shopId === shopId);
             if (!shop) return 'unchecked';
-            return getShopCheckboxState(shop, selectedIds);
+            return getShopCheckboxState(shop, selectedIds, disabledItemIds);
         },
-        [shops, selectedIds]
+        [shops, selectedIds, disabledItemIds]
     );
 
     /**
@@ -164,11 +167,12 @@ export const useCartCalculations = ({
             if (newSelectedIds.has(itemId)) {
                 newSelectedIds.delete(itemId);
             } else {
+                if (disabledItemIds?.has(itemId)) return;
                 newSelectedIds.add(itemId);
             }
             onSelectionChange(newSelectedIds);
         },
-        [selectedIds, onSelectionChange]
+        [selectedIds, disabledItemIds, onSelectionChange]
     );
 
     /**
@@ -179,8 +183,8 @@ export const useCartCalculations = ({
             const shop = shops.find((s) => s.shopId === shopId);
             if (!shop) return;
 
-            const shopState = getShopCheckboxState(shop, selectedIds);
-            const shopItemIds = getShopItemIds(shop);
+            const shopState = getShopCheckboxState(shop, selectedIds, disabledItemIds);
+            const shopItemIds = getShopItemIds(shop, disabledItemIds);
             const newSelectedIds = new Set(selectedIds);
 
             if (shopState === 'checked') {
@@ -191,21 +195,21 @@ export const useCartCalculations = ({
 
             onSelectionChange(newSelectedIds);
         },
-        [shops, selectedIds, onSelectionChange]
+        [shops, selectedIds, disabledItemIds, onSelectionChange]
     );
 
     /**
      * Toggle select all
      */
     const toggleSelectAll = useCallback(() => {
-        const allSelectableIds = getSelectableItemIds(shops);
+        const allSelectableIds = getSelectableItemIds(shops, disabledItemIds);
 
         if (selectAllState === 'checked') {
             onSelectionChange(new Set());
         } else {
             onSelectionChange(new Set(allSelectableIds));
         }
-    }, [shops, selectAllState, onSelectionChange]);
+    }, [shops, selectAllState, disabledItemIds, onSelectionChange]);
 
     // ========================================
     // VOUCHER ACTIONS

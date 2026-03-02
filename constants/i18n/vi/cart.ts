@@ -37,6 +37,7 @@ export const CART_STRINGS: CartTranslation = {
         outOfStock: 'Hết hàng',
         findSimilar: 'Tìm SP tương tự',
         selectVariation: 'Chọn phân loại hàng',
+        unsupportedRegion: 'Không hỗ trợ giao đến {{location}}.',
     },
     status: {
         syncing: 'Đang cập nhật giá mới nhất...',

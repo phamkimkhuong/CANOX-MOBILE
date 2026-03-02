@@ -8,6 +8,7 @@
 
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { apiClient } from '@/services/api/client';
+import { useAuthStore } from '@/store/useAuthStore';
 import type { PriceTargetMetDTO, WishlistItemUI } from '@/types/wishlist';
 import { PriceTargetMetResponseSchema } from '@/types/wishlist';
 import { adaptWishlistItem } from '@/utils/adapter/wishlist';
@@ -50,14 +51,21 @@ const fetchPriceTargetMet = async (): Promise<PriceTargetMetDTO> => {
 /**
  * Hook to fetch items that reached desired price
  * 
- * Used in "Săn giá" tab to show price alerts
+ * Used in:
+ * - "Săn giá" tab (PriceTargetTab) to show price alerts
+ * - TabBar badge (app/(tabs)/_layout.tsx) for instant deal notification
+ * 
+ * Cache is shared across both consumers via TanStack Query queryKey
  */
 export const usePriceTargetMet = () => {
+    const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+
     return useQuery({
         queryKey: wishlistKeys.priceTargetMet(),
         queryFn: fetchPriceTargetMet,
+        enabled: isAuthenticated,
         staleTime: 1000 * 60 * 5, // 5 minutes
-        refetchInterval: 1000 * 60 * 15, // Refetch every 15 minutes for price updates
+        refetchInterval: isAuthenticated ? 1000 * 60 * 15 : false,
         select: (data): PriceTargetMetUI => {
             const mappedGroups = data.wishlists.filter(w => w.items.some(i => i.isPriceTargetMet)).map(wishlist => ({
                 wishlistId: wishlist.id,

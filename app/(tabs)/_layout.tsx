@@ -3,6 +3,7 @@ import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 import { useScrollToTopContext } from '@/contexts/ScrollToTopContext';
 import { useCart } from '@/hooks/api/cart/useCart';
 import { useUnreadNotificationCount } from '@/hooks/api/notification/useNotifications';
+import { usePriceTargetMetCount } from '@/hooks/api/wishlist/usePriceTargetMet';
 import { Tabs, usePathname } from 'expo-router';
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -27,6 +28,9 @@ export default function TabLayout() {
 
   // Fetch unread notification count for badge
   const { data: unreadNotificationCount } = useUnreadNotificationCount();
+
+  // Fetch price target met count for wishlist badge
+  const priceTargetCount = usePriceTargetMetCount();
 
   // Scroll to top context
   const { triggerScrollToTop } = useScrollToTopContext();
@@ -79,6 +83,8 @@ export default function TabLayout() {
         options={{
           title: t('bottomTab.wishlist'),
           tabBarIcon: ({ color }) => <TabBarIcon name="favorite" color={color} />,
+          tabBarBadge: priceTargetCount > 0 ? priceTargetCount : undefined,
+          tabBarBadgeStyle: priceTargetCount > 0 ? styles.wishlistBadge : undefined,
           headerShown: false,
         }}
       />
@@ -125,5 +131,13 @@ const stylesheet = StyleSheet.create((theme) => ({
     backgroundColor: theme.colors.surface,
     borderTopWidth: 0,
     elevation: 5,
+  },
+  wishlistBadge: {
+    backgroundColor: '#22c55e',
+    fontSize: 10,
+    fontWeight: '700',
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
   },
 }));

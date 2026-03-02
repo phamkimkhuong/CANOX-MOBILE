@@ -63,13 +63,16 @@ export const CartItem: React.FC<CartItemProps> = memo(({
         state.addresses.find(a => a.id === selectedAddressId)
     );
 
-    const addressCountry = selectedAddress?.countryName?.toLowerCase() || '';
-    const isVietnam = addressCountry.includes('vietnam') || addressCountry.includes('việt nam') || addressCountry === 'vn' || addressCountry === 'viet nam';
-    const currentAddressRegion = selectedAddress ? (isVietnam ? 'VIETNAM' : 'INTERNATIONAL') : null;
+    // Determine current address region from isInternational field
+    const currentAddressRegion = selectedAddress
+        ? (selectedAddress.isInternational ? 'INTERNATIONAL' : 'VIETNAM')
+        : null;
 
     // Check if the current region is NOT supported by this item
+    // null/empty availableRegions = supports ALL regions (no restriction)
     const isUnsupportedRegion = currentAddressRegion !== null &&
-        item.availableRegions?.length > 0 &&
+        item.availableRegions != null &&
+        item.availableRegions.length > 0 &&
         !item.availableRegions.includes(currentAddressRegion);
 
     const isDisabled = item.isOutOfStock || isUnsupportedRegion;
@@ -78,6 +81,22 @@ export const CartItem: React.FC<CartItemProps> = memo(({
         if (!item.productId) return;
         Navigator.push(productRoutes.detail(item.productId));
     }, [item.productId]);
+
+    // Build region badge info
+    const regionBadgeInfo = (() => {
+        if (!item.regionLabel) return null;
+        const regions = item.availableRegions ?? [];
+        const hasVN = regions.includes('VIETNAM');
+        const hasIntl = regions.includes('INTERNATIONAL');
+        if (hasVN && hasIntl) return { type: 'both' as const };
+        if (hasIntl) return { type: 'international' as const };
+        return { type: 'domestic' as const };
+    })();
+
+    // Build friendly unsupported message
+    const unsupportedMessage = isUnsupportedRegion && selectedAddress
+        ? t('item.unsupportedRegion', { location: selectedAddress.provinceName || selectedAddress.countryName })
+        : null;
 
     const {
         productName,
@@ -90,149 +109,175 @@ export const CartItem: React.FC<CartItemProps> = memo(({
         maxQuantity,
         isOutOfStock,
         lowStockWarning,
-        regionLabel,
     } = item;
     return (
         <View style={[styles.container, isDisabled && styles.outOfStockContainer]}>
-            {/* Checkbox Column */}
-            <View style={styles.checkboxColumn}>
-                <CartCheckbox
-                    checked={isSelected}
-                    onToggle={() => onToggleSelect(item.id)}
-                    disabled={isDisabled}
-                />
-            </View>
-
-            {/* Product Content */}
-            <View style={styles.contentRow}>
-                {/* Image */}
-                <Pressable
-                    onPress={handleProductPress}
-                    style={({ pressed }) => [
-                        styles.imageContainer,
-                        pressed && styles.imagePressed
-                    ]}
-                >
-                    <Image
-                        source={{ uri: buildImageUrl(imageUrl, null, 'medium') }}
-                        style={[styles.image, isOutOfStock && styles.outOfStockImage]}
-                        contentFit="cover"
-                        transition={200}
-                        accessibilityLabel={productName}
+            <View style={styles.itemRow}>
+                {/* Checkbox Column */}
+                <View style={styles.checkboxColumn}>
+                    <CartCheckbox
+                        checked={isSelected}
+                        onToggle={() => onToggleSelect(item.id)}
+                        disabled={isDisabled}
                     />
+                </View>
 
-                    {/* Discount Badge */}
-                    {discountPercent && !isOutOfStock && (
-                        <View style={styles.discountBadge}>
-                            <Text style={styles.discountText}>-{discountPercent}%</Text>
-                        </View>
-                    )}
-
-                    {/* Out of Stock Overlay */}
-                    {isOutOfStock && (
-                        <View style={styles.outOfStockOverlay}>
-                            <Text style={styles.outOfStockText}>{t('item.outOfStock')}</Text>
-                        </View>
-                    )}
-                </Pressable>
-
-                {/* Info Column */}
-                <View style={[styles.infoColumn, isOutOfStock && styles.outOfStockInfo]}>
-                    {/* Product Name */}
+                {/* Product Content */}
+                <View style={styles.contentRow}>
+                    {/* Image */}
                     <Pressable
                         onPress={handleProductPress}
+                        style={({ pressed }) => [
+                            styles.imageContainer,
+                            pressed && styles.imagePressed
+                        ]}
                     >
-                        {({ pressed }) => (
-                            <Text
-                                style={[
-                                    styles.productName,
-                                    pressed && styles.productNamePressed
-                                ]}
-                                numberOfLines={2}
-                            >
-                                {productName}
-                            </Text>
+                        <Image
+                            source={{ uri: buildImageUrl(imageUrl, null, 'medium') }}
+                            style={[styles.image, isOutOfStock && styles.outOfStockImage]}
+                            contentFit="cover"
+                            transition={200}
+                            accessibilityLabel={productName}
+                        />
+
+                        {/* Discount Badge */}
+                        {discountPercent && !isOutOfStock && (
+                            <View style={styles.discountBadge}>
+                                <Text style={styles.discountText}>-{discountPercent}%</Text>
+                            </View>
+                        )}
+
+                        {/* Out of Stock Overlay */}
+                        {isOutOfStock && (
+                            <View style={styles.outOfStockOverlay}>
+                                <Text style={styles.outOfStockText}>{t('item.outOfStock')}</Text>
+                            </View>
                         )}
                     </Pressable>
 
-                    {/* Variant Selector */}
-                    {variantAttributes && (
+                    {/* Info Column */}
+                    <View style={[styles.infoColumn, isOutOfStock && styles.outOfStockInfo]}>
+                        {/* Product Name */}
                         <Pressable
-                            onPress={() => onVariantPress?.(item.id)}
-                            style={styles.variantSelector}
-                            disabled={isDisabled}
-                            accessibilityLabel={t('item.selectVariation')}
-                            accessibilityRole="button"
+                            onPress={handleProductPress}
                         >
-                            <Text style={styles.variantText} numberOfLines={1}>
-                                {variantAttributes}
-                            </Text>
-                            <IconSymbol
-                                name="chevron-down"
-                                size={14}
-                                color={theme.colors.secondary}
-                            />
-                        </Pressable>
-                    )}
-
-                    {/* Price & Quantity Row */}
-                    <View style={styles.bottomRow}>
-                        {/* Price */}
-                        <View style={styles.priceContainer}>
-                            {originalPrice && (
-                                <Text style={styles.originalPrice}>
-                                    {formatCurrency(originalPrice)}
-                                </Text>
-                            )}
-                            <Text
-                                style={styles.currentPrice}
-                                numberOfLines={1}
-                                adjustsFontSizeToFit
-                                minimumFontScale={0.5}
-                            >
-                                {formatCurrency(unitPrice)}
-                            </Text>
-                            {/* Low Stock Warning */}
-                            {lowStockWarning && (
+                            {({ pressed }) => (
                                 <Text
                                     style={[
-                                        styles.lowStockWarning,
-                                        lowStockWarning.isUrgent && styles.lowStockWarningUrgent
+                                        styles.productName,
+                                        pressed && styles.productNamePressed
                                     ]}
+                                    numberOfLines={2}
                                 >
-                                    {lowStockWarning.text}
+                                    {productName}
                                 </Text>
                             )}
-                        </View>
+                        </Pressable>
 
-                        {/* Quantity Stepper or Find Similar Button */}
-                        {isOutOfStock ? (
+                        {/* Variant Selector */}
+                        {variantAttributes && (
                             <Pressable
-                                onPress={() => onFindSimilar?.(item.id)}
-                                style={styles.findSimilarButton}
-                                accessibilityLabel={t('item.findSimilar')}
+                                onPress={() => onVariantPress?.(item.id)}
+                                style={styles.variantSelector}
+                                disabled={isDisabled}
+                                accessibilityLabel={t('item.selectVariation')}
                                 accessibilityRole="button"
                             >
-                                <Text style={styles.findSimilarText}>{t('item.findSimilar')}</Text>
+                                <Text style={styles.variantText} numberOfLines={1}>
+                                    {variantAttributes}
+                                </Text>
+                                <IconSymbol
+                                    name="chevron-down"
+                                    size={14}
+                                    color={theme.colors.secondary}
+                                />
                             </Pressable>
-                        ) : (
-                            <QuantityStepper
-                                value={quantity}
-                                min={1}
-                                max={maxQuantity}
-                                onValueChange={(newQty) => onQuantityChange(item.id, newQty)}
-                                size="small"
-                                disabled={isUnsupportedRegion}
-                            />
                         )}
-                    </View>
 
-                    {/* Region Validation Warning Label */}
-                    {isUnsupportedRegion && regionLabel && (
-                        <Text style={styles.regionWarningText}>{regionLabel}</Text>
-                    )}
+                        {/* Region Badge - subtle pill tag */}
+                        {regionBadgeInfo && (
+                            <View style={[
+                                styles.regionPill,
+                                regionBadgeInfo.type === 'international' && styles.regionPillIntl,
+                                regionBadgeInfo.type === 'both' && styles.regionPillBoth,
+                            ]}>
+                                <View style={[
+                                    styles.regionDot,
+                                    regionBadgeInfo.type === 'international' && styles.regionDotIntl,
+                                    regionBadgeInfo.type === 'both' && styles.regionDotBoth,
+                                ]} />
+                                <Text style={[
+                                    styles.regionPillText,
+                                    regionBadgeInfo.type === 'international' && styles.regionPillTextIntl,
+                                    regionBadgeInfo.type === 'both' && styles.regionPillTextBoth,
+                                ]}>
+                                    {item.regionLabel}
+                                </Text>
+                            </View>
+                        )}
+
+                        {/* Price & Quantity Row */}
+                        <View style={styles.bottomRow}>
+                            {/* Price */}
+                            <View style={styles.priceContainer}>
+                                {originalPrice && (
+                                    <Text style={styles.originalPrice}>
+                                        {formatCurrency(originalPrice)}
+                                    </Text>
+                                )}
+                                <Text
+                                    style={styles.currentPrice}
+                                    numberOfLines={1}
+                                    adjustsFontSizeToFit
+                                    minimumFontScale={0.5}
+                                >
+                                    {formatCurrency(unitPrice)}
+                                </Text>
+                                {/* Low Stock Warning */}
+                                {lowStockWarning && (
+                                    <Text
+                                        style={[
+                                            styles.lowStockWarning,
+                                            lowStockWarning.isUrgent && styles.lowStockWarningUrgent
+                                        ]}
+                                    >
+                                        {lowStockWarning.text}
+                                    </Text>
+                                )}
+                            </View>
+
+                            {/* Quantity Stepper or Find Similar Button */}
+                            {isOutOfStock ? (
+                                <Pressable
+                                    onPress={() => onFindSimilar?.(item.id)}
+                                    style={styles.findSimilarButton}
+                                    accessibilityLabel={t('item.findSimilar')}
+                                    accessibilityRole="button"
+                                >
+                                    <Text style={styles.findSimilarText}>{t('item.findSimilar')}</Text>
+                                </Pressable>
+                            ) : (
+                                <QuantityStepper
+                                    value={quantity}
+                                    min={1}
+                                    max={maxQuantity}
+                                    onValueChange={(newQty) => onQuantityChange(item.id, newQty)}
+                                    size="small"
+                                    disabled={isUnsupportedRegion}
+                                />
+                            )}
+                        </View>
+                    </View>
                 </View>
             </View>
+
+            {/* Unsupported Region Warning - friendly message, full width */}
+            {unsupportedMessage && (
+                <View style={styles.regionWarningRow}>
+                    <IconSymbol name="alert-circle" size={14} color={theme.colors.warning} />
+                    <Text style={styles.regionWarningText}>{unsupportedMessage}</Text>
+                </View>
+            )}
         </View>
     );
 });
@@ -244,11 +289,15 @@ const styles = StyleSheet.create((theme, rt) => {
 
     return {
         container: {
-            flexDirection: 'row',
+            flexDirection: 'column',
             paddingHorizontal: theme.margins.smd,
             paddingVertical: theme.margins.md,
             gap: theme.margins.smd,
             backgroundColor: theme.colors.surface,
+        },
+        itemRow: {
+            flexDirection: 'row',
+            gap: theme.margins.smd,
         },
         outOfStockContainer: {
             opacity: 0.7,
@@ -390,11 +439,70 @@ const styles = StyleSheet.create((theme, rt) => {
             color: theme.colors.error,
             fontWeight: '600',
         },
-        regionWarningText: {
+        // Region Pill Tag (Liquid Glass-inspired)
+        regionPill: {
+            alignSelf: 'flex-start',
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 5,
+            backgroundColor: 'rgba(34, 197, 94, 0.06)',
+            borderWidth: 0.5,
+            borderColor: 'rgba(34, 197, 94, 0.3)',
+            borderRadius: theme.radius.l,
+            paddingHorizontal: 8,
+            paddingVertical: 3,
+            marginTop: 5,
+        },
+        regionPillIntl: {
+            backgroundColor: 'rgba(14, 165, 233, 0.06)',
+            borderColor: 'rgba(14, 165, 233, 0.3)',
+        },
+        regionPillBoth: {
+            backgroundColor: 'rgba(0, 136, 204, 0.06)',
+            borderColor: 'rgba(0, 136, 204, 0.25)',
+        },
+        regionDot: {
+            width: 5,
+            height: 5,
+            borderRadius: 3,
+            backgroundColor: theme.colors.success,
+        },
+        regionDotIntl: {
+            backgroundColor: theme.colors.info,
+        },
+        regionDotBoth: {
+            backgroundColor: theme.colors.primary,
+        },
+        regionPillText: {
             fontSize: f(theme.fontSizes.xs),
             fontWeight: '500',
-            color: theme.colors.error,
-            marginTop: 4,
+            color: theme.colors.success,
+            letterSpacing: 0.2,
+        },
+        regionPillTextIntl: {
+            color: theme.colors.info,
+        },
+        regionPillTextBoth: {
+            color: theme.colors.primary,
+        },
+        // Unsupported Region Warning (Soft amber bar)
+        regionWarningRow: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 5,
+            marginTop: 6,
+            backgroundColor: 'rgba(249, 115, 22, 0.06)',
+            borderWidth: 0.5,
+            borderColor: 'rgba(249, 115, 22, 0.25)',
+            borderRadius: theme.radius.m,
+            paddingHorizontal: 8,
+            paddingVertical: 5,
+        },
+        regionWarningText: {
+            fontSize: f(theme.fontSizes.xsm),
+            fontWeight: '500',
+            color: theme.colors.warning,
+            flex: 1,
         }
     };
 });

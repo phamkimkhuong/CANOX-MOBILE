@@ -1,19 +1,3 @@
-import {
-    PriceBreakdownBottomSheet,
-    ProductDescription,
-    ProductGallery,
-    ProductInfoSection,
-    ProductNavBar,
-    ProductReviews,
-    ProductSpecs,
-    ShippingDeliveryCard,
-    ShopInfoCard,
-    StickyBottomBar,
-    VariantBottomSheet,
-    VariantSelectorRow,
-    VariantSheetMode
-} from '@/components/product';
-import type { ProductGalleryRef } from '@/components/product/ProductGallery';
 import { ProductCard } from '@/components/ui/product/ProductCard';
 import { ROUTES, chatRoutes, checkoutRoutes, productRoutes, shopRoutes } from '@/constants/routes';
 import { useAddToCart } from '@/hooks/api/cart';
@@ -45,6 +29,19 @@ import {
 import type { SharedValue } from 'react-native-reanimated';
 import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { PriceBreakdownBottomSheet } from './PriceBreakdownBottomSheet';
+import { ProductDescription } from './ProductDescription';
+import type { ProductGalleryRef } from './ProductGallery';
+import { ProductGallery } from './ProductGallery';
+import { ProductInfoSection } from './ProductInfoSection';
+import { ProductNavBar } from './ProductNavBar';
+import { ProductReviews } from './ProductReviews';
+import { ProductSpecs } from './ProductSpecs';
+import { ShippingDeliveryCard } from './ShippingDeliveryCard';
+import { ShopInfoCard } from './ShopInfoCard';
+import { StickyBottomBar } from './StickyBottomBar';
+import type { VariantSheetMode } from './VariantSelector';
+import { VariantBottomSheet, VariantSelectorRow } from './VariantSelector';
 
 const log = createLogger('ProductDetailContent');
 
