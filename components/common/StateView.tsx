@@ -13,6 +13,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -105,7 +106,20 @@ export const StateView: React.FC<StateViewProps> = ({
     animated = true,
 }) => {
     const { theme } = useUnistyles();
-    const config = DEFAULT_CONFIG[type];
+    const { t } = useTranslation('common');
+
+    // Setup default fallback config structure since we use i18n
+    const config = {
+        icon: DEFAULT_CONFIG[type].icon,
+        colorKey: DEFAULT_CONFIG[type].colorKey,
+    };
+
+    // Translate with fallback keys
+    const translationKey = type === 'not-found' ? 'notFound' : type;
+    const defaultTitle = t(`stateView.${translationKey}.title` as any);
+    const defaultMessage = t(`stateView.${translationKey}.message` as any);
+    const defaultActionLabel = t(`stateView.${translationKey}.actionLabel` as any);
+
     const iconColor = theme.colors[config.colorKey];
 
     const content = (
@@ -113,7 +127,7 @@ export const StateView: React.FC<StateViewProps> = ({
             style={[styles.container, fullScreen && styles.fullScreen]}
             accessible={true}
             accessibilityRole="alert"
-            accessibilityLabel={`${title || config.title}. ${message || config.message}`}
+            accessibilityLabel={`${title || defaultTitle}. ${message || defaultMessage}`}
         >
             {/* Icon Container */}
             <View style={[styles.iconContainer, { backgroundColor: `${iconColor}15` }]}>
@@ -129,18 +143,18 @@ export const StateView: React.FC<StateViewProps> = ({
                 style={styles.title}
                 accessibilityRole="header"
             >
-                {title || config.title}
+                {title || defaultTitle}
             </Text>
 
             {/* Message */}
             <Text style={styles.message}>
-                {message || config.message}
+                {message || defaultMessage}
             </Text>
 
             {/* Error Code (for debugging) */}
             {errorCode && (
                 <Text style={styles.errorCode}>
-                    Mã lỗi: {errorCode}
+                    {t('stateView.actions.errorCode', { code: String(errorCode) })}
                 </Text>
             )}
 
@@ -156,7 +170,7 @@ export const StateView: React.FC<StateViewProps> = ({
                     >
                         <IconSymbol name="refresh" size={18} color={theme.colors.onPrimary} />
                         <Text style={[styles.primaryButtonText, { color: theme.colors.onPrimary }]}>
-                            {actionLabel || config.actionLabel}
+                            {actionLabel || defaultActionLabel}
                         </Text>
                     </TouchableOpacity>
                 )}
@@ -169,7 +183,7 @@ export const StateView: React.FC<StateViewProps> = ({
                         accessibilityRole="button"
                     >
                         <Text style={[styles.secondaryButtonText, { color: theme.colors.typography }]}>
-                            {secondaryActionLabel || 'Về trang chủ'}
+                            {secondaryActionLabel || t('stateView.actions.home')}
                         </Text>
                     </TouchableOpacity>
                 )}

@@ -12,6 +12,7 @@ export * from './WishlistActionSheet';
 export * from './WishlistCard';
 export * from './WishlistCollectionChips';
 export * from './WishlistItemCard';
+export * from './WishlistLoginPrompt';
 export * from './WishlistProductGrid';
 export * from './WishlistSkeleton';
 

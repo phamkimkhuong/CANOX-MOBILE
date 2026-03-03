@@ -8,6 +8,7 @@
  */
 
 import { DataGuard } from '@/components/common/DataGuard';
+import { StateView } from '@/components/common/StateView';
 import {
     HowItWorks,
     LoyaltyEmptyState,
@@ -18,6 +19,7 @@ import {
 import { ROUTES, loyaltyRoutes } from '@/constants/routes';
 import { useLoyaltyOverview } from '@/hooks/api/loyalty/useLoyalty';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
+import { useAuthStore } from '@/store/useAuthStore';
 import type { LoyaltyOverviewUI } from '@/types/loyalty/ui';
 import { Navigator } from '@/utils/navigation';
 import React, { useCallback } from 'react';
@@ -39,6 +41,7 @@ export default function LoyaltyOverviewScreen() {
     const styles = stylesheet;
     const { bottom } = useSafeAreaInsets();
     const { t } = useTranslation('loyalty');
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
     const query = useLoyaltyOverview();
 
@@ -54,58 +57,73 @@ export default function LoyaltyOverviewScreen() {
         Navigator.push(ROUTES.TABS.HOME);
     }, []);
 
+    const handleLogin = useCallback(() => {
+        Navigator.push('/(auth)/login');
+    }, []);
+
     return (
         <View style={styles.container}>
             <LoyaltyHeader onBack={handleBack} />
 
-            <DataGuard
-                query={query}
-                isDataEmpty={() => false}
-                onSecondaryAction={handleBack}
-            >
-                {(overview: LoyaltyOverviewUI, meta) => (
-                    <ScrollView
-                        style={styles.scrollView}
-                        contentContainerStyle={[styles.scrollContent, { paddingBottom: bottom + 40 }]}
-                        showsVerticalScrollIndicator={false}
-                        refreshControl={
-                            <RefreshControl
-                                refreshing={meta.isRefetching}
-                                onRefresh={() => meta.refetch()}
-                                colors={[theme.colors.primary]}
-                                tintColor={theme.colors.primary}
-                            />
-                        }
-                    >
-                        {/* Hero Card — Always show */}
-                        <LoyaltyHeroCard overview={overview} />
+            {!isAuthenticated ? (
+                <StateView
+                    type="forbidden"
+                    title={t('guest.title')}
+                    message={t('guest.message')}
+                    actionLabel={t('guest.actionLabel')}
+                    onAction={handleLogin}
+                    fullScreen={true}
+                />
+            ) : (
+                <DataGuard
+                    query={query}
+                    isDataEmpty={() => false}
+                    onSecondaryAction={handleBack}
+                >
+                    {(overview: LoyaltyOverviewUI, meta) => (
+                        <ScrollView
+                            style={styles.scrollView}
+                            contentContainerStyle={[styles.scrollContent, { paddingBottom: bottom + 40 }]}
+                            showsVerticalScrollIndicator={false}
+                            refreshControl={
+                                <RefreshControl
+                                    refreshing={meta.isRefetching}
+                                    onRefresh={() => meta.refetch()}
+                                    colors={[theme.colors.primary]}
+                                    tintColor={theme.colors.primary}
+                                />
+                            }
+                        >
+                            {/* Hero Card — Always show */}
+                            <LoyaltyHeroCard overview={overview} />
 
-                        {/* Shop List or Empty */}
-                        {overview.shops.length > 0 ? (
-                            <Animated.View entering={FadeInDown.duration(350).delay(250)}>
-                                <View style={styles.shopSection}>
-                                    <Text style={styles.sectionTitle}>
-                                        {t('shopSection.title')}
-                                    </Text>
-                                    {overview.shops.map((shop, index) => (
-                                        <ShopPointItem
-                                            key={shop.shopId}
-                                            shop={shop}
-                                            index={index}
-                                            onPress={handleShopPress}
-                                        />
-                                    ))}
-                                </View>
-                            </Animated.View>
-                        ) : (
-                            <LoyaltyEmptyState onShopNow={handleShopNow} />
-                        )}
+                            {/* Shop List or Empty */}
+                            {overview.shops.length > 0 ? (
+                                <Animated.View entering={FadeInDown.duration(350).delay(250)}>
+                                    <View style={styles.shopSection}>
+                                        <Text style={styles.sectionTitle}>
+                                            {t('shopSection.title', { defaultValue: 'Cửa hàng của bạn' })}
+                                        </Text>
+                                        {overview.shops.map((shop, index) => (
+                                            <ShopPointItem
+                                                key={shop.shopId}
+                                                shop={shop}
+                                                index={index}
+                                                onPress={handleShopPress}
+                                            />
+                                        ))}
+                                    </View>
+                                </Animated.View>
+                            ) : (
+                                <LoyaltyEmptyState onShopNow={handleShopNow} />
+                            )}
 
-                        {/* How it works */}
-                        <HowItWorks />
-                    </ScrollView>
-                )}
-            </DataGuard>
+                            {/* How it works */}
+                            <HowItWorks />
+                        </ScrollView>
+                    )}
+                </DataGuard>
+            )}
         </View>
     );
 }

@@ -39,6 +39,7 @@ export const useUnreadNotificationCount = () => {
     return useQuery({
         queryKey: ['notifications', 'unread-count'],
         queryFn: async (): Promise<number> => {
+            if (!useAuthStore.getState().isAuthenticated) return 0;
             const response = await apiClient.get<UnreadCountResponse>(
                 API_ROUTES.NOTIFICATIONS.COUNT_UNREAD
             );

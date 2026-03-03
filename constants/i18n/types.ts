@@ -347,6 +347,37 @@ export interface CommonTranslation {
         updateNow: string;
         later: string;
     };
+    stateView: {
+        network: {
+            title: string;
+            message: string;
+            actionLabel: string;
+        };
+        server: {
+            title: string;
+            message: string;
+            actionLabel: string;
+        };
+        notFound: {
+            title: string;
+            message: string;
+            actionLabel: string;
+        };
+        empty: {
+            title: string;
+            message: string;
+            actionLabel: string;
+        };
+        forbidden: {
+            title: string;
+            message: string;
+            actionLabel: string;
+        };
+        actions: {
+            home: string;
+            errorCode: string;
+        };
+    };
 }
 
 /**
@@ -1574,6 +1605,11 @@ export interface WishlistTranslation {
         private: string;
         public: string;
     };
+    guest: {
+        title: string;
+        subtitle: string;
+        loginButton: string;
+    };
     empty: {
         title: string;
         subtitle: string;
@@ -1677,6 +1713,11 @@ export interface LoyaltyTranslation {
         unit: string;
         shopCountLabel: string;
         expiringLabel: string;
+    };
+    guest: {
+        title: string;
+        message: string;
+        actionLabel: string;
     };
     shopSection: {
         title: string;

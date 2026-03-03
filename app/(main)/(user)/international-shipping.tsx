@@ -7,6 +7,7 @@ import { useFavoriteSync, useToggleFavorite } from '@/hooks/api/wishlist';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { PREFETCH_GRACE_PERIOD_MS } from '@/hooks/usePrefetchTiming';
 import { MOCK_GLOBAL_BANNERS } from '@/services/api/mocks/globalBanners';
+import { useAuthStore } from '@/store/useAuthStore';
 import { useWishlistStore } from '@/store/useWishlistStore';
 import { ProductFeedItem } from '@/types/product/product';
 import { Navigator } from '@/utils/navigation';
@@ -49,7 +50,7 @@ const ProductRowItem = memo(({
     onFavoritePress,
 }: {
     item: ProductFeedItem;
-    onFavoritePress: (variantId: string) => void;
+    onFavoritePress?: (variantId: string) => void;
 }) => {
     const pressInTimeRef = useRef(0);
 
@@ -95,6 +96,7 @@ ProductRowItem.displayName = 'ProductRowItem';
 export default function InternationalShippingScreen() {
     useNavigationUnlockOnFocus();
     const { theme } = useUnistyles();
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     const styles = stylesheet;
     const { t } = useTranslation('home');
     const { top } = useSafeAreaInsets();
@@ -283,10 +285,10 @@ export default function InternationalShippingScreen() {
             return <ProductCardSkeleton animatedStyle={skeletonAnimatedStyle} />;
         }
         if (item.type === 'product') {
-            return <ProductRowItem item={item.data} onFavoritePress={handleFavoritePress} />;
+            return <ProductRowItem item={item.data} onFavoritePress={isAuthenticated ? handleFavoritePress : undefined} />;
         }
         return null;
-    }, [skeletonAnimatedStyle, handleFavoritePress]);
+    }, [skeletonAnimatedStyle, handleFavoritePress, isAuthenticated]);
 
     const renderEmpty = useCallback(() => (
         <View style={[styles.emptyContainer, { minHeight: screenHeight * 0.5 }]}>

@@ -11,6 +11,11 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
         private: 'Của bạn',
         public: 'Khám phá',
     },
+    guest: {
+        title: 'Đăng nhập để xem Yêu thích',
+        subtitle: 'Lưu lại sản phẩm bạn quan tâm, săn deal giá tốt và mua sắm dễ dàng hơn!',
+        loginButton: 'Đăng nhập / Đăng ký',
+    },
     empty: {
         title: 'Chưa có sản phẩm nào',
         subtitle: 'Khám phá và thêm sản phẩm yêu thích vào bộ sưu tập này!',
@@ -101,5 +106,5 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
         manageButton: 'Quản lý bộ sưu tập',
         successMessage: 'Chúc mừng! Có {{totalItems}} sản phẩm đã về đúng giá bạn mơ ước!',
         deepDiscountBadge: 'GIẢM SÂU',
-    },
+    }
 };

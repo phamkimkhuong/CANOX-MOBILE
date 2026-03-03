@@ -11,6 +11,11 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
         private: 'Personal',
         public: 'Discover',
     },
+    guest: {
+        title: 'Login to view Wishlist',
+        subtitle: 'Save your favorite items, hunt for discounts, and shop easier!',
+        loginButton: 'Login / Register',
+    },
     empty: {
         title: 'No items yet',
         subtitle: 'Discover and add your favorite items to this collection!',

@@ -8,6 +8,11 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
         shopCountLabel: 'shop',
         expiringLabel: 'sắp hết hạn'
     },
+    guest: {
+        title: 'Đăng nhập để xem điểm',
+        message: 'Đăng nhập ngay để theo dõi và săn các ưu đãi đổi điểm thưởng từ các shop bạn yêu thích.',
+        actionLabel: 'Đăng nhập'
+    },
     shopSection: {
         title: 'Xu theo từng shop'
     },

@@ -260,6 +260,28 @@ export const EditWishlistItemSheet = forwardRef<
                             → {formatCurrency(Number(priceText.replace(/[^\d]/g, '')))}
                         </Text>
                     )}
+                    {data && data.currentPrice > 0 && (
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.suggestionList}>
+                            {[50000, 100000, 150000].map((discount) => {
+                                const suggestedPrice = data.currentPrice - discount;
+                                if (suggestedPrice <= 0) return null;
+                                return (
+                                    <Pressable
+                                        key={discount}
+                                        style={styles.suggestionChip}
+                                        onPress={() => {
+                                            setPriceText(String(suggestedPrice));
+                                            Keyboard.dismiss();
+                                        }}
+                                    >
+                                        <Text style={styles.suggestionChipText}>
+                                            {formatCurrency(suggestedPrice)}
+                                        </Text>
+                                    </Pressable>
+                                );
+                            })}
+                        </ScrollView>
+                    )}
                 </View>
 
                 {/* Notes Input */}
@@ -532,6 +554,23 @@ const sheetStyles = StyleSheet.create((theme) => ({
         fontWeight: '500',
         marginTop: theme.margins.xs,
         marginLeft: theme.margins.xs,
+    },
+    suggestionList: {
+        marginTop: theme.margins.sm,
+    },
+    suggestionChip: {
+        paddingHorizontal: theme.margins.md,
+        paddingVertical: 6,
+        borderRadius: 20,
+        backgroundColor: theme.colors.backgroundNewInput,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        marginRight: theme.margins.sm,
+    },
+    suggestionChipText: {
+        fontSize: 13,
+        fontWeight: '500',
+        color: theme.colors.typographySecondary,
     },
 
     // Notes input

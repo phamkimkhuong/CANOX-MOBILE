@@ -1,8 +1,10 @@
 import { CartHeaderButton, ChatHeaderButton } from '@/components/ui/navigation/HeaderButtons';
+import { WishlistLoginPrompt } from '@/components/wishlist';
 import { PriceTargetTab } from '@/components/wishlist/PriceTargetTab';
 import { PrivateWishlistTab } from '@/components/wishlist/PrivateWishlistTab';
 import { usePriceTargetMetCount } from '@/hooks/api/wishlist/usePriceTargetMet';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
+import { useAuthStore } from '@/store/useAuthStore';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -19,6 +21,7 @@ export default function WishlistTabsScreen() {
     const insets = useSafeAreaInsets();
     const styles = stylesheet;
     const { t } = useTranslation('wishlist');
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
     // Tab state
     const [activeTab, setActiveTab] = useState<TabType>('price_target');
@@ -57,76 +60,64 @@ export default function WishlistTabsScreen() {
                 </View>
 
                 {/* Segmented Tabs */}
-                <View style={styles.tabBarContainer}>
-                    <View style={styles.tabBar}>
-                        <Pressable
-                            style={[
-                                styles.tab,
-                                activeTab === 'price_target' && styles.tabActive,
-                            ]}
-                            onPress={() => setActiveTab('price_target')}
-                        >
-                            <Text
+                {isAuthenticated && (
+                    <View style={styles.tabBarContainer}>
+                        <View style={styles.tabBar}>
+                            <Pressable
                                 style={[
-                                    styles.tabText,
-                                    activeTab === 'price_target' && styles.tabTextActive,
+                                    styles.tab,
+                                    activeTab === 'price_target' && styles.tabActive,
                                 ]}
+                                onPress={() => setActiveTab('price_target')}
                             >
-                                {t('tabs.priceTarget')}
-                            </Text>
-                            {priceTargetCount > 0 && (
-                                <View style={styles.badge}>
-                                    <Text style={styles.badgeText}>
-                                        {priceTargetCount > 99 ? '99+' : priceTargetCount}
-                                    </Text>
-                                </View>
-                            )}
-                        </Pressable>
+                                <Text
+                                    style={[
+                                        styles.tabText,
+                                        activeTab === 'price_target' && styles.tabTextActive,
+                                    ]}
+                                >
+                                    {t('tabs.priceTarget')}
+                                </Text>
+                                {priceTargetCount > 0 && (
+                                    <View style={styles.badge}>
+                                        <Text style={styles.badgeText}>
+                                            {priceTargetCount > 99 ? '99+' : priceTargetCount}
+                                        </Text>
+                                    </View>
+                                )}
+                            </Pressable>
 
-                        <Pressable
-                            style={[
-                                styles.tab,
-                                activeTab === 'private' && styles.tabActive,
-                            ]}
-                            onPress={() => setActiveTab('private')}
-                        >
-                            <Text
+                            <Pressable
                                 style={[
-                                    styles.tabText,
-                                    activeTab === 'private' && styles.tabTextActive,
+                                    styles.tab,
+                                    activeTab === 'private' && styles.tabActive,
                                 ]}
+                                onPress={() => setActiveTab('private')}
                             >
-                                {t('tabs.private')}
-                            </Text>
-                        </Pressable>
-
-                        {/* TEMPORARILY HIDDEN: Discover/Public Tab
-                    <Pressable
-                        style={[
-                            styles.tab,
-                            activeTab === 'public' && styles.tabActive,
-                        ]}
-                        onPress={() => setActiveTab('public')}
-                    >
-                        <Text
-                            style={[
-                                styles.tabText,
-                                activeTab === 'public' && styles.tabTextActive,
-                            ]}
-                        >
-                            {t('tabs.public')}
-                        </Text>
-                    </Pressable>
-                    */}
+                                <Text
+                                    style={[
+                                        styles.tabText,
+                                        activeTab === 'private' && styles.tabTextActive,
+                                    ]}
+                                >
+                                    {t('tabs.private')}
+                                </Text>
+                            </Pressable>
+                        </View>
                     </View>
-                </View>
+                )}
             </LinearGradient>
 
             {/* Content */}
             <View style={styles.content}>
-                {activeTab === 'price_target' && <PriceTargetTab onSwitchToPrivateTab={() => setActiveTab('private')} />}
-                {activeTab === 'private' && <PrivateWishlistTab />}
-                {/* {activeTab === 'public' && <PublicWishlistTab />} */}
+                {!isAuthenticated ? (
+                    <WishlistLoginPrompt />
+                ) : (
+                    <>
+                        {activeTab === 'price_target' && <PriceTargetTab onSwitchToPrivateTab={() => setActiveTab('private')} />}
+                        {activeTab === 'private' && <PrivateWishlistTab />}
+                    </>
+                )}
             </View>
         </View>
     );

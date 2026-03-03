@@ -55,4 +55,35 @@ export const COMMON_STRINGS: CommonTranslation = {
         updateNow: 'Update Now',
         later: 'Maybe Later',
     },
+    stateView: {
+        network: {
+            title: 'No connection',
+            message: 'Please check your internet connection and try again.',
+            actionLabel: 'Retry',
+        },
+        server: {
+            title: 'System Error',
+            message: 'An error occurred, we are fixing it. Please try again later.',
+            actionLabel: 'Retry',
+        },
+        notFound: {
+            title: 'Not found',
+            message: 'Data does not exist or has been deleted.',
+            actionLabel: 'Go back',
+        },
+        empty: {
+            title: 'No data',
+            message: 'The list is empty.',
+            actionLabel: 'Reload',
+        },
+        forbidden: {
+            title: 'Access Denied',
+            message: 'You do not have permission to view this content.',
+            actionLabel: 'Go back',
+        },
+        actions: {
+            home: 'Go back home',
+            errorCode: 'Error code: {{code}}',
+        },
+    },
 };

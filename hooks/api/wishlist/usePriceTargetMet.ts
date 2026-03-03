@@ -39,6 +39,7 @@ export interface PriceTargetMetUI {
  * Fetch items that have met their price target
  */
 const fetchPriceTargetMet = async (): Promise<PriceTargetMetDTO> => {
+    if (!useAuthStore.getState().isAuthenticated) return { wishlists: [], totalItems: 0, totalWishlists: 0 };
     const response = await apiClient.get(API_ROUTES.WISHLISTS.PRICE_TARGET_MET);
     const validated = PriceTargetMetResponseSchema.parse(response.data);
     return validated.data;

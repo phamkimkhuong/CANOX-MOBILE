@@ -6,6 +6,7 @@
  */
 
 import { API_ROUTES } from '@/constants/apiRoutes';
+import { useAuthStore } from '@/store/useAuthStore';
 import {
     WishlistDetailResponseSchema,
     WishlistItemsResponseSchema,
@@ -58,6 +59,7 @@ export const wishlistService = {
 
     /** Kiểm tra trạng thái thích của mảng Variant IDs */
     checkVariants: async (variantIds: string[]) => {
+        if (!useAuthStore.getState().isAuthenticated) return {};
         // Gửi danh sách qua query array: ?variantIds=1&variantIds=2
         const response = await apiClient.get(API_ROUTES.WISHLISTS.CHECK_VARIANTS, {
             params: { variantIds },

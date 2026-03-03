@@ -1,4 +1,5 @@
 import { wishlistService } from '@/services/api/wishlist';
+import { useAuthStore } from '@/store/useAuthStore';
 import { useWishlistStore } from '@/store/useWishlistStore';
 import type { ProductFeedItem } from '@/types/product/product';
 import { createLogger } from '@/utils/logger';
@@ -59,6 +60,11 @@ export const useFavoriteSync = () => {
         // Debounce: wait 100ms to batch consecutive page loads
         if (timerRef.current) clearTimeout(timerRef.current);
         timerRef.current = setTimeout(async () => {
+            if (!useAuthStore.getState().isAuthenticated) {
+                pendingProductsRef.current = [];
+                return;
+            }
+
             const batch = [...pendingProductsRef.current];
             pendingProductsRef.current = [];
 

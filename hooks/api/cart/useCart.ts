@@ -35,6 +35,10 @@ export const fetchCart = async (params?: FetchCartParams): Promise<CartUI> => {
     const queryParams: Record<string, string> = {};
     if (params?.region) queryParams.region = params.region;
 
+    if (!useAuthStore.getState().isAuthenticated) {
+        return { itemCount: 0, shops: [], platformVouchers: [], appliedPlatformVoucherId: null };
+    }
+
     const response = await request(
         {
             url: API_ROUTES.CART.GET,

@@ -8,6 +8,11 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
         shopCountLabel: 'shops',
         expiringLabel: 'expiring soon'
     },
+    guest: {
+        title: 'Login to view coins',
+        message: 'Login now to track and hunt for point redemption offers from your favorite shops.',
+        actionLabel: 'Login'
+    },
     shopSection: {
         title: 'Coins by shop'
     },

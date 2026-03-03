@@ -8,6 +8,7 @@ import { useScrollToTopHandler } from '@/contexts/ScrollToTopContext';
 import { FeedType, useProductFeed, useRefreshProductFeed } from '@/hooks/api/useHomeProducts';
 import { useFavoriteSync, useToggleFavorite } from '@/hooks/api/wishlist';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
+import { useAuthStore } from '@/store/useAuthStore';
 import { useWishlistStore } from '@/store/useWishlistStore';
 import type { ProductFeedItem } from '@/types/product/product';
 import { createLogger } from '@/utils/logger';
@@ -82,7 +83,7 @@ const ProductRowItem = memo(({
   onFavoritePress,
 }: {
   item: ProductFeedItem;
-  onFavoritePress: (variantId: string) => void;
+  onFavoritePress?: (variantId: string) => void;
 }) => {
   return (
     <ProductCard
@@ -116,6 +117,7 @@ export default function HomeScreen() {
   useNavigationUnlockOnFocus();
 
   const { theme } = useUnistyles();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   const styles = stylesheet;
   const { t } = useTranslation(['home', 'common']);
@@ -415,7 +417,7 @@ export default function HomeScreen() {
         return (
           <ProductRowItem
             item={item.data}
-            onFavoritePress={handleFavoritePress}
+            onFavoritePress={isAuthenticated ? handleFavoritePress : undefined}
           />
         );
       case 'skeleton':
@@ -423,7 +425,7 @@ export default function HomeScreen() {
       default:
         return null;
     }
-  }, [activeTab, handleTabChange, handleProductPress, handleMarketingHeaderLayout, shimmerAnimatedStyle, handleFavoritePress]);
+  }, [activeTab, handleTabChange, handleProductPress, handleMarketingHeaderLayout, shimmerAnimatedStyle, handleFavoritePress, isAuthenticated]);
 
   /**
    * Item type cho FlashList recycling optimization

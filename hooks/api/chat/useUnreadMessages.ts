@@ -60,6 +60,7 @@ export const useUnreadMessageCount = () => {
     return useQuery({
         queryKey: CHAT_QUERY_KEYS.unreadCount(),
         queryFn: async (): Promise<number> => {
+            if (!useAuthStore.getState().isAuthenticated) return 0;
             if (!isAuthenticated) return 0;
 
             const response = await apiClient.get<UnreadMessageCountResponse>(

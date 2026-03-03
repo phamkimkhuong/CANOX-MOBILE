@@ -8,6 +8,7 @@
 
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { apiClient } from '@/services/api/client';
+import { useAuthStore } from '@/store/useAuthStore';
 import type {
     WishlistCardUI,
     WishlistQueryParams
@@ -52,6 +53,8 @@ interface WishlistListParams {
  * Fetch user's wishlists with pagination
  */
 const fetchWishlists = async (params: WishlistListParams = {}) => {
+    if (!useAuthStore.getState().isAuthenticated) return { content: [], hasNext: false, page: 0, size: 20, totalElements: 0, totalPages: 0 };
+
     const { page = 0, size = 20, sortBy = 'createdDate', sortDir = 'desc' } = params;
 
     const response = await apiClient.get(API_ROUTES.WISHLISTS.LIST, {
@@ -73,6 +76,7 @@ const fetchWishlists = async (params: WishlistListParams = {}) => {
  * const { data, fetchNextPage, hasNextPage } = useWishlists();
  */
 export const useWishlists = () => {
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     return useInfiniteQuery({
         queryKey: wishlistKeys.lists(),
         queryFn: ({ pageParam = 0 }) => fetchWishlists({ page: pageParam }),
@@ -83,6 +87,7 @@ export const useWishlists = () => {
             return undefined;
         },
         initialPageParam: 0,
+        enabled: isAuthenticated,
         staleTime: 1000 * 60 * 5, // 5 minutes
         select: (data) => ({
             pages: data.pages.map(page => ({

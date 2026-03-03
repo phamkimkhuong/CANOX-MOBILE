@@ -55,4 +55,35 @@ export const COMMON_STRINGS: CommonTranslation = {
         updateNow: 'Cập nhật ngay',
         later: 'Để sau',
     },
+    stateView: {
+        network: {
+            title: 'Mất kết nối mạng',
+            message: 'Vui lòng kiểm tra kết nối internet và thử lại.',
+            actionLabel: 'Thử lại',
+        },
+        server: {
+            title: 'Lỗi hệ thống',
+            message: 'Đã có lỗi xảy ra, chúng tôi đang khắc phục. Vui lòng thử lại sau.',
+            actionLabel: 'Thử lại',
+        },
+        notFound: {
+            title: 'Không tìm thấy',
+            message: 'Dữ liệu không tồn tại hoặc đã bị xóa.',
+            actionLabel: 'Quay lại',
+        },
+        empty: {
+            title: 'Chưa có dữ liệu',
+            message: 'Danh sách đang trống.',
+            actionLabel: 'Tải lại',
+        },
+        forbidden: {
+            title: 'Không có quyền truy cập',
+            message: 'Bạn không có quyền xem nội dung này.',
+            actionLabel: 'Quay lại',
+        },
+        actions: {
+            home: 'Về trang chủ',
+            errorCode: 'Mã lỗi: {{code}}',
+        },
+    },
 };
