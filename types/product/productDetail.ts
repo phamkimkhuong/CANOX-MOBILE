@@ -268,6 +268,7 @@ export const ProductDetailResponseSchema = z.object({
     flashSale: FlashSaleInfoSchema.nullable().optional(),
     shipping: ShippingInfoSchema.nullable().optional(),
     specifications: z.array(ProductSpecSchema).nullable().optional().default([]),
+    availableRegions: z.array(z.string()).nullish().transform(val => val ?? []),
 });
 export type ProductDetailResponse = z.infer<typeof ProductDetailResponseSchema>;
 
@@ -492,6 +493,7 @@ export interface ProductDetailUI {
     // Status
     isActive: boolean;
     isAvailable: boolean;
+    isInternational: boolean;
 }
 
 /**

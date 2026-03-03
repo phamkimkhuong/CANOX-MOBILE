@@ -422,6 +422,7 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
                             totalReviews={product.totalReviews}
                             totalSold={product.totalSold}
                             flashSale={product.flashSale}
+                            isInternational={product.isInternational}
                             onShowPriceBreakdown={handleOpenPriceBreakdown}
                         />
                     </View>

@@ -166,47 +166,50 @@ export const ProductInfoSection = memo<ProductInfoSectionProps>(({
     const { theme } = useUnistyles();
     const { t } = useTranslation('product');
 
+    const hasPremiumBadges = isMall;
+    const hasVoucherBadges = (priceDisplay.shopVoucherDiscount != null && priceDisplay.shopVoucherDiscount > 0)
+        || (priceDisplay.platformVoucherDiscount != null && priceDisplay.platformVoucherDiscount > 0);
+
     const badgesContent = useMemo(() => (
-        <View style={styles.badgeRow}>
-            {isMall && (
-                <View style={styles.premiumBadgeContainer}>
-                    <LinearGradient
-                        colors={['#E53935', '#B71C1C']}
-                        style={styles.premiumBadgeGradient}
-                    >
-                        <Text style={styles.mallText}>{t('badges.mall')}</Text>
-                    </LinearGradient>
+        <>
+            {/* Premium Badges Row (Mall + International) */}
+            {hasPremiumBadges && (
+                <View style={styles.badgeRow2}>
+                    {isMall && (
+                        <View style={styles.premiumBadgeContainer}>
+                            <LinearGradient
+                                colors={['#E53935', '#B71C1C']}
+                                style={styles.premiumBadgeGradient}
+                            >
+                                <Text style={styles.mallText}>{t('badges.mall')}</Text>
+                            </LinearGradient>
+                        </View>
+                    )}
                 </View>
             )}
-            {isInternational && (
-                <View style={styles.premiumBadgeContainer}>
-                    <LinearGradient
-                        colors={['#2196F3', '#1565C0']}
-                        style={styles.premiumBadgeGradient}
-                    >
-                        <IconSymbol name="globe" size={12} color="#FFFFFF" />
-                        <Text style={styles.internationalText}>{t('badges.international')}</Text>
-                    </LinearGradient>
+            {/* Voucher Badges Row */}
+            {hasVoucherBadges && (
+                <View style={styles.badgeRow}>
+                    {priceDisplay.shopVoucherDiscount != null && priceDisplay.shopVoucherDiscount > 0 && (
+                        <View style={[styles.badge, styles.voucherBadge]}>
+                            <IconSymbol name="ticket" size={12} color={theme.colors.success} />
+                            <Text style={styles.voucherText}> {t('info.discount')}
+                                -{formatCurrency(priceDisplay.shopVoucherDiscount)}
+                            </Text>
+                        </View>
+                    )}
+                    {priceDisplay.platformVoucherDiscount != null && priceDisplay.platformVoucherDiscount > 0 && (
+                        <View style={[styles.badge, styles.voucherBadge]}>
+                            <IconSymbol name="ticket" size={12} color={theme.colors.success} />
+                            <Text style={styles.voucherText}> {t('info.discount')}
+                                -{formatCurrency(priceDisplay.platformVoucherDiscount)}
+                            </Text>
+                        </View>
+                    )}
                 </View>
             )}
-            {priceDisplay.shopVoucherDiscount != null && priceDisplay.shopVoucherDiscount > 0 && (
-                <View style={[styles.badge, styles.voucherBadge]}>
-                    <IconSymbol name="ticket" size={12} color={theme.colors.success} />
-                    <Text style={styles.voucherText}> {t('info.discount')}
-                        -{formatCurrency(priceDisplay.shopVoucherDiscount)}
-                    </Text>
-                </View>
-            )}
-            {priceDisplay.platformVoucherDiscount != null && priceDisplay.platformVoucherDiscount > 0 && (
-                <View style={[styles.badge, styles.voucherBadge]}>
-                    <IconSymbol name="ticket" size={12} color={theme.colors.success} />
-                    <Text style={styles.voucherText}> {t('info.discount')}
-                        -{formatCurrency(priceDisplay.platformVoucherDiscount)}
-                    </Text>
-                </View>
-            )}
-        </View>
-    ), [isMall, isInternational, priceDisplay.shopVoucherDiscount, priceDisplay.platformVoucherDiscount, theme.colors.success, t]);
+        </>
+    ), [hasPremiumBadges, hasVoucherBadges, isMall, priceDisplay.shopVoucherDiscount, priceDisplay.platformVoucherDiscount, theme.colors.success, t]);
 
     return (
         <View style={styles.container}>
@@ -240,9 +243,26 @@ export const ProductInfoSection = memo<ProductInfoSectionProps>(({
                     />
                 </View>
 
-                <Text style={styles.title} numberOfLines={3}>
-                    {name}
-                </Text>
+                <View style={styles.titleRow}>
+                    {isInternational && (
+                        <View style={styles.internationalTag}>
+                            <LinearGradient
+                                colors={['#0ea5e9', '#0891b2']}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 1 }}
+                                style={styles.internationalTagGradient}
+                            >
+                                <BlurView intensity={10} tint="light" style={styles.internationalTagBlur}>
+                                    <IconSymbol name="globe" size={10} color="#FFFFFF" />
+                                    <Text style={styles.internationalTagText}>{t('badges.international')}</Text>
+                                </BlurView>
+                            </LinearGradient>
+                        </View>
+                    )}
+                    <Text style={styles.title} numberOfLines={3}>
+                        {name}
+                    </Text>
+                </View>
             </View>
         </View>
     );
@@ -308,6 +328,12 @@ const styles = StyleSheet.create((theme) => ({
         flexWrap: 'wrap',
         gap: 6,
     },
+    badgeRow2: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 6,
+        marginBottom: 4,
+    },
     premiumBadgeContainer: {
         borderRadius: 4,
         overflow: 'hidden',
@@ -336,9 +362,29 @@ const styles = StyleSheet.create((theme) => ({
         color: '#FFFFFF',
         textTransform: 'uppercase',
     },
-    internationalText: {
-        fontSize: 10,
-        fontWeight: '700',
+    titleRow: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        gap: 6,
+    },
+    internationalTag: {
+        borderRadius: 6,
+        overflow: 'hidden',
+        marginTop: 2,
+    },
+    internationalTagGradient: {
+        borderRadius: 6,
+    },
+    internationalTagBlur: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 3,
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+    },
+    internationalTagText: {
+        fontSize: 11,
+        fontWeight: '800',
         color: '#FFFFFF',
     },
     badge: {

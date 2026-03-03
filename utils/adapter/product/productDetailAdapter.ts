@@ -640,6 +640,7 @@ export const transformProductDetail = (
         categoryPath: buildCategoryPath(data.category),
         isActive: data.active ?? true,
         isAvailable: (data.active ?? true) && totalStock > 0,
+        isInternational: (data.availableRegions ?? []).includes('INTERNATIONAL'),
     };
 };
 
