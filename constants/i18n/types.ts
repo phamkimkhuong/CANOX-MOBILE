@@ -1033,6 +1033,7 @@ export interface ProfileTranslation {
         warningItem2: string;
         warningItem3: string;
         warningItem4: string;
+        warningItem5: string;
         confirmCheckbox: string;
         confirmInputLabel: string;
         confirmInputPlaceholder: string;

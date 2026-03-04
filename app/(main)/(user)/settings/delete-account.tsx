@@ -98,6 +98,7 @@ export default function DeleteAccountScreen() {
         t('profile:deleteAccount.warningItem2'),
         t('profile:deleteAccount.warningItem3'),
         t('profile:deleteAccount.warningItem4'),
+        t('profile:deleteAccount.warningItem5'),
     ];
 
     return (
