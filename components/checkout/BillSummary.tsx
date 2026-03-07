@@ -96,6 +96,26 @@ export const BillSummary: React.FC<BillSummaryProps> = ({ calculation }) => {
                     </View>
                 )}
 
+                {/* Loyalty Point Discount (if any) */}
+                {calculation.loyaltyDiscount > 0 && (
+                    <View style={styles.row}>
+                        <Text style={styles.label}>{t('summary.loyaltyDiscount')}</Text>
+                        <Text style={styles.discountValue}>
+                            -{formatCurrency(calculation.loyaltyDiscount)}
+                        </Text>
+                    </View>
+                )}
+
+                {/* Platform Loyalty Point Support (if any) */}
+                {calculation.platformLoyaltyDiscount > 0 && (
+                    <View style={styles.row}>
+                        <Text style={styles.label}>{t('summary.platformLoyaltyDiscount')}</Text>
+                        <Text style={styles.discountValue}>
+                            -{formatCurrency(calculation.platformLoyaltyDiscount)}
+                        </Text>
+                    </View>
+                )}
+
                 {/* Tax (if any) */}
                 {calculation.taxAmount > 0 && (
                     <View style={styles.row}>

@@ -1,0 +1,5 @@
+--- OrderItemData ---
+itemId: string - Cart item ID
+expectedUnitPrice: number - Expected unit price from checkout preview (for price validation)
+promotionId: string - Promotion ID (CampaignProduct ID) from checkout preview (nullable)
+quantity: integer - Quantity confirmed for order (overrides cart quantity if present)

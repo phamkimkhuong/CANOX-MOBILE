@@ -39,6 +39,11 @@ export interface CheckoutPreviewRequest {
     paymentMethod?: string;
     usingSavedAddress?: boolean;
     allDiscountCodes?: string[];
+    buyNow?: boolean;
+    directItem?: {
+        variantId: string;
+        quantity: number;
+    };
 }
 
 // ============================================
@@ -153,6 +158,8 @@ export interface CheckoutOrderSummaryDTO {
         voucherProduct: number;
         voucherShipping: number;
         voucherTotal: number;
+        loyaltyDiscount: number;
+        platformLoyaltyDiscount: number;
     };
     totalShippingFee?: number | null;
     totalTaxAmount?: number | null;
@@ -161,13 +168,12 @@ export interface CheckoutOrderSummaryDTO {
 
 /** Buyer address từ API */
 export interface CheckoutBuyerAddressDTO {
-    addressId?: string;
+    buyerAddressId?: string;
     addressType?: number | null;
     taxAddress?: string | null;
 }
 
 export interface CheckoutPreviewDataDTO {
-    previewId: string;
     cartId: string;
     currency: string;
     previewAt: string;
@@ -255,7 +261,14 @@ const CheckoutVoucherResultSchema = z.object({
 });
 
 const CheckoutLoyaltyInfoSchema = z.object({
+    availablePoints: z.coerce.number().nullish().transform(val => val ?? 0),
     pointsToRedeem: z.coerce.number().nullish().transform(val => val ?? 0),
+    discountAmount: z.coerce.number().nullish().transform(val => val ?? 0),
+    maxPointsAllowed: z.coerce.number().nullish().transform(val => val ?? 0),
+    maxDiscountPercent: z.coerce.number().nullish().transform(val => val ?? 0),
+    expectedPointsEarned: z.coerce.number().nullish().transform(val => val ?? 0),
+    canRedeem: z.boolean().nullish().transform(val => val ?? false),
+    message: z.string().nullish().transform(val => val ?? ''),
 });
 
 const CheckoutShopSummarySchema = z.object({
@@ -291,10 +304,14 @@ const CheckoutOrderSummarySchema = z.object({
         voucherProduct: z.coerce.number().nullish().transform(val => val ?? 0),
         voucherShipping: z.coerce.number().nullish().transform(val => val ?? 0),
         voucherTotal: z.coerce.number().nullish().transform(val => val ?? 0),
+        loyaltyDiscount: z.coerce.number().nullish().transform(val => val ?? 0),
+        platformLoyaltyDiscount: z.coerce.number().nullish().transform(val => val ?? 0),
     }).nullish().transform(val => val ?? ({
         voucherProduct: 0,
         voucherShipping: 0,
         voucherTotal: 0,
+        loyaltyDiscount: 0,
+        platformLoyaltyDiscount: 0,
     })),
     totalShippingFee: z.coerce.number().nullish().transform(val => val ?? 0),
     grandTotal: z.coerce.number().nullish().transform(val => val ?? 0),
@@ -302,13 +319,12 @@ const CheckoutOrderSummarySchema = z.object({
 });
 
 const CheckoutBuyerAddressSchema = z.object({
-    addressId: z.string().nullish().transform(val => val ?? ''),
+    buyerAddressId: z.string().nullish().transform(val => val ?? ''),
     addressType: z.coerce.number().nullish().transform(val => val ?? 0),
     taxAddress: z.string().nullish(),
 });
 
 const CheckoutPreviewDataSchema = z.object({
-    previewId: z.string().nullish().transform(val => val ?? ''),
     cartId: z.string().nullish().transform(val => val ?? ''),
     currency: z.string().nullish().transform(val => val ?? 'VND'),
     previewAt: z.string().nullish().transform(val => val ?? new Date().toISOString()),

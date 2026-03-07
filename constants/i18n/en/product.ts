@@ -149,5 +149,11 @@ export const PRODUCT_STRINGS: ProductTranslation = {
         targetPrice: 'Target Price',
         setupTargetPrice: 'Set a Target Price (Hold)',
         hasNotes: 'Has Notes',
-    }
+    },
+    // === Packaging Info ===
+    packaging: {
+        title: 'Packaging',
+        dimensions: 'Dimensions',
+        weight: 'Weight',
+    },
 };

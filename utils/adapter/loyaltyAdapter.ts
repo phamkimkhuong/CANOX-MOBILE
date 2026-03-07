@@ -45,7 +45,9 @@ export const transformPointBatch = (dto: UserShopPointDTO): PointBatchUI => {
 
     return {
         id: dto.batchId,
+        initialAmount: dto.initialAmount,
         amount: dto.remainingAmount,
+        earnedAt: formatDate(dto.earnedAt),
         expiryDate: formatDate(dto.expiryAt),
         expiryText: dto.daysUntilExpiry > 0
             ? `Hết hạn sau ${dto.daysUntilExpiry} ngày`
@@ -72,6 +74,7 @@ export const transformPointHistory = (dto: PointHistoryDTO): PointHistoryUI => (
         type: tx.type,
         amount: tx.amount,
         date: formatDate(tx.transactionDate),
+        orderId: tx.orderId || null,
         description: tx.description,
         isPositive: tx.type === 'EARNED' || tx.type === 'REFUNDED',
     })),

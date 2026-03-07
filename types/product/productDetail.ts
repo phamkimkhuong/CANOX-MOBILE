@@ -71,9 +71,29 @@ export type ProductOptionValue = OptionValue;
 
 export const VariantInventorySchema = z.object({
     available: z.coerce.number().nullish().transform(val => val ?? 0),
-    stock: z.coerce.number().nullish().transform(val => val ?? 0),
 });
 export type VariantInventory = z.infer<typeof VariantInventorySchema>;
+
+// ============================================
+// VARIANT PRICING SCHEMA
+// ============================================
+
+const VariantPricingSchema = z.object({
+    current: z.number().nullable().optional().default(0),
+    original: z.number().nullable().optional().default(0),
+});
+
+// ============================================
+// VARIANT DIMENSIONS SCHEMA (Packaging info)
+// ============================================
+
+export const VariantDimensionsSchema = z.object({
+    lengthCm: z.number().nullable().optional(),
+    widthCm: z.number().nullable().optional(),
+    heightCm: z.number().nullable().optional(),
+    weightGrams: z.number().nullable().optional(),
+});
+export type VariantDimensions = z.infer<typeof VariantDimensionsSchema>;
 
 // ============================================
 // PRODUCT VARIANT SCHEMA
@@ -84,16 +104,21 @@ export const ProductVariantSchema = z.object({
     sku: z.string().nullable().optional(),
     imagePath: z.string().nullable().optional(),
     imageUrl: z.string().nullable().optional(),
-    // Price
-    price: z.number().nullable().optional().default(0),
-    priceBeforeDiscount: z.number().nullable().optional().default(0),
+    // Pricing 
+    pricing: VariantPricingSchema.nullable().optional(),
     // Option values  
     optionValues: z.array(OptionValueSchema).nullable().optional().default([]),
     // Inventory
     inventory: VariantInventorySchema.nullable().optional(),
     // Promotion
     promotion: PromotionSchema.nullable().optional(),
-});
+    // Dimensions (packaging size/weight)
+    dimensions: VariantDimensionsSchema.nullable().optional(),
+}).transform(({ pricing, ...rest }) => ({
+    ...rest,
+    price: pricing?.current ?? 0,
+    priceBeforeDiscount: pricing?.original ?? 0,
+}));
 
 export type ProductVariant = z.infer<typeof ProductVariantSchema>;
 
@@ -322,6 +347,7 @@ export interface VariantMatrixValue {
     promotionName?: string;
     promotionPercentage?: number;
     campaignType?: string;
+    dimensions?: VariantDimensions;
 }
 
 /**

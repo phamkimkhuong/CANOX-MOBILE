@@ -242,12 +242,13 @@ export const checkoutRoutes = {
     /** Normal checkout from cart */
     index: (): Href => '/checkout' as Href,
     /** Buy Now: Direct purchase without going through cart */
-    buyNow: (variantId: string, quantity: number): Href => ({
+    buyNow: (variantId: string, quantity: number, shopId: string): Href => ({
         pathname: '/checkout',
         params: {
             mode: 'buy-now',
             variantId,
             quantity: String(quantity),
+            shopId,
         },
     } as unknown as Href),
 } as const;

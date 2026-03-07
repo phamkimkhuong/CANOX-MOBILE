@@ -35,6 +35,7 @@ import type { ProductGalleryRef } from './ProductGallery';
 import { ProductGallery } from './ProductGallery';
 import { ProductInfoSection } from './ProductInfoSection';
 import { ProductNavBar } from './ProductNavBar';
+import { ProductPackagingInfo } from './ProductPackagingInfo';
 import { ProductReviews } from './ProductReviews';
 import { ProductSpecs } from './ProductSpecs';
 import { ShippingDeliveryCard } from './ShippingDeliveryCard';
@@ -53,6 +54,7 @@ type ProductDetailListItem =
     | { type: 'reviews'; id: string }
     | { type: 'shop'; id: string }
     | { type: 'specs'; id: string }
+    | { type: 'packaging'; id: string }
     | { type: 'description'; id: string }
     | { type: 'related_header'; id: string }
     | { type: 'related_product'; id: string; data: ProductFeedItem };
@@ -212,7 +214,7 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
         } else if (variantSheetMode === 'buy-now') {
             setVariantSheetVisible(false);
             setQuantity(1);
-            Navigator.push(checkoutRoutes.buyNow(selectedVariantId, quantity));
+            Navigator.push(checkoutRoutes.buyNow(selectedVariantId, quantity, shopId));
         } else {
             setVariantSheetVisible(false);
             if (selectedVariantMedia?.[0] && productGallery && selectedVariantId) {
@@ -220,7 +222,7 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
                 galleryRef.current?.scrollToIndex(index);
             }
         }
-    }, [variantSheetMode, canAddToCart, selectedVariantId, quantity, addToCart, selectedVariantMedia, productGallery, isAuthenticated, t]);
+    }, [variantSheetMode, canAddToCart, selectedVariantId, quantity, addToCart, selectedVariantMedia, productGallery, isAuthenticated, shopId, t]);
 
     const handlePrefetchChat = useCallback(() => {
         if (!isAuthenticated || shopId === myShopId) return;
@@ -396,13 +398,14 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
         if (product.hasVariants) items.push({ type: 'variants', id: 'variants' });
         items.push({ type: 'reviews', id: 'reviews' }, { type: 'shop', id: 'shop' });
         if (product.specifications?.length > 0) items.push({ type: 'specs', id: 'specs' });
+        if (selectionResult.selectedVariant?.dimensions) items.push({ type: 'packaging', id: 'packaging' });
         if (product.description) items.push({ type: 'description', id: 'description' });
         if (relatedProducts.length > 0) {
             items.push({ type: 'related_header', id: 'related_header' });
             items.push(...relatedProducts.map(p => ({ type: 'related_product' as const, id: `related_${p.id}`, data: p })));
         }
         return items;
-    }, [product, relatedProducts]);
+    }, [product, relatedProducts, selectionResult.selectedVariant?.dimensions]);
 
     const renderItem = useCallback(({ item }: ListRenderItemInfo<ProductDetailListItem>) => {
         switch (item.type) {
@@ -468,6 +471,12 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
                         <ProductSpecs specifications={product.specifications} />
                     </View>
                 );
+            case 'packaging':
+                return selectionResult.selectedVariant?.dimensions ? (
+                    <View style={styles.fullWidthSection}>
+                        <ProductPackagingInfo dimensions={selectionResult.selectedVariant.dimensions} />
+                    </View>
+                ) : null;
             case 'description':
                 return (
                     <View style={styles.fullWidthSection}>

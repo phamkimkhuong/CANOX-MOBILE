@@ -9,10 +9,10 @@ import { ROUTES } from '@/constants/routes';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { Alert } from '@/utils/AlertHelper';
 import { Navigator } from '@/utils/navigation';
-import { NavigationAction, useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import { useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
 import Animated, {
@@ -40,8 +40,7 @@ import {
 import { SkeletonBox } from '@/components/ui/feedback/Skeleton';
 
 // Store & Hooks
-import { CART_QUERY_KEY, useAddToCart } from '@/hooks/api/cart/useCart';
-import { useRemoveCartItem } from '@/hooks/api/cart/useCartMutations';
+import { CART_QUERY_KEY } from '@/hooks/api/cart/useCart';
 import { useCheckoutPreview } from '@/hooks/api/checkout/useCheckoutPreview';
 import { useCreateOrder } from '@/hooks/api/checkout/useCreateOrder';
 import { useRecommendPlatformVouchers } from '@/hooks/api/checkout/useRecommendPlatformVouchers';
@@ -80,12 +79,13 @@ export default function CheckoutScreen() {
     // ========================================
     // ROUTE PARAMS - Buy Now mode detection
     // ========================================
-    const { mode, variantId, quantity } = useLocalSearchParams<{
+    const { mode, variantId, quantity, shopId } = useLocalSearchParams<{
         mode?: 'buy-now';
         variantId?: string;
         quantity?: string;
+        shopId?: string;
     }>();
-    const isBuyNowMode = mode === 'buy-now' && !!variantId;
+    const isBuyNowMode = mode === 'buy-now' && !!variantId && !!shopId;
 
     // ========================================
     // API Hooks
@@ -93,14 +93,6 @@ export default function CheckoutScreen() {
     const queryClient = useQueryClient();
     const { mutate: callPreview } = useCheckoutPreview();
     const { mutateAsync: placeOrder } = useCreateOrder();
-    const { mutateAsync: addToCart } = useAddToCart();
-    const { mutate: removeCartItem } = useRemoveCartItem();
-
-    // Buy Now processing state
-    const [isBuyNowProcessing, setIsBuyNowProcessing] = useState(false);
-    const buyNowProcessedRef = useRef(false);
-    const buyNowItemIdRef = useRef<string | null>(null);
-    const orderPlacedRef = useRef(false);
 
     // ========================================
     // Store state & selectors
@@ -112,6 +104,7 @@ export default function CheckoutScreen() {
     const selectedShopVouchers = useCheckoutStore((s) => s.selectedShopVouchers);
     const selectedPlatformDiscountVoucher = useCheckoutStore((s) => s.selectedPlatformDiscountVoucher);
     const selectedPlatformShippingVoucher = useCheckoutStore((s) => s.selectedPlatformShippingVoucher);
+    const selectedLoyaltyRedemptions = useCheckoutStore((s) => s.selectedLoyaltyRedemptions);
     const selectedItemIds = useCheckoutStore((s) => s.selectedItemIds);
     const checkoutShops = useCheckoutStore((s) => s.checkoutShops);
     const isLoadingPreview = useCheckoutStore((s) => s.isLoadingPreview);
@@ -139,12 +132,12 @@ export default function CheckoutScreen() {
     }));
 
     useEffect(() => {
-        if (isInitialized && previewData && !isBuyNowProcessing) {
+        if (isInitialized && previewData) {
             contentOpacity.value = withTiming(1, { duration: 400 });
         } else {
             contentOpacity.value = 0;
         }
-    }, [isInitialized, previewData, isBuyNowProcessing, contentOpacity]);
+    }, [isInitialized, previewData, contentOpacity]);
 
     // Computed selectors from store
     const shops = useCheckoutShops();
@@ -167,6 +160,8 @@ export default function CheckoutScreen() {
         isCalculatingShipping: true,
         platformVoucherValidation: null,
         loyaltyPoints: 0,
+        loyaltyDiscount: 0,
+        platformLoyaltyDiscount: 0,
     }, [calculationData]);
 
     const platformVoucherWarning = useMemo(() => {
@@ -234,117 +229,28 @@ export default function CheckoutScreen() {
     // BUY NOW MODE PROCESSING
     // ========================================
     useEffect(() => {
-        if (!isBuyNowMode || buyNowProcessedRef.current) return;
-        if (isInitialized) return; // Already initialized from cart flow
+        if (!isBuyNowMode) return;
+        if (isInitialized) return;
 
-        const processBuyNow = async () => {
-            buyNowProcessedRef.current = true;
-            setIsBuyNowProcessing(true);
+        const parsedQuantity = parseInt(quantity || '1', 10) || 1;
 
-            try {
-                const parsedQuantity = parseInt(quantity || '1', 10) || 1;
+        // Khởi tạo session rỗng item để Checkout UI fetch Preview ngay lập tức
+        initSession([variantId], [{
+            shopId: shopId!,
+            items: [{
+                itemId: variantId, // Fake id to run preview
+                quantity: parsedQuantity,
+            }],
+        }]);
 
-                logger.checkout.info('Buy Now: Adding to cart', { variantId, quantity: parsedQuantity });
-                // Add to cart
-                const addResult = await addToCart({
-                    variantId: variantId!,
-                    quantity: parsedQuantity,
-                    hideToast: true,
-                });
+    }, [isBuyNowMode, variantId, quantity, shopId, isInitialized, initSession]);
 
-                if (!addResult) {
-                    throw new Error('Failed to add item to cart');
-                }
-
-                const addedItemId = addResult.id;
-                const addedShopId = addResult.shopId;
-
-                if (!addedItemId || !addedShopId) {
-                    throw new Error('Could not find added item in cart');
-                }
-
-                // Save item ID for cleanup if user cancels
-                buyNowItemIdRef.current = addedItemId;
-
-                logger.checkout.info('Buy Now: Item added, initializing session', {
-                    itemId: addedItemId,
-                    shopId: addedShopId,
-                });
-
-                // Initialize checkout session with just this item
-                initSession([addedItemId], [{
-                    shopId: addedShopId,
-                    items: [{
-                        itemId: addedItemId,
-                        quantity: parsedQuantity,
-                    }],
-                }]);
-
-                // Preview will be triggered automatically by the debounced effect
-            } catch (error) {
-                logger.checkout.error('Buy Now failed', { error });
-                Toast.show({
-                    type: 'error',
-                    text1: 'Không thể mua ngay',
-                    text2: error instanceof Error ? error.message : 'Đã có lỗi xảy ra',
-                });
-                // Navigate back on failure
-                Navigator.back();
-            } finally {
-                setIsBuyNowProcessing(false);
-            }
-        };
-
-        processBuyNow();
-    }, [isBuyNowMode, variantId, quantity, isInitialized, addToCart, initSession, t]);
-
-    // ========================================
-    // BACK NAVIGATION HANDLING (GESTURES & SYSTEM BACK)
-    // ========================================
-    const navigation = useNavigation();
-
-    useEffect(() => {
-        const unsubscribe = navigation.addListener('beforeRemove', (e: { preventDefault: () => void; data: { action: NavigationAction } }) => {
-            if (orderPlacedRef.current) return;
-            e.preventDefault();
-            Alert.show({
-                title: t('actions.cancelTitle'),
-                message: t('actions.cancelMessage'),
-                type: 'warning',
-                showCancel: true,
-                cancelText: t('actions.cancelStay'),
-                confirmText: t('actions.cancelConfirm'),
-                onConfirm: () => {
-                    // Logic to actually leave the screen
-                    navigation.dispatch(e.data.action);
-                },
-            });
-        });
-
-        return unsubscribe;
-    }, [navigation, t]);
-
-    // Cleanup on unmount: Reset store and remove Buy Now item if order was NOT placed
+    // Cleanup on unmount
     useEffect(() => {
         return () => {
-            // Reset refs
-            buyNowProcessedRef.current = false;
-
-            // If Buy Now mode and order was NOT placed, remove the item from cart
-            if (isBuyNowMode && buyNowItemIdRef.current && !orderPlacedRef.current) {
-                logger.checkout.info('Buy Now cancelled, removing item from cart', {
-                    itemId: buyNowItemIdRef.current,
-                });
-                removeCartItem({ itemId: buyNowItemIdRef.current });
-            }
-
-            // Reset refs
-            buyNowItemIdRef.current = null;
-            if (!orderPlacedRef.current) {
-                resetSession();
-            }
+            resetSession();
         };
-    }, [isBuyNowMode, removeCartItem, resetSession]);
+    }, [resetSession]);
 
     // ========================================
     // BUILD PREVIEW REQUEST
@@ -380,15 +286,27 @@ export default function CheckoutScreen() {
 
                 return {
                     shopId: shop.shopId,
-                    items: shop.items,
+                    items: isBuyNowMode ? undefined : shop.items,
                     vouchers: voucherCode ? [voucherCode] : undefined,
                     // Use distributed global vouchers inside each shop
                     globalVouchers: globalVouchersArray.length > 0 ? globalVouchersArray : undefined,
                     serviceCode: finalShippingCode ? Number(finalShippingCode) : undefined,
                     shippingFee: undefined,
+                    loyaltyPoints: selectedLoyaltyRedemptions.get(shop.shopId) || undefined,
                 };
             }),
             paymentMethod: paymentMethod === 'cod' ? 'COD' : 'PAYOS',
+            buyNow: isBuyNowMode,
+            directItem: isBuyNowMode ? {
+                variantId: variantId!,
+                quantity: parseInt(quantity || '1', 10),
+            } : undefined,
+            // For Buy Now flow, also populate root fields for vouchers and loyalty
+            allDiscountCodes: isBuyNowMode ? [
+                ...globalVouchersArray,
+                ...Array.from(selectedShopVouchers.values())
+            ] : undefined,
+            loyaltyPoints: isBuyNowMode ? Array.from(selectedLoyaltyRedemptions.values())[0] : undefined,
         };
 
         return request;
@@ -399,8 +317,12 @@ export default function CheckoutScreen() {
         selectedShopVouchers,
         selectedPlatformDiscountVoucher,
         selectedPlatformShippingVoucher,
+        selectedLoyaltyRedemptions,
         selectedAddressId,
         paymentMethod,
+        isBuyNowMode,
+        quantity,
+        variantId,
     ]);
 
     /**
@@ -435,6 +357,11 @@ export default function CheckoutScreen() {
             const reqShipping = reqShop.serviceCode;
             const previewShipping = Number(previewShop.shippingOptions.selectedMethodId);
             if (reqShipping && reqShipping !== previewShipping) return false;
+
+            // Check loyalty redemption
+            const reqLoyalty = reqShop.loyaltyPoints || 0;
+            const previewLoyalty = previewShop.loyaltyInfo?.pointsToRedeem || 0;
+            if (reqLoyalty !== previewLoyalty) return false;
         }
 
         return true;
@@ -610,15 +537,20 @@ export default function CheckoutScreen() {
                 buyerAddressData: {
                     addressId: previewData.addressId,
                 },
-                loyaltyPoints: calculation.loyaltyPoints,
+                loyaltyPoints: previewData.shops.reduce((sum, shop) => sum + (shop.loyaltyPoints || 0), 0),
                 paymentMethod: paymentMethod === 'cod' ? 'COD' : 'PAYOS',
                 customerNote: Array.from(store.shopNotes.values()).filter(Boolean).join('; ') || '',
+                previewId: previewData.cartId,
+                previewChecksum: previewData.previewChecksum,
+                previewAt: previewData.previewAt,
+                buyNow: isBuyNowMode,
+                directItem: isBuyNowMode ? {
+                    variantId: variantId!,
+                    quantity: parseInt(quantity || '1', 10),
+                } : undefined,
             };
 
             const response = await placeOrder(request);
-
-            // Mark order as placed to prevent Buy Now cleanup from removing item
-            orderPlacedRef.current = true;
 
             // Background Cart Refresh
             // Invalidate cart query to trigger background refetch
@@ -695,8 +627,10 @@ export default function CheckoutScreen() {
         selectedPlatformShippingVoucher,
         placeOrder,
         resetSession,
-        calculation.loyaltyPoints,
         queryClient,
+        isBuyNowMode,
+        quantity,
+        variantId,
         t,
     ]);
 
@@ -747,7 +681,7 @@ export default function CheckoutScreen() {
     // RENDER
     // ========================================
 
-    const shouldShowSkeleton = !isInitialized || !previewData || isBuyNowProcessing;
+    const shouldShowSkeleton = !isInitialized || !previewData;
 
     return (
         <View style={styles.container}>

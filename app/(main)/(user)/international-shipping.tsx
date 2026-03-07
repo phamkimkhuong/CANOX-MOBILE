@@ -103,7 +103,7 @@ export default function InternationalShippingScreen() {
     const { height: screenHeight, width: screenWidth } = useWindowDimensions();
 
     const [activeFilter, setActiveFilter] = useState('all');
-    const listRef = useRef<FlashListRef<unknown>>(null);
+    const listRef = useRef<FlashListRef<GlobalHubListItem>>(null);
 
     // Deferred Rendering for Performance
     const [isReady, setIsReady] = useState(false);
@@ -270,8 +270,9 @@ export default function InternationalShippingScreen() {
         </View>
     ), [activeFilter, styles, globalShimmerStyle, activeDailyBanner, screenWidth, t]);
 
-    // Compile items List
-    const listData = useMemo(() => {
+    type GlobalHubListItem = { type: 'skeleton'; id: string } | { type: 'product'; data: ProductFeedItem };
+
+    const listData = useMemo<GlobalHubListItem[]>(() => {
         if (!isReady || isLoading) {
             return Array.from({ length: 10 }).map((_, i) => ({ type: 'skeleton', id: `skel-${i}` }));
         }
@@ -280,7 +281,7 @@ export default function InternationalShippingScreen() {
         return products.map(p => ({ type: 'product', data: p }));
     }, [data, isLoading, isError, isReady]);
 
-    const renderItem = useCallback(({ item }: ListRenderItemInfo<any>) => {
+    const renderItem = useCallback(({ item }: ListRenderItemInfo<GlobalHubListItem>) => {
         if (item.type === 'skeleton') {
             return <ProductCardSkeleton animatedStyle={skeletonAnimatedStyle} />;
         }
@@ -326,7 +327,7 @@ export default function InternationalShippingScreen() {
                 ref={listRef}
                 data={listData}
                 renderItem={renderItem}
-                keyExtractor={(item: any, i) => item.id || `item-${i}`}
+                keyExtractor={(item) => (item.type === 'skeleton' ? item.id : item.data.id)}
                 numColumns={2}
                 masonry={true}
                 optimizeItemArrangement={true}

@@ -175,7 +175,7 @@ export const OrderDetailPriceSummary: React.FC<OrderDetailPriceSummaryProps> = (
                 <Text style={styles.paymentLabel}>{t('order:detail.paymentMethod')}</Text>
                 <Text style={styles.paymentValue}>
                     {/* Translate if known payment method, else render fallback string */}
-                    {t(`order:paymentMethods.${paymentMethod}` as any, { defaultValue: paymentMethod })}
+                    {t(`order:paymentMethods.${paymentMethod}` as never, { defaultValue: paymentMethod })}
                 </Text>
             </View>
         </View>

@@ -17,6 +17,7 @@ export { default as ShippingSelector } from './ShippingSelector';
 export { default as ShopNoteInput } from './ShopNoteInput';
 
 // Vouchers
+export { default as CheckoutLoyaltyRow } from './CheckoutLoyaltyRow';
 export { default as CheckoutVoucherRow } from './CheckoutVoucherRow';
 export { default as PlatformVoucherSelector } from './PlatformVoucherSelector';
 

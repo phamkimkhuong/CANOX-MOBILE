@@ -25,7 +25,7 @@ const INDICATOR_HEIGHT = 4;
 interface Category {
     id: number;
     nameKey: string;
-    imageSource: any;
+    imageSource: number | string | object;
     route?: string;
 }
 
@@ -121,7 +121,7 @@ export const CategoryRail = memo(() => {
                             />
                         </View>
                         <Text style={styles.text} numberOfLines={2}>
-                            {t(cat.nameKey as any)}
+                            {t(cat.nameKey as never)}
                         </Text>
                     </TouchableOpacity>
                 ))}

@@ -33,6 +33,11 @@ export interface CreateOrderRequest {
     previewId?: string;
     previewChecksum?: string;
     previewAt?: string;
+    buyNow?: boolean;
+    directItem?: {
+        variantId: string;
+        quantity: number;
+    };
 }
 
 // ============================================

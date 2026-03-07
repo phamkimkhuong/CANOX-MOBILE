@@ -10,7 +10,9 @@
 
 export interface PointBatchUI {
     id: string;
+    initialAmount: number;
     amount: number;
+    earnedAt: string; // Formatted
     expiryDate: string; // Formatted
     expiryText: string; // e.g., "Hết hạn trong 3 ngày"
     isExpiringSoon: boolean;
@@ -38,6 +40,7 @@ export interface PointTransactionUI {
     type: 'EARNED' | 'SPENT' | 'EXPIRED' | 'REFUNDED';
     amount: number;
     date: string;
+    orderId: string | null;
     description: string;
     isPositive: boolean;
 }

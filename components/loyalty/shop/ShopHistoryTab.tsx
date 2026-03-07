@@ -1,11 +1,13 @@
 import { DataGuard } from '@/components/common/DataGuard';
 import { IconSymbol } from '@/components/ui/Icon';
+import { orderRoutes } from '@/constants/routes';
 import { usePointHistory } from '@/hooks/api/loyalty/useLoyalty';
 import { PointTransactionUI } from '@/types/loyalty/ui';
+import { Navigator } from '@/utils/navigation';
 import { FlashList } from '@shopify/flash-list';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -24,8 +26,19 @@ export const ShopHistoryTab: React.FC<ShopHistoryTabProps> = ({ shopId }) => {
     const renderItem = ({ item }: { item: PointTransactionUI }) => {
         const isExpiring = item.type === 'EXPIRED';
 
+        const handlePress = () => {
+            if (item.orderId) {
+                Navigator.push(orderRoutes.detail(item.orderId));
+            }
+        };
+
+        const RowComponent = item.orderId ? Pressable : View;
+
         return (
-            <View style={styles.row}>
+            <RowComponent
+                style={item.orderId ? ({ pressed }) => [styles.row, pressed && styles.rowPressed] : styles.row}
+                onPress={item.orderId ? handlePress : undefined}
+            >
                 <View style={styles.iconBox}>
                     <IconSymbol
                         name={item.isPositive ? 'arrow-down' : 'arrow-up'}
@@ -45,7 +58,13 @@ export const ShopHistoryTab: React.FC<ShopHistoryTabProps> = ({ shopId }) => {
                     </Text>
                     {isExpiring && <Text style={styles.statusExpired}>{t('loyalty:shopDetail.historyTab.expired')}</Text>}
                 </View>
-            </View>
+
+                {item.orderId ? (
+                    <View style={styles.chevronBox}>
+                        <IconSymbol name="chevron-right" size={16} color={theme.colors.border} />
+                    </View>
+                ) : null}
+            </RowComponent>
         );
     };
 
@@ -103,6 +122,10 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderBottomWidth: 1,
         borderBottomColor: theme.colors.border,
     },
+    rowPressed: {
+        opacity: 0.7,
+        backgroundColor: theme.colors.backgroundNewSurface,
+    },
     iconBox: {
         width: 40,
         height: 40,
@@ -128,6 +151,11 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     amountBox: {
         alignItems: 'flex-end',
+        justifyContent: 'center',
+    },
+    chevronBox: {
+        marginLeft: 8,
+        justifyContent: 'center',
     },
     amount: {
         fontSize: 15,

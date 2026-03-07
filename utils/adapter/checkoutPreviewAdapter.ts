@@ -9,6 +9,7 @@ import type { VoucherUI } from '@/types/cart';
 import type {
     CheckoutCalculationResult,
     CheckoutItemUI,
+    CheckoutLoyaltyInfoUI,
     CheckoutShopUI,
     ShippingMethod,
     ShopShippingOptions,
@@ -16,6 +17,7 @@ import type {
     VoucherValidationResult,
 } from '@/types/checkout';
 import type {
+    CheckoutLoyaltyInfoDTO,
     CheckoutOrderSummaryDTO,
     CheckoutPreviewDataDTO,
     CheckoutPreviewItemDTO,
@@ -230,8 +232,23 @@ export const toCheckoutShopUI = (dto: CheckoutPreviewShopDTO): CheckoutShopUI =>
         availableVouchers: allVouchers,  // Contains both SHOP and PLATFORM for UI to filter
         note: '', // Not in API response, managed client-side
         loyaltyPoints: dto.loyaltyInfo?.pointsToRedeem ?? 0,
+        loyaltyInfo: dto.loyaltyInfo ? toLoyaltyInfoUI(dto.loyaltyInfo) : null,
     };
 };
+
+/**
+ * Transform loyalty info DTO to UI type.
+ */
+const toLoyaltyInfoUI = (dto: CheckoutLoyaltyInfoDTO): CheckoutLoyaltyInfoUI => ({
+    availablePoints: dto.availablePoints ?? 0,
+    pointsToRedeem: dto.pointsToRedeem ?? 0,
+    discountAmount: dto.discountAmount ?? 0,
+    maxPointsAllowed: dto.maxPointsAllowed ?? 0,
+    maxDiscountPercent: dto.maxDiscountPercent ?? 0,
+    expectedPointsEarned: dto.expectedPointsEarned ?? 0,
+    canRedeem: dto.canRedeem ?? false,
+    message: dto.message ?? '',
+});
 
 // ============================================
 // SUMMARY TRANSFORM
@@ -319,6 +336,8 @@ export const toCheckoutCalculation = (
         isCalculatingShipping: false,
         platformVoucherValidation,
         loyaltyPoints: shops.reduce((sum, shop) => sum + (shop.loyaltyInfo?.pointsToRedeem ?? 0), 0),
+        loyaltyDiscount: dto.discounts.loyaltyDiscount ?? 0,
+        platformLoyaltyDiscount: dto.discounts.platformLoyaltyDiscount ?? 0,
     };
 };
 
@@ -331,10 +350,10 @@ export const toCheckoutCalculation = (
  * Contains all transformed data ready for components.
  */
 export interface CheckoutPreviewUI {
-    previewId?: string;
     cartId: string;
     currency: string;
     previewAt: string;
+    previewChecksum?: string;
     addressId: string;
     addressType: number | null;
     taxAddress: string | null;
@@ -351,11 +370,11 @@ export interface CheckoutPreviewUI {
  */
 export const toCheckoutPreviewUI = (dto: CheckoutPreviewDataDTO): CheckoutPreviewUI => {
     return {
-        previewId: dto.previewId || dto.cartId,
         cartId: dto.cartId,
         currency: dto.currency,
         previewAt: dto.previewAt,
-        addressId: dto.buyerAddressData?.addressId ?? '',
+        previewChecksum: dto.previewChecksum ?? undefined,
+        addressId: dto.buyerAddressData?.buyerAddressId ?? '',
         addressType: dto.buyerAddressData?.addressType ?? null,
         taxAddress: dto.buyerAddressData?.taxAddress ?? null,
         shops: dto.shops.map(toCheckoutShopUI),
@@ -381,36 +400,67 @@ export const toCheckoutPreviewUI = (dto: CheckoutPreviewDataDTO): CheckoutPrevie
  * itemIds, shippingFee và mọi field undefined
  */
 export function toCheckoutPreviewAPIRequestBody(req: CheckoutPreviewRequest): Record<string, unknown> {
-    const shops: Record<string, unknown>[] = req.shops.map((s: CheckoutPreviewShopRequest) => {
-        const shop: Record<string, unknown> = {
-            shopId: s.shopId,
-            items: s.items || [],
-        };
+    const body: Record<string, unknown> = {};
 
-        // Add shop-specific vouchers
-        if (s.vouchers && s.vouchers.length > 0) {
-            shop.vouchers = s.vouchers;
+    if (req.buyNow && req.directItem) {
+        body.buyNow = true;
+        body.directItem = req.directItem;
+
+        // When buyNow is true, shops and directItem are mutually exclusive.
+        // We move shop-level configurations to the root level if possible.
+        if (req.shops && req.shops.length > 0) {
+            const firstShop = req.shops[0];
+
+            // Collect all unique vouchers (shop + global) to root level
+            const allVouchers = new Set<string>(req.allDiscountCodes || []);
+            if (firstShop.vouchers) firstShop.vouchers.forEach(v => allVouchers.add(v));
+            if (firstShop.globalVouchers) firstShop.globalVouchers.forEach(v => allVouchers.add(v));
+
+            if (allVouchers.size > 0) {
+                body.allDiscountCodes = Array.from(allVouchers);
+            }
+
+            // Move loyalty points to root level
+            if (firstShop.loyaltyPoints != null) {
+                body.loyaltyPoints = firstShop.loyaltyPoints;
+            }
         }
+    } else {
+        // Standard Checkout flow
+        body.shops = req.shops.map((s: CheckoutPreviewShopRequest) => {
+            const shop: Record<string, unknown> = {
+                shopId: s.shopId,
+                items: s.items || [],
+            };
 
-        // Add global/platform vouchers inside each shop (distributed level)
-        if (s.globalVouchers && s.globalVouchers.length > 0) {
-            shop.globalVouchers = s.globalVouchers;
-        }
+            if (s.vouchers && s.vouchers.length > 0) {
+                shop.vouchers = s.vouchers;
+            }
 
-        if (s.serviceCode != null) {
-            shop.serviceCode = s.serviceCode;
-        }
+            if (s.globalVouchers && s.globalVouchers.length > 0) {
+                shop.globalVouchers = s.globalVouchers;
+            }
 
-        return shop;
-    });
+            if (s.serviceCode != null) {
+                shop.serviceCode = s.serviceCode;
+            }
 
-    const body: Record<string, unknown> = { shops };
+            if (s.loyaltyPoints != null) {
+                shop.loyaltyPoints = s.loyaltyPoints;
+            }
+
+            return shop;
+        });
+    }
 
     if (req.shippingAddress?.addressId) {
         body.shippingAddress = { addressId: req.shippingAddress.addressId };
     }
 
-    // globalVouchers is now strictly distributed into shops
+    if (req.paymentMethod) {
+        body.paymentMethod = req.paymentMethod;
+    }
+
     return body;
 }
 

@@ -1,0 +1,83 @@
+--- OrderCreateRequest ---
+shops: Array[Ref(OrderShopSelection)] - Shop-based selections to confirm - REQUIRED
+buyerAddressData: Ref(BuyerAddressData)
+loyaltyPoints: integer - Total shop loyalty points to redeem across all shops
+platformLoyaltyPoints: integer - Platform loyalty points to redeem (cross-shop, platform-funded)
+paymentMethod: string - Payment method
+previewId: string - Preview ID from checkout preview
+previewAt: string - Timestamp when preview was generated
+previewChecksum: string - Checksum to verify preview integrity
+customerNote: string - Customer note for the order
+directItem: Ref(DirectItemRequest) - Direct item for Buy Now flow (bypasses cart lookup)
+confirmAllSelected: boolean
+allSelectedItemIds: Array[string]
+buyNow: boolean
+
+
+--- ShopSelection ---
+shopId: string - Shop ID for this selection
+items: Array[Ref(ItemSelection)] - Items with explicit quantity
+vouchers: Array[string] - Vouchers applied to this shop
+serviceCode: integer - Shipping service code (e.g. 400021 for GHN Express) - optional for preview
+shippingFee: number - Shipping fee for this shop - optional for preview
+globalVouchers: Array[string] - Global vouchers/coupons applied to this shop
+loyaltyPoints: integer - Loyalty points to redeem for this shop
+platformLoyaltyPoints: integer - Platform loyalty points to redeem for this shop (cross-shop)
+itemIds: Array[string]
+internationalServiceCode: integer - International shipping service code (e.g. 40004 for DHL_AIR) - optional for preview
+firstMileServiceCode: integer - Domestic first-mile service code for international shipping (e.g. 10001 for GHN) - optional for preview
+
+
+--- ItemSelection ---
+itemId: string - Item ID (Cart Item ID)
+quantity: integer - Quantity to checkout (overrides cart quantity)
+
+
+--- OrderCreationResponse ---
+orders: Array[Ref(BuyerOrderResponse)]
+paymentInfo: Ref(PaymentInfo)
+
+
+--- PaymentInfo ---
+paymentMethod: string
+depositId: string
+paymentLink: string
+qrCode: string
+accountNumber: string
+accountName: string
+orderCode: string
+amount: integer
+currency: string
+description: string
+expiredAt: integer
+success: boolean
+errorMessage: string
+
+
+--- BuyerOrderResponse ---
+orderId: string
+orderNumber: string
+shopId: string
+shopInfo: Ref(ShopPublicResponse)
+status: string
+currency: string
+pricing: Ref(PricingInfo)
+itemCount: integer
+totalQuantity: integer
+customerNote: string
+cancellationReason: string
+cancelledBy: string
+createdDate: string
+paidAt: string
+confirmedAt: string
+shippedAt: string
+deliveredAt: string
+completedAt: string
+cancelledAt: string
+items: Array[Ref(BuyerOrderItemResponse)]
+payment: Ref(PaymentInfo)
+shipment: Ref(ShipmentInfo)
+shippingCostBreakdown: Ref(ShippingCostBreakdown)
+shippingLegs: Array[Ref(ShipmentLegResponse)]
+shippingAddress: Ref(ShippingAddress)
+loyalty: Ref(LoyaltyInfo)

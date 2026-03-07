@@ -129,6 +129,11 @@ export interface ProductTranslation {
         setupTargetPrice: string;
         hasNotes: string;
     };
+    packaging: {
+        title: string;
+        dimensions: string;
+        weight: string;
+    };
 }
 
 /**
@@ -610,7 +615,21 @@ export interface CheckoutTranslation {
         shopVoucher: string;
         platformVoucher: string;
         shippingDiscount: string;
+        loyaltyDiscount: string;
+        platformLoyaltyDiscount: string;
         tax: string;
+    };
+    loyalty: {
+        shopTitle: string;
+        usePoints: string;
+        pointsAvailable: string;
+        redeemDiscount: string;
+        earnPoints: string;
+        infoTitle: string;
+        infoMaxPoints: string;
+        infoMaxPercent: string;
+        infoEarning: string;
+        infoMessage: string;
     };
     footer: {
         total: string;

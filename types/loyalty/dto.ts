@@ -15,7 +15,9 @@
  */
 export interface UserShopPointDTO {
     batchId: string;
+    initialAmount: number;
     remainingAmount: number;
+    earnedAt: string; // ISO Date
     expiryAt: string; // ISO Date
     status: 'ACTIVE' | 'USED_UP' | 'EXPIRED';
     sourceOrderNumber?: string | null;
@@ -57,6 +59,7 @@ export interface PointTransactionDTO {
     type: 'EARNED' | 'SPENT' | 'EXPIRED' | 'REFUNDED';
     amount: number;
     transactionDate: string;
+    orderId?: string | null;
     description: string;
 }
 

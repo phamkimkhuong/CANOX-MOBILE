@@ -60,7 +60,6 @@ export default function ReviewsScreen() {
     const {
         pendingGroups,
         pendingCount,
-        isLoading: isPendingLoading,
         isRefetching: isPendingRefetching,
     } = pendingQuery;
     const { refresh: refreshPending } = useRefreshPendingReviews();
@@ -69,7 +68,6 @@ export default function ReviewsScreen() {
     const historyQuery = useMyReviews(ratingFilter, activeTab === 'history');
     const {
         reviews: historyReviews,
-        isLoading: isHistoryLoading,
         isRefetching: isHistoryRefetching,
         isFetchingNextPage,
         hasNextPage,
@@ -198,7 +196,7 @@ export default function ReviewsScreen() {
                     <DataGuard
                         query={historyQuery}
                         skeleton={
-                            <View style={{ flex: 1 }}>
+                            <View style={styles.skeletonContainer}>
                                 <RatingFilterBar
                                     activeFilter={ratingFilter}
                                     onFilterChange={handleRatingFilterChange}
@@ -302,5 +300,8 @@ const stylesheet = StyleSheet.create((theme) => ({
     content: {
         flex: 1,
         backgroundColor: theme.colors.background,
+    },
+    skeletonContainer: {
+        flex: 1,
     },
 }));

@@ -203,6 +203,9 @@ export const useRedeemPoints = () => {
                 queryKey: loyaltyQueryKeys.batches(variables.shopId),
             });
             queryClient.invalidateQueries({
+                queryKey: loyaltyQueryKeys.history(variables.shopId),
+            });
+            queryClient.invalidateQueries({
                 queryKey: loyaltyQueryKeys.overview(),
             });
         },

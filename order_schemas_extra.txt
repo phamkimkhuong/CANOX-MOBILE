@@ -1,0 +1,15 @@
+--- OrderShopSelection ---
+shopId: string - Shop ID for this selection
+items: Array[Ref(OrderItemData)] - Items selected in this shop with expected prices for validation
+vouchers: Array[string] - Vouchers applied to this shop
+serviceCode: integer - Shipping service code for DOMESTIC orders (e.g. 53320 for GHN Standard, 400021 for GHN Express)
+internationalServiceCode: integer - International shipping code - required if international
+firstMileServiceCode: integer - First-mile service code for international shipping (e.g. 10001 for GHN) - optional, defaults to GHN
+shippingFee: number - Shipping fee for this shop
+globalVouchers: Array[string] - Global vouchers/coupons applied to this shop
+loyaltyPoints: integer - Loyalty points to redeem for this shop
+platformLoyaltyPoints: integer - Platform loyalty points to redeem (cross-shop)
+itemIds: Array[string]
+
+
+OrderItemSelection not found

@@ -182,6 +182,28 @@ export interface CheckoutItemUI {
 }
 
 /**
+ * Loyalty info UI - thông tin điểm thưởng cho Checkout
+ */
+export interface CheckoutLoyaltyInfoUI {
+    /** Số điểm khả dụng */
+    availablePoints: number;
+    /** Số điểm đang chọn redeem */
+    pointsToRedeem: number;
+    /** Số tiền giảm tương ứng */
+    discountAmount: number;
+    /** Giới hạn tối đa điểm được dùng */
+    maxPointsAllowed: number;
+    /** % tối đa giá trị đơn hàng được giảm */
+    maxDiscountPercent: number;
+    /** Số điểm dự kiến nhận được từ đơn hàng */
+    expectedPointsEarned: number;
+    /** Có thể redeem không */
+    canRedeem: boolean;
+    /** Thông báo gợi ý */
+    message: string;
+}
+
+/**
  * CheckoutShopUI - Shop group trong checkout
  */
 export interface CheckoutShopUI {
@@ -197,6 +219,8 @@ export interface CheckoutShopUI {
     availableVouchers: VoucherUI[];
     note: string;
     loyaltyPoints: number;
+    /** Thông tin loyalty cho shop */
+    loyaltyInfo: CheckoutLoyaltyInfoUI | null;
 }
 
 /**
@@ -289,4 +313,8 @@ export interface CheckoutCalculationResult {
     platformVoucherValidation: VoucherValidationResult | null;
     /** Tổng điểm loyalty quy đổi của toàn đơn hàng */
     loyaltyPoints: number;
+    /** Tổng giảm giá từ loyalty points */
+    loyaltyDiscount: number;
+    /** Tổng giảm giá từ platform loyalty */
+    platformLoyaltyDiscount: number;
 }

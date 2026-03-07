@@ -165,7 +165,13 @@ export const PRODUCT_STRINGS: ProductTranslation = {
         targetPrice: 'Mục tiêu',
         setupTargetPrice: 'Cài giá săn (Ấn giữ)',
         hasNotes: 'Có ghi chú',
-    }
+    },
+    // === Packaging Info ===
+    packaging: {
+        title: 'Quy cách đóng gói',
+        dimensions: 'Kích thước',
+        weight: 'Trọng lượng',
+    },
 } as const;
 
 // Type-safe key extraction

@@ -13,7 +13,9 @@ import { ResponseDefaultSchema } from '../responseSchema';
 
 export const UserShopPointSchema = z.object({
     batchId: z.string(),
+    initialAmount: z.number().default(0),
     remainingAmount: z.number().default(0),
+    earnedAt: z.string(),
     expiryAt: z.string(),
     status: z.enum(['ACTIVE', 'USED_UP', 'EXPIRED']),
     sourceOrderNumber: z.string().nullish(),
@@ -51,6 +53,7 @@ export const PointTransactionSchema = z.object({
     type: z.enum(['EARNED', 'SPENT', 'EXPIRED', 'REFUNDED']),
     amount: z.number().default(0),
     transactionDate: z.string(),
+    orderId: z.string().nullish(),
     description: z.string().default(''),
 });
 

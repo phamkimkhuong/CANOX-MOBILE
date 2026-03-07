@@ -148,7 +148,7 @@ export default function RootLayout() {
   }, [fontError]);
 
   // Privacy Consent (GDPR/Apple)
-  const { applyPrivacyPreferences, hasAcceptedPrivacy: _hasAcceptedPrivacy } = usePrivacyConsent();
+  const { applyPrivacyPreferences } = usePrivacyConsent();
   useEffect(() => {
     applyPrivacyPreferences();
   }, [applyPrivacyPreferences]);

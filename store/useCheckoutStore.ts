@@ -28,6 +28,8 @@ interface CheckoutState {
     selectedPlatformDiscountVoucher: string | null;
     selectedPlatformShippingVoucher: string | null;
     shopNotes: Map<string, string>;
+    /** Selected loyalty points to redeem per shop: Map<shopId, pointsToRedeem> */
+    selectedLoyaltyRedemptions: Map<string, number>;
     paymentMethod: PaymentMethodType;
     /** Submitting order */
     isSubmitting: boolean;
@@ -47,6 +49,7 @@ interface CheckoutState {
     applyPlatformVoucher: (voucherCode: string | null, category: 'SHIPPING' | 'DISCOUNT') => void;
     applyBulkPlatformVouchers: (discountVoucherCode: string | null, shippingVoucherCode: string | null) => void;
     setShopNote: (shopId: string, note: string) => void;
+    applyLoyaltyPoints: (shopId: string, points: number) => void;
     setPaymentMethod: (method: PaymentMethodType) => void;
     setSubmitting: (isSubmitting: boolean) => void;
 }
@@ -73,6 +76,7 @@ const initialState = {
     selectedPlatformDiscountVoucher: null as string | null,
     selectedPlatformShippingVoucher: null as string | null,
     shopNotes: new Map<string, string>(),
+    selectedLoyaltyRedemptions: new Map<string, number>(),
     paymentMethod: 'cod' as PaymentMethodType,
 
     // UI State
@@ -105,6 +109,7 @@ export const useCheckoutStore = create<CheckoutState>((set, get) => ({
             selectedPlatformDiscountVoucher: null,
             selectedPlatformShippingVoucher: null,
             shopNotes: new Map(),
+            selectedLoyaltyRedemptions: new Map(),
             paymentMethod: 'cod',
             // Reset preview
             previewData: null,
@@ -214,6 +219,16 @@ export const useCheckoutStore = create<CheckoutState>((set, get) => ({
         set({ shopNotes: newMap });
     },
 
+    applyLoyaltyPoints: (shopId, points) => {
+        const newMap = new Map(get().selectedLoyaltyRedemptions);
+        if (points <= 0) {
+            newMap.delete(shopId);
+        } else {
+            newMap.set(shopId, points);
+        }
+        set({ selectedLoyaltyRedemptions: newMap });
+    },
+
     setPaymentMethod: (method) => {
         set({ paymentMethod: method });
     },
@@ -294,6 +309,10 @@ export const useShopNote = (shopId: string) => {
 
 export const useSelectedShopVoucher = (shopId: string) => {
     return useCheckoutStore((s) => s.selectedShopVouchers.get(shopId) ?? null);
+};
+
+export const useSelectedLoyaltyPoints = (shopId: string) => {
+    return useCheckoutStore((s) => s.selectedLoyaltyRedemptions.get(shopId) ?? 0);
 };
 
 export const useIsCheckoutLoading = () => {

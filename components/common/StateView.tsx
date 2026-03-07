@@ -116,9 +116,9 @@ export const StateView: React.FC<StateViewProps> = ({
 
     // Translate with fallback keys
     const translationKey = type === 'not-found' ? 'notFound' : type;
-    const defaultTitle = t(`stateView.${translationKey}.title` as any);
-    const defaultMessage = t(`stateView.${translationKey}.message` as any);
-    const defaultActionLabel = t(`stateView.${translationKey}.actionLabel` as any);
+    const defaultTitle = t(`stateView.${translationKey}.title` as never);
+    const defaultMessage = t(`stateView.${translationKey}.message` as never);
+    const defaultActionLabel = t(`stateView.${translationKey}.actionLabel` as never);
 
     const iconColor = theme.colors[config.colorKey];
 

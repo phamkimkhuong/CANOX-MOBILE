@@ -164,7 +164,7 @@ export default function MeScreen() {
 
                 {/* Order Status Rail */}
                 <OrderStatusRail
-                    stats={{ ...orderStats, review: pendingReviewsCount } as any}
+                    stats={orderStats ? { ...orderStats, review: pendingReviewsCount } : undefined}
                     isLoading={isLoadingOrders}
                     isError={isOrdersError}
                     onRetry={handleOrdersRetry}

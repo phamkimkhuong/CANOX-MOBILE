@@ -28,8 +28,16 @@ export const ShopBatchesTab: React.FC<ShopBatchesTabProps> = ({ shopId }) => {
             <View style={[styles.ticketCard, isWarning && styles.ticketCardWarning]}>
                 {/* Left Side: Ticket Notch & Content */}
                 <View style={styles.ticketContent}>
-                    <Text style={styles.ticketAmount}>+{item.amount.toLocaleString('vi-VN')} {t('loyalty:shopDetail.batchesTab.unit')}</Text>
+                    <Text style={styles.ticketAmount}>
+                        {item.amount.toLocaleString('vi-VN')} / {item.initialAmount.toLocaleString('vi-VN')} {t('loyalty:shopDetail.batchesTab.unit')}
+                    </Text>
                     <Text style={styles.ticketSource}>{item.source}</Text>
+                    <View style={styles.earnedRow}>
+                        <IconSymbol name="calendar" size={14} color={theme.colors.typographySecondary} />
+                        <Text style={styles.earnedText}>
+                            Tích lũy: {item.earnedAt}
+                        </Text>
+                    </View>
                     <View style={styles.metaRow}>
                         <IconSymbol name={isWarning ? 'time' : 'calendar'} size={14} color={isWarning ? theme.colors.warning : theme.colors.typographySecondary} />
                         <Text style={[styles.expiryText, isWarning && styles.expiryTextWarning]}>
@@ -121,6 +129,16 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: 14,
         color: theme.colors.typography,
         marginBottom: 8,
+    },
+    earnedRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        marginBottom: 4,
+    },
+    earnedText: {
+        fontSize: 13,
+        color: theme.colors.typographySecondary,
     },
     metaRow: {
         flexDirection: 'row',

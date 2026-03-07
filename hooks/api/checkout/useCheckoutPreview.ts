@@ -4,7 +4,7 @@
 
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { request } from '@/services/api/client';
-import type { CheckoutPreviewRequest } from '@/types/checkout/checkoutPreview';
+import type { CheckoutPreviewDataDTO, CheckoutPreviewRequest } from '@/types/checkout/checkoutPreview';
 import { CheckoutPreviewResponseSchema } from '@/types/checkout/checkoutPreview';
 import {
     CheckoutPreviewUI,
@@ -60,7 +60,7 @@ export const useCheckoutPreview = () => {
                 throw new Error(response.message || 'Checkout preview failed');
             }
             logger.checkout.debug('Checkout preview response:', response);
-            const uiData = toCheckoutPreviewUI(response.data);
+            const uiData = toCheckoutPreviewUI(response.data as CheckoutPreviewDataDTO);
             return uiData;
         },
     });

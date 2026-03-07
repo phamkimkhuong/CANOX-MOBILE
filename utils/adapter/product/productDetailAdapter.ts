@@ -146,13 +146,15 @@ export const buildVariantMatrix = (
             id: variant.id,
             price: currentPrice,
             originalPrice: (originalPrice && originalPrice > currentPrice) ? originalPrice : undefined,
-            stock: variant.inventory?.available ?? variant.inventory?.stock ?? 0,
-            isAvailable: (variant.inventory?.available ?? variant.inventory?.stock ?? 0) > 0,
+            stock: variant.inventory?.available ?? 0,
+            isAvailable: (variant.inventory?.available ?? 0) > 0,
             sku: variant.sku ?? undefined,
             promotionId: promo?.promotionId ?? undefined,
             promotionName: promo?.campaignName ?? undefined,
             promotionPercentage: promo?.discountPercent ?? undefined,
             campaignType: promo?.campaignType ?? undefined,
+            // Dimensions (packaging size/weight)
+            dimensions: variant.dimensions ?? undefined,
             // Variant can have own image
             media: (variant.imagePath || variant.imageUrl) ? [{
                 id: `variant-${variant.id}`,
@@ -497,7 +499,7 @@ export const collectVouchers = (data: ProductDetailResponse): VoucherUI[] => {
 export const calculateTotalStock = (variants: ProductVariant[]): number => {
     const variantArray = variants ?? [];
     return variantArray.reduce((total, v) => {
-        return total + (v.inventory?.available ?? v.inventory?.stock ?? 0);
+        return total + (v.inventory?.available ?? 0);
     }, 0);
 };
 

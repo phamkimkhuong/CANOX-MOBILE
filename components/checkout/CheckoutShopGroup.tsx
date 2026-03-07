@@ -24,6 +24,7 @@ import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 import { CheckoutItem } from './CheckoutItem';
+import { CheckoutLoyaltyRow } from './CheckoutLoyaltyRow';
 import { CheckoutVoucherRow } from './CheckoutVoucherRow';
 import { ShippingSelector } from './ShippingSelector';
 import { ShopNoteInput } from './ShopNoteInput';
@@ -31,6 +32,7 @@ import { ShopNoteInput } from './ShopNoteInput';
 import { useRecommendShopVouchers } from '@/hooks/api/checkout/useRecommendShopVouchers';
 import {
     useCheckoutStore,
+    useSelectedLoyaltyPoints,
     useSelectedShopVoucher,
     useShopNote,
     useShopShipping,
@@ -52,11 +54,13 @@ export const CheckoutShopGroup = memo<CheckoutShopGroupProps>(({ shop }) => {
     const selectShippingMethod = useCheckoutStore((s) => s.selectShippingMethod);
     const setShopNote = useCheckoutStore((s) => s.setShopNote);
     const applyShopVoucher = useCheckoutStore((s) => s.applyShopVoucher);
+    const applyLoyaltyPoints = useCheckoutStore((s) => s.applyLoyaltyPoints);
     const previewData = useCheckoutStore((s) => s.previewData);
 
     // Selector hooks for this shop
     const shippingData = useShopShipping(shop.shopId);
     const selectedVoucherId = useSelectedShopVoucher(shop.shopId);
+    const selectedLoyaltyPts = useSelectedLoyaltyPoints(shop.shopId);
     const currentNote = useShopNote(shop.shopId);
 
     // Get shop subtotal from previewData
@@ -114,6 +118,16 @@ export const CheckoutShopGroup = memo<CheckoutShopGroupProps>(({ shop }) => {
         [shop.shopId, setShopNote]
     );
 
+    const handleLoyaltyToggle = useCallback(
+        (willRedeem: boolean) => {
+            if (!shop.loyaltyInfo) return;
+            // Dùng số điểm khả dụng cao nhất cho đơn này
+            const pointsToUse = willRedeem ? (shop.loyaltyInfo.maxPointsAllowed || shop.loyaltyInfo.availablePoints) : 0;
+            applyLoyaltyPoints(shop.shopId, pointsToUse);
+        },
+        [shop.shopId, shop.loyaltyInfo, applyLoyaltyPoints]
+    );
+
 
     return (
         <View style={styles.container}>
@@ -163,6 +177,18 @@ export const CheckoutShopGroup = memo<CheckoutShopGroupProps>(({ shop }) => {
 
             {/* Divider */}
             <View style={styles.divider} />
+
+            {/* Shop Loyalty Status (If supported) */}
+            {shop.loyaltyInfo && (
+                <>
+                    <CheckoutLoyaltyRow
+                        loyaltyInfo={shop.loyaltyInfo}
+                        isRedeeming={selectedLoyaltyPts > 0}
+                        onToggle={handleLoyaltyToggle}
+                    />
+                    <View style={styles.divider} />
+                </>
+            )}
 
             {/* Shipping Method */}
             {shippingData && (
