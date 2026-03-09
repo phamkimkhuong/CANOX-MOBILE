@@ -12,11 +12,6 @@
 import type { CheckboxState } from '@/types/cart';
 import React, { memo, useCallback } from 'react';
 import { Pressable, View } from 'react-native';
-import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withSpring,
-} from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { IconSymbol } from '../ui/Icon';
 
@@ -56,11 +51,6 @@ const SIZE_CONFIG = {
     },
 } as const;
 
-const SPRING_CONFIG = {
-    damping: 15,
-    stiffness: 200,
-};
-
 // ============================================
 // COMPONENT
 // ============================================
@@ -81,23 +71,10 @@ export const CartCheckbox: React.FC<CartCheckboxProps> = memo(({
     const isIndeterminate = actualState === 'indeterminate';
 
     // Animation
-    const scale = useSharedValue(1);
-
     const handlePress = useCallback(() => {
         if (disabled) return;
-
-        // Bounce animation
-        scale.value = withSpring(0.85, SPRING_CONFIG);
-        setTimeout(() => {
-            scale.value = withSpring(1, SPRING_CONFIG);
-        }, 50);
-
         onToggle();
-    }, [disabled, onToggle, scale]);
-
-    const animatedStyle = useAnimatedStyle(() => ({
-        transform: [{ scale: scale.value }],
-    }));
+    }, [disabled, onToggle]);
 
     const config = SIZE_CONFIG[size];
 
@@ -123,11 +100,10 @@ export const CartCheckbox: React.FC<CartCheckboxProps> = memo(({
             accessibilityState={{ checked: isChecked, disabled }}
             testID={testID}
         >
-            <Animated.View
+            <View
                 style={[
                     styles.checkbox,
                     styles.size(size),
-                    animatedStyle,
                     styles.colors(backgroundColor, borderColor),
                     disabled && styles.disabled,
                 ]}
@@ -148,7 +124,7 @@ export const CartCheckbox: React.FC<CartCheckboxProps> = memo(({
                         ]}
                     />
                 )}
-            </Animated.View>
+            </View>
         </Pressable>
     );
 });

@@ -8,7 +8,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 // ============================================
 
 type CountdownSize = 'small' | 'medium' | 'large';
-type CountdownTheme = 'dark' | 'light' | 'primary' | 'glass';
+type CountdownTheme = 'dark' | 'light' | 'primary' | 'glass' | 'sale';
 
 interface CountdownDigitsProps {
     /** Duration object từ useCountdown hook */
@@ -100,6 +100,12 @@ export const CountdownDigits = memo<CountdownDigitsProps>(({
             separatorColor: theme.colors.primary,
             labelColor: theme.colors.typographySecondary,
         },
+        sale: {
+            boxBg: theme.colors.error,
+            digitColor: theme.colors.surface,
+            separatorColor: theme.colors.error,
+            labelColor: theme.colors.error,
+        },
         glass: {
             boxBg: 'rgba(0, 0, 0, 0.2)', // Neutral dark glass
             digitColor: '#FFFFFF',
@@ -133,18 +139,28 @@ export const CountdownDigits = memo<CountdownDigitsProps>(({
                             config.boxPadding,
                             styles.dynamicBox(colors.boxBg, config.boxMinWidth, config.borderRadius),
                         ]}>
-                            <Text style={[
-                                styles.digit,
-                                styles.dynamicDigit(config.fontSize, colors.digitColor),
-                            ]}>
+                            <Text
+                                style={[
+                                    styles.digit,
+                                    styles.dynamicDigit(config.fontSize, colors.digitColor),
+                                ]}
+                                numberOfLines={1}
+                                adjustsFontSizeToFit={true}
+                                minimumFontScale={0.5}
+                            >
                                 {duration.days}
                             </Text>
                         </View>
-                        <Text style={[
-                            styles.separator,
-                            styles.dynamicSeparator(config.labelSize, colors.separatorColor),
-                            styles.fontWeight500,
-                        ]}>
+                        <Text
+                            style={[
+                                styles.separator,
+                                styles.dynamicSeparator(config.labelSize, colors.separatorColor),
+                                styles.fontWeight500,
+                            ]}
+                            numberOfLines={1}
+                            adjustsFontSizeToFit={true}
+                            minimumFontScale={0.5}
+                        >
                             {duration.days > 1 ? 'ngày' : 'ngày'}
                         </Text>
                     </>
@@ -158,17 +174,27 @@ export const CountdownDigits = memo<CountdownDigitsProps>(({
                             config.boxPadding,
                             styles.dynamicBox(colors.boxBg, config.boxMinWidth, config.borderRadius),
                         ]}>
-                            <Text style={[
-                                styles.digit,
-                                styles.dynamicDigit(config.fontSize, colors.digitColor),
-                            ]}>
+                            <Text
+                                style={[
+                                    styles.digit,
+                                    styles.dynamicDigit(config.fontSize, colors.digitColor),
+                                ]}
+                                numberOfLines={1}
+                                adjustsFontSizeToFit={true}
+                                minimumFontScale={0.5}
+                            >
                                 {formatNumber(duration.hours)}
                             </Text>
                         </View>
-                        <Text style={[
-                            styles.separator,
-                            styles.dynamicSeparator(config.separatorSize, colors.separatorColor),
-                        ]}>
+                        <Text
+                            style={[
+                                styles.separator,
+                                styles.dynamicSeparator(config.separatorSize, colors.separatorColor),
+                            ]}
+                            numberOfLines={1}
+                            adjustsFontSizeToFit={true}
+                            minimumFontScale={0.5}
+                        >
                             :
                         </Text>
                     </>
@@ -180,18 +206,28 @@ export const CountdownDigits = memo<CountdownDigitsProps>(({
                     config.boxPadding,
                     styles.dynamicBox(colors.boxBg, config.boxMinWidth, config.borderRadius),
                 ]}>
-                    <Text style={[
-                        styles.digit,
-                        styles.dynamicDigit(config.fontSize, colors.digitColor),
-                    ]}>
+                    <Text
+                        style={[
+                            styles.digit,
+                            styles.dynamicDigit(config.fontSize, colors.digitColor),
+                        ]}
+                        numberOfLines={1}
+                        adjustsFontSizeToFit={true}
+                        minimumFontScale={0.5}
+                    >
                         {formatNumber(duration.minutes)}
                     </Text>
                 </View>
 
-                <Text style={[
-                    styles.separator,
-                    styles.dynamicSeparator(config.separatorSize, colors.separatorColor),
-                ]}>
+                <Text
+                    style={[
+                        styles.separator,
+                        styles.dynamicSeparator(config.separatorSize, colors.separatorColor),
+                    ]}
+                    numberOfLines={1}
+                    adjustsFontSizeToFit={true}
+                    minimumFontScale={0.5}
+                >
                     :
                 </Text>
 
@@ -201,10 +237,15 @@ export const CountdownDigits = memo<CountdownDigitsProps>(({
                     config.boxPadding,
                     styles.dynamicBox(colors.boxBg, config.boxMinWidth, config.borderRadius),
                 ]}>
-                    <Text style={[
-                        styles.digit,
-                        styles.dynamicDigit(config.fontSize, colors.digitColor),
-                    ]}>
+                    <Text
+                        style={[
+                            styles.digit,
+                            styles.dynamicDigit(config.fontSize, colors.digitColor),
+                        ]}
+                        numberOfLines={1}
+                        adjustsFontSizeToFit={true}
+                        minimumFontScale={0.5}
+                    >
                         {formatNumber(duration.seconds)}
                     </Text>
                 </View>

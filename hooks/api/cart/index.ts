@@ -10,8 +10,7 @@ export type { AddToCartInput } from './useCart';
 
 // Mutation hooks (quantity, remove, clear)
 export {
-    useBatchRemoveCartItems, useClearCart,
-    useRemoveCartItem,
+    useBatchRemoveCartItems, useClearCart, useMoveCartItemsToWishlist, useRemoveCartItem,
     useUpdateCartItemQuantity
 } from './useCartMutations';
 

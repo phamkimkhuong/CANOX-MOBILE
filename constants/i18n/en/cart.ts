@@ -38,6 +38,7 @@ export const CART_STRINGS: CartTranslation = {
         findSimilar: 'Find similar',
         selectVariation: 'Select variation',
         unsupportedRegion: 'Does not support shipping to {{location}}.',
+        promoStockWarning: 'Only {{count}} items left at this price',
     },
     status: {
         syncing: 'Updating latest prices...',

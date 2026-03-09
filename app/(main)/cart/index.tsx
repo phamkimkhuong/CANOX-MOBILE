@@ -30,8 +30,9 @@ import {
     useBatchRemoveCartItems,
     useCart,
     useCartCalculations,
+    useMoveCartItemsToWishlist,
     useRemoveCartItem,
-    useUpdateCartItemQuantity,
+    useUpdateCartItemQuantity
 } from '@/hooks/api/cart';
 import { usePrefetchShopDetail } from '@/hooks/api/useShop';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
@@ -220,6 +221,7 @@ export default function CartScreen() {
     const { mutate: updateQuantity, isPending: isUpdating } = useUpdateCartItemQuantity();
     const { mutate: removeItem, isPending: isRemoving } = useRemoveCartItem();
     const { mutate: batchRemove, isPending: isBatchRemoving } = useBatchRemoveCartItems();
+    const { mutate: moveItemsToWishlist, isPending: isMovingToWishlist } = useMoveCartItemsToWishlist();
 
     // Prefetch hook for shop navigation (Hybrid Pattern)
     const prefetchShopDetail = usePrefetchShopDetail();
@@ -346,9 +348,15 @@ export default function CartScreen() {
     const handleQuantityChange = useCallback(
         (itemId: string, quantity: number) => {
             setUserInteracted(true);
+
+            // Auto-select item if it's unselected (and not disabled)
+            if (!selectedItemIds.has(itemId) && !disabledItemIds.has(itemId)) {
+                toggleItem(itemId);
+            }
+
             updateQuantity({ itemId, quantity });
         },
-        [updateQuantity]
+        [updateQuantity, selectedItemIds, disabledItemIds, toggleItem]
     );
 
     // API mutation: Remove item
@@ -458,14 +466,27 @@ export default function CartScreen() {
     }, [selectedItemIds, batchRemove, t]);
 
     const handleMoveToWishlist = useCallback(() => {
-        if (selectedItemIds.size === 0) return;
+        if (selectedItemIds.size === 0 || !cartData) return;
 
-        Toast.show({
-            type: 'info',
-            text1: 'Tính năng đang phát triển',
-            text2: 'Vui lòng xóa sản phẩm hoặc chỉnh sửa số lượng.',
+        const itemsToMove: { itemId: string; variantId: string; quantity: number }[] = [];
+
+        cartData.shops.forEach((shop) => {
+            shop.items.forEach((item) => {
+                if (selectedItemIds.has(item.id)) {
+                    itemsToMove.push({
+                        itemId: item.id,
+                        variantId: item.variantId,
+                        quantity: item.quantity,
+                    });
+                }
+            });
         });
-    }, [selectedItemIds]);
+
+        if (itemsToMove.length > 0) {
+            setUserInteracted(true);
+            moveItemsToWishlist({ items: itemsToMove });
+        }
+    }, [selectedItemIds, cartData, moveItemsToWishlist]);
 
     // ========================================
     // RENDER HELPERS
@@ -546,7 +567,7 @@ export default function CartScreen() {
                         {/*
                           * Price Sync Bar
                         */}
-                        {(isFetching && userInteracted || isUpdating || isRemoving || isBatchRemoving) && (
+                        {(isFetching && userInteracted || isUpdating || isRemoving || isBatchRemoving || isMovingToWishlist) && (
                             <View style={styles.syncBar}>
                                 <ActivityIndicator size="small" color={theme.colors.buttonActive} />
                                 <Text style={styles.syncText}>{t('status.syncing')}</Text>

@@ -82,13 +82,17 @@ export const transformCartItem = (item: CartItem): CartItemUI => {
     // Only show original price if there's an actual discount
     const hasDiscount = priceBeforeDiscount > unitPrice;
 
-    // Extract discount percent from promotion object if available
-    const discountPercent = item.promotion?.discountPercent ?? null;
+    // Active Promotion Details
+    const promotion = item.promotion ? {
+        campaignType: item.promotion.campaignType ?? 'SHOP_SALE',
+        discountPercent: item.promotion.discountPercent ?? 0,
+        stockRemaining: item.promotion.stockRemaining ?? 0,
+        secondsRemaining: item.promotion.secondsRemaining ?? 0,
+    } : null;
 
     return {
         id: item.id,
         productId: item.productId ?? '',
-        version: item.version ?? 0,
         variantId: item.variantId,
         productName: item.productName ?? '',
         variantAttributes: item.variantAttributes || '',
@@ -101,10 +105,8 @@ export const transformCartItem = (item: CartItem): CartItemUI => {
         // Server selection state
         selectedForCheckout: item.selectedForCheckout ?? false,
 
-        // Stock management
         availableStock,
         stockStatus: (item.stockStatus as 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK') ?? 'IN_STOCK',
-        stockMessage: item.stockMessage ?? '',
         isOutOfStock: item.stockStatus === 'OUT_OF_STOCK',
         maxQuantity: availableStock,
 
@@ -112,9 +114,8 @@ export const transformCartItem = (item: CartItem): CartItemUI => {
         lowStockWarning: calculateLowStockWarning(availableStock),
 
         // Discount pricing
-        discountAmount: item.discountAmount ?? 0,
         originalPrice: hasDiscount ? priceBeforeDiscount : null,
-        discountPercent,
+        promotion,
 
         // Region Delivery
         availableRegions: item.availableRegions ?? [],
@@ -164,13 +165,8 @@ export const transformCartShop = (shop: CartShop): CartShopUI => {
         shopName: shop.shopName ?? '',
         shopLogoUrl: logoUrl,
         items: shop.items ? shop.items.map(transformCartItem) : [],
-
-        // Shop totals from API
-        itemCount: shop.itemCount ?? 0,
-        totalQuantity: shop.totalQuantity ?? 0,
-        subtotal: shop.subtotal ?? 0,
+        // Shop totals (from API)
         discount: shop.discount ?? 0,
-        total: shop.total ?? 0,
 
         // Selection state from API
         allSelected: shop.allSelected ?? false,

@@ -12,6 +12,7 @@
 
 import { productRoutes } from '@/constants/routes';
 import { createScaledFontSize } from '@/constants/unistyles';
+import { useCountdown } from '@/hooks/useCountdown';
 import { useCartStore } from '@/store/useCartStore';
 import { useUserAddressStore } from '@/store/useUserAddressStore';
 import type { CartItemUI } from '@/types/cart';
@@ -23,6 +24,7 @@ import React, { memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { CountdownDigits } from '../ui/CountdownDigits';
 import { IconSymbol } from '../ui/Icon';
 import { QuantityStepper } from '../ui/QuantityStepper';
 import { CartCheckbox } from './CartCheckbox';
@@ -56,6 +58,12 @@ export const CartItem: React.FC<CartItemProps> = memo(({
     const { theme } = useUnistyles();
     const { t } = useTranslation('cart');
     const isSelected = useCartStore(state => state.selectedItemIds.has(item.id));
+
+    // Promotion Countdown logic
+    const countdown = useCountdown({
+        duration: item.promotion?.secondsRemaining || 0,
+        autoStart: true,
+    });
 
     // Evaluate region support
     const selectedAddressId = useUserAddressStore(state => state.selectedAddressId);
@@ -104,7 +112,7 @@ export const CartItem: React.FC<CartItemProps> = memo(({
         imageUrl,
         unitPrice,
         originalPrice,
-        discountPercent,
+        promotion,
         quantity,
         maxQuantity,
         isOutOfStock,
@@ -127,10 +135,7 @@ export const CartItem: React.FC<CartItemProps> = memo(({
                     {/* Image */}
                     <Pressable
                         onPress={handleProductPress}
-                        style={({ pressed }) => [
-                            styles.imageContainer,
-                            pressed && styles.imagePressed
-                        ]}
+                        style={styles.imageContainer}
                     >
                         <Image
                             source={{ uri: buildImageUrl(imageUrl, null, 'medium') }}
@@ -141,9 +146,9 @@ export const CartItem: React.FC<CartItemProps> = memo(({
                         />
 
                         {/* Discount Badge */}
-                        {discountPercent && !isOutOfStock && (
+                        {promotion?.discountPercent && !isOutOfStock && (
                             <View style={styles.discountBadge}>
-                                <Text style={styles.discountText}>-{discountPercent}%</Text>
+                                <Text style={styles.discountText}>-{promotion.discountPercent}%</Text>
                             </View>
                         )}
 
@@ -161,60 +166,97 @@ export const CartItem: React.FC<CartItemProps> = memo(({
                         <Pressable
                             onPress={handleProductPress}
                         >
-                            {({ pressed }) => (
-                                <Text
-                                    style={[
-                                        styles.productName,
-                                        pressed && styles.productNamePressed
-                                    ]}
-                                    numberOfLines={2}
-                                >
-                                    {productName}
-                                </Text>
-                            )}
+                            <Text
+                                style={styles.productName}
+                                numberOfLines={2}
+                            >
+                                {productName}
+                            </Text>
                         </Pressable>
 
-                        {/* Variant Selector */}
-                        {variantAttributes && (
-                            <Pressable
-                                onPress={() => onVariantPress?.(item.id)}
-                                style={styles.variantSelector}
-                                disabled={isDisabled}
-                                accessibilityLabel={t('item.selectVariation')}
-                                accessibilityRole="button"
-                            >
-                                <Text style={styles.variantText} numberOfLines={1}>
-                                    {variantAttributes}
-                                </Text>
-                                <IconSymbol
-                                    name="chevron-down"
-                                    size={14}
-                                    color={theme.colors.secondary}
-                                />
-                            </Pressable>
-                        )}
+                        {/* Variant and Region Row */}
+                        {(variantAttributes || regionBadgeInfo) && (
+                            <View style={styles.variantAndRegionRow}>
+                                {/* Variant Selector */}
+                                {variantAttributes && (
+                                    <Pressable
+                                        onPress={() => onVariantPress?.(item.id)}
+                                        style={styles.variantSelector}
+                                        disabled={isDisabled}
+                                        accessibilityLabel={t('item.selectVariation')}
+                                        accessibilityRole="button"
+                                    >
+                                        <Text
+                                            style={styles.variantText}
+                                            numberOfLines={1}
+                                            adjustsFontSizeToFit={true}
+                                            minimumFontScale={0.7}
+                                        >
+                                            {variantAttributes}
+                                        </Text>
+                                        <IconSymbol
+                                            name="chevron-down"
+                                            size={14}
+                                            color={theme.colors.secondary}
+                                        />
+                                    </Pressable>
+                                )}
 
-                        {/* Region Badge - subtle pill tag */}
-                        {regionBadgeInfo && (
-                            <View style={[
-                                styles.regionPill,
-                                regionBadgeInfo.type === 'international' && styles.regionPillIntl,
-                                regionBadgeInfo.type === 'both' && styles.regionPillBoth,
-                            ]}>
-                                <View style={[
-                                    styles.regionDot,
-                                    regionBadgeInfo.type === 'international' && styles.regionDotIntl,
-                                    regionBadgeInfo.type === 'both' && styles.regionDotBoth,
-                                ]} />
-                                <Text style={[
-                                    styles.regionPillText,
-                                    regionBadgeInfo.type === 'international' && styles.regionPillTextIntl,
-                                    regionBadgeInfo.type === 'both' && styles.regionPillTextBoth,
-                                ]}>
-                                    {item.regionLabel}
-                                </Text>
+                                {/* Region Badge - subtle pill tag */}
+                                {regionBadgeInfo && (
+                                    <View style={[
+                                        styles.regionPill,
+                                        regionBadgeInfo.type === 'international' && styles.regionPillIntl,
+                                        regionBadgeInfo.type === 'both' && styles.regionPillBoth,
+                                    ]}>
+                                        <IconSymbol
+                                            name={
+                                                regionBadgeInfo.type === 'international' ? 'airplane' :
+                                                    regionBadgeInfo.type === 'both' ? 'globe' : 'local-shipping'
+                                            }
+                                            size={12}
+                                            color={
+                                                regionBadgeInfo.type === 'international' ? theme.colors.info :
+                                                    regionBadgeInfo.type === 'both' ? theme.colors.primary : theme.colors.success
+                                            }
+                                        />
+                                        <Text style={[
+                                            styles.regionPillText,
+                                            regionBadgeInfo.type === 'international' && styles.regionPillTextIntl,
+                                            regionBadgeInfo.type === 'both' && styles.regionPillTextBoth,
+                                        ]}>
+                                            {item.regionLabel?.toUpperCase() || ''}
+                                        </Text>
+                                    </View>
+                                )}
                             </View>
                         )}
+
+                        {/* Promotion / Campaign Row */}
+                        {promotion?.secondsRemaining ? (
+                            !countdown.isExpired && (
+                                <View style={styles.campaignRow}>
+                                    <View style={styles.campaignNameContainer}>
+                                        <Text
+                                            style={styles.campaignNameText}
+                                            numberOfLines={1}
+                                            adjustsFontSizeToFit={true}
+                                            minimumFontScale={0.5}
+                                        >
+                                            🏷️ {promotion.campaignType ? promotion.campaignType.replace(/_/g, ' ') : 'SHOP SALE'}
+                                        </Text>
+                                    </View>
+                                    <View style={styles.timerScale}>
+                                        <CountdownDigits
+                                            duration={countdown.duration}
+                                            size="small"
+                                            variant="sale"
+                                            hideHoursIfZero={true}
+                                        />
+                                    </View>
+                                </View>
+                            )
+                        ) : null}
 
                         {/* Price & Quantity Row */}
                         <View style={styles.bottomRow}>
@@ -233,40 +275,50 @@ export const CartItem: React.FC<CartItemProps> = memo(({
                                 >
                                     {formatCurrency(unitPrice)}
                                 </Text>
-                                {/* Low Stock Warning */}
-                                {lowStockWarning && (
-                                    <Text
-                                        style={[
-                                            styles.lowStockWarning,
-                                            lowStockWarning.isUrgent && styles.lowStockWarningUrgent
-                                        ]}
-                                    >
-                                        {lowStockWarning.text}
-                                    </Text>
-                                )}
                             </View>
 
                             {/* Quantity Stepper or Find Similar Button */}
-                            {isOutOfStock ? (
-                                <Pressable
-                                    onPress={() => onFindSimilar?.(item.id)}
-                                    style={styles.findSimilarButton}
-                                    accessibilityLabel={t('item.findSimilar')}
-                                    accessibilityRole="button"
-                                >
-                                    <Text style={styles.findSimilarText}>{t('item.findSimilar')}</Text>
-                                </Pressable>
-                            ) : (
-                                <QuantityStepper
-                                    value={quantity}
-                                    min={1}
-                                    max={maxQuantity}
-                                    onValueChange={(newQty) => onQuantityChange(item.id, newQty)}
-                                    size="small"
-                                    disabled={isUnsupportedRegion}
-                                />
-                            )}
+                            <View style={styles.stepperContainer}>
+                                {isOutOfStock ? (
+                                    <Pressable
+                                        onPress={() => onFindSimilar?.(item.id)}
+                                        style={styles.findSimilarButton}
+                                        accessibilityLabel={t('item.findSimilar')}
+                                        accessibilityRole="button"
+                                    >
+                                        <Text style={styles.findSimilarText}>{t('item.findSimilar')}</Text>
+                                    </Pressable>
+                                ) : (
+                                    <QuantityStepper
+                                        value={quantity}
+                                        min={1}
+                                        max={maxQuantity}
+                                        onValueChange={(newQty) => onQuantityChange(item.id, newQty)}
+                                        size="small"
+                                        disabled={isUnsupportedRegion}
+                                    />
+                                )}
+                            </View>
                         </View>
+
+                        {/* Stock Warnings - moved out of price container, aligned to the right below the stepper */}
+                        {promotion?.secondsRemaining && promotion.stockRemaining > 0 && !countdown.isExpired ? (
+                            <View style={styles.promoWarningRow}>
+                                <IconSymbol name="local-fire-department" size={14} color={theme.colors.error} />
+                                <Text style={[styles.lowStockWarning, styles.lowStockWarningUrgent, styles.noMarginTop]}>
+                                    {t('item.promoStockWarning', { count: promotion.stockRemaining })}
+                                </Text>
+                            </View>
+                        ) : lowStockWarning ? (
+                            <Text
+                                style={[
+                                    styles.lowStockWarning,
+                                    lowStockWarning.isUrgent && styles.lowStockWarningUrgent
+                                ]}
+                            >
+                                {lowStockWarning.text}
+                            </Text>
+                        ) : null}
                     </View>
                 </View>
             </View>
@@ -370,42 +422,81 @@ const styles = StyleSheet.create((theme, rt) => {
             lineHeight: 20,
             color: theme.colors.typography,
         },
-        productNamePressed: {
-            color: theme.colors.newPrimary,
-            opacity: 0.7,
-        },
-        imagePressed: {
-            opacity: 0.8,
-            transform: [{ scale: 0.96 }],
-        },
-        textPressed: {
-            opacity: 0.7,
+        variantAndRegionRow: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 6,
+            marginTop: 4,
+            width: '100%',
         },
         variantSelector: {
             flexDirection: 'row',
             alignItems: 'center',
-            alignSelf: 'flex-start',
             backgroundColor: theme.colors.background,
             borderRadius: theme.radius.s,
             paddingHorizontal: 8,
             paddingVertical: 4,
             gap: 4,
-            marginTop: 4,
+            flexShrink: 1,
+            overflow: 'hidden',
         },
         variantText: {
             fontSize: f(theme.fontSizes.sm),
             color: theme.colors.typographySecondary,
+            flexShrink: 1,
         },
         bottomRow: {
             flexDirection: 'row',
             justifyContent: 'space-between',
-            alignItems: 'flex-end',
+            alignItems: 'flex-start',
             marginTop: 8,
             gap: 8,
+            width: '100%',
         },
         priceContainer: {
             gap: 2,
+            flexShrink: 1,
+            flexGrow: 1,
+            justifyContent: 'center',
+            minHeight: 28,
+        },
+        stepperContainer: {
+            flexShrink: 0,
+            justifyContent: 'center',
+            alignItems: 'flex-end',
+            paddingTop: 0,
+        },
+        campaignRow: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            backgroundColor: 'rgba(239, 68, 68, 0.08)',
+            paddingHorizontal: 6,
+            paddingVertical: 5,
+            borderRadius: theme.radius.s,
+            marginTop: 6,
+            borderWidth: 0.5,
+            borderColor: 'rgba(239, 68, 68, 0.2)',
+            width: '100%',
+            overflow: 'hidden',
+        },
+        campaignNameContainer: {
             flex: 1,
+            flexShrink: 1,
+            marginRight: 6,
+            justifyContent: 'center',
+        },
+        campaignNameText: {
+            fontSize: f(11),
+            fontWeight: '600',
+            color: theme.colors.error,
+        },
+        timerScale: {
+            flexShrink: 1,
+            justifyContent: 'center',
+            alignItems: 'flex-end',
+            transform: [{ scale: 0.85 }],
+            marginRight: -4,
         },
         originalPrice: {
             fontSize: f(theme.fontSizes.sm),
@@ -434,50 +525,49 @@ const styles = StyleSheet.create((theme, rt) => {
             fontWeight: '500',
             color: theme.colors.warning,
             marginTop: 2,
+            alignSelf: 'flex-start',
         },
         lowStockWarningUrgent: {
             color: theme.colors.error,
             fontWeight: '600',
         },
-        // Region Pill Tag (Liquid Glass-inspired)
-        regionPill: {
-            alignSelf: 'flex-start',
+        promoWarningRow: {
             flexDirection: 'row',
             alignItems: 'center',
-            gap: 5,
-            backgroundColor: 'rgba(34, 197, 94, 0.06)',
-            borderWidth: 0.5,
+            justifyContent: 'flex-start',
+            alignSelf: 'flex-start',
+            gap: 4,
+            marginTop: 2,
+        },
+        noMarginTop: {
+            marginTop: 0,
+        },
+        // Region Pill Tag (Liquid Glass-inspired)
+        regionPill: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 4,
+            backgroundColor: 'rgba(34, 197, 94, 0.08)',
+            borderWidth: 1,
             borderColor: 'rgba(34, 197, 94, 0.3)',
-            borderRadius: theme.radius.l,
-            paddingHorizontal: 8,
-            paddingVertical: 3,
-            marginTop: 5,
+            borderRadius: 99,
+            paddingHorizontal: 6,
+            paddingVertical: 2,
+            flexShrink: 0,
         },
         regionPillIntl: {
-            backgroundColor: 'rgba(14, 165, 233, 0.06)',
+            backgroundColor: 'rgba(14, 165, 233, 0.08)',
             borderColor: 'rgba(14, 165, 233, 0.3)',
         },
         regionPillBoth: {
-            backgroundColor: 'rgba(0, 136, 204, 0.06)',
-            borderColor: 'rgba(0, 136, 204, 0.25)',
-        },
-        regionDot: {
-            width: 5,
-            height: 5,
-            borderRadius: 3,
-            backgroundColor: theme.colors.success,
-        },
-        regionDotIntl: {
-            backgroundColor: theme.colors.info,
-        },
-        regionDotBoth: {
-            backgroundColor: theme.colors.primary,
+            backgroundColor: 'rgba(0, 136, 204, 0.08)',
+            borderColor: 'rgba(0, 136, 204, 0.3)',
         },
         regionPillText: {
-            fontSize: f(theme.fontSizes.xs),
-            fontWeight: '500',
+            fontSize: f(10),
+            fontWeight: '700',
             color: theme.colors.success,
-            letterSpacing: 0.2,
+            letterSpacing: 0.5,
         },
         regionPillTextIntl: {
             color: theme.colors.info,

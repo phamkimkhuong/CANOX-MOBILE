@@ -515,6 +515,7 @@ export interface CartTranslation {
         findSimilar: string;
         selectVariation: string;
         unsupportedRegion: string;
+        promoStockWarning: string;
     };
     status: {
         syncing: string;

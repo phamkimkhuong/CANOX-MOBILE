@@ -38,6 +38,7 @@ export const CART_STRINGS: CartTranslation = {
         findSimilar: 'Tìm SP tương tự',
         selectVariation: 'Chọn phân loại hàng',
         unsupportedRegion: 'Không hỗ trợ giao đến {{location}}.',
+        promoStockWarning: 'Chỉ còn {{count}} sản phẩm giá này',
     },
     status: {
         syncing: 'Đang cập nhật giá mới nhất...',

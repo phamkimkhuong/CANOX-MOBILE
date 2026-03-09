@@ -12,9 +12,8 @@
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { request } from '@/services/api/client';
 import { useCartStore } from '@/store/useCartStore';
-import { CartApiResponseSchema, CartUI } from '@/types/cart';
+import { CartUI } from '@/types/cart';
 import { ResponseDefaultSchema } from '@/types/responseSchema';
-import { transformCart } from '@/utils/adapter/cartAdapter';
 import { logger } from '@/utils/logger';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import 'react-native-get-random-values';
@@ -40,12 +39,12 @@ export const useUpdateCartItemQuantity = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async ({ itemId, quantity }: UpdateQuantityParams): Promise<CartUI> => {
+        mutationFn: async ({ itemId, quantity }: UpdateQuantityParams): Promise<void> => {
             logger.cart.info('Updating quantity', { itemId, quantity });
 
             const idempotencyKey = uuidv4();
 
-            const response = await request(
+            await request(
                 {
                     url: API_ROUTES.CART.UPDATE(itemId),
                     method: 'PUT',
@@ -55,13 +54,8 @@ export const useUpdateCartItemQuantity = () => {
                         'If-Match': "0"
                     },
                 },
-                CartApiResponseSchema
+                ResponseDefaultSchema
             );
-
-            if (!response.data) {
-                throw new Error('Đã xảy ra lỗi khi cập nhật số lượng');
-            }
-            return transformCart(response.data);
         },
 
         // Optimistic update for instant UI feedback
@@ -111,9 +105,9 @@ export const useUpdateCartItemQuantity = () => {
         },
         meta: { handledLocally: true },
 
-        onSuccess: (cartUI) => {
+        onSuccess: () => {
             logger.cart.info('Quantity updated successfully');
-            queryClient.setQueryData(CART_QUERY_KEY, cartUI);
+            queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
         },
     });
 };
@@ -264,7 +258,7 @@ export const useClearCart = () => {
             if (context?.previousCart) {
                 queryClient.setQueryData(CART_QUERY_KEY, context.previousCart);
                 const totalItems = context.previousCart.shops.reduce(
-                    (sum, shop) => sum + shop.itemCount,
+                    (sum, shop) => sum + shop.items.length,
                     0
                 );
                 setTotalQuantity(totalItems);
@@ -381,6 +375,115 @@ export const useBatchRemoveCartItems = () => {
                 text1: 'Đã xóa các sản phẩm được chọn',
                 position: 'top',
                 visibilityTime: 2000,
+            });
+        },
+    });
+};
+
+// ==============================================
+// MUTATION: Move Items to Wishlist
+// ==============================================
+
+interface MoveToWishlistParams {
+    items: { itemId: string; variantId: string; quantity: number }[];
+}
+
+import { wishlistKeys } from '@/hooks/api/wishlist/useWishlists';
+import { wishlistService } from '@/services/api/wishlist';
+
+/**
+ * Move multiple cart items to the default wishlist
+ * 1. Calls addToDefaultWishlist for each item
+ * 2. Calls BATCH_REMOVE to delete from cart
+ */
+export const useMoveCartItemsToWishlist = () => {
+    const queryClient = useQueryClient();
+    const { setSelectedItemIds } = useCartStore();
+
+    return useMutation({
+        mutationFn: async ({ items }: MoveToWishlistParams): Promise<void> => {
+            logger.cart.info('Moving items to wishlist', { count: items.length });
+
+            //Add all items to default wishlist. Catch errors so a partial fail doesn't abort the whole block.
+            await Promise.allSettled(
+                items.map(item =>
+                    wishlistService.addToDefaultWishlist({
+                        variantId: item.variantId,
+                        quantity: 1, // Add 1 unit to wishlist
+                        priority: 0,
+                    })
+                )
+            );
+
+            //Remove them from the cart via BATCH_REMOVE
+            const itemIds = items.map(i => i.itemId);
+            await request(
+                {
+                    url: API_ROUTES.CART.BATCH_REMOVE,
+                    method: 'DELETE',
+                    data: { itemIds },
+                },
+                ResponseDefaultSchema
+            );
+        },
+
+        // Optimistic update for the Cart
+        onMutate: async ({ items }) => {
+            await queryClient.cancelQueries({ queryKey: CART_QUERY_KEY });
+
+            const previousCart = queryClient.getQueryData<CartUI>(CART_QUERY_KEY);
+            const itemIdsSet = new Set(items.map(i => i.itemId));
+
+            if (previousCart) {
+                const optimisticCart: CartUI = {
+                    ...previousCart,
+                    shops: previousCart.shops
+                        .map(shop => ({
+                            ...shop,
+                            items: shop.items.filter(item => !itemIdsSet.has(item.id)),
+                        }))
+                        .filter(shop => shop.items.length > 0),
+                };
+
+                queryClient.setQueryData(CART_QUERY_KEY, optimisticCart);
+            }
+
+            return { previousCart };
+        },
+
+        onError: (error, variables, context) => {
+            logger.cart.warn('Move to wishlist failed, rolling back cart', { error });
+            if (context?.previousCart) {
+                queryClient.setQueryData(CART_QUERY_KEY, context.previousCart);
+            }
+            const errorMessage = error instanceof Error ? error.message : 'Không thể lưu vào yêu thích';
+            Toast.show({
+                type: 'error',
+                text1: 'Lưu thất bại',
+                text2: errorMessage,
+                position: 'top',
+                visibilityTime: 3000,
+            });
+        },
+        meta: { handledLocally: true },
+
+        onSuccess: () => {
+            logger.cart.info('Items moved to wishlist successfully');
+            queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
+
+            // Also invalidate Wishlist queries so the profile/wishlist screens receive fresh data
+            queryClient.invalidateQueries({ queryKey: wishlistKeys.default() });
+            queryClient.invalidateQueries({ queryKey: [...wishlistKeys.all, 'check-variants'] });
+
+            // Clear selection
+            setSelectedItemIds(new Set());
+
+            Toast.show({
+                type: 'success',
+                text1: 'Đã lưu vào bộ sưu tập',
+                text2: 'Đồng thời xóa sản phẩm khỏi giỏ hàng.',
+                position: 'top',
+                visibilityTime: 2500,
             });
         },
     });

@@ -10,7 +10,6 @@ export const CartItemSchema = z.object({
     id: z.string(),
     productId: z.string().nullable().optional(),
     variantId: z.string(),
-    version: z.number().nullable().optional().default(0),
     productName: z.string().nullable().optional().default(''),
     variantAttributes: z.string().nullable().optional().default(''),
     shopId: z.string().nullable().optional(),
@@ -21,9 +20,11 @@ export const CartItemSchema = z.object({
     unitPrice: z.number().nullable().optional().default(0),
     quantity: z.number().nullable().optional().default(1),
     totalPrice: z.number().nullable().optional().default(0),
-    discountAmount: z.number().nullable().optional().default(0),
     promotion: z.object({
         discountPercent: z.number().nullable().optional(),
+        campaignType: z.string().nullable().optional(),
+        stockRemaining: z.number().nullable().optional(),
+        secondsRemaining: z.number().nullable().optional(),
     }).nullable().optional(),
 
     // Selection (Server-managed)
@@ -32,7 +33,6 @@ export const CartItemSchema = z.object({
     // Stock Management
     availableStock: z.number().nullable().optional().default(0),
     stockStatus: z.string().nullable().optional().default('IN_STOCK'),
-    stockMessage: z.string().nullable().optional().default(''),
 
     // Region / Address filtering
     availableRegions: z.array(z.string()).nullable().optional().default([]),
@@ -47,11 +47,7 @@ export const CartShopSchema = z.object({
     items: z.array(CartItemSchema).default([]),
 
     // Shop totals (from API)
-    itemCount: z.number().nullable().optional().default(0),
-    totalQuantity: z.number().nullable().optional().default(0),
-    subtotal: z.number().nullable().optional().default(0),
     discount: z.number().nullable().optional().default(0),
-    total: z.number().nullable().optional().default(0),
 
     // Selection state (Server-managed)
     allSelected: z.boolean().nullable().optional().default(false),
@@ -109,7 +105,6 @@ export type AddToCartResponse = z.infer<typeof AddToCartResponseSchema>;
 export interface CartItemUI {
     id: string;
     productId: string;
-    version: number; // For concurrency control (If-Match header)
     variantId: string;
     productName: string;
     variantAttributes: string;
@@ -125,7 +120,6 @@ export interface CartItemUI {
     // Stock management
     availableStock: number;
     stockStatus: 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK';
-    stockMessage: string;
     isOutOfStock: boolean;
     maxQuantity: number;
 
@@ -136,9 +130,15 @@ export interface CartItemUI {
     } | null;
 
     // Discount
-    discountAmount: number;
     originalPrice: number | null;
-    discountPercent: number | null;
+
+    // Active Promotion
+    promotion: {
+        campaignType: string;
+        discountPercent: number;
+        stockRemaining: number;
+        secondsRemaining: number;
+    } | null;
 
     // Region Delivery
     availableRegions: string[];
@@ -155,11 +155,7 @@ export interface CartShopUI {
     items: CartItemUI[];
 
     // Shop totals (from API)
-    itemCount: number;
-    totalQuantity: number;
-    subtotal: number;
     discount: number;
-    total: number;
 
     // Selection state (Server-managed)
     allSelected: boolean;
