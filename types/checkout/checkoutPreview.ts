@@ -35,7 +35,6 @@ export interface CheckoutPreviewRequest {
     };
     addressId?: string;
     effectiveAddressId?: string;
-    loyaltyPoints?: number;
     paymentMethod?: string;
     usingSavedAddress?: boolean;
     allDiscountCodes?: string[];
@@ -43,6 +42,12 @@ export interface CheckoutPreviewRequest {
     directItem?: {
         variantId: string;
         quantity: number;
+        options?: {
+            loyaltyPoints?: number;
+            platformLoyaltyPoints?: number;
+            serviceCode?: number;
+            [key: string]: any;
+        };
     };
 }
 

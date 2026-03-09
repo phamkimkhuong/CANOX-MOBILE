@@ -15,6 +15,8 @@ interface StickyBottomBarProps {
     onBuyNowPress?: () => void;
     isFavorite?: boolean;
     onFavoritePress?: () => void;
+    isNotEligible?: boolean;
+    shippingWarning?: string;
 }
 
 export const StickyBottomBar = memo<StickyBottomBarProps>(({
@@ -26,12 +28,15 @@ export const StickyBottomBar = memo<StickyBottomBarProps>(({
     onBuyNowPress,
     isFavorite: _isFavorite = false,
     onFavoritePress: _onFavoritePress,
+    isNotEligible = false,
+    shippingWarning,
 }) => {
     const { theme } = useUnistyles();
     const { t } = useTranslation('product');
 
     const isOutOfStock = inventoryStatus === 'out_of_stock';
-    const isDisabled = isOutOfStock;
+    const isAddToCartDisabled = isOutOfStock;
+    const isBuyNowDisabled = isOutOfStock || isNotEligible;
 
     // Memoize button texts để tránh tính lại mỗi render
     const addToCartText = useMemo(() => {
@@ -48,70 +53,79 @@ export const StickyBottomBar = memo<StickyBottomBarProps>(({
     const containerStyle = useMemo(() => [
         styles.container,
         styles.safeBottom,
-    ], []);
+        shippingWarning && styles.containerWithWarning,
+    ], [shippingWarning]);
 
     return (
-        <View style={containerStyle}>
-            {/* Left Actions */}
-            <View style={styles.leftActions}>
-                <SmartNavButton
-                    onPress={onChatPress}
-                    prefetchAction={onPrefetchChat}
-                    style={styles.iconButton}
-                >
-                    {({ pressed }) => (
-                        <View style={[styles.iconWrapper, pressed && styles.pressedOpacity]}>
-                            <IconSymbol
-                                name="chat"
-                                size={26}
-                                color={theme.colors.typography}
-                            />
-                            <Text style={styles.iconLabel}>{t('bottomBar.chat')}</Text>
-                        </View>
-                    )}
-                </SmartNavButton>
-            </View>
-
-
-            {/* Right Actions */}
-            <View style={styles.rightActions}>
-                {/* Add to Cart Button */}
-                <Pressable
-                    style={[
-                        styles.addToCartButton,
-                        isDisabled && styles.buttonDisabled,
-                    ]}
-                    onPress={onAddToCartPress}
-                    disabled={isDisabled}
-                >
-                    <Text
-                        style={[
-                            styles.addToCartText,
-                            isDisabled && styles.textDisabled,
-                        ]}
+        <View style={styles.wrapper}>
+            {shippingWarning && (
+                <View style={styles.warningContainer}>
+                    <IconSymbol name="error-outline" size={16} color={theme.colors.error} />
+                    <Text style={styles.warningText} numberOfLines={1}>{shippingWarning}</Text>
+                </View>
+            )}
+            <View style={containerStyle}>
+                {/* Left Actions */}
+                <View style={styles.leftActions}>
+                    <SmartNavButton
+                        onPress={onChatPress}
+                        prefetchAction={onPrefetchChat}
+                        style={styles.iconButton}
                     >
-                        {addToCartText}
-                    </Text>
-                </Pressable>
+                        {({ pressed }) => (
+                            <View style={[styles.iconWrapper, pressed && styles.pressedOpacity]}>
+                                <IconSymbol
+                                    name="chat"
+                                    size={26}
+                                    color={theme.colors.typography}
+                                />
+                                <Text style={styles.iconLabel}>{t('bottomBar.chat')}</Text>
+                            </View>
+                        )}
+                    </SmartNavButton>
+                </View>
 
-                {/* Buy Now Button */}
-                <Pressable
-                    style={[
-                        styles.buyNowButton,
-                        isDisabled && styles.buttonDisabled,
-                    ]}
-                    onPress={onBuyNowPress}
-                    disabled={isDisabled}
-                >
-                    <Text
+
+                {/* Right Actions */}
+                <View style={styles.rightActions}>
+                    {/* Add to Cart Button */}
+                    <Pressable
                         style={[
-                            styles.buyNowText,
-                            isDisabled && styles.textDisabled,
+                            styles.addToCartButton,
+                            isAddToCartDisabled && styles.buttonDisabled,
                         ]}
+                        onPress={onAddToCartPress}
+                        disabled={isAddToCartDisabled}
                     >
-                        {buyNowText}
-                    </Text>
-                </Pressable>
+                        <Text
+                            style={[
+                                styles.addToCartText,
+                                isAddToCartDisabled && styles.textDisabled,
+                            ]}
+                        >
+                            {addToCartText}
+                        </Text>
+                    </Pressable>
+
+                    {/* Buy Now Button */}
+                    <Pressable
+                        style={[
+                            styles.buyNowButton,
+                            isBuyNowDisabled && styles.buttonDisabled,
+                        ]}
+                        onPress={onBuyNowPress}
+                        disabled={isBuyNowDisabled}
+                    >
+                        <Text
+                            style={[
+                                styles.buyNowText,
+                                isBuyNowDisabled && styles.textDisabled,
+                            ]}
+                        >
+                            {buyNowText}
+                        </Text>
+                    </Pressable>
+                </View>
             </View>
         </View>
     );
@@ -120,12 +134,8 @@ export const StickyBottomBar = memo<StickyBottomBarProps>(({
 StickyBottomBar.displayName = 'StickyBottomBar';
 
 const styles = StyleSheet.create((theme) => ({
-    container: {
-        flexDirection: 'row',
-        alignItems: 'center',
+    wrapper: {
         backgroundColor: theme.colors.surface,
-        paddingTop: 8,
-        paddingHorizontal: theme.margins.md,
         borderTopWidth: 1,
         borderTopColor: theme.colors.border,
         shadowColor: '#000',
@@ -133,6 +143,30 @@ const styles = StyleSheet.create((theme) => ({
         shadowOpacity: 0.05,
         shadowRadius: 4,
         elevation: 8,
+    },
+    warningContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: theme.margins.md,
+        paddingTop: theme.margins.sm,
+        paddingBottom: theme.margins.xs,
+        gap: theme.margins.xs,
+        backgroundColor: theme.colors.surface,
+    },
+    warningText: {
+        fontSize: 12,
+        color: theme.colors.error,
+        flex: 1,
+    },
+    container: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: theme.colors.surface,
+        paddingTop: 8,
+        paddingHorizontal: theme.margins.md,
+    },
+    containerWithWarning: {
+        paddingTop: theme.margins.xs,
     },
     safeBottom: {
         paddingBottom: UnistylesRuntime.insets.bottom + 8,

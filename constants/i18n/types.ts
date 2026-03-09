@@ -606,6 +606,10 @@ export interface CheckoutTranslation {
             name: string;
             description: string;
         };
+        vnpay: {
+            name: string;
+            description: string;
+        };
         expired: string;
         payBefore: string;
     };

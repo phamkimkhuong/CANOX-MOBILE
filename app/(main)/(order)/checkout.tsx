@@ -287,26 +287,54 @@ export default function CheckoutScreen() {
                 return {
                     shopId: shop.shopId,
                     items: isBuyNowMode ? undefined : shop.items,
-                    vouchers: voucherCode ? [voucherCode] : undefined,
+                    vouchers: (!isBuyNowMode && voucherCode) ? [voucherCode] : undefined,
                     // Use distributed global vouchers inside each shop
-                    globalVouchers: globalVouchersArray.length > 0 ? globalVouchersArray : undefined,
-                    serviceCode: finalShippingCode ? Number(finalShippingCode) : undefined,
-                    shippingFee: undefined,
-                    loyaltyPoints: selectedLoyaltyRedemptions.get(shop.shopId) || undefined,
+                    globalVouchers: (!isBuyNowMode && globalVouchersArray.length > 0) ? globalVouchersArray : undefined,
+                    serviceCode: isBuyNowMode ? undefined : (finalShippingCode ? Number(finalShippingCode) : undefined),
+                    shippingFee: (function () {
+                        const previewShop = useCheckoutStore.getState().previewData?.shops.find(
+                            (s: CheckoutShopUI) => s.shopId === shop.shopId
+                        );
+                        if (!previewShop || !finalShippingCode) return undefined;
+                        return previewShop.shippingOptions.methods.find((m: any) => m.id === finalShippingCode)?.fee;
+                    })(),
+                    loyaltyPoints: isBuyNowMode ? undefined : (selectedLoyaltyRedemptions.get(shop.shopId) || undefined),
                 };
             }),
-            paymentMethod: paymentMethod === 'cod' ? 'COD' : 'PAYOS',
-            buyNow: isBuyNowMode,
+            paymentMethod: paymentMethod === 'cod' ? 'COD' : paymentMethod === 'vnpay' ? 'VNPAY' : 'PAYOS',
+            buyNow: isBuyNowMode ? true : undefined,
             directItem: isBuyNowMode ? {
                 variantId: variantId!,
                 quantity: parseInt(quantity || '1', 10),
+                options: {
+                    loyaltyPoints: Array.from(selectedLoyaltyRedemptions.values())[0] || undefined,
+                    serviceCode: (function () {
+                        const shop = checkoutShops[0];
+                        if (!shop) return undefined;
+                        const userShippingCode = selectedShipping.get(shop.shopId);
+                        const currentPreviewOption = useCheckoutStore.getState().previewData?.shops.find(
+                            (s: CheckoutShopUI) => s.shopId === shop.shopId
+                        )?.shippingOptions.selectedMethodId;
+                        const finalCode = userShippingCode || currentPreviewOption;
+                        return finalCode ? Number(finalCode) : undefined;
+                    })(),
+                    shippingFee: (function () {
+                        const shop = checkoutShops[0];
+                        const previewShop = useCheckoutStore.getState().previewData?.shops.find(
+                            (s: CheckoutShopUI) => s.shopId === shop?.shopId
+                        );
+                        if (!shop || !previewShop) return undefined;
+                        const userShippingCode = selectedShipping.get(shop.shopId);
+                        const finalCode = userShippingCode || previewShop.shippingOptions.selectedMethodId;
+                        return previewShop.shippingOptions.methods.find((m: any) => m.id === finalCode)?.fee;
+                    })()
+                }
             } : undefined,
-            // For Buy Now flow, also populate root fields for vouchers and loyalty
+            // For Buy Now flow, also populate root fields for vouchers
             allDiscountCodes: isBuyNowMode ? [
                 ...globalVouchersArray,
                 ...Array.from(selectedShopVouchers.values())
             ] : undefined,
-            loyaltyPoints: isBuyNowMode ? Array.from(selectedLoyaltyRedemptions.values())[0] : undefined,
         };
 
         return request;
@@ -354,12 +382,12 @@ export default function CheckoutScreen() {
             if (reqVoucher !== previewVoucher) return false;
 
             // Check custom shipping selection
-            const reqShipping = reqShop.serviceCode;
+            const reqShipping = req.buyNow ? req.directItem?.options?.serviceCode : reqShop.serviceCode;
             const previewShipping = Number(previewShop.shippingOptions.selectedMethodId);
             if (reqShipping && reqShipping !== previewShipping) return false;
 
             // Check loyalty redemption
-            const reqLoyalty = reqShop.loyaltyPoints || 0;
+            const reqLoyalty = (req.buyNow ? req.directItem?.options?.loyaltyPoints : reqShop.loyaltyPoints) || 0;
             const previewLoyalty = previewShop.loyaltyInfo?.pointsToRedeem || 0;
             if (reqLoyalty !== previewLoyalty) return false;
         }
@@ -519,34 +547,53 @@ export default function CheckoutScreen() {
                     const shopVouchers: string[] = [];
                     if (shop.appliedVoucherId) shopVouchers.push(shop.appliedVoucherId);
 
+                    const userShippingCode = store.selectedShipping.get(shop.shopId);
+                    const finalShippingCode = userShippingCode || shop.shippingOptions.selectedMethodId;
+
                     return {
                         shopId: shop.shopId,
                         items: shop.items.map(item => ({
                             itemId: item.id,
                             expectedUnitPrice: item.unitPrice,
                             quantity: item.quantity,
-                            promotionId: item.promotionId,
+                            promotionId: item.promotionId || undefined,
                         })),
-                        vouchers: shopVouchers,
-                        serviceCode: Number(shop.shippingOptions.selectedMethodId) || 0,
-                        shippingFee: shop.shippingOptions.methods.find(m => m.id === shop.shippingOptions.selectedMethodId)?.fee || 0,
-                        globalVouchers: globalVouchersArray,
-                        loyaltyPoints: shop.loyaltyPoints,
+                        vouchers: (!isBuyNowMode && shopVouchers.length > 0) ? shopVouchers : undefined,
+                        serviceCode: isBuyNowMode ? undefined : (Number(finalShippingCode) || undefined),
+                        shippingFee: shop.shippingOptions.methods.find((m: any) => m.id === finalShippingCode)?.fee,
+                        globalVouchers: (!isBuyNowMode && globalVouchersArray.length > 0) ? globalVouchersArray : undefined,
+                        loyaltyPoints: isBuyNowMode ? undefined : (shop.loyaltyPoints || undefined),
                     };
                 }),
                 buyerAddressData: {
-                    addressId: previewData.addressId,
+                    buyerAddressId: previewData.addressId,
                 },
-                loyaltyPoints: previewData.shops.reduce((sum, shop) => sum + (shop.loyaltyPoints || 0), 0),
-                paymentMethod: paymentMethod === 'cod' ? 'COD' : 'PAYOS',
-                customerNote: Array.from(store.shopNotes.values()).filter(Boolean).join('; ') || '',
+                paymentMethod: paymentMethod === 'cod' ? 'COD' : paymentMethod === 'vnpay' ? 'VNPAY' : 'PAYOS',
+                customerNote: Array.from(store.shopNotes.values()).filter(Boolean).join('; ') || undefined,
                 previewId: previewData.cartId,
                 previewChecksum: previewData.previewChecksum,
                 previewAt: previewData.previewAt,
-                buyNow: isBuyNowMode,
+                buyNow: isBuyNowMode ? true : undefined,
                 directItem: isBuyNowMode ? {
                     variantId: variantId!,
                     quantity: parseInt(quantity || '1', 10),
+                    options: {
+                        loyaltyPoints: previewData.shops[0]?.loyaltyPoints || undefined,
+                        serviceCode: (function () {
+                            const shop = previewData.shops[0];
+                            if (!shop) return undefined;
+                            const userShippingCode = store.selectedShipping.get(shop.shopId);
+                            const finalCode = userShippingCode || shop.shippingOptions.selectedMethodId;
+                            return finalCode ? Number(finalCode) : undefined;
+                        })(),
+                        shippingFee: (function () {
+                            const shop = previewData.shops[0];
+                            if (!shop) return undefined;
+                            const userShippingCode = store.selectedShipping.get(shop.shopId);
+                            const finalCode = userShippingCode || shop.shippingOptions.selectedMethodId;
+                            return shop.shippingOptions.methods.find((m: any) => m.id === finalCode)?.fee;
+                        })(),
+                    }
                 } : undefined,
             };
 

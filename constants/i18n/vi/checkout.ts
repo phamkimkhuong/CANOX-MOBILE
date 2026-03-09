@@ -69,8 +69,12 @@ export const CHECKOUT_STRINGS: CheckoutTranslation = {
             description: 'Thanh toán bằng tiền mặt khi nhận hàng',
         },
         bankTransfer: {
-            name: 'Chuyển khoản ngân hàng',
+            name: 'Chuyển khoản ngân hàng (QR)',
             description: 'Chuyển khoản qua tài khoản ngân hàng',
+        },
+        vnpay: {
+            name: 'Ví điện tử VNPAY',
+            description: 'Thanh toán an toàn qua VNPAY',
         },
         expired: 'Đã hết hạn thanh toán',
         payBefore: 'Thanh toán trong',

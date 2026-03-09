@@ -72,6 +72,10 @@ export const CHECKOUT_STRINGS: CheckoutTranslation = {
             name: 'Bank Transfer',
             description: 'Transfer via bank account',
         },
+        vnpay: {
+            name: 'VNPAY E-Wallet',
+            description: 'Secure payment via VNPAY',
+        },
         expired: 'Payment expired',
         payBefore: 'Pay in',
     },

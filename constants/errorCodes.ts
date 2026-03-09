@@ -52,6 +52,9 @@ const VI_MAP: Record<number, string> = {
 
     // WISHLIST (3000-3099)
     3005: "Tên bộ sưu tập đã tồn tại trong danh sách của bạn",
+
+    // CHECKOUT (9500-9599)
+    110113: "Thông tin thanh toán đã hết hạn. Vui lòng thực hiện lại",
 } as const;
 
 export const getErrorMessageByCode = (code: number, lang: 'vi' | 'en' = 'vi'): string | undefined => {

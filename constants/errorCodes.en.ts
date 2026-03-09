@@ -49,6 +49,9 @@ export const EN_MAP: Record<number, string> = {
     // CART & STOCK (9400-9499)
     9402: "Product is out of stock or insufficient quantity!",
 
+    // CHECKOUT
+    110113: "Information payment has expired. Please retry!",
+
     // OTHER
     895: "You are only allowed a maximum of 3 bank accounts",
     70056: "Cannot delete the default bank account. Please set another account as default first.",

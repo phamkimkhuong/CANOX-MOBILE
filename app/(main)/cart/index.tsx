@@ -259,7 +259,6 @@ export default function CartScreen() {
             });
             return () => {
                 cancelAnimationFrame(task);
-                setIsReady(false);
             };
         }, [])
     );

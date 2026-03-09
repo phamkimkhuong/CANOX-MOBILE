@@ -63,6 +63,12 @@ const PUBLIC_ENDPOINTS = [
  */
 const isPublicEndpoint = (url?: string): boolean => {
     if (!url) return false;
+
+    // Exception: Shipping eligibility requires auth to validate address ownership
+    if (url.includes('/shipping-eligibility')) {
+        return false;
+    }
+
     return PUBLIC_ENDPOINTS.some((endpoint) => {
         if (endpoint.endsWith('/**')) {
             const prefix = endpoint.slice(0, -2);

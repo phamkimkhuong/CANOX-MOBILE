@@ -413,7 +413,7 @@ export default function OrderSuccessScreen() {
                         <IconSymbol
                             name="shopping-bag"
                             size={20}
-                            color={theme.colors.primary}
+                            color={theme.colors.newPrimary}
                         />
                         <Text style={styles.outlineButtonText}>
                             {t('order:success.actions.continue')}
@@ -595,7 +595,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     totalValue: {
         fontSize: 18,
         fontWeight: '700',
-        color: theme.colors.primary,
+        color: theme.colors.newPrimary,
     },
     orderItem: {
         flexDirection: 'row',
@@ -624,7 +624,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         width: 28,
         height: 28,
         borderRadius: 14,
-        backgroundColor: theme.colors.primarySoft,
+        backgroundColor: theme.colors.activeSoft,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -632,7 +632,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     orderBadgeText: {
         fontSize: 13,
         fontWeight: '600',
-        color: theme.colors.primary,
+        color: theme.colors.newPrimary,
     },
 
     orderItemInfo: {
@@ -675,14 +675,14 @@ const stylesheet = StyleSheet.create((theme) => ({
         paddingVertical: theme.margins.md,
         borderRadius: theme.radius.xl,
         borderWidth: 1,
-        borderColor: theme.colors.primaryLight,
+        borderColor: theme.colors.activeLight,
         ...theme.shadows.small,
     },
 
     outlineButtonText: {
         fontSize: 16,
         fontWeight: '600',
-        color: theme.colors.primary,
+        color: theme.colors.newPrimary,
     },
 
     primaryButton: {
@@ -690,7 +690,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         alignItems: 'center',
         justifyContent: 'center',
         gap: theme.margins.sm,
-        backgroundColor: theme.colors.primary,
+        backgroundColor: theme.colors.newPrimary,
         paddingVertical: theme.margins.md,
         borderRadius: theme.radius.xl,
         ...theme.shadows.medium,

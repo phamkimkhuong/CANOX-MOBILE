@@ -3,6 +3,7 @@ import { ROUTES, chatRoutes, checkoutRoutes, productRoutes, shopRoutes } from '@
 import { useAddToCart } from '@/hooks/api/cart';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
 import { useRelatedProducts } from '@/hooks/api/product/useProductDetail';
+import { useProductShippingInfo } from '@/hooks/api/product/useShippingEligibility';
 import { useProductVariant } from '@/hooks/useProductVariant';
 import { useAuthStore } from '@/store/useAuthStore';
 import type { ProductFeedItem } from '@/types/product/product';
@@ -93,6 +94,10 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
 
     const myShopId = useAuthStore((s) => s.shopId);
     const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+
+    // === Shipping Check ===
+    const { data: shippingInfo } = useProductShippingInfo(product.id);
+    const isNotEligible = shippingInfo && !shippingInfo.eligible;
 
     // === Related Products (lazy-loaded: waits for transition to finish) ===
     const { data: relatedData, isLoading: isLoadingRelated } = useRelatedProducts(
@@ -578,6 +583,8 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
                 onPrefetchChat={handlePrefetchChat}
                 onAddToCartPress={handleAddToCart}
                 onBuyNowPress={handleBuyNow}
+                isNotEligible={!!isNotEligible}
+                shippingWarning={isNotEligible ? (shippingInfo?.message || 'Không hỗ trợ giao đến địa chỉ của bạn') : undefined}
             />
 
             {/* Variant Bottom Sheet */}

@@ -14,21 +14,20 @@ export interface CreateOrderShopRequest {
     shopId: string;
     items: CreateOrderItemRequest[];
     vouchers?: string[];
-    serviceCode: number;
-    shippingFee: number;
+    serviceCode?: number;
+    shippingFee?: number;
     globalVouchers?: string[];
-    loyaltyPoints: number;
+    loyaltyPoints?: number;
 }
 
 export interface CreateOrderRequest {
     shops: CreateOrderShopRequest[];
     buyerAddressData: {
-        addressId: string;
+        buyerAddressId: string;
         addressType?: number;
         taxAddress?: string;
     };
-    loyaltyPoints?: number;
-    paymentMethod: 'COD' | 'BANK_TRANSFER' | 'PAYOS' | 'CREDIT_CARD';
+    paymentMethod: 'COD' | 'BANK_TRANSFER' | 'PAYOS' | 'CREDIT_CARD' | 'VNPAY';
     customerNote?: string;
     previewId?: string;
     previewChecksum?: string;
@@ -37,6 +36,12 @@ export interface CreateOrderRequest {
     directItem?: {
         variantId: string;
         quantity: number;
+        options?: {
+            loyaltyPoints?: number;
+            platformLoyaltyPoints?: number;
+            serviceCode?: number;
+            [key: string]: any;
+        };
     };
 }
 

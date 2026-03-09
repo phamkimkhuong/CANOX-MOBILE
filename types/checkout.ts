@@ -125,7 +125,7 @@ export interface ShopShippingOptions {
 /**
  * PaymentMethodType - Các phương thức thanh toán
  */
-export type PaymentMethodType = 'cod' | 'bank_transfer' | 'e_wallet' | 'credit_card';
+export type PaymentMethodType = 'cod' | 'bank_transfer' | 'e_wallet' | 'credit_card' | 'vnpay';
 
 /**
  * PaymentMethod - Thông tin phương thức thanh toán

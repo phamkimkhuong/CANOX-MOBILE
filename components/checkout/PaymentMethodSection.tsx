@@ -49,6 +49,13 @@ export const PaymentMethodSection: React.FC<PaymentMethodSectionProps> = ({
             icon: 'bank',
             iconColor: '#3B82F6',
         },
+        {
+            id: 'vnpay',
+            name: t('payment.vnpay.name'),
+            description: t('payment.vnpay.description'),
+            icon: 'wallet',
+            iconColor: '#10B981', // green matching vnpay brand
+        },
     ], [t]);
     const [isModalVisible, setIsModalVisible] = useState(false);
 
