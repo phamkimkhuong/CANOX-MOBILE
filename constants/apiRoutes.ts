@@ -7,7 +7,7 @@ export const API_ROUTES = {
         RECOMMEND_SHOP: `${API_PREFIX_V2}/vouchers/recommend/by-shop`,
     },
     AUTH: {
-        LOGIN: `${API_PREFIX}/auth/login/buyer/mobile`,
+        LOGIN: `${API_PREFIX}/auth/login/mobile`,
         GOOGLE: `${API_PREFIX}/auth/login/social/callback/mobile`,
         REGISTER: `${API_PREFIX}/auth/register`,
         REFRESH_TOKEN: `${API_PREFIX}/auth/refresh/mobile`,
