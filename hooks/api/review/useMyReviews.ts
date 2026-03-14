@@ -7,12 +7,12 @@
 
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { useSmartRefresh } from '@/hooks/useSmartRefresh';
-import { apiClient, ApiError } from '@/services/api/client';
+import { request } from '@/services/api/client';
 import {
     MyReviewUI,
+    MyReviewsResponseSchema,
+    MyReviewsPageDTO,
     RatingFilter,
-    ReviewApiResponseDTO,
-    ReviewPageDTO,
 } from '@/types/review';
 import { toMyReviewUI } from '@/utils/adapter/review/reviewAdapter';
 import { useInfiniteQuery } from '@tanstack/react-query';
@@ -22,17 +22,17 @@ import { reviewKeys, REVIEWS_PAGE_SIZE } from './useReviews';
 /**
  * Fetch all reviews (no server-side filtering)
  */
-const fetchMyReviews = async (page: number): Promise<ReviewPageDTO> => {
-    const response = await apiClient.get<ReviewApiResponseDTO<ReviewPageDTO>>(
-        API_ROUTES.REVIEWS.MY_REVIEWS,
-        { params: { page, size: REVIEWS_PAGE_SIZE } }
+const fetchMyReviews = async (page: number): Promise<MyReviewsPageDTO> => {
+    const response = await request(
+        {
+            url: API_ROUTES.REVIEWS.MY_REVIEWS,
+            method: 'GET',
+            params: { page, size: REVIEWS_PAGE_SIZE },
+        },
+        MyReviewsResponseSchema
     );
 
-    if (!response.data.success) {
-        throw new ApiError(response.data.message, response.status, response.data.code);
-    }
-
-    return response.data.data;
+    return response.data;
 };
 
 /**

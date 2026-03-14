@@ -6,8 +6,8 @@ import { toPublicUrl } from '@/utils/url';
 import { useQuery } from '@tanstack/react-query';
 
 /**
- * Hook to get full detail of a specific Flash Sale slot including products
- * GET /api/v1/campaigns/slots/{id}
+ * Hook to get full detail of a specific Flash Sale slot including grouped products.
+ * GET /api/v1/public/campaigns/slots/{id}
  */
 export const useSlotDetail = (slotId: string | null) => {
     return useQuery({
@@ -27,27 +27,30 @@ export const useSlotDetail = (slotId: string | null) => {
             const slot = response.data;
             if (!slot) return null;
 
-            // Transform nested products to UI items
-            const transformedProducts: FlashSaleItem[] = (slot.products || []).map((p) => {
-                const stockLimit = p.stockLimit || 1;
-                const stockSold = p.stockSold || 0;
+            // One product card per product; use the first variant as the representative item.
+            const transformedProducts: FlashSaleItem[] = (slot.products || []).flatMap((product) => {
+                const representativeVariant = product.variants?.[0];
+                if (!representativeVariant) return [];
+
+                const stockLimit = representativeVariant.stockLimit || 1;
+                const stockSold = representativeVariant.stockSold || 0;
+                const stockRemaining = representativeVariant.stockRemaining || 0;
                 const progress = Math.min(Math.round((stockSold / stockLimit) * 100), 100);
 
-                return {
-                    id: p.id,
-                    productId: p.productId,
-                    name: p.productName || 'Sản phẩm Flash Sale',
-                    image: toPublicUrl(p.productThumbnail),
-                    price: p.salePrice || 0,
-                    originalPrice: p.originalPrice || 0,
-                    discountPercentage: p.discountPercent || 0,
+                return [{
+                    id: product.productId,
+                    productId: product.productId,
+                    name: product.productName || 'San pham Flash Sale',
+                    image: toPublicUrl(product.productThumbnailUrl || representativeVariant.variantImagePath),
+                    price: representativeVariant.salePrice || 0,
+                    originalPrice: representativeVariant.originalPrice || 0,
+                    discountPercentage: representativeVariant.discountPercent || 0,
                     soldCount: stockSold,
                     totalStock: stockLimit,
-                    stockRemaining: p.stockRemaining || 0,
-                    progress: progress,
-                    isSoldOut: p.isSoldOut || (p.stockRemaining === 0),
-                    purchaseLimitPerUser: p.purchaseLimitPerUser,
-                };
+                    stockRemaining,
+                    progress,
+                    isSoldOut: representativeVariant.isSoldOut || stockRemaining === 0,
+                }];
             });
 
             return {

@@ -95,7 +95,7 @@ export default function OrderDetailScreen() {
     // Check if any item can be reviewed
 
     const canReview = useMemo(() => {
-        if (!order?.items || order.status !== 'COMPLETED') return false;
+        if (!order?.items || (order.status !== 'COMPLETED' && order.status !== 'FINALIZED')) return false;
         return order.items.some((item) => !item.reviewed);
     }, [order?.items, order?.status]);
 
@@ -414,7 +414,7 @@ export default function OrderDetailScreen() {
                                 />
                                 <OrderDetailItemsList
                                     items={order.items}
-                                    showReviewStatus={order.status === 'COMPLETED'}
+                                    showReviewStatus={order.status === 'COMPLETED' || order.status === 'FINALIZED'}
                                     onPressReview={handleReviewItem}
                                 />
                             </View>

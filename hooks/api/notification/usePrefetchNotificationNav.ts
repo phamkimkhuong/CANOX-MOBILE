@@ -15,8 +15,9 @@
 
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { orderKeys } from '@/hooks/api/order/useOrders';
-import { apiClient } from '@/services/api/client';
+import { request } from '@/services/api/client';
 import type { Order } from '@/types/order/order';
+import { OrderDetailApiResponseSchema } from '@/types/order/orderSchema';
 import { transformOrder } from '@/utils/adapter/order/orderAdapter';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useRef } from 'react';
@@ -46,24 +47,18 @@ const parseActionUrl = (url: string | null | undefined): { type: 'order' | 'prod
     return { type: 'unknown', id: null };
 };
 
-/**
- * Fetch order detail (duplicate from useOrderDetail to avoid circular deps)
- */
-interface OrderDetailApiResponse {
-    code: number;
-    success: boolean;
-    message: string;
-    data: Order;
-}
-
 const fetchOrderDetail = async (orderId: string): Promise<Order> => {
-    const response = await apiClient.get<OrderDetailApiResponse>(
-        API_ROUTES.ORDERS.DETAIL(orderId)
+    const response = await request(
+        {
+            url: API_ROUTES.ORDERS.DETAIL(orderId),
+            method: 'GET',
+        },
+        OrderDetailApiResponseSchema
     );
-    if (!response.data.success) {
-        throw new Error(response.data.message || 'Failed to fetch order');
+    if (!response.success) {
+        throw new Error(response.message || 'Failed to fetch order');
     }
-    return response.data.data;
+    return response.data;
 };
 
 /**

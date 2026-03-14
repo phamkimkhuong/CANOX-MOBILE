@@ -14,6 +14,8 @@ import { API_ROUTES } from '@/constants/apiRoutes';
 import { apiClient } from '@/services/api/client';
 import { useAuthStore } from '@/store/useAuthStore';
 import {
+    DeleteMessageResponse,
+    DeleteMessageResponseSchema,
     MarkAsReadPayload,
     MarkAsReadResponse,
     MarkAsReadResponseSchema,
@@ -767,12 +769,6 @@ interface DeleteMessagePayload {
     deleteType: DeleteType;
 }
 
-interface DeleteMessageResponse {
-    code: number;
-    success: boolean;
-    message: string;
-}
-
 /**
  * Hook to recall a message
  * DELETE_FOR_EVERYONE: Thu hồi tin nhắn (hiển thị "Tin nhắn đã bị thu hồi")
@@ -789,11 +785,13 @@ export const useDeleteMessage = (conversationId: string) => {
                 { data: { deleteType } }
             );
 
-            if (!response.data.success) {
-                throw new Error(response.data.message || 'Failed to delete message');
+            const validated = DeleteMessageResponseSchema.parse(response.data);
+
+            if (!validated.success) {
+                throw new Error(validated.message || 'Failed to delete message');
             }
 
-            return response.data;
+            return validated;
         },
         onMutate: async ({ messageId, deleteType }) => {
             // Cancel outgoing queries

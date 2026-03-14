@@ -3,6 +3,7 @@ import { PasswordStrengthIndicator } from '@/components/auth/PasswordStrengthInd
 import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
 import { isWrongOldPasswordError, useChangePassword } from '@/hooks/api/profile/useChangePassword';
+import { useLogout } from '@/hooks/useLogout';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { ChangePasswordRequestSchema } from '@/types/auth';
 import { Navigator } from '@/utils/navigation';
@@ -18,47 +19,34 @@ import {
     ScrollView,
     Text,
     TouchableOpacity,
-    View
+    View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { z } from 'zod';
 
-/**
- * ==============================================
- * ChangePasswordScreen
- * ==============================================
- * 
- * @see register.tsx cho password validation rules
- */
-
 type ChangePasswordFormData = z.infer<typeof ChangePasswordRequestSchema>;
 
 export default function ChangePasswordScreen() {
-    // Unlock navigation when screen gains focus
     useNavigationUnlockOnFocus();
 
     const { theme } = useUnistyles();
-
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
     const { t } = useTranslation(['profile', 'common', 'auth']);
 
-    // State
     const [isSuccess, setIsSuccess] = useState(false);
-
-    // Mutation hook
     const { mutate: changePassword, isPending } = useChangePassword();
+    const { logoutImmediate } = useLogout();
 
-    // Form setup với Zod resolver
     const {
         control,
         handleSubmit,
         watch,
         setError,
         setFocus,
-        formState: { isSubmitting }
+        formState: { isSubmitting },
     } = useForm<ChangePasswordFormData>({
         resolver: zodResolver(ChangePasswordRequestSchema),
         defaultValues: {
@@ -66,16 +54,11 @@ export default function ChangePasswordScreen() {
             newPassword: '',
             confirmPassword: '',
         },
-        mode: 'onChange', // Enable realtime validation
+        mode: 'onChange',
     });
 
-    // Watch new password for strength indicator
     const newPassword = watch('newPassword');
 
-    /**
-     * Handle form submission
-     * Gọi API và xử lý response/error
-     */
     const onSubmit = useCallback((data: ChangePasswordFormData) => {
         changePassword(
             {
@@ -91,9 +74,9 @@ export default function ChangePasswordScreen() {
                         text2: t('profile:changePassword.successToastDetail'),
                         visibilityTime: 3000,
                     });
-                    // Delay navigation để user thấy success state
+
                     setTimeout(() => {
-                        Navigator.back();
+                        void logoutImmediate();
                     }, 1500);
                 },
                 onError: (error: unknown) => {
@@ -115,11 +98,8 @@ export default function ChangePasswordScreen() {
                 },
             }
         );
-    }, [changePassword, setError, setFocus, t]);
+    }, [changePassword, logoutImmediate, setError, setFocus, t]);
 
-    /**
-     * Handle back navigation
-     */
     const handleGoBack = useCallback(() => {
         if (router.canGoBack()) {
             Navigator.back();
@@ -128,7 +108,6 @@ export default function ChangePasswordScreen() {
         }
     }, []);
 
-    // Success state UI
     if (isSuccess) {
         return (
             <View style={[styles.container, styles.successContainer]}>
@@ -145,7 +124,6 @@ export default function ChangePasswordScreen() {
 
     return (
         <View style={styles.container}>
-            {/* Header */}
             <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
                 <TouchableOpacity
                     style={styles.backBtn}
@@ -167,7 +145,6 @@ export default function ChangePasswordScreen() {
                     showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps="handled"
                 >
-                    {/* Icon Section */}
                     <View style={styles.iconSection}>
                         <View style={styles.iconCircle}>
                             <IconSymbol name="lock-reset" size={36} color={theme.colors.buttonActive} />
@@ -178,9 +155,7 @@ export default function ChangePasswordScreen() {
                         </Text>
                     </View>
 
-                    {/* Form Card */}
                     <View style={styles.card}>
-                        {/* Current Password */}
                         <AuthInput
                             control={control}
                             name="oldPassword"
@@ -190,14 +165,12 @@ export default function ChangePasswordScreen() {
                             isPassword
                         />
 
-                        {/* Divider */}
                         <View style={styles.divider}>
                             <View style={styles.dividerLine} />
                             <Text style={styles.dividerText}>{t('profile:changePassword.newPassword')}</Text>
                             <View style={styles.dividerLine} />
                         </View>
 
-                        {/* New Password */}
                         <AuthInput
                             control={control}
                             name="newPassword"
@@ -207,12 +180,10 @@ export default function ChangePasswordScreen() {
                             isPassword
                         />
 
-                        {/* Password Strength Indicator */}
                         {newPassword.length > 0 && (
                             <PasswordStrengthIndicator password={newPassword} />
                         )}
 
-                        {/* Confirm New Password */}
                         <AuthInput
                             control={control}
                             name="confirmPassword"
@@ -222,11 +193,10 @@ export default function ChangePasswordScreen() {
                             isPassword
                         />
 
-                        {/* Submit Button */}
                         <TouchableOpacity
                             style={[
                                 styles.submitBtn,
-                                (isSubmitting || isPending) && styles.submitBtnDisabled
+                                (isSubmitting || isPending) && styles.submitBtnDisabled,
                             ]}
                             disabled={isSubmitting || isPending}
                             onPress={handleSubmit(onSubmit)}
@@ -241,13 +211,14 @@ export default function ChangePasswordScreen() {
                                         size={20}
                                         color={theme.colors.onPrimary}
                                     />
-                                    <Text style={styles.submitBtnText}>{t('profile:changePassword.submitButton')}</Text>
+                                    <Text style={styles.submitBtnText}>
+                                        {t('profile:changePassword.submitButton')}
+                                    </Text>
                                 </>
                             )}
                         </TouchableOpacity>
                     </View>
 
-                    {/* Security Tips */}
                     <View style={styles.tipsCard}>
                         <View style={styles.tipHeader}>
                             <IconSymbol name="info" size={18} color={theme.colors.buttonActive} />
@@ -290,8 +261,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         flexGrow: 1,
         paddingBottom: theme.margins.xl,
     },
-
-    // Header
     header: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -315,8 +284,6 @@ const stylesheet = StyleSheet.create((theme) => ({
     headerSpacer: {
         width: 40,
     },
-
-    // Icon Section
     iconSection: {
         alignItems: 'center',
         paddingHorizontal: theme.margins.lg,
@@ -335,7 +302,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: 22,
         fontWeight: 'bold',
         color: theme.colors.typography,
-        // marginBottom: theme.margins.sm,
     },
     sectionSubtitle: {
         fontSize: 14,
@@ -344,8 +310,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         lineHeight: 20,
         paddingHorizontal: theme.margins.md,
     },
-
-    // Form Card
     card: {
         backgroundColor: theme.colors.surface,
         marginHorizontal: theme.margins.md,
@@ -357,8 +321,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         shadowRadius: 10,
         elevation: 2,
     },
-
-    // Divider
     divider: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -374,8 +336,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: 13,
         fontWeight: '500',
     },
-
-    // Submit Button
     submitBtn: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -399,8 +359,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontWeight: 'bold',
         fontSize: 16,
     },
-
-    // Tips Card
     tipsCard: {
         backgroundColor: theme.colors.activeSubtle,
         marginHorizontal: theme.margins.md,
@@ -433,8 +391,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.typographySecondary,
         lineHeight: 18,
     },
-
-    // Success State
     successContainer: {
         justifyContent: 'center',
         alignItems: 'center',

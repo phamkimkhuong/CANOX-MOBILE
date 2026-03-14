@@ -63,6 +63,10 @@ const ACTION_MATRIX: Record<OrderStatus, OrderAction[]> = {
         { labelKey: 'order:actions.rebuy', type: 'secondary', action: 'rebuy', icon: 'cart' },
         { labelKey: 'order:actions.review', type: 'primary', action: 'review', icon: 'star-outline' },
     ],
+    FINALIZED: [
+        { labelKey: 'order:actions.rebuy', type: 'secondary', action: 'rebuy', icon: 'cart' },
+        { labelKey: 'order:actions.review', type: 'primary', action: 'review', icon: 'star-outline' },
+    ],
     // Delivery failed
     DELIVERY_FAILED: [
         { labelKey: 'order:actions.contact', type: 'secondary', action: 'contact', icon: 'chat-dots' },
@@ -105,8 +109,8 @@ export const getOrderActions = (orderOrStatus: OrderUI | OrderStatus): OrderActi
     const status = isStatusString ? orderOrStatus : orderOrStatus.status;
     const baseActions = ACTION_MATRIX[status] || [];
 
-    // If we have the UI object and it's COMPLETED, check if all items are reviewed
-    if (!isStatusString && status === 'COMPLETED') {
+    // If we have the UI object and it's COMPLETED/FINALIZED, check if all items are reviewed
+    if (!isStatusString && (status === 'COMPLETED' || status === 'FINALIZED')) {
         const allReviewed = orderOrStatus.items.every((item) => item.reviewed);
         if (allReviewed) {
             // If all reviewed, remove review button and make Rebuy primary

@@ -7,7 +7,7 @@
  */
 
 import { z } from 'zod';
-import { createPaginatedResponseSchema } from '../responseSchema';
+import { createPaginatedResponseSchema, ResponseDefaultSchema } from '../responseSchema';
 
 // ============================================
 // ENUMS & CONSTANTS
@@ -129,6 +129,10 @@ export const ProductReviewsResponseSchema = createPaginatedResponseSchema(Produc
     }).nullable().optional(),
 });
 
+export const ProductReviewStatisticsApiResponseSchema = ResponseDefaultSchema.extend({
+    data: ProductReviewStatisticsSchema,
+});
+
 // ============================================
 // DTO TYPES (Inferred from Zod)
 // ============================================
@@ -138,6 +142,7 @@ export type ProductReviewDTO = z.infer<typeof ProductReviewDTOSchema>;
 export type VariantFilterOptionDTO = z.infer<typeof VariantFilterOptionSchema>;
 export type ProductReviewStatisticsDTO = z.infer<typeof ProductReviewStatisticsSchema>;
 export type ProductReviewsResponse = z.infer<typeof ProductReviewsResponseSchema>;
+export type ProductReviewStatisticsApiResponse = z.infer<typeof ProductReviewStatisticsApiResponseSchema>;
 
 // ============================================
 // UI TYPES (Component-ready)

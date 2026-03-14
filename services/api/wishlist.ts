@@ -8,7 +8,9 @@
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { useAuthStore } from '@/store/useAuthStore';
 import {
+    WishlistCheckVariantsResponseSchema,
     WishlistDetailResponseSchema,
+    WishlistItemMutationResponseSchema,
     WishlistItemsResponseSchema,
     WishlistListResponseSchema,
     type AddWishlistItemRequest,
@@ -17,16 +19,7 @@ import {
     type UpdateWishlistRequest,
     type WishlistQueryParams
 } from '@/types/wishlist';
-import { z } from 'zod';
 import { apiClient } from './client';
-
-// Check variants schema response
-const CheckVariantsResponseSchema = z.object({
-    code: z.number(),
-    success: z.boolean(),
-    message: z.string(),
-    data: z.record(z.string(), z.boolean()),
-});
 
 export const wishlistService = {
     // ============================================
@@ -65,7 +58,7 @@ export const wishlistService = {
             params: { variantIds },
             paramsSerializer: { indexes: null }, // format as variantIds=a&variantIds=b
         });
-        return CheckVariantsResponseSchema.parse(response.data).data;
+        return WishlistCheckVariantsResponseSchema.parse(response.data).data;
     },
 
     // ============================================
@@ -99,13 +92,13 @@ export const wishlistService = {
     /** Add a Variant to Default Wishlist */
     addToDefaultWishlist: async (data: Omit<AddWishlistItemRequest, 'wishlistId'>) => {
         const response = await apiClient.post(API_ROUTES.WISHLISTS.ADD_ITEM_DEFAULT, data);
-        return response.data;
+        return WishlistItemMutationResponseSchema.parse(response.data).data;
     },
 
     /** Add a Variant to Wishlist */
     addToWishlist: async (wishlistId: string, data: Omit<AddWishlistItemRequest, 'wishlistId'>) => {
         const response = await apiClient.post(API_ROUTES.WISHLISTS.ADD_ITEM(wishlistId), data);
-        return response.data;
+        return WishlistItemMutationResponseSchema.parse(response.data).data;
     },
 
     /** Remove a Variant / Item from Wishlist */
@@ -117,7 +110,7 @@ export const wishlistService = {
     /** Update Item (Note, quantity, price target...) */
     updateWishlistItem: async (wishlistId: string, itemId: string, data: UpdateWishlistItemRequest) => {
         const response = await apiClient.put(API_ROUTES.WISHLISTS.UPDATE_ITEM(wishlistId, itemId), data);
-        return response.data;
+        return WishlistItemMutationResponseSchema.parse(response.data).data;
     },
 
     /** Regenerate share token for a wishlist */

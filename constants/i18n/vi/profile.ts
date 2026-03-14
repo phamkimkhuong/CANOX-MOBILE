@@ -149,9 +149,9 @@ export const PROFILE_STRINGS: ProfileTranslation = {
         confirmPasswordPlaceholder: 'Nhập lại mật khẩu mới',
         submitButton: 'Xác nhận đổi mật khẩu',
         successTitle: 'Đổi mật khẩu thành công!',
-        successSubtitle: 'Đang chuyển hướng về Cài đặt...',
+        successSubtitle: 'Đang đăng xuất để bảo vệ tài khoản...',
         successToast: 'Đổi mật khẩu thành công',
-        successToastDetail: 'Mật khẩu của bạn đã được cập nhật',
+        successToastDetail: 'Vui lòng đăng nhập lại bằng mật khẩu mới.',
         errorToast: 'Đổi mật khẩu thất bại',
         errorWrongPassword: 'Mật khẩu hiện tại không đúng',
         tips: {

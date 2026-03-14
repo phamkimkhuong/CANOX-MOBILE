@@ -149,9 +149,9 @@ export const PROFILE_STRINGS: ProfileTranslation = {
         confirmPasswordPlaceholder: 'Re-enter new password',
         submitButton: 'Change Password',
         successTitle: 'Password Changed!',
-        successSubtitle: 'Redirecting to Settings...',
+        successSubtitle: 'Signing you out to protect your account...',
         successToast: 'Password changed successfully',
-        successToastDetail: 'Your password has been updated',
+        successToastDetail: 'Please sign in again with your new password.',
         errorToast: 'Change password failed',
         errorWrongPassword: 'Current password is incorrect',
         tips: {

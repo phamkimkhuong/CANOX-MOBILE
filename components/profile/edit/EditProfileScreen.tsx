@@ -1,4 +1,6 @@
 import { IconSymbol } from '@/components/ui/Icon';
+import { SkeletonBox } from '@/components/ui/feedback/Skeleton';
+import { useBuyerProfileDetail } from '@/hooks/api/profile/useBuyerProfileDetail';
 import { useAvatarUpload } from '@/hooks/api/profile/useAvatarUpload';
 import { useUserProfile } from '@/hooks/api/profile/useProfile';
 import {
@@ -44,6 +46,7 @@ export default function EditProfileScreen() {
 
     // Fetch current profile data
     const { data: profile, isLoading: isLoadingProfile } = useUserProfile();
+    const { data: buyerProfile, isLoading: isLoadingBuyerProfile } = useBuyerProfileDetail();
 
     // Update profile mutation
     const {
@@ -105,20 +108,14 @@ export default function EditProfileScreen() {
 
     // Populate form when profile data is loaded
     useEffect(() => {
-        if (profile) {
-            setValue('fullName', profile.fullName || '');
-            setValue('phone', profile.phone || '');
-            setValue('email', profile.email || '');
-            // Convert dateOfBirth string to Date object
-            if (profile.dateOfBirth) {
-                setValue('dateOfBirth', apiFormatToDate(profile.dateOfBirth));
-            }
-            // Set gender from profile
-            if (profile.gender) {
-                setValue('gender', profile.gender as Gender);
-            }
+        if (profile || buyerProfile) {
+            setValue('fullName', buyerProfile?.fullName || profile?.fullName || '');
+            setValue('phone', buyerProfile?.phone || profile?.phone || '');
+            setValue('email', profile?.email || '');
+            setValue('dateOfBirth', apiFormatToDate(buyerProfile?.dateOfBirth));
+            setValue('gender', (buyerProfile?.gender as Gender | undefined) || null);
         }
-    }, [profile, setValue]);
+    }, [buyerProfile, profile, setValue]);
 
     // Handle form submission
     const onSubmit = (data: ProfileFormValues) => {
@@ -221,16 +218,7 @@ export default function EditProfileScreen() {
             Navigator.back();
         }
     };
-
-    // Loading state
-    if (isLoadingProfile) {
-        return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color={theme.colors.primary} />
-                <Text style={styles.loadingText}>{t('profile:editProfile.messages.loading')}</Text>
-            </View>
-        );
-    }
+    const isInitialLoading = isLoadingProfile || isLoadingBuyerProfile;
 
     return (
         <>
@@ -247,7 +235,7 @@ export default function EditProfileScreen() {
                     headerRight: () => (
                         <TouchableOpacity
                             onPress={handleSubmit(onSubmit)}
-                            disabled={isUpdating || !isDirty}
+                            disabled={isUpdating || !isDirty || isInitialLoading}
                             style={styles.headerButton}
                             accessibilityLabel={t('profile:editProfile.save')}
                         >
@@ -282,92 +270,98 @@ export default function EditProfileScreen() {
                     showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps="handled"
                 >
-                    {/* Avatar Section */}
-                    <AvatarEditView
-                        uri={profile?.avatar || null}
-                        previewUri={avatarPreview}
-                        showEditButton={true}
-                        disabled={false}
-                        isUploading={isUploadingAvatar}
-                        uploadProgress={uploadProgress}
-                        onPress={handleAvatarPress}
-                    />
+                    {isInitialLoading ? (
+                        <EditProfileSkeleton />
+                    ) : (
+                        <>
+                            {/* Avatar Section */}
+                            <AvatarEditView
+                                uri={profile?.avatar || null}
+                                previewUri={avatarPreview}
+                                showEditButton={true}
+                                disabled={false}
+                                isUploading={isUploadingAvatar}
+                                uploadProgress={uploadProgress}
+                                onPress={handleAvatarPress}
+                            />
 
-                    {/* Form Section */}
-                    <View style={styles.formContainer}>
-                        {/* Full Name */}
-                        <ProfileInput
-                            control={control}
-                            name="fullName"
-                            label={t('profile:editProfile.form.fullName')}
-                            icon="person"
-                            placeholder={t('profile:editProfile.form.fullNamePlaceholder')}
-                            autoCapitalize="words"
-                        />
-
-                        {/* Gender Selector */}
-                        <Controller
-                            control={control}
-                            name="gender"
-                            render={({ field: { onChange }, fieldState: { error } }) => (
-                                <GenderSelector
-                                    value={watchedGender}
-                                    onChange={(gender: Gender) => onChange(gender)}
-                                    error={error?.message}
+                            {/* Form Section */}
+                            <View style={styles.formContainer}>
+                                {/* Full Name */}
+                                <ProfileInput
+                                    control={control}
+                                    name="fullName"
+                                    label={t('profile:editProfile.form.fullName')}
+                                    icon="person"
+                                    placeholder={t('profile:editProfile.form.fullNamePlaceholder')}
+                                    autoCapitalize="words"
                                 />
-                            )}
-                        />
 
-                        {/* Date of Birth */}
-                        <Controller
-                            control={control}
-                            name="dateOfBirth"
-                            render={({ field: { onChange }, fieldState: { error } }) => (
-                                <DatePickerField
-                                    value={watchedDateOfBirth}
-                                    onChange={onChange}
-                                    error={error?.message}
+                                {/* Gender Selector */}
+                                <Controller
+                                    control={control}
+                                    name="gender"
+                                    render={({ field: { onChange }, fieldState: { error } }) => (
+                                        <GenderSelector
+                                            value={watchedGender}
+                                            onChange={(gender: Gender) => onChange(gender)}
+                                            error={error?.message}
+                                        />
+                                    )}
                                 />
-                            )}
-                        />
 
-                        {/* Phone Number */}
-                        <ProfileInput
-                            control={control}
-                            name="phone"
-                            label={t('profile:editProfile.form.phone')}
-                            icon="phone"
-                            placeholder={t('profile:editProfile.form.phonePlaceholder')}
-                            keyboardType="phone-pad"
-                        />
+                                {/* Date of Birth */}
+                                <Controller
+                                    control={control}
+                                    name="dateOfBirth"
+                                    render={({ field: { onChange }, fieldState: { error } }) => (
+                                        <DatePickerField
+                                            value={watchedDateOfBirth}
+                                            onChange={onChange}
+                                            error={error?.message}
+                                        />
+                                    )}
+                                />
 
-                        {/* Email (Read-only) */}
-                        <ProfileInput
-                            control={control}
-                            name="email"
-                            label={t('profile:editProfile.form.email')}
-                            icon="mail"
-                            placeholder={t('profile:editProfile.form.email')}
-                            disabled={true}
-                            rightText={t('profile:editProfile.form.verified')}
-                        />
+                                {/* Phone Number */}
+                                <ProfileInput
+                                    control={control}
+                                    name="phone"
+                                    label={t('profile:editProfile.form.phone')}
+                                    icon="phone"
+                                    placeholder={t('profile:editProfile.form.phonePlaceholder')}
+                                    keyboardType="phone-pad"
+                                />
 
-                        {/* Info Notice for Email */}
-                        <View style={styles.noticeContainer}>
-                            <IconSymbol name="info" size={16} color={theme.colors.secondary} />
-                            <Text style={styles.noticeText}>
-                                {t('profile:editProfile.form.emailLockNotice')}
-                            </Text>
-                        </View>
+                                {/* Email (Read-only) */}
+                                <ProfileInput
+                                    control={control}
+                                    name="email"
+                                    label={t('profile:editProfile.form.email')}
+                                    icon="mail"
+                                    placeholder={t('profile:editProfile.form.email')}
+                                    disabled={true}
+                                    rightText={t('profile:editProfile.form.verified')}
+                                />
 
-                        {/* Address Section */}
-                        <AddressSection />
-                    </View>
+                                {/* Info Notice for Email */}
+                                <View style={styles.noticeContainer}>
+                                    <IconSymbol name="info" size={16} color={theme.colors.secondary} />
+                                    <Text style={styles.noticeText}>
+                                        {t('profile:editProfile.form.emailLockNotice')}
+                                    </Text>
+                                </View>
+
+                                {/* Address Section */}
+                                <AddressSection />
+                            </View>
+                        </>
+                    )}
                 </ScrollView>
             </KeyboardAvoidingView>
 
             {/* Fixed Save Button at Bottom */}
-            {isDirty && !isKeyboardVisible && (
+            {isDirty && !isKeyboardVisible && !isInitialLoading && (
                 <View style={[styles.bottomActionContainer, { paddingBottom: insets.bottom + 8 }]}>
                     <TouchableOpacity
                         style={[
@@ -394,21 +388,60 @@ export default function EditProfileScreen() {
     );
 }
 
+const EditProfileSkeleton: React.FC = () => {
+    const { theme } = useUnistyles();
+    const styles = stylesheet;
+
+    return (
+        <>
+            <View style={styles.avatarSkeletonContainer}>
+                <SkeletonBox width={112} height={112} borderRadius={56} />
+                <SkeletonBox width={140} height={12} borderRadius={theme.radius.s} style={styles.avatarHelperSkeleton} />
+            </View>
+
+            <View style={styles.formContainer}>
+                <SkeletonBox width="100%" height={56} borderRadius={theme.radius.m} style={styles.fieldSkeleton} />
+                <SkeletonBox width="100%" height={56} borderRadius={theme.radius.m} style={styles.fieldSkeleton} />
+                <SkeletonBox width="100%" height={56} borderRadius={theme.radius.m} style={styles.fieldSkeleton} />
+                <SkeletonBox width="100%" height={56} borderRadius={theme.radius.m} style={styles.fieldSkeleton} />
+                <SkeletonBox width="100%" height={56} borderRadius={theme.radius.m} style={styles.fieldSkeleton} />
+
+                <View style={styles.noticeContainer}>
+                    <SkeletonBox width={16} height={16} borderRadius={8} />
+                    <View style={styles.noticeSkeletonTextWrap}>
+                        <SkeletonBox width="100%" height={10} borderRadius={theme.radius.s} />
+                        <SkeletonBox width="70%" height={10} borderRadius={theme.radius.s} style={styles.noticeSkeletonLineSpacing} />
+                    </View>
+                </View>
+
+                <View style={styles.addressSkeletonContainer}>
+                    <SkeletonBox width="55%" height={16} borderRadius={theme.radius.s} />
+                    <SkeletonBox width="24%" height={14} borderRadius={theme.radius.s} />
+                </View>
+                <View style={styles.addressSkeletonCard}>
+                    <SkeletonBox width={40} height={40} borderRadius={20} />
+                    <View style={styles.addressSkeletonTextWrap}>
+                        <SkeletonBox width="50%" height={14} borderRadius={theme.radius.s} />
+                        <SkeletonBox width="35%" height={12} borderRadius={theme.radius.s} style={styles.noticeSkeletonLineSpacing} />
+                        <SkeletonBox width="85%" height={12} borderRadius={theme.radius.s} style={styles.noticeSkeletonLineSpacing} />
+                    </View>
+                </View>
+            </View>
+        </>
+    );
+};
+
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
         flex: 1,
         backgroundColor: theme.colors.background,
     },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
+    avatarSkeletonContainer: {
         alignItems: 'center',
-        backgroundColor: theme.colors.background,
-        gap: theme.margins.md,
+        marginVertical: theme.margins.lg,
     },
-    loadingText: {
-        fontSize: 14,
-        color: theme.colors.secondary,
+    avatarHelperSkeleton: {
+        marginTop: theme.margins.sm,
     },
     headerButton: {
         paddingHorizontal: theme.margins.sm,
@@ -433,6 +466,9 @@ const stylesheet = StyleSheet.create((theme) => ({
     formContainer: {
         // marginTop: theme.margins.sm,
     },
+    fieldSkeleton: {
+        marginBottom: theme.margins.md,
+    },
     noticeContainer: {
         flexDirection: 'row',
         alignItems: 'flex-start',
@@ -448,6 +484,33 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: 13,
         color: theme.colors.secondary,
         lineHeight: 18,
+    },
+    noticeSkeletonTextWrap: {
+        flex: 1,
+    },
+    noticeSkeletonLineSpacing: {
+        marginTop: 6,
+    },
+    addressSkeletonContainer: {
+        marginTop: theme.margins.lg,
+        marginBottom: theme.margins.sm,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    addressSkeletonCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: theme.margins.md,
+        backgroundColor: theme.colors.backgroundInput || 'rgba(0,0,0,0.02)',
+        borderRadius: theme.radius.m,
+        padding: theme.margins.md,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        marginBottom: theme.margins.md,
+    },
+    addressSkeletonTextWrap: {
+        flex: 1,
     },
     bottomActionContainer: {
         position: 'absolute',

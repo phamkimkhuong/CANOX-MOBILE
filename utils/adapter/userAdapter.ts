@@ -5,7 +5,7 @@
  */
 
 import { UserProfile } from '@/types/profile/profile';
-import { Gender, UserMeData } from '@/types/user';
+import { BuyerProfileDetailData, UserMeData } from '@/types/user';
 
 /**
  * Transform User Me API Data → UserProfile (Profile UI)
@@ -41,8 +41,6 @@ export const transformUserMe = (apiData: UserMeData): UserProfile => {
         email: apiData.email || undefined,
         phone: buyer?.phone || undefined,
         avatar: apiData.avatar?.replace(/\s+/g, '') || null,
-        dateOfBirth: buyer?.dateOfBirth || undefined,
-        gender: (buyer?.gender as Gender) || undefined,
         // Default to BRONZE - can be enhanced with member level API later
         memberLevel: 'BRONZE',
         isVerified,
@@ -50,3 +48,19 @@ export const transformUserMe = (apiData: UserMeData): UserProfile => {
         followingShops: 0,
     };
 };
+
+export interface BuyerProfileDetailUI {
+    fullName?: string;
+    phone?: string;
+    dateOfBirth?: string;
+    gender?: 'MALE' | 'FEMALE' | 'OTHER';
+}
+
+export const transformBuyerProfileDetail = (
+    apiData: BuyerProfileDetailData
+): BuyerProfileDetailUI => ({
+    fullName: apiData.fullName || undefined,
+    phone: apiData.phone || undefined,
+    dateOfBirth: apiData.dateOfBirth || undefined,
+    gender: apiData.gender || undefined,
+});

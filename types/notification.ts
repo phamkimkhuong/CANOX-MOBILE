@@ -1,6 +1,6 @@
 import type { IconSymbolName } from '@/components/ui/Icon';
 import { z } from 'zod';
-import { createPaginatedResponseSchema } from './responseSchema';
+import { createPaginatedResponseSchema, ResponseDefaultSchema } from './responseSchema';
 
 /**
  * Notification Types Enum
@@ -155,3 +155,7 @@ export type NotificationResponseItem = z.infer<typeof NotificationResponseItemSc
  * Matches actual API response with all pagination fields
  */
 export const NotificationApiResponseSchema = createPaginatedResponseSchema(NotificationResponseItemSchema);
+
+export const NotificationUnreadCountResponseSchema = ResponseDefaultSchema.extend({
+    data: z.coerce.number(),
+});

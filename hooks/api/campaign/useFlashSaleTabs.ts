@@ -22,7 +22,7 @@ export const useFlashSaleTabs = () => {
     return useQuery({
         queryKey: ['campaigns', 'slots', 'all'],
         queryFn: async (): Promise<FlashSaleTab[]> => {
-            // Get active slots
+            // Get active slots (BE v2: paginated wrapper)
             const activeResponse = await request<ActiveSlotsResponse>(
                 {
                     url: API_ROUTES.CAMPAIGNS.ACTIVE_SLOTS,
@@ -42,8 +42,8 @@ export const useFlashSaleTabs = () => {
             );
 
             // Filter out slots that have no approved products to avoid empty tabs
-            const activeSlots = (activeResponse.data || []).filter(slot => (slot.approvedProducts || 0) > 0);
-            const upcomingSlots = (upcomingResponse.data || []).filter(slot => (slot.approvedProducts || 0) > 0);
+            const activeSlots = (activeResponse.data?.content || []).filter(slot => (slot.approvedProducts || 0) > 0);
+            const upcomingSlots = (upcomingResponse.data?.content || []).filter(slot => (slot.approvedProducts || 0) > 0);
 
             // Combine and sort
             const allSlots = [...activeSlots, ...upcomingSlots].sort((a, b) => {

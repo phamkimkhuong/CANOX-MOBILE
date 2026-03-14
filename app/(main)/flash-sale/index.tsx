@@ -12,17 +12,23 @@ import { Navigator } from '@/utils/navigation';
 import { buildImageUrl } from '@/utils/url';
 import { FlashList } from '@shopify/flash-list';
 import { BlurView } from 'expo-blur';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Image, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 /**
- * FlashSaleScreen - Premium Liquid Glass Experience
+ * FlashSaleScreen
+ *
+ * Design goal:
+ * - Keep the promo identity of Flash Sale
+ * - Avoid a full-screen dark first paint that feels disconnected from Home
+ * - Preserve the current navigation pattern used by other pushed screens
  */
 export default function FlashSaleScreen() {
     const { theme } = useUnistyles();
@@ -30,53 +36,79 @@ export default function FlashSaleScreen() {
     const styles = stylesheet;
     const { t } = useTranslation(['home']);
 
-    // 1. Data Fetching
     const { data: tabs = [], isLoading: isLoadingTabs } = useFlashSaleTabs();
     const [activeTabId, setActiveTabId] = useState<string | null>(null);
 
-    // Auto-select first active or upcoming tab
     useEffect(() => {
         if (tabs.length > 0 && !activeTabId) {
-            const activeTab = tabs.find(t => t.isActive) || tabs[0];
+            const activeTab = tabs.find((tab) => tab.isActive) || tabs[0];
             setActiveTabId(activeTab.id);
         }
     }, [tabs, activeTabId]);
 
-    const activeTab = tabs.find(t => t.id === activeTabId);
+    const activeTab = tabs.find((tab) => tab.id === activeTabId);
 
     const {
         data: slotDetail,
         isLoading: isLoadingSlot,
-        refetch: refetchSlot
+        refetch: refetchSlot,
     } = useSlotDetail(activeTabId);
 
     const products = slotDetail?.transformedProducts || [];
     const isLoadingProducts = isLoadingSlot;
 
-    // Campaign Banner Data
     const campaignId = (activeTab?.campaignId || slotDetail?.campaignId) as string | undefined;
     const { data: campaign } = useCampaignDetail(campaignId);
 
-    const bannerImage = (campaign?.bannerUrl || campaign?.thumbnailUrl)
+    const bannerImage = campaign?.bannerUrl || campaign?.thumbnailUrl
         ? buildImageUrl(campaign.bannerUrl || campaign.thumbnailUrl, null, 'large')
         : null;
-    const handleRemindMe = useCallback((_id: string) => {
-        // Implement remind logic here if needed
-    }, []);
 
     const handleBack = useCallback(() => {
         Navigator.back();
+    }, []);
+
+    const handleRemindMe = useCallback((_id: string) => {
+        // Reminder flow can be implemented later without blocking UI polish now.
     }, []);
 
     const handleProductPress = useCallback((productId: string) => {
         Navigator.push(productRoutes.detail(productId));
     }, []);
 
+    const renderHeader = () => (
+        <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
+            <TouchableOpacity
+                onPress={handleBack}
+                style={styles.backBtnWrapper}
+            >
+                <BlurView intensity={18} tint="light" style={styles.backBtnBlur}>
+                    <IconSymbol name="chevron.left" size={24} color={theme.colors.onPrimary} />
+                </BlurView>
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>{t('home:flashSale.title')}</Text>
+            <View style={styles.headerSpace} />
+        </View>
+    );
+
     if (isLoadingTabs) {
         return (
-            <View style={styles.loadingContainer}>
+            <View style={styles.container}>
                 <Stack.Screen options={{ headerShown: false }} />
-                <ActivityIndicator size="large" color={theme.colors.primary} />
+                <StatusBar barStyle="light-content" />
+
+                <LinearGradient
+                    colors={[theme.colors.newPrimary, theme.colors.accent, theme.colors.header.background]}
+                    locations={[0, 0.52, 1]}
+                    style={styles.heroBackground}
+                />
+                <View style={styles.heroGlow} />
+
+                {renderHeader()}
+
+                <View style={styles.loadingCard}>
+                    <ActivityIndicator size="large" color={theme.colors.newPrimary} />
+                </View>
             </View>
         );
     }
@@ -86,73 +118,56 @@ export default function FlashSaleScreen() {
             <StatusBar barStyle="light-content" />
             <Stack.Screen options={{ headerShown: false }} />
 
-            {/* Premium Header Gradient - Matches Home vibrancy but with Liquid Glass depth */}
             <LinearGradient
-                colors={['#EF4444', '#FF6B00', '#0F172A']}
-                locations={[0, 0.35, 0.8]}
-                style={StyleSheet.absoluteFill}
+                colors={[theme.colors.newPrimary, theme.colors.accent, theme.colors.header.background]}
+                locations={[0, 0.52, 1]}
+                style={styles.heroBackground}
             />
+            <View style={styles.heroGlow} />
 
-            {/* Liquid Glass Background Layers */}
-            <View style={styles.bgGlow2} />
+            {renderHeader()}
 
-            {/* Header Area */}
-            <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
-                <TouchableOpacity
-                    onPress={handleBack}
-                    style={styles.backBtnWrapper}
-                >
-                    <BlurView intensity={25} tint="light" style={styles.backBtnBlur}>
-                        <IconSymbol name="chevron.left" size={24} color="#FFF" />
-                    </BlurView>
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>{t('home:flashSale.title')}</Text>
-                <View style={styles.headerSpace} />
+            <View style={styles.heroSection}>
+                <FlashSaleTimeline
+                    tabs={tabs}
+                    activeTabId={activeTabId}
+                    onTabPress={(tab) => setActiveTabId(tab.id)}
+                />
+
+                {activeTab && (
+                    <View style={styles.countdownContainer}>
+                        <FlashSaleCountdown
+                            endTime={slotDetail?.endTime || activeTab.endTime}
+                            secondsUntilStart={slotDetail?.secondsUntilStart ?? activeTab.secondsUntilStart}
+                            secondsUntilEnd={slotDetail?.secondsUntilEnd ?? activeTab.secondsUntilEnd}
+                            label={activeTab.isActive ? t('home:flashSale.endingIn') : t('home:flashSale.startingIn')}
+                            onEnd={() => {
+                                refetchSlot();
+                            }}
+                        />
+                    </View>
+                )}
             </View>
 
-            {/* Timeline Filter */}
-            <FlashSaleTimeline
-                tabs={tabs}
-                activeTabId={activeTabId}
-                onTabPress={(tab) => setActiveTabId(tab.id)}
-            />
-
-            {/* Countdown Area - Sitting on gradient */}
-            {activeTab && (
-                <View style={styles.countdownContainer}>
-                    <FlashSaleCountdown
-                        endTime={slotDetail?.endTime || activeTab.endTime}
-                        secondsUntilStart={slotDetail?.secondsUntilStart ?? activeTab.secondsUntilStart}
-                        secondsUntilEnd={slotDetail?.secondsUntilEnd ?? activeTab.secondsUntilEnd}
-                        label={activeTab.isActive ? t('home:flashSale.endingIn') : t('home:flashSale.startingIn')}
-                        onEnd={() => {
-                            refetchSlot();
-                        }}
-                    />
-                </View>
-            )}
-
-            {/* Content Area */}
             <View style={styles.content}>
-                {/* Product List */}
                 <View style={styles.listWrapper}>
                     {isLoadingProducts ? (
                         <View style={styles.center}>
-                            <ActivityIndicator color={theme.colors.primary} />
+                            <ActivityIndicator color={theme.colors.newPrimary} />
                         </View>
                     ) : products.length === 0 ? (
                         <Animated.View entering={FadeIn.duration(800)} style={styles.center}>
                             <View style={styles.emptyIconWrapper}>
-                                <BlurView intensity={10} tint="light" style={styles.emptyBlur}>
-                                    <IconSymbol name="cart.badge.minus" size={64} color="rgba(255,255,255,0.2)" />
+                                <BlurView intensity={12} tint="light" style={styles.emptyBlur}>
+                                    <IconSymbol name="cart.badge.minus" size={64} color={theme.colors.secondaryLight} />
                                 </BlurView>
                             </View>
-                            <Text style={styles.emptyText}>Chưa có sản phẩm nào cho đợt này</Text>
+                            <Text style={styles.emptyText}>Chua co san pham nao cho dot nay</Text>
                         </Animated.View>
                     ) : (
                         <FlashList
                             data={products}
-                            renderItem={({ item, index }: { item: FlashSaleItem, index: number }) => (
+                            renderItem={({ item, index }: { item: FlashSaleItem; index: number }) => (
                                 <FlashSaleProductCard
                                     item={item}
                                     index={index}
@@ -167,7 +182,8 @@ export default function FlashSaleScreen() {
                                         <Image
                                             source={{ uri: bannerImage }}
                                             style={styles.bannerImage}
-                                            resizeMode="cover"
+                                            contentFit="cover"
+                                            transition={200}
                                         />
                                     </View>
                                 ) : null
@@ -186,34 +202,34 @@ export default function FlashSaleScreen() {
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
         flex: 1,
-        backgroundColor: '#0f172a', // Deep Navy
+        backgroundColor: theme.colors.background,
     },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#0f172a',
-    },
-    // Background Glow Effects
-    bgGlow2: {
+    heroBackground: {
         position: 'absolute',
-        top: 200,
-        left: -100,
-        width: 300,
-        height: 300,
-        borderRadius: 150,
-        backgroundColor: 'rgba(238, 77, 45, 0.1)', // Warm glow from top
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 304,
+    },
+    heroGlow: {
+        position: 'absolute',
+        top: 48,
+        right: -72,
+        width: 220,
+        height: 220,
+        borderRadius: 110,
+        backgroundColor: theme.colors.accentSoft,
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 16,
+        paddingHorizontal: theme.margins.md,
     },
     headerTitle: {
         fontSize: 19,
         fontWeight: '800',
-        color: '#FFF',
+        color: theme.colors.onPrimary,
         letterSpacing: 0.3,
     },
     headerSpace: {
@@ -223,45 +239,64 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderRadius: 22,
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.15)',
+        borderColor: theme.colors.borderGlass,
     },
     backBtnBlur: {
         width: 38,
         height: 38,
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: theme.colors.surfaceGlass,
+    },
+    heroSection: {
+        paddingBottom: theme.margins.xs,
     },
     countdownContainer: {
-        paddingHorizontal: 16,
-        paddingBottom: 10
+        paddingHorizontal: theme.margins.md,
+        paddingBottom: theme.margins.sm,
     },
     content: {
         flex: 1,
-        backgroundColor: '#FAFAFA',
-        borderTopLeftRadius: 24,
-        borderTopRightRadius: 24,
+        marginTop: theme.margins.xs,
+        backgroundColor: theme.colors.surface,
+        borderTopLeftRadius: theme.radius.xl,
+        borderTopRightRadius: theme.radius.xl,
         overflow: 'hidden',
-        shadowColor: '#000',
+        shadowColor: theme.colors.newPrimary,
         shadowOffset: { width: 0, height: -10 },
-        shadowOpacity: 0.1,
+        shadowOpacity: 0.08,
         shadowRadius: 20,
-        elevation: 20,
+        elevation: 18,
+    },
+    loadingCard: {
+        flex: 1,
+        marginTop: theme.margins.xs,
+        backgroundColor: theme.colors.surface,
+        borderTopLeftRadius: theme.radius.xl,
+        borderTopRightRadius: theme.radius.xl,
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: theme.colors.newPrimary,
+        shadowOffset: { width: 0, height: -10 },
+        shadowOpacity: 0.08,
+        shadowRadius: 20,
+        elevation: 18,
     },
     listWrapper: {
         flex: 1,
     },
     scrollContent: {
-        paddingHorizontal: 16,
-        paddingTop: 16,
-        paddingBottom: 40,
+        paddingHorizontal: theme.margins.md,
+        paddingTop: theme.margins.md,
+        paddingBottom: theme.margins.xl + theme.margins.sm,
     },
     bannerContainer: {
         width: '100%',
         aspectRatio: 3.2,
-        borderRadius: 16,
+        borderRadius: theme.radius.l,
         overflow: 'hidden',
-        marginBottom: 16,
-        backgroundColor: 'rgba(255,255,255,0.05)',
+        marginBottom: theme.margins.md,
+        backgroundColor: theme.colors.surfaceTranslucent,
     },
     bannerImage: {
         width: '100%',
@@ -276,17 +311,17 @@ const stylesheet = StyleSheet.create((theme) => ({
     emptyIconWrapper: {
         borderRadius: 40,
         overflow: 'hidden',
-        marginBottom: 20,
+        marginBottom: theme.margins.lg - 4,
     },
     emptyBlur: {
         width: 120,
         height: 120,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(15, 23, 42, 0.05)',
+        backgroundColor: theme.colors.surfaceTranslucent,
     },
     emptyText: {
-        fontSize: 16,
+        fontSize: theme.fontSizes.base,
         color: theme.colors.secondary,
         textAlign: 'center',
         fontWeight: '500',

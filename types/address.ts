@@ -283,7 +283,7 @@ export const WardSchema = z.object({
     code: z.string(),
     fullName: z.string(),
     provinceCode: z.string(),
-    province: ProvinceSchema.nullable(),
+    province: ProvinceSchema.nullish().default(null),
 });
 
 export const ProvinceListResponseSchema = ResponseDefaultSchema.extend({
@@ -358,6 +358,35 @@ export const DistanceSchema = z.object({
 
 export const DistanceResponseSchema = ResponseDefaultSchema.extend({
     data: DistanceSchema.nullable().catch(null).default(null),
+});
+
+export const BuyerAddressAddressSchema = z.object({
+    country: z.string().catch('').default(''),
+    province: z.string().catch('').default(''),
+    ward: z.string().catch('').default(''),
+    detail: z.string().nullish().default(null),
+    district: z.string().nullish().default(''),
+    zipCode: z.string().nullish().default(null),
+    isInternational: z.boolean().nullish().default(false),
+});
+
+export const BuyerAddressDTOSchema = z.object({
+    addressId: z.string(),
+    recipientName: z.string().catch('').default(''),
+    phone: z.string().catch('').default(''),
+    address: BuyerAddressAddressSchema,
+    type: z.enum(['HOME', 'OFFICE', 'OTHER']).catch('OTHER').default('OTHER'),
+    createdDate: z.string().nullish(),
+    lastModifiedDate: z.string().nullish(),
+    isDefault: z.boolean().catch(false).default(false),
+});
+
+export const BuyerAddressListResponseSchema = ResponseDefaultSchema.extend({
+    data: z.array(BuyerAddressDTOSchema).default([]),
+});
+
+export const BuyerAddressSingleResponseSchema = ResponseDefaultSchema.extend({
+    data: BuyerAddressDTOSchema,
 });
 
 // ============================================

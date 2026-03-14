@@ -22,7 +22,7 @@ export const API_ROUTES = {
     },
     USERS: {
         CREATE_ACCOUNT: `${API_PREFIX}/users/buyer`,
-        CHANGE_PASSWORD: (userId: string) => `${API_PREFIX}/users/${userId}/password`,
+        CHANGE_PASSWORD: `${API_PREFIX}/users/me/password`,
         CHECK_EMAIL_EXISTS: (email: string) => `${API_PREFIX}/users/exists/email?email=${encodeURIComponent(email)}`,
         UPDATE_CLIENT: (userId: string) => `${API_PREFIX}/users/${userId}/client`,
         DELETE: (userId: string) => `${API_PREFIX}/users/${userId}`,
@@ -125,7 +125,8 @@ export const API_ROUTES = {
         HELPFUL: (reviewId: string) => `${API_PREFIX}/reviews/${reviewId}/helpful`,
     },
     BUYERS_INFORMATION: {
-        UPDATE: (buyerId: string) => `${API_PREFIX}/buyers/${buyerId}`,
+        DETAIL: `${API_PREFIX}/buyers/me`,
+        UPDATE: `${API_PREFIX}/buyers/me`,
     },
     WISHLISTS: {
         LIST: `${API_PREFIX}/buyer/wishlists`,
@@ -167,15 +168,18 @@ export const API_ROUTES = {
         TRACK: `${API_PREFIX}/search/track`,
     },
     CAMPAIGNS: {
-        ACTIVE_SLOTS: `${API_PREFIX}/campaigns/slots/active`,
-        UPCOMING_SLOTS: `${API_PREFIX}/campaigns/slots/upcoming`,
-        SEARCH_SLOTS: `${API_PREFIX}/campaigns/slots/search`,
-        SLOT_PRODUCTS: (slotId: string) => `${API_PREFIX}/campaigns/slots/${slotId}/products`,
-        SLOT_DETAIL: (slotId: string) => `${API_PREFIX}/campaigns/slots/${slotId}`,
-        DETAIL: (id: string) => `${API_PREFIX}/campaigns/${id}`,
-        ACTIVE: `${API_PREFIX}/campaigns/active`,
-        UPCOMING: `${API_PREFIX}/campaigns/upcoming`,
-        FEATURED: `${API_PREFIX}/campaigns/featured`,
+        LIST: `${API_PREFIX}/public/campaigns`,
+        DETAIL: (id: string) => `${API_PREFIX}/public/campaigns/${id}`,
+        PRODUCTS: (campaignId: string) => `${API_PREFIX}/public/campaigns/${campaignId}/products`,
+        ACTIVE: `${API_PREFIX}/public/campaigns?filter=active`,
+        UPCOMING: `${API_PREFIX}/public/campaigns?filter=upcoming`,
+        FEATURED: `${API_PREFIX}/public/campaigns?filter=featured`,
+        SLOTS: `${API_PREFIX}/public/campaigns/slots`,
+        ACTIVE_SLOTS: `${API_PREFIX}/public/campaigns/slots?filter=active`,
+        UPCOMING_SLOTS: `${API_PREFIX}/public/campaigns/slots?filter=upcoming`,
+        SEARCH_SLOTS: `${API_PREFIX}/public/campaigns/slots`,
+        SLOT_DETAIL: (slotId: string) => `${API_PREFIX}/public/campaigns/slots/${slotId}`,
+        SLOT_PRODUCTS: (slotId: string) => `${API_PREFIX}/public/campaigns/slots/${slotId}/products`,
     },
     BANNERS: {
         /** GET - Get banner active with filters (categoryId, displayLocation, device) */
@@ -200,7 +204,6 @@ export const API_ROUTES = {
     },
     BANKS: {
         LIST: `${API_PREFIX}/banks`,
-        ACCOUNTS: `${API_PREFIX}/banks/accounts`,
         ME_ACCOUNTS: `${API_PREFIX}/banks/accounts/me`,
         DEFAULT_ACCOUNT: `${API_PREFIX}/banks/accounts/default`,
         DETAIL: (id: string) => `${API_PREFIX}/banks/accounts/${id}`,

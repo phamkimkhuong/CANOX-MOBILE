@@ -12,7 +12,7 @@ export const useActiveFlashSale = () => {
     return useQuery({
         queryKey: ['campaigns', 'slots', 'active'],
         queryFn: async (): Promise<FlashSaleData | null> => {
-            // Get active slots
+            // Get active slots (BE v2: paginated wrapper)
             const slotResponse = await request<ActiveSlotsResponse>(
                 {
                     url: API_ROUTES.CAMPAIGNS.ACTIVE_SLOTS,
@@ -21,7 +21,7 @@ export const useActiveFlashSale = () => {
                 ActiveSlotsResponseSchema
             );
 
-            const activeSlots = slotResponse.data || [];
+            const activeSlots = slotResponse.data?.content || [];
             if (activeSlots.length === 0) return null;
 
             // Select the "Best Slot" using priority logic:
@@ -71,7 +71,7 @@ export const useActiveFlashSale = () => {
                     id: p.id,
                     productId: p.productId,
                     name: p.productName || 'Sản phẩm Flash Sale',
-                    image: toPublicUrl(p.productThumbnail),
+                    image: toPublicUrl(p.productThumbnail || p.variantImagePath),
                     price: p.salePrice || 0,
                     originalPrice: p.originalPrice || 0,
                     discountPercentage: p.discountPercent || 0,

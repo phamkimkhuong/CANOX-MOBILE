@@ -9,7 +9,7 @@ import { Order, OrderItem } from '@/types/order/order';
 import {
     CreateReviewRequest,
     FetchReviewParams,
-    MyReviewDTO,
+    MyReviewsListItemDTO,
     MyReviewUI,
     PendingReviewGroupUI,
     PendingReviewItemUI,
@@ -71,7 +71,7 @@ export const extractPendingReviews = (orders: Order[]): PendingReviewGroupUI[] =
 /**
  * Transform MyReviewDTO → MyReviewUI
  */
-export const toMyReviewUI = (dto: MyReviewDTO): MyReviewUI => ({
+export const toMyReviewUI = (dto: MyReviewsListItemDTO): MyReviewUI => ({
     id: dto.id,
     reviewType: dto.reviewType,
     productId: dto.reviewableId,

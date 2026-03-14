@@ -39,7 +39,7 @@ export const useSlotProducts = (slotId: string | null) => {
                     id: p.id,
                     productId: p.productId,
                     name: p.productName || 'Sản phẩm Flash Sale',
-                    image: toPublicUrl(p.productThumbnail),
+                    image: toPublicUrl(p.productThumbnail || p.variantImagePath),
                     price: p.salePrice || 0,
                     originalPrice: p.originalPrice || 0,
                     discountPercentage: p.discountPercent || 0,
@@ -48,7 +48,6 @@ export const useSlotProducts = (slotId: string | null) => {
                     stockRemaining: p.stockRemaining || 0,
                     progress: progress,
                     isSoldOut: p.isSoldOut || (p.stockRemaining === 0),
-                    purchaseLimitPerUser: p.purchaseLimitPerUser,
                 };
             });
         },

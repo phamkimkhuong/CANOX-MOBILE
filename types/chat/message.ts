@@ -368,6 +368,26 @@ export const SendMessageResponseSchema = ResponseDefaultSchema.extend({
     data: MessageDTOSchema,
 });
 
+/**
+ * Response for delete/recall message
+ */
+export interface DeleteMessageResponse {
+    code: number;
+    success: boolean;
+    message: string;
+    data?: Record<string, unknown> | null;
+}
+
+/**
+ * Schema for delete/recall message response
+ */
+export const DeleteMessageResponseSchema = ResponseDefaultSchema.extend({
+    code: z.number(),
+    success: z.boolean(),
+    message: z.string(),
+    data: z.record(z.string(), z.unknown()).nullable().optional(),
+});
+
 // ============================================
 // MARK AS READ TYPES
 // ============================================

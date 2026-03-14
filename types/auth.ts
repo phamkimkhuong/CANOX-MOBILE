@@ -42,6 +42,10 @@ export const LoginRequestSchema = z.object({
     fcmToken: z.string().optional(), // Để push notification
 });
 
+export const RefreshTokenRequestSchema = z.object({
+    refreshToken: z.string().min(1, 'Refresh token is required'),
+});
+
 export const GoogleLoginRequestSchema = z.object({
     code: z.string().min(1, 'Code is required'),
     loginType: z.literal('GOOGLE'),
@@ -89,6 +93,14 @@ export const AuthResponseSchema = ResponseDefaultSchema.extend({
     }),
 });
 
+export const RefreshTokenResponseSchema = ResponseDefaultSchema.extend({
+    message: z.string().optional(),
+    data: z.object({
+        accessToken: z.string(),
+        refreshToken: z.string(),
+    }),
+});
+
 // Schema cho Response Social Login (Google, Facebook, Apple)
 export const SocialLoginResponseSchema = ResponseDefaultSchema.extend({
     message: z.string(),
@@ -125,9 +137,11 @@ export const VerifyOtpSchema = z.object({
 export type VerifyOtpPayload = z.infer<typeof VerifyOtpSchema>;
 // Type inference
 export type LoginPayload = z.infer<typeof LoginRequestSchema>;
+export type RefreshTokenPayload = z.infer<typeof RefreshTokenRequestSchema>;
 export type GoogleLoginPayload = z.infer<typeof GoogleLoginRequestSchema>;
 export type RegisterPayload = z.infer<typeof RegisterRequestSchema>;
 export type AuthResponse = z.infer<typeof AuthResponseSchema>;
+export type RefreshTokenResponse = z.infer<typeof RefreshTokenResponseSchema>;
 export type RegisterResponse = z.infer<typeof RegisterResponseSchema>;
 
 // ===============================

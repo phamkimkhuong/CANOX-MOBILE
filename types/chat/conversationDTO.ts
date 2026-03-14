@@ -255,3 +255,13 @@ export const CreateConversationResponseSchema = ResponseDefaultSchema.extend({
     data: ConversationDTOSchema,
 });
 
+/**
+ * Schema for unread message count badge.
+ * Used by buyer app tab/header badge and API contract tests.
+ */
+export const UnreadMessageCountResponseSchema = ResponseDefaultSchema.extend({
+    data: z.number(),
+});
+
+export type UnreadMessageCountResponse = z.infer<typeof UnreadMessageCountResponseSchema>;
+

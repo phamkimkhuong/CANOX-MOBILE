@@ -15,8 +15,6 @@ export const BuyerInfoSchema = z.object({
     buyerId: z.string(),
     fullName: z.string().nullable().optional(),
     phone: z.string().nullable().optional(),
-    dateOfBirth: z.string().nullable().optional(),
-    gender: z.enum(['MALE', 'FEMALE', 'OTHER']).nullable().optional(),
     profileCompleted: z.boolean().optional(),
 });
 
@@ -51,9 +49,32 @@ export type UserMeResponse = z.infer<typeof UserMeResponseSchema>;
 
 /**
  * ==============================================
+ * BUYER PROFILE DETAIL API TYPES
+ * ==============================================
+ * API Response /api/v1/buyers/me
+ */
+
+export const BuyerProfileDetailDataSchema = z.object({
+    fullName: z.string().nullable().optional(),
+    phone: z.string().nullable().optional(),
+    dateOfBirth: z.string().nullable().optional(),
+    gender: z.enum(['MALE', 'FEMALE', 'OTHER']).nullable().optional(),
+});
+
+export type BuyerProfileDetailData = z.infer<typeof BuyerProfileDetailDataSchema>;
+
+export const BuyerProfileDetailResponseSchema = ResponseDefaultSchema.extend({
+    message: z.string(),
+    data: BuyerProfileDetailDataSchema,
+});
+
+export type BuyerProfileDetailResponse = z.infer<typeof BuyerProfileDetailResponseSchema>;
+
+/**
+ * ==============================================
  * UPDATE PROFILE TYPES
  * ==============================================
- * API PUT /api/v1/buyers/{buyerId}
+ * API PUT /api/v1/buyers/me
  */
 
 export type Gender = 'MALE' | 'FEMALE' | 'OTHER';

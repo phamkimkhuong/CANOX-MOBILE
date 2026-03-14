@@ -5,6 +5,9 @@
  * Raw data structures from the backend API
  */
 
+import { z } from 'zod';
+import { ResponseDefaultSchema } from '../responseSchema';
+
 /**
  * Review type enum
  */
@@ -85,3 +88,52 @@ export interface ReviewApiResponseDTO<T> {
     message: string;
     data: T;
 }
+
+// ============================================
+// ZOD SCHEMAS - Minimal FE-consumed contracts
+// ============================================
+
+export const ReviewMediaDTOSchema = z.object({
+    id: z.string(),
+    url: z.string(),
+    type: z.enum(['IMAGE', 'VIDEO']),
+    sortOrder: z.number().optional(),
+});
+
+export const MyReviewDTOSchema = z.object({
+    id: z.string(),
+    reviewType: z.enum(['PRODUCT', 'SHOP', 'ORDER']),
+    reviewableId: z.string(),
+    rating: z.number(),
+    comment: z.string(),
+    status: z.enum(['PENDING', 'APPROVED', 'REJECTED', 'FLAGGED']),
+    helpfulCount: z.number().catch(0).default(0),
+    hasResponse: z.boolean().optional().default(false),
+    sellerResponse: z.string().nullable().optional(),
+    sellerResponseDate: z.string().nullable().optional(),
+    media: z.array(ReviewMediaDTOSchema).optional().default([]),
+    createdDate: z.string().nullable().optional(),
+});
+
+export const ReviewPageDTOSchema = z.object({
+    content: z.array(MyReviewDTOSchema).default([]),
+    page: z.number().catch(0),
+    size: z.number().catch(20),
+    totalElements: z.number().catch(0),
+    totalPages: z.number().catch(0),
+    hasNext: z.boolean().catch(false),
+    hasPrevious: z.boolean().optional().catch(false),
+    previousPage: z.number().optional().catch(0),
+    nextPage: z.number().optional().catch(0),
+    empty: z.boolean().optional(),
+    first: z.boolean().optional(),
+    last: z.boolean().optional(),
+});
+
+export const MyReviewsResponseSchema = ResponseDefaultSchema.extend({
+    message: z.string().optional(),
+    data: ReviewPageDTOSchema,
+});
+
+export type MyReviewsListItemDTO = z.infer<typeof MyReviewDTOSchema>;
+export type MyReviewsPageDTO = z.infer<typeof ReviewPageDTOSchema>;

@@ -11,23 +11,8 @@ import { API_ROUTES } from '@/constants/apiRoutes';
 import { apiClient } from '@/services/api/client';
 import { handleQueryRetry } from '@/services/api/queryClient';
 import { useAuthStore } from '@/store/useAuthStore';
-import { ResponseDefaultSchema } from '@/types/responseSchema';
+import { UnreadMessageCountResponseSchema, type UnreadMessageCountResponse } from '@/types/chat';
 import { useQuery } from '@tanstack/react-query';
-import { z } from 'zod';
-
-// ============================================
-// SCHEMA
-// ============================================
-
-/**
- * Response schema for unread message count
- * Extends ResponseDefaultSchema with number data
- */
-const UnreadMessageCountResponseSchema = ResponseDefaultSchema.extend({
-    data: z.number(),
-});
-
-type UnreadMessageCountResponse = z.infer<typeof UnreadMessageCountResponseSchema>;
 
 // ============================================
 // QUERY KEYS

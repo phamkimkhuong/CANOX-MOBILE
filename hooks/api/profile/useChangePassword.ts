@@ -1,10 +1,9 @@
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { request } from '@/services/api/client';
-import { useAuthStore } from '@/store/useAuthStore';
 import {
     ChangePasswordPayload,
     ChangePasswordResponse,
-    ChangePasswordResponseSchema
+    ChangePasswordResponseSchema,
 } from '@/types/auth';
 import { useMutation } from '@tanstack/react-query';
 
@@ -13,23 +12,14 @@ import { useMutation } from '@tanstack/react-query';
  * useChangePassword Hook
  * ==============================================
  * Handles password change mutation with proper error handling.
- * @example
- * const { mutate, isPending, error } = useChangePassword();
- * mutate({ oldPassword: '...', newPassword: '...', confirmPassword: '...' });
  */
 export const useChangePassword = () => {
-    const userId = useAuthStore((state) => state.userId);
-
     return useMutation({
         mutationKey: ['change-password'],
         mutationFn: async (payload: Omit<ChangePasswordPayload, 'confirmPassword'>) => {
-            if (!userId) {
-                throw new Error('Vui lòng đăng nhập lại');
-            }
-
             const response = await request<ChangePasswordResponse>(
                 {
-                    url: API_ROUTES.USERS.CHANGE_PASSWORD(userId),
+                    url: API_ROUTES.USERS.CHANGE_PASSWORD,
                     method: 'PATCH',
                     data: {
                         oldPassword: payload.oldPassword,

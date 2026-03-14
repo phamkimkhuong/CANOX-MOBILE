@@ -14,6 +14,7 @@ import {
     ProductReviewPageData,
     ProductReviewSortOption,
     ProductReviewsResponseSchema,
+    ProductReviewStatisticsApiResponseSchema,
     ProductReviewStatisticsSchema
 } from '@/types/review/productReview';
 import {
@@ -190,12 +191,7 @@ export const useProductReviewStatistics = (productId: string, enabled = true) =>
                     url: API_ROUTES.REVIEWS.STATISTICS('PRODUCT', productId),
                     method: 'GET',
                 },
-                z.object({
-                    code: z.number(),
-                    success: z.boolean(),
-                    message: z.string(),
-                    data: ProductReviewStatisticsSchema,
-                })
+                ProductReviewStatisticsApiResponseSchema
             );
             return toProductReviewStatisticsUI(response.data);
         },

@@ -8,8 +8,9 @@
 
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { useSmartRefresh } from '@/hooks/useSmartRefresh';
-import { apiClient, ApiError } from '@/services/api/client';
+import { apiClient, ApiError, request } from '@/services/api/client';
 import { OrdersApiResponse, OrdersPageResponse, OrderTabStatus, OrderUI } from '@/types/order/order';
+import { OrdersApiResponseSchema } from '@/types/order/orderSchema';
 import { transformOrder } from '@/utils/adapter/order/orderAdapter';
 import { ORDER_TABS } from '@/utils/adapter/order/orderStatusMapper';
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -35,19 +36,24 @@ const fetchOrdersByStatus = async (
     const tabConfig = ORDER_TABS.find((t) => t.key === status);
     const apiStatus = tabConfig ? tabConfig.apiStatus : status;
 
-    const response = await apiClient.get<OrdersApiResponse>(API_ROUTES.ORDERS.LIST, {
-        params: {
-            status: apiStatus,
-            page,
-            size: PAGE_SIZE,
+    const response = await request<OrdersApiResponse>(
+        {
+            url: API_ROUTES.ORDERS.LIST,
+            method: 'GET',
+            params: {
+                status: apiStatus,
+                page,
+                size: PAGE_SIZE,
+            },
         },
-    });
+        OrdersApiResponseSchema
+    );
 
-    if (!response.data.success) {
-        throw new ApiError(response.data.message, response.status, response.data.code);
+    if (!response.success) {
+        throw new ApiError(response.message, undefined, response.code);
     }
 
-    return response.data.data;
+    return response.data;
 };
 
 /**
@@ -84,18 +90,23 @@ const fetchShopOrders = async (
     shopId: string,
     page: number
 ): Promise<OrdersPageResponse> => {
-    const response = await apiClient.get<OrdersApiResponse>(API_ROUTES.ORDERS.BY_SHOP(shopId), {
-        params: {
-            page,
-            size: PAGE_SIZE,
+    const response = await request<OrdersApiResponse>(
+        {
+            url: API_ROUTES.ORDERS.BY_SHOP(shopId),
+            method: 'GET',
+            params: {
+                page,
+                size: PAGE_SIZE,
+            },
         },
-    });
+        OrdersApiResponseSchema
+    );
 
-    if (!response.data.success) {
-        throw new ApiError(response.data.message, response.status, response.data.code);
+    if (!response.success) {
+        throw new ApiError(response.message, undefined, response.code);
     }
 
-    return response.data.data;
+    return response.data;
 };
 
 /**
@@ -105,7 +116,7 @@ export const useShopOrders = (shopId: string | undefined, enabled: boolean = tru
     return useInfiniteQuery({
         queryKey: orderKeys.byShop(shopId || ''),
         queryFn: async ({ pageParam }) => {
-            if (!shopId) return { content: [], page: 0, size: PAGE_SIZE, totalElements: 0, totalPages: 0, hasNext: false, hasPrevious: false, previousPage: 0, nextPage: 0, empty: true, first: true, last: true };
+            if (!shopId) return { content: [], page: 0, totalElements: 0, hasNext: false, nextPage: 0 };
             const data = await fetchShopOrders(shopId, pageParam);
             return {
                 ...data,

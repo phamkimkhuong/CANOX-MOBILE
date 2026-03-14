@@ -16,6 +16,7 @@ export type OrderStatus =
     | 'OUT_FOR_DELIVERY'  // Đang giao
     | 'DELIVERED'         // Đã giao
     | 'COMPLETED'         // Hoàn thành
+    | 'FINALIZED'         // Hoàn tất
     | 'DELIVERY_FAILED'   // Giao hàng thất bại
     | 'RETURNING_TO_SENDER' // Đang trả về người gửi
     | 'RETURNED_TO_SENDER'  // Đã trả về người gửi
@@ -50,7 +51,6 @@ export interface OrderPricing {
     shopDiscount: number;
     platformDiscount: number;
     shippingDiscount: number;
-    originalShippingFee: number;
     appliedVoucherCodes: string | null;
     totalDiscount: number;
     taxAmount: number;
@@ -64,7 +64,6 @@ export interface OrderPricing {
 export interface OrderPayment {
     method: PaymentMethod;
     url: string | null;
-    expiresAt: string | null;
 }
 
 /**
@@ -85,17 +84,7 @@ export interface OrderShippingAddress {
     addressLine2: string | null;
     city: string;
     province: string;
-    postalCode: string;
-    country: string;
-}
-
-/**
- * Order Loyalty - Points and rewards
- */
-export interface OrderLoyalty {
-    pointsUsed: number;
-    discountAmount: number;
-    pointsEarned: number;
+    postalCode: string | null;
 }
 
 // ============================================
@@ -104,14 +93,9 @@ export interface OrderLoyalty {
 
 // Shop Info từ API
 export interface OrderShopInfo {
-    shopId: string;
     shopName: string;
-    description: string | null;
     logoUrl: string | null;
-    bannerUrl: string | null;
-    status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'PENDING' | string;
     userId: string;
-    username: string;
 }
 
 // Order Item từ API
@@ -143,14 +127,12 @@ export interface Order {
     shopId: string | null;
     shopInfo: OrderShopInfo | null;
     status: OrderStatus;
-    currency: string;
 
     // Nested objects
     pricing: OrderPricing;
     payment: OrderPayment;
     shipment: OrderShipment;
     shippingAddress: OrderShippingAddress | null; // Can be null
-    loyalty: OrderLoyalty;
 
     // Order summary
     itemCount: number;
@@ -168,16 +150,9 @@ export interface Order {
 export interface OrdersPageResponse {
     content: Order[];
     page: number;
-    size: number;
     totalElements: number;
-    totalPages: number;
     hasNext: boolean;
-    hasPrevious: boolean;
-    previousPage: number;
     nextPage: number;
-    empty: boolean;
-    first: boolean;
-    last: boolean;
 }
 
 // API Response wrapper
@@ -194,14 +169,6 @@ export interface OrderAction {
     type: 'primary' | 'secondary' | 'danger';
     action: 'cancel' | 'track' | 'received' | 'review' | 'return' | 'rebuy' | 'contact' | 'pay';
     icon?: string;
-}
-
-// Tab Configuration
-export interface OrderTabConfig {
-    key: OrderTabStatus;
-    label: string;
-    color: string;
-    icon: string;
 }
 
 // ============================================
@@ -271,7 +238,6 @@ export interface OrderUI {
     // Payment (from payment object)
     paymentMethod: PaymentMethod;
     paymentMethodDisplay: string; //  "Thanh toán khi nhận hàng"
-    expiresAt: string | null;
 
     // Delivery address (formatted from shippingAddress object)
     recipientName: string;
@@ -281,9 +247,6 @@ export interface OrderUI {
     // Notes
     customerNote: string | null;
     cancellationReason: string | null;
-
-    // Loyalty (NEW)
-    loyalty: OrderLoyalty;
 
     // Raw data (for actions)
     _raw: Order; //  Keep original for detail screen

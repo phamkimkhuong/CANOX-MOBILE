@@ -44,6 +44,7 @@ const STATUS_TO_STEP_INDEX: Record<OrderStatus, number> = {
     // Step 3: Hoàn thành
     DELIVERED: 3,
     COMPLETED: 3,
+    FINALIZED: 3,
 
     // Special cases - không thuộc flow chính
     REJECTED: -1,

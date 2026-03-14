@@ -9,11 +9,8 @@ import {
     Order,
     OrderItem,
     OrderItemUI,
-    OrderLoyalty,
     OrderShippingAddress,
     OrderUI,
-    OrdersApiResponse,
-    OrdersPageResponse,
     PaymentMethod
 } from '@/types/order/order';
 import { formatDate } from '@/utils/date';
@@ -32,15 +29,6 @@ const PAYMENT_METHOD_NAMES: Record<PaymentMethod, string> = {
     PAYOS: 'PayOS',
     STRIPE: 'Stripe',
     BANK_TRANSFER: 'Chuyển khoản ngân hàng',
-};
-
-/**
- * Default loyalty object khi không có data
- */
-const DEFAULT_LOYALTY: OrderLoyalty = {
-    pointsUsed: 0,
-    discountAmount: 0,
-    pointsEarned: 0,
 };
 
 /**
@@ -120,7 +108,6 @@ export const transformOrder = (order: Order): OrderUI => {
         shopDiscount: 0,
         platformDiscount: 0,
         shippingDiscount: 0,
-        originalShippingFee: 0,
         appliedVoucherCodes: null,
         totalDiscount: 0,
         taxAmount: 0,
@@ -130,16 +117,12 @@ export const transformOrder = (order: Order): OrderUI => {
     const payment = order.payment ?? {
         method: 'COD' as PaymentMethod,
         url: null,
-        intentId: null,
-        groupId: null,
-        expiresAt: null,
     };
     const shipment = order.shipment ?? {
         trackingNumber: null,
         carrier: null,
     };
     const shippingAddress = order.shippingAddress;
-    const loyalty = order.loyalty || DEFAULT_LOYALTY;
 
     return {
         orderId: order.orderId,
@@ -178,7 +161,6 @@ export const transformOrder = (order: Order): OrderUI => {
         // Payment - from nested payment object
         paymentMethod: payment.method,
         paymentMethodDisplay: PAYMENT_METHOD_NAMES[payment.method],
-        expiresAt: payment.expiresAt,
 
         // Address - from nested shippingAddress object
         recipientName: shippingAddress?.recipientName || '',
@@ -189,24 +171,8 @@ export const transformOrder = (order: Order): OrderUI => {
         customerNote: order.customerNote,
         cancellationReason: order.cancellationReason,
 
-        // Loyalty
-        loyalty,
-
         // Raw data
         _raw: order,
     };
 };
 
-/**
- * Transform OrdersPageResponse (API) => OrderUI[]
- */
-export const transformOrdersPage = (response: OrdersPageResponse): OrderUI[] => {
-    return response.content.map(transformOrder);
-};
-
-/**
- * Transform OrdersApiResponse => OrderUI[]
- */
-export const transformOrdersResponse = (apiResponse: OrdersApiResponse): OrderUI[] => {
-    return transformOrdersPage(apiResponse.data);
-};

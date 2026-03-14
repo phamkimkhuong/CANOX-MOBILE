@@ -114,8 +114,16 @@ export const WishlistItemsResponseSchema = ResponseDefaultSchema.extend({
     data: z.array(WishlistItemSchema).default([]),
 });
 
+export const WishlistItemMutationResponseSchema = ResponseDefaultSchema.extend({
+    data: WishlistItemSchema,
+});
+
 export const PriceTargetMetResponseSchema = ResponseDefaultSchema.extend({
     data: PriceTargetMetSchema,
+});
+
+export const WishlistCheckVariantsResponseSchema = ResponseDefaultSchema.extend({
+    data: z.record(z.string(), z.boolean()),
 });
 
 // ============================================
@@ -126,3 +134,9 @@ export type WishlistItemSchemaType = z.infer<typeof WishlistItemSchema>;
 export type WishlistSummarySchemaType = z.infer<typeof WishlistSummarySchema>;
 export type WishlistDetailSchemaType = z.infer<typeof WishlistDetailSchema>;
 export type WishlistPageSchemaType = z.infer<typeof WishlistPageSchema>;
+export type WishlistCheckVariantsResponseSchemaType = z.infer<
+    typeof WishlistCheckVariantsResponseSchema
+>;
+export type WishlistItemMutationResponseSchemaType = z.infer<
+    typeof WishlistItemMutationResponseSchema
+>;

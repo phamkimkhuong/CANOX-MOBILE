@@ -1,6 +1,5 @@
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { request } from '@/services/api/client';
-import { useAuthStore } from '@/store/useAuthStore';
 import {
     UpdateProfilePayload,
     UpdateProfilePayloadSchema,
@@ -20,21 +19,15 @@ import { profileQueryKeys } from './useProfile';
  */
 export const useUpdateProfile = () => {
     const queryClient = useQueryClient();
-    const buyerId = useAuthStore((state) => state.buyerId);
 
     return useMutation<UpdateProfileResponse, Error, UpdateProfilePayload>({
         mutationFn: async (payload: UpdateProfilePayload) => {
-            if (!buyerId) {
-                throw new Error('Không tìm thấy thông tin người dùng');
-            }
-
-            // Validate payload before sending
             const validatedPayload = UpdateProfilePayloadSchema.parse(payload);
             devLog('[useUpdateProfile] Payload:', validatedPayload);
 
             const response = await request(
                 {
-                    url: API_ROUTES.BUYERS_INFORMATION.UPDATE(buyerId),
+                    url: API_ROUTES.BUYERS_INFORMATION.UPDATE,
                     method: 'PUT',
                     data: validatedPayload,
                 },
@@ -44,8 +37,8 @@ export const useUpdateProfile = () => {
             return response;
         },
         onSuccess: () => {
-            // Invalidate user profile cache to refetch latest data
             queryClient.invalidateQueries({ queryKey: profileQueryKeys.user() });
+            queryClient.invalidateQueries({ queryKey: profileQueryKeys.buyerDetail() });
             devLog('[useUpdateProfile] Profile updated successfully');
         },
         onError: (error) => {

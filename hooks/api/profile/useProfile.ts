@@ -1,8 +1,9 @@
 import { API_ROUTES } from '@/constants/apiRoutes';
-import { apiClient, request } from '@/services/api/client';
+import { request } from '@/services/api/client';
 import { useAuthStore } from '@/store/useAuthStore';
 import { OrdersApiResponse } from '@/types/order/order';
 import { OrderCountResponseSchema } from '@/types/order/orderCount';
+import { OrdersApiResponseSchema } from '@/types/order/orderSchema';
 import {
     FollowedShop,
     OrderStats,
@@ -37,6 +38,7 @@ const MOCK_FOLLOWED_SHOPS: FollowedShop[] = [
 export const profileQueryKeys = {
     all: ['profile'] as const,
     user: () => [...profileQueryKeys.all, 'user'] as const,
+    buyerDetail: () => [...profileQueryKeys.all, 'buyer-detail'] as const,
     orderStats: () => [...profileQueryKeys.all, 'order-stats'] as const,
     wallet: () => [...profileQueryKeys.all, 'wallet'] as const,
     followedShops: () => [...profileQueryKeys.all, 'followed-shops'] as const,
@@ -118,17 +120,22 @@ export const usePendingReviewsCount = () => {
     return useQuery({
         queryKey: profileQueryKeys.pendingReviews(),
         queryFn: async (): Promise<number> => {
-            const response = await apiClient.get<OrdersApiResponse>(API_ROUTES.ORDERS.LIST, {
-                params: {
-                    status: 'UI_COMPLETED',
-                    page: 0,
-                    size: 20, // Only fetch first 20 for optimization
+            const response = await request<OrdersApiResponse>(
+                {
+                    url: API_ROUTES.ORDERS.LIST,
+                    method: 'GET',
+                    params: {
+                        status: 'UI_COMPLETED',
+                        page: 0,
+                        size: 20, // Only fetch first 20 for optimization
+                    },
                 },
-            });
+                OrdersApiResponseSchema
+            );
 
             // Calculate unreviewed items count 
             let unreviewedCount = 0;
-            response.data.data?.content?.forEach((order) => {
+            response.data?.content?.forEach((order) => {
                 order.items?.forEach((item) => {
                     if (item.reviewed === false) {
                         unreviewedCount++;
@@ -185,6 +192,7 @@ export const useRefreshProfile = () => {
         try {
             await Promise.all([
                 queryClient.invalidateQueries({ queryKey: profileQueryKeys.user() }),
+                queryClient.invalidateQueries({ queryKey: profileQueryKeys.buyerDetail() }),
                 queryClient.invalidateQueries({ queryKey: profileQueryKeys.orderStats() }),
                 queryClient.invalidateQueries({ queryKey: profileQueryKeys.wallet() }),
                 queryClient.invalidateQueries({ queryKey: profileQueryKeys.followedShops() }),

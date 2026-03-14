@@ -11,39 +11,34 @@
  */
 
 import { API_ROUTES } from '@/constants/apiRoutes';
-import { apiClient, ApiError } from '@/services/api/client';
+import { ApiError, request } from '@/services/api/client';
 import type { Order } from '@/types/order/order';
+import { OrderDetailApiResponseSchema } from '@/types/order/orderSchema';
 import { transformOrder } from '@/utils/adapter/order/orderAdapter';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { orderKeys } from './useOrders';
 
 /**
- * API Response type for single order
- */
-interface OrderDetailApiResponse {
-    code: number;
-    success: boolean;
-    message: string;
-    data: Order;
-}
-
-/**
  * Fetch single order by ID
  */
 const fetchOrderDetail = async (orderId: string): Promise<Order> => {
-    const response = await apiClient.get<OrderDetailApiResponse>(
-        API_ROUTES.ORDERS.DETAIL(orderId)
+    const response = await request(
+        {
+            url: API_ROUTES.ORDERS.DETAIL(orderId),
+            method: 'GET',
+        },
+        OrderDetailApiResponseSchema
     );
 
-    if (!response.data.success) {
+    if (!response.success) {
         throw new ApiError(
-            response.data.message || 'Failed to fetch order',
-            response.status,
-            response.data.code
+            response.message || 'Failed to fetch order',
+            undefined,
+            response.code
         );
     }
 
-    return response.data.data;
+    return response.data;
 };
 
 /**
