@@ -16,6 +16,9 @@ import {
     CategoryNode,
 } from '@/types/category';
 import {
+    ShopBrandProfileResponse,
+    ShopBrandProfileResponseSchema,
+    ShopBrandProfileUI,
     ShopDetailResponse,
     ShopDetailResponseSchema,
     ShopHeaderUI,
@@ -27,7 +30,7 @@ import {
     ShopVouchersResponse,
     ShopVouchersResponseSchema,
 } from '@/types/shop';
-import { toShopHeaderUI, toShopProductsUI, toShopVouchersUI } from '@/utils/adapter/shopAdapter';
+import { toShopBrandProfileUI, toShopHeaderUI, toShopProductsUI, toShopVouchersUI } from '@/utils/adapter/shopAdapter';
 import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
@@ -42,6 +45,7 @@ export const shopKeys = {
         [...shopKeys.all, 'products', shopId, filters] as const,
     vouchers: (shopId: string) => [...shopKeys.all, 'vouchers', shopId] as const,
     categories: (shopId: string) => [...shopKeys.all, 'categories', shopId] as const,
+    brandProfile: (shopId: string) => [...shopKeys.all, 'brand-profile', shopId] as const,
 };
 
 // ============================================
@@ -271,5 +275,41 @@ export const useShopCategories = (shopId: string | undefined) => {
         },
         staleTime: 1000 * 60 * 60, // 1 hour
         gcTime: 1000 * 60 * 60 * 2, // 2 hours
+    });
+};
+
+// ============================================
+// SHOP BRAND PROFILE HOOK
+// ============================================
+
+/**
+ * Fetch shop brand profile (company info, about us, gallery)
+ *
+ * Endpoint: GET /api/v1/public/shops/{shopId}/brand-profile
+ * Features:
+ * - Zod validation
+ * - Adapter transformation to ShopBrandProfileUI
+ * - 30 minute cache (brand profile rarely changes)
+ *
+ * @param shopId - Shop UUID
+ */
+export const useShopBrandProfile = (shopId: string | undefined) => {
+    return useQuery({
+        queryKey: shopKeys.brandProfile(shopId ?? ''),
+        enabled: !!shopId,
+        queryFn: async (): Promise<ShopBrandProfileUI | null> => {
+            const response = await request<ShopBrandProfileResponse>(
+                {
+                    url: API_ROUTES.SHOPS.BRAND_PROFILE(shopId!),
+                    method: 'GET',
+                },
+                ShopBrandProfileResponseSchema
+            );
+
+            if (!response.data) return null;
+            return toShopBrandProfileUI(response.data);
+        },
+        staleTime: 1000 * 60 * 30, // 30 minutes
+        gcTime: 1000 * 60 * 60,    // 1 hour
     });
 };

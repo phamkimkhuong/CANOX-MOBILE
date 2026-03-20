@@ -22,13 +22,11 @@ import { ProductCard } from '@/components/ui/product/ProductCard';
 import { CHAT_STRINGS } from '@/constants/i18n/vi/chat';
 import { ROUTES, chatRoutes, productRoutes, shopSearchRoutes } from '@/constants/routes';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
-import { useRefreshShopProducts, useShopCategories, useShopDetail, useShopProducts, useShopVouchers } from '@/hooks/api/useShop';
+import { useRefreshShopProducts, useShopBrandProfile, useShopCategories, useShopDetail, useShopProducts, useShopVouchers } from '@/hooks/api/useShop';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { MINIMUM_SKELETON_DURATION_MS } from '@/hooks/usePrefetchTiming';
-import { getMockShopIdentity } from '@/services/api/mocks/shopIdentity';
 import { useAuthStore } from '@/store/useAuthStore';
 import type { ShopProductFilterParams, ShopProductItemUI, ShopTabType } from '@/types/shop';
-import type { ShopIdentityResponseData } from '@/types/shop/shopIdentity';
 import { Navigator } from '@/utils/navigation';
 import { FlashList, FlashListRef, ListRenderItem } from '@shopify/flash-list';
 import { Stack, useLocalSearchParams } from 'expo-router';
@@ -109,9 +107,6 @@ export default function ShopDetailScreen() {
         categories: 0,
     });
 
-    // Mock identity data - will be replaced with API call
-    const [identityData, setIdentityData] = useState<ShopIdentityResponseData | null>(null);
-
     const HEADER_HEIGHT = 56 + insets.top;
     const STATUS_BAR_THRESHOLD = 100; // Switch at this scroll position
 
@@ -143,6 +138,7 @@ export default function ShopDetailScreen() {
     const { data: productsData, isLoading: isLoadingProducts, isRefetching: isRefetchingProducts, isFetchingNextPage, hasNextPage, fetchNextPage } = useShopProducts(shopId, filters);
     const { data: vouchers = [], isLoading: isLoadingVouchers } = useShopVouchers(shopId);
     const { data: categories = [], isLoading: isLoadingCategories } = useShopCategories(shopId);
+    const { data: brandProfile = null, isLoading: isLoadingBrandProfile } = useShopBrandProfile(shopId);
 
     // Minimum skeleton duration for instant nav (prevents flash)
     const [minSkeletonComplete, setMinSkeletonComplete] = useState(!isInstantNav);
@@ -159,14 +155,6 @@ export default function ShopDetailScreen() {
 
     // Show skeleton if: loading OR (instant nav AND minimum duration not complete)
     const shouldShowSkeleton = isLoadingShop || (isInstantNav && !minSkeletonComplete);
-
-    // Load mock identity data when shop is loaded
-    React.useEffect(() => {
-        if (shop?.id) {
-            const identity = getMockShopIdentity(shop.id);
-            setIdentityData(identity);
-        }
-    }, [shop?.id]);
 
     // Smart refresh for products infinite query
     const { refresh: smartRefreshProducts } = useRefreshShopProducts(shopId, filters);
@@ -406,7 +394,8 @@ export default function ShopDetailScreen() {
                     <View style={styles.fullWidthItem}>
                         <ShopProfileTab
                             shop={shop}
-                            identityData={identityData}
+                            brandProfile={brandProfile}
+                            isLoadingBrandProfile={isLoadingBrandProfile}
                             products={products}
                         />
                     </View>
@@ -444,7 +433,7 @@ export default function ShopDetailScreen() {
             }
             default: return null;
         }
-    }, [shouldShowSkeleton, shop, identityData, activeTab, totalProductCount, vouchers, isLoadingVouchers, hasVouchers, handleChatPress, handleFollowPress, handleTabChange, handleCollectVoucher, handlePrefetchChat, handleProductPress, handleHeaderLayout, categories, isLoadingCategories, handleCategoryPress, products]);
+    }, [shouldShowSkeleton, shop, brandProfile, isLoadingBrandProfile, activeTab, totalProductCount, vouchers, isLoadingVouchers, hasVouchers, handleChatPress, handleFollowPress, handleTabChange, handleCollectVoucher, handlePrefetchChat, handleProductPress, handleHeaderLayout, categories, isLoadingCategories, handleCategoryPress, products]);
 
     if (isShopError) {
         return (

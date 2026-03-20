@@ -3,7 +3,7 @@ import type { ShopHeaderUI } from '@/types/shop';
 import { Navigator } from '@/utils/navigation';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { memo } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -30,11 +30,30 @@ export const ShopHeaderInfo: React.FC<ShopHeaderInfoProps> = memo(({
     hasVouchers = false,
 }) => {
     const { theme } = useUnistyles();
+    const [isDescExpanded, setIsDescExpanded] = useState(false);
 
     const handleChat = () => {
         if (onChatPress) onChatPress();
         else Navigator.push(`/chat/${shop.id}`);
     };
+
+    const toggleDescription = useCallback(() => {
+        setIsDescExpanded(prev => !prev);
+    }, []);
+
+    // Status logic: check both status and onVacation
+    const isInactive = shop.status !== 'ACTIVE';
+    const isOnVacation = !isInactive && shop.onVacation === true;
+    const statusColor = isInactive
+        ? theme.colors.error
+        : isOnVacation
+            ? theme.colors.warning
+            : theme.colors.success;
+    const statusLabel = isInactive
+        ? 'Ngừng hoạt động'
+        : isOnVacation
+            ? 'Đang nghỉ'
+            : 'Đang hoạt động';
 
     return (
         <View style={[stylesheet.container, hasVouchers && stylesheet.containerNoRadius]}>
@@ -65,13 +84,13 @@ export const ShopHeaderInfo: React.FC<ShopHeaderInfoProps> = memo(({
                         <View style={stylesheet.statusRow}>
                             <View style={[
                                 stylesheet.statusDot,
-                                { backgroundColor: shop.onVacation ? theme.colors.error : theme.colors.success }
+                                { backgroundColor: statusColor }
                             ]} />
                             <Text style={[
                                 stylesheet.statusText,
-                                { color: shop.onVacation ? theme.colors.error : theme.colors.success }
+                                { color: statusColor }
                             ]}>
-                                {shop.onVacation ? 'Tạm nghỉ' : 'Đang hoạt động'}
+                                {statusLabel}
                             </Text>
                         </View>
                         {/* Meta info */}
@@ -134,13 +153,19 @@ export const ShopHeaderInfo: React.FC<ShopHeaderInfoProps> = memo(({
                 </View>
             </View>
 
-            {/* Description */}
+            {/* Description - tap to expand/collapse */}
             {shop.description && (
-                <View style={stylesheet.descriptionRow}>
-                    <Text style={stylesheet.description} numberOfLines={2}>
+                <Pressable style={stylesheet.descriptionRow} onPress={toggleDescription}>
+                    <Text
+                        style={stylesheet.description}
+                        numberOfLines={isDescExpanded ? undefined : 2}
+                    >
                         {shop.description}
                     </Text>
-                </View>
+                    <Text style={stylesheet.expandToggle}>
+                        {isDescExpanded ? 'Thu gọn' : 'Xem thêm'}
+                    </Text>
+                </Pressable>
             )}
 
             {/* Stats */}
@@ -331,6 +356,12 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: 12,
         color: theme.colors.typographySecondary,
         lineHeight: 18,
+    },
+    expandToggle: {
+        fontSize: 11,
+        fontWeight: '700',
+        color: theme.colors.primary,
+        marginTop: 4,
     },
     statsRow: {
         flexDirection: 'row',

@@ -17,9 +17,11 @@ export * from './shop/shopIdentity';
  * Shop Statistics Schema
  */
 export const ShopStatisticsSchema = z.object({
-    totalProducts: z.coerce.number().nullish().transform(val => val ?? 0),
+    activeProducts: z.coerce.number().nullish().transform(val => val ?? 0),
     averageRating: z.coerce.number().nullish().transform(val => val ?? 0),
     totalReviews: z.coerce.number().nullish().transform(val => val ?? 0),
+    totalOrdersCompleted: z.coerce.number().nullish().transform(val => val ?? 0),
+    shopAge: z.coerce.number().nullish().transform(val => val ?? 0),
 });
 
 /**
@@ -31,9 +33,12 @@ export const ShopDetailDTOSchema = z.object({
     userId: z.string().nullish(),
     shopName: z.string().nullish().transform(val => val ?? 'Shop'),
     description: z.string().nullish(),
-    logoUrl: z.string().nullish(),
-    bannerUrl: z.string().nullish(),
+    logoPath: z.string().nullish(),
+    bannerPath: z.string().nullish(),
+    status: z.string().nullish().transform(val => val ?? 'ACTIVE'),
     onVacation: z.boolean().nullish().transform(val => val ?? false),
+    shop_location: z.string().nullish(),
+    place: z.string().nullish(),
     createdAt: z.string().nullish(),
     statistics: ShopStatisticsSchema.nullish(),
 });
@@ -116,6 +121,8 @@ export interface ShopHeaderUI {
     logoUrl: string;
     bannerUrl: string | null;
     isVerified: boolean;
+    /** Shop status from API (ACTIVE, INACTIVE, etc.) */
+    status: string;
     onVacation: boolean | null;
     location: string | null;
     /** Shop join date - formatted for display */
@@ -182,6 +189,81 @@ export const SHOP_TABS: ShopTab[] = [
     { key: 'products', label: 'Sản phẩm' },
     { key: 'categories', label: 'Danh mục' },
 ];
+// ============================================
+// SECTION 6: SHOP BRAND PROFILE (from API)
+// ============================================
+
+/**
+ * Video Intro DTO - from brand-profile API
+ */
+export const BrandVideoIntroDTOSchema = z.object({
+    mediaAssetId: z.string().nullish(),
+    url: z.string().nullish(),
+});
+
+/**
+ * Gallery Item DTO - from brand-profile API
+ */
+export const BrandGalleryItemDTOSchema = z.object({
+    id: z.string().nullish().transform(val => val ?? ''),
+    mediaAssetId: z.string().nullish(),
+    type: z.string().nullish().transform(val => val ?? 'image'),
+    url: z.string().nullish(),
+    imagePath: z.string().nullish(),
+    title: z.string().nullish(),
+    altText: z.string().nullish(),
+    sortOrder: z.coerce.number().nullish().transform(val => val ?? 0),
+    isPrimary: z.boolean().nullish().transform(val => val ?? false),
+});
+
+export type BrandGalleryItemDTO = z.infer<typeof BrandGalleryItemDTOSchema>;
+
+/**
+ * Shop Brand Profile DTO - Matches API Response exactly
+ * Endpoint: GET /api/v1/public/shops/{shopId}/brand-profile
+ */
+export const ShopBrandProfileDTOSchema = z.object({
+    companyName: z.string().nullish(),
+    registrationNumber: z.string().nullish(),
+    foundedYear: z.coerce.number().nullish(),
+    aboutUs: z.string().nullish(),
+    videoIntro: BrandVideoIntroDTOSchema.nullish(),
+    gallery: z.array(BrandGalleryItemDTOSchema).nullish().transform(val => val ?? []),
+});
+
+export type ShopBrandProfileDTO = z.infer<typeof ShopBrandProfileDTOSchema>;
+
+/**
+ * API Response wrapper for Shop Brand Profile
+ */
+export const ShopBrandProfileResponseSchema = ResponseDefaultSchema.extend({
+    data: ShopBrandProfileDTOSchema.nullish(),
+});
+
+export type ShopBrandProfileResponse = z.infer<typeof ShopBrandProfileResponseSchema>;
+
+/**
+ * Brand Gallery Item UI - for rendering
+ */
+export interface BrandGalleryItemUI {
+    id: string;
+    type: 'image' | 'video';
+    url: string;
+    title: string | null;
+}
+
+/**
+ * Shop Brand Profile UI - Transformed from DTO via adapter
+ */
+export interface ShopBrandProfileUI {
+    companyName: string | null;
+    registrationNumber: string | null;
+    foundedYear: number | null;
+    aboutUs: string | null;
+    videoIntroUrl: string | null;
+    gallery: BrandGalleryItemUI[];
+}
+
 // ============================================
 // SHOP VOUCHER TYPES
 // ============================================

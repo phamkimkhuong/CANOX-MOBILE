@@ -30,7 +30,6 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 const log = createLogger('HomeScreen');
 
-
 /**
  * Định nghĩa các loại item trong FlashList
  * - header: MarketingHeader (CategoryRail, FlashSale, FeaturedSection)
@@ -135,6 +134,7 @@ export default function HomeScreen() {
   const headerHeightRef = useRef(0);
   const scrollYRef = useRef(0);
   const tabTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isTabTransitioningRef = useRef(false);
 
   // Deferred Rendering: Only render heavy content after transition
   const [isReady, setIsReady] = useState(false);
@@ -144,6 +144,7 @@ export default function HomeScreen() {
       return () => {
         clearTimeout(task);
         if (tabTimerRef.current) clearTimeout(tabTimerRef.current);
+        isTabTransitioningRef.current = false;
       };
     }, [])
   );
@@ -290,6 +291,8 @@ export default function HomeScreen() {
    */
   const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const y = event.nativeEvent.contentOffset.y;
+    // During sticky tab transition, ignore FlashList's scroll adjustments
+    if (isTabTransitioningRef.current) return;
     scrollY.value = y;
     scrollYRef.current = y;
     // Lưu scroll position cho tab hiện tại
@@ -330,35 +333,36 @@ export default function HomeScreen() {
       scrollPositions.current[activeTab] = scrollYRef.current;
       const savedPosition = scrollPositions.current[newTab];
 
+      // Lock scrollY shared value to prevent sticky overlay flicker
+      // when FlashList resets scroll during content transition (first-load tabs)
+      isTabTransitioningRef.current = true;
+
       // Đổi tab
       setActiveTab(newTab);
 
       // Clear previous timer if any
       if (tabTimerRef.current) clearTimeout(tabTimerRef.current);
 
-      if (savedPosition >= headerHeightRef.current && savedPosition > 0) {
-        // Restore vị trí đã lưu nếu có
-        tabTimerRef.current = setTimeout(() => {
-          listRef.current?.scrollToOffset({
-            offset: savedPosition,
-            animated: false,
-          });
-          scrollYRef.current = savedPosition;
-          scrollY.value = savedPosition;
-          if (__DEV__) log.info(`TabChange_${newTab} took ${Date.now() - tabStartTime}ms`);
-        }, 100);
-      } else {
-        tabTimerRef.current = setTimeout(() => {
-          const targetOffset = headerHeightRef.current;
-          listRef.current?.scrollToOffset({
-            offset: targetOffset,
-            animated: false,
-          });
-          scrollYRef.current = targetOffset;
-          scrollY.value = targetOffset;
-          if (__DEV__) log.info(`TabChange_${newTab} took ${Date.now() - tabStartTime}ms`);
-        }, 100);
-      }
+      const targetOffset = (savedPosition >= headerHeightRef.current && savedPosition > 0)
+        ? savedPosition
+        : headerHeightRef.current;
+
+      tabTimerRef.current = setTimeout(() => {
+        listRef.current?.scrollToOffset({
+          offset: targetOffset,
+          animated: false,
+        });
+        scrollYRef.current = targetOffset;
+        scrollY.value = targetOffset;
+        scrollPositions.current[newTab] = targetOffset;
+
+        // Unlock after next frame to ensure scroll event has settled
+        requestAnimationFrame(() => {
+          isTabTransitioningRef.current = false;
+        });
+
+        if (__DEV__) log.info(`TabChange_${newTab} took ${Date.now() - tabStartTime}ms`);
+      }, 100);
     } else {
       setActiveTab(newTab);
     }

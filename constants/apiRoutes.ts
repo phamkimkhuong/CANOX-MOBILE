@@ -106,6 +106,7 @@ export const API_ROUTES = {
         PRODUCTS: (shopId: string) => `${API_PREFIX}/public/products/shop/${shopId}`,
         VOUCHERS: (shopId: string) => `${API_PREFIX}/public/shops/${shopId}/vouchers`,
         CATEGORIES: (shopId: string) => `${API_PREFIX}/public/products/shop/${shopId}/categories`,
+        BRAND_PROFILE: (shopId: string) => `${API_PREFIX}/public/shops/${shopId}/brand-profile`,
     },
     ORDERS: {
         LIST: `${API_PREFIX}/buyer/orders`,

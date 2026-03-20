@@ -11,6 +11,10 @@
 
 import { ProductFeedItem } from '@/types/product/product';
 import {
+    BrandGalleryItemDTO,
+    BrandGalleryItemUI,
+    ShopBrandProfileDTO,
+    ShopBrandProfileUI,
     ShopDetailDTO,
     ShopHeaderUI,
     ShopProductDTO,
@@ -21,6 +25,7 @@ import {
 import { transformProduct } from '@/utils/adapter/product/productAdapter';
 import { formatDate, formatMonthYear, safeParseDate } from '@/utils/date';
 import { formatPriceShort } from '@/utils/format';
+import { toSizedImageUrl } from '@/utils/url';
 
 /** Default placeholder for shop logo */
 const DEFAULT_SHOP_LOGO = 'https://via.placeholder.com/100x100?text=Shop';
@@ -123,21 +128,30 @@ export const toShopVouchersUI = (vouchers: ShopVoucherDTO[]): ShopVoucherUI[] =>
  * Transform ShopDetailDTO → ShopHeaderUI
  */
 export const toShopHeaderUI = (dto: ShopDetailDTO): ShopHeaderUI => {
-    const joinDate = formatMonthYear(dto.createdAt);
+    // Compute joinDate: prefer createdAt, fallback to shopAge (days)
+    let joinDate = formatMonthYear(dto.createdAt);
+    if (!joinDate && dto.statistics?.shopAge) {
+        const joinTimestamp = Date.now() - dto.statistics.shopAge * 86400000;
+        const d = new Date(joinTimestamp);
+        const month = (d.getMonth() + 1).toString().padStart(2, '0');
+        const year = d.getFullYear();
+        joinDate = `${month}/${year}`;
+    }
 
     return {
         id: dto.shopId,
-        userId: dto.userId ?? null,  // Owner's userId for chat
+        userId: dto.userId ?? null,
         name: dto.shopName,
         description: dto.description || null,
-        logoUrl: dto.logoUrl || DEFAULT_SHOP_LOGO,
-        bannerUrl: dto.bannerUrl || null,
+        logoUrl: toSizedImageUrl(dto.logoPath, null, 'medium') || DEFAULT_SHOP_LOGO,
+        bannerUrl: toSizedImageUrl(dto.bannerPath, null, 'large') || null,
         isVerified: false,
+        status: dto.status ?? 'ACTIVE',
         onVacation: dto.onVacation ?? false,
-        location: null,
+        location: dto.place || dto.shop_location || null,
         joinDate,
         stats: {
-            productCount: dto.statistics?.totalProducts ?? null,
+            productCount: dto.statistics?.activeProducts ?? null,
             followerCount: null,
             rating: dto.statistics?.averageRating ?? null,
             reviewCount: dto.statistics?.totalReviews ?? null,
@@ -156,4 +170,42 @@ export const toShopProductItemUI = (dto: ShopProductDTO): ProductFeedItem => {
 
 export const toShopProductsUI = (products: ShopProductDTO[]): ProductFeedItem[] => {
     return products.map(toShopProductItemUI);
+};
+
+// ============================================
+// SHOP BRAND PROFILE ADAPTER
+// ============================================
+
+/**
+ * Transform a single gallery item DTO → UI
+ */
+const toGalleryItemUI = (dto: BrandGalleryItemDTO): BrandGalleryItemUI | null => {
+    const url = toSizedImageUrl(dto.imagePath, null, 'medium') || dto.url || '';
+    if (!url) return null;
+
+    return {
+        id: dto.id,
+        type: (dto.type === 'video' ? 'video' : 'image') as 'image' | 'video',
+        url,
+        title: dto.title || null,
+    };
+};
+
+/**
+ * Transform ShopBrandProfileDTO → ShopBrandProfileUI
+ */
+export const toShopBrandProfileUI = (dto: ShopBrandProfileDTO): ShopBrandProfileUI => {
+    const gallery = (dto.gallery ?? [])
+        .sort((a, b) => a.sortOrder - b.sortOrder)
+        .map(toGalleryItemUI)
+        .filter((item): item is BrandGalleryItemUI => item !== null);
+
+    return {
+        companyName: dto.companyName || null,
+        registrationNumber: dto.registrationNumber || null,
+        foundedYear: dto.foundedYear ?? null,
+        aboutUs: dto.aboutUs || null,
+        videoIntroUrl: dto.videoIntro?.url || null,
+        gallery,
+    };
 };
