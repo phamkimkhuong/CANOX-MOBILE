@@ -286,10 +286,6 @@ export const useShopCategories = (shopId: string | undefined) => {
  * Fetch shop brand profile (company info, about us, gallery)
  *
  * Endpoint: GET /api/v1/public/shops/{shopId}/brand-profile
- * Features:
- * - Zod validation
- * - Adapter transformation to ShopBrandProfileUI
- * - 30 minute cache (brand profile rarely changes)
  *
  * @param shopId - Shop UUID
  */
