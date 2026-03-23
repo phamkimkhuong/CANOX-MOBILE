@@ -8,6 +8,7 @@ export const FlashSaleSlotSchema = z.object({
     startTime: z.string(), // ISO String
     endTime: z.string(),   // ISO String
     label: z.string(),     // e.g. "Khung giờ vàng", "Flash Sale 12h"
+    isUpcoming: z.boolean().optional().default(false), // true = countdown to startTime, false = countdown to endTime
 });
 
 export type FlashSaleSlot = z.infer<typeof FlashSaleSlotSchema>;

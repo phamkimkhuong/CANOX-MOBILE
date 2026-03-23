@@ -1,0 +1,106 @@
+name: Auto OTA Mobile Updates
+
+concurrency:
+  cancel_in_progress: true
+  group: ${{ workflow.filename }}-${{ github.ref }}
+
+on:
+  push:
+    branches: ["dev-03", "main"]
+
+jobs:
+  check_build_android:
+    name: Check Android
+    type: get-build
+    environment: ${{ github.ref == 'refs/heads/master' && 'production' || 'preview' }}
+    params:
+      platform: android
+      profile: ${{ github.ref == 'refs/heads/master' && 'production' || 'preview' }}
+      channel: ${{ github.ref == 'refs/heads/master' && 'production' || 'preview' }}
+
+  check_build_ios:
+    name: Check iOS
+    type: get-build
+    environment: ${{ github.ref == 'refs/heads/master' && 'production' || 'preview' }}
+    params:
+      platform: ios
+      profile: ${{ github.ref == 'refs/heads/master' && 'production' || 'preview' }}
+      channel: ${{ github.ref == 'refs/heads/master' && 'production' || 'preview' }}
+
+  publish_ota:
+    needs: [check_build_android, check_build_ios]
+    if: ${{ needs.check_build_android.outputs.build_id || needs.check_build_ios.outputs.build_id }}
+    name: Publish OTA Update
+    environment: ${{ github.ref == 'refs/heads/master' && 'production' || 'preview' }}
+    steps:
+      - uses: eas/checkout
+      - name: Restore Metro Cache
+        uses: eas/restore_cache
+        with:
+          key: metro-cache-${{ hashFiles('package-lock.json') }}
+          path: node_modules/.cache/metro
+
+      - uses: eas/install_node_modules
+
+      - name: Publish Update
+        env:
+          APP_VARIANT: ${{ github.ref == 'refs/heads/master' && 'production' || 'preview' }}
+          ANDROID_BUILD_ID: ${{ needs.check_build_android.outputs.build_id }}
+          IOS_BUILD_ID: ${{ needs.check_build_ios.outputs.build_id }}
+        run: |
+          CHANNEL=${{ github.ref == 'refs/heads/master' && 'production' || 'preview' }}
+          ENVIRONMENT=${{ github.ref == 'refs/heads/master' && 'production' || 'preview' }}
+
+          HAS_ANDROID=false
+          HAS_IOS=false
+
+          [[ -n "$ANDROID_BUILD_ID" && "$ANDROID_BUILD_ID" != "null" ]] && HAS_ANDROID=true
+          [[ -n "$IOS_BUILD_ID" && "$IOS_BUILD_ID" != "null" ]] && HAS_IOS=true
+
+          if [[ "$HAS_ANDROID" == "true" && "$HAS_IOS" == "true" ]]; then
+            PLATFORM_ARG="--platform all"
+          elif [[ "$HAS_ANDROID" == "true" ]]; then
+            PLATFORM_ARG="--platform android"
+          elif [[ "$HAS_IOS" == "true" ]]; then
+            PLATFORM_ARG="--platform ios"
+          else
+            echo "No matching build found for either platform."
+            exit 1
+          fi
+
+          echo "Publishing OTA for: $PLATFORM_ARG"
+
+          npx eas-cli update \
+            $PLATFORM_ARG \
+            --channel $CHANNEL \
+            --environment $ENVIRONMENT \
+            --non-interactive \
+            --message "OTA [${{ github.ref_name }}]: ${{ github.event.head_commit.message }}"
+
+      - name: Create Cache Dir
+        run: mkdir -p node_modules/.cache/metro
+      - name: Save Metro Cache
+        uses: eas/save_cache
+        with:
+          key: metro-cache-${{ hashFiles('package-lock.json') }}
+          path: node_modules/.cache/metro
+
+  warning:
+    needs: [check_build_android, check_build_ios]
+    if: ${{ !needs.check_build_android.outputs.build_id || !needs.check_build_ios.outputs.build_id }}
+    name: Partial Warning
+    type: github-comment
+    params:
+      message: |
+        OTA Update Report:
+        - Android: ${{ needs.check_build_android.outputs.build_id && 'OK' || 'Missing Build' }}
+        - iOS: ${{ needs.check_build_ios.outputs.build_id && 'OK' || 'Missing Build' }}
+
+  report:
+    needs: [publish_ota]
+    type: github-comment
+    params:
+      message: |
+        OTA Update Process Completed.
+        - Branch: ${{ github.ref_name }}
+        - Environment: ${{ github.ref == 'refs/heads/master' && 'Production' || 'Preview' }}

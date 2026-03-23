@@ -28,17 +28,27 @@ export const FlashSale = memo(({ onProductPress, shimmerAnimatedStyle }: FlashSa
     // Fetch data from API Campaign Slots
     const { data: flashSaleData, isLoading, isError, refetch } = useActiveFlashSale();
 
+    // Determine if this is an upcoming or active slot
+    const isUpcoming = flashSaleData?.slot?.isUpcoming ?? false;
+
     // State for timer
     const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
     useEffect(() => {
-        if (!flashSaleData?.slot?.endTime) return;
+        if (!flashSaleData?.slot) return;
+
+        // Upcoming → countdown to startTime | Active → countdown to endTime
+        const targetTime = isUpcoming
+            ? flashSaleData.slot.startTime
+            : flashSaleData.slot.endTime;
+
+        if (!targetTime) return;
 
         const updateTimer = () => {
-            const time = formatTimeLeft(flashSaleData.slot.endTime);
+            const time = formatTimeLeft(targetTime);
             if (time.total <= 0) {
                 setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-                // When time is up, refetch to get the next slot or hide the component
+                // Timer ended → refetch to get active slot or next upcoming
                 refetch();
             } else {
                 setTimeLeft({
@@ -54,7 +64,7 @@ export const FlashSale = memo(({ onProductPress, shimmerAnimatedStyle }: FlashSa
         const timer = setInterval(updateTimer, 1000);
 
         return () => clearInterval(timer);
-    }, [flashSaleData?.slot?.endTime, refetch]);
+    }, [flashSaleData?.slot, isUpcoming, refetch]);
 
     if (isLoading) {
         return <FlashSaleSkeleton animatedStyle={shimmerAnimatedStyle} />;
@@ -71,24 +81,27 @@ export const FlashSale = memo(({ onProductPress, shimmerAnimatedStyle }: FlashSa
             <View style={styles.header}>
                 <View style={styles.titleRow}>
                     <Text style={styles.title}>{t('flashSale.title')}</Text>
+                    {isUpcoming && (
+                        <Text style={styles.upcomingLabel}>{t('flashSale.startingIn')}</Text>
+                    )}
                     <View style={styles.timerRow}>
                         {timeLeft.days > 0 && (
                             <>
-                                <View style={styles.timerBox}>
+                                <View style={[styles.timerBox, isUpcoming && styles.timerBoxUpcoming]}>
                                     <Text style={styles.timerText}>{timeLeft.days}</Text>
                                 </View>
                                 <Text style={styles.timerDayText}>ngày</Text>
                             </>
                         )}
-                        <View style={styles.timerBox}>
+                        <View style={[styles.timerBox, isUpcoming && styles.timerBoxUpcoming]}>
                             <Text style={styles.timerText}>{formatNumber(timeLeft.hours)}</Text>
                         </View>
                         <Text style={styles.timerColon}>:</Text>
-                        <View style={styles.timerBox}>
+                        <View style={[styles.timerBox, isUpcoming && styles.timerBoxUpcoming]}>
                             <Text style={styles.timerText}>{formatNumber(timeLeft.minutes)}</Text>
                         </View>
                         <Text style={styles.timerColon}>:</Text>
-                        <View style={styles.timerBox}>
+                        <View style={[styles.timerBox, isUpcoming && styles.timerBoxUpcoming]}>
                             <Text style={styles.timerText}>{formatNumber(timeLeft.seconds)}</Text>
                         </View>
                     </View>
@@ -223,6 +236,11 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.warning,
         letterSpacing: 0.5,
     },
+    upcomingLabel: {
+        fontSize: theme.fontSizes.xs,
+        fontWeight: '600',
+        color: theme.colors.secondary,
+    },
     timerRow: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -233,6 +251,9 @@ const stylesheet = StyleSheet.create((theme) => ({
         paddingHorizontal: 6,
         paddingVertical: 3,
         borderRadius: 4,
+    },
+    timerBoxUpcoming: {
+        backgroundColor: theme.colors.warning,
     },
     timerText: {
         color: theme.colors.surface,
