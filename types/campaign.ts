@@ -91,6 +91,7 @@ export const PublicSlotProductResponseSchema = z.object({
     productId: z.string(),
     productName: z.string().nullable().optional(),
     productThumbnailUrl: z.string().nullable().optional(),
+    averageRating: z.number().nullable().optional().default(0),
     variants: z.array(PublicSlotVariantResponseSchema).nullable().optional().default([]),
 });
 
@@ -102,6 +103,7 @@ export type PublicSlotProductResponse = z.infer<typeof PublicSlotProductResponse
  */
 export const SlotDetailDataSchema = z.object({
     campaignId: z.string().nullable().optional(),
+    startTime: z.string(),
     endTime: z.string(),
     secondsUntilStart: z.number().nullable().optional().default(0),
     secondsUntilEnd: z.number().nullable().optional().default(0),

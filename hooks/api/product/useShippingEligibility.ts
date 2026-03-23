@@ -17,14 +17,18 @@ export const checkShippingEligibility = async (productId: string, addressId: str
     return response.data;
 };
 
-export const useProductShippingInfo = (productId: string) => {
+export const useProductShippingInfo = (
+    productId: string,
+    options: { enabled?: boolean } = {}
+) => {
+    const { enabled = true } = options;
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     const addressId = useUserAddressStore((state) => state.selectedAddressId);
 
     const checkEligibleQuery = useQuery({
         queryKey: ['shipping-eligibility', productId, addressId],
         queryFn: () => checkShippingEligibility(productId, addressId!),
-        enabled: isAuthenticated && Boolean(addressId) && Boolean(productId),
+        enabled: enabled && isAuthenticated && Boolean(addressId) && Boolean(productId),
         staleTime: 5 * 60 * 1000, // 5 minutes cache
         retry: false, // Don't retry if fails
         refetchOnWindowFocus: false, // Don't refetch on window focus

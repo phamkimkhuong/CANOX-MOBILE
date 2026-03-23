@@ -41,12 +41,13 @@ import { useIsAuthenticated } from '@/store/useAuthStore';
 import { useCartStore } from '@/store/useCartStore';
 import { useCheckoutStore } from '@/store/useCheckoutStore';
 import { useUserAddressStore } from '@/store/useUserAddressStore';
-import type { CartShopUI } from '@/types/cart';
+import type { CartItemUI, CartShopUI, CartUI } from '@/types/cart';
 import { getShopCheckboxState } from '@/utils/adapter/cartAdapter';
 import { Alert as CustomAlert } from '@/utils/AlertHelper';
 import { logger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
 import { FlashList } from '@shopify/flash-list';
+import { useQueryClient } from '@tanstack/react-query';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -60,6 +61,68 @@ interface CartHeaderProps {
     onEditPress: () => void;
     isEditMode: boolean;
 }
+
+const CART_PROMOTION_EXPIRED_PROBE_DELAYS_MS = [0, 1500, 3000] as const;
+const CART_PROMOTION_RESET_THRESHOLD_SECONDS = 30;
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+interface CartPromotionBoundarySnapshot {
+    itemId: string;
+    unitPrice: number;
+    originalPrice: number | null;
+    discountPercent: number;
+}
+
+const createCartPromotionBoundarySnapshot = (item: CartItemUI): CartPromotionBoundarySnapshot | null => {
+    if (!item.promotion) {
+        return null;
+    }
+
+    return {
+        itemId: item.id,
+        unitPrice: item.unitPrice,
+        originalPrice: item.originalPrice,
+        discountPercent: item.promotion.discountPercent,
+    };
+};
+
+const findCartItemById = (cart: CartUI | null | undefined, itemId: string): CartItemUI | null => {
+    if (!cart) {
+        return null;
+    }
+
+    for (const shop of cart.shops) {
+        const foundItem = shop.items.find((item) => item.id === itemId);
+        if (foundItem) {
+            return foundItem;
+        }
+    }
+
+    return null;
+};
+
+const isCartPromotionBoundaryResolved = (
+    snapshot: CartPromotionBoundarySnapshot,
+    latestItem: CartItemUI | null
+): boolean => {
+    if (!latestItem?.promotion) {
+        return true;
+    }
+
+    if (latestItem.unitPrice !== snapshot.unitPrice) {
+        return true;
+    }
+
+    if (latestItem.originalPrice !== snapshot.originalPrice) {
+        return true;
+    }
+
+    if (latestItem.promotion.discountPercent !== snapshot.discountPercent) {
+        return true;
+    }
+
+    return (latestItem.promotion.secondsRemaining ?? 0) > CART_PROMOTION_RESET_THRESHOLD_SECONDS;
+};
 
 // ============================================
 // SUB-COMPONENTS
@@ -204,6 +267,7 @@ export default function CartScreen() {
     const { theme } = useUnistyles();
     const { t } = useTranslation(['cart', 'common']);
     const isAuthenticated = useIsAuthenticated();
+    const queryClient = useQueryClient();
 
     // Safety mechanism: unlock navigation when this screen gains focus
     useNavigationUnlockOnFocus();
@@ -245,11 +309,20 @@ export default function CartScreen() {
 
     // Only show sync bar when user has performed at least 1 action
     const [userInteracted, setUserInteracted] = useState(false);
+    const [isManualRefreshing, setIsManualRefreshing] = useState(false);
+    const [promotionSyncingItemIds, setPromotionSyncingItemIds] = useState<string[]>([]);
+    const promotionBoundarySnapshotsRef = useRef<Map<string, CartPromotionBoundarySnapshot>>(new Map());
+    const promotionBoundaryRefreshInProgressRef = useRef(false);
 
     // ========================================
     // DEFERRED RENDERING (UX OPTIMIZATION)
     // ========================================
     const [isReady, setIsReady] = useState(false);
+    const promotionSyncingItemIdSet = useMemo(
+        () => new Set(promotionSyncingItemIds),
+        [promotionSyncingItemIds]
+    );
+    const isPromotionBoundarySyncing = promotionSyncingItemIds.length > 0;
 
     useFocusEffect(
         useCallback(() => {
@@ -422,6 +495,73 @@ export default function CartScreen() {
         // TODO: Open platform voucher bottom sheet
     }, []);
 
+    const clearPromotionBoundarySync = useCallback(() => {
+        promotionBoundarySnapshotsRef.current.clear();
+        setPromotionSyncingItemIds([]);
+    }, []);
+
+    const runPromotionBoundarySync = useCallback(async () => {
+        if (promotionBoundaryRefreshInProgressRef.current) {
+            return;
+        }
+
+        promotionBoundaryRefreshInProgressRef.current = true;
+
+        try {
+            for (const delayMs of CART_PROMOTION_EXPIRED_PROBE_DELAYS_MS) {
+                if (delayMs > 0) {
+                    await wait(delayMs);
+                }
+
+                const result = await refetch();
+                const latestCart =
+                    result.data ??
+                    queryClient.getQueryData<CartUI>(['cart']) ??
+                    null;
+
+                const unresolvedEntries = Array.from(promotionBoundarySnapshotsRef.current.entries()).filter(
+                    ([itemId, snapshot]) => !isCartPromotionBoundaryResolved(snapshot, findCartItemById(latestCart, itemId))
+                );
+
+                if (unresolvedEntries.length === 0) {
+                    clearPromotionBoundarySync();
+                    return;
+                }
+
+                promotionBoundarySnapshotsRef.current = new Map(unresolvedEntries);
+                setPromotionSyncingItemIds(unresolvedEntries.map(([itemId]) => itemId));
+            }
+        } finally {
+            promotionBoundaryRefreshInProgressRef.current = false;
+            if (promotionBoundarySnapshotsRef.current.size > 0) {
+                clearPromotionBoundarySync();
+            }
+        }
+    }, [clearPromotionBoundarySync, queryClient, refetch]);
+
+    const handlePromotionExpired = useCallback((item: CartItemUI) => {
+        const snapshot = createCartPromotionBoundarySnapshot(item);
+        if (!snapshot) {
+            return;
+        }
+
+        promotionBoundarySnapshotsRef.current.set(item.id, snapshot);
+        setPromotionSyncingItemIds(Array.from(promotionBoundarySnapshotsRef.current.keys()));
+
+        if (!promotionBoundaryRefreshInProgressRef.current) {
+            void runPromotionBoundarySync();
+        }
+    }, [runPromotionBoundarySync]);
+
+    const handleManualRefresh = useCallback(async () => {
+        setIsManualRefreshing(true);
+        try {
+            await refetch();
+        } finally {
+            setIsManualRefreshing(false);
+        }
+    }, [refetch]);
+
     const handleCheckout = useCallback(() => {
         if (calculation.selectedCount === 0) {
             logger.cart.warn('No items selected');
@@ -509,6 +649,8 @@ export default function CartScreen() {
                     onVoucherPress={() => handleVoucherPress(shop.shopId)}
                     isEditMode={isEditMode}
                     onEditModeToggle={() => setEditMode(!isEditMode)}
+                    promotionSyncingItemIds={promotionSyncingItemIdSet}
+                    onPromotionExpired={handlePromotionExpired}
                 />
             );
         },
@@ -523,6 +665,8 @@ export default function CartScreen() {
             handleVoucherPress,
             isEditMode,
             setEditMode,
+            promotionSyncingItemIdSet,
+            handlePromotionExpired,
         ]
     );
 
@@ -547,8 +691,8 @@ export default function CartScreen() {
         if (!isLoading && isReady && (!isAuthenticated || !cartData || shops.length === 0)) {
             return (
                 <EmptyCart
-                    onRefresh={refetch}
-                    refreshing={isFetching && !isLoading}
+                    onRefresh={handleManualRefresh}
+                    refreshing={isManualRefreshing}
                     isAuthenticated={isAuthenticated}
                 />
             );
@@ -579,11 +723,14 @@ export default function CartScreen() {
                             keyExtractor={(shop) => shop.shopId}
                             contentContainerStyle={styles.listContent}
                             showsVerticalScrollIndicator={false}
-                            style={StyleSheet.flatten([styles.flex1, isFetching ? styles.fetchingOpacity : undefined])}
+                            style={StyleSheet.flatten([
+                                styles.flex1,
+                                isFetching && !isPromotionBoundarySyncing ? styles.fetchingOpacity : undefined
+                            ])}
                             refreshControl={
                                 <RefreshControl
-                                    refreshing={isFetching && !isLoading}
-                                    onRefresh={refetch}
+                                    refreshing={isManualRefreshing}
+                                    onRefresh={handleManualRefresh}
                                     tintColor={theme.colors.buttonActive}
                                     colors={[theme.colors.buttonActive]}
                                 />

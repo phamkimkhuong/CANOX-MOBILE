@@ -5,6 +5,7 @@ import { ProductCard } from '@/components/ui/product/ProductCard';
 import { ProductCardSkeleton } from '@/components/ui/product/ProductCardSkeleton';
 import { productRoutes } from '@/constants/routes';
 import { useScrollToTopHandler } from '@/contexts/ScrollToTopContext';
+import { refreshFlashSaleQueries } from '@/hooks/api/campaign/useFlashSaleDataSource';
 import { FeedType, useProductFeed, useRefreshProductFeed } from '@/hooks/api/useHomeProducts';
 import { useFavoriteSync, useToggleFavorite } from '@/hooks/api/wishlist';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
@@ -13,6 +14,7 @@ import { useWishlistStore } from '@/store/useWishlistStore';
 import type { ProductFeedItem } from '@/types/product/product';
 import { createLogger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
+import { seedProductPreview } from '@/utils/productPreviewCache';
 import { toSizedImageUrl } from '@/utils/url';
 import { FlashList, FlashListRef, ListRenderItemInfo } from '@shopify/flash-list';
 import { useQueryClient } from '@tanstack/react-query';
@@ -74,21 +76,25 @@ const TabsRowItem = memo(({
 TabsRowItem.displayName = 'TabsRowItem';
 
 /**
- * ProductRowItem - Simple direct navigation (like bank account pattern)
- * SmartNavButton handles navigation via route prop — no prefetch, no timing logic.
+ * ProductRowItem
+ * Seeds a lightweight preview into memory, then navigates immediately on press.
  */
 const ProductRowItem = memo(({
-  item,
-  onFavoritePress,
+    item,
+    onFavoritePress,
+    onPress,
 }: {
   item: ProductFeedItem;
   onFavoritePress?: (variantId: string) => void;
+  onPress: (productId: string, previewImageUrl: string) => void;
 }) => {
+  const previewImageUrl = toSizedImageUrl(item.thumbnail, null, 'medium') ?? '';
+
   return (
     <ProductCard
       title={item.title}
       price={item.price}
-      image={toSizedImageUrl(item.thumbnail, null, 'medium') ?? ''}
+      image={previewImageUrl}
       originalPrice={item.originalPrice}
       rating={item.rating}
       reviews={item.reviews}
@@ -97,7 +103,8 @@ const ProductRowItem = memo(({
       discount={item.discountPercentage}
       isMall={item.isMall}
       isInternational={item.isInternational}
-      route={productRoutes.detail(item.id)}
+      enableHaptic={false}
+      onPress={() => onPress(item.id, previewImageUrl)}
       variantId={item.defaultVariantId}
       onFavoritePress={onFavoritePress}
     />
@@ -216,9 +223,9 @@ export default function HomeScreen() {
     const refreshPromise = smartRefreshProducts();
 
     // Refresh other home sections
-    queryClient.invalidateQueries({ queryKey: ['campaigns', 'slots', 'active'] });
+    const flashSaleRefreshPromise = refreshFlashSaleQueries(queryClient, { hours: 24 });
 
-    await refreshPromise;
+    await Promise.all([refreshPromise, flashSaleRefreshPromise]);
   }, [smartRefreshProducts, queryClient, resetCheckedIds]);
 
   /**
@@ -371,9 +378,24 @@ export default function HomeScreen() {
   /**
    * Navigate tới Product Detail
    */
-  const handleProductPress = useCallback((productId: string, action?: 'buy-now' | 'add-to-cart') => {
+  const handleProductPress = useCallback((
+    productId: string,
+    action?: 'buy-now' | 'add-to-cart',
+    previewImageUrl?: string | null
+  ) => {
+    if (previewImageUrl) {
+      seedProductPreview({
+        productId,
+        imageUrl: previewImageUrl,
+      });
+    }
+
     Navigator.push(productRoutes.detail(productId, { action }));
   }, []);
+
+  const handleGridProductPress = useCallback((productId: string, previewImageUrl: string) => {
+    handleProductPress(productId, undefined, previewImageUrl);
+  }, [handleProductPress]);
 
   /**
    * Infinite scroll - load more khi gần cuối list
@@ -422,6 +444,7 @@ export default function HomeScreen() {
           <ProductRowItem
             item={item.data}
             onFavoritePress={isAuthenticated ? handleFavoritePress : undefined}
+            onPress={handleGridProductPress}
           />
         );
       case 'skeleton':
@@ -429,7 +452,7 @@ export default function HomeScreen() {
       default:
         return null;
     }
-  }, [activeTab, handleTabChange, handleProductPress, handleMarketingHeaderLayout, shimmerAnimatedStyle, handleFavoritePress, isAuthenticated]);
+  }, [activeTab, handleGridProductPress, handleTabChange, handleProductPress, handleMarketingHeaderLayout, shimmerAnimatedStyle, handleFavoritePress, isAuthenticated]);
 
   /**
    * Item type cho FlashList recycling optimization

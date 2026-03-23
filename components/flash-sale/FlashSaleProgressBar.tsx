@@ -98,7 +98,7 @@ export const FlashSaleProgressBar = memo(({
                 <LinearGradient
                     colors={isSoldOut
                         ? [theme.colors.secondaryLight, theme.colors.border]
-                        : (isUrgent ? ['#f97316', '#ef4444'] : ['#ff7a00', '#ee4d2d'])
+                        : (isUrgent ? [theme.colors.warning, theme.colors.newPrimary] : [theme.colors.accent, theme.colors.newPrimary])
                     }
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 0 }}
@@ -113,7 +113,7 @@ export const FlashSaleProgressBar = memo(({
                     <IconSymbol
                         name="flame.fill"
                         size={10}
-                        color="#fff"
+                        color={theme.colors.onPrimary}
                     />
                 )}
                 <Text style={styles.labelText}>
@@ -129,29 +129,29 @@ export const FlashSaleProgressBar = memo(({
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
-        height: 15,
-        backgroundColor: 'rgba(238, 77, 45, 0.25)', // Increased opacity for better contrast with white text
-        borderRadius: 12,
+        height: 18,
+        backgroundColor: theme.colors.activeSoft,
+        borderRadius: theme.radius.full,
         overflow: 'hidden',
         position: 'relative',
         justifyContent: 'center',
         borderWidth: 1,
-        borderColor: 'rgba(238, 77, 45, 0.15)',
+        borderColor: theme.colors.activeLight,
     },
     containerUrgent: {
-        backgroundColor: 'rgba(249, 115, 22, 0.25)',
-        borderColor: 'rgba(249, 115, 22, 0.15)',
+        backgroundColor: theme.colors.warningSubtle,
+        borderColor: theme.colors.warningLight,
     },
     containerSoldOut: {
         backgroundColor: theme.colors.secondaryLight,
-        borderColor: 'transparent',
+        borderColor: theme.colors.borderMuted,
     },
     fillWrapper: {
         position: 'absolute',
         top: 0,
         bottom: 0,
         left: 0,
-        borderRadius: 12,
+        borderRadius: theme.radius.full,
         overflow: 'hidden',
     },
     gradientFill: {
@@ -164,23 +164,23 @@ const stylesheet = StyleSheet.create((theme) => ({
         right: 0,
         height: '40%',
         backgroundColor: 'rgba(255, 255, 255, 0.2)',
-        borderRadius: 12,
+        borderRadius: theme.radius.full,
     },
     labelContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 4,
+        gap: theme.margins.xs,
+        paddingHorizontal: theme.margins.sm,
         zIndex: 2,
     },
     labelText: {
-        fontSize: 9,
-        fontWeight: '800',
-        color: theme.colors.background,
-        textTransform: 'uppercase',
-        textShadowColor: 'rgba(0, 0, 0, 0.4)', // Stronger shadow
+        fontSize: theme.fontSizes.xs,
+        fontWeight: theme.fontWeights.bold,
+        color: theme.colors.onPrimary,
+        textShadowColor: 'rgba(0, 0, 0, 0.25)',
         textShadowOffset: { width: 0, height: 1 },
-        textShadowRadius: 3, // Slightly more blur for depth
+        textShadowRadius: 2,
     },
     topStroke: {
         position: 'absolute',

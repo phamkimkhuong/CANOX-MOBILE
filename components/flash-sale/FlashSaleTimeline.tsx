@@ -5,7 +5,10 @@ import React, { memo, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInRight } from 'react-native-reanimated';
-import { StyleSheet } from 'react-native-unistyles';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+
+const TAB_WIDTH = 108;
+const TAB_GAP = 8;
 
 export interface FlashSaleTab {
     id: string;
@@ -18,13 +21,15 @@ interface FlashSaleTimelineProps {
     tabs: FlashSaleTab[];
     activeTabId: string | null;
     onTabPress: (tab: FlashSaleTab) => void;
+    embedded?: boolean;
 }
 
 /**
  * FlashSaleTimeline - Premium Liquid Glass Tab Selection
  */
-export const FlashSaleTimeline = memo(({ tabs, activeTabId, onTabPress }: FlashSaleTimelineProps) => {
+export const FlashSaleTimeline = memo(({ tabs, activeTabId, onTabPress, embedded = false }: FlashSaleTimelineProps) => {
     const scrollRef = useRef<ScrollView>(null);
+    const { theme } = useUnistyles();
     const styles = stylesheet;
 
     // Auto-scroll to active tab on mount
@@ -33,21 +38,21 @@ export const FlashSaleTimeline = memo(({ tabs, activeTabId, onTabPress }: FlashS
             const index = tabs.findIndex(t => t.id === activeTabId);
             if (index !== -1) {
                 setTimeout(() => {
-                    scrollRef.current?.scrollTo({ x: index * 100 - 20, animated: true });
+                    scrollRef.current?.scrollTo({ x: index * (TAB_WIDTH + TAB_GAP) - 20, animated: true });
                 }, 100);
             }
         }
     }, [activeTabId, tabs]);
 
     return (
-        <View style={styles.container}>
-            <View style={styles.timelineWrapper}>
+        <View style={[styles.container, embedded && styles.containerEmbedded]}>
+            <View style={[styles.timelineWrapper, embedded && styles.timelineWrapperEmbedded]}>
                 <ScrollView
                     ref={scrollRef}
                     horizontal
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={styles.scrollContent}
-                    snapToInterval={100}
+                    snapToInterval={TAB_WIDTH + TAB_GAP}
                     decelerationRate="fast"
                 >
                     {tabs.map((tab, index) => {
@@ -69,17 +74,26 @@ export const FlashSaleTimeline = memo(({ tabs, activeTabId, onTabPress }: FlashS
                                 >
                                     {isSelected ? (
                                         <LinearGradient
-                                            colors={isLive ? ['#ff7a00', '#ee4d2d'] : ['#4f46e5', '#3b82f6']}
+                                            colors={isLive
+                                                ? [theme.colors.newPrimary, theme.colors.accent]
+                                                : [theme.colors.surfaceGlassOverlay, theme.colors.warningLight]
+                                            }
                                             start={{ x: 0, y: 0 }}
                                             end={{ x: 1, y: 1 }}
-                                            style={styles.activeGradient}
+                                            style={[
+                                                styles.activeGradient,
+                                                isLive ? styles.activeGradientLive : styles.activeGradientUpcoming,
+                                            ]}
                                         >
                                             <Content tab={tab} isSelected={true} isLive={isLive} />
                                             {/* Top Highlight */}
-                                            <View style={styles.tabHighlight} />
+                                            <View style={[styles.tabHighlight, isLive ? styles.tabHighlightLive : styles.tabHighlightUpcoming]} />
                                         </LinearGradient>
                                     ) : (
-                                        <View style={styles.inactiveContainer}>
+                                        <View style={[
+                                            styles.inactiveContainer,
+                                            isLive && styles.inactiveContainerLive,
+                                        ]}>
                                             <Content tab={tab} isSelected={false} isLive={isLive} />
                                         </View>
                                     )}
@@ -95,23 +109,45 @@ export const FlashSaleTimeline = memo(({ tabs, activeTabId, onTabPress }: FlashS
 
 const Content = ({ tab, isSelected, isLive }: { tab: FlashSaleTab; isSelected: boolean; isLive: boolean }) => {
     const { t } = useTranslation(['home']);
+    const { theme } = useUnistyles();
     const styles = stylesheet;
+
+    const timeLabelStyle = isSelected
+        ? (isLive ? styles.timeLabelSelectedLive : styles.timeLabelSelectedUpcoming)
+        : (isLive ? styles.timeLabelInactiveLive : styles.timeLabelInactiveUpcoming);
+
+    const statusPillStyle = isSelected
+        ? (isLive ? styles.statusPillSelectedLive : styles.statusPillSelectedUpcoming)
+        : (isLive ? styles.statusPillInactiveLive : styles.statusPillInactiveUpcoming);
+
+    const statusTextStyle = isSelected
+        ? (isLive ? styles.statusLabelSelectedLive : styles.statusLabelSelectedUpcoming)
+        : (isLive ? styles.statusLabelInactiveLive : styles.statusLabelInactiveUpcoming);
+
     return (
         <View style={styles.content}>
             <Text style={[
                 styles.timeLabel,
-                isSelected && styles.textSelected
+                timeLabelStyle,
             ]}>
                 {tab.label}
             </Text>
-            <View style={styles.statusRow}>
-                {isLive && isSelected && (
-                    <IconSymbol name="flame" size={10} color="#fff" />
+            <View style={[styles.statusPill, statusPillStyle]}>
+                {isLive ? (
+                    <IconSymbol
+                        name="flame"
+                        size={10}
+                        color={isSelected ? theme.colors.onPrimary : theme.colors.warning}
+                    />
+                ) : (
+                    <View style={[
+                        styles.statusDot,
+                        isSelected ? styles.statusDotSelectedUpcoming : styles.statusDotInactiveUpcoming,
+                    ]} />
                 )}
                 <Text style={[
                     styles.statusLabel,
-                    isSelected && styles.textSelected,
-                    isLive && !isSelected && styles.textLive
+                    statusTextStyle,
                 ]}>
                     {isLive ? t('home:flashSale.statusLive') : t('home:flashSale.statusUpcoming')}
                 </Text>
@@ -120,72 +156,155 @@ const Content = ({ tab, isSelected, isLive }: { tab: FlashSaleTab; isSelected: b
     );
 };
 
-const stylesheet = StyleSheet.create((_theme) => ({
+const stylesheet = StyleSheet.create((theme) => ({
     container: {
-        backgroundColor: 'transparent', // Blend with screen gradient
-        paddingVertical: 10,
+        backgroundColor: 'transparent',
+        paddingVertical: theme.margins.sm,
+    },
+    containerEmbedded: {
+        paddingVertical: 0,
     },
     timelineWrapper: {
-        height: 56,
+        height: 74,
+        marginHorizontal: theme.margins.md,
+        padding: theme.margins.xs,
+        borderRadius: theme.radius.xl,
+        backgroundColor: theme.colors.surfaceGlassOverlay,
+        borderWidth: 1,
+        borderColor: theme.colors.borderGlass,
+        shadowColor: theme.colors.newPrimary,
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.12,
+        shadowRadius: 20,
+        elevation: 8,
+    },
+    timelineWrapperEmbedded: {
+        marginHorizontal: 0,
+        backgroundColor: theme.colors.surfaceGlass,
+        shadowOpacity: 0.08,
+        shadowRadius: 14,
+        elevation: 5,
     },
     scrollContent: {
-        paddingHorizontal: 16,
-        gap: 8,
+        paddingHorizontal: theme.margins.xs,
+        gap: TAB_GAP,
+        alignItems: 'center',
     },
     tab: {
-        width: 100,
-        height: 48,
-        borderRadius: 14,
+        width: TAB_WIDTH,
+        height: 58,
+        borderRadius: theme.radius.l,
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.05)',
-        backgroundColor: 'rgba(255, 255, 255, 0.03)',
+        borderColor: 'transparent',
+        backgroundColor: 'transparent',
     },
     tabSelected: {
-        borderColor: 'rgba(255, 255, 255, 0.2)',
+        borderColor: theme.colors.borderGlass,
         elevation: 10,
-        shadowColor: '#ee4d2d',
+        shadowColor: theme.colors.newPrimary,
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
+        shadowOpacity: 0.18,
+        shadowRadius: 10,
     },
     activeGradient: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
+    activeGradientLive: {
+        borderColor: theme.colors.borderGlass,
+    },
+    activeGradientUpcoming: {
+        borderColor: theme.colors.warningLight,
+    },
     inactiveContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        borderRadius: theme.radius.l,
+        backgroundColor: theme.colors.surfaceTranslucent,
+        borderWidth: 1,
+        borderColor: theme.colors.borderGlass,
+    },
+    inactiveContainerLive: {
+        backgroundColor: theme.colors.warningSubtle,
+        borderColor: theme.colors.warningLight,
     },
     content: {
         alignItems: 'center',
         justifyContent: 'center',
+        gap: 6,
     },
-    statusRow: {
+    timeLabel: {
+        fontSize: theme.fontSizes.mdbase,
+        fontWeight: theme.fontWeights.bold,
+        letterSpacing: 0.3,
+    },
+    timeLabelSelectedLive: {
+        color: theme.colors.onPrimary,
+    },
+    timeLabelSelectedUpcoming: {
+        color: theme.colors.typography,
+    },
+    timeLabelInactiveLive: {
+        color: theme.colors.warning,
+    },
+    timeLabelInactiveUpcoming: {
+        color: theme.colors.typographySecondary,
+    },
+    statusPill: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 4,
-        marginTop: 2,
+        paddingHorizontal: theme.margins.sm,
+        paddingVertical: 4,
+        borderRadius: theme.radius.full,
+        borderWidth: 1,
     },
-    timeLabel: {
-        fontSize: 15,
-        fontWeight: '800',
-        color: 'rgba(255, 255, 255, 0.6)',
-        letterSpacing: 0.3,
+    statusPillSelectedLive: {
+        backgroundColor: theme.colors.surfaceGlass,
+        borderColor: theme.colors.borderGlass,
+    },
+    statusPillSelectedUpcoming: {
+        backgroundColor: theme.colors.warningSubtle,
+        borderColor: theme.colors.warningLight,
+    },
+    statusPillInactiveLive: {
+        backgroundColor: theme.colors.warningLight,
+        borderColor: theme.colors.warningSoft,
+    },
+    statusPillInactiveUpcoming: {
+        backgroundColor: theme.colors.surfaceGlass,
+        borderColor: theme.colors.borderGlass,
     },
     statusLabel: {
-        fontSize: 8.5,
-        fontWeight: '700',
-        color: 'rgba(255, 255, 255, 0.4)',
+        fontSize: theme.fontSizes.xs,
+        fontWeight: theme.fontWeights.bold,
         letterSpacing: 0.4,
     },
-    textSelected: {
-        color: '#fff',
+    statusLabelSelectedLive: {
+        color: theme.colors.onPrimary,
     },
-    textLive: {
-        color: '#f97316',
+    statusLabelSelectedUpcoming: {
+        color: theme.colors.warning,
+    },
+    statusLabelInactiveLive: {
+        color: theme.colors.warning,
+    },
+    statusLabelInactiveUpcoming: {
+        color: theme.colors.secondary,
+    },
+    statusDot: {
+        width: 6,
+        height: 6,
+        borderRadius: theme.radius.full,
+    },
+    statusDotSelectedUpcoming: {
+        backgroundColor: theme.colors.warning,
+    },
+    statusDotInactiveUpcoming: {
+        backgroundColor: theme.colors.secondary,
     },
     tabHighlight: {
         position: 'absolute',
@@ -193,6 +312,11 @@ const stylesheet = StyleSheet.create((_theme) => ({
         left: 0,
         right: 0,
         height: 1,
-        backgroundColor: 'rgba(255, 255, 255, 0.4)',
+    },
+    tabHighlightLive: {
+        backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    },
+    tabHighlightUpcoming: {
+        backgroundColor: theme.colors.warningLight,
     },
 }));

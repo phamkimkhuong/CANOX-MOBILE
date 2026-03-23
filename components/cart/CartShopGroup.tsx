@@ -53,6 +53,10 @@ interface CartShopGroupProps {
     isEditMode?: boolean;
     /** Toggle edit mode */
     onEditModeToggle?: () => void;
+    /** Items currently syncing promotion state after countdown boundary */
+    promotionSyncingItemIds?: ReadonlySet<string>;
+    /** Promotion countdown expired callback */
+    onPromotionExpired?: (item: CartItemUI) => void;
 }
 
 // ============================================
@@ -74,6 +78,8 @@ export const CartShopGroup: React.FC<CartShopGroupProps> = memo(({
     onVoucherPress: _onVoucherPress,
     isEditMode = false,
     onEditModeToggle,
+    promotionSyncingItemIds,
+    onPromotionExpired,
 }) => {
     const { t } = useTranslation('cart');
     const {
@@ -106,6 +112,8 @@ export const CartShopGroup: React.FC<CartShopGroupProps> = memo(({
                             onVariantPress={onVariantPress}
                             onFindSimilar={onFindSimilar}
                             onDelete={onDeleteItem}
+                            onPromotionExpired={onPromotionExpired}
+                            isPromotionSyncing={promotionSyncingItemIds?.has(item.id) ?? false}
                         />
                     </SwipeableRow>
 
@@ -122,6 +130,8 @@ export const CartShopGroup: React.FC<CartShopGroupProps> = memo(({
             onDeleteItem,
             onVariantPress,
             onFindSimilar,
+            onPromotionExpired,
+            promotionSyncingItemIds,
             t
         ]
     );

@@ -23,7 +23,11 @@ interface MarketingHeaderProps {
     /**
      * Callback khi user tap vào sản phẩm
      */
-    onProductPress?: (productId: string, action?: 'buy-now' | 'add-to-cart') => void;
+    onProductPress?: (
+        productId: string,
+        action?: 'buy-now' | 'add-to-cart',
+        previewImageUrl?: string | null
+    ) => void;
 }
 
 /**

@@ -42,6 +42,7 @@ export const CART_STRINGS: CartTranslation = {
     },
     status: {
         syncing: 'Updating latest prices...',
+        promotionSyncing: 'Updating price...',
         rebuySuccess: 'Rebuy successful',
         rebuySuccessDetail: 'Products have been added to your cart',
         addSuccess: 'Added to cart',

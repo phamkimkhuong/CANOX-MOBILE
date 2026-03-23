@@ -42,6 +42,7 @@ export const CART_STRINGS: CartTranslation = {
     },
     status: {
         syncing: 'Đang cập nhật giá mới nhất...',
+        promotionSyncing: 'Đang cập nhật giá...',
         rebuySuccess: 'Mua lại thành công',
         rebuySuccessDetail: 'Sản phẩm đã được thêm vào giỏ hàng của bạn',
         addSuccess: 'Đã thêm vào giỏ hàng',

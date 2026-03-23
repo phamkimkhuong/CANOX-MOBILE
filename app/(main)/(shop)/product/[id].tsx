@@ -34,6 +34,8 @@ export default function ProductDetailScreen() {
 
     const { theme } = useUnistyles();
     const { t } = useTranslation(['product']);
+    const preview = getProductPreview(id);
+    const heroPreviewUrl = preview?.imageUrl ?? null;
 
     // ============================================
     // CACHE CHECK — Skip ghost frame if data is already available
@@ -66,13 +68,6 @@ export default function ProductDetailScreen() {
     } = useProductDetail(id ?? '');
 
     const scrollY = useSharedValue(0);
-
-    // ============================================
-    // GHOST FRAME RENDER - TỐC ĐỘ GÓC
-    // ============================================
-    if (!isTransitionFinished && !product) {
-        return <View style={styles.ghostFrame} />;
-    }
 
     // Combined readiness: data loaded + transition done
     const isScreenReady = !!product && isTransitionFinished && !isLoading;
@@ -128,6 +123,7 @@ export default function ProductDetailScreen() {
                         refetch={refetch}
                         isRefetching={isRefetching}
                         action={action}
+                        heroPreviewUrl={heroPreviewUrl}
                         isTransitionFinished={isTransitionFinished}
                     />
                 )}
@@ -150,10 +146,6 @@ const styles = StyleSheet.create((theme) => ({
     },
     flex1: {
         flex: 1,
-    },
-    ghostFrame: {
-        flex: 1,
-        backgroundColor: theme.colors.background,
     },
     errorOverlay: {
         ...StyleSheet.absoluteFillObject,

@@ -41,6 +41,10 @@ export const PRODUCT_STRINGS: ProductTranslation = {
         buyNow: 'Mua ngay',
         stock: 'Kho',
         quantity: 'Số lượng',
+        flashSaleBadge: 'Flash Sale',
+        flashSaleCandidateBadge: 'Có giá flash sale',
+        promoBadge: 'Ưu đãi',
+        promoCandidateBadge: 'Có ưu đãi',
     },
 
     // === Sticky Bottom Bar ===

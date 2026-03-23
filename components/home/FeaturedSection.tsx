@@ -72,7 +72,11 @@ const getDiscountBadge = (item: ProductFeedItem): string | null => {
  * - products.slice(1, 4) → Small Products (3 sản phẩm nhỏ)
  */
 interface FeaturedSectionProps {
-    onProductPress?: (productId: string, action?: 'buy-now' | 'add-to-cart') => void;
+    onProductPress?: (
+        productId: string,
+        action?: 'buy-now' | 'add-to-cart',
+        previewImageUrl?: string | null
+    ) => void;
     /** Shared shimmer animation from MarketingHeader — avoids multiple animation loops */
     shimmerAnimatedStyle?: object;
 }
@@ -158,7 +162,11 @@ export const FeaturedSection = memo(({ onProductPress, shimmerAnimatedStyle }: F
             <TouchableOpacity
                 style={styles.mainBanner}
                 activeOpacity={0.85}
-                onPress={() => onProductPress?.(mainProduct.id)}
+                onPress={() => onProductPress?.(
+                    mainProduct.id,
+                    undefined,
+                    toSizedImageUrl(mainProduct.thumbnail, null, 'large') ?? mainProduct.thumbnail
+                )}
             >
                 <Image
                     source={{ uri: toSizedImageUrl(mainProduct.thumbnail, null, 'large') ?? mainProduct.thumbnail }}
@@ -241,7 +249,11 @@ export const FeaturedSection = memo(({ onProductPress, shimmerAnimatedStyle }: F
                             )}
                             <TouchableOpacity
                                 style={styles.buyNowBtn}
-                                onPress={() => onProductPress?.(mainProduct.id, 'buy-now')}
+                                onPress={() => onProductPress?.(
+                                    mainProduct.id,
+                                    'buy-now',
+                                    toSizedImageUrl(mainProduct.thumbnail, null, 'large') ?? mainProduct.thumbnail
+                                )}
                             >
                                 <Text style={styles.buyNowText}>{t('product:variant.buyNow')}</Text>
                             </TouchableOpacity>
@@ -268,7 +280,11 @@ export const FeaturedSection = memo(({ onProductPress, shimmerAnimatedStyle }: F
                             <TouchableOpacity
                                 style={[styles.smallCard, { width: cardWidth }]}
                                 activeOpacity={0.85}
-                                onPress={() => onProductPress?.(product.id)}
+                                onPress={() => onProductPress?.(
+                                    product.id,
+                                    undefined,
+                                    toSizedImageUrl(product.thumbnail, null, 'medium') ?? product.thumbnail
+                                )}
                             >
                                 <View style={[styles.smallImageContainer, { height: imageHeight }]}>
                                     <Image

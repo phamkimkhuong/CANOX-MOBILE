@@ -22,6 +22,8 @@ interface ProductReviewsProps {
     rating: number;
     /** Tổng số reviews */
     totalReviews: number;
+    /** Delay preview review fetch until the screen has finished its first reveal */
+    enablePreviewFetch?: boolean;
     /** Callback khi nhấn "Xem tất cả" */
     onViewAllPress?: () => void;
 }
@@ -167,6 +169,7 @@ export const ProductReviews = memo<ProductReviewsProps>(({
     reviewStatistics,
     rating,
     totalReviews,
+    enablePreviewFetch = true,
     onViewAllPress,
 }) => {
     const { theme } = useUnistyles();
@@ -175,7 +178,7 @@ export const ProductReviews = memo<ProductReviewsProps>(({
     // Fetch reviews preview (size 2)
     const { data: previewReviews, isLoading: isLoadingReviews } = useProductReviews(productId, {
         size: 2,
-        enabled: totalReviews > 0
+        enabled: enablePreviewFetch && totalReviews > 0
     });
 
     // Memoize rating distribution data

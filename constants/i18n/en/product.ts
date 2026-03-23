@@ -25,6 +25,10 @@ export const PRODUCT_STRINGS: ProductTranslation = {
         buyNow: 'Buy Now',
         stock: 'Stock',
         quantity: 'Quantity',
+        flashSaleBadge: 'Flash Sale',
+        flashSaleCandidateBadge: 'Has flash sale',
+        promoBadge: 'On offer',
+        promoCandidateBadge: 'Has offer',
     },
 
     // === Sticky Bottom Bar ===

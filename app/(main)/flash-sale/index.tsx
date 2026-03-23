@@ -4,23 +4,33 @@ import { FlashSaleTimeline } from '@/components/flash-sale/FlashSaleTimeline';
 import { IconSymbol } from '@/components/ui/Icon';
 import { productRoutes } from '@/constants/routes';
 import { useCampaignDetail } from '@/hooks/api/campaign/useCampaignDetail';
+import { refreshFlashSaleQueries } from '@/hooks/api/campaign/useFlashSaleDataSource';
 import { useFlashSaleTabs } from '@/hooks/api/campaign/useFlashSaleTabs';
 import { useSlotDetail } from '@/hooks/api/campaign/useSlotDetail';
 import { SlotStatus } from '@/types/campaign';
 import { FlashSaleItem } from '@/types/home';
 import { Navigator } from '@/utils/navigation';
-import { buildImageUrl } from '@/utils/url';
 import { FlashList } from '@shopify/flash-list';
 import { BlurView } from 'expo-blur';
-import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack } from 'expo-router';
+import { useQueryClient } from '@tanstack/react-query';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, RefreshControl, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+
+const slotTimeFormatter = new Intl.DateTimeFormat('vi-VN', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+});
+
+const formatSlotRange = (startTime: string, endTime: string) => {
+    return `${slotTimeFormatter.format(new Date(startTime))} - ${slotTimeFormatter.format(new Date(endTime))}`;
+};
 
 /**
  * FlashSaleScreen
@@ -35,14 +45,27 @@ export default function FlashSaleScreen() {
     const insets = useSafeAreaInsets();
     const styles = stylesheet;
     const { t } = useTranslation(['home']);
+    const queryClient = useQueryClient();
+    const [refreshing, setRefreshing] = useState(false);
 
     const { data: tabs = [], isLoading: isLoadingTabs } = useFlashSaleTabs();
     const [activeTabId, setActiveTabId] = useState<string | null>(null);
 
     useEffect(() => {
-        if (tabs.length > 0 && !activeTabId) {
-            const activeTab = tabs.find((tab) => tab.isActive) || tabs[0];
-            setActiveTabId(activeTab.id);
+        if (tabs.length === 0) {
+            if (activeTabId !== null) {
+                setActiveTabId(null);
+            }
+            return;
+        }
+
+        const currentTabStillExists = activeTabId
+            ? tabs.some((tab) => tab.id === activeTabId)
+            : false;
+
+        if (!currentTabStillExists) {
+            const nextTab = tabs.find((tab) => tab.isActive) || tabs[0];
+            setActiveTabId(nextTab.id);
         }
     }, [tabs, activeTabId]);
 
@@ -51,7 +74,6 @@ export default function FlashSaleScreen() {
     const {
         data: slotDetail,
         isLoading: isLoadingSlot,
-        refetch: refetchSlot,
     } = useSlotDetail(activeTabId);
 
     const products = slotDetail?.transformedProducts || [];
@@ -59,10 +81,30 @@ export default function FlashSaleScreen() {
 
     const campaignId = (activeTab?.campaignId || slotDetail?.campaignId) as string | undefined;
     const { data: campaign } = useCampaignDetail(campaignId);
+    const heroTitle = campaign?.name || t('home:flashSale.title');
+    const heroRangeLabel = activeTab ? formatSlotRange(activeTab.startTime, activeTab.endTime) : '';
+    const heroStatusLabel = activeTab?.isActive ? t('home:flashSale.statusLive') : t('home:flashSale.statusUpcoming');
 
-    const bannerImage = campaign?.bannerUrl || campaign?.thumbnailUrl
-        ? buildImageUrl(campaign.bannerUrl || campaign.thumbnailUrl, null, 'large')
-        : null;
+    const handleRefresh = useCallback(async () => {
+        setRefreshing(true);
+        try {
+            await refreshFlashSaleQueries(queryClient, {
+                slotId: activeTabId,
+                campaignId,
+                hours: 24,
+            });
+        } finally {
+            setRefreshing(false);
+        }
+    }, [activeTabId, campaignId, queryClient]);
+
+    const handleCountdownEnd = useCallback(() => {
+        void refreshFlashSaleQueries(queryClient, {
+            slotId: activeTabId,
+            campaignId,
+            hours: 24,
+        });
+    }, [activeTabId, campaignId, queryClient]);
 
     const handleBack = useCallback(() => {
         Navigator.back();
@@ -77,19 +119,119 @@ export default function FlashSaleScreen() {
     }, []);
 
     const renderHeader = () => (
-        <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
-            <TouchableOpacity
-                onPress={handleBack}
-                style={styles.backBtnWrapper}
-            >
-                <BlurView intensity={18} tint="light" style={styles.backBtnBlur}>
-                    <IconSymbol name="chevron.left" size={24} color={theme.colors.onPrimary} />
-                </BlurView>
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>{t('home:flashSale.title')}</Text>
-            <View style={styles.headerSpace} />
+        <View pointerEvents="box-none" style={styles.headerOverlay}>
+            <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
+                <TouchableOpacity
+                    onPress={handleBack}
+                    style={styles.backBtnWrapper}
+                >
+                    <BlurView intensity={18} tint="light" style={styles.backBtnBlur}>
+                        <IconSymbol name="chevron.left" size={24} color={theme.colors.onPrimary} />
+                    </BlurView>
+                </TouchableOpacity>
+                <Text style={styles.headerTitle}>{t('home:flashSale.title')}</Text>
+                <View style={styles.headerSpace} />
+            </View>
         </View>
     );
+
+    const renderListHeader = () => (
+        <>
+            <View style={{ height: insets.top + 58 }} />
+
+            <View style={styles.heroSection}>
+                <View style={styles.heroCard}>
+                    <LinearGradient
+                        colors={[theme.colors.surfaceGlassOverlay, theme.colors.surfaceGlass, theme.colors.warningSubtle]}
+                        locations={[0, 0.7, 1]}
+                        style={styles.heroCardBackground}
+                    />
+                    <View style={styles.heroCardGlowPrimary} />
+                    <View style={styles.heroCardGlowAccent} />
+
+                    <FlashSaleTimeline
+                        tabs={tabs}
+                        activeTabId={activeTabId}
+                        onTabPress={(tab) => setActiveTabId(tab.id)}
+                        embedded
+                    />
+
+                    {activeTab && (
+                        <>
+                            <View style={styles.heroDivider} />
+
+                            <View style={styles.heroSummary}>
+                                <Text style={styles.heroTitleText} numberOfLines={1}>
+                                    {heroTitle}
+                                </Text>
+
+                                <View style={styles.heroMetaRow}>
+                                    {heroRangeLabel ? (
+                                        <Text style={styles.heroSubtitle} numberOfLines={1}>
+                                            {heroRangeLabel}
+                                        </Text>
+                                    ) : null}
+
+                                    <View style={[
+                                        styles.heroStatusBadge,
+                                        activeTab.isActive ? styles.heroStatusBadgeLive : styles.heroStatusBadgeUpcoming,
+                                    ]}>
+                                        {activeTab.isActive ? (
+                                            <IconSymbol name="flame" size={10} color={theme.colors.onPrimary} />
+                                        ) : (
+                                            <View style={styles.heroStatusDot} />
+                                        )}
+                                        <Text style={[
+                                            styles.heroStatusText,
+                                            activeTab.isActive ? styles.heroStatusTextLive : styles.heroStatusTextUpcoming,
+                                        ]}>
+                                            {heroStatusLabel}
+                                        </Text>
+                                    </View>
+                                </View>
+
+                                <FlashSaleCountdown
+                                    embedded
+                                    endTime={slotDetail?.endTime || activeTab.endTime}
+                                    startTime={slotDetail?.startTime || activeTab.startTime}
+                                    secondsUntilStart={slotDetail?.secondsUntilStart ?? activeTab.secondsUntilStart}
+                                    secondsUntilEnd={slotDetail?.secondsUntilEnd ?? activeTab.secondsUntilEnd}
+                                    isUpcoming={!activeTab.isActive}
+                                    label={activeTab.isActive ? t('home:flashSale.endingIn') : t('home:flashSale.startingIn')}
+                                    onEnd={handleCountdownEnd}
+                                />
+                            </View>
+                        </>
+                    )}
+                </View>
+            </View>
+
+            <View style={styles.listSurfaceTop} />
+        </>
+    );
+
+    const renderListEmpty = () => {
+        if (isLoadingProducts && !refreshing) {
+            return (
+                <View style={[styles.emptyStateSurface, styles.center]}>
+                    <ActivityIndicator color={theme.colors.newPrimary} />
+                </View>
+            );
+        }
+
+        return (
+            <View style={[styles.emptyStateSurface, styles.center]}>
+                <Animated.View entering={FadeIn.duration(800)}>
+                    <View style={styles.emptyIconWrapper}>
+                        <BlurView intensity={12} tint="light" style={styles.emptyBlur}>
+                            <IconSymbol name="cart.badge.minus" size={64} color={theme.colors.secondaryLight} />
+                        </BlurView>
+                    </View>
+                    <Text style={styles.emptyText}>Chưa có sản phẩm nào cho đợt này</Text>
+                </Animated.View>
+            </View>
+        );
+    };
 
     if (isLoadingTabs) {
         return (
@@ -127,74 +269,38 @@ export default function FlashSaleScreen() {
 
             {renderHeader()}
 
-            <View style={styles.heroSection}>
-                <FlashSaleTimeline
-                    tabs={tabs}
-                    activeTabId={activeTabId}
-                    onTabPress={(tab) => setActiveTabId(tab.id)}
-                />
-
-                {activeTab && (
-                    <View style={styles.countdownContainer}>
-                        <FlashSaleCountdown
-                            endTime={slotDetail?.endTime || activeTab.endTime}
-                            secondsUntilStart={slotDetail?.secondsUntilStart ?? activeTab.secondsUntilStart}
-                            secondsUntilEnd={slotDetail?.secondsUntilEnd ?? activeTab.secondsUntilEnd}
-                            label={activeTab.isActive ? t('home:flashSale.endingIn') : t('home:flashSale.startingIn')}
-                            onEnd={() => {
-                                refetchSlot();
-                            }}
+            <FlashList
+                data={products}
+                renderItem={({ item, index }: { item: FlashSaleItem; index: number }) => (
+                    <View style={styles.listItemContainer}>
+                        <FlashSaleProductCard
+                            item={item}
+                            index={index}
+                            status={activeTab?.status || SlotStatus.UPCOMING}
+                            onPress={(productId) => handleProductPress(productId)}
+                            onRemindMe={handleRemindMe}
                         />
                     </View>
                 )}
-            </View>
-
-            <View style={styles.content}>
-                <View style={styles.listWrapper}>
-                    {isLoadingProducts ? (
-                        <View style={styles.center}>
-                            <ActivityIndicator color={theme.colors.newPrimary} />
-                        </View>
-                    ) : products.length === 0 ? (
-                        <Animated.View entering={FadeIn.duration(800)} style={styles.center}>
-                            <View style={styles.emptyIconWrapper}>
-                                <BlurView intensity={12} tint="light" style={styles.emptyBlur}>
-                                    <IconSymbol name="cart.badge.minus" size={64} color={theme.colors.secondaryLight} />
-                                </BlurView>
-                            </View>
-                            <Text style={styles.emptyText}>Chua co san pham nao cho dot nay</Text>
-                        </Animated.View>
-                    ) : (
-                        <FlashList
-                            data={products}
-                            renderItem={({ item, index }: { item: FlashSaleItem; index: number }) => (
-                                <FlashSaleProductCard
-                                    item={item}
-                                    index={index}
-                                    status={activeTab?.status || SlotStatus.UPCOMING}
-                                    onPress={(productId) => handleProductPress(productId)}
-                                    onRemindMe={handleRemindMe}
-                                />
-                            )}
-                            ListHeaderComponent={() => (
-                                bannerImage ? (
-                                    <View style={styles.bannerContainer}>
-                                        <Image
-                                            source={{ uri: bannerImage }}
-                                            style={styles.bannerImage}
-                                            contentFit="cover"
-                                            transition={200}
-                                        />
-                                    </View>
-                                ) : null
-                            )}
-                            keyExtractor={(item: FlashSaleItem) => item.id}
-                            contentContainerStyle={styles.scrollContent}
-                            showsVerticalScrollIndicator={false}
-                        />
-                    )}
-                </View>
-            </View>
+                ListHeaderComponent={renderListHeader}
+                ListEmptyComponent={renderListEmpty}
+                ListFooterComponent={<View style={styles.listFooterSurface} />}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={handleRefresh}
+                        colors={[theme.colors.newPrimary]}
+                        tintColor={theme.colors.newPrimary}
+                        progressViewOffset={insets.top + 54}
+                    />
+                }
+                keyExtractor={(item: FlashSaleItem) => item.id}
+                contentContainerStyle={[
+                    styles.listContentContainer,
+                    products.length === 0 && styles.listContentContainerEmpty,
+                ]}
+                showsVerticalScrollIndicator={false}
+            />
         </View>
     );
 }
@@ -226,6 +332,13 @@ const stylesheet = StyleSheet.create((theme) => ({
         justifyContent: 'space-between',
         paddingHorizontal: theme.margins.md,
     },
+    headerOverlay: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 30,
+    },
     headerTitle: {
         fontSize: 19,
         fontWeight: '800',
@@ -249,24 +362,107 @@ const stylesheet = StyleSheet.create((theme) => ({
         backgroundColor: theme.colors.surfaceGlass,
     },
     heroSection: {
-        paddingBottom: theme.margins.xs,
-    },
-    countdownContainer: {
         paddingHorizontal: theme.margins.md,
-        paddingBottom: theme.margins.sm,
+        paddingBottom: theme.margins.md,
     },
-    content: {
-        flex: 1,
-        marginTop: theme.margins.xs,
-        backgroundColor: theme.colors.surface,
-        borderTopLeftRadius: theme.radius.xl,
-        borderTopRightRadius: theme.radius.xl,
+    heroCard: {
+        position: 'relative',
         overflow: 'hidden',
+        borderRadius: theme.radius.xl,
+        borderWidth: 1,
+        borderColor: theme.colors.borderGlass,
+        backgroundColor: theme.colors.surfaceGlass,
         shadowColor: theme.colors.newPrimary,
-        shadowOffset: { width: 0, height: -10 },
-        shadowOpacity: 0.08,
-        shadowRadius: 20,
-        elevation: 18,
+        shadowOffset: { width: 0, height: 12 },
+        shadowOpacity: 0.16,
+        shadowRadius: 24,
+        elevation: 10,
+    },
+    heroCardBackground: {
+        ...StyleSheet.absoluteFillObject,
+    },
+    heroCardGlowPrimary: {
+        position: 'absolute',
+        top: -32,
+        right: -20,
+        width: 160,
+        height: 160,
+        borderRadius: 80,
+        backgroundColor: theme.colors.activeSoft,
+    },
+    heroCardGlowAccent: {
+        position: 'absolute',
+        bottom: -48,
+        left: -24,
+        width: 180,
+        height: 120,
+        borderRadius: 90,
+        backgroundColor: theme.colors.warningSubtle,
+    },
+    heroDivider: {
+        height: 1,
+        marginHorizontal: theme.margins.md,
+        backgroundColor: theme.colors.borderGlass,
+    },
+    heroSummary: {
+        paddingHorizontal: theme.margins.md,
+        paddingTop: theme.margins.md,
+        paddingBottom: theme.margins.md,
+        gap: theme.margins.xs + 2,
+    },
+    heroMetaRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: theme.margins.sm,
+        minHeight: 28,
+    },
+    heroStatusBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        paddingHorizontal: theme.margins.sm,
+        paddingVertical: 5,
+        borderRadius: theme.radius.full,
+        borderWidth: 1,
+        flexShrink: 0,
+    },
+    heroStatusBadgeLive: {
+        backgroundColor: theme.colors.newPrimary,
+        borderColor: theme.colors.newPrimary,
+    },
+    heroStatusBadgeUpcoming: {
+        backgroundColor: theme.colors.warningSubtle,
+        borderColor: theme.colors.warningLight,
+    },
+    heroStatusDot: {
+        width: 6,
+        height: 6,
+        borderRadius: theme.radius.full,
+        backgroundColor: theme.colors.warning,
+    },
+    heroStatusText: {
+        fontSize: theme.fontSizes.xs,
+        fontWeight: theme.fontWeights.bold,
+        letterSpacing: 0.4,
+        textTransform: 'uppercase',
+    },
+    heroStatusTextLive: {
+        color: theme.colors.onPrimary,
+    },
+    heroStatusTextUpcoming: {
+        color: theme.colors.warning,
+    },
+    heroTitleText: {
+        fontSize: theme.fontSizes.xl,
+        fontWeight: theme.fontWeights.bold,
+        color: theme.colors.typography,
+        letterSpacing: 0.2,
+    },
+    heroSubtitle: {
+        fontSize: theme.fontSizes.md,
+        color: theme.colors.typographySecondary,
+        fontWeight: theme.fontWeights.medium,
+        flexShrink: 1,
     },
     loadingCard: {
         flex: 1,
@@ -282,25 +478,37 @@ const stylesheet = StyleSheet.create((theme) => ({
         shadowRadius: 20,
         elevation: 18,
     },
-    listWrapper: {
-        flex: 1,
-    },
-    scrollContent: {
-        paddingHorizontal: theme.margins.md,
-        paddingTop: theme.margins.md,
+    listContentContainer: {
         paddingBottom: theme.margins.xl + theme.margins.sm,
     },
-    bannerContainer: {
-        width: '100%',
-        aspectRatio: 3.2,
-        borderRadius: theme.radius.l,
-        overflow: 'hidden',
-        marginBottom: theme.margins.md,
-        backgroundColor: theme.colors.surfaceTranslucent,
+    listContentContainerEmpty: {
+        flexGrow: 1,
     },
-    bannerImage: {
-        width: '100%',
-        height: '100%',
+    listSurfaceTop: {
+        marginTop: theme.margins.xs,
+        height: theme.margins.md + 2,
+        backgroundColor: theme.colors.surface,
+        borderTopLeftRadius: theme.radius.xl,
+        borderTopRightRadius: theme.radius.xl,
+        shadowColor: theme.colors.newPrimary,
+        shadowOffset: { width: 0, height: -10 },
+        shadowOpacity: 0.08,
+        shadowRadius: 20,
+        elevation: 18,
+    },
+    listItemContainer: {
+        backgroundColor: theme.colors.surface,
+        paddingHorizontal: theme.margins.md,
+    },
+    listFooterSurface: {
+        height: theme.margins.xl + theme.margins.sm,
+        backgroundColor: theme.colors.surface,
+    },
+    emptyStateSurface: {
+        flex: 1,
+        backgroundColor: theme.colors.surface,
+        paddingHorizontal: theme.margins.md,
+        paddingBottom: theme.margins.xl + theme.margins.sm,
     },
     center: {
         flex: 1,

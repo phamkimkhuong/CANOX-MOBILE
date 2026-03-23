@@ -32,6 +32,7 @@ const IMAGE_PLACEHOLDER = 'L6PZfSi_.AyE_3t7t7R**0o#DgR4';
 
 interface ProductGalleryProps {
     gallery: GalleryItem[];
+    heroPreviewUrl?: string | null;
     onScrollY?: SharedValue<number>;
     onImagePress?: (index: number) => void;
     initialIndex?: number;
@@ -50,6 +51,8 @@ interface GalleryItemViewProps {
     index: number;
     width: number;
     height: number;
+    previewUrl?: string | null;
+    onActualLoad?: () => void;
     onPress?: () => void;
 }
 
@@ -71,9 +74,13 @@ const GalleryItemView = memo<GalleryItemViewProps>(({
     index: _index,
     width,
     height,
+    previewUrl = null,
+    onActualLoad,
     onPress,
 }) => {
     const { theme } = useUnistyles();
+    const hasPreviewLayer = !!previewUrl;
+    const actualImageUri = toSizedImageUrl(item.url, null, 'large') ?? item.url;
 
     // Memoize dynamic styles
     const containerStyle = useMemo(() => ({
@@ -85,15 +92,26 @@ const GalleryItemView = memo<GalleryItemViewProps>(({
     if (item.type === 'VIDEO') {
         return (
             <Pressable style={containerStyle} onPress={onPress}>
+                {hasPreviewLayer && (
+                    <Image
+                        source={{ uri: previewUrl }}
+                        style={itemStyles.absoluteImage}
+                        contentFit="cover"
+                        transition={0}
+                        cachePolicy="memory-disk"
+                    />
+                )}
                 <Image
-                    source={{ uri: toSizedImageUrl(item.url, null, 'large') ?? item.url }}
-                    style={itemStyles.image}
+                    source={{ uri: actualImageUri }}
+                    style={hasPreviewLayer ? itemStyles.absoluteImage : itemStyles.image}
                     contentFit="cover"
-                    transition={200}
-                    placeholder={IMAGE_PLACEHOLDER}
+                    transition={hasPreviewLayer ? 0 : 200}
+                    placeholder={hasPreviewLayer ? undefined : IMAGE_PLACEHOLDER}
                     cachePolicy="memory-disk"
                     recyclingKey={item.id}
-                /><View style={itemStyles.videoOverlay}>
+                    onLoad={onActualLoad}
+                />
+                <View style={itemStyles.videoOverlay}>
                     <View style={itemStyles.playButton}>
                         <IconSymbol
                             name="play"
@@ -108,14 +126,24 @@ const GalleryItemView = memo<GalleryItemViewProps>(({
 
     return (
         <Pressable style={containerStyle} onPress={onPress}>
+            {hasPreviewLayer && (
+                <Image
+                    source={{ uri: previewUrl }}
+                    style={itemStyles.absoluteImage}
+                    contentFit="cover"
+                    transition={0}
+                    cachePolicy="memory-disk"
+                />
+            )}
             <Image
-                source={{ uri: toSizedImageUrl(item.url, null, 'large') ?? item.url }}
-                style={itemStyles.image}
+                source={{ uri: actualImageUri }}
+                style={hasPreviewLayer ? itemStyles.absoluteImage : itemStyles.image}
                 contentFit="cover"
-                transition={200}
-                placeholder={IMAGE_PLACEHOLDER}
+                transition={hasPreviewLayer ? 0 : 200}
+                placeholder={hasPreviewLayer ? undefined : IMAGE_PLACEHOLDER}
                 cachePolicy="memory-disk"
                 recyclingKey={item.id}
+                onLoad={onActualLoad}
             />
         </Pressable>
     );
@@ -127,6 +155,9 @@ const itemStyles = StyleSheet.create((_theme) => ({
     image: {
         width: '100%',
         height: '100%',
+    },
+    absoluteImage: {
+        ...StyleSheet.absoluteFillObject,
     },
     videoOverlay: {
         ...StyleSheet.absoluteFillObject,
@@ -224,6 +255,7 @@ const thumbnailStyles = StyleSheet.create((theme) => ({
  */
 export const ProductGallery = memo(forwardRef<ProductGalleryRef, ProductGalleryProps>(({
     gallery,
+    heroPreviewUrl = null,
     onScrollY: _onScrollY,
     onImagePress,
     initialIndex = 0,
@@ -264,6 +296,14 @@ export const ProductGallery = memo(forwardRef<ProductGalleryRef, ProductGalleryP
         const newIndex = orderedGallery.findIndex(item => item.id === targetItem.id);
         return newIndex >= 0 ? newIndex : initialIndex;
     }, [gallery, orderedGallery, initialIndex]);
+
+    const initialHeroItem = orderedGallery[correctedInitialIndex] ?? null;
+    const shouldUseHeroPreview = !!heroPreviewUrl && initialHeroItem?.type === 'IMAGE';
+    const [isHeroUpgraded, setIsHeroUpgraded] = useState(!shouldUseHeroPreview);
+
+    useEffect(() => {
+        setIsHeroUpgraded(!shouldUseHeroPreview);
+    }, [shouldUseHeroPreview, initialHeroItem?.id]);
 
     // Filter only images for full-screen viewer
     const galleryImages = useMemo(() =>
@@ -369,10 +409,30 @@ export const ProductGallery = memo(forwardRef<ProductGalleryRef, ProductGalleryP
                 index={index}
                 width={screenWidth}
                 height={galleryHeight}
+                previewUrl={
+                    shouldUseHeroPreview &&
+                    !isHeroUpgraded &&
+                    index === correctedInitialIndex
+                        ? heroPreviewUrl
+                        : null
+                }
+                onActualLoad={
+                    shouldUseHeroPreview && index === correctedInitialIndex
+                        ? () => setIsHeroUpgraded(true)
+                        : undefined
+                }
                 onPress={() => handleGalleryItemPress(index)}
             />
         ),
-        [screenWidth, galleryHeight, handleGalleryItemPress]
+        [
+            correctedInitialIndex,
+            galleryHeight,
+            handleGalleryItemPress,
+            heroPreviewUrl,
+            isHeroUpgraded,
+            screenWidth,
+            shouldUseHeroPreview,
+        ]
     );
 
     // === Key Extractor ===

@@ -1,21 +1,44 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
+import {
+    filterApprovedFlashSaleSlots,
+    flashSaleQueryKeys,
+    selectBestFlashSaleSlot,
+    selectNearestUpcomingFlashSaleSlot,
+    selectPrimaryFlashSaleSlot,
+    useActiveFlashSaleSlots,
+    useUpcomingFlashSaleSlots,
+} from '@/hooks/api/campaign/useFlashSaleDataSource';
 import { useActiveFlashSale } from '@/hooks/api/campaign/useActiveFlashSale';
-import { formatTimeLeft } from '@/utils/date';
+import { prefetchSlotDetail } from '@/hooks/api/campaign/useSlotDetail';
+import { CampaignSlotResponse } from '@/types/campaign';
+import { FlashSaleData } from '@/types/home';
+import { formatSynchronizedTimeLeft, getSynchronizedTargetTimestamp } from '@/utils/date';
 import { formatCurrency } from '@/utils/format';
 import { Navigator } from '@/utils/navigation';
 import { Image } from 'expo-image';
-import React, { memo, useEffect, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import Animated, { FadeIn, FadeOut, FadeOutUp, LinearTransition } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { FlashSaleSkeleton } from './FlashSaleSkeleton';
+
+const PREFETCH_WINDOW_SECONDS = 20;
+const BOUNDARY_PROBE_DELAYS_MS = [0, 1500, 3000] as const;
+
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
  * FlashSale - Component hiển thị sản phẩm Flash Sale
  */
 interface FlashSaleProps {
-    onProductPress?: (productId: string) => void;
+    onProductPress?: (
+        productId: string,
+        action?: 'buy-now' | 'add-to-cart',
+        previewImageUrl?: string | null
+    ) => void;
     /** Shared shimmer animation from MarketingHeader — avoids multiple animation loops */
     shimmerAnimatedStyle?: object;
 }
@@ -24,33 +47,180 @@ export const FlashSale = memo(({ onProductPress, shimmerAnimatedStyle }: FlashSa
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const { t } = useTranslation('home');
+    const queryClient = useQueryClient();
 
-    // Fetch data from API Campaign Slots
-    const { data: flashSaleData, isLoading, isError, refetch } = useActiveFlashSale();
+    const { data: flashSaleData, isLoading, isError, isFetching, refetch } = useActiveFlashSale();
+    const { data: activeSlotsRaw = [] } = useActiveFlashSaleSlots();
+    const { data: upcomingSlotsRaw = [] } = useUpcomingFlashSaleSlots(24);
 
-    // Determine if this is an upcoming or active slot
-    const isUpcoming = flashSaleData?.slot?.isUpcoming ?? false;
+    const activeSlots = useMemo(() => filterApprovedFlashSaleSlots(activeSlotsRaw), [activeSlotsRaw]);
+    const upcomingSlots = useMemo(() => filterApprovedFlashSaleSlots(upcomingSlotsRaw), [upcomingSlotsRaw]);
+    const hasAnySlotCandidate = activeSlots.length > 0 || upcomingSlots.length > 0;
 
-    // State for timer
+    const [displayedData, setDisplayedData] = useState<FlashSaleData | null>(null);
     const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+    const [isBoundaryPending, setIsBoundaryPending] = useState(false);
+
+    const displayedDataRef = useRef<FlashSaleData | null>(null);
+    const hasTriggeredBoundaryRef = useRef(false);
+    const boundaryInProgressRef = useRef(false);
+    const prefetchedCandidateIdRef = useRef<string | null>(null);
+    const isMountedRef = useRef(true);
+
+    const displayedSlot = displayedData?.slot ?? null;
+    const displayedIsUpcoming = displayedData?.slot?.isUpcoming ?? false;
+
+    const nextCandidate = useMemo<CampaignSlotResponse | null>(() => {
+        if (!displayedData) return null;
+
+        const currentSlotId = displayedData.slot.id;
+        const fallbackActive = selectBestFlashSaleSlot(
+            activeSlots.filter((slot) => slot.id !== currentSlotId)
+        );
+
+        if (fallbackActive) {
+            return fallbackActive;
+        }
+
+        return selectNearestUpcomingFlashSaleSlot(
+            upcomingSlots.filter((slot) => slot.id !== currentSlotId)
+        );
+    }, [activeSlots, displayedData, upcomingSlots]);
+
+    const showInitialSkeleton = !displayedData && isLoading;
+    const shouldShowPendingShell = !!displayedData && (
+        isBoundaryPending ||
+        (!flashSaleData && (hasAnySlotCandidate || isFetching))
+    );
+
+    const statusTimerKey = displayedData
+        ? `${displayedData.slot.id}:${displayedData.slot.isUpcoming ? 'upcoming' : 'active'}`
+        : 'empty';
+    const productStripKey = displayedData ? `products:${displayedData.slot.id}` : 'empty';
+
+    const readPrimarySlotFromCache = useCallback(() => {
+        const activeCache = queryClient.getQueryData<CampaignSlotResponse[]>(flashSaleQueryKeys.activeSlots()) || [];
+        const upcomingCache = queryClient.getQueryData<CampaignSlotResponse[]>(flashSaleQueryKeys.upcomingSlots(24)) || [];
+
+        return selectPrimaryFlashSaleSlot(
+            filterApprovedFlashSaleSlots(activeCache),
+            filterApprovedFlashSaleSlots(upcomingCache)
+        );
+    }, [queryClient]);
+
+    const resolveBoundaryTransition = useCallback(async (origin: FlashSaleData) => {
+        if (boundaryInProgressRef.current) return;
+
+        boundaryInProgressRef.current = true;
+        setIsBoundaryPending(true);
+
+        let resolved = false;
+
+        try {
+            for (const delayMs of BOUNDARY_PROBE_DELAYS_MS) {
+                if (delayMs > 0) {
+                    await wait(delayMs);
+                }
+
+                if (!isMountedRef.current) return;
+
+                await refetch();
+
+                const latestPrimary = readPrimarySlotFromCache();
+                if (!latestPrimary) {
+                    resolved = true;
+                    return;
+                }
+
+                const slotChanged = latestPrimary.slot.id !== origin.slot.id;
+                const statusChanged = latestPrimary.isUpcoming !== origin.slot.isUpcoming;
+
+                if (slotChanged || statusChanged) {
+                    resolved = true;
+                    return;
+                }
+            }
+        } finally {
+            boundaryInProgressRef.current = false;
+
+            if (!resolved && isMountedRef.current) {
+                setIsBoundaryPending(false);
+                prefetchedCandidateIdRef.current = null;
+            }
+        }
+    }, [readPrimarySlotFromCache, refetch]);
 
     useEffect(() => {
-        if (!flashSaleData?.slot) return;
+        isMountedRef.current = true;
+        return () => {
+            isMountedRef.current = false;
+        };
+    }, []);
 
-        // Upcoming → countdown to startTime | Active → countdown to endTime
-        const targetTime = isUpcoming
-            ? flashSaleData.slot.startTime
-            : flashSaleData.slot.endTime;
+    useEffect(() => {
+        displayedDataRef.current = displayedData;
+    }, [displayedData]);
+
+    useEffect(() => {
+        if (flashSaleData) {
+            setDisplayedData(flashSaleData);
+            setIsBoundaryPending(false);
+            return;
+        }
+
+        if (!isFetching && !hasAnySlotCandidate) {
+            setDisplayedData(null);
+            setIsBoundaryPending(false);
+        }
+    }, [flashSaleData, hasAnySlotCandidate, isFetching]);
+
+    useEffect(() => {
+        if (!displayedSlot) return;
+
+        const targetTime = displayedIsUpcoming
+            ? displayedSlot.startTime
+            : displayedSlot.endTime;
+        const relativeSeconds = displayedIsUpcoming
+            ? displayedSlot.secondsUntilStart
+            : displayedSlot.secondsUntilEnd;
 
         if (!targetTime) return;
 
+        hasTriggeredBoundaryRef.current = false;
+        prefetchedCandidateIdRef.current = null;
+
+        const targetMs = getSynchronizedTargetTimestamp(
+            targetTime,
+            (relativeSeconds && relativeSeconds > 0) ? relativeSeconds : undefined
+        );
+
         const updateTimer = () => {
-            const time = formatTimeLeft(targetTime);
+            const time = formatSynchronizedTimeLeft(targetMs);
+
+            if (
+                !displayedIsUpcoming &&
+                nextCandidate &&
+                time.total > 0 &&
+                time.total <= PREFETCH_WINDOW_SECONDS * 1000 &&
+                prefetchedCandidateIdRef.current !== nextCandidate.id
+            ) {
+                prefetchedCandidateIdRef.current = nextCandidate.id;
+                void prefetchSlotDetail(queryClient, nextCandidate.id);
+            }
+
             if (time.total <= 0) {
                 setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-                // Timer ended → refetch to get active slot or next upcoming
-                refetch();
+
+                if (!hasTriggeredBoundaryRef.current) {
+                    hasTriggeredBoundaryRef.current = true;
+                    const origin = displayedDataRef.current;
+
+                    if (origin) {
+                        void resolveBoundaryTransition(origin);
+                    }
+                }
             } else {
+                hasTriggeredBoundaryRef.current = false;
                 setTimeLeft({
                     days: time.days,
                     hours: time.hours,
@@ -64,139 +234,226 @@ export const FlashSale = memo(({ onProductPress, shimmerAnimatedStyle }: FlashSa
         const timer = setInterval(updateTimer, 1000);
 
         return () => clearInterval(timer);
-    }, [flashSaleData?.slot, isUpcoming, refetch]);
+    }, [
+        displayedSlot,
+        displayedIsUpcoming,
+        nextCandidate,
+        queryClient,
+        resolveBoundaryTransition,
+    ]);
 
-    if (isLoading) {
-        return <FlashSaleSkeleton animatedStyle={shimmerAnimatedStyle} />;
-    }
-
-    if (isError || !flashSaleData || flashSaleData.items.length === 0) {
+    if (isError && !displayedData) {
         return null;
     }
+
     const formatNumber = (num: number) => num.toString().padStart(2, '0');
 
     return (
-        <View style={styles.container}>
-            {/* Header */}
-            <View style={styles.header}>
-                <View style={styles.titleRow}>
-                    <Text style={styles.title}>{t('flashSale.title')}</Text>
-                    {isUpcoming && (
-                        <Text style={styles.upcomingLabel}>{t('flashSale.startingIn')}</Text>
-                    )}
-                    <View style={styles.timerRow}>
-                        {timeLeft.days > 0 && (
-                            <>
-                                <View style={[styles.timerBox, isUpcoming && styles.timerBoxUpcoming]}>
-                                    <Text style={styles.timerText}>{timeLeft.days}</Text>
-                                </View>
-                                <Text style={styles.timerDayText}>ngày</Text>
-                            </>
-                        )}
-                        <View style={[styles.timerBox, isUpcoming && styles.timerBoxUpcoming]}>
-                            <Text style={styles.timerText}>{formatNumber(timeLeft.hours)}</Text>
-                        </View>
-                        <Text style={styles.timerColon}>:</Text>
-                        <View style={[styles.timerBox, isUpcoming && styles.timerBoxUpcoming]}>
-                            <Text style={styles.timerText}>{formatNumber(timeLeft.minutes)}</Text>
-                        </View>
-                        <Text style={styles.timerColon}>:</Text>
-                        <View style={[styles.timerBox, isUpcoming && styles.timerBoxUpcoming]}>
-                            <Text style={styles.timerText}>{formatNumber(timeLeft.seconds)}</Text>
-                        </View>
-                    </View>
-                </View>
-                <TouchableOpacity
-                    style={styles.seeAllBtn}
-                    onPress={() => Navigator.push(ROUTES.CAMPAIGN.FLASH_SALE)}
+        <Animated.View layout={LinearTransition.duration(240)}>
+            {showInitialSkeleton ? (
+                <Animated.View entering={FadeIn.duration(180)} exiting={FadeOut.duration(160)}>
+                    <FlashSaleSkeleton animatedStyle={shimmerAnimatedStyle} />
+                </Animated.View>
+            ) : null}
+
+            {displayedData ? (
+                <Animated.View
+                    entering={FadeIn.duration(180)}
+                    exiting={FadeOutUp.duration(220)}
+                    style={[styles.container, shouldShowPendingShell && styles.containerPending]}
                 >
-                    <Text style={styles.seeAllText}>{t('flashSale.seeAll')}</Text>
-                    <IconSymbol name="chevron-right" size={16} color={theme.colors.secondary} />
-                </TouchableOpacity>
-            </View>
+                    <View style={styles.header}>
+                        <View style={styles.titleRow}>
+                            <Text style={styles.title}>{t('flashSale.title')}</Text>
 
-            {/* Products Scroll */}
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.scrollContent}
-            >
-                {flashSaleData.items.map((item) => {
-                    const isUrgent = item.progress >= 80 && !item.isSoldOut;
-                    const progressLabel = item.isSoldOut
-                        ? t('flashSale.soldOut') || 'Hết hàng'
-                        : item.soldCount === 0
-                            ? t('flashSale.sellingFast') || 'Vừa mở bán'
-                            : isUrgent
-                                ? t('flashSale.urgentStock') || 'SẮP CHÁY HÀNG'
-                                : t('flashSale.soldCount', { count: item.soldCount });
+                            <Animated.View
+                                key={statusTimerKey}
+                                entering={FadeIn.duration(200)}
+                                exiting={FadeOut.duration(140)}
+                                style={styles.statusTimerGroup}
+                            >
+                                {displayedIsUpcoming ? (
+                                    <Text style={styles.upcomingLabel}>{t('flashSale.startingIn')}</Text>
+                                ) : null}
 
-                    return (
+                                <View style={styles.timerRow}>
+                                    {timeLeft.days > 0 ? (
+                                        <>
+                                            <View style={[styles.timerBox, displayedIsUpcoming && styles.timerBoxUpcoming]}>
+                                                <Text style={styles.timerText}>{timeLeft.days}</Text>
+                                            </View>
+                                            <Text style={styles.timerDayText}>ngày</Text>
+                                        </>
+                                    ) : null}
+
+                                    <View style={[styles.timerBox, displayedIsUpcoming && styles.timerBoxUpcoming]}>
+                                        <Text style={styles.timerText}>{formatNumber(timeLeft.hours)}</Text>
+                                    </View>
+                                    <Text style={styles.timerColon}>:</Text>
+                                    <View style={[styles.timerBox, displayedIsUpcoming && styles.timerBoxUpcoming]}>
+                                        <Text style={styles.timerText}>{formatNumber(timeLeft.minutes)}</Text>
+                                    </View>
+                                    <Text style={styles.timerColon}>:</Text>
+                                    <View style={[styles.timerBox, displayedIsUpcoming && styles.timerBoxUpcoming]}>
+                                        <Text style={styles.timerText}>{formatNumber(timeLeft.seconds)}</Text>
+                                    </View>
+                                </View>
+                            </Animated.View>
+                        </View>
+
                         <TouchableOpacity
-                            key={item.id}
-                            style={[styles.productCard, item.isSoldOut && styles.soldOutCard]}
-                            activeOpacity={item.isSoldOut ? 1 : 0.85}
-                            onPress={() => !item.isSoldOut && onProductPress?.(item.productId)}
+                            style={styles.seeAllBtn}
+                            onPress={() => Navigator.push(ROUTES.CAMPAIGN.FLASH_SALE)}
                         >
-                            <View style={styles.imageContainer}>
-                                <Image
-                                    source={{ uri: item.image }}
-                                    style={[styles.productImage, item.isSoldOut && styles.grayscaleImage]}
-                                    contentFit="cover"
-                                    transition={200}
-                                />
-                                {item.isSoldOut ? (
-                                    <View style={styles.soldOutOverlay}>
-                                        <View style={styles.soldOutBadge}>
-                                            <Text style={styles.soldOutText}>{t('flashSale.soldOut') || 'HẾT HÀNG'}</Text>
-                                        </View>
-                                    </View>
-                                ) : (
-                                    item.discountPercentage > 0 && (
-                                        <View style={styles.discountBadge}>
-                                            <Text style={styles.discountText}>-{item.discountPercentage}%</Text>
-                                        </View>
-                                    )
-                                )}
-                            </View>
-                            <View style={styles.productInfo}>
-                                <Text style={styles.productName} numberOfLines={1}>
-                                    {item.name}
-                                </Text>
-                                <View style={styles.priceRow}>
-                                    <Text style={[styles.price, item.isSoldOut && styles.soldOutPrice]}>
-                                        {formatCurrency(item.price)}
-                                    </Text>
-                                    {!item.isSoldOut && item.originalPrice > item.price && (
-                                        <Text style={styles.originalPrice}>
-                                            {formatCurrency(item.originalPrice)}
-                                        </Text>
-                                    )}
-                                </View>
-                                {/* Progress Bar */}
-                                <View style={[styles.progressBg, isUrgent && styles.progressBgUrgent, item.isSoldOut && styles.progressBgSoldOut]}>
-                                    <View
-                                        style={[
-                                            styles.progressFill,
-                                            item.isSoldOut ? styles.fullWidthSecondary : styles.dynamicWidth(Math.max(item.progress, 20)),
-                                            isUrgent && styles.progressFillUrgent
-                                        ]}
-                                    />
-                                    <View style={styles.progressLabelContainer}>
-                                        {isUrgent && (
-                                            <IconSymbol name="fire" size={10} color={theme.colors.background} />
-                                        )}
-                                        <Text style={styles.progressText}>
-                                            {progressLabel}
-                                        </Text>
-                                    </View>
-                                </View>
-                            </View>
+                            <Text style={styles.seeAllText}>{t('flashSale.seeAll')}</Text>
+                            <IconSymbol name="chevron-right" size={16} color={theme.colors.secondary} />
                         </TouchableOpacity>
-                    );
-                })}
-            </ScrollView>
-        </View>
+                    </View>
+
+                    {shouldShowPendingShell ? (
+                        <View style={styles.pendingBadge}>
+                            <View style={styles.pendingDot} />
+                            <Text style={styles.pendingText}>Đang cập nhật khung giờ...</Text>
+                        </View>
+                    ) : null}
+
+                    <Animated.View
+                        key={productStripKey}
+                        entering={FadeIn.duration(220)}
+                        exiting={FadeOut.duration(140)}
+                        style={styles.productsSection}
+                    >
+                        <ScrollView
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={styles.scrollContent}
+                        >
+                            {displayedData.items.map((item) => {
+                                const isUrgent = item.progress >= 80 && !item.isSoldOut;
+                                const upcomingCurrentPrice =
+                                    displayedIsUpcoming && item.originalPrice > item.price
+                                        ? item.originalPrice
+                                        : null;
+                                const progressLabel = item.isSoldOut
+                                    ? t('flashSale.soldOut') || 'Hết hàng'
+                                    : item.soldCount === 0
+                                        ? t('flashSale.sellingFast') || 'Vừa mở bán'
+                                        : isUrgent
+                                            ? t('flashSale.urgentStock') || 'SẮP CHÁY HÀNG'
+                                            : t('flashSale.soldCount', { count: item.soldCount });
+
+                                return (
+                                    <TouchableOpacity
+                                        key={item.id}
+                                        style={[styles.productCard, item.isSoldOut && styles.soldOutCard]}
+                                        activeOpacity={item.isSoldOut ? 1 : 0.85}
+                                        onPress={() => !item.isSoldOut && onProductPress?.(
+                                            item.productId,
+                                            undefined,
+                                            item.image
+                                        )}
+                                    >
+                                        <View style={styles.imageContainer}>
+                                            <Image
+                                                source={{ uri: item.image }}
+                                                style={[styles.productImage, item.isSoldOut && styles.grayscaleImage]}
+                                                contentFit="cover"
+                                                transition={200}
+                                            />
+                                            {item.isSoldOut ? (
+                                                <View style={styles.soldOutOverlay}>
+                                                    <View style={styles.soldOutBadge}>
+                                                        <Text style={styles.soldOutText}>{t('flashSale.soldOut') || 'HẾT HÀNG'}</Text>
+                                                    </View>
+                                                </View>
+                                            ) : item.discountPercentage > 0 ? (
+                                                <View style={styles.discountBadge}>
+                                                    <Text style={styles.discountText}>-{item.discountPercentage}%</Text>
+                                                </View>
+                                            ) : null}
+                                        </View>
+
+                                        <View style={styles.productInfo}>
+                                            <Text style={styles.productName} numberOfLines={1}>
+                                                {item.name}
+                                            </Text>
+
+                                            {item.rating > 0 ? (
+                                                <View style={styles.productMetaRow}>
+                                                    <View style={styles.ratingBadge}>
+                                                        <IconSymbol name="star" size={12} color={theme.colors.warning} />
+                                                        <Text style={styles.ratingText}>{item.rating.toFixed(1)}</Text>
+                                                    </View>
+                                                </View>
+                                            ) : null}
+
+                                            {displayedIsUpcoming ? (
+                                                upcomingCurrentPrice ? (
+                                                    <View style={styles.priceRow}>
+                                                        <Text style={[styles.upcomingCurrentPrice, item.isSoldOut && styles.soldOutPrice]}>
+                                                            {formatCurrency(upcomingCurrentPrice)}
+                                                        </Text>
+                                                    </View>
+                                                ) : null
+                                            ) : (
+                                                <View style={styles.priceRow}>
+                                                    <Text style={[styles.price, item.isSoldOut && styles.soldOutPrice]}>
+                                                        {formatCurrency(item.price)}
+                                                    </Text>
+                                                    {!item.isSoldOut && item.originalPrice > item.price ? (
+                                                        <Text style={styles.originalPrice}>
+                                                            {formatCurrency(item.originalPrice)}
+                                                        </Text>
+                                                    ) : null}
+                                                </View>
+                                            )}
+
+                                            {displayedIsUpcoming ? (
+                                                <View style={styles.upcomingInfoStrip}>
+                                                    <View style={styles.upcomingInfoTextGroup}>
+                                                        <Text style={styles.upcomingInfoLabel}>
+                                                            {t('flashSale.upcomingPriceLabel')}
+                                                        </Text>
+                                                        {upcomingCurrentPrice ? (
+                                                            <Text style={styles.upcomingInfoHint}>
+                                                                {t('flashSale.upcomingSaveAmount', {
+                                                                    amount: formatCurrency(Math.max(upcomingCurrentPrice - item.price, 0))
+                                                                })}
+                                                            </Text>
+                                                        ) : null}
+                                                    </View>
+                                                    <Text style={styles.upcomingInfoValue}>
+                                                        {formatCurrency(item.price)}
+                                                    </Text>
+                                                </View>
+                                            ) : (
+                                                <View style={[styles.progressBg, isUrgent && styles.progressBgUrgent, item.isSoldOut && styles.progressBgSoldOut]}>
+                                                    <View
+                                                        style={[
+                                                            styles.progressFill,
+                                                            item.isSoldOut ? styles.fullWidthSecondary : styles.dynamicWidth(Math.max(item.progress, 20)),
+                                                            isUrgent && styles.progressFillUrgent,
+                                                        ]}
+                                                    />
+                                                    <View style={styles.progressLabelContainer}>
+                                                        {isUrgent ? (
+                                                            <IconSymbol name="fire" size={10} color={theme.colors.background} />
+                                                        ) : null}
+                                                        <Text style={styles.progressText}>{progressLabel}</Text>
+                                                    </View>
+                                                </View>
+                                            )}
+                                        </View>
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </ScrollView>
+
+                        {shouldShowPendingShell ? <View style={styles.productsVeil} /> : null}
+                    </Animated.View>
+                </Animated.View>
+            ) : null}
+        </Animated.View>
     );
 });
 
@@ -211,10 +468,8 @@ const stylesheet = StyleSheet.create((theme) => ({
         shadowRadius: 4,
         elevation: 2,
     },
-    loadingContainer: {
-        height: 200,
-        justifyContent: 'center',
-        alignItems: 'center',
+    containerPending: {
+        opacity: 0.98,
     },
     header: {
         flexDirection: 'row',
@@ -228,6 +483,12 @@ const stylesheet = StyleSheet.create((theme) => ({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 12,
+    },
+    statusTimerGroup: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        flexShrink: 1,
     },
     title: {
         fontSize: theme.fontSizes.base,
@@ -270,6 +531,25 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontWeight: '600',
         marginHorizontal: 1,
     },
+    pendingBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        paddingHorizontal: theme.margins.md,
+        marginTop: -2,
+        marginBottom: theme.margins.sm,
+    },
+    pendingDot: {
+        width: 6,
+        height: 6,
+        borderRadius: 3,
+        backgroundColor: theme.colors.warning,
+    },
+    pendingText: {
+        fontSize: theme.fontSizes.xs,
+        color: theme.colors.secondary,
+        fontWeight: '600',
+    },
     seeAllBtn: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -279,9 +559,16 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.secondary,
         fontWeight: '500',
     },
+    productsSection: {
+        position: 'relative',
+    },
     scrollContent: {
         paddingHorizontal: theme.margins.md,
         gap: 12,
+    },
+    productsVeil: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: theme.colors.surfaceTranslucent,
     },
     productCard: {
         width: 140,
@@ -324,6 +611,20 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontWeight: '500',
         color: theme.colors.typography,
     },
+    productMetaRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    ratingBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 3,
+    },
+    ratingText: {
+        fontSize: theme.fontSizes.xs,
+        color: theme.colors.warning,
+        fontWeight: '600',
+    },
     priceRow: {
         flexDirection: 'row',
         alignItems: 'baseline',
@@ -338,6 +639,11 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: theme.fontSizes.xs,
         color: theme.colors.secondary,
         textDecorationLine: 'line-through',
+    },
+    upcomingCurrentPrice: {
+        fontSize: theme.fontSizes.sm,
+        fontWeight: '600',
+        color: theme.colors.secondary,
     },
     progressBg: {
         position: 'relative',
@@ -376,7 +682,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         textShadowColor: 'rgba(0, 0, 0, 0.3)',
         textShadowRadius: 2,
     },
-    // Sold Out Styles
     soldOutCard: {
         opacity: 0.8,
     },
@@ -403,15 +708,46 @@ const stylesheet = StyleSheet.create((theme) => ({
     soldOutPrice: {
         color: theme.colors.secondary,
     },
-    // Urgent / Progress Styles
     progressBgUrgent: {
-        backgroundColor: '#fed7aa', // Light orange
+        backgroundColor: '#fed7aa',
     },
     progressFillUrgent: {
-        backgroundColor: '#f97316', // Bright orange
+        backgroundColor: '#f97316',
     },
     progressBgSoldOut: {
         backgroundColor: theme.colors.secondaryLight,
     },
+    upcomingInfoStrip: {
+        minHeight: 32,
+        borderRadius: theme.radius.m,
+        paddingHorizontal: theme.margins.sm,
+        paddingVertical: theme.margins.xs + 2,
+        backgroundColor: theme.colors.warningSubtle,
+        borderWidth: 1,
+        borderColor: theme.colors.warningLight,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: theme.margins.xs,
+    },
+    upcomingInfoTextGroup: {
+        flex: 1,
+        gap: 2,
+    },
+    upcomingInfoLabel: {
+        fontSize: theme.fontSizes.xs,
+        fontWeight: '600',
+        color: theme.colors.secondary,
+        flexShrink: 1,
+    },
+    upcomingInfoHint: {
+        fontSize: theme.fontSizes.xs,
+        color: theme.colors.warning,
+        fontWeight: '600',
+    },
+    upcomingInfoValue: {
+        fontSize: theme.fontSizes.sm,
+        fontWeight: 'bold',
+        color: theme.colors.newPrimary,
+    },
 }));
-

@@ -22,6 +22,8 @@ export const HOME_STRINGS: HomeTranslation = {
         almostGone: 'Sắp hết hàng',
         sold: 'Đã bán',
         onlyLeft: 'Chỉ còn {{count}}',
+        upcomingPriceLabel: 'Giá flash sale',
+        upcomingSaveAmount: 'Tiết kiệm {{amount}}',
     },
     featured: {
         title: 'Gợi ý cho bạn',

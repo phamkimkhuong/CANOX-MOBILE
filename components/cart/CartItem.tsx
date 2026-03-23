@@ -20,14 +20,16 @@ import { formatCurrency } from '@/utils/format';
 import { Navigator } from '@/utils/navigation';
 import { buildImageUrl } from '@/utils/url';
 import { Image } from 'expo-image';
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { CountdownDigits } from '../ui/CountdownDigits';
 import { IconSymbol } from '../ui/Icon';
 import { QuantityStepper } from '../ui/QuantityStepper';
 import { CartCheckbox } from './CartCheckbox';
+
+const PROMOTION_RESET_THRESHOLD_SECONDS = 30;
 
 interface CartItemProps {
     /** Cart item data */
@@ -41,6 +43,8 @@ interface CartItemProps {
     /** Find similar product callback (receives id) */
     onFindSimilar?: (id: string) => void;
     onDelete?: (id: string) => void;
+    onPromotionExpired?: (item: CartItemUI) => void;
+    isPromotionSyncing?: boolean;
 }
 
 // ============================================
@@ -54,16 +58,54 @@ export const CartItem: React.FC<CartItemProps> = memo(({
     onVariantPress,
     onFindSimilar,
     onDelete: _onDelete,
+    onPromotionExpired,
+    isPromotionSyncing = false,
 }) => {
     const { theme } = useUnistyles();
     const { t } = useTranslation('cart');
     const isSelected = useCartStore(state => state.selectedItemIds.has(item.id));
 
+    const promotionSecondsRemaining = item.promotion?.secondsRemaining ?? 0;
+    const lastPromotionSecondsRef = useRef(promotionSecondsRemaining);
+
     // Promotion Countdown logic
     const countdown = useCountdown({
-        duration: item.promotion?.secondsRemaining || 0,
-        autoStart: true,
+        duration: promotionSecondsRemaining,
+        autoStart: promotionSecondsRemaining > 0,
+        onComplete: item.promotion && promotionSecondsRemaining > 0
+            ? () => onPromotionExpired?.(item)
+            : undefined,
     });
+    const {
+        duration: countdownDuration,
+        isActive: isCountdownActive,
+        isExpired: isCountdownExpired,
+        reset: resetCountdown,
+        start: startCountdown,
+    } = countdown;
+
+    useEffect(() => {
+        const previousPromotionSeconds = lastPromotionSecondsRef.current;
+        lastPromotionSecondsRef.current = promotionSecondsRemaining;
+
+        if (promotionSecondsRemaining <= 0) {
+            return;
+        }
+
+        const hasResetToNewPromotionWindow =
+            promotionSecondsRemaining > previousPromotionSeconds + PROMOTION_RESET_THRESHOLD_SECONDS;
+
+        if (isCountdownExpired || !isCountdownActive || hasResetToNewPromotionWindow) {
+            resetCountdown();
+            startCountdown();
+        }
+    }, [
+        isCountdownActive,
+        isCountdownExpired,
+        promotionSecondsRemaining,
+        resetCountdown,
+        startCountdown,
+    ]);
 
     // Evaluate region support
     const selectedAddressId = useUserAddressStore(state => state.selectedAddressId);
@@ -118,6 +160,8 @@ export const CartItem: React.FC<CartItemProps> = memo(({
         isOutOfStock,
         lowStockWarning,
     } = item;
+    const shouldShowPromotionRow = !!promotion && (isPromotionSyncing || !isCountdownExpired);
+
     return (
         <View style={[styles.container, isDisabled && styles.outOfStockContainer]}>
             <View style={styles.itemRow}>
@@ -233,29 +277,36 @@ export const CartItem: React.FC<CartItemProps> = memo(({
                         )}
 
                         {/* Promotion / Campaign Row */}
-                        {promotion?.secondsRemaining ? (
-                            !countdown.isExpired && (
-                                <View style={styles.campaignRow}>
-                                    <View style={styles.campaignNameContainer}>
-                                        <Text
-                                            style={styles.campaignNameText}
-                                            numberOfLines={1}
-                                            adjustsFontSizeToFit={true}
-                                            minimumFontScale={0.5}
-                                        >
-                                            🏷️ {promotion.campaignType ? promotion.campaignType.replace(/_/g, ' ') : 'SHOP SALE'}
+                        {shouldShowPromotionRow ? (
+                            <View style={styles.campaignRow}>
+                                <View style={styles.campaignNameContainer}>
+                                    <Text
+                                        style={styles.campaignNameText}
+                                        numberOfLines={1}
+                                        adjustsFontSizeToFit={true}
+                                        minimumFontScale={0.5}
+                                    >
+                                        🏷️ {promotion?.campaignType ? promotion.campaignType.replace(/_/g, ' ') : 'SHOP SALE'}
+                                    </Text>
+                                </View>
+                                {isPromotionSyncing ? (
+                                    <View style={styles.promotionSyncState}>
+                                        <ActivityIndicator size="small" color={theme.colors.error} />
+                                        <Text style={styles.promotionSyncText}>
+                                            {t('status.promotionSyncing')}
                                         </Text>
                                     </View>
+                                ) : (
                                     <View style={styles.timerScale}>
                                         <CountdownDigits
-                                            duration={countdown.duration}
+                                            duration={countdownDuration}
                                             size="small"
                                             variant="sale"
                                             hideHoursIfZero={true}
                                         />
                                     </View>
-                                </View>
-                            )
+                                )}
+                            </View>
                         ) : null}
 
                         {/* Price & Quantity Row */}
@@ -302,7 +353,7 @@ export const CartItem: React.FC<CartItemProps> = memo(({
                         </View>
 
                         {/* Stock Warnings - moved out of price container, aligned to the right below the stepper */}
-                        {promotion?.secondsRemaining && promotion.stockRemaining > 0 && !countdown.isExpired ? (
+                        {promotion?.secondsRemaining && promotion.stockRemaining > 0 && !isCountdownExpired && !isPromotionSyncing ? (
                             <View style={styles.promoWarningRow}>
                                 <IconSymbol name="local-fire-department" size={14} color={theme.colors.error} />
                                 <Text style={[styles.lowStockWarning, styles.lowStockWarningUrgent, styles.noMarginTop]}>
@@ -497,6 +548,17 @@ const styles = StyleSheet.create((theme, rt) => {
             alignItems: 'flex-end',
             transform: [{ scale: 0.85 }],
             marginRight: -4,
+        },
+        promotionSyncState: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 6,
+            flexShrink: 1,
+        },
+        promotionSyncText: {
+            fontSize: f(10),
+            fontWeight: '600',
+            color: theme.colors.error,
         },
         originalPrice: {
             fontSize: f(theme.fontSizes.sm),

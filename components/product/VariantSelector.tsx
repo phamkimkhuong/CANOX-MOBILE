@@ -1,6 +1,12 @@
-import type { ProductOptionUI, SelectedOptions } from '@/types/product/productDetail';
+import type {
+    ProductOptionUI,
+    ProductOptionValueWithAvailability,
+    ProductOptionWithAvailability,
+    SelectedOptions,
+} from '@/types/product/productDetail';
 import { formatCurrency } from '@/utils/format';
 import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -34,13 +40,15 @@ export type VariantSheetMode = 'select' | 'add-to-cart' | 'buy-now';
 interface VariantBottomSheetProps {
     visible: boolean;
     onClose: () => void;
-    options: OptionWithAvailability[];
+    options: ProductOptionWithAvailability[];
     selectedOptions: SelectedOptions;
     onSelectOption: (optionName: string, valueName: string) => void;
     currentPrice?: number;
     originalPrice?: number;
     currentStock?: number;
     selectedImage?: string;
+    selectedPromotionType?: string;
+    selectedPromotionPercentage?: number;
     quantity: number;
     onQuantityChange: (quantity: number) => void;
     mode: VariantSheetMode;
@@ -48,25 +56,8 @@ interface VariantBottomSheetProps {
     isConfirmDisabled?: boolean;
 }
 
-interface OptionWithAvailability extends ProductOptionUI {
-    values: Array<{
-        id: string;
-        name: string;
-        displayOrder?: number;
-        image?: string | null;
-        isSelected: boolean;
-        isAvailable: boolean;
-    }>;
-}
-
 interface OptionValueButtonProps {
-    value: {
-        id: string;
-        name: string;
-        image?: string | null;
-        isSelected: boolean;
-        isAvailable: boolean;
-    };
+    value: ProductOptionValueWithAvailability;
     onPress: () => void;
 }
 
@@ -163,8 +154,23 @@ const OptionValueButton = memo<OptionValueButtonProps>(({
     onPress,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('product');
 
     const hasImage = !!value.image;
+    const promotionIndicator = useMemo(() => {
+        if (!value.isAvailable || value.promotionState === 'none') {
+            return null;
+        }
+
+        const isFlashSale = value.promotionType === 'FLASH_SALE';
+
+        return {
+            icon: isFlashSale ? 'flash-sharp' : 'pricetag',
+            accessibilityLabel: value.promotionState === 'active'
+                ? (isFlashSale ? t('variant.flashSaleBadge') : t('variant.promoBadge'))
+                : (isFlashSale ? t('variant.flashSaleCandidateBadge') : t('variant.promoCandidateBadge')),
+        } as const;
+    }, [t, value.isAvailable, value.promotionState, value.promotionType]);
 
     return (
         <Pressable
@@ -185,15 +191,30 @@ const OptionValueButton = memo<OptionValueButtonProps>(({
                     recyclingKey={value.id}
                 />
             )}
-            <Text
-                style={[
-                    valueStyles.text,
-                    value.isSelected && valueStyles.textSelected,
-                    !value.isAvailable && valueStyles.textDisabled,
-                ]}
-            >
-                {value.name}
-            </Text>
+            <View style={valueStyles.content}>
+                <Text
+                    style={[
+                        valueStyles.text,
+                        value.isSelected && valueStyles.textSelected,
+                        !value.isAvailable && valueStyles.textDisabled,
+                    ]}
+                >
+                    {value.name}
+                </Text>
+            </View>
+            {promotionIndicator && (
+                <View
+                    accessible
+                    accessibilityLabel={promotionIndicator.accessibilityLabel}
+                    style={valueStyles.promotionMarker}
+                >
+                    <IconSymbol
+                        name={promotionIndicator.icon}
+                        size={14}
+                        color={theme.colors.newPrimary}
+                    />
+                </View>
+            )}
             {value.isSelected && (
                 <View style={valueStyles.checkmark}>
                     <IconSymbol name="check" size={12} color={theme.colors.surface} />
@@ -232,6 +253,9 @@ const valueStyles = StyleSheet.create((theme) => ({
         height: 32,
         borderRadius: 4,
     },
+    content: {
+        flexShrink: 1,
+    },
     text: {
         fontSize: 14,
         color: theme.colors.typography,
@@ -242,6 +266,13 @@ const valueStyles = StyleSheet.create((theme) => ({
     },
     textDisabled: {
         color: theme.colors.secondary,
+    },
+    promotionMarker: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     checkmark: {
         position: 'absolute',
@@ -274,6 +305,8 @@ export const VariantBottomSheet = memo<VariantBottomSheetProps>(({
     originalPrice,
     currentStock,
     selectedImage,
+    selectedPromotionType,
+    selectedPromotionPercentage,
     quantity,
     onQuantityChange,
     mode,
@@ -313,6 +346,26 @@ export const VariantBottomSheet = memo<VariantBottomSheetProps>(({
                 return t('variant.confirm');
         }
     }, [mode, t]);
+
+    const selectedPromotionMeta = useMemo(() => {
+        if (!selectedPromotionType) {
+            return null;
+        }
+
+        const isFlashSale = selectedPromotionType === 'FLASH_SALE';
+        const baseLabel = isFlashSale
+            ? t('variant.flashSaleBadge')
+            : t('variant.promoBadge');
+        const label = selectedPromotionPercentage && selectedPromotionPercentage > 0
+            ? `${baseLabel} ${selectedPromotionPercentage}%`
+            : baseLabel;
+
+        return {
+            icon: isFlashSale ? 'flash-sharp' : 'pricetag',
+            label,
+            isFlashSale,
+        } as const;
+    }, [selectedPromotionPercentage, selectedPromotionType, t]);
 
     // Memoize stop propagation handler
     const handleContainerPress = useCallback((e: { stopPropagation: () => void }) => {
@@ -362,6 +415,55 @@ export const VariantBottomSheet = memo<VariantBottomSheetProps>(({
                                 <Text style={sheetStyles.stockText}>
                                     {t('variant.stock')}: {currentStock}
                                 </Text>
+                            )}
+                            {selectedPromotionMeta && (
+                                selectedPromotionMeta.isFlashSale ? (
+                                    <LinearGradient
+                                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                        colors={['#FF4B2B', '#FF416C'] as any}
+                                        start={{ x: 0, y: 0 }}
+                                        end={{ x: 1, y: 0 }}
+                                        style={[
+                                            sheetStyles.promotionInfoBadge,
+                                            sheetStyles.promotionInfoBadgeGradient,
+                                        ]}
+                                    >
+                                        <IconSymbol
+                                            name={selectedPromotionMeta.icon}
+                                            size={13}
+                                            color="#FFD700"
+                                        />
+                                        <Text
+                                            style={[
+                                                sheetStyles.promotionInfoText,
+                                                sheetStyles.promotionInfoTextFlashSale,
+                                            ]}
+                                        >
+                                            {selectedPromotionMeta.label}
+                                        </Text>
+                                    </LinearGradient>
+                                ) : (
+                                    <View
+                                        style={[
+                                            sheetStyles.promotionInfoBadge,
+                                            sheetStyles.promotionInfoBadgePromo,
+                                        ]}
+                                    >
+                                        <IconSymbol
+                                            name={selectedPromotionMeta.icon}
+                                            size={12}
+                                            color={theme.colors.warning}
+                                        />
+                                        <Text
+                                            style={[
+                                                sheetStyles.promotionInfoText,
+                                                sheetStyles.promotionInfoTextPromo,
+                                            ]}
+                                        >
+                                            {selectedPromotionMeta.label}
+                                        </Text>
+                                    </View>
+                                )
                             )}
                         </View>
                         <Pressable
@@ -531,6 +633,39 @@ const sheetStyles = StyleSheet.create((theme) => ({
         fontSize: 13,
         color: theme.colors.typographySecondary,
         marginTop: 4,
+    },
+    promotionInfoBadge: {
+        alignSelf: 'flex-start',
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        marginTop: 8,
+        borderRadius: 999,
+        borderWidth: 1,
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+    },
+    promotionInfoBadgeGradient: {
+        borderColor: 'rgba(255, 255, 255, 0.18)',
+        shadowColor: '#FF416C',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.18,
+        shadowRadius: 8,
+        elevation: 3,
+    },
+    promotionInfoBadgePromo: {
+        backgroundColor: theme.colors.warningSoft,
+        borderColor: theme.colors.warning,
+    },
+    promotionInfoText: {
+        fontSize: 12,
+        fontWeight: '700',
+    },
+    promotionInfoTextFlashSale: {
+        color: theme.colors.surface,
+    },
+    promotionInfoTextPromo: {
+        color: theme.colors.warning,
     },
     closeButton: {
         position: 'absolute',

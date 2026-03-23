@@ -8,6 +8,8 @@ export const FlashSaleSlotSchema = z.object({
     startTime: z.string(), // ISO String
     endTime: z.string(),   // ISO String
     label: z.string(),     // e.g. "Khung giờ vàng", "Flash Sale 12h"
+    secondsUntilStart: z.number().optional().default(0),
+    secondsUntilEnd: z.number().optional().default(0),
     isUpcoming: z.boolean().optional().default(false), // true = countdown to startTime, false = countdown to endTime
 });
 
@@ -21,6 +23,7 @@ export const FlashSaleItemSchema = z.object({
     productId: z.string(),
     name: z.string(),
     image: z.string(),
+    rating: z.number(),
     price: z.number(),
     originalPrice: z.number(),
     discountPercentage: z.number(),

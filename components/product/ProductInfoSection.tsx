@@ -216,6 +216,7 @@ export const ProductInfoSection = memo<ProductInfoSectionProps>(({
             {/* Flash Sale Banner - Full Width */}
             {flashSale?.isActive && (
                 <ProductFlashSaleBar
+                    key={`${flashSale.campaignType ?? 'flash'}:${flashSale.endTime ?? 'no-end'}:${flashSale.secondsRemaining ?? 'no-seconds'}`}
                     flashSale={flashSale}
                     onExpired={onFlashSaleExpired}
                 />

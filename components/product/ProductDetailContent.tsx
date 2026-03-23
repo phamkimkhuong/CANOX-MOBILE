@@ -2,7 +2,7 @@ import { ProductCard } from '@/components/ui/product/ProductCard';
 import { ROUTES, chatRoutes, checkoutRoutes, productRoutes, shopRoutes } from '@/constants/routes';
 import { useAddToCart } from '@/hooks/api/cart';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
-import { useRelatedProducts } from '@/hooks/api/product/useProductDetail';
+import { PRODUCT_DETAIL_QUERY_KEYS, useRelatedProducts } from '@/hooks/api/product/useProductDetail';
 import { useProductShippingInfo } from '@/hooks/api/product/useShippingEligibility';
 import { useProductVariant } from '@/hooks/useProductVariant';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -14,11 +14,13 @@ import { createLogger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
 import { toSizedImageUrl } from '@/utils/url';
 import { FlashList, FlashListRef, ListRenderItemInfo } from '@shopify/flash-list';
+import { useQueryClient } from '@tanstack/react-query';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     ActionSheetIOS,
     ActivityIndicator,
+    InteractionManager,
     NativeScrollEvent,
     NativeSyntheticEvent,
     Platform,
@@ -46,6 +48,9 @@ import type { VariantSheetMode } from './VariantSelector';
 import { VariantBottomSheet, VariantSelectorRow } from './VariantSelector';
 
 const log = createLogger('ProductDetailContent');
+const FLASH_SALE_EXPIRED_PROBE_DELAYS_MS = [0, 1500, 3000] as const;
+const FLASH_SALE_RESET_THRESHOLD_SECONDS = 30;
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 type ProductDetailListItem =
     | { type: 'gallery'; id: string }
@@ -66,11 +71,13 @@ interface ProductDetailContentProps {
     /** Shared scrollY value for NavBar animation */
     scrollY: SharedValue<number>;
     /** Refetch callback for pull-to-refresh */
-    refetch: () => void;
+    refetch: () => Promise<unknown>;
     /** Whether the query is currently refetching */
     isRefetching: boolean;
     /** Action from deep link (auto-open variant sheet) */
     action?: 'buy-now' | 'add-to-cart';
+    /** Cached hero preview from listing surfaces, used only for the first reveal */
+    heroPreviewUrl?: string | null;
     /** Whether transition animation is finished (controls lazy-load of related products) */
     isTransitionFinished: boolean;
 }
@@ -81,28 +88,45 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
     refetch,
     isRefetching,
     action,
+    heroPreviewUrl = null,
     isTransitionFinished,
 }) => {
     const { theme } = useUnistyles();
     const { t } = useTranslation(['product', 'chat', 'common']);
+    const queryClient = useQueryClient();
 
     // === UI State ===
     const [variantSheetVisible, setVariantSheetVisible] = useState(false);
     const [variantSheetMode, setVariantSheetMode] = useState<VariantSheetMode>('select');
     const [quantity, setQuantity] = useState(1);
     const [priceBreakdownVisible, setPriceBreakdownVisible] = useState(false);
+    const [areSecondaryQueriesEnabled, setAreSecondaryQueriesEnabled] = useState(false);
 
     const myShopId = useAuthStore((s) => s.shopId);
     const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
+    React.useEffect(() => {
+        setAreSecondaryQueriesEnabled(false);
+
+        const task = InteractionManager.runAfterInteractions(() => {
+            setAreSecondaryQueriesEnabled(true);
+        });
+
+        return () => {
+            task.cancel?.();
+        };
+    }, [product.id]);
+
     // === Shipping Check ===
-    const { data: shippingInfo } = useProductShippingInfo(product.id);
+    const { data: shippingInfo } = useProductShippingInfo(product.id, {
+        enabled: areSecondaryQueriesEnabled,
+    });
     const isNotEligible = shippingInfo && !shippingInfo.eligible;
 
     // === Related Products (lazy-loaded: waits for transition to finish) ===
     const { data: relatedData, isLoading: isLoadingRelated } = useRelatedProducts(
         product.id,
-        { enabled: isTransitionFinished }
+        { enabled: isTransitionFinished && areSecondaryQueriesEnabled }
     );
     const relatedProducts = useMemo(() => relatedData?.content ?? [], [relatedData]);
 
@@ -126,6 +150,7 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
     // === Gallery Ref for scrolling to variant image ===
     const galleryRef = useRef<ProductGalleryRef>(null);
     const listRef = useRef<FlashListRef<ProductDetailListItem>>(null);
+    const flashSaleRefreshInProgressRef = useRef(false);
 
     // Auto-open action sheet if action is present in params
     const hasHandledActionRef = React.useRef(false);
@@ -274,6 +299,45 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
         setPriceBreakdownVisible(false);
     }, [refetch, resetSelection]);
 
+    const handleFlashSaleExpired = useCallback(async () => {
+        if (!product.flashSale?.isActive || flashSaleRefreshInProgressRef.current) {
+            return;
+        }
+
+        flashSaleRefreshInProgressRef.current = true;
+        const initialFlashSaleSignature = `${product.flashSale.campaignType ?? 'flash'}:${product.flashSale.endTime ?? 'no-end'}`;
+
+        try {
+            for (const delayMs of FLASH_SALE_EXPIRED_PROBE_DELAYS_MS) {
+                if (delayMs > 0) {
+                    await wait(delayMs);
+                }
+
+                await refetch();
+
+                const latestProduct = queryClient.getQueryData<ProductDetailUI>(
+                    PRODUCT_DETAIL_QUERY_KEYS.detail(product.id)
+                );
+
+                if (!latestProduct?.flashSale?.isActive) {
+                    return;
+                }
+
+                const latestSecondsRemaining = latestProduct.flashSale.secondsRemaining ?? 0;
+                if (latestSecondsRemaining > FLASH_SALE_RESET_THRESHOLD_SECONDS) {
+                    return;
+                }
+
+                const latestFlashSaleSignature = `${latestProduct.flashSale.campaignType ?? 'flash'}:${latestProduct.flashSale.endTime ?? 'no-end'}`;
+                if (latestFlashSaleSignature !== initialFlashSaleSignature) {
+                    return;
+                }
+            }
+        } finally {
+            flashSaleRefreshInProgressRef.current = false;
+        }
+    }, [product.flashSale, product.id, queryClient, refetch]);
+
     const handleAddToCart = useCallback(() => {
         if (!isAuthenticated) {
             Toast.show({
@@ -417,7 +481,12 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
             case 'gallery':
                 return (
                     <View style={styles.fullWidthSection}>
-                        <ProductGallery ref={galleryRef} gallery={product.gallery} onImagePress={handleImagePress} />
+                        <ProductGallery
+                            ref={galleryRef}
+                            gallery={product.gallery}
+                            heroPreviewUrl={heroPreviewUrl}
+                            onImagePress={handleImagePress}
+                        />
                     </View>
                 );
             case 'info':
@@ -431,6 +500,7 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
                             totalSold={product.totalSold}
                             flashSale={product.flashSale}
                             isInternational={product.isInternational}
+                            onFlashSaleExpired={handleFlashSaleExpired}
                             onShowPriceBreakdown={handleOpenPriceBreakdown}
                         />
                     </View>
@@ -460,6 +530,7 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
                             reviewStatistics={product.reviewStatistics}
                             rating={product.rating}
                             totalReviews={product.totalReviews}
+                            enablePreviewFetch={areSecondaryQueriesEnabled}
                             onViewAllPress={handleViewAllReviews}
                         />
                     </View>
@@ -508,14 +579,14 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
                         discount={item.data.discountPercentage}
                         isMall={item.data.isMall}
                         isInternational={item.data.isInternational}
+                        enableHaptic={false}
                         onPress={() => Navigator.push(productRoutes.detail(item.data.id))}
-                        route={productRoutes.detail(item.data.id)}
                     />
                 );
             default:
                 return null;
         }
-    }, [product, selectionResult, selectedOptions, handleImagePress, handleOpenVariantSheet, handleOpenPriceBreakdown, handleViewAllReviews, handleShopPress, t]);
+    }, [product, selectionResult, selectedOptions, heroPreviewUrl, areSecondaryQueriesEnabled, handleFlashSaleExpired, handleImagePress, handleOpenVariantSheet, handleOpenPriceBreakdown, handleViewAllReviews, handleShopPress, t]);
 
     const overrideItemLayout = useCallback((layout: { span?: number }, item: ProductDetailListItem) => {
         if (item.type !== 'related_product') layout.span = 2;
@@ -598,6 +669,8 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
                 originalPrice={selectionResult.displayPrice.originalPrice}
                 currentStock={selectionResult.availableStock}
                 selectedImage={currentImage}
+                selectedPromotionType={selectionResult.selectedVariant?.campaignType}
+                selectedPromotionPercentage={selectionResult.selectedVariant?.promotionPercentage}
                 quantity={quantity}
                 onQuantityChange={setQuantity}
                 mode={variantSheetMode}

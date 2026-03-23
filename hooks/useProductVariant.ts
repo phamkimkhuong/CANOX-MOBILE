@@ -3,7 +3,8 @@ import type {
     PriceBreakdown,
     PriceDisplay,
     ProductDetailUI,
-    ProductOptionUI,
+    ProductOptionWithAvailability,
+    ProductOptionValueWithAvailability,
     SelectedOptions,
     VariantMatrixValue,
     VariantSelectionResult,
@@ -14,6 +15,13 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const LOW_STOCK_THRESHOLD = 5;
+const TACTICAL_CAMPAIGN_TYPES = new Set([
+    'FLASH_SALE',
+    'DAILY_DEAL',
+    'MEGA_SALE',
+    'SHOP_SALE',
+    'SHOP_PROMOTION',
+]);
 
 // ============================================
 // HELPER FUNCTIONS
@@ -129,6 +137,76 @@ const isValueAvailable = (
     return variant?.isAvailable ?? false;
 };
 
+const getMatchingVariantsForSelection = (
+    selection: SelectedOptions,
+    product: ProductDetailUI
+): VariantMatrixValue[] => {
+    const matches: VariantMatrixValue[] = [];
+
+    for (const [key, variantValue] of product.variantMatrix) {
+        if (!variantValue.isAvailable) continue;
+
+        const parsedKey = parseVariantMatrixKey(key);
+        let matchesSelection = true;
+
+        for (const [optionName, optionValue] of Object.entries(selection)) {
+            if (optionValue === '') continue;
+
+            const normalizedOptionName = normalizeString(optionName);
+            const normalizedOptionValue = normalizeString(optionValue);
+
+            if (parsedKey[normalizedOptionName] !== normalizedOptionValue) {
+                matchesSelection = false;
+                break;
+            }
+        }
+
+        if (matchesSelection) {
+            matches.push(variantValue);
+        }
+    }
+
+    return matches;
+};
+
+const getOptionValuePromotionSignal = (
+    optionName: string,
+    valueName: string,
+    currentSelection: SelectedOptions,
+    product: ProductDetailUI
+): Pick<ProductOptionValueWithAvailability, 'promotionState' | 'promotionType'> => {
+    const testSelection = {
+        ...currentSelection,
+        [optionName]: valueName,
+    };
+
+    const matchingVariants = getMatchingVariantsForSelection(testSelection, product);
+    if (matchingVariants.length === 0) {
+        return { promotionState: 'none' };
+    }
+
+    const promotedVariants = matchingVariants.filter((variant) =>
+        !!variant.campaignType && TACTICAL_CAMPAIGN_TYPES.has(variant.campaignType)
+    );
+
+    if (promotedVariants.length === 0) {
+        return { promotionState: 'none' };
+    }
+
+    const campaignTypes = Array.from(new Set(
+        promotedVariants
+            .map((variant) => variant.campaignType)
+            .filter((campaignType): campaignType is string => !!campaignType)
+    ));
+
+    return {
+        promotionState: promotedVariants.length === matchingVariants.length
+            ? 'active'
+            : 'possible',
+        promotionType: campaignTypes.length === 1 ? campaignTypes[0] : undefined,
+    };
+};
+
 // ============================================
 // MAIN HOOK
 // ============================================
@@ -153,17 +231,6 @@ interface UseProductVariantReturn {
     isOptionValueSelected: (optionName: string, valueName: string) => boolean;
     isOptionValueAvailable: (optionName: string, valueName: string) => boolean;
     getOptionsWithAvailability: () => ProductOptionWithAvailability[];
-}
-
-interface ProductOptionWithAvailability extends ProductOptionUI {
-    values: Array<{
-        id: string;
-        name: string;
-        displayOrder?: number;
-        image?: string | null;
-        isSelected: boolean;
-        isAvailable: boolean;
-    }>;
 }
 
 /**
@@ -479,6 +546,12 @@ export const useProductVariant = (
                 ...value,
                 isSelected: selectedOptions[option.name] === value.name,
                 isAvailable: isValueAvailable(
+                    option.name,
+                    value.name,
+                    selectedOptions,
+                    product
+                ),
+                ...getOptionValuePromotionSignal(
                     option.name,
                     value.name,
                     selectedOptions,

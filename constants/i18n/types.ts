@@ -23,6 +23,10 @@ export interface ProductTranslation {
         buyNow: string;
         stock: string;
         quantity: string;
+        flashSaleBadge: string;
+        flashSaleCandidateBadge: string;
+        promoBadge: string;
+        promoCandidateBadge: string;
     };
     bottomBar: {
         chat: string;
@@ -161,6 +165,8 @@ export interface HomeTranslation {
         almostGone: string;
         sold: string;
         onlyLeft: string;
+        upcomingPriceLabel: string;
+        upcomingSaveAmount: string;
     };
     featured: {
         title: string;
@@ -519,6 +525,7 @@ export interface CartTranslation {
     };
     status: {
         syncing: string;
+        promotionSyncing: string;
         rebuySuccess: string;
         rebuySuccessDetail: string;
         addSuccess: string;

@@ -22,6 +22,8 @@ export const HOME_STRINGS: HomeTranslation = {
         almostGone: 'Almost gone',
         sold: 'Sold',
         onlyLeft: 'Only {{count}} left',
+        upcomingPriceLabel: 'Flash sale price',
+        upcomingSaveAmount: 'Save {{amount}}',
     },
     featured: {
         title: 'Featured Categories',

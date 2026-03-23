@@ -25,7 +25,8 @@ interface ProductCardProps {
     isInternational?: boolean;
     onPress?: () => void;
     onPressIn?: () => void;
-    route: Href | string;
+    route?: Href | string;
+    enableHaptic?: boolean;
     priceDisplay?: string;
     variantId?: string;
     onFavoritePress?: (variantId: string) => void;
@@ -63,6 +64,7 @@ export const ProductCard = React.memo(({
     onPress,
     onPressIn,
     route,
+    enableHaptic = true,
     priceDisplay,
     variantId,
     onFavoritePress,
@@ -88,146 +90,148 @@ export const ProductCard = React.memo(({
             onPress={onPress}
             onPressIn={onPressIn}
             onLongPress={onLongPress}
-            style={styles.container}
+            enableHaptic={enableHaptic}
+            style={({ pressed }) => [
+                styles.container,
+                pressed && styles.containerPressed,
+            ]}
         >
-            {({ pressed }) => (
-                <View
-                    style={[styles.shadowWrapper, pressed && styles.pressedOpacity]}
-                    shouldRasterizeIOS={true}
-                    renderToHardwareTextureAndroid={true}
-                >
-                    <View style={styles.surface}>
-                        {/* Specular Highlight (Liquid Feel) */}
-                        <View style={styles.specularHighlight} />
+            <View
+                style={styles.shadowWrapper}
+                shouldRasterizeIOS={true}
+                renderToHardwareTextureAndroid={true}
+            >
+                <View style={styles.surface}>
+                    {/* Specular Highlight (Liquid Feel) */}
+                    <View style={styles.specularHighlight} />
 
-                        {/* Image Container */}
-                        <View style={styles.imageWrapper}>
-                            <Image source={{ uri: toSizedImageUrl(image, null, imageSize) ?? image }} style={styles.image} contentFit="cover" />
+                    {/* Image Container */}
+                    <View style={styles.imageWrapper}>
+                        <Image source={{ uri: toSizedImageUrl(image, null, imageSize) ?? image }} style={styles.image} contentFit="cover" />
 
-                            {/* Discount Badge */}
-                            {discount != null && discount > 0 && (
-                                <View style={styles.discountBadge}>
-                                    <Text style={styles.discountText}>-{discount}%</Text>
-                                </View>
-                            )}
+                        {/* Discount Badge */}
+                        {discount != null && discount > 0 && (
+                            <View style={styles.discountBadge}>
+                                <Text style={styles.discountText}>-{discount}%</Text>
+                            </View>
+                        )}
 
-                            {/* Urgent Priority Badge */}
-                            {priority === 2 && (
-                                <View style={styles.urgentBadge}>
-                                    <IconSymbol name="fire" size={10} color="#fff" />
-                                </View>
-                            )}
+                        {/* Urgent Priority Badge */}
+                        {priority === 2 && (
+                            <View style={styles.urgentBadge}>
+                                <IconSymbol name="fire" size={10} color="#fff" />
+                            </View>
+                        )}
 
-                            {/* Mall Badge */}
-                            {isMall && (
-                                <View style={styles.mallBadge}>
-                                    <Text style={styles.mallText}>{t('badges.mall')}</Text>
-                                </View>
-                            )}
+                        {/* Mall Badge */}
+                        {isMall && (
+                            <View style={styles.mallBadge}>
+                                <Text style={styles.mallText}>{t('badges.mall')}</Text>
+                            </View>
+                        )}
 
-                            {/* Favorite Button */}
-                            {variantId && onFavoritePress ? (
-                                <FavoriteButton
-                                    variantId={variantId}
-                                    onPress={onFavoritePress}
-                                    alwaysFilled={favoriteAlwaysFilled}
+                        {/* Favorite Button */}
+                        {variantId && onFavoritePress ? (
+                            <FavoriteButton
+                                variantId={variantId}
+                                onPress={onFavoritePress}
+                                alwaysFilled={favoriteAlwaysFilled}
+                            />
+                        ) : (
+                            <View style={styles.favoriteBtn}>
+                                <IconSymbol name="favorite-border" size={18} color="#333" />
+                            </View>
+                        )}
+
+                    </View>
+
+                    {/* Content */}
+                    <View style={styles.content}>
+                        <Text numberOfLines={2} style={styles.title}>
+                            {title}
+                        </Text>
+
+                        {/* International Shipping Badge - below title */}
+                        {isInternational && (
+                            <InternationalBadge label={t('badges.international')} size="md" />
+                        )}
+
+                        {/* Rating */}
+                        <View style={styles.ratingRow}>
+                            {[1, 2, 3, 4, 5].map((star) => (
+                                <IconSymbol
+                                    key={star}
+                                    name={star <= Math.floor(rating) ? 'star' : 'star-border'}
+                                    size={10}
+                                    color="#facc15"
                                 />
-                            ) : (
-                                <View style={styles.favoriteBtn}>
-                                    <IconSymbol name="favorite-border" size={18} color="#333" />
-                                </View>
-                            )}
-
-                        </View>
-
-                        {/* Content */}
-                        <View style={styles.content}>
-                            <Text numberOfLines={2} style={styles.title}>
-                                {title}
-                            </Text>
-
-                            {/* International Shipping Badge - below title */}
-                            {isInternational && (
-                                <InternationalBadge label={t('badges.international')} size="md" />
-                            )}
-
-                            {/* Rating */}
-                            <View style={styles.ratingRow}>
-                                {[1, 2, 3, 4, 5].map((star) => (
-                                    <IconSymbol
-                                        key={star}
-                                        name={star <= Math.floor(rating) ? 'star' : 'star-border'}
-                                        size={10}
-                                        color="#facc15"
-                                    />
-                                ))}
-                                {reviews > 0 && (
-                                    <Text style={styles.reviewsText}>
-                                        ({reviews >= 1000 ? `${(reviews / 1000).toFixed(1)}k` : reviews})
-                                    </Text>
-                                )}
-                            </View>
-
-                            {/* Price Row */}
-                            <View style={styles.priceRow}>
-                                <Text style={stylesheet.price}>{priceDisplay || formatCurrency(price)}</Text>
-                                {originalPrice != null && originalPrice > price && (
-                                    <Text style={stylesheet.originalPrice}>{formatCurrency(originalPrice)}</Text>
-                                )}
-                            </View>
-
-                            {/* Target Price Row */}
-                            {targetPrice ? (
-                                <View style={styles.targetPriceRow}>
-                                    <IconSymbol name="flag" size={11} color={theme.colors.accent} />
-                                    <Text style={styles.targetPriceLabel}>
-                                        {targetPriceLabel ?? t('wishlist.targetPrice')}:
-                                    </Text>
-                                    <Text style={styles.targetPriceValue}>{targetPrice}</Text>
-                                </View>
-                            ) : showSetupTargetPrice ? (
-                                <View style={styles.setupTargetPriceRow}>
-                                    <IconSymbol name="notifications-outline" size={11} color={theme.colors.newPrimary} />
-                                    <Text style={styles.setupTargetPriceText}>{t('wishlist.setupTargetPrice')}</Text>
-                                </View>
-                            ) : null}
-
-                            {/* Badge (e.g. "Đã giảm giá!") */}
-                            {badgeText && (
-                                <View style={[styles.infoBadge, badgeColor ? { backgroundColor: badgeColor } : undefined]}>
-                                    <IconSymbol name="check-circle" size={11} color="#16a34a" />
-                                    <Text style={[styles.infoBadgeText, badgeColor === '#dcfce7' ? undefined : styles.badgeTextWhite]}>{badgeText}</Text>
-                                </View>
-                            )}
-
-                            {/* Sold & Location Row */}
-                            {!hideSold && (
-                                <View style={styles.metaRow}>
-                                    {sold != null && (
-                                        <Text style={styles.soldText}>
-                                            {t('info.soldCountTemplate', { soldCount: formatSoldCount(sold) })}
-                                        </Text>
-                                    )}
-                                    {location && (
-                                        <View style={styles.locationRow}>
-                                            <IconSymbol name="location-outline" size={10} color={theme.colors.typographySecondary} />
-                                            <Text style={styles.location} numberOfLines={1}>{location}</Text>
-                                        </View>
-                                    )}
-                                </View>
-                            )}
-
-                            {/* Note Indicator (wishlist context) */}
-                            {hasNotes && (
-                                <View style={styles.noteIndicator}>
-                                    <IconSymbol name="note" size={10} color={theme.colors.typographySecondary} />
-                                    <Text style={styles.noteIndicatorText}>{t('wishlist.hasNotes')}</Text>
-                                </View>
+                            ))}
+                            {reviews > 0 && (
+                                <Text style={styles.reviewsText}>
+                                    ({reviews >= 1000 ? `${(reviews / 1000).toFixed(1)}k` : reviews})
+                                </Text>
                             )}
                         </View>
+
+                        {/* Price Row */}
+                        <View style={styles.priceRow}>
+                            <Text style={stylesheet.price}>{priceDisplay || formatCurrency(price)}</Text>
+                            {originalPrice != null && originalPrice > price && (
+                                <Text style={stylesheet.originalPrice}>{formatCurrency(originalPrice)}</Text>
+                            )}
+                        </View>
+
+                        {/* Target Price Row */}
+                        {targetPrice ? (
+                            <View style={styles.targetPriceRow}>
+                                <IconSymbol name="flag" size={11} color={theme.colors.accent} />
+                                <Text style={styles.targetPriceLabel}>
+                                    {targetPriceLabel ?? t('wishlist.targetPrice')}:
+                                </Text>
+                                <Text style={styles.targetPriceValue}>{targetPrice}</Text>
+                            </View>
+                        ) : showSetupTargetPrice ? (
+                            <View style={styles.setupTargetPriceRow}>
+                                <IconSymbol name="notifications-outline" size={11} color={theme.colors.newPrimary} />
+                                <Text style={styles.setupTargetPriceText}>{t('wishlist.setupTargetPrice')}</Text>
+                            </View>
+                        ) : null}
+
+                        {/* Badge (e.g. "Đã giảm giá!") */}
+                        {badgeText && (
+                            <View style={[styles.infoBadge, badgeColor ? { backgroundColor: badgeColor } : undefined]}>
+                                <IconSymbol name="check-circle" size={11} color="#16a34a" />
+                                <Text style={[styles.infoBadgeText, badgeColor === '#dcfce7' ? undefined : styles.badgeTextWhite]}>{badgeText}</Text>
+                            </View>
+                        )}
+
+                        {/* Sold & Location Row */}
+                        {!hideSold && (
+                            <View style={styles.metaRow}>
+                                {sold != null && (
+                                    <Text style={styles.soldText}>
+                                        {t('info.soldCountTemplate', { soldCount: formatSoldCount(sold) })}
+                                    </Text>
+                                )}
+                                {location && (
+                                    <View style={styles.locationRow}>
+                                        <IconSymbol name="location-outline" size={10} color={theme.colors.typographySecondary} />
+                                        <Text style={styles.location} numberOfLines={1}>{location}</Text>
+                                    </View>
+                                )}
+                            </View>
+                        )}
+
+                        {/* Note Indicator (wishlist context) */}
+                        {hasNotes && (
+                            <View style={styles.noteIndicator}>
+                                <IconSymbol name="note" size={10} color={theme.colors.typographySecondary} />
+                                <Text style={styles.noteIndicatorText}>{t('wishlist.hasNotes')}</Text>
+                            </View>
+                        )}
                     </View>
                 </View>
-            )}
+            </View>
         </SmartNavButton>
     );
 });
@@ -238,6 +242,9 @@ const stylesheet = StyleSheet.create((theme) => ({
     container: {
         flex: 1,
         padding: 4,
+    },
+    containerPressed: {
+        opacity: 0.96,
     },
     shadowWrapper: {
         borderRadius: 24,
@@ -264,10 +271,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         height: 1,
         backgroundColor: 'rgba(255, 255, 255, 0.4)',
         zIndex: 10,
-    },
-    pressedOpacity: {
-        opacity: 0.9,
-        transform: [{ scale: 1 }],
     },
     imageWrapper: {
         width: '100%',

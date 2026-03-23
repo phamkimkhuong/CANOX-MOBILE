@@ -463,6 +463,23 @@ export interface ProductOptionUI {
     }>;
 }
 
+export type VariantOptionPromotionState = 'none' | 'active' | 'possible';
+
+export interface ProductOptionValueWithAvailability {
+    id: string;
+    name: string;
+    displayOrder?: number;
+    image?: string | null;
+    isSelected: boolean;
+    isAvailable: boolean;
+    promotionState: VariantOptionPromotionState;
+    promotionType?: string;
+}
+
+export interface ProductOptionWithAvailability extends ProductOptionUI {
+    values: ProductOptionValueWithAvailability[];
+}
+
 export interface ReviewStatistics {
     reviewableId?: string;
     totalReviews: number;

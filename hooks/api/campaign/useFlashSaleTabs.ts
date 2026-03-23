@@ -1,7 +1,11 @@
-import { API_ROUTES } from '@/constants/apiRoutes';
-import { request } from '@/services/api/client';
-import { ActiveSlotsResponse, ActiveSlotsResponseSchema, SlotStatus } from '@/types/campaign';
-import { useQuery } from '@tanstack/react-query';
+import {
+    filterApprovedFlashSaleSlots,
+    sortFlashSaleSlotsByStartTime,
+    useActiveFlashSaleSlots,
+    useUpcomingFlashSaleSlots,
+} from '@/hooks/api/campaign/useFlashSaleDataSource';
+import { SlotStatus } from '@/types/campaign';
+import { useMemo } from 'react';
 
 export interface FlashSaleTab {
     id: string;
@@ -19,64 +23,52 @@ export interface FlashSaleTab {
  * Hook to get all slots for Flash Sale screen (Active & Upcoming)
  */
 export const useFlashSaleTabs = () => {
-    return useQuery({
-        queryKey: ['campaigns', 'slots', 'all'],
-        queryFn: async (): Promise<FlashSaleTab[]> => {
-            // Get active slots (BE v2: paginated wrapper)
-            const activeResponse = await request<ActiveSlotsResponse>(
-                {
-                    url: API_ROUTES.CAMPAIGNS.ACTIVE_SLOTS,
-                    method: 'GET',
-                },
-                ActiveSlotsResponseSchema
-            );
+    const activeQuery = useActiveFlashSaleSlots();
+    const upcomingQuery = useUpcomingFlashSaleSlots(24);
 
-            // Get upcoming slots (next 24 hours)
-            const upcomingResponse = await request<ActiveSlotsResponse>(
-                {
-                    url: API_ROUTES.CAMPAIGNS.UPCOMING_SLOTS,
-                    method: 'GET',
-                    params: { hours: 24 }
-                },
-                ActiveSlotsResponseSchema
-            );
+    const data = useMemo<FlashSaleTab[]>(() => {
+        const activeSlots = filterApprovedFlashSaleSlots(activeQuery.data || []);
+        const upcomingSlots = filterApprovedFlashSaleSlots(upcomingQuery.data || []);
+        const allSlots = sortFlashSaleSlotsByStartTime([...activeSlots, ...upcomingSlots]);
 
-            // Filter out slots that have no approved products to avoid empty tabs
-            const activeSlots = (activeResponse.data?.content || []).filter(slot => (slot.approvedProducts || 0) > 0);
-            const upcomingSlots = (upcomingResponse.data?.content || []).filter(slot => (slot.approvedProducts || 0) > 0);
+        return allSlots.map((slot) => {
+            const startTime = new Date(slot.startTime);
+            const hour = startTime.getHours().toString().padStart(2, '0');
+            const minute = startTime.getMinutes().toString().padStart(2, '0');
 
-            // Combine and sort
-            const allSlots = [...activeSlots, ...upcomingSlots].sort((a, b) => {
-                return new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
-            });
+            let label = `${hour}:${minute}`;
+            const now = new Date();
 
-            // Map to UI Tabs
-            return allSlots.map((slot) => {
-                const startTime = new Date(slot.startTime);
-                const hour = startTime.getHours().toString().padStart(2, '0');
-                const minute = startTime.getMinutes().toString().padStart(2, '0');
+            if (startTime.toDateString() !== now.toDateString()) {
+                label = `${startTime.getDate()}/${startTime.getMonth() + 1} ${label}`;
+            }
 
-                let label = `${hour}:${minute}`;
-                const now = new Date();
+            return {
+                id: slot.id,
+                campaignId: slot.campaignId || undefined,
+                label,
+                status: (slot.status as SlotStatus) || SlotStatus.UPCOMING,
+                startTime: slot.startTime,
+                endTime: slot.endTime,
+                isActive: slot.status === SlotStatus.ACTIVE,
+                secondsUntilStart: slot.secondsUntilStart || 0,
+                secondsUntilEnd: slot.secondsUntilEnd || 0,
+            };
+        });
+    }, [activeQuery.data, upcomingQuery.data]);
 
-                // If it's another day, add date
-                if (startTime.toDateString() !== now.toDateString()) {
-                    label = `${startTime.getDate()}/${startTime.getMonth() + 1} ${label}`;
-                }
+    const refetch = async () => {
+        await Promise.all([
+            activeQuery.refetch(),
+            upcomingQuery.refetch(),
+        ]);
+    };
 
-                return {
-                    id: slot.id,
-                    campaignId: slot.campaignId || undefined,
-                    label,
-                    status: (slot.status as SlotStatus) || SlotStatus.UPCOMING,
-                    startTime: slot.startTime,
-                    endTime: slot.endTime,
-                    isActive: slot.status === SlotStatus.ACTIVE,
-                    secondsUntilStart: slot.secondsUntilStart || 0,
-                    secondsUntilEnd: slot.secondsUntilEnd || 0,
-                };
-            });
-        },
-        staleTime: 1000 * 60 * 5, // 5 minutes
-    });
+    return {
+        data,
+        isLoading: activeQuery.isLoading || upcomingQuery.isLoading,
+        isFetching: activeQuery.isFetching || upcomingQuery.isFetching,
+        isError: activeQuery.isError || upcomingQuery.isError,
+        refetch,
+    };
 };

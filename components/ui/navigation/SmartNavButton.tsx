@@ -2,14 +2,13 @@ import { Navigator } from '@/utils/navigation';
 import * as Haptics from 'expo-haptics';
 import { Href } from 'expo-router';
 import React, { useCallback } from 'react';
-import { GestureResponderEvent, Pressable, PressableProps, StyleProp, ViewStyle } from 'react-native';
+import { GestureResponderEvent, Pressable, PressableProps } from 'react-native';
 
 interface SmartButtonProps extends PressableProps {
     route?: Href | string;
     prefetchAction?: () => Promise<unknown> | void;
     /** Enable haptic feedback on press-in (default: true) */
     enableHaptic?: boolean;
-    style?: StyleProp<ViewStyle>;
 }
 
 /**
@@ -25,6 +24,8 @@ export const SmartNavButton: React.FC<SmartButtonProps> = ({
     onPress,
     ...restProps
 }) => {
+    const hasPressInWork = enableHaptic || !!prefetchAction || !!onPressIn;
+
     const handlePressIn = useCallback((event: GestureResponderEvent) => {
         if (enableHaptic) {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
@@ -50,7 +51,7 @@ export const SmartNavButton: React.FC<SmartButtonProps> = ({
     return (
         <Pressable
             {...restProps}
-            onPressIn={handlePressIn}
+            onPressIn={hasPressInWork ? handlePressIn : undefined}
             onPress={handlePress}
             delayLongPress={200}
             pressRetentionOffset={20}
