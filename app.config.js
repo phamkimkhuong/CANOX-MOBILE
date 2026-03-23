@@ -1,4 +1,6 @@
 require('ts-node/register');
+const packageJson = require('./package.json');
+
 
 // Helper to load plugins (supports both CJS and ESM via ts-node)
 const loadPlugin = (path) => {
@@ -13,7 +15,7 @@ module.exports = {
     "expo": {
         "name": IS_DEV ? "CanoX (Dev)" : (IS_PREVIEW ? "CanoX (Preview)" : "CanoX"),
         "slug": "canox",
-        "version": "1.0.0",
+        "version": packageJson.version,
         "orientation": "portrait",
         "icon": "./assets/images/icon.png",
         "scheme": "canox",
@@ -24,9 +26,7 @@ module.exports = {
             "resizeMode": "contain",
             "backgroundColor": "#f6f6f6"
         },
-        "runtimeVersion": {
-            "policy": "appVersion"
-        },
+        "runtimeVersion": packageJson.version,
         "updates": {
             "url": "https://u.expo.dev/34490ad6-6863-455c-bac8-4ee18be1a9a0",
             "enabled": true,
