@@ -8,6 +8,7 @@ import { ROUTES } from '@/constants/routes';
 import { PRODUCT_DETAIL_QUERY_KEYS, useProductDetail } from '@/hooks/api/product/useProductDetail';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { Navigator } from '@/utils/navigation';
+import { getProductPreview } from '@/utils/productPreviewCache';
 import { useQueryClient } from '@tanstack/react-query';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useState } from 'react';
