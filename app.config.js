@@ -35,7 +35,10 @@ module.exports = {
         },
         "ios": {
             "supportsTablet": true,
-            "bundleIdentifier": IS_DEV ? "com.cano.canox.dev" : (IS_PREVIEW ? "com.cano.canox.preview" : "com.cano.canox")
+            "bundleIdentifier": IS_DEV ? "com.cano.canox.dev" : (IS_PREVIEW ? "com.cano.canox.preview" : "com.cano.canox"),
+            "infoPlist": {
+                "ITSAppUsesNonExemptEncryption": false
+            }
         },
         "android": {
             "icon": "./assets/images/icon-android.png",
