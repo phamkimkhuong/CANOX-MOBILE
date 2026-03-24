@@ -31,7 +31,6 @@ import type {
 } from '@/types/checkout/checkoutPreview';
 import type { RecommendedVoucherDetailDTO } from '@/types/checkout/platformVoucherRecommendation';
 import { formatCurrency } from '../format';
-import { toSizedImageUrl } from '../url';
 
 const DEFAULT_IMAGE = 'https://via.placeholder.com/96';
 
@@ -49,12 +48,12 @@ export const toCheckoutItemUI = (dto: CheckoutPreviewItemDTO): CheckoutItemUI =>
     variantId: dto.variantId,
     productName: dto.productName,
     variantAttributes: dto.variantAttributes || '',
-    imageUrl: toSizedImageUrl(dto.imagePath || dto.basePath, dto.extension) ?? DEFAULT_IMAGE,
+    imageUrl: dto.imageUrl ?? DEFAULT_IMAGE,
     unitPrice: dto.unitPrice ?? 0,
     quantity: dto.quantity ?? 1,
     lineTotal: dto.lineTotal ?? 0,
     shopId: '', // Will be set by parent
-    promotionId: dto.promotion?.promotionId ?? null,
+    promotionId: dto.promotionId ?? null,
 });
 
 // ============================================
@@ -63,11 +62,26 @@ export const toCheckoutItemUI = (dto: CheckoutPreviewItemDTO): CheckoutItemUI =>
 
 /**
  * Transform shipping option DTO to ShippingMethod UI type.
- * Maps serviceCode to id and serviceType to type.
+ * Maps backend shipping option to the UI shipping model.
  */
+const inferShippingMethodType = (label: string): ShippingMethod['type'] => {
+    const normalized = label.toLowerCase();
+
+    if (normalized.includes('hỏa tốc') || normalized.includes('hoa toc') || normalized.includes('express')) {
+        return 'express';
+    }
+    if (normalized.includes('nhanh')) {
+        return 'fast';
+    }
+    if (normalized.includes('tiêu chuẩn') || normalized.includes('tieu chuan') || normalized.includes('standard') || normalized.includes('supership')) {
+        return 'supper_ship';
+    }
+    return 'standard';
+};
+
 export const toShippingMethod = (dto: CheckoutShippingOptionDTO): ShippingMethod => ({
     id: String(dto.serviceCode ?? ''),
-    type: (dto.serviceType ?? 'standard') as 'standard' | 'fast' | 'express',
+    type: inferShippingMethodType(dto.label ?? ''),
     name: dto.label ?? '',
     description: dto.estimated ?? '',
     estimatedDays: parseEstimatedDays(dto.estimated ?? ''),
@@ -91,16 +105,18 @@ const parseEstimatedDays = (timeStr: string): number => {
  */
 export const toShopShippingOptions = (
     shopId: string,
-    options: CheckoutShippingOptionDTO[] | null | undefined,
-    selectedMethod: string | null | undefined
+    options: CheckoutShippingOptionDTO[] | null | undefined
 ): ShopShippingOptions => {
     const safeOptions = options ?? [];
-    const safeSelectedMethod = selectedMethod ?? '';
+    const selectedOption = safeOptions.find((option) => option.isSelected);
+    const selectedMethodId = selectedOption
+        ? String(selectedOption.serviceCode ?? '')
+        : (safeOptions[0] ? String(safeOptions[0].serviceCode ?? '') : '');
 
     return {
         shopId,
         methods: safeOptions.map(toShippingMethod),
-        selectedMethodId: safeSelectedMethod || (safeOptions[0] ? String(safeOptions[0].serviceCode) : ''),
+        selectedMethodId,
         isLoading: false,
     };
 };
@@ -221,13 +237,9 @@ export const toCheckoutShopUI = (dto: CheckoutPreviewShopDTO): CheckoutShopUI =>
     return {
         shopId: dto.shopId ?? '',
         shopName: dto.shopName ?? '',
-        shopLogo: dto.logoUrl ?? undefined,
+        shopLogo: dto.logoPath ?? undefined,
         items,
-        shippingOptions: toShopShippingOptions(
-            dto.shopId ?? '',
-            dto.shipping.options,
-            dto.shipping.selectedMethodId
-        ),
+        shippingOptions: toShopShippingOptions(dto.shopId ?? '', dto.shipping.options),
         appliedVoucherId: firstShopVoucher?.code ?? null,
         availableVouchers: allVouchers,  // Contains both SHOP and PLATFORM for UI to filter
         note: '', // Not in API response, managed client-side
@@ -498,7 +510,6 @@ export const buildInitialPreviewRequest = (
         })),
         ...(addressId && {
             shippingAddress: { addressId },
-            usingSavedAddress: true,
         }),
     };
 };

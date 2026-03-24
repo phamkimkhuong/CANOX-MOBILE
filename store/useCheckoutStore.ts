@@ -124,7 +124,7 @@ export const useCheckoutStore = create<CheckoutState>((set, get) => ({
 
     /**
      * Update preview data from API response.
-     * Server returned selectedShippingMethod in each shop.
+     * Server-selected shipping is derived from shipping.options[].isSelected.
      * DO NOT sync selectedShipping from server anymore - avoid trigger re-render loop.
      */
     setPreviewData: (data) => {
