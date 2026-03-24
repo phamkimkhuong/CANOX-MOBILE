@@ -89,6 +89,8 @@ export const useWishlists = () => {
         initialPageParam: 0,
         enabled: isAuthenticated,
         staleTime: 1000 * 60 * 5, // 5 minutes
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
         select: (data) => ({
             pages: data.pages.map(page => ({
                 ...page,

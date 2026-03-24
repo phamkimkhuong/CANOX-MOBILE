@@ -29,6 +29,20 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
             use: { title: 'Sử dụng', desc: 'Đổi xu lấy giảm giá khi thanh toán' }
         }
     },
+    pdp: {
+        chipEarn: 'Nhận +{{points}} xu',
+        chipGeneric: 'Nhận xu thưởng',
+        sheetTitle: 'Điểm thưởng từ shop',
+        sheetShop: 'Shop áp dụng',
+        sheetEarn: 'Bạn sẽ nhận',
+        sheetEarnValue: '+{{points}} xu khi đơn hoàn tất',
+        sheetCondition: 'Điều kiện',
+        sheetConditionValue: 'Xu được cộng sau khi đơn hàng từ shop này hoàn tất thành công',
+        sheetExpiry: 'Hạn sử dụng',
+        sheetExpiryValue: 'Xu có hiệu lực trong {{days}} ngày kể từ khi được cộng',
+        sheetMaxDiscount: 'Dùng tối đa',
+        sheetMaxDiscountValue: 'Giảm tối đa {{percent}}% cho đơn hàng tiếp theo',
+    },
     shopDetail: {
         title: 'Hội viên Cửa hàng',
         tabs: {

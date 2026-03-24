@@ -80,6 +80,8 @@ export const useOrderList = (status: OrderTabStatus, enabled: boolean = true) =>
         enabled,
         staleTime: 2 * 60 * 1000, // 2 phút - orders có thể thay đổi nhanh
         gcTime: 10 * 60 * 1000, // 10 phút cache
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 };
 
@@ -126,6 +128,8 @@ export const useShopOrders = (shopId: string | undefined, enabled: boolean = tru
         initialPageParam: 0,
         getNextPageParam: (lastPage) => lastPage.hasNext ? lastPage.nextPage : undefined,
         enabled: !!shopId && enabled,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 };
 

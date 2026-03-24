@@ -95,6 +95,27 @@ export interface ShopPointSummaryDTO {
 }
 
 // ============================================
+// PUBLIC SHOP POLICY
+// ============================================
+
+/**
+ * Public loyalty policy preview for PDP
+ * GET /public/loyalty/shops/{shopId}/policy
+ */
+export interface ShopLoyaltyPolicyDTO {
+    shopId: string;
+    shopName: string;
+    shopLogo: string;
+    loyaltyEnabled: boolean;
+    ruleType: string | null;
+    ruleValue: number | null;
+    expiryDays: number | null;
+    maxDiscountPercent: number | null;
+    maxPointPerOrder: number | null;
+    description: string;
+}
+
+// ============================================
 // REDEEM
 // ============================================
 

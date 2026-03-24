@@ -477,18 +477,33 @@ export const buildCategoryPath = (
  */
 export const collectVouchers = (data: ProductDetailResponse): VoucherUI[] => {
     const vouchers: VoucherUI[] = [];
+    const seenKeys = new Set<string>();
 
-    if (data.bestPlatformVoucher) {
-        vouchers.push(transformVoucher(data.bestPlatformVoucher));
-    }
+    const pushVoucher = (voucher?: Voucher | null) => {
+        if (!voucher) return;
 
-    if (data.bestShopVoucher) {
-        vouchers.push(transformVoucher(data.bestShopVoucher));
-    }
+        const transformed = transformVoucher(voucher);
+        const dedupeKey = transformed.id
+            || [
+                transformed.sponsorType ?? 'SHOP',
+                transformed.code,
+                transformed.name ?? '',
+                transformed.discountType,
+                transformed.discountValue,
+                transformed.maxDiscount ?? '',
+            ].join(':');
 
-    if (data.shopVouchers) {
-        vouchers.push(...data.shopVouchers.map(transformVoucher));
-    }
+        if (seenKeys.has(dedupeKey)) {
+            return;
+        }
+
+        seenKeys.add(dedupeKey);
+        vouchers.push(transformed);
+    };
+
+    pushVoucher(data.bestPlatformVoucher);
+    pushVoucher(data.bestShopVoucher);
+    data.shopVouchers?.forEach(pushVoucher);
 
     return vouchers;
 };

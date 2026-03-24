@@ -9,6 +9,7 @@ import {
     PointBalanceDTO,
     PointHistoryDTO,
     PointRedeemResponseDTO,
+    ShopLoyaltyPolicyDTO,
     ShopPointSummaryDTO,
     UserShopPointDTO,
 } from '@/types/loyalty/dto';
@@ -18,6 +19,7 @@ import {
     PointBatchUI,
     PointHistoryUI,
     PointRedeemUI,
+    ShopLoyaltyPolicyUI,
     ShopPointSummaryUI,
 } from '@/types/loyalty/ui';
 import { formatDate, formatMessageTime } from '@/utils/date';
@@ -112,6 +114,22 @@ export const transformLoyaltyOverview = (dto: LoyaltyOverviewDTO): LoyaltyOvervi
     shopCount: dto.totalShopsWithPoints,
     expiringPoints: dto.totalExpiringPoints,
     shops: dto.shops.map(transformShopSummary),
+});
+
+// ============================================
+// PUBLIC SHOP POLICY
+// ============================================
+
+export const transformShopLoyaltyPolicy = (dto: ShopLoyaltyPolicyDTO): ShopLoyaltyPolicyUI => ({
+    shopId: dto.shopId,
+    shopName: dto.shopName,
+    shopLogo: dto.shopLogo,
+    isEnabled: dto.loyaltyEnabled,
+    ruleType: dto.ruleType ?? '',
+    rewardValue: dto.ruleValue ?? 0,
+    expiryDays: dto.expiryDays ?? 0,
+    maxDiscountPercent: dto.maxDiscountPercent ?? 0,
+    maxPointPerOrder: dto.maxPointPerOrder ?? 0,
 });
 
 // ============================================

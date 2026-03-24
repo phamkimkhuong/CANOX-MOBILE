@@ -46,6 +46,8 @@ export const usePendingReviews = () => {
         getNextPageParam: (lastPage) => (lastPage.hasNext ? (lastPage.page ?? 0) + 1 : undefined),
         staleTime: 2 * 60 * 1000,
         gcTime: 10 * 60 * 1000,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 
     const pendingGroups = useMemo(() => {

@@ -172,6 +172,8 @@ export const useShopProducts = (
         getNextPageParam: (lastPage) => lastPage.nextPage,
         staleTime: 1000 * 60 * 2, // 2 minutes - products may change more often
         gcTime: 1000 * 60 * 10,   // Keep in cache 10 minutes
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 };
 

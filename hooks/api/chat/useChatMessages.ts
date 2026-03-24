@@ -153,6 +153,7 @@ export const useChatMessages = (conversationId: string) => {
         staleTime: 1000 * 30, // 30 seconds
         gcTime: 1000 * 60 * 5, // 5 minutes
         refetchOnWindowFocus: false, // Real-time via socket
+        refetchOnReconnect: false,
     });
 
     // Flatten all pages into single messages array

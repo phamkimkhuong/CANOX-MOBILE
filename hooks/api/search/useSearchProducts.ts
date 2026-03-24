@@ -242,6 +242,8 @@ export const useSearchProducts = ({
         getNextPageParam: (lastPage) => lastPage.nextPage,
         staleTime: 1000 * 60 * 2, // 2 minutes cache
         gcTime: 1000 * 60 * 10,   // Keep in garbage collection for 10 minutes
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
         retry: (count, error) => handleQueryRetry(count, error, 1),
     });
 

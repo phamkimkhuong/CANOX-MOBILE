@@ -66,6 +66,7 @@ export const PRODUCT_STRINGS: ProductTranslation = {
         soldOut: 'Almost sold out',
         selling: 'Selling fast',
         soldPrefix: 'Sold',
+        variantScopeHint: 'Flash Sale applies to selected variations only',
         campaigns: {
             flashSale: 'FLASH SALE',
             megaSale: 'MEGA SALE',

@@ -78,6 +78,22 @@ export interface ShopPointSummaryUI {
 }
 
 // ============================================
+// PUBLIC SHOP POLICY
+// ============================================
+
+export interface ShopLoyaltyPolicyUI {
+    shopId: string;
+    shopName: string;
+    shopLogo: string;
+    isEnabled: boolean;
+    ruleType: string;
+    rewardValue: number;
+    expiryDays: number;
+    maxDiscountPercent: number;
+    maxPointPerOrder: number;
+}
+
+// ============================================
 // REDEEM RESULT
 // ============================================
 

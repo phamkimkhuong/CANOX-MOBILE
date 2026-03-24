@@ -59,6 +59,8 @@ export const useProductFeed = (type: FeedType) => {
         },
         getNextPageParam: (lastPage) => lastPage.nextPage,
         staleTime: 1000 * 60 * 5, // Cache 5 minutes
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 };
 

@@ -121,6 +121,8 @@ export const useSearchWishlists = (keyword: string, enabled = true) => {
         initialPageParam: 0,
         enabled: enabled && keyword.length >= 2,
         staleTime: 1000 * 60 * 5,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
         select: (data) => ({
             pages: data.pages.map(page => ({
                 ...page,

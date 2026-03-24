@@ -131,6 +131,8 @@ export const useChatList = (
         staleTime: 1000 * 60 * 2, // 2 minutes
         gcTime: 1000 * 60 * 15, // 15 minutes
         enabled: !!buyerId,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 
     // Flatten all pages into single list

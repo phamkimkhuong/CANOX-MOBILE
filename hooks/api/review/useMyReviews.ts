@@ -65,6 +65,8 @@ export const useMyReviews = (filter: RatingFilter = 'all', enabled = true) => {
         staleTime: 2 * 60 * 1000,
         gcTime: 10 * 60 * 1000,
         enabled,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 
     // All reviews from all pages

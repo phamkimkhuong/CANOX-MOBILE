@@ -43,6 +43,8 @@ export const useInternationalProducts = () => {
         },
         getNextPageParam: (lastPage) => lastPage.nextPage,
         staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 };
 

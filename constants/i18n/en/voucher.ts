@@ -87,4 +87,17 @@ export const VOUCHER_STRINGS: VoucherTranslation = {
         live: 'Live Store',
         shop: 'Shop Voucher',
     },
+    pdp: {
+        sheetTitleShop: 'Shop voucher',
+        sheetTitlePlatform: 'CanoX voucher',
+        sheetAppliedValue: 'Saving {{amount}} for the current selection',
+        sheetCode: 'Voucher code',
+        sheetBenefit: 'Benefit',
+        benefitPercent: '{{percent}}% off',
+        benefitFixed: 'Save {{amount}}',
+        sheetMaxDiscount: 'Maximum discount',
+        sheetMinOrder: 'Minimum order',
+        sheetExpiry: 'Expiry date',
+        sheetDescription: 'Conditions',
+    },
 };

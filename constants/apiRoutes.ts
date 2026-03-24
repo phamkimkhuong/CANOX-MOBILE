@@ -239,4 +239,8 @@ export const API_ROUTES = {
         /** GET - Dashboard showing points across all shops */
         OVERVIEW: `${API_PREFIX}/buyer/loyalty/overview`,
     },
+    PUBLIC_LOYALTY: {
+        /** GET - Public loyalty policy preview for a shop */
+        SHOP_POLICY: (shopId: string) => `${API_PREFIX}/public/loyalty/shops/${shopId}/policy`,
+    },
 } as const;  // <--- as const for TS to understand these are readonly values

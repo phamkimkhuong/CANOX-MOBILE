@@ -101,6 +101,27 @@ export const LoyaltyOverviewResponseSchema = ResponseDefaultSchema.extend({
 });
 
 // ============================================
+// PUBLIC SHOP POLICY
+// ============================================
+
+export const ShopLoyaltyPolicySchema = z.object({
+    shopId: z.string(),
+    shopName: z.string().default(''),
+    shopLogo: z.string().default(''),
+    loyaltyEnabled: z.boolean().default(false),
+    ruleType: z.string().nullish().default(null),
+    ruleValue: z.coerce.number().nullish().default(null),
+    expiryDays: z.coerce.number().nullish().default(null),
+    maxDiscountPercent: z.coerce.number().nullish().default(null),
+    maxPointPerOrder: z.coerce.number().nullish().default(null),
+    description: z.string().default(''),
+});
+
+export const ShopLoyaltyPolicyResponseSchema = ResponseDefaultSchema.extend({
+    data: ShopLoyaltyPolicySchema,
+});
+
+// ============================================
 // REDEEM (PointRedeemResponse)
 // ============================================
 

@@ -29,6 +29,20 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
             use: { title: 'Use', desc: 'Redeem coins for discounts at checkout' }
         }
     },
+    pdp: {
+        chipEarn: 'Earn +{{points}} coins',
+        chipGeneric: 'Earn loyalty coins',
+        sheetTitle: 'Shop loyalty reward',
+        sheetShop: 'Eligible shop',
+        sheetEarn: 'You will earn',
+        sheetEarnValue: '+{{points}} coins when the order is completed',
+        sheetCondition: 'Condition',
+        sheetConditionValue: 'Coins are added after a successful completed order from this shop',
+        sheetExpiry: 'Validity',
+        sheetExpiryValue: 'Coins remain valid for {{days}} days after being added',
+        sheetMaxDiscount: 'Usage limit',
+        sheetMaxDiscountValue: 'Use coins for up to {{percent}}% off your next order',
+    },
     shopDetail: {
         title: 'Shop Member',
         tabs: {

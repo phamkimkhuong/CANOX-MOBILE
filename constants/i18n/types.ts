@@ -56,6 +56,7 @@ export interface ProductTranslation {
         soldOut: string;
         selling: string;
         soldPrefix: string;
+        variantScopeHint: string;
         campaigns: {
             flashSale: string;
             megaSale: string;
@@ -297,6 +298,19 @@ export interface VoucherTranslation {
         international: string;
         live: string;
         shop: string;
+    };
+    pdp: {
+        sheetTitleShop: string;
+        sheetTitlePlatform: string;
+        sheetAppliedValue: string;
+        sheetCode: string;
+        sheetBenefit: string;
+        benefitPercent: string;
+        benefitFixed: string;
+        sheetMaxDiscount: string;
+        sheetMinOrder: string;
+        sheetExpiry: string;
+        sheetDescription: string;
     };
 }
 
@@ -1766,6 +1780,20 @@ export interface LoyaltyTranslation {
             accumulate: { title: string; desc: string };
             use: { title: string; desc: string };
         };
+    };
+    pdp: {
+        chipEarn: string;
+        chipGeneric: string;
+        sheetTitle: string;
+        sheetShop: string;
+        sheetEarn: string;
+        sheetEarnValue: string;
+        sheetCondition: string;
+        sheetConditionValue: string;
+        sheetExpiry: string;
+        sheetExpiryValue: string;
+        sheetMaxDiscount: string;
+        sheetMaxDiscountValue: string;
     };
     shopDetail: {
         title: string;

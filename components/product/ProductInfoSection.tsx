@@ -1,4 +1,5 @@
-import type { FlashSaleInfo, PriceDisplay } from '@/types/product/productDetail';
+import type { FlashSaleInfo, PriceDisplay, VoucherUI } from '@/types/product/productDetail';
+import type { ShopLoyaltyPolicyUI } from '@/types/loyalty/ui';
 import { formatCurrency } from '@/utils/format';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -8,6 +9,8 @@ import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { IconSymbol } from '../ui/Icon';
 import { ProductFlashSaleBar } from './ProductFlashSaleBar';
+import { ProductLoyaltyChip } from './ProductLoyaltyChip';
+import { ProductVoucherChip } from './ProductVoucherChip';
 
 interface ProductInfoSectionProps {
     name: string;
@@ -16,12 +19,16 @@ interface ProductInfoSectionProps {
     totalReviews: number;
     totalSold: number;
     flashSale?: FlashSaleInfo;
+    loyaltyPolicy?: ShopLoyaltyPolicyUI | null;
+    vouchers?: VoucherUI[];
     isMall?: boolean;
     isInternational?: boolean;
     /** Callback khi flash sale hết hạn - có thể dùng để refetch data */
     onFlashSaleExpired?: () => void;
     /** Callback to show price breakdown bottom sheet */
     onShowPriceBreakdown?: () => void;
+    /** Clarifies that flash sale does not apply to the currently selected variant */
+    showFlashSaleScopeHelper?: boolean;
 }
 
 // ============================================
@@ -158,21 +165,26 @@ export const ProductInfoSection = memo<ProductInfoSectionProps>(({
     totalReviews,
     totalSold,
     flashSale,
+    loyaltyPolicy,
+    vouchers = [],
     isMall = false,
     isInternational = false,
     onFlashSaleExpired,
     onShowPriceBreakdown,
+    showFlashSaleScopeHelper = false,
 }) => {
     const { theme } = useUnistyles();
-    const { t } = useTranslation('product');
+    const { t } = useTranslation(['product', 'loyalty']);
 
     const hasPremiumBadges = isMall;
     const hasVoucherBadges = (priceDisplay.shopVoucherDiscount != null && priceDisplay.shopVoucherDiscount > 0)
         || (priceDisplay.platformVoucherDiscount != null && priceDisplay.platformVoucherDiscount > 0);
 
+    const hasLoyaltyBadge = loyaltyPolicy?.isEnabled;
+
     const badgesContent = useMemo(() => (
         <>
-            {/* Premium Badges Row (Mall + International) */}
+            {/* Premium Badges Row */}
             {hasPremiumBadges && (
                 <View style={styles.badgeRow2}>
                     {isMall && (
@@ -187,29 +199,30 @@ export const ProductInfoSection = memo<ProductInfoSectionProps>(({
                     )}
                 </View>
             )}
-            {/* Voucher Badges Row */}
-            {hasVoucherBadges && (
+            {/* Benefit Badges Row */}
+            {(hasVoucherBadges || hasLoyaltyBadge) && (
                 <View style={styles.badgeRow}>
                     {priceDisplay.shopVoucherDiscount != null && priceDisplay.shopVoucherDiscount > 0 && (
-                        <View style={[styles.badge, styles.voucherBadge]}>
-                            <IconSymbol name="ticket" size={12} color={theme.colors.success} />
-                            <Text style={styles.voucherText}> {t('info.discount')}
-                                -{formatCurrency(priceDisplay.shopVoucherDiscount)}
-                            </Text>
-                        </View>
+                        <ProductVoucherChip
+                            sponsorType="SHOP"
+                            summary={priceDisplay.breakdown?.shopVoucher}
+                            vouchers={vouchers}
+                        />
                     )}
                     {priceDisplay.platformVoucherDiscount != null && priceDisplay.platformVoucherDiscount > 0 && (
-                        <View style={[styles.badge, styles.voucherBadge]}>
-                            <IconSymbol name="ticket" size={12} color={theme.colors.success} />
-                            <Text style={styles.voucherText}> {t('info.discount')}
-                                -{formatCurrency(priceDisplay.platformVoucherDiscount)}
-                            </Text>
-                        </View>
+                        <ProductVoucherChip
+                            sponsorType="PLATFORM"
+                            summary={priceDisplay.breakdown?.platformVoucher}
+                            vouchers={vouchers}
+                        />
+                    )}
+                    {hasLoyaltyBadge && (
+                        <ProductLoyaltyChip policy={loyaltyPolicy} />
                     )}
                 </View>
             )}
         </>
-    ), [hasPremiumBadges, hasVoucherBadges, isMall, priceDisplay.shopVoucherDiscount, priceDisplay.platformVoucherDiscount, theme.colors.success, t]);
+    ), [hasLoyaltyBadge, hasPremiumBadges, hasVoucherBadges, isMall, loyaltyPolicy, priceDisplay.breakdown?.platformVoucher, priceDisplay.breakdown?.shopVoucher, priceDisplay.platformVoucherDiscount, priceDisplay.shopVoucherDiscount, t, vouchers]);
 
     return (
         <View style={styles.container}>
@@ -230,21 +243,23 @@ export const ProductInfoSection = memo<ProductInfoSectionProps>(({
                     onPress={onShowPriceBreakdown}
                 />
 
-                {/* Badges Row */}
-                <View style={styles.badgesWrapper}>
-                    {badgesContent}
-                </View>
+                {showFlashSaleScopeHelper && (
+                    <View style={styles.flashSaleScopeHelper}>
+                        <IconSymbol name="info" size={12} color={theme.colors.warning} />
+                        <Text style={styles.flashSaleScopeHelperText}>
+                            {t('flashSale.variantScopeHint')}
+                        </Text>
+                    </View>
+                )}
 
-                {/* Stats Row */}
-                <View style={styles.statsContainer}>
-                    <StatsRow
-                        rating={rating}
-                        totalReviews={totalReviews}
-                        totalSold={totalSold}
-                    />
-                </View>
+                {(hasPremiumBadges || hasVoucherBadges || hasLoyaltyBadge) && (
+                    <View style={styles.badgesWrapper}>
+                        {badgesContent}
+                    </View>
+                )}
 
-                <View style={styles.titleRow}>
+                {/* Meta Row */}
+                <View style={styles.metaRow}>
                     {isInternational && (
                         <View style={styles.internationalTag}>
                             <LinearGradient
@@ -260,6 +275,16 @@ export const ProductInfoSection = memo<ProductInfoSectionProps>(({
                             </LinearGradient>
                         </View>
                     )}
+                    <View style={styles.statsContainer}>
+                        <StatsRow
+                            rating={rating}
+                            totalReviews={totalReviews}
+                            totalSold={totalSold}
+                        />
+                    </View>
+                </View>
+
+                <View>
                     <Text style={styles.title} numberOfLines={3}>
                         {name}
                     </Text>
@@ -324,6 +349,25 @@ const styles = StyleSheet.create((theme) => ({
         padding: 4,
         opacity: 0.5,
     },
+    flashSaleScopeHelper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        alignSelf: 'flex-start',
+        gap: 6,
+        marginTop: theme.margins.xs,
+        marginBottom: theme.margins.xs,
+        paddingHorizontal: theme.margins.sm,
+        paddingVertical: 6,
+        borderRadius: theme.radius.m,
+        backgroundColor: theme.colors.warningSoft,
+        borderWidth: 1,
+        borderColor: theme.colors.warningLight,
+    },
+    flashSaleScopeHelperText: {
+        fontSize: 12,
+        fontWeight: '500',
+        color: theme.colors.warning,
+    },
     badgeRow: {
         flexDirection: 'row',
         flexWrap: 'wrap',
@@ -351,11 +395,18 @@ const styles = StyleSheet.create((theme) => ({
     badgesWrapper: {
         marginBottom: 8,
     },
+    metaRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        marginBottom: theme.margins.sm,
+    },
     statsContainer: {
+        flex: 1,
+        minWidth: 0,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'flex-end',
-        marginBottom: theme.margins.sm,
     },
     mallText: {
         fontSize: 10,
@@ -363,15 +414,9 @@ const styles = StyleSheet.create((theme) => ({
         color: '#FFFFFF',
         textTransform: 'uppercase',
     },
-    titleRow: {
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        gap: 6,
-    },
     internationalTag: {
         borderRadius: 6,
         overflow: 'hidden',
-        marginTop: 2,
     },
     internationalTagGradient: {
         borderRadius: 6,
@@ -388,24 +433,6 @@ const styles = StyleSheet.create((theme) => ({
         fontWeight: '800',
         color: '#FFFFFF',
     },
-    badge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 4,
-    },
-    voucherBadge: {
-        backgroundColor: '#E8F5E9',
-        borderWidth: 1,
-        borderColor: theme.colors.success,
-    },
-    voucherText: {
-        fontSize: 11,
-        fontWeight: '600',
-        color: theme.colors.success,
-    },
     title: {
         fontSize: 17,
         fontWeight: '600',
@@ -414,6 +441,7 @@ const styles = StyleSheet.create((theme) => ({
     statsRow: {
         flexDirection: 'row',
         alignItems: 'center',
+        flexShrink: 1,
     },
     statItem: {
         flexDirection: 'row',

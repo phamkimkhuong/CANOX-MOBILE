@@ -14,8 +14,7 @@ import {
     ProductReviewPageData,
     ProductReviewSortOption,
     ProductReviewsResponseSchema,
-    ProductReviewStatisticsApiResponseSchema,
-    ProductReviewStatisticsSchema
+    ProductReviewStatisticsApiResponseSchema
 } from '@/types/review/productReview';
 import {
     parseProductReviewFilter,
@@ -158,6 +157,8 @@ export const useInfiniteProductReviews = (
 
         enabled: enabled && !!productId,
         staleTime: STALE_TIME,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
 
         // Keep previous data while fetching new filter results
         placeholderData: (previousData) => previousData,

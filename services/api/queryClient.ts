@@ -112,6 +112,8 @@ export const queryClient = new QueryClient({
             retry: handleQueryRetry,
             // Data considered fresh for 1 minute
             staleTime: 1000 * 60,
+            // React Native should opt-in query-by-query after AppState is bridged to focusManager
+            refetchOnWindowFocus: false,
             // Refetch on reconnect (useful for mobile)
             refetchOnReconnect: true,
         },

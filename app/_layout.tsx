@@ -38,6 +38,7 @@ import { useOTAUpdate } from '@/hooks/useOTAUpdate';
 import { usePrivacyConsent } from '@/hooks/usePrivacyConsent';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { usePushTokenSync } from '@/hooks/usePushTokenSync';
+import { useReactQueryLifecycle } from '@/hooks/useReactQueryLifecycle';
 import { useTokenRefreshOnForeground } from '@/hooks/useTokenRefresh';
 import { useUpdateCheck } from '@/hooks/useUpdateCheck';
 import { alertRef } from '@/utils/AlertHelper';
@@ -127,6 +128,9 @@ export default function RootLayout() {
 
   // Layer 1: Token refresh when app returns to foreground
   useTokenRefreshOnForeground();
+
+  // Bridge React Native lifecycle/network into TanStack Query once at app root
+  useReactQueryLifecycle();
 
   // Push Notifications - Get FCM token
   const { fcmToken, tokenChanged } = usePushNotifications();

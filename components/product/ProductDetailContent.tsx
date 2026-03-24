@@ -2,6 +2,7 @@ import { ProductCard } from '@/components/ui/product/ProductCard';
 import { ROUTES, chatRoutes, checkoutRoutes, productRoutes, shopRoutes } from '@/constants/routes';
 import { useAddToCart } from '@/hooks/api/cart';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
+import { usePublicShopLoyaltyPolicy } from '@/hooks/api/loyalty/usePublicLoyaltyPolicy';
 import { PRODUCT_DETAIL_QUERY_KEYS, useRelatedProducts } from '@/hooks/api/product/useProductDetail';
 import { useProductShippingInfo } from '@/hooks/api/product/useShippingEligibility';
 import { useProductVariant } from '@/hooks/useProductVariant';
@@ -50,6 +51,7 @@ import { VariantBottomSheet, VariantSelectorRow } from './VariantSelector';
 const log = createLogger('ProductDetailContent');
 const FLASH_SALE_EXPIRED_PROBE_DELAYS_MS = [0, 1500, 3000] as const;
 const FLASH_SALE_RESET_THRESHOLD_SECONDS = 30;
+const FLASH_SALE_CAMPAIGN_TYPE = 'FLASH_SALE';
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 type ProductDetailListItem =
@@ -185,12 +187,32 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
     const canAddToCart = selectionResult.canAddToCart;
     const selectedVariantId = selectionResult.selectedVariant?.id;
     const selectedVariantMedia = selectionResult.selectedVariant?.media;
+    const shouldShowFlashSaleScopeHelper = useMemo(() => {
+        if (!product.flashSale?.isActive || product.flashSale.campaignType !== FLASH_SALE_CAMPAIGN_TYPE) {
+            return false;
+        }
+
+        if (!product.hasVariants) {
+            return false;
+        }
+
+        return selectionResult.selectedVariant?.campaignType !== FLASH_SALE_CAMPAIGN_TYPE;
+    }, [
+        product.flashSale?.campaignType,
+        product.flashSale?.isActive,
+        product.hasVariants,
+        selectionResult.selectedVariant?.campaignType,
+    ]);
     const productId = product.id;
     const shopId = product.shop?.id;
     const shopUserId = product.shop?.userId;
     const shopName = product.shop?.shopName;
     const shopLogoUrl = product.shop?.logoUrl;
     const productGallery = product.gallery;
+
+    const { data: loyaltyPolicy } = usePublicShopLoyaltyPolicy(shopId, {
+        enabled: areSecondaryQueriesEnabled,
+    });
 
     // === Create Conversation Mutation ===
     const prefetchShopChat = usePrefetchShopChat();
@@ -499,9 +521,12 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
                             totalReviews={product.totalReviews}
                             totalSold={product.totalSold}
                             flashSale={product.flashSale}
+                            loyaltyPolicy={loyaltyPolicy}
+                            vouchers={product.vouchers}
                             isInternational={product.isInternational}
                             onFlashSaleExpired={handleFlashSaleExpired}
                             onShowPriceBreakdown={handleOpenPriceBreakdown}
+                            showFlashSaleScopeHelper={shouldShowFlashSaleScopeHelper}
                         />
                     </View>
                 );
@@ -586,7 +611,7 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
             default:
                 return null;
         }
-    }, [product, selectionResult, selectedOptions, heroPreviewUrl, areSecondaryQueriesEnabled, handleFlashSaleExpired, handleImagePress, handleOpenVariantSheet, handleOpenPriceBreakdown, handleViewAllReviews, handleShopPress, t]);
+    }, [product, selectionResult, selectedOptions, heroPreviewUrl, areSecondaryQueriesEnabled, handleFlashSaleExpired, handleImagePress, handleOpenVariantSheet, handleOpenPriceBreakdown, handleViewAllReviews, handleShopPress, loyaltyPolicy, shouldShowFlashSaleScopeHelper, t]);
 
     const overrideItemLayout = useCallback((layout: { span?: number }, item: ProductDetailListItem) => {
         if (item.type !== 'related_product') layout.span = 2;

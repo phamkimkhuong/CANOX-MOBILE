@@ -122,6 +122,19 @@ export const VOUCHER_STRINGS: VoucherTranslation = {
         live: 'LIVE',
         shop: 'Shop',
     },
+    pdp: {
+        sheetTitleShop: 'Voucher của shop',
+        sheetTitlePlatform: 'Voucher của CanoX',
+        sheetAppliedValue: 'Giảm {{amount}} cho lựa chọn hiện tại',
+        sheetCode: 'Mã voucher',
+        sheetBenefit: 'Ưu đãi',
+        benefitPercent: 'Giảm {{percent}}%',
+        benefitFixed: 'Giảm {{amount}}',
+        sheetMaxDiscount: 'Giảm tối đa',
+        sheetMinOrder: 'Đơn tối thiểu',
+        sheetExpiry: 'Hạn sử dụng',
+        sheetDescription: 'Điều kiện',
+    },
 } as const;
 
 export type VoucherStringKeys = typeof VOUCHER_STRINGS;
