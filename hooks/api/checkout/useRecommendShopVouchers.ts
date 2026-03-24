@@ -83,5 +83,7 @@ export const useRecommendShopVouchers = (
 
         enabled: options.enabled && !!shopId && !!requestBody,
         staleTime: 1000 * 60 * 5, // 5 minutes
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 };

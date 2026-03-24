@@ -59,6 +59,8 @@ export const getSlotDetailQueryOptions = (slotId: string | null) => ({
         };
     },
     staleTime: 1000 * 60 * 2, // 2 minutes
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
 });
 
 export const prefetchSlotDetail = async (queryClient: QueryClient, slotId: string | null) => {

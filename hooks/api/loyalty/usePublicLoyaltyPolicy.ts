@@ -29,5 +29,7 @@ export const usePublicShopLoyaltyPolicy = (
         },
         enabled: (options?.enabled ?? true) && !!shopId,
         staleTime: 1000 * 60 * 10,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 };

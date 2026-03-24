@@ -119,6 +119,8 @@ export function useIntroPopup(
         staleTime: POPUP_STALE_TIME,
         gcTime: POPUP_CACHE_TIME,
         retry: 1,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 
     // Get primary banner

@@ -111,6 +111,8 @@ export const useRecommendedProducts = ({
         },
         staleTime: 1000 * 60 * 5, // 5 minutes cache
         gcTime: 1000 * 60 * 15,   // Keep in garbage collection for 15 minutes
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 
     return {

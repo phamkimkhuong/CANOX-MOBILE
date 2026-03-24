@@ -52,5 +52,7 @@ export const useProductReviews = (
         queryFn: () => fetchProductReviews(productId, type, 0, size),
         enabled: enabled && !!productId,
         staleTime: 5 * 60 * 1000, // 5 minutes
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 };

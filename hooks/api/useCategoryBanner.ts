@@ -89,6 +89,8 @@ export function useCategoryBanner(categoryId: string | null | undefined, enabled
         retry: 1,
         // Giữ data cũ khi refetch
         placeholderData: (prev) => prev,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 
     // Transform to UI-ready data
@@ -134,6 +136,8 @@ export function useCategorySidebarBanner(categoryId: string | null | undefined) 
         staleTime: BANNER_STALE_TIME,
         gcTime: BANNER_CACHE_TIME,
         retry: 1,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 
     const banners: BannerUI[] = (query.data || []).map((b) => toBannerUI(b, true));

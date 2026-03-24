@@ -26,6 +26,8 @@ export const useProductDetail = (productId: string) => {
             }, ProductSchema),
         getNextPageParam: () => undefined, // Không phân trang cho chi tiết sản phẩm
         initialPageParam: undefined, // Không phân trang cho chi tiết sản phẩm
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 };
 export const useProductFeed = () => {
@@ -41,5 +43,7 @@ export const useProductFeed = () => {
             return nextSkip < lastPage.total ? nextSkip : undefined;
         },
         initialPageParam: 0,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 };

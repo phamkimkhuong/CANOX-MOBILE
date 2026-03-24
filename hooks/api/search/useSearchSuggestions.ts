@@ -72,5 +72,7 @@ export const useSearchSuggestions = (options: UseSearchSuggestionsOptions) => {
         gcTime: 1000 * 60 * 5,    // Keep in cache 5 minutes
         // Don't retry on suggestions - user is typing fast
         retry: false,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 };

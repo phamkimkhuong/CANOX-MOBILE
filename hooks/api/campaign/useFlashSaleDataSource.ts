@@ -33,6 +33,8 @@ export const useActiveFlashSaleSlots = () => {
         queryKey: flashSaleQueryKeys.activeSlots(),
         queryFn: () => fetchSlots({ url: API_ROUTES.CAMPAIGNS.ACTIVE_SLOTS }),
         staleTime: 1000 * 60,
+        refetchOnWindowFocus: true,
+        refetchOnReconnect: true,
     });
 };
 
@@ -44,6 +46,8 @@ export const useUpcomingFlashSaleSlots = (hours: number = DEFAULT_UPCOMING_HOURS
             params: { hours },
         }),
         staleTime: 1000 * 60,
+        refetchOnWindowFocus: true,
+        refetchOnReconnect: true,
     });
 };
 

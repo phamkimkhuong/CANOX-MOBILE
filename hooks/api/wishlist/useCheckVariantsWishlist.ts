@@ -20,6 +20,8 @@ export const useCheckVariantsWishlist = (variantIds: string[]) => {
         queryFn: () => wishlistService.checkVariants(validIds),
         enabled: validIds.length > 0,
         staleTime: 1000 * 60 * 5, // Cache 5 minutes for like status results
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 
     // Sync to Local Zustand Store for fast UI rendering

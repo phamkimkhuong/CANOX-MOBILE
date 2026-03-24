@@ -65,6 +65,8 @@ export const useCountries = (options: UseProvincesOptions = {}) => {
         enabled,
         staleTime: STALE_TIME,
         gcTime: 1000 * 60 * 60 * 24, // 24 giờ
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 };
 
@@ -81,6 +83,8 @@ export const useProvinces = (options: UseProvincesOptions = {}) => {
         enabled,
         staleTime: STALE_TIME,
         gcTime: 1000 * 60 * 60, // 1 giờ
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 };
 
@@ -96,6 +100,8 @@ export const useProvinceDetail = (code: string | null, enabled = true) => {
         },
         enabled: enabled && !!code,
         staleTime: STALE_TIME,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 };
 
@@ -124,6 +130,8 @@ export const useWards = (options: UseWardsOptions) => {
         enabled: isEnabled,
         staleTime: STALE_TIME,
         gcTime: 1000 * 60 * 30, // 30 phút
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 };
 
@@ -143,6 +151,8 @@ export const useAddressAutocomplete = (
         queryFn: () => autocompleteAddress(debouncedQuery, language, limit, countryCode),
         enabled: enabled && debouncedQuery.length >= 3, // Chỉ gợi ý khi gõ từ 3 ký tự
         staleTime: INTERACTIVE_STALE_TIME,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 };
 
@@ -159,6 +169,8 @@ export const useAddressGeocode = (
         queryFn: () => geocodeAddress(address, language),
         enabled: enabled && !!address,
         staleTime: INTERACTIVE_STALE_TIME,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 };
 
@@ -179,6 +191,8 @@ export const useDistanceCalculation = (params: {
         queryFn: () => getDistance(fromLat, fromLng, toLat, toLng),
         enabled: enabled && !!(fromLat && fromLng && toLat && toLng),
         staleTime: INTERACTIVE_STALE_TIME,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 };
 

@@ -59,5 +59,7 @@ export const useRecommendPlatformVouchers = (
 
         enabled: options.enabled && !!requestBody,
         staleTime: 1000 * 60 * 5, // 5 minutes
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 };

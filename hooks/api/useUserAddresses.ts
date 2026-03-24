@@ -49,6 +49,8 @@ export const useUserAddresses = () => {
         },
         enabled: isAuthenticated,
         staleTime: 1000 * 60 * 5,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 
     // Auto-sync to zustand store
@@ -146,6 +148,8 @@ export const useCountry = () => {
         },
         staleTime: 1000 * 60 * 60 * 24, // 24 hours
         gcTime: 1000 * 60 * 60 * 24 * 7, // 7 days
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 };
 

@@ -74,6 +74,8 @@ export const useShopLoyalty = (shopId: string | undefined) => {
         },
         enabled: isAuthenticated && !!shopId,
         staleTime: 1000 * 60 * 5, // 5 minutes
+        refetchOnWindowFocus: true,
+        refetchOnReconnect: true,
     });
 };
 
@@ -98,6 +100,8 @@ export const usePointBatches = (shopId: string | undefined) => {
         },
         enabled: isAuthenticated && !!shopId,
         staleTime: 1000 * 60 * 5,
+        refetchOnWindowFocus: true,
+        refetchOnReconnect: true,
     });
 };
 
@@ -138,6 +142,8 @@ export const usePointHistory = (
         },
         enabled: isAuthenticated && !!shopId,
         staleTime: 1000 * 60 * 2, // 2 minutes - history changes more frequently
+        refetchOnWindowFocus: true,
+        refetchOnReconnect: true,
     });
 };
 
@@ -162,6 +168,8 @@ export const useLoyaltyOverview = () => {
         },
         enabled: isAuthenticated,
         staleTime: 1000 * 60 * 5,
+        refetchOnWindowFocus: true,
+        refetchOnReconnect: true,
     });
 };
 

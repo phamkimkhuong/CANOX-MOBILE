@@ -67,6 +67,8 @@ export const usePriceTargetMet = () => {
         enabled: isAuthenticated,
         staleTime: 1000 * 60 * 5, // 5 minutes
         refetchInterval: isAuthenticated ? 1000 * 60 * 15 : false,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
         select: (data): PriceTargetMetUI => {
             const mappedGroups = data.wishlists.filter(w => w.items.some(i => i.isPriceTargetMet)).map(wishlist => ({
                 wishlistId: wishlist.id,

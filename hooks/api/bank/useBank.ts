@@ -46,6 +46,8 @@ export const useSupportedBanks = () => {
             return response.data.map(transformSupportedBank);
         },
         staleTime: 1000 * 60 * 60, // 1 hour - rarely changes
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 };
 
@@ -72,6 +74,8 @@ export const useMyBankAccounts = () => {
                 .map(transformUserBankAccount);
         },
         enabled: isAuthenticated,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 };
 
@@ -99,6 +103,8 @@ export const useDefaultBankAccount = () => {
             }
         },
         enabled: isAuthenticated,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 };
 

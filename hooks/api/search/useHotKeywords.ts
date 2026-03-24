@@ -62,5 +62,7 @@ export const useHotKeywords = (options: UseHotKeywordsOptions = {}) => {
         },
         staleTime: 1000 * 60 * 5, // 5 minutes - hot keywords change slowly
         gcTime: 1000 * 60 * 30,   // Keep in cache 30 minutes
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
     });
 };

@@ -63,6 +63,8 @@ export const useWishlistDetail = (
         queryFn: () => fetchWishlistDetail(wishlistId!),
         enabled: enabled && !!wishlistId,
         staleTime: 1000 * 60 * 3, // 3 minutes
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
         select: (data): WishlistDetailUI => adaptWishlistDetail(data),
     });
 };
@@ -81,6 +83,8 @@ export const useDefaultWishlist = (options: UseWishlistDetailOptions = {}) => {
         queryFn: fetchDefaultWishlist,
         enabled,
         staleTime: 1000 * 60 * 3,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
         select: (data): WishlistDetailUI => adaptWishlistDetail(data),
     });
 };
