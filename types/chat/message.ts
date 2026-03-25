@@ -277,7 +277,7 @@ const MessageDTOSchema = z.object({
     isDeleted: z.boolean().nullable().optional().transform(v => v ?? false),
     deletedType: z.string().nullable().optional(),
     isEdited: z.boolean().optional().nullable().transform(v => v ?? false),
-    sentAt: z.string().optional().nullable().transform(v => v || new Date().toISOString()),
+    sentAt: z.string().optional().nullable().transform(v => v || ''),
 });
 
 const MessagePageDTOSchema = z.object({

@@ -128,6 +128,7 @@ export interface Order {
     shopId: string | null;
     shopInfo: OrderShopInfo | null;
     status: OrderStatus;
+    currency: string;
 
     // Nested objects
     pricing: OrderPricing;
@@ -205,6 +206,7 @@ export interface OrderUI {
     shopName: string;
     shopLogoUrl: string | null; // Pre-built URL
     status: OrderStatus;
+    currency: string;
     statusDisplay: {
         label: string;
         color: string;
@@ -215,6 +217,7 @@ export interface OrderUI {
     // Formatted values
     formattedDate: string; //  "12/01/2024"
     formattedTime: string; // "14:30"
+    formattedPlacedAt: string; // Locale-aware datetime string
 
     // Price fields (flattened from pricing object)
     subtotal: number;

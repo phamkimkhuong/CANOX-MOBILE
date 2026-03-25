@@ -17,6 +17,7 @@ interface OrderShopHeaderProps {
     shopName: string;
     shopLogoUrl?: string | null;
     status: OrderStatus;
+    metaText?: string;
     onShopPress?: () => void;
 }
 
@@ -24,6 +25,7 @@ export const OrderShopHeader: React.FC<OrderShopHeaderProps> = ({
     shopName,
     shopLogoUrl,
     status,
+    metaText,
     onShopPress,
 }) => {
     const { theme } = useUnistyles();
@@ -51,9 +53,16 @@ export const OrderShopHeader: React.FC<OrderShopHeaderProps> = ({
                         />
                     )}
                 </View>
-                <Text style={styles.shopName} numberOfLines={1}>
-                    {shopName}
-                </Text>
+                <View style={styles.textContent}>
+                    <Text style={styles.shopName} numberOfLines={1}>
+                        {shopName}
+                    </Text>
+                    {metaText ? (
+                        <Text style={styles.metaText} numberOfLines={1}>
+                            {metaText}
+                        </Text>
+                    ) : null}
+                </View>
                 <IconSymbol
                     name="chevron-right"
                     size={16}
@@ -96,6 +105,11 @@ const stylesheet = StyleSheet.create((theme) => ({
         marginRight: theme.margins.sm,
         gap: 4,
     },
+    textContent: {
+        flex: 1,
+        marginLeft: theme.margins.sm,
+        minWidth: 0,
+    },
     logoWrapper: {
         width: 28,
         height: 28,
@@ -113,8 +127,11 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: 14,
         fontWeight: '600',
         color: theme.colors.typography,
-        marginLeft: theme.margins.sm,
-        maxWidth: 150,
+    },
+    metaText: {
+        fontSize: 11,
+        color: theme.colors.typographySecondary,
+        marginTop: 2,
     },
     statusBadge: {
         flexDirection: 'row',

@@ -161,7 +161,7 @@ const ConversationDTOSchema = z.object({
     participants: z.array(ParticipantDTOSchema),
     createdBy: z.string().optional().default('system'),
     lastModifiedBy: z.string().optional().default('system'),
-    lastModifiedDate: z.string().optional().default(new Date().toISOString()),
+    lastModifiedDate: z.string().optional().default(''),
 });
 
 const ConversationPageDTOSchema = z.object({

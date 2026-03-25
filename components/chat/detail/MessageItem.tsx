@@ -12,6 +12,7 @@ import {
     isMyMessage,
 } from '@/utils/adapter/chat/messageAdapter';
 import { formatMessageTime } from '@/utils/date';
+import { formatMoney } from '@/utils/format';
 import { Navigator } from '@/utils/navigation';
 import { buildImageUrl, toSizedImageUrl } from '@/utils/url';
 import * as Clipboard from 'expo-clipboard';
@@ -957,6 +958,7 @@ interface OrderMetadata {
     orderCode: string;
     status: string;
     totalAmount: number;
+    currency?: string;
     createdDate?: string;
     items: Array<{
         productId: string;
@@ -988,8 +990,8 @@ const parseMetadata = <T,>(metadata?: string): T | null => {
     }
 };
 
-const formatPrice = (amount: number): string => {
-    return new Intl.NumberFormat('vi-VN').format(amount) + 'đ';
+const formatPrice = (amount: number, currency: string = 'VND'): string => {
+    return formatMoney(amount, currency);
 };
 
 const ORDER_STATUS_CONFIG: Record<string, { label: string; color: string }> = {
@@ -1216,7 +1218,7 @@ const OrderCardContent: React.FC<CardContentProps> = ({
             <View style={styles.orderCardFooterNew}>
                 <View>
                     <Text style={styles.totalLabel}>Tổng thanh toán</Text>
-                    <Text style={styles.totalValue}>{formatPrice(data.totalAmount)}</Text>
+                    <Text style={styles.totalValue}>{formatPrice(data.totalAmount, data.currency)}</Text>
                 </View>
                 <View style={styles.viewOrderBtn}>
                     <Text style={styles.viewOrderBtnText}>Chi tiết</Text>

@@ -40,6 +40,7 @@ export interface OrderContext {
     orderCode: string;
     status: OrderStatus;
     totalAmount: number;
+    currency: string;
     thumbnail?: string; // First product image
     itemCount: number;
 }

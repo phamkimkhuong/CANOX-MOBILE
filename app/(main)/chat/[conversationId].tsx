@@ -149,6 +149,7 @@ export default function ChatDetailScreen() {
         orderCode?: string;
         orderStatus?: OrderStatus;
         totalAmount?: string;
+        orderCurrency?: string;
         itemCount?: string;
         partnerName?: string;
         partnerAvatar?: string;
@@ -287,6 +288,7 @@ export default function ChatDetailScreen() {
                 orderCode: params.orderCode || '',
                 status: (params.orderStatus || 'CREATED') as OrderStatus,
                 totalAmount: Number(params.totalAmount) || 0,
+                currency: params.orderCurrency || 'VND',
                 itemCount: Number(params.itemCount) || 1,
                 thumbnail: params.productImage || undefined,
             };
@@ -467,6 +469,7 @@ export default function ChatDetailScreen() {
                         orderCode: selectedOrder.orderNumber,
                         status: selectedOrder.status as OrderStatus,
                         totalAmount: selectedOrder.grandTotal,
+                        currency: selectedOrder.currency,
                         items: selectedOrder.items.map(item => ({
                             productId: item.productId,
                             productName: item.productName,
@@ -666,6 +669,7 @@ export default function ChatDetailScreen() {
                     orderCode: orderContext.orderCode,
                     status: orderContext.status,
                     totalAmount: orderContext.totalAmount,
+                    currency: orderContext.currency,
                     items: [],
                     shopId: params.shopId || '',
                 }

@@ -5,7 +5,7 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { useShopOrders } from '@/hooks/api/order/useOrders';
 import { OrderUI } from '@/types/order/order';
-import { formatCurrency } from '@/utils/format';
+import { formatMoney } from '@/utils/format';
 import {
     BottomSheetBackdrop,
     BottomSheetBackdropProps,
@@ -182,7 +182,7 @@ export const ShopOrderPicker = forwardRef<BottomSheetModal, ShopOrderPickerProps
                         <Text style={styles.orderDateSmall}>{item.formattedDate}</Text>
                         <View style={styles.priceRowMini}>
                             <Text style={styles.itemCountMini}>{item.totalQuantity} SP</Text>
-                            <Text style={styles.totalPriceMini}>{formatCurrency(item.grandTotal)}</Text>
+                            <Text style={styles.totalPriceMini}>{formatMoney(item.grandTotal, item.currency)}</Text>
                         </View>
                     </View>
 

@@ -12,7 +12,7 @@ import {
 } from '@/types/notification';
 import { ResponseDefaultSchema } from '@/types/responseSchema';
 import { mapApiNotificationToUi } from '@/utils/adapter/notificationAdapter';
-import { safeParseDate } from '@/utils/date';
+import { formatLocalDateKey, safeParseDate } from '@/utils/date';
 import { InfiniteData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -286,11 +286,13 @@ const getDateSection = (timestamp: string): string => {
 
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
     const notifDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const notifDateKey = formatLocalDateKey(notifDate);
 
-    if (notifDate.getTime() === today.getTime()) return 'today';
-    if (notifDate.getTime() === yesterday.getTime()) return 'yesterday';
+    if (notifDateKey === formatLocalDateKey(today)) return 'today';
+    if (notifDateKey === formatLocalDateKey(yesterday)) return 'yesterday';
     if (notifDate.getTime() > today.getTime() - 7 * 24 * 60 * 60 * 1000) return 'thisWeek';
     return 'earlier';
 };

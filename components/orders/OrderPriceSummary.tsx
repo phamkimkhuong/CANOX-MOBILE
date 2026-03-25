@@ -5,7 +5,7 @@
  * Hiển thị: "Thành tiền (X sản phẩm): ₫Y.YYY.YYY"
  */
 
-import { formatCurrency } from '@/utils/format';
+import { formatMoney } from '@/utils/format';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
@@ -15,12 +15,14 @@ interface OrderPriceSummaryProps {
     grandTotal: number;
     itemCount: number;
     totalQuantity: number;
+    currency: string;
 }
 
 export const OrderPriceSummary: React.FC<OrderPriceSummaryProps> = ({
     grandTotal,
     itemCount: _itemCount,
     totalQuantity,
+    currency,
 }) => {
     const { t } = useTranslation('order');
     const styles = stylesheet;
@@ -32,7 +34,7 @@ export const OrderPriceSummary: React.FC<OrderPriceSummaryProps> = ({
         <View style={styles.container}>
             <View style={styles.row}>
                 <Text style={styles.label}>{t('list.totalLabel')} ({quantityText}):</Text>
-                <Text style={styles.amount}>{formatCurrency(grandTotal)}</Text>
+                <Text style={styles.amount}>{formatMoney(grandTotal, currency)}</Text>
             </View>
         </View>
     );

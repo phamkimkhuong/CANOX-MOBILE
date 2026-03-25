@@ -27,6 +27,7 @@ interface SelectedOrder {
     orderNumber: string;
     status: string;
     grandTotal: number;
+    currency: string;
     shopId: string;
     items: Array<{
         productId: string;
@@ -99,6 +100,7 @@ export const useChatPickerStore = create<ChatPickerState>((set) => ({
             orderNumber: order.orderNumber,
             status: order.status,
             grandTotal: order.grandTotal,
+            currency: order.currency,
             shopId: order.shopId || '',
             items: order.items.map(item => ({
                 productId: item.productId,

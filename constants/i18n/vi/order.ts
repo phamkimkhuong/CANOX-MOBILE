@@ -41,6 +41,7 @@ export const ORDER_STRINGS: OrderTranslation = {
         },
         customerNote: 'Ghi chú:',
         cancellationReason: 'Lý do huỷ:',
+        placedAt: 'Đặt lúc {{time}}',
         copyTrackingSuccess: 'Đã sao chép mã vận đơn',
         noTrackingTitle: 'Chưa có mã vận đơn',
         noTrackingMessage: 'Vui lòng chờ shop giao hàng',
@@ -117,6 +118,7 @@ export const ORDER_STRINGS: OrderTranslation = {
     list: {
         totalLabel: 'Thành tiền',
         itemCount: '{{count}} sản phẩm',
+        placedAt: 'Đặt lúc {{time}}',
         viewMore: 'Xem thêm {{count}} sản phẩm khác',
         emptyState: {
             awaitingPayment: {

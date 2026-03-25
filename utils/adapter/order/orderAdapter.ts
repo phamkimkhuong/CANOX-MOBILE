@@ -13,7 +13,7 @@ import {
     OrderUI,
     PaymentMethod
 } from '@/types/order/order';
-import { formatClockTime, formatDate } from '@/utils/date';
+import { formatClockTime, formatDate, formatDateTime } from '@/utils/date';
 import { toPublicUrl, toSizedImageUrl } from '@/utils/url';
 import { getStatusDisplay } from './orderStatusMapper';
 
@@ -82,6 +82,7 @@ const buildFullAddress = (address: OrderShippingAddress | null): string => {
  */
 export const transformOrder = (order: Order): OrderUI => {
     const statusDisplay = getStatusDisplay(order.status);
+    const placedAt = order.createdAt || order.createdDate;
     const shopLogoUrl = toSizedImageUrl(
         order.shopInfo?.logoPath ?? order.shopInfo?.logoUrl,
         null,
@@ -118,11 +119,13 @@ export const transformOrder = (order: Order): OrderUI => {
         shopName: order.shopInfo?.shopName || 'Cửa hàng',
         shopLogoUrl,
         status: order.status,
+        currency: order.currency,
         statusDisplay,
 
         // Formatted dates - handle null createdAt
-        formattedDate: (order.createdAt || order.createdDate) ? formatDate((order.createdAt || order.createdDate)!) : '',
-        formattedTime: formatClockTime(order.createdAt || order.createdDate),
+        formattedDate: placedAt ? formatDate(placedAt) : '',
+        formattedTime: formatClockTime(placedAt),
+        formattedPlacedAt: placedAt ? formatDateTime(placedAt) : '',
 
         // Prices - from nested pricing object
         subtotal: pricing.subtotal,

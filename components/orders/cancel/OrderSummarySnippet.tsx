@@ -12,7 +12,7 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import type { OrderItemUI, OrderStatus } from '@/types/order/order';
 import { getStatusDisplay } from '@/utils/adapter/order/orderStatusMapper';
-import { formatCurrency } from '@/utils/format';
+import { formatMoney } from '@/utils/format';
 import { Image } from 'expo-image';
 import React from 'react';
 import { Text, View } from 'react-native';
@@ -23,6 +23,8 @@ interface OrderSummarySnippetProps {
     items: OrderItemUI[];
     /** Tổng tiền đơn hàng */
     grandTotal: number;
+    /** ISO 4217 currency code from backend */
+    currency: string;
     /** Mã đơn hàng */
     orderNumber: string;
     /** Trạng thái đơn hàng */
@@ -34,6 +36,7 @@ interface OrderSummarySnippetProps {
 export const OrderSummarySnippet: React.FC<OrderSummarySnippetProps> = ({
     items,
     grandTotal,
+    currency,
     orderNumber,
     status,
     shopName,
@@ -93,7 +96,7 @@ export const OrderSummarySnippet: React.FC<OrderSummarySnippetProps> = ({
                     {/* Price + Status Badge */}
                     <View style={styles.priceStatusRow}>
                         <Text style={styles.price}>
-                            {formatCurrency(grandTotal)}
+                            {formatMoney(grandTotal, currency)}
                         </Text>
                         <View
                             style={[

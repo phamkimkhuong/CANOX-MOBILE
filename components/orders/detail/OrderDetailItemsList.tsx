@@ -10,7 +10,7 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { productRoutes } from '@/constants/routes';
 import { OrderItemUI } from '@/types/order/order';
-import { formatCurrency } from '@/utils/format';
+import { formatMoney } from '@/utils/format';
 import { Navigator } from '@/utils/navigation';
 import { toSizedImageUrl } from '@/utils/url';
 import { Image } from 'expo-image';
@@ -21,12 +21,14 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface OrderItemRowProps {
     item: OrderItemUI;
+    currency: string;
     showReviewStatus?: boolean;
     onPressReview?: (item: OrderItemUI) => void;
 }
 
 const OrderItemRow = memo<OrderItemRowProps>(({
     item,
+    currency,
     showReviewStatus = false,
     onPressReview,
 }) => {
@@ -73,7 +75,7 @@ const OrderItemRow = memo<OrderItemRowProps>(({
                     {/* Price & Quantity */}
                     <View style={styles.priceRow}>
                         <Text style={styles.itemPrice}>
-                            {formatCurrency(item.unitPrice)}
+                            {formatMoney(item.unitPrice, currency)}
                         </Text>
                         <Text style={styles.itemQuantity}>x{item.quantity}</Text>
                     </View>
@@ -121,7 +123,7 @@ const OrderItemRow = memo<OrderItemRowProps>(({
             <View style={styles.rightColumn}>
                 <View style={styles.totalColumn}>
                     <Text style={styles.itemTotal}>
-                        {formatCurrency(item.lineTotal)}
+                        {formatMoney(item.lineTotal, currency)}
                     </Text>
                 </View>
             </View>
@@ -133,12 +135,14 @@ OrderItemRow.displayName = 'OrderItemRow';
 
 interface OrderDetailItemsListProps {
     items: OrderItemUI[];
+    currency: string;
     showReviewStatus?: boolean;
     onPressReview?: (item: OrderItemUI) => void;
 }
 
 export const OrderDetailItemsList: React.FC<OrderDetailItemsListProps> = ({
     items,
+    currency,
     showReviewStatus = false,
     onPressReview,
 }) => {
@@ -154,6 +158,7 @@ export const OrderDetailItemsList: React.FC<OrderDetailItemsListProps> = ({
                 <React.Fragment key={item.itemId ?? item.variantId ?? item.productId ?? `order-item-${index}`}>
                     <OrderItemRow
                         item={item}
+                        currency={currency}
                         showReviewStatus={showReviewStatus}
                         onPressReview={onPressReview}
                     />

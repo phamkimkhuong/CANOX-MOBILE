@@ -124,7 +124,7 @@ export const toProductReviewUI = (
     const imageCount = media.filter(m => m.type === 'IMAGE').length;
     const videoCount = media.filter(m => m.type === 'VIDEO').length;
 
-    const createdAt = dto.createdDate || new Date().toISOString();
+    const createdAt = dto.createdDate || '';
 
     return {
         id: dto.id,

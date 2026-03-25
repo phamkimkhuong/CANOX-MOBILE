@@ -169,6 +169,7 @@ export default function OrderDetailScreen() {
             orderStatus: String(order.status),
             productImage: order.items[0]?.imageUrl || '',
             totalAmount: String(order.grandTotal),
+            orderCurrency: order.currency,
             itemCount: String(order.itemCount),
         }));
 
@@ -360,6 +361,7 @@ export default function OrderDetailScreen() {
                     {/* Header */}
                     <OrderDetailHeader
                         orderNumber={order?.orderNumber || (id?.slice(-8) || '...')}
+                        placedAtText={order?.formattedPlacedAt ? t('order:detail.placedAt', { time: order.formattedPlacedAt }) : undefined}
                         onSupportPress={handleSupport}
                     />
 
@@ -382,7 +384,7 @@ export default function OrderDetailScreen() {
                             {/* Order Tracker */}
                             <OrderTracker
                                 status={order.status}
-                                createdAt={rawOrder?.createdAt}
+                                createdAt={rawOrder?.createdAt || rawOrder?.createdDate}
                             />
 
                             {/* Shipping Info */}
@@ -415,6 +417,7 @@ export default function OrderDetailScreen() {
                                 />
                                 <OrderDetailItemsList
                                     items={order.items}
+                                    currency={order.currency}
                                     showReviewStatus={order.status === 'COMPLETED' || order.status === 'FINALIZED'}
                                     onPressReview={handleReviewItem}
                                 />
@@ -430,6 +433,7 @@ export default function OrderDetailScreen() {
                                     shippingFee={order.shippingFee}
                                     taxAmount={order.taxAmount}
                                     grandTotal={order.grandTotal}
+                                    currency={order.currency}
                                     paymentMethod={order.paymentMethod}
                                 />
                             </View>

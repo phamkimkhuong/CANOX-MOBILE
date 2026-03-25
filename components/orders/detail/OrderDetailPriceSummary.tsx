@@ -11,7 +11,7 @@
 
 import { IconSymbol } from '@/components/ui/Icon';
 import { PaymentMethod } from '@/types/order/order';
-import { formatCurrency } from '@/utils/format';
+import { formatMoney } from '@/utils/format';
 import React, { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
@@ -20,6 +20,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 interface PriceRowProps {
     label: string;
     value: number;
+    currency: string;
     isDiscount?: boolean;
     isTotal?: boolean;
     icon?: string;
@@ -28,6 +29,7 @@ interface PriceRowProps {
 const PriceRow = memo<PriceRowProps>(({
     label,
     value,
+    currency,
     isDiscount = false,
     isTotal = false,
     icon,
@@ -57,7 +59,7 @@ const PriceRow = memo<PriceRowProps>(({
                 ]}
             >
                 {isDiscount && value > 0 ? '-' : ''}
-                {formatCurrency(value)}
+                {formatMoney(value, currency)}
             </Text>
         </View>
     );
@@ -73,6 +75,7 @@ interface OrderDetailPriceSummaryProps {
     shippingFee: number;
     taxAmount?: number;
     grandTotal: number;
+    currency: string;
     paymentMethod: PaymentMethod | string;
 }
 
@@ -84,6 +87,7 @@ export const OrderDetailPriceSummary: React.FC<OrderDetailPriceSummaryProps> = (
     shippingFee,
     taxAmount = 0,
     grandTotal,
+    currency,
     paymentMethod,
 }) => {
     const { theme } = useUnistyles();
@@ -109,12 +113,13 @@ export const OrderDetailPriceSummary: React.FC<OrderDetailPriceSummaryProps> = (
 
             {/* Price Breakdown */}
             <View style={styles.priceList}>
-                <PriceRow label={t('order:detail.summary.subtotal')} value={subtotal} />
+                <PriceRow label={t('order:detail.summary.subtotal')} value={subtotal} currency={currency} />
 
                 {shopDiscount > 0 && (
                     <PriceRow
                         label={t('order:detail.summary.shopDiscount')}
                         value={shopDiscount}
+                        currency={currency}
                         isDiscount
                     />
                 )}
@@ -123,6 +128,7 @@ export const OrderDetailPriceSummary: React.FC<OrderDetailPriceSummaryProps> = (
                     <PriceRow
                         label={t('order:detail.summary.platformDiscount')}
                         value={platformDiscount}
+                        currency={currency}
                         isDiscount
                     />
                 )}
@@ -131,6 +137,7 @@ export const OrderDetailPriceSummary: React.FC<OrderDetailPriceSummaryProps> = (
                     <PriceRow
                         label={t('order:detail.summary.shippingDiscount')}
                         value={shippingDiscount}
+                        currency={currency}
                         isDiscount
                     />
                 )}
@@ -138,10 +145,11 @@ export const OrderDetailPriceSummary: React.FC<OrderDetailPriceSummaryProps> = (
                 <PriceRow
                     label={t('order:detail.summary.shipping')}
                     value={shippingFee}
+                    currency={currency}
                 />
 
                 {taxAmount > 0 && (
-                    <PriceRow label={t('order:detail.summary.tax')} value={taxAmount} />
+                    <PriceRow label={t('order:detail.summary.tax')} value={taxAmount} currency={currency} />
                 )}
             </View>
 
@@ -149,7 +157,7 @@ export const OrderDetailPriceSummary: React.FC<OrderDetailPriceSummaryProps> = (
             <View style={styles.divider} />
 
             {/* Total */}
-            <PriceRow label={t('order:detail.summary.total')} value={grandTotal} isTotal />
+            <PriceRow label={t('order:detail.summary.total')} value={grandTotal} currency={currency} isTotal />
 
             {/* Savings Badge */}
             {hasDiscount && (
@@ -160,7 +168,7 @@ export const OrderDetailPriceSummary: React.FC<OrderDetailPriceSummaryProps> = (
                         color={theme.colors.success}
                     />
                     <Text style={styles.savingsText}>
-                        {t('order:detail.summary.savings', { amount: formatCurrency(totalDiscount) })}
+                        {t('order:detail.summary.savings', { amount: formatMoney(totalDiscount, currency) })}
                     </Text>
                 </View>
             )}

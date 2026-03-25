@@ -5,7 +5,7 @@ import {
     useUpcomingFlashSaleSlots,
 } from '@/hooks/api/campaign/useFlashSaleDataSource';
 import { SlotStatus } from '@/types/campaign';
-import { formatClockTime, formatDate, safeParseDate } from '@/utils/date';
+import { formatClockTime, formatDate, formatLocalDateKey, safeParseDate } from '@/utils/date';
 import { useMemo } from 'react';
 
 export interface FlashSaleTab {
@@ -36,9 +36,9 @@ export const useFlashSaleTabs = () => {
             const startTime = safeParseDate(slot.startTime);
             const timeLabel = formatClockTime(slot.startTime);
             let label = timeLabel;
-            const now = new Date();
+            const todayKey = formatLocalDateKey(new Date());
 
-            if (startTime && startTime.toDateString() !== now.toDateString()) {
+            if (startTime && formatLocalDateKey(startTime) !== todayKey) {
                 label = `${formatDate(startTime, 'DD/MM')} ${timeLabel}`.trim();
             }
 

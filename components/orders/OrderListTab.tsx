@@ -189,6 +189,7 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
                     orderStatus: String(order.status),
                     productImage: order.items[0]?.imageUrl || '',
                     totalAmount: String(order.grandTotal),
+                    orderCurrency: order.currency,
                     itemCount: String(order.itemCount),
                 }));
 

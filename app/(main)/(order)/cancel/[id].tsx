@@ -229,6 +229,7 @@ export default function CancelOrderScreen() {
                     <OrderSummarySnippet
                         items={order.items}
                         grandTotal={order.grandTotal}
+                        currency={order.currency}
                         orderNumber={order.orderNumber}
                         status={order.status}
                         shopName={order.shopName}

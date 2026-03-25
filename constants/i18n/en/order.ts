@@ -41,6 +41,7 @@ export const ORDER_STRINGS: OrderTranslation = {
         },
         customerNote: 'Note:',
         cancellationReason: 'Cancellation Reason:',
+        placedAt: 'Placed at {{time}}',
         copyTrackingSuccess: 'Tracking number copied',
         noTrackingTitle: 'No tracking number yet',
         noTrackingMessage: 'Please wait for the shop to ship',
@@ -117,6 +118,7 @@ export const ORDER_STRINGS: OrderTranslation = {
     list: {
         totalLabel: 'Order Total',
         itemCount: '{{count}} items',
+        placedAt: 'Placed at {{time}}',
         viewMore: 'View {{count}} more products',
         emptyState: {
             awaitingPayment: {

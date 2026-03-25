@@ -7,7 +7,7 @@ import { useShopOrders } from '@/hooks/api/order/useOrders';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { useChatPickerStore } from '@/store/useChatPickerStore';
 import { OrderUI } from '@/types/order/order';
-import { formatCurrency } from '@/utils/format';
+import { formatMoney } from '@/utils/format';
 import { Navigator } from '@/utils/navigation';
 import { FlashList } from '@shopify/flash-list';
 import { Image } from 'expo-image';
@@ -225,7 +225,7 @@ export default function SelectOrderScreen() {
                         <Text style={styles.itemCountMini}>{order.totalQuantity} Sản Phẩm</Text>
                     </View>
 
-                    <Text style={styles.totalPriceMini}>{formatCurrency(order.grandTotal)}</Text>
+                    <Text style={styles.totalPriceMini}>{formatMoney(order.grandTotal, order.currency)}</Text>
                 </View>
 
                 {/* 3. Send Action (Right) */}

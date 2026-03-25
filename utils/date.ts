@@ -68,7 +68,7 @@ export const getDeviceLocale = (): string => {
     }
 };
 
-const getPreferredLocale = (): string => {
+export const getPreferredLocale = (): string => {
     const appLanguage = getCurrentAppLanguage();
     const deviceLocale = getDeviceLocale();
     return deviceLocale.toLowerCase().startsWith(appLanguage)
@@ -148,7 +148,9 @@ const getDateParts = (date: string | Date | null | undefined) => {
 const getDateCopy = () => DATE_COPY[getCurrentAppLanguage()];
 
 const isSameLocalDay = (first: Date, second: Date): boolean =>
-    first.toDateString() === second.toDateString();
+    first.getFullYear() === second.getFullYear() &&
+    first.getMonth() === second.getMonth() &&
+    first.getDate() === second.getDate();
 
 const addLocalDays = (date: Date, days: number): Date => {
     const nextDate = new Date(date);

@@ -754,6 +754,7 @@ export interface OrderTranslation {
         };
         customerNote: string;
         cancellationReason: string;
+        placedAt: string;
         copyTrackingSuccess: string;
         noTrackingTitle: string;
         noTrackingMessage: string;
@@ -830,6 +831,7 @@ export interface OrderTranslation {
     list: {
         totalLabel: string;
         itemCount: string;
+        placedAt: string;
         viewMore: string;
         emptyState: {
             awaitingPayment: { title: string; description: string };

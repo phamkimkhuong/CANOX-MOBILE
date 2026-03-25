@@ -20,11 +20,13 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface OrderDetailHeaderProps {
     orderNumber: string;
+    placedAtText?: string;
     onSupportPress?: () => void;
 }
 
 export const OrderDetailHeader: React.FC<OrderDetailHeaderProps> = ({
     orderNumber,
+    placedAtText,
     onSupportPress,
 }) => {
     const { theme } = useUnistyles();
@@ -77,6 +79,11 @@ export const OrderDetailHeader: React.FC<OrderDetailHeaderProps> = ({
                             color={theme.colors.typographySecondary}
                         />
                     </Pressable>
+                    {placedAtText ? (
+                        <Text style={styles.placedAtText} numberOfLines={1}>
+                            {placedAtText}
+                        </Text>
+                    ) : null}
                 </View>
 
                 {/* Support Button */}
@@ -108,8 +115,9 @@ const stylesheet = StyleSheet.create((theme) => ({
     content: {
         flexDirection: 'row',
         alignItems: 'center',
-        height: 56,
+        minHeight: 64,
         paddingHorizontal: theme.margins.sm,
+        paddingBottom: theme.margins.xs,
     },
     backButton: {
         width: 44,
@@ -124,6 +132,8 @@ const stylesheet = StyleSheet.create((theme) => ({
     titleContainer: {
         flex: 1,
         alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: theme.margins.xs,
     },
     title: {
         fontSize: 16,
@@ -139,6 +149,11 @@ const stylesheet = StyleSheet.create((theme) => ({
     orderNumber: {
         fontSize: 11,
         color: theme.colors.typographySecondary,
+    },
+    placedAtText: {
+        fontSize: 11,
+        color: theme.colors.typographySecondary,
+        marginTop: 2,
     },
     supportButton: {
         width: 44,

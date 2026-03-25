@@ -4,6 +4,10 @@ import { z } from 'zod';
 const numberOrZero = z.coerce.number().nullish().transform((value) => value ?? 0);
 const nullableString = z.string().nullish().transform((value) => value ?? null);
 const stringOrEmpty = z.string().nullish().transform((value) => value ?? '');
+const currencyCodeOrDefault = z
+  .string()
+  .nullish()
+  .transform((value) => value?.trim().toUpperCase() || 'VND');
 const arrayOrEmpty = <T extends z.ZodTypeAny>(schema: T) =>
   z.array(schema).nullish().transform((value) => value ?? []);
 const booleanOrFalse = z.coerce.boolean().nullish().transform((value) => value ?? false);
@@ -126,6 +130,7 @@ export const OrderSchema = z.looseObject({
     shopId: nullableString,
     shopInfo: OrderShopInfoSchema,
     status: OrderStatusSchema,
+    currency: currencyCodeOrDefault,
     pricing: OrderPricingSchema,
     payment: OrderPaymentSchema,
     shipment: OrderShipmentSchema,

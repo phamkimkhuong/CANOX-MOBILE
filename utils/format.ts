@@ -5,6 +5,16 @@
  * Centralized formatting functions for the app
  */
 
+import { getPreferredLocale } from '@/utils/date';
+
+const CURRENCY_SYMBOL_OVERRIDES: Record<string, string> = {
+    USD: '$',
+    VND: 'đ',
+    EUR: '€',
+    GBP: '£',
+    JPY: '¥',
+};
+
 /**
  * Formats currency for display (Standard Vietnamese format)
  * Output: "100.000 đ"
@@ -15,6 +25,55 @@ export const formatCurrency = (amount: number): string => {
     // Làm tròn số và format theo chuẩn vi-VN, không hiển thị số lẻ
     const roundedAmount = Math.round(amount);
     return `${roundedAmount.toLocaleString('vi-VN')}\u00A0đ`;
+};
+
+/**
+ * Formats money using a backend-provided ISO 4217 currency code.
+ * This is used for multi-currency surfaces such as international orders.
+ */
+export const formatMoney = (
+    amount: number,
+    currency: string,
+    options?: Intl.NumberFormatOptions
+): string => {
+    const normalizedAmount = Number.isFinite(amount) ? amount : 0;
+    const normalizedCurrency = currency?.trim().toUpperCase() || 'VND';
+    const locale = getPreferredLocale();
+
+    try {
+        const formatter = new Intl.NumberFormat(locale, {
+            style: 'currency',
+            currency: normalizedCurrency,
+            currencyDisplay: 'narrowSymbol',
+            ...options,
+        });
+
+        const parts = formatter.formatToParts(normalizedAmount);
+        const symbolOverride = CURRENCY_SYMBOL_OVERRIDES[normalizedCurrency];
+
+        if (parts.length > 0) {
+            return parts
+                .map((part) =>
+                    part.type === 'currency' && symbolOverride
+                        ? symbolOverride
+                        : part.value
+                )
+                .join('');
+        }
+
+        return formatter.format(normalizedAmount);
+    } catch {
+        if (normalizedCurrency === 'VND') {
+            return formatCurrency(normalizedAmount);
+        }
+
+        const fallbackNumber = new Intl.NumberFormat(locale, {
+            maximumFractionDigits: 2,
+            minimumFractionDigits: normalizedCurrency === 'VND' ? 0 : 2,
+        }).format(normalizedAmount);
+
+        return `${fallbackNumber}\u00A0${normalizedCurrency}`;
+    }
 };
 
 /**

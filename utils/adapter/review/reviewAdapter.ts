@@ -17,6 +17,7 @@ import {
 } from '@/types/review';
 import { REVIEW_INCENTIVE } from '@/utils/adapter/review/reviewIncentives';
 import { QUICK_TAGS, RATING_LABELS } from '@/utils/adapter/review/reviewTags';
+import { safeParseDate } from '@/utils/date';
 import { formatCurrency } from '@/utils/format';
 import { buildImageUrl } from '@/utils/url';
 
@@ -37,7 +38,7 @@ export const toPendingReviewItemUI = (
     formattedPrice: formatCurrency(item.unitPrice),
     orderId: order.orderId,
     orderNumber: order.orderNumber,
-    deliveredAt: order.createdAt || new Date().toISOString(),
+    deliveredAt: order.createdAt || order.createdDate || '',
     shopId: order.shopId || '',
     shopName: order.shopInfo?.shopName || 'Shop',
     shopLogo: order.shopInfo?.logoUrl ? buildImageUrl(order.shopInfo.logoUrl, '', '') : null,
@@ -56,7 +57,7 @@ export const extractPendingReviews = (orders: Order[]): PendingReviewGroupUI[] =
             groups.push({
                 orderId: order.orderId || '',
                 orderNumber: order.orderNumber || '000000',
-                deliveredAt: order.createdAt || new Date().toISOString(),
+                deliveredAt: order.createdAt || order.createdDate || '',
                 shopName: order.shopInfo?.shopName || 'Shop',
                 items: unreviewedItems.map((item) => toPendingReviewItemUI(item, order)),
             });
@@ -64,7 +65,9 @@ export const extractPendingReviews = (orders: Order[]): PendingReviewGroupUI[] =
     }
 
     return groups.sort(
-        (a, b) => new Date(b.deliveredAt).getTime() - new Date(a.deliveredAt).getTime()
+        (a, b) =>
+            (safeParseDate(b.deliveredAt)?.getTime() ?? 0) -
+            (safeParseDate(a.deliveredAt)?.getTime() ?? 0)
     );
 };
 
@@ -81,7 +84,7 @@ export const toMyReviewUI = (dto: MyReviewsListItemDTO): MyReviewUI => ({
     rating: dto.rating,
     comment: dto.comment,
     status: dto.status,
-    createdDate: dto.createdDate || new Date().toISOString(),
+    createdDate: dto.createdDate || '',
     media: dto.media || [],
     helpfulCount: dto.helpfulCount || 0,
     hasSellerResponse: dto.hasResponse || false,

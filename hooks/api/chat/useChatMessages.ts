@@ -474,6 +474,7 @@ export interface SendOrderCardPayload {
         orderCode: string;
         status: string;
         totalAmount: number;
+        currency: string;
         items: Array<{
             productId: string;
             productName: string;
@@ -535,6 +536,7 @@ export const useSendOrderCard = (conversationId: string) => {
                     orderCode: payload.orderInfo.orderCode,
                     status: payload.orderInfo.status,
                     totalAmount: payload.orderInfo.totalAmount,
+                    currency: payload.orderInfo.currency,
                     items: payload.orderInfo.items,
                     shopId: payload.orderInfo.shopId,
                     buyerId: userId || '',

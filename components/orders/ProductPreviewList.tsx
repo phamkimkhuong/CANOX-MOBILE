@@ -10,7 +10,7 @@
 
 import { IconSymbol } from '@/components/ui/Icon';
 import { OrderItemUI } from '@/types/order/order';
-import { formatCurrency } from '@/utils/format';
+import { formatMoney } from '@/utils/format';
 import { toSizedImageUrl } from '@/utils/url';
 import { Image } from 'expo-image';
 import React, { memo } from 'react';
@@ -20,6 +20,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface ProductPreviewListProps {
     items: OrderItemUI[];
+    currency: string;
     maxDisplay?: number;
 }
 
@@ -28,7 +29,7 @@ const PLACEHOLDER_IMAGE = 'https://via.placeholder.com/80x80?text=No+Image';
 /**
  * Single Product Item Row
  */
-const ProductItemRow = memo<{ item: OrderItemUI }>(({ item }) => {
+const ProductItemRow = memo<{ item: OrderItemUI; currency: string }>(({ item, currency }) => {
     const styles = stylesheet;
 
     const imageUrl = item.imageUrl || PLACEHOLDER_IMAGE;
@@ -58,7 +59,7 @@ const ProductItemRow = memo<{ item: OrderItemUI }>(({ item }) => {
                 )}
                 <View style={styles.priceRow}>
                     <Text style={styles.unitPrice}>
-                        {formatCurrency(item.unitPrice)}
+                        {formatMoney(item.unitPrice, currency)}
                     </Text>
                     <Text style={styles.quantity}>x{item.quantity}</Text>
                 </View>
@@ -71,6 +72,7 @@ ProductItemRow.displayName = 'ProductItemRow';
 
 export const ProductPreviewList: React.FC<ProductPreviewListProps> = ({
     items,
+    currency,
     maxDisplay = 1,
 }) => {
     const { theme } = useUnistyles();
@@ -95,7 +97,7 @@ export const ProductPreviewList: React.FC<ProductPreviewListProps> = ({
                 const uniqueKey = item.sku || item.itemId || `${item.productId}-${item.variantId}-${index}`;
                 return (
                     <View key={uniqueKey}>
-                        <ProductItemRow item={item} />
+                        <ProductItemRow item={item} currency={currency} />
                         {index < displayItems.length - 1 && (
                             <View style={styles.divider} />
                         )}

@@ -48,8 +48,8 @@ export const WishlistItemSchema = z.object({
     priority: z.coerce.number().nullish().transform((val) => val ?? 0),
     desiredPrice: z.number().nullish().default(null),
     isPriceTargetMet: booleanOrDefault(false),
-    createdDate: z.string().nullish().transform((val) => val ?? new Date().toISOString()),
-    lastModifiedDate: z.string().nullish().transform((val) => val ?? new Date().toISOString()),
+    createdDate: z.string().nullish().transform((val) => val ?? ''),
+    lastModifiedDate: z.string().nullish().transform((val) => val ?? ''),
     options: arrayOrEmpty(WishlistItemOptionSchema),
 });
 
@@ -65,7 +65,7 @@ export const WishlistSummarySchema = z.object({
     isDefault: z.coerce.boolean().nullish().transform(val => val ?? false),
     buyerName: z.string().nullish().transform((val) => val ?? ''),
     itemCount: numberOrDefault(0),
-    createdDate: z.string().nullish().transform((val) => val ?? new Date().toISOString()),
+    createdDate: z.string().nullish().transform((val) => val ?? ''),
     imagePath: z.string().nullish().default(null),
     imageBasePath: z.string().nullish().default(null),
     imageExtension: z.string().nullish().default(null),

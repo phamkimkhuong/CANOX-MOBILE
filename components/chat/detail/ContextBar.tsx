@@ -8,7 +8,7 @@ import {
     CONTEXT_ACTION_CONFIG,
     ContextBarProps,
 } from '@/types/chat/contextBar';
-import { formatCurrency } from '@/utils/format';
+import { formatCurrency, formatMoney } from '@/utils/format';
 import { buildImageUrl } from '@/utils/url';
 import { Image } from 'expo-image';
 import React from 'react';
@@ -103,7 +103,7 @@ export const ContextBar: React.FC<ContextBarProps> = React.memo(({
                     </View>
                     <View style={styles.priceRow}>
                         <Text style={styles.price}>
-                            {formatCurrency(orderData.totalAmount)}
+                            {formatMoney(orderData.totalAmount, orderData.currency)}
                         </Text>
                         <Text style={styles.itemCount}>
                             • {orderData.itemCount} sản phẩm

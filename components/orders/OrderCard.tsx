@@ -10,6 +10,7 @@ import { OrderAction, OrderUI } from '@/types/order/order';
 import { hasTracking } from '@/utils/adapter/order/orderActions';
 import React, { memo, useCallback } from 'react';
 import { Pressable } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { OrderActionButtons } from './OrderActionButtons';
@@ -36,6 +37,7 @@ export const OrderCard = memo<OrderCardProps>(({
     onTrackingPress,
 }) => {
     const styles = stylesheet;
+    const { t } = useTranslation('order');
 
     const handlePress = useCallback(() => {
         onPress?.(order.orderId);
@@ -84,6 +86,7 @@ export const OrderCard = memo<OrderCardProps>(({
                 shopName={order.shopName}
                 shopLogoUrl={order.shopLogoUrl}
                 status={order.status}
+                metaText={order.formattedPlacedAt ? t('list.placedAt', { time: order.formattedPlacedAt }) : undefined}
                 onShopPress={handleShopPress}
             />
 
@@ -98,6 +101,7 @@ export const OrderCard = memo<OrderCardProps>(({
             {/* 3. Product Preview List */}
             <ProductPreviewList
                 items={order.items}
+                currency={order.currency}
                 maxDisplay={1}
             />
 
@@ -106,6 +110,7 @@ export const OrderCard = memo<OrderCardProps>(({
                 grandTotal={order.grandTotal}
                 itemCount={order.itemCount}
                 totalQuantity={order.totalQuantity}
+                currency={order.currency}
             />
 
             {/* 5. Action Buttons */}

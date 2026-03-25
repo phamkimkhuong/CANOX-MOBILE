@@ -1,6 +1,7 @@
 jest.mock('@/utils/date', () => ({
   formatDate: jest.fn(() => '25/03/2026'),
   formatClockTime: jest.fn(() => '11:54'),
+  formatDateTime: jest.fn(() => '25/03/2026, 11:54'),
 }));
 
 jest.mock('@/utils/url', () => ({
@@ -32,6 +33,7 @@ const createOrder = (overrides: Partial<Order> = {}): Order => ({
   orderId: '824506622667345920',
   orderNumber: 'ORD-MN5KKSP8-BA37',
   shopId: 'ff9e495e-5267-4c86-b284-64b4ca6971cf',
+  currency: 'VND',
   shopInfo: {
     shopName: 'TAP HOA IT',
     logoUrl: null,
@@ -123,6 +125,22 @@ describe('order detail shop logo flow', () => {
     expect(result.shopLogoUrl).toBe(
       'sized:public/shops/logos/2026/02/806097597839532032_thumb.jpg'
     );
+    expect(result.currency).toBe('VND');
+  });
+
+  it('keeps backend currency for multi-currency orders', () => {
+    const parsed = OrderDetailApiResponseSchema.parse({
+      code: 1000,
+      success: true,
+      message: 'Order retrieved successfully',
+      data: createOrder({ currency: 'usd' }),
+      timestamp: '2026-03-25T04:59:37.508254745Z',
+    });
+
+    const result = transformOrder(parsed.data);
+
+    expect(parsed.data.currency).toBe('USD');
+    expect(result.currency).toBe('USD');
   });
 
   it('falls back to logoUrl when sized conversion returns undefined', () => {
