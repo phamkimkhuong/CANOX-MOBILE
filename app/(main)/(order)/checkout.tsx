@@ -484,6 +484,7 @@ export default function CheckoutScreen() {
 
     // Track last fetched request to avoid duplicates
     const lastRequestKey = useRef<string | null>(null);
+    const pendingCheckoutRefreshToastRef = useRef(false);
 
     // Stable ref cho mutation function
     const callPreviewRef = useRef(callPreview);
@@ -501,8 +502,20 @@ export default function CheckoutScreen() {
                     });
                     setLoadingPreview(false);
                     setPreviewError(null);
+
+                    if (pendingCheckoutRefreshToastRef.current) {
+                        pendingCheckoutRefreshToastRef.current = false;
+                        Toast.show({
+                            type: 'success',
+                            text1: t('status.checkoutRefreshedTitle'),
+                            text2: t('status.checkoutRefreshedMessage'),
+                            position: 'top',
+                            visibilityTime: 4200,
+                        });
+                    }
                 },
                 onError: (error) => {
+                    pendingCheckoutRefreshToastRef.current = false;
                     setPreviewData(null);
                     setLoadingPreview(false);
                     setPreviewError(error);
@@ -510,7 +523,7 @@ export default function CheckoutScreen() {
                 },
             });
         },
-        [setPreviewData, setLoadingPreview]
+        [setPreviewData, setLoadingPreview, t]
     );
 
     // ========================================
@@ -810,11 +823,13 @@ export default function CheckoutScreen() {
                     message: error.message,
                 });
 
+                pendingCheckoutRefreshToastRef.current = true;
                 Toast.show({
                     type: 'error',
-                    text1: error.message,
-                    position: 'bottom',
-                    visibilityTime: 3500,
+                    text1: t('status.checkoutRefreshingTitle'),
+                    text2: t('status.checkoutRefreshingMessage'),
+                    position: 'top',
+                    visibilityTime: 4200,
                 });
 
                 const refreshRequest = buildPreviewRequest();

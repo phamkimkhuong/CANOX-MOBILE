@@ -34,9 +34,9 @@ const CATEGORIES: Category[] = [
     { id: 2, nameKey: 'home:categories.allCategories', imageSource: require('@/assets/images/categories/category.png'), route: ROUTES.CATEGORY.INDEX },
     { id: 3, nameKey: 'home:categories.coins', imageSource: require('@/assets/images/categories/stack-of-coins.png'), route: ROUTES.PROFILE.COINS },
     { id: 4, nameKey: 'home:categories.global', imageSource: require('@/assets/images/categories/globe.png'), route: ROUTES.PROFILE.INTERNATIONAL_SHIPPING },
-    { id: 5, nameKey: 'home:categories.vouchers', imageSource: require('@/assets/images/categories/discount.png'), route: ROUTES.PROFILE.VOUCHERS },
-    { id: 6, nameKey: 'home:categories.freeShip', imageSource: require('@/assets/images/categories/delivery.png') },
-    { id: 7, nameKey: 'home:categories.fashion', imageSource: require('@/assets/images/categories/shopping-bag.png') },
+    // { id: 5, nameKey: 'home:categories.vouchers', imageSource: require('@/assets/images/categories/discount.png'), route: ROUTES.PROFILE.VOUCHERS }, // Re-enable when My Voucher UI is ready
+    // { id: 6, nameKey: 'home:categories.freeShip', imageSource: require('@/assets/images/categories/delivery.png') },
+    // { id: 7, nameKey: 'home:categories.fashion', imageSource: require('@/assets/images/categories/shopping-bag.png') },
 ];
 
 export const CategoryRail = memo(() => {
@@ -157,7 +157,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         gap: 12, // Khoảng cách giữa các item
     },
     item: {
-        width: 72, // Cố định width để căn text đều nhau
+        width: 84, // Cố định width để căn text đều nhau
         alignItems: 'center',
         gap: 6,
     },
@@ -179,6 +179,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         height: 32,
     },
     text: {
+        width: '100%',
         fontSize: theme.fontSizes.xs,
         color: theme.colors.header.onHeader || '#ffffff',
         textAlign: 'center',

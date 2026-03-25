@@ -135,6 +135,10 @@ export const CHECKOUT_STRINGS: CheckoutTranslation = {
         orderSuccess: 'Đặt hàng thành công',
         orderFailed: 'Đặt hàng thất bại. Vui lòng thử lại.',
         orderFailedDetail: 'Đã có lỗi xảy ra. {{error}}',
+        checkoutRefreshingTitle: 'Thông tin thanh toán đang được cập nhật',
+        checkoutRefreshingMessage: 'Giá, ưu đãi hoặc phí vận chuyển có thể đã thay đổi. Hệ thống đang làm mới lại để bạn kiểm tra.',
+        checkoutRefreshedTitle: 'Thông tin thanh toán đã được cập nhật',
+        checkoutRefreshedMessage: 'Vui lòng kiểm tra lại đơn hàng và nhấn Đặt hàng thêm một lần nữa.',
     },
     error: {
         previewTitle: 'Không thể tải thông tin thanh toán',

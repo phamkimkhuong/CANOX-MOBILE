@@ -696,6 +696,10 @@ export interface CheckoutTranslation {
         orderSuccess: string;
         orderFailed: string;
         orderFailedDetail: string;
+        checkoutRefreshingTitle: string;
+        checkoutRefreshingMessage: string;
+        checkoutRefreshedTitle: string;
+        checkoutRefreshedMessage: string;
     };
     error: {
         previewTitle: string;

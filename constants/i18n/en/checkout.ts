@@ -135,6 +135,10 @@ export const CHECKOUT_STRINGS: CheckoutTranslation = {
         orderSuccess: 'Order placed successfully',
         orderFailed: 'Order failed. Please try again.',
         orderFailedDetail: 'An error occurred. {{error}}',
+        checkoutRefreshingTitle: 'Checkout details are being updated',
+        checkoutRefreshingMessage: 'Prices, vouchers, or shipping fees may have changed. We are refreshing everything for you to review.',
+        checkoutRefreshedTitle: 'Checkout details have been updated',
+        checkoutRefreshedMessage: 'Please review the updated order and tap Place Order one more time.',
     },
     error: {
         previewTitle: 'Unable to load checkout details',
