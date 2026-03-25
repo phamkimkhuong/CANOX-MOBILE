@@ -35,6 +35,7 @@ import {
     CheckoutShopGroup,
     CheckoutSkeleton,
     PaymentMethodSection,
+    PlatformLoyaltyRow,
     PlatformVoucherSelector,
 } from '@/components/checkout';
 import { SkeletonBox } from '@/components/ui/feedback/Skeleton';
@@ -104,6 +105,7 @@ export default function CheckoutScreen() {
     const selectedShopVouchers = useCheckoutStore((s) => s.selectedShopVouchers);
     const selectedPlatformDiscountVoucher = useCheckoutStore((s) => s.selectedPlatformDiscountVoucher);
     const selectedPlatformShippingVoucher = useCheckoutStore((s) => s.selectedPlatformShippingVoucher);
+    const platformLoyaltyEnabled = useCheckoutStore((s) => s.platformLoyaltyEnabled);
     const selectedLoyaltyRedemptions = useCheckoutStore((s) => s.selectedLoyaltyRedemptions);
     const selectedItemIds = useCheckoutStore((s) => s.selectedItemIds);
     const checkoutShops = useCheckoutStore((s) => s.checkoutShops);
@@ -145,6 +147,10 @@ export default function CheckoutScreen() {
     const canPlaceOrder = useCanPlaceOrder();
     const orderBlockReasons = useOrderBlockReasons();
     const warnings = usePreviewWarnings();
+    const effectivePlatformLoyaltyEnabled = useMemo(() => {
+        if (platformLoyaltyEnabled !== null) return platformLoyaltyEnabled;
+        return (previewData?.platformLoyalty?.totalPointsToRedeem ?? 0) > 0;
+    }, [platformLoyaltyEnabled, previewData?.platformLoyalty?.totalPointsToRedeem]);
 
     const calculation = useMemo(() => calculationData ?? {
         subtotal: 0,
@@ -221,6 +227,7 @@ export default function CheckoutScreen() {
     const resetSession = useCheckoutStore((s) => s.resetSession);
     const initSession = useCheckoutStore((s) => s.initSession);
     const applyBulkPlatformVouchers = useCheckoutStore((s) => s.applyBulkPlatformVouchers);
+    const setPlatformLoyaltyEnabled = useCheckoutStore((s) => s.setPlatformLoyaltyEnabled);
     const setPaymentMethod = useCheckoutStore((s) => s.setPaymentMethod);
     const setPreviewData = useCheckoutStore((s) => s.setPreviewData);
     const setLoadingPreview = useCheckoutStore((s) => s.setLoadingPreview);
@@ -255,6 +262,20 @@ export default function CheckoutScreen() {
     // ========================================
     // BUILD PREVIEW REQUEST
     // ========================================
+    const getPlatformLoyaltyPointsForShop = useCallback((shopId: string) => {
+        if (!effectivePlatformLoyaltyEnabled) return undefined;
+
+        const currentPlatformLoyalty = useCheckoutStore.getState().previewData?.platformLoyalty;
+        const allocation = currentPlatformLoyalty?.allocations.find((item) => item.shopId === shopId);
+        if (!allocation) return undefined;
+
+        const points = allocation.pointsToRedeem > 0
+            ? allocation.pointsToRedeem
+            : allocation.maxPointsForShop;
+
+        return points > 0 ? points : undefined;
+    }, [effectivePlatformLoyaltyEnabled]);
+
     const buildPreviewRequest = useCallback((): CheckoutPreviewRequest | null => {
         // Cần selected items từ store
         if (selectedItemIds.length === 0) return null;
@@ -299,6 +320,7 @@ export default function CheckoutScreen() {
                         return previewShop.shippingOptions.methods.find((m: any) => m.id === finalShippingCode)?.fee;
                     })(),
                     loyaltyPoints: isBuyNowMode ? undefined : (selectedLoyaltyRedemptions.get(shop.shopId) || undefined),
+                    platformLoyaltyPoints: isBuyNowMode ? undefined : getPlatformLoyaltyPointsForShop(shop.shopId),
                 };
             }),
             paymentMethod: paymentMethod === 'cod' ? 'COD' : paymentMethod === 'vnpay' ? 'VNPAY' : 'PAYOS',
@@ -308,6 +330,11 @@ export default function CheckoutScreen() {
                 quantity: parseInt(quantity || '1', 10),
                 options: {
                     loyaltyPoints: Array.from(selectedLoyaltyRedemptions.values())[0] || undefined,
+                    platformLoyaltyPoints: (function () {
+                        const shop = checkoutShops[0];
+                        if (!shop) return undefined;
+                        return getPlatformLoyaltyPointsForShop(shop.shopId);
+                    })(),
                     serviceCode: (function () {
                         const shop = checkoutShops[0];
                         if (!shop) return undefined;
@@ -351,6 +378,7 @@ export default function CheckoutScreen() {
         isBuyNowMode,
         quantity,
         variantId,
+        getPlatformLoyaltyPointsForShop,
     ]);
 
     /**
@@ -358,10 +386,49 @@ export default function CheckoutScreen() {
      * This prevents the "double call" when the store syncs vouchers from the first response.
      */
     const isRequestMatchingPreview = useCallback((req: CheckoutPreviewRequest, preview: CheckoutPreviewUI) => {
+        const haveSameCodes = (left: string[], right: string[]) => {
+            if (left.length !== right.length) return false;
+            return left.every((code) => right.includes(code));
+        };
+
         // Check Address
         if (req.shippingAddress?.addressId !== preview.addressId) return false;
 
-        // Check Global Vouchers at Shop Level (since it's distributed)
+        if (req.buyNow) {
+            const previewShop = preview.shops[0];
+            if (!previewShop) return false;
+
+            const requestedCodes = req.allDiscountCodes ?? [];
+            const previewCodes: string[] = [];
+
+            if (previewShop.appliedVoucherId) {
+                previewCodes.push(previewShop.appliedVoucherId);
+            }
+            if (preview.calculation.appliedPlatformVoucherId) {
+                previewCodes.push(preview.calculation.appliedPlatformVoucherId);
+            }
+            if (preview.calculation.appliedShippingVoucherId) {
+                previewCodes.push(preview.calculation.appliedShippingVoucherId);
+            }
+
+            if (!haveSameCodes(requestedCodes, previewCodes)) return false;
+
+            const reqShipping = req.directItem?.options?.serviceCode;
+            const previewShipping = Number(previewShop.shippingOptions.selectedMethodId);
+            if (reqShipping && reqShipping !== previewShipping) return false;
+
+            const reqLoyalty = req.directItem?.options?.loyaltyPoints || 0;
+            const previewLoyalty = previewShop.loyaltyInfo?.pointsToRedeem || 0;
+            if (reqLoyalty !== previewLoyalty) return false;
+
+            const reqPlatformLoyalty = req.directItem?.options?.platformLoyaltyPoints || 0;
+            const previewPlatformLoyalty = preview.platformLoyalty?.allocations[0]?.pointsToRedeem || 0;
+            if (reqPlatformLoyalty !== previewPlatformLoyalty) return false;
+
+            return true;
+        }
+
+        // Standard checkout compares shop-distributed vouchers directly on each shop selection.
         for (const reqShop of req.shops) {
             const previewShop = preview.shops.find((s: CheckoutShopUI) => s.shopId === reqShop.shopId);
             if (!previewShop) return false;
@@ -372,9 +439,7 @@ export default function CheckoutScreen() {
             if (preview.calculation.appliedPlatformVoucherId) previewGlobals.push(preview.calculation.appliedPlatformVoucherId);
             if (preview.calculation.appliedShippingVoucherId) previewGlobals.push(preview.calculation.appliedShippingVoucherId);
 
-            if (reqGlobals.length !== previewGlobals.length) return false;
-            // Use local variable to avoid implicit 'any' lint or just use type-safe comparison
-            if (!reqGlobals.every((v: string) => previewGlobals.includes(v))) return false;
+            if (!haveSameCodes(reqGlobals, previewGlobals)) return false;
 
             // Check applied shop-specific voucher
             const reqVoucher = reqShop.vouchers?.[0] || null;
@@ -390,6 +455,16 @@ export default function CheckoutScreen() {
             const reqLoyalty = (req.buyNow ? req.directItem?.options?.loyaltyPoints : reqShop.loyaltyPoints) || 0;
             const previewLoyalty = previewShop.loyaltyInfo?.pointsToRedeem || 0;
             if (reqLoyalty !== previewLoyalty) return false;
+
+            const reqPlatformLoyalty = (
+                req.buyNow
+                    ? req.directItem?.options?.platformLoyaltyPoints
+                    : reqShop.platformLoyaltyPoints
+            ) || 0;
+            const previewPlatformLoyalty = preview.platformLoyalty?.allocations.find(
+                (allocation) => allocation.shopId === reqShop.shopId
+            )?.pointsToRedeem || 0;
+            if (reqPlatformLoyalty !== previewPlatformLoyalty) return false;
         }
 
         return true;
@@ -531,6 +606,13 @@ export default function CheckoutScreen() {
         [setPaymentMethod]
     );
 
+    const handlePlatformLoyaltyToggle = useCallback(
+        (enabled: boolean) => {
+            setPlatformLoyaltyEnabled(enabled);
+        },
+        [setPlatformLoyaltyEnabled]
+    );
+
     const handlePlaceOrder = useCallback(async () => {
         if (!canPlaceOrder || !previewData) return;
 
@@ -563,6 +645,7 @@ export default function CheckoutScreen() {
                         shippingFee: shop.shippingOptions.methods.find((m: any) => m.id === finalShippingCode)?.fee,
                         globalVouchers: (!isBuyNowMode && globalVouchersArray.length > 0) ? globalVouchersArray : undefined,
                         loyaltyPoints: isBuyNowMode ? undefined : (shop.loyaltyPoints || undefined),
+                        platformLoyaltyPoints: isBuyNowMode ? undefined : getPlatformLoyaltyPointsForShop(shop.shopId),
                     };
                 }),
                 buyerAddressData: {
@@ -579,6 +662,11 @@ export default function CheckoutScreen() {
                     quantity: parseInt(quantity || '1', 10),
                     options: {
                         loyaltyPoints: previewData.shops[0]?.loyaltyPoints || undefined,
+                        platformLoyaltyPoints: (function () {
+                            const shop = previewData.shops[0];
+                            if (!shop) return undefined;
+                            return getPlatformLoyaltyPointsForShop(shop.shopId);
+                        })(),
                         serviceCode: (function () {
                             const shop = previewData.shops[0];
                             if (!shop) return undefined;
@@ -679,6 +767,7 @@ export default function CheckoutScreen() {
         quantity,
         variantId,
         t,
+        getPlatformLoyaltyPointsForShop,
     ]);
 
 
@@ -691,6 +780,8 @@ export default function CheckoutScreen() {
     // ================================
     const recommendationsRequest = useMemo<RecommendPlatformVoucherRequest | null>(() => {
         if (!isInitialized || !previewData) return null;
+        if (!previewData.isValid) return null;
+        if (previewData.calculation.subtotal <= 0) return null;
         const firstShop = previewData.shops[0];
         const currentShippingCode = selectedShipping.get(firstShop?.shopId) || firstShop?.shippingOptions.selectedMethodId;
 
@@ -708,7 +799,7 @@ export default function CheckoutScreen() {
                     shopId: s.shopId,
                     unitPrice: i.unitPrice,
                     quantity: i.quantity,
-                    lineTotal: i.lineTotal,
+                    lineTotal: i.finalLinePrice,
                 }))
             ),
             failedVoucherCodes: [],
@@ -763,6 +854,13 @@ export default function CheckoutScreen() {
                                 warningMessage={platformVoucherWarning}
                                 onApply={handlePlatformVoucherApply}
                                 isLoading={isLoadingRecommendations}
+                            />
+
+                            {/* Platform Loyalty */}
+                            <PlatformLoyaltyRow
+                                platformLoyalty={previewData.platformLoyalty}
+                                isEnabled={effectivePlatformLoyaltyEnabled}
+                                onToggle={handlePlatformLoyaltyToggle}
                             />
 
                             {/* Payment Method */}

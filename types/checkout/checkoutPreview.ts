@@ -22,6 +22,7 @@ export const CheckoutPreviewShopRequestSchema = z.object({
     shippingFee: z.number().optional(),
     globalVouchers: z.array(z.string()).optional(),
     loyaltyPoints: z.number().optional(),
+    platformLoyaltyPoints: z.number().optional(),
 });
 
 export const CheckoutPreviewShippingAddressSchema = z.object({
@@ -62,6 +63,18 @@ export type CheckoutPreviewRequest = z.infer<typeof CheckoutPreviewRequestSchema
 // ZOD SCHEMAS - Response Validation
 // ============================================
 
+const CheckoutPromotionSchema = z.object({
+    promotionId: z.string().nullish().transform(val => val ?? ''),
+});
+
+const CheckoutItemPricingSchema = z.object({
+    discount: z.coerce.number().nullish().transform(val => val ?? 0),
+    finalPrice: z.coerce.number().nullish().transform(val => val ?? 0),
+}).nullish().transform(val => val ?? ({
+    discount: 0,
+    finalPrice: 0,
+}));
+
 const CheckoutPreviewItemSchema = z.object({
     itemId: z.string().nullish().transform(val => val ?? ''),
     productId: z.string().nullish().transform(val => val ?? ''),
@@ -71,8 +84,8 @@ const CheckoutPreviewItemSchema = z.object({
     variantAttributes: z.string().nullish().transform(val => val ?? ''),
     unitPrice: z.coerce.number().nullish().transform(val => val ?? 0),
     quantity: z.coerce.number().nullish().transform(val => val ?? 1),
-    lineTotal: z.coerce.number().nullish().transform(val => val ?? 0),
-    promotionId: z.string().nullish().transform(val => val ?? ''),
+    pricing: CheckoutItemPricingSchema,
+    promotion: CheckoutPromotionSchema.nullish(),
 });
 
 const CheckoutServicePlanSchema = z.object({
@@ -107,7 +120,6 @@ const CheckoutVoucherDetailSchema = z.object({
 });
 
 const CheckoutVoucherResultSchema = z.object({
-    input: z.array(z.string()).nullish(),
     valid: z.array(CheckoutVoucherDetailSchema).nullish().transform(val => val ?? []),
     invalid: z.array(CheckoutVoucherDetailSchema).nullish().transform(val => val ?? []),
 });
@@ -121,6 +133,14 @@ const CheckoutLoyaltyInfoSchema = z.object({
     expectedPointsEarned: z.coerce.number().nullish().transform(val => val ?? 0),
     canRedeem: z.boolean().nullish().transform(val => val ?? false),
     message: z.string().nullish().transform(val => val ?? ''),
+});
+
+const CheckoutPlatformLoyaltyInfoSchema = z.object({
+    pointsToRedeem: z.coerce.number().nullish().transform(val => val ?? 0),
+    discountAmount: z.coerce.number().nullish().transform(val => val ?? 0),
+    maxPointsForShop: z.coerce.number().nullish().transform(val => val ?? 0),
+    canRedeem: z.boolean().nullish().transform(val => val ?? false),
+    conversionRate: z.coerce.number().nullish().transform(val => val ?? 0),
 });
 
 const CheckoutShopSummarySchema = z.object({
@@ -144,6 +164,7 @@ const CheckoutPreviewShopSchema = z.object({
     pricing: CheckoutShopSummarySchema,
     shipping: CheckoutShippingInfoSchema,
     loyaltyInfo: CheckoutLoyaltyInfoSchema.nullish(),
+    platformLoyaltyInfo: CheckoutPlatformLoyaltyInfoSchema.nullish(),
     voucher: CheckoutVoucherResultSchema.nullish(),
 });
 
@@ -173,8 +194,11 @@ const CheckoutOrderSummarySchema = z.object({
 
 const CheckoutBuyerAddressSchema = z.object({
     buyerAddressId: z.string().nullish().transform(val => val ?? ''),
-    addressType: z.coerce.number().nullish().transform(val => val ?? 0),
-    taxAddress: z.string().nullish(),
+});
+
+const CheckoutValidationIssueSchema = z.object({
+    code: z.coerce.number().nullish().transform(val => val ?? 0),
+    message: z.string().nullish().transform(val => val ?? ''),
 });
 
 const CheckoutPreviewDataSchema = z.object({
@@ -201,8 +225,8 @@ const CheckoutPreviewDataSchema = z.object({
     })),
     validation: z.object({
         isValid: z.boolean().nullish().transform(val => val ?? true),
-        errors: z.array(z.string()).nullish().transform(val => val ?? []),
-        warnings: z.array(z.string()).nullish().transform(val => val ?? []),
+        errors: z.array(CheckoutValidationIssueSchema).nullish().transform(val => val ?? []),
+        warnings: z.array(CheckoutValidationIssueSchema).nullish().transform(val => val ?? []),
     }).nullish().transform(val => val ?? ({
         isValid: true,
         errors: [],
@@ -226,9 +250,11 @@ export type CheckoutShippingOptionDTO = z.infer<typeof CheckoutShippingOptionSch
 export type CheckoutVoucherDetailDTO = z.infer<typeof CheckoutVoucherDetailSchema>;
 export type CheckoutVoucherResultDTO = z.infer<typeof CheckoutVoucherResultSchema>;
 export type CheckoutLoyaltyInfoDTO = z.infer<typeof CheckoutLoyaltyInfoSchema>;
+export type CheckoutPlatformLoyaltyInfoDTO = z.infer<typeof CheckoutPlatformLoyaltyInfoSchema>;
 export type CheckoutShopSummaryDTO = z.infer<typeof CheckoutShopSummarySchema>;
 export type CheckoutPreviewShopDTO = z.infer<typeof CheckoutPreviewShopSchema>;
 export type CheckoutOrderSummaryDTO = z.infer<typeof CheckoutOrderSummarySchema>;
 export type CheckoutBuyerAddressDTO = z.infer<typeof CheckoutBuyerAddressSchema>;
+export type CheckoutValidationIssueDTO = z.infer<typeof CheckoutValidationIssueSchema>;
 export type CheckoutPreviewDataDTO = z.infer<typeof CheckoutPreviewDataSchema>;
 export type CheckoutPreviewResponse = z.infer<typeof CheckoutPreviewResponseSchema>;

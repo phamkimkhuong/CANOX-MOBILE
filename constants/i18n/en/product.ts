@@ -124,6 +124,12 @@ export const PRODUCT_STRINGS: ProductTranslation = {
         mall: 'Mall',
         international: 'International',
     },
+    shipping: {
+        title: 'Delivery address',
+        addressRequired: 'Choose an address to check shipping compatibility',
+        internationalOnly: 'This product supports international shipping only. Switch to an international address.',
+        domesticOnly: 'This product supports domestic shipping only. Switch to a domestic address.',
+    },
     share: {
         msgTemplate: 'Check out this product on Calatha: {{name}}\n{{url}}',
     },

@@ -19,6 +19,7 @@ export { default as ShopNoteInput } from './ShopNoteInput';
 // Vouchers
 export { default as CheckoutLoyaltyRow } from './CheckoutLoyaltyRow';
 export { default as CheckoutVoucherRow } from './CheckoutVoucherRow';
+export { default as PlatformLoyaltyRow } from './PlatformLoyaltyRow';
 export { default as PlatformVoucherSelector } from './PlatformVoucherSelector';
 
 // Payment

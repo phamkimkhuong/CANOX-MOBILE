@@ -67,10 +67,13 @@ export const CheckoutShopGroup = memo<CheckoutShopGroupProps>(({ shop }) => {
     const shopSubtotal = previewData?.calculation.shopSubtotals.find(
         (s) => s.shopId === shop.shopId
     );
+    const isPreviewValid = previewData?.isValid ?? false;
 
     // Build recommendation request body
     const recommendRequest = useMemo((): RecommendShopVoucherRequest | null => {
         if (!shopSubtotal) return null;
+        if (!isPreviewValid) return null;
+        if (shopSubtotal.itemsTotal <= 0) return null;
         return {
             shopId: shop.shopId,
             totalAmount: shopSubtotal.itemsTotal,
@@ -83,7 +86,7 @@ export const CheckoutShopGroup = memo<CheckoutShopGroupProps>(({ shop }) => {
                 limit: 10,
             }
         };
-    }, [shop.shopId, shop.items, shopSubtotal]);
+    }, [isPreviewValid, shop.shopId, shop.items, shopSubtotal]);
 
     // Fetch recommended vouchers for this shop
     const { data: recommendedVouchers } = useRecommendShopVouchers(

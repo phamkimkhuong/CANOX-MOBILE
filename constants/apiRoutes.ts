@@ -50,7 +50,6 @@ export const API_ROUTES = {
         CATEGORY: (categoryId: string | number) => `${API_PREFIX}/public/products/category/${categoryId}`,
         CATEGORY_SLUG: (categorySlug: string) => `${API_PREFIX}/public/products/category/slug/${categorySlug}`,
         VARIANT_ID: (variantId: string | number) => `${API_PREFIX}/public/products/by-variant/${variantId}`,
-        SHIPPING_ELIGIBILITY: (productId: string | number) => `${API_PREFIX}/public/products/${productId}/shipping-eligibility`,
     },
     CART: {
         GET: `${API_PREFIX}/cart`,

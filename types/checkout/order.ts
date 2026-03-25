@@ -18,6 +18,7 @@ export interface CreateOrderShopRequest {
     shippingFee?: number;
     globalVouchers?: string[];
     loyaltyPoints?: number;
+    platformLoyaltyPoints?: number;
 }
 
 export interface CreateOrderRequest {

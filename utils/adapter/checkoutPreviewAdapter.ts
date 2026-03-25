@@ -10,6 +10,9 @@ import type {
     CheckoutCalculationResult,
     CheckoutItemUI,
     CheckoutLoyaltyInfoUI,
+    CheckoutValidationIssueUI,
+    PlatformLoyaltyAllocationUI,
+    PlatformLoyaltyUI,
     CheckoutShopUI,
     ShippingMethod,
     ShopShippingOptions,
@@ -19,6 +22,7 @@ import type {
 import type {
     CheckoutLoyaltyInfoDTO,
     CheckoutOrderSummaryDTO,
+    CheckoutPlatformLoyaltyInfoDTO,
     CheckoutPreviewDataDTO,
     CheckoutPreviewItemDTO,
     CheckoutPreviewRequest,
@@ -26,6 +30,7 @@ import type {
     CheckoutPreviewShopRequest,
     CheckoutShippingOptionDTO,
     CheckoutShopSummaryDTO,
+    CheckoutValidationIssueDTO,
     CheckoutVoucherDetailDTO,
     CheckoutVoucherResultDTO,
 } from '@/types/checkout/checkoutPreview';
@@ -51,9 +56,12 @@ export const toCheckoutItemUI = (dto: CheckoutPreviewItemDTO): CheckoutItemUI =>
     imageUrl: dto.imageUrl ?? DEFAULT_IMAGE,
     unitPrice: dto.unitPrice ?? 0,
     quantity: dto.quantity ?? 1,
-    lineTotal: dto.lineTotal ?? 0,
+    discountAmount: dto.pricing.discount ?? 0,
+    finalLinePrice: (dto.pricing.finalPrice !== 0 || dto.pricing.discount > 0)
+        ? dto.pricing.finalPrice
+        : (dto.unitPrice ?? 0) * (dto.quantity ?? 1),
     shopId: '', // Will be set by parent
-    promotionId: dto.promotionId ?? null,
+    promotionId: dto.promotion?.promotionId ?? null,
 });
 
 // ============================================
@@ -262,6 +270,54 @@ const toLoyaltyInfoUI = (dto: CheckoutLoyaltyInfoDTO): CheckoutLoyaltyInfoUI => 
     message: dto.message ?? '',
 });
 
+const toValidationIssueUI = (dto: CheckoutValidationIssueDTO): CheckoutValidationIssueUI => ({
+    code: dto.code ?? 0,
+    message: dto.message ?? '',
+});
+
+const toPlatformLoyaltyAllocationUI = (
+    shop: CheckoutPreviewShopDTO,
+    dto: CheckoutPlatformLoyaltyInfoDTO
+): PlatformLoyaltyAllocationUI => ({
+    shopId: shop.shopId ?? '',
+    shopName: shop.shopName ?? '',
+    pointsToRedeem: dto.pointsToRedeem ?? 0,
+    discountAmount: dto.discountAmount ?? 0,
+    maxPointsForShop: dto.maxPointsForShop ?? 0,
+    canRedeem: dto.canRedeem ?? false,
+});
+
+const toPlatformLoyaltyUI = (
+    shops: CheckoutPreviewShopDTO[],
+    totalDiscountAmount: number
+): PlatformLoyaltyUI | null => {
+    const allocations = shops
+        .filter((shop) => !!shop.platformLoyaltyInfo)
+        .map((shop) => toPlatformLoyaltyAllocationUI(shop, shop.platformLoyaltyInfo!));
+
+    if (allocations.length === 0 && totalDiscountAmount <= 0) {
+        return null;
+    }
+
+    const firstWithRate = shops.find((shop) => (shop.platformLoyaltyInfo?.conversionRate ?? 0) > 0);
+    const totalPointsToRedeem = allocations.reduce((sum, allocation) => sum + allocation.pointsToRedeem, 0);
+    const hasRedeemableShop = allocations.some(
+        (allocation) =>
+            allocation.canRedeem ||
+            allocation.maxPointsForShop > 0 ||
+            allocation.pointsToRedeem > 0 ||
+            allocation.discountAmount > 0
+    ) || totalDiscountAmount > 0;
+
+    return {
+        conversionRate: firstWithRate?.platformLoyaltyInfo?.conversionRate ?? null,
+        totalDiscountAmount,
+        totalPointsToRedeem,
+        hasRedeemableShop,
+        allocations,
+    };
+};
+
 // ============================================
 // SUMMARY TRANSFORM
 // ============================================
@@ -367,13 +423,12 @@ export interface CheckoutPreviewUI {
     previewAt: string;
     previewChecksum?: string;
     addressId: string;
-    addressType: number | null;
-    taxAddress: string | null;
     shops: CheckoutShopUI[];
     calculation: CheckoutCalculationResult;
+    platformLoyalty: PlatformLoyaltyUI | null;
     isValid: boolean;
-    validationErrors: string[];
-    warnings: string[];
+    validationErrors: CheckoutValidationIssueUI[];
+    warnings: CheckoutValidationIssueUI[];
 }
 
 /**
@@ -381,19 +436,23 @@ export interface CheckoutPreviewUI {
  * This is the main entry point for the adapter.
  */
 export const toCheckoutPreviewUI = (dto: CheckoutPreviewDataDTO): CheckoutPreviewUI => {
+    const platformLoyalty = toPlatformLoyaltyUI(
+        dto.shops,
+        dto.summary.discounts.platformLoyaltyDiscount ?? 0
+    );
+
     return {
         cartId: dto.cartId,
         currency: dto.currency,
         previewAt: dto.previewAt,
         previewChecksum: dto.previewChecksum ?? undefined,
         addressId: dto.buyerAddressData?.buyerAddressId ?? '',
-        addressType: dto.buyerAddressData?.addressType ?? null,
-        taxAddress: dto.buyerAddressData?.taxAddress ?? null,
         shops: dto.shops.map(toCheckoutShopUI),
         calculation: toCheckoutCalculation(dto.summary, dto.shops, dto.validation.isValid),
+        platformLoyalty,
         isValid: dto.validation.isValid,
-        validationErrors: dto.validation.errors,
-        warnings: dto.validation.warnings,
+        validationErrors: dto.validation.errors.map(toValidationIssueUI),
+        warnings: dto.validation.warnings.map(toValidationIssueUI),
     };
 };
 
@@ -459,6 +518,10 @@ export function toCheckoutPreviewAPIRequestBody(req: CheckoutPreviewRequest): Re
 
             if (s.loyaltyPoints != null) {
                 shop.loyaltyPoints = s.loyaltyPoints;
+            }
+
+            if (s.platformLoyaltyPoints != null) {
+                shop.platformLoyaltyPoints = s.platformLoyaltyPoints;
             }
 
             return shop;

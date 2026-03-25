@@ -104,6 +104,12 @@ export interface ProductTranslation {
         mall: string;
         international: string;
     };
+    shipping: {
+        title: string;
+        addressRequired: string;
+        internationalOnly: string;
+        domesticOnly: string;
+    };
     share: {
         msgTemplate: string;
     };
@@ -656,6 +662,19 @@ export interface CheckoutTranslation {
         infoMaxPercent: string;
         infoEarning: string;
         infoMessage: string;
+    };
+    platformLoyalty: {
+        title: string;
+        detailByShop: string;
+        apply: string;
+        remove: string;
+        unavailable: string;
+        modalTitle: string;
+        totalDiscount: string;
+        pointsRedeeming: string;
+        shopMaxPoints: string;
+        shopUnavailable: string;
+        noAllocation: string;
     };
     footer: {
         total: string;

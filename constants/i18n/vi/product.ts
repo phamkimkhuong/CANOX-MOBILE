@@ -140,6 +140,12 @@ export const PRODUCT_STRINGS: ProductTranslation = {
         mall: 'Mall',
         international: 'Hàng quốc tế',
     },
+    shipping: {
+        title: 'Địa chỉ nhận hàng',
+        addressRequired: 'Chọn địa chỉ để kiểm tra khả năng giao hàng',
+        internationalOnly: 'Sản phẩm này chỉ hỗ trợ giao hàng quốc tế. Hãy đổi sang địa chỉ quốc tế.',
+        domesticOnly: 'Sản phẩm này chỉ hỗ trợ giao hàng nội địa. Hãy đổi sang địa chỉ nội địa.',
+    },
     share: {
         msgTemplate: 'Xem sản phẩm này trên Calatha: {{name}}\n{{url}}',
     },

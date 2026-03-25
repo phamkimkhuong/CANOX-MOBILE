@@ -176,7 +176,8 @@ export interface CheckoutItemUI {
     imageUrl: string;
     unitPrice: number;
     quantity: number;
-    lineTotal: number;
+    discountAmount: number;
+    finalLinePrice: number;
     shopId: string;
     promotionId: string | null;
 }
@@ -201,6 +202,30 @@ export interface CheckoutLoyaltyInfoUI {
     canRedeem: boolean;
     /** Thông báo gợi ý */
     message: string;
+}
+
+/**
+ * Phân bổ điểm thưởng sàn trên từng shop trong checkout.
+ * Ownership là của sàn, nhưng backend phân bổ mức dùng xuống từng shop.
+ */
+export interface PlatformLoyaltyAllocationUI {
+    shopId: string;
+    shopName: string;
+    pointsToRedeem: number;
+    discountAmount: number;
+    maxPointsForShop: number;
+    canRedeem: boolean;
+}
+
+/**
+ * Thông tin điểm thưởng sàn ở scope toàn đơn.
+ */
+export interface PlatformLoyaltyUI {
+    conversionRate: number | null;
+    totalDiscountAmount: number;
+    totalPointsToRedeem: number;
+    hasRedeemableShop: boolean;
+    allocations: PlatformLoyaltyAllocationUI[];
 }
 
 /**
@@ -235,7 +260,11 @@ export const toCheckoutItem = (cartItem: CartItemUI): CheckoutItemUI => ({
     imageUrl: cartItem.imageUrl,
     unitPrice: cartItem.unitPrice,
     quantity: cartItem.quantity,
-    lineTotal: cartItem.totalPrice,
+    discountAmount: Math.max(
+        0,
+        ((cartItem.originalPrice ?? cartItem.unitPrice) * cartItem.quantity) - cartItem.totalPrice
+    ),
+    finalLinePrice: cartItem.totalPrice,
     shopId: cartItem.shopId,
     promotionId: null,
 });
@@ -256,6 +285,15 @@ export interface VoucherValidationResult {
     discountAmount: number;
     /** Voucher có bị auto-remove không */
     shouldAutoRemove: boolean;
+}
+
+/**
+ * Validation issue returned by checkout preview.
+ * Keep both code and message so UI/business logic can branch by code later.
+ */
+export interface CheckoutValidationIssueUI {
+    code: number;
+    message: string;
 }
 
 /**

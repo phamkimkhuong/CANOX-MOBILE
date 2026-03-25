@@ -4,15 +4,16 @@ import { useAddToCart } from '@/hooks/api/cart';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
 import { usePublicShopLoyaltyPolicy } from '@/hooks/api/loyalty/usePublicLoyaltyPolicy';
 import { PRODUCT_DETAIL_QUERY_KEYS, useRelatedProducts } from '@/hooks/api/product/useProductDetail';
-import { useProductShippingInfo } from '@/hooks/api/product/useShippingEligibility';
 import { useProductVariant } from '@/hooks/useProductVariant';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useSelectedAddress } from '@/store/useUserAddressStore';
 import type { ProductFeedItem } from '@/types/product/product';
 import type { ProductDetailUI } from '@/types/product/productDetail';
 import { findGalleryIndexByVariant } from '@/utils/adapter/product/productDetailAdapter';
 import { Alert } from '@/utils/AlertHelper';
 import { createLogger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
+import { evaluateProductShippingCompatibility } from '@/utils/productShipping';
 import { toSizedImageUrl } from '@/utils/url';
 import { FlashList, FlashListRef, ListRenderItemInfo } from '@shopify/flash-list';
 import { useQueryClient } from '@tanstack/react-query';
@@ -106,6 +107,12 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
 
     const myShopId = useAuthStore((s) => s.shopId);
     const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+    const selectedAddress = useSelectedAddress();
+    const shippingCompatibility = useMemo(
+        () => evaluateProductShippingCompatibility(product.shippingScope, selectedAddress),
+        [product.shippingScope, selectedAddress]
+    );
+    const isBuyNowBlockedByShipping = isAuthenticated && shippingCompatibility.isDeterministicallyBlocked;
 
     React.useEffect(() => {
         setAreSecondaryQueriesEnabled(false);
@@ -118,12 +125,6 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
             task.cancel?.();
         };
     }, [product.id]);
-
-    // === Shipping Check ===
-    const { data: shippingInfo } = useProductShippingInfo(product.id, {
-        enabled: areSecondaryQueriesEnabled,
-    });
-    const isNotEligible = shippingInfo && !shippingInfo.eligible;
 
     // === Related Products (lazy-loaded: waits for transition to finish) ===
     const { data: relatedData, isLoading: isLoadingRelated } = useRelatedProducts(
@@ -171,13 +172,16 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
                 Navigator.push(ROUTES.AUTH.LOGIN);
                 return;
             }
+            if (action === 'buy-now' && isBuyNowBlockedByShipping) {
+                return;
+            }
             // Delay slightly to ensure smooth render
             setTimeout(() => {
                 setVariantSheetMode(action);
                 setVariantSheetVisible(true);
             }, 100);
         }
-    }, [product, action, isTransitionFinished, isAuthenticated, t]);
+    }, [product, action, isTransitionFinished, isAuthenticated, isBuyNowBlockedByShipping, t]);
 
     // === Derived values ===
     const optionsWithAvailability = useMemo(() => {
@@ -383,8 +387,11 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
             Navigator.push(ROUTES.AUTH.LOGIN);
             return;
         }
+        if (isBuyNowBlockedByShipping) {
+            return;
+        }
         handleOpenVariantSheet('buy-now');
-    }, [isAuthenticated, handleOpenVariantSheet, t]);
+    }, [isAuthenticated, isBuyNowBlockedByShipping, handleOpenVariantSheet, t]);
 
     const handleCartPress = useCallback(() => Navigator.push(ROUTES.CART.INDEX), []);
 
@@ -484,8 +491,8 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
         const items: ProductDetailListItem[] = [
             { type: 'gallery', id: 'gallery' },
             { type: 'info', id: 'info' },
-            { type: 'shipping', id: 'shipping' },
         ];
+        if (isAuthenticated) items.push({ type: 'shipping', id: 'shipping' });
         if (product.hasVariants) items.push({ type: 'variants', id: 'variants' });
         items.push({ type: 'reviews', id: 'reviews' }, { type: 'shop', id: 'shop' });
         if (product.specifications?.length > 0) items.push({ type: 'specs', id: 'specs' });
@@ -496,7 +503,7 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
             items.push(...relatedProducts.map(p => ({ type: 'related_product' as const, id: `related_${p.id}`, data: p })));
         }
         return items;
-    }, [product, relatedProducts, selectionResult.selectedVariant?.dimensions]);
+    }, [isAuthenticated, product, relatedProducts, selectionResult.selectedVariant?.dimensions]);
 
     const renderItem = useCallback(({ item }: ListRenderItemInfo<ProductDetailListItem>) => {
         switch (item.type) {
@@ -533,7 +540,10 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
             case 'shipping':
                 return (
                     <View style={styles.fullWidthSection}>
-                        <ShippingDeliveryCard productId={product.id} />
+                        <ShippingDeliveryCard
+                            address={selectedAddress}
+                            compatibility={shippingCompatibility}
+                        />
                     </View>
                 );
             case 'variants':
@@ -611,7 +621,7 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
             default:
                 return null;
         }
-    }, [product, selectionResult, selectedOptions, heroPreviewUrl, areSecondaryQueriesEnabled, handleFlashSaleExpired, handleImagePress, handleOpenVariantSheet, handleOpenPriceBreakdown, handleViewAllReviews, handleShopPress, loyaltyPolicy, shouldShowFlashSaleScopeHelper, t]);
+    }, [product, selectionResult, selectedOptions, heroPreviewUrl, areSecondaryQueriesEnabled, handleFlashSaleExpired, handleImagePress, handleOpenVariantSheet, handleOpenPriceBreakdown, handleViewAllReviews, handleShopPress, loyaltyPolicy, shippingCompatibility, shouldShowFlashSaleScopeHelper, t]);
 
     const overrideItemLayout = useCallback((layout: { span?: number }, item: ProductDetailListItem) => {
         if (item.type !== 'related_product') layout.span = 2;
@@ -679,8 +689,7 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
                 onPrefetchChat={handlePrefetchChat}
                 onAddToCartPress={handleAddToCart}
                 onBuyNowPress={handleBuyNow}
-                isNotEligible={!!isNotEligible}
-                shippingWarning={isNotEligible ? (shippingInfo?.message || 'Không hỗ trợ giao đến địa chỉ của bạn') : undefined}
+                isBuyNowBlocked={isBuyNowBlockedByShipping}
             />
 
             {/* Variant Bottom Sheet */}

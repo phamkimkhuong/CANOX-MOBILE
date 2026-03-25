@@ -5,6 +5,7 @@
 import type { CheckoutShopUI, PaymentMethodType } from '@/types/checkout';
 import type { CheckoutPreviewItemRequest } from '@/types/checkout/checkoutPreview';
 import type { CheckoutPreviewUI } from '@/utils/adapter/checkoutPreviewAdapter';
+import { useMemo } from 'react';
 import { create } from 'zustand';
 
 interface CheckoutShopMinimal {
@@ -27,6 +28,7 @@ interface CheckoutState {
     selectedShopVouchers: Map<string, string>;
     selectedPlatformDiscountVoucher: string | null;
     selectedPlatformShippingVoucher: string | null;
+    platformLoyaltyEnabled: boolean | null;
     shopNotes: Map<string, string>;
     /** Selected loyalty points to redeem per shop: Map<shopId, pointsToRedeem> */
     selectedLoyaltyRedemptions: Map<string, number>;
@@ -48,6 +50,7 @@ interface CheckoutState {
     applyShopVoucher: (shopId: string, voucherCode: string | null) => void;
     applyPlatformVoucher: (voucherCode: string | null, category: 'SHIPPING' | 'DISCOUNT') => void;
     applyBulkPlatformVouchers: (discountVoucherCode: string | null, shippingVoucherCode: string | null) => void;
+    setPlatformLoyaltyEnabled: (enabled: boolean | null) => void;
     setShopNote: (shopId: string, note: string) => void;
     applyLoyaltyPoints: (shopId: string, points: number) => void;
     setPaymentMethod: (method: PaymentMethodType) => void;
@@ -75,6 +78,7 @@ const initialState = {
     selectedShopVouchers: new Map<string, string>(),
     selectedPlatformDiscountVoucher: null as string | null,
     selectedPlatformShippingVoucher: null as string | null,
+    platformLoyaltyEnabled: null as boolean | null,
     shopNotes: new Map<string, string>(),
     selectedLoyaltyRedemptions: new Map<string, number>(),
     paymentMethod: 'cod' as PaymentMethodType,
@@ -108,6 +112,7 @@ export const useCheckoutStore = create<CheckoutState>((set, get) => ({
             selectedShopVouchers: new Map(),
             selectedPlatformDiscountVoucher: null,
             selectedPlatformShippingVoucher: null,
+            platformLoyaltyEnabled: null,
             shopNotes: new Map(),
             selectedLoyaltyRedemptions: new Map(),
             paymentMethod: 'cod',
@@ -211,6 +216,10 @@ export const useCheckoutStore = create<CheckoutState>((set, get) => ({
             selectedPlatformDiscountVoucher: discountVoucherCode,
             selectedPlatformShippingVoucher: shippingVoucherCode,
         });
+    },
+
+    setPlatformLoyaltyEnabled: (enabled) => {
+        set({ platformLoyaltyEnabled: enabled });
     },
 
     setShopNote: (shopId, note) => {
@@ -361,24 +370,28 @@ const EMPTY_WARNINGS: string[] = [];
 
 /** Get reasons why order cannot be placed */
 export const useOrderBlockReasons = () => {
-    return useCheckoutStore((s) => {
-        if (s.isLoadingPreview) return LOADING_REASONS;
-        if (!s.previewData) return PENDING_REASONS;
-        if (s.previewData.validationErrors.length > 0) {
-            return s.previewData.validationErrors;
+    const isLoadingPreview = useCheckoutStore((s) => s.isLoadingPreview);
+    const previewData = useCheckoutStore((s) => s.previewData);
+
+    return useMemo(() => {
+        if (isLoadingPreview) return LOADING_REASONS;
+        if (!previewData) return PENDING_REASONS;
+        if (previewData.validationErrors.length > 0) {
+            return previewData.validationErrors
+                .map((issue) => issue.message)
+                .filter((message): message is string => message.length > 0);
         }
-        if (!s.previewData.addressId) {
+        if (!previewData.addressId) {
             return NO_ADDRESS_REASONS;
         }
-        // Check if all shops have shipping available
-        const hasShippingUnavailable = s.previewData.shops.some(
+        const hasShippingUnavailable = previewData.shops.some(
             (shop) => shop.shippingOptions.methods.length === 0
         );
         if (hasShippingUnavailable) {
             return NO_SHIPPING_REASONS;
         }
         return EMPTY_REASONS;
-    });
+    }, [isLoadingPreview, previewData]);
 };
 
 /** Check if preview data is valid */
@@ -388,6 +401,14 @@ export const useIsPreviewValid = () => {
 
 /** Get warnings from preview */
 export const usePreviewWarnings = () => {
-    return useCheckoutStore((s) => s.previewData?.warnings ?? EMPTY_WARNINGS);
+    const warnings = useCheckoutStore((s) => s.previewData?.warnings ?? null);
+
+    return useMemo(() => {
+        if (!warnings?.length) return EMPTY_WARNINGS;
+
+        return warnings
+            .map((issue) => issue.message)
+            .filter((message): message is string => message.length > 0);
+    }, [warnings]);
 };
 

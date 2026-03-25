@@ -18,6 +18,7 @@ import type {
     Voucher,
     VoucherUI,
 } from '@/types/product/productDetail';
+import { deriveProductShippingScope } from '@/utils/productShipping';
 import { toPublicUrl, toSizedImageUrl } from '@/utils/url';
 
 const DEFAULT_IMAGE = 'https://via.placeholder.com/300';
@@ -620,6 +621,7 @@ export const transformProductDetail = (
         ratingPercentage: data.reviewStatistics?.ratingPercentage ?? {},
         mediaReviewCount: data.reviewStatistics?.mediaReviewCount ?? 0,
     };
+    const shippingScope = deriveProductShippingScope(data.availableRegions);
 
     return {
         // Basic Info
@@ -657,7 +659,8 @@ export const transformProductDetail = (
         categoryPath: buildCategoryPath(data.category),
         isActive: data.active ?? true,
         isAvailable: (data.active ?? true) && totalStock > 0,
-        isInternational: (data.availableRegions ?? []).includes('INTERNATIONAL'),
+        isInternational: shippingScope === 'international_only' || shippingScope === 'both',
+        shippingScope,
     };
 };
 

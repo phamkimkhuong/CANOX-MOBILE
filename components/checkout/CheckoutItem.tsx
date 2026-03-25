@@ -26,7 +26,9 @@ export const CheckoutItem = memo<CheckoutItemProps>(({ item }) => {
     const styles = stylesheet;
 
     const formattedPrice = formatCurrency(item.unitPrice);
-    const totalPrice = formatCurrency(item.unitPrice * item.quantity);
+    const rawLinePrice = item.unitPrice * item.quantity;
+    const finalLinePrice = formatCurrency(item.finalLinePrice);
+    const shouldShowFinalLinePrice = item.quantity > 1 || item.finalLinePrice !== rawLinePrice;
 
     return (
         <View style={styles.container}>
@@ -68,8 +70,10 @@ export const CheckoutItem = memo<CheckoutItemProps>(({ item }) => {
                         <>
                             <Text style={styles.quantityMultiplier}>x {item.quantity}</Text>
                             <Text style={styles.equalSign}>= </Text>
-                            <Text style={styles.totalPrice}>{totalPrice}</Text>
                         </>
+                    )}
+                    {shouldShowFinalLinePrice && (
+                        <Text style={styles.totalPrice}>{finalLinePrice}</Text>
                     )}
                 </View>
             </View>
