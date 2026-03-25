@@ -6,29 +6,29 @@
  */
 
 import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
-import { OrderShopInfo, OrderStatus } from '@/types/order/order';
+import { OrderStatus } from '@/types/order/order';
 import { getStatusDisplay } from '@/utils/adapter/order/orderStatusMapper';
-import { buildImageUrl } from '@/utils/url';
 import { Image } from 'expo-image';
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface OrderShopHeaderProps {
-    shopInfo: OrderShopInfo | null;
+    shopName: string;
+    shopLogoUrl?: string | null;
     status: OrderStatus;
     onShopPress?: () => void;
 }
 
 export const OrderShopHeader: React.FC<OrderShopHeaderProps> = ({
-    shopInfo,
+    shopName,
+    shopLogoUrl,
     status,
     onShopPress,
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
 
-    if (!shopInfo) return null;
     const statusDisplay = getStatusDisplay(status);
 
     return (
@@ -36,9 +36,9 @@ export const OrderShopHeader: React.FC<OrderShopHeaderProps> = ({
             {/* Left: Shop Info */}
             <Pressable style={styles.shopInfo} onPress={onShopPress}>
                 <View style={styles.logoWrapper}>
-                    {shopInfo.logoUrl ? (
+                    {shopLogoUrl ? (
                         <Image
-                            source={{ uri: buildImageUrl(shopInfo.logoUrl, null, 'thumb') }}
+                            source={{ uri: shopLogoUrl }}
                             style={styles.logo}
                             contentFit="cover"
                             transition={200}
@@ -52,7 +52,7 @@ export const OrderShopHeader: React.FC<OrderShopHeaderProps> = ({
                     )}
                 </View>
                 <Text style={styles.shopName} numberOfLines={1}>
-                    {shopInfo.shopName}
+                    {shopName}
                 </Text>
                 <IconSymbol
                     name="chevron-right"

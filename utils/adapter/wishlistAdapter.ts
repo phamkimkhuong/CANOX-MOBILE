@@ -10,19 +10,8 @@
 
 import type { WishlistCardUI } from '@/types/wishlist/ui';
 import type { WishlistSummarySchemaType } from '@/types/wishlist/wishlistSchema';
+import { formatDate } from '@/utils/date';
 import { toPublicUrl } from '@/utils/url';
-
-/**
- * Format ISO date string to short display format
- */
-const formatDate = (isoDate: string): string => {
-    try {
-        const date = new Date(isoDate);
-        return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    } catch {
-        return '';
-    }
-};
 
 /**
  * Transform WishlistSummary → WishlistCardUI

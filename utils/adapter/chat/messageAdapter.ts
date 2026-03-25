@@ -13,6 +13,8 @@ import {
 import { formatBytes } from '@/utils/cache';
 import {
     formatDateLabel,
+    formatClockTime,
+    formatLocalDateKey,
     formatMessageTime,
     isWithinTimeThreshold,
 } from '@/utils/date';
@@ -154,7 +156,7 @@ export { isWithinTimeThreshold };
  * Get date key from ISO string (YYYY-MM-DD)
  */
 export const getDateKey = (isoString: string): string => {
-    return isoString.split('T')[0];
+    return formatLocalDateKey(isoString);
 };
 
 /**
@@ -164,16 +166,10 @@ export const getDateKey = (isoString: string): string => {
 export { formatDateLabel, formatMessageTime };
 
 /**
- * Format time for message status with AM/PM
+ * Format time for message status using the shared device locale/timezone policy.
  */
 export const formatMessageTimeAMPM = (isoString: string): string => {
-    const date = new Date(isoString);
-    let hours = date.getHours();
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12;
-    hours = hours ? hours : 12; // 0 should be 12
-    return `${hours}:${minutes} ${ampm}`;
+    return formatClockTime(isoString);
 };
 
 // ============================================
@@ -207,7 +203,7 @@ export const groupMessagesByDate = (messages: Message[]): MessageDateGroup[] => 
         // Messages within group already in DESC order from API
         result.push({
             date: dateKey,
-            label: formatDateLabel(dateKey),
+            label: messages[0] ? formatDateLabel(messages[0].sentAt) : formatDateLabel(dateKey),
             messages,
         });
     }

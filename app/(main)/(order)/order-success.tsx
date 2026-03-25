@@ -16,6 +16,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import { orderRoutes, ROUTES } from '@/constants/routes';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
+import { formatDateTime } from '@/utils/date';
 import { formatCurrency } from '@/utils/format';
 import { Navigator } from '@/utils/navigation';
 import { AuthorizationStatus, getMessaging, hasPermission } from '@react-native-firebase/messaging';
@@ -53,30 +54,16 @@ const formatPaymentMethod = (method: string | undefined, t: any): string => {
     switch (method.toUpperCase()) {
         case 'COD':
             return t('checkout:payment.cod.name');
+        case 'PAYOS':
+            return t('checkout:payment.payos.name');
+        case 'VNPAY':
+            return t('checkout:payment.vnpay.name');
         case 'BANK_TRANSFER':
-            return t('checkout:payment.bankTransfer.name');
+            return t('order:paymentMethods.BANK_TRANSFER');
         case 'CREDIT_CARD':
             return t('order:statusLabel.paid'); // Defaulting to paid label or method name
         default:
             return method;
-    }
-};
-
-/**
- * Format datetime string to Vietnamese format
- */
-const formatDateTime = (dateString?: string): string => {
-    if (!dateString) return '';
-    try {
-        const date = new Date(dateString);
-        const day = date.getDate().toString().padStart(2, '0');
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const year = date.getFullYear();
-        const hours = date.getHours().toString().padStart(2, '0');
-        const minutes = date.getMinutes().toString().padStart(2, '0');
-        return `${day}-${month}-${year} ${hours}:${minutes}`;
-    } catch {
-        return '';
     }
 };
 

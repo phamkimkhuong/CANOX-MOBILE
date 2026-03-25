@@ -22,7 +22,7 @@ import {
     ShopLoyaltyPolicyUI,
     ShopPointSummaryUI,
 } from '@/types/loyalty/ui';
-import { formatDate, formatMessageTime } from '@/utils/date';
+import { formatDate, formatExpiryInDays, formatMessageTime, safeParseDate } from '@/utils/date';
 
 // ============================================
 // POINT BALANCE (Single Shop)
@@ -51,9 +51,7 @@ export const transformPointBatch = (dto: UserShopPointDTO): PointBatchUI => {
         amount: dto.remainingAmount,
         earnedAt: formatDate(dto.earnedAt),
         expiryDate: formatDate(dto.expiryAt),
-        expiryText: dto.daysUntilExpiry > 0
-            ? `Hết hạn sau ${dto.daysUntilExpiry} ngày`
-            : 'Đã hết hạn',
+        expiryText: formatExpiryInDays(dto.daysUntilExpiry),
         isExpiringSoon,
         status: dto.status,
         source: dto.sourceOrderNumber ? `Đơn hàng #${dto.sourceOrderNumber}` : 'Tích lũy hệ thống',
@@ -89,11 +87,12 @@ export const transformPointHistory = (dto: PointHistoryDTO): PointHistoryUI => (
 const transformShopSummary = (dto: ShopPointSummaryDTO): ShopPointSummaryUI => {
     let expiryWarning: string | null = null;
     if (dto.expiringPoints > 0 && dto.nearestExpiryDate) {
+        const nearestExpiryDate = safeParseDate(dto.nearestExpiryDate);
         const daysUntil = Math.ceil(
-            (new Date(dto.nearestExpiryDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+            ((nearestExpiryDate?.getTime() ?? 0) - Date.now()) / (1000 * 60 * 60 * 24)
         );
         if (daysUntil > 0 && daysUntil <= 30) {
-            expiryWarning = `${daysUntil} ngày nữa hết hạn`;
+            expiryWarning = formatExpiryInDays(daysUntil);
         }
     }
 

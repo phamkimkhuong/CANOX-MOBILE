@@ -1,4 +1,5 @@
 import type { VoucherUI } from '@/types/product/productDetail';
+import { formatDate } from '@/utils/date';
 import { formatCurrency } from '@/utils/format';
 import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -40,18 +41,6 @@ const InfoRow = memo<{
 
 InfoRow.displayName = 'InfoRow';
 
-const formatDateSafe = (value: string | null | undefined, locale: string): string | null => {
-    if (!value) return null;
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return null;
-
-    return new Intl.DateTimeFormat(locale.startsWith('vi') ? 'vi-VN' : 'en-US', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-    }).format(date);
-};
-
 export const ProductVoucherDetailSheet = memo<ProductVoucherDetailSheetProps>(({
     visible,
     onClose,
@@ -59,7 +48,7 @@ export const ProductVoucherDetailSheet = memo<ProductVoucherDetailSheetProps>(({
 }) => {
     const { theme } = useUnistyles();
     const insets = useSafeAreaInsets();
-    const { t, i18n } = useTranslation(['voucher']);
+    const { t } = useTranslation(['voucher']);
 
     const benefitValue = useMemo(() => {
         if (!detail) return null;
@@ -80,8 +69,8 @@ export const ProductVoucherDetailSheet = memo<ProductVoucherDetailSheetProps>(({
     }, [detail, t]);
 
     const formattedExpiry = useMemo(
-        () => formatDateSafe(detail?.endDate, i18n.language),
-        [detail?.endDate, i18n.language]
+        () => (detail?.endDate ? formatDate(detail.endDate) : null),
+        [detail?.endDate]
     );
 
     if (!detail) return null;

@@ -12,6 +12,7 @@ import {
 } from '@/types/notification';
 import { ResponseDefaultSchema } from '@/types/responseSchema';
 import { mapApiNotificationToUi } from '@/utils/adapter/notificationAdapter';
+import { safeParseDate } from '@/utils/date';
 import { InfiniteData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -280,7 +281,9 @@ export const useMarkAllAsRead = () => {
  * Group notifications by date section
  */
 const getDateSection = (timestamp: string): string => {
-    const date = new Date(timestamp);
+    const date = safeParseDate(timestamp);
+    if (!date) return 'earlier';
+
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);

@@ -68,7 +68,7 @@ export const CHECKOUT_STRINGS: CheckoutTranslation = {
             name: 'Thanh toán khi nhận hàng',
             description: 'Thanh toán bằng tiền mặt khi nhận hàng',
         },
-        bankTransfer: {
+        payos: {
             name: 'Chuyển khoản ngân hàng (QR)',
             description: 'Chuyển khoản qua tài khoản ngân hàng',
         },
@@ -135,5 +135,12 @@ export const CHECKOUT_STRINGS: CheckoutTranslation = {
         orderSuccess: 'Đặt hàng thành công',
         orderFailed: 'Đặt hàng thất bại. Vui lòng thử lại.',
         orderFailedDetail: 'Đã có lỗi xảy ra. {{error}}',
+    },
+    error: {
+        previewTitle: 'Không thể tải thông tin thanh toán',
+        previewMessage: 'Thông tin thanh toán chưa thể được tải lúc này. Vui lòng thử lại sau ít phút.',
+        internationalShippingUnavailableTitle: 'Chưa thể tính phí vận chuyển quốc tế',
+        internationalShippingUnavailableMessage: 'Đơn vị vận chuyển quốc tế hiện đang tạm thời không khả dụng cho địa chỉ này. Vui lòng thử lại sau hoặc đổi địa chỉ nhận hàng khác.',
+        retryPreview: 'Thử lại',
     },
 };

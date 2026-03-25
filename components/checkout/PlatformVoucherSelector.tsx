@@ -8,6 +8,7 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { createScaledFontSize } from '@/constants/unistyles';
 import type { VoucherUI } from '@/types/cart';
+import { formatDate } from '@/utils/date';
 import { formatCurrency } from '@/utils/format';
 import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -331,7 +332,7 @@ interface VoucherItemProps {
 }
 
 const VoucherItem: React.FC<VoucherItemProps> = ({ voucher, isSelected, onPress }) => {
-    const { t, i18n } = useTranslation('checkout');
+    const { t } = useTranslation('checkout');
     const isShipping = voucher.category === 'SHIPPING';
     const isDisabled = !voucher.isApplicable;
 
@@ -406,9 +407,7 @@ const VoucherItem: React.FC<VoucherItemProps> = ({ voucher, isSelected, onPress 
                     {!isDisabled && voucher.expiresAt && (
                         <Text style={styles.voucherCardExpiry}>
                             {t('voucher.expiry', {
-                                date: new Date(voucher.expiresAt).toLocaleDateString(
-                                    i18n.language === 'en' ? 'en-US' : 'vi-VN'
-                                )
+                                date: formatDate(voucher.expiresAt)
                             })}
                         </Text>
                     )}

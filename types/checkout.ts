@@ -7,7 +7,7 @@
  * Key Concepts:
  * 1. CheckoutSession: Temporary state derived from selected Cart items
  * 2. ShippingMethod: Different delivery options per shop
- * 3. PaymentMethod: COD or Digital Wallet
+ * 3. PaymentMethod: Frontend payment choices for buyer checkout
  * 4. VoucherValidation: Logic for voucher stacking & auto-removal
  */
 
@@ -123,9 +123,27 @@ export interface ShopShippingOptions {
 // ============================================
 
 /**
- * PaymentMethodType - Các phương thức thanh toán
+ * PaymentMethodType - Các phương thức thanh toán thực tế của buyer checkout UI.
+ * - cod   -> COD
+ * - payos -> PAYOS  (label hiển thị: Chuyển khoản ngân hàng (QR))
+ * - vnpay -> VNPAY
  */
-export type PaymentMethodType = 'cod' | 'bank_transfer' | 'e_wallet' | 'credit_card' | 'vnpay';
+export type PaymentMethodType = 'cod' | 'payos' | 'vnpay';
+
+export type CheckoutApiPaymentMethod = 'COD' | 'PAYOS' | 'VNPAY';
+
+export const toCheckoutApiPaymentMethod = (
+    method: PaymentMethodType
+): CheckoutApiPaymentMethod => {
+    switch (method) {
+        case 'cod':
+            return 'COD';
+        case 'payos':
+            return 'PAYOS';
+        case 'vnpay':
+            return 'VNPAY';
+    }
+};
 
 /**
  * PaymentMethod - Thông tin phương thức thanh toán
@@ -136,8 +154,6 @@ export interface PaymentMethod {
     description: string;
     icon: string; // Icon name
     isAvailable: boolean;
-    /** Số dư ví (nếu là e_wallet) */
-    balance?: number;
 }
 
 // ============================================

@@ -36,7 +36,7 @@ export type OrderTabStatus =
     | 'COMPLETED'         // Hoàn thành
     | 'CANCELLED';        // Đã hủy
 
-export type PaymentMethod = 'COD' | 'PAYOS' | 'STRIPE' | 'BANK_TRANSFER';
+export type PaymentMethod = 'COD' | 'PAYOS' | 'VNPAY' | 'STRIPE' | 'BANK_TRANSFER';
 export type Carrier = 'GHN' | 'SUPERSHIP' | 'GHTK' | 'VIETTEL_POST';
 
 // ============================================
@@ -95,6 +95,7 @@ export interface OrderShippingAddress {
 export interface OrderShopInfo {
     shopName: string;
     logoUrl: string | null;
+    logoPath?: string | null;
     userId: string;
 }
 

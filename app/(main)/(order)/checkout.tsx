@@ -7,12 +7,13 @@
 
 import { ROUTES } from '@/constants/routes';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
+import { ApiError } from '@/services/api/client';
 import { Alert } from '@/utils/AlertHelper';
 import { Navigator } from '@/utils/navigation';
 import { useFocusEffect } from '@react-navigation/native';
 import { useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
 import Animated, {
@@ -39,6 +40,7 @@ import {
     PlatformVoucherSelector,
 } from '@/components/checkout';
 import { SkeletonBox } from '@/components/ui/feedback/Skeleton';
+import { StateView } from '@/components/ui/feedback/StateView';
 
 // Store & Hooks
 import { CART_QUERY_KEY } from '@/hooks/api/cart/useCart';
@@ -57,7 +59,7 @@ import {
 } from '@/store/useCheckoutStore';
 import { hideGlobalLoading, showGlobalLoading } from '@/store/useLoadingStore';
 import { useUserAddressStore } from '@/store/useUserAddressStore';
-import type { CheckoutShopUI, PaymentMethodType } from '@/types/checkout';
+import { toCheckoutApiPaymentMethod, type CheckoutShopUI, type PaymentMethodType } from '@/types/checkout';
 import type { CheckoutPreviewRequest, CheckoutPreviewShopRequest } from '@/types/checkout/checkoutPreview';
 import type { CreateOrderRequest } from '@/types/checkout/order';
 import type { RecommendPlatformVoucherRequest } from '@/types/checkout/platformVoucherRecommendation';
@@ -67,6 +69,10 @@ import { logger } from '@/utils/logger';
 // ============================================
 // SCREEN COMPONENT
 // ============================================
+
+const INTERNATIONAL_SHIPPING_UNAVAILABLE_ERROR_CODE = 13100;
+const CHECKOUT_PREVIEW_MISMATCH_ERROR_CODE = 110112;
+const CHECKOUT_EXPIRED_ERROR_CODE = 110113;
 
 export default function CheckoutScreen() {
     // Unlock navigation when screen gains focus
@@ -116,6 +122,7 @@ export default function CheckoutScreen() {
     // ========================================
     const shimmerValue = useSharedValue(0.3);
     const contentOpacity = useSharedValue(0);
+    const [previewError, setPreviewError] = useState<ApiError | Error | null>(null);
 
     useEffect(() => {
         shimmerValue.value = withRepeat(
@@ -323,7 +330,7 @@ export default function CheckoutScreen() {
                     platformLoyaltyPoints: isBuyNowMode ? undefined : getPlatformLoyaltyPointsForShop(shop.shopId),
                 };
             }),
-            paymentMethod: paymentMethod === 'cod' ? 'COD' : paymentMethod === 'vnpay' ? 'VNPAY' : 'PAYOS',
+            paymentMethod: toCheckoutApiPaymentMethod(paymentMethod),
             buyNow: isBuyNowMode ? true : undefined,
             directItem: isBuyNowMode ? {
                 variantId: variantId!,
@@ -483,14 +490,18 @@ export default function CheckoutScreen() {
 
     const doFetchPreview = useCallback(
         (request: CheckoutPreviewRequest) => {
+            setPreviewError(null);
             setLoadingPreview(true);
             callPreviewRef.current(request, {
                 onSuccess: (data) => {
                     setPreviewData(data);
                     setLoadingPreview(false);
+                    setPreviewError(null);
                 },
                 onError: (error) => {
+                    setPreviewData(null);
                     setLoadingPreview(false);
+                    setPreviewError(error);
                     logger.checkout.error('Preview failed', { error: error.message });
                 },
             });
@@ -623,9 +634,65 @@ export default function CheckoutScreen() {
             const globalVouchersArray: string[] = [];
             if (selectedPlatformDiscountVoucher) globalVouchersArray.push(selectedPlatformDiscountVoucher);
             if (selectedPlatformShippingVoucher) globalVouchersArray.push(selectedPlatformShippingVoucher);
+            const buyNowPreviewShop = isBuyNowMode ? previewData.shops[0] : null;
+            const buyNowSelectedShippingCode = (() => {
+                if (!isBuyNowMode || !buyNowPreviewShop) return undefined;
+                const userShippingCode = store.selectedShipping.get(buyNowPreviewShop.shopId);
+                const finalShippingCode = userShippingCode || buyNowPreviewShop.shippingOptions.selectedMethodId;
+                return finalShippingCode ? Number(finalShippingCode) : undefined;
+            })();
+            const buyNowSelectedShippingFee = (() => {
+                if (!isBuyNowMode || !buyNowPreviewShop) return undefined;
+                const selectedMethod = buyNowPreviewShop.shippingOptions.methods.find(
+                    (method) => Number(method.id) === buyNowSelectedShippingCode
+                );
+                return selectedMethod?.fee ?? previewData.calculation.totalShippingFee ?? undefined;
+            })();
+            const buyNowDirectItemOptions = (() => {
+                if (!isBuyNowMode || !buyNowPreviewShop) return undefined;
+
+                const appliedGlobalVouchers: string[] = [];
+                if (previewData.calculation.appliedPlatformVoucherId) {
+                    appliedGlobalVouchers.push(previewData.calculation.appliedPlatformVoucherId);
+                }
+                if (previewData.calculation.appliedShippingVoucherId) {
+                    appliedGlobalVouchers.push(previewData.calculation.appliedShippingVoucherId);
+                }
+
+                const options = {
+                    vouchers: buyNowPreviewShop.appliedVoucherId ? [buyNowPreviewShop.appliedVoucherId] : undefined,
+                    globalVouchers: appliedGlobalVouchers.length > 0 ? appliedGlobalVouchers : undefined,
+                    loyaltyPoints: buyNowPreviewShop.loyaltyPoints || undefined,
+                    platformLoyaltyPoints: getPlatformLoyaltyPointsForShop(buyNowPreviewShop.shopId),
+                    serviceCode: buyNowSelectedShippingCode,
+                };
+
+                return Object.values(options).some((value) => Array.isArray(value) ? value.length > 0 : value != null)
+                    ? options
+                    : undefined;
+            })();
+            const buyNowShopSelection = (() => {
+                if (!isBuyNowMode || !buyNowPreviewShop || buyNowSelectedShippingFee == null) return [];
+
+                return [{
+                    shopId: buyNowPreviewShop.shopId,
+                    items: buyNowPreviewShop.items.map((item) => ({
+                        itemId: item.id,
+                        expectedUnitPrice: item.unitPrice,
+                        quantity: item.quantity,
+                        promotionId: item.promotionId || undefined,
+                    })),
+                    vouchers: buyNowDirectItemOptions?.vouchers,
+                    globalVouchers: buyNowDirectItemOptions?.globalVouchers,
+                    loyaltyPoints: buyNowDirectItemOptions?.loyaltyPoints,
+                    platformLoyaltyPoints: buyNowDirectItemOptions?.platformLoyaltyPoints,
+                    shippingFee: buyNowSelectedShippingFee,
+                    serviceCode: buyNowDirectItemOptions?.serviceCode ?? buyNowSelectedShippingCode,
+                }];
+            })();
 
             const request: CreateOrderRequest = {
-                shops: previewData.shops.map(shop => {
+                shops: isBuyNowMode ? buyNowShopSelection : previewData.shops.map(shop => {
                     const shopVouchers: string[] = [];
                     if (shop.appliedVoucherId) shopVouchers.push(shop.appliedVoucherId);
 
@@ -651,7 +718,7 @@ export default function CheckoutScreen() {
                 buyerAddressData: {
                     buyerAddressId: previewData.addressId,
                 },
-                paymentMethod: paymentMethod === 'cod' ? 'COD' : paymentMethod === 'vnpay' ? 'VNPAY' : 'PAYOS',
+                paymentMethod: toCheckoutApiPaymentMethod(paymentMethod),
                 customerNote: Array.from(store.shopNotes.values()).filter(Boolean).join('; ') || undefined,
                 previewId: previewData.cartId,
                 previewChecksum: previewData.previewChecksum,
@@ -660,28 +727,7 @@ export default function CheckoutScreen() {
                 directItem: isBuyNowMode ? {
                     variantId: variantId!,
                     quantity: parseInt(quantity || '1', 10),
-                    options: {
-                        loyaltyPoints: previewData.shops[0]?.loyaltyPoints || undefined,
-                        platformLoyaltyPoints: (function () {
-                            const shop = previewData.shops[0];
-                            if (!shop) return undefined;
-                            return getPlatformLoyaltyPointsForShop(shop.shopId);
-                        })(),
-                        serviceCode: (function () {
-                            const shop = previewData.shops[0];
-                            if (!shop) return undefined;
-                            const userShippingCode = store.selectedShipping.get(shop.shopId);
-                            const finalCode = userShippingCode || shop.shippingOptions.selectedMethodId;
-                            return finalCode ? Number(finalCode) : undefined;
-                        })(),
-                        shippingFee: (function () {
-                            const shop = previewData.shops[0];
-                            if (!shop) return undefined;
-                            const userShippingCode = store.selectedShipping.get(shop.shopId);
-                            const finalCode = userShippingCode || shop.shippingOptions.selectedMethodId;
-                            return shop.shippingOptions.methods.find((m: any) => m.id === finalCode)?.fee;
-                        })(),
-                    }
+                    options: buyNowDirectItemOptions,
                 } : undefined,
             };
 
@@ -750,12 +796,40 @@ export default function CheckoutScreen() {
             }
         } catch (error: unknown) {
             hideGlobalLoading();
+
+            if (
+                error instanceof ApiError &&
+                (error.code === CHECKOUT_PREVIEW_MISMATCH_ERROR_CODE || error.code === CHECKOUT_EXPIRED_ERROR_CODE)
+            ) {
+                logger.checkout.warn('Checkout preview became stale before create order', {
+                    status: error.status,
+                    code: error.code,
+                    message: error.message,
+                });
+
+                Toast.show({
+                    type: 'error',
+                    text1: error.message,
+                    position: 'bottom',
+                    visibilityTime: 3500,
+                });
+
+                const refreshRequest = buildPreviewRequest();
+                if (refreshRequest) {
+                    lastRequestKey.current = null;
+                    doFetchPreview(refreshRequest);
+                }
+                return;
+            }
+
             const message = error instanceof Error ? error.message : t('status.orderFailed');
             logger.checkout.error('Place order failed', { error: message });
             Alert.error(t('status.orderFailed'));
         }
     }, [
+        buildPreviewRequest,
         canPlaceOrder,
+        doFetchPreview,
         previewData,
         paymentMethod,
         selectedPlatformDiscountVoucher,
@@ -819,7 +893,37 @@ export default function CheckoutScreen() {
     // RENDER
     // ========================================
 
-    const shouldShowSkeleton = !isInitialized || !previewData;
+    const shouldShowPreviewErrorState = isInitialized && !isLoadingPreview && !previewData && !!previewError;
+    const shouldShowSkeleton = !isInitialized || (!previewData && !previewError);
+
+    const handleRetryPreview = useCallback(() => {
+        const refreshRequest = buildPreviewRequest();
+        if (!refreshRequest) return;
+
+        lastRequestKey.current = null;
+        doFetchPreview(refreshRequest);
+    }, [buildPreviewRequest, doFetchPreview]);
+
+    const previewErrorContent = useMemo(() => {
+        if (!previewError) {
+            return {
+                title: t('error.previewTitle'),
+                message: t('error.previewMessage'),
+            };
+        }
+
+        if (previewError instanceof ApiError && previewError.code === INTERNATIONAL_SHIPPING_UNAVAILABLE_ERROR_CODE) {
+            return {
+                title: t('error.internationalShippingUnavailableTitle'),
+                message: t('error.internationalShippingUnavailableMessage'),
+            };
+        }
+
+        return {
+            title: t('error.previewTitle'),
+            message: previewError.message || t('error.previewMessage'),
+        };
+    }, [previewError, t]);
 
     return (
         <View style={styles.container}>
@@ -827,8 +931,18 @@ export default function CheckoutScreen() {
             <CheckoutHeader title={t('header.title')} onBack={handleBack} />
 
             <View style={styles.flex1}>
+                {shouldShowPreviewErrorState && (
+                    <StateView
+                        type="error"
+                        title={previewErrorContent.title}
+                        message={previewErrorContent.message}
+                        onRetry={handleRetryPreview}
+                        primaryActionLabel={t('error.retryPreview')}
+                    />
+                )}
+
                 {/* Real Content - Fades in */}
-                {isInitialized && previewData && (
+                {isInitialized && previewData && !shouldShowPreviewErrorState && (
                     <Animated.View style={[styles.flex1, contentAnimatedStyle]}>
                         <ScrollView
                             style={styles.scrollView}

@@ -10,6 +10,7 @@ import { FlashSaleData, FlashSaleItem } from '@/types/home';
 import { buildImageUrl } from '@/utils/url';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSlotDetail } from './useSlotDetail';
 
 /**
@@ -53,6 +54,7 @@ const transformSlotProducts = (slot: SlotDetailResponse['data']): FlashSaleItem[
  *    → show nearest upcoming slot with countdown to startTime
  */
 export const useActiveFlashSale = () => {
+    const { t } = useTranslation('home');
     const queryClient = useQueryClient();
     const activeQuery = useActiveFlashSaleSlots();
     const upcomingQuery = useUpcomingFlashSaleSlots(24);
@@ -84,14 +86,14 @@ export const useActiveFlashSale = () => {
                 id: selectedSlot.id,
                 startTime: selectedSlot.startTime,
                 endTime: selectedSlot.endTime,
-                label: selectedSlot.slotName || (primarySlot?.isUpcoming ? 'Sắp diễn ra' : 'Đang diễn ra'),
+                label: selectedSlot.slotName || (primarySlot?.isUpcoming ? t('flashSale.statusUpcoming') : t('flashSale.statusLive')),
                 secondsUntilStart: selectedSlot.secondsUntilStart || 0,
                 secondsUntilEnd: selectedSlot.secondsUntilEnd || 0,
                 isUpcoming: primarySlot?.isUpcoming ?? false,
             },
             items,
         };
-    }, [primarySlot?.isUpcoming, selectedSlot, slotDetailQuery.data]);
+    }, [primarySlot?.isUpcoming, selectedSlot, slotDetailQuery.data, t]);
 
     const refetch = useCallback(async () => {
         await refreshFlashSaleQueries(queryClient, {

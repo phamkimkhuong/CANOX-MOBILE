@@ -32,6 +32,7 @@ export const CHECKOUT_PREVIEW_KEY = ['checkout-preview'] as const;
 export const useCheckoutPreview = () => {
     return useMutation({
         mutationKey: CHECKOUT_PREVIEW_KEY,
+        meta: { handledLocally: true },
 
         /**
          * Call checkout preview API and transform response.

@@ -189,13 +189,14 @@ apiClient.interceptors.response.use(
         const data = error.response?.data as Record<string, unknown> | undefined;
         const statusCode = error.response?.status;
         const errorCode = data?.code as number | undefined;
+        const backendMessage = typeof data?.message === 'string' ? data.message : undefined;
 
         // Build error message for UI
         const currentLang = (i18n.language?.split('-')[0] || 'vi') as 'vi' | 'en';
         const mappedMessage = errorCode ? getErrorMessageByCode(errorCode, currentLang) : undefined;
         const genericFallback = getErrorMessageByCode(6005, currentLang) || 'Đã xảy ra lỗi. Vui lòng thử lại sau!';
 
-        const finalMessage = mappedMessage || genericFallback;
+        const finalMessage = mappedMessage || backendMessage || genericFallback;
 
         // For PUBLIC endpoints, don't attempt token refresh - just pass the error through
         if (isPublicEndpoint(error.config?.url)) {

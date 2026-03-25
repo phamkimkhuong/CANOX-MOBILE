@@ -9,14 +9,22 @@
  * - Determine voucher status
  */
 
-import { VOUCHER_STRINGS } from '@/constants/i18n/vi/voucher';
+import i18n from '@/constants/i18n';
+import { VOUCHER_STRINGS as VOUCHER_STRINGS_EN } from '@/constants/i18n/en/voucher';
+import { VOUCHER_STRINGS as VOUCHER_STRINGS_VI } from '@/constants/i18n/vi/voucher';
 import type {
     VoucherResponse,
     VoucherStatus,
     VoucherType,
     VoucherUI,
 } from '@/types/voucher';
+import { formatExpiryCountdown, safeParseDate } from '@/utils/date';
 import { formatCurrency } from '@/utils/format';
+
+const getVoucherStrings = () =>
+    (i18n.resolvedLanguage || i18n.language || '').startsWith('vi')
+        ? VOUCHER_STRINGS_VI
+        : VOUCHER_STRINGS_EN;
 
 // ============================================
 // HELPER FUNCTIONS
@@ -80,8 +88,8 @@ export const determineVoucherStatus = (voucher: VoucherResponse): VoucherStatus 
 
     // Check if expired
     if (endDate) {
-        const expiry = new Date(endDate);
-        if (expiry.getTime() < Date.now()) {
+        const expiry = safeParseDate(endDate);
+        if (expiry && expiry.getTime() < Date.now()) {
             return 'expired';
         }
     }
@@ -99,7 +107,7 @@ export const determineVoucherStatus = (voucher: VoucherResponse): VoucherStatus 
     // Live voucher special case
     if (voucher.tags?.includes('LIVE')) {
         const now = new Date();
-        const startDate = voucher.startDate ? new Date(voucher.startDate) : null;
+        const startDate = voucher.startDate ? safeParseDate(voucher.startDate) : null;
         if (startDate && startDate.getTime() > now.getTime()) {
             return 'reminder';
         }
@@ -112,43 +120,11 @@ export const determineVoucherStatus = (voucher: VoucherResponse): VoucherStatus 
  * Format expiry date to display text
  */
 export const formatExpiryText = (
-    endDate?: string | null,
-    prefix: string = VOUCHER_STRINGS.card.expiry
+    endDate?: string | null
 ): string => {
     if (!endDate) return '';
-
-    const expiry = new Date(endDate);
-    const now = new Date();
-    const diffMs = expiry.getTime() - now.getTime();
-    const diffHours = diffMs / (1000 * 60 * 60);
-    const diffDays = diffMs / (1000 * 60 * 60 * 24);
-
-    // Expired
-    if (diffMs < 0) {
-        return VOUCHER_STRINGS.actions.expired;
-    }
-
-    // Less than 24 hours
-    if (diffHours < 24) {
-        const hours = Math.floor(diffHours);
-        const minutes = Math.floor((diffHours - hours) * 60);
-        if (hours === 0) {
-            return `Hết hạn: ${minutes} phút`;
-        }
-        return `Hết hạn: ${hours}h${minutes > 0 ? minutes : ''}`;
-    }
-
-    // Less than 7 days - show days
-    if (diffDays < 7) {
-        return `Còn ${Math.floor(diffDays)} ngày`;
-    }
-
-    // Format as date
-    const day = expiry.getDate().toString().padStart(2, '0');
-    const month = (expiry.getMonth() + 1).toString().padStart(2, '0');
-    const year = expiry.getFullYear();
-
-    return `${prefix}: ${day}/${month}/${year}`;
+    const strings = getVoucherStrings();
+    return formatExpiryCountdown(endDate, strings.card.expiry);
 };
 
 /**
@@ -157,7 +133,8 @@ export const formatExpiryText = (
 export const isExpiringSoon = (endDate?: string | null): boolean => {
     if (!endDate) return false;
 
-    const expiry = new Date(endDate);
+    const expiry = safeParseDate(endDate);
+    if (!expiry) return false;
     const now = new Date();
     const diffMs = expiry.getTime() - now.getTime();
     const diffHours = diffMs / (1000 * 60 * 60);
@@ -170,24 +147,25 @@ export const isExpiringSoon = (endDate?: string | null): boolean => {
  */
 export const formatVoucherTitle = (voucher: VoucherResponse): string => {
     const { discountType, discountValue, maxDiscount, name } = voucher;
+    const strings = getVoucherStrings();
 
     if (name) return name;
 
     switch (discountType) {
         case 'SHIPPING':
-            return VOUCHER_STRINGS.card.freeShipping;
+            return strings.card.freeShipping;
 
         case 'PERCENTAGE':
             if (maxDiscount) {
-                return `${VOUCHER_STRINGS.card.discountUpTo} ${formatCurrency(maxDiscount)}`;
+                return `${strings.card.discountUpTo} ${formatCurrency(maxDiscount)}`;
             }
-            return `${VOUCHER_STRINGS.card.discount} ${discountValue}%`;
+            return `${strings.card.discount} ${discountValue}%`;
 
         case 'FIXED_AMOUNT':
-            return `${VOUCHER_STRINGS.card.discount} ${formatCurrency(discountValue)}`;
+            return `${strings.card.discount} ${formatCurrency(discountValue)}`;
 
         default:
-            return `${VOUCHER_STRINGS.card.discount} ${formatCurrency(discountValue)}`;
+            return `${strings.card.discount} ${formatCurrency(discountValue)}`;
     }
 };
 
@@ -196,17 +174,18 @@ export const formatVoucherTitle = (voucher: VoucherResponse): string => {
  */
 export const formatVoucherSubtitle = (voucher: VoucherResponse): string => {
     const parts: string[] = [];
+    const strings = getVoucherStrings();
 
     // Min order value
     if (voucher.minOrderValue) {
-        parts.push(`${VOUCHER_STRINGS.card.minOrder} ${formatCurrency(voucher.minOrderValue)}`);
+        parts.push(`${strings.card.minOrder} ${formatCurrency(voucher.minOrderValue)}`);
     } else {
-        parts.push(`${VOUCHER_STRINGS.card.minOrder} ₫0`);
+        parts.push(`${strings.card.minOrder} ₫0`);
     }
 
     // Max discount for percentage
     if (voucher.discountType === 'PERCENTAGE' && voucher.maxDiscount) {
-        parts.push(`${VOUCHER_STRINGS.card.maxDiscount} ${formatCurrency(voucher.maxDiscount)}`);
+        parts.push(`${strings.card.maxDiscount} ${formatCurrency(voucher.maxDiscount)}`);
     }
 
     return parts.join(' - ');
@@ -280,7 +259,10 @@ export const sortVouchers = (
             return sorted.sort((a, b) => {
                 if (!a.expiryDate) return 1;
                 if (!b.expiryDate) return -1;
-                return new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime();
+                return (
+                    (safeParseDate(a.expiryDate)?.getTime() ?? Number.MAX_SAFE_INTEGER) -
+                    (safeParseDate(b.expiryDate)?.getTime() ?? Number.MAX_SAFE_INTEGER)
+                );
             });
 
         case 'newest':

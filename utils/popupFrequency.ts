@@ -20,6 +20,7 @@
  */
 
 import { mmkvStorage } from '@/store/storage';
+import { formatLocalDateKey } from '@/utils/date';
 import { logger } from '@/utils/logger';
 
 // ============================================
@@ -50,7 +51,7 @@ const MIN_TIME_BETWEEN_POPUPS_MS = 4 * 60 * 60 * 1000;
  * Lấy ngày hiện tại dạng YYYY-MM-DD
  */
 function getTodayString(): string {
-    return new Date().toISOString().split('T')[0];
+    return formatLocalDateKey(new Date());
 }
 
 // ============================================

@@ -4,7 +4,8 @@ export const ORDER_STRINGS: OrderTranslation = {
     myOrders: 'Đơn hàng của tôi',
     paymentMethods: {
         COD: 'Thanh toán khi nhận hàng',
-        PAYOS: 'PayOS',
+        PAYOS: 'Chuyển khoản ngân hàng (QR)',
+        VNPAY: 'Ví điện tử VNPAY',
         STRIPE: 'Stripe',
         BANK_TRANSFER: 'Chuyển khoản ngân hàng',
     },

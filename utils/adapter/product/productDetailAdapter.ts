@@ -418,7 +418,9 @@ export const transformShop = (shop: ProductDetailResponse['shop']): ShopUI => {
             isVerified: false,
         };
     }
-    const shopLogo = shop.logoPath ? toPublicUrl(shop.logoPath) : (shop.logoUrl || null);
+    const shopLogo = toSizedImageUrl(shop.logoPath ?? shop.logoUrl, null, 'thumb')
+        ?? toPublicUrl(shop.logoUrl)
+        ?? null;
 
     return {
         id: shop.shopId ?? '',

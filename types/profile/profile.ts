@@ -229,16 +229,17 @@ export const SERVICE_MENU_CONFIG: ProfileMenuItem[] = [
         backgroundColor: 'rgba(234, 179, 8, 0.1)',
         iconColor: '#eab308',
     },
-    {
-        id: 'vouchers',
-        key: 'vouchers',
-        icon: 'ticket',
-        label: 'Kho Voucher',
-        route: SERVICE_MENU_ROUTES.vouchers,
-        iconBgColor: 'rgba(249, 115, 22, 0.1)',
-        backgroundColor: 'rgba(249, 115, 22, 0.1)',
-        iconColor: '#f97316',
-    },
+    // TODO: Re-enable when My Voucher screen uses real backend data instead of mock UI.
+    // {
+    //     id: 'vouchers',
+    //     key: 'vouchers',
+    //     icon: 'ticket',
+    //     label: 'Kho Voucher',
+    //     route: SERVICE_MENU_ROUTES.vouchers,
+    //     iconBgColor: 'rgba(249, 115, 22, 0.1)',
+    //     backgroundColor: 'rgba(249, 115, 22, 0.1)',
+    //     iconColor: '#f97316',
+    // },
     {
         id: 'reviews',
         key: 'reviews',

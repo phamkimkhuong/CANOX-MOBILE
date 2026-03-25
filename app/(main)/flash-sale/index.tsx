@@ -10,6 +10,7 @@ import { useSlotDetail } from '@/hooks/api/campaign/useSlotDetail';
 import { SlotStatus } from '@/types/campaign';
 import { FlashSaleItem } from '@/types/home';
 import { Navigator } from '@/utils/navigation';
+import { formatClockTime } from '@/utils/date';
 import { FlashList } from '@shopify/flash-list';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -22,14 +23,8 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-const slotTimeFormatter = new Intl.DateTimeFormat('vi-VN', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-});
-
 const formatSlotRange = (startTime: string, endTime: string) => {
-    return `${slotTimeFormatter.format(new Date(startTime))} - ${slotTimeFormatter.format(new Date(endTime))}`;
+    return `${formatClockTime(startTime)} - ${formatClockTime(endTime)}`;
 };
 
 /**

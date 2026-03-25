@@ -50,6 +50,7 @@ export const EN_MAP: Record<number, string> = {
     9402: "Product is out of stock or insufficient quantity!",
 
     // CHECKOUT
+    13100: "International shipping is temporarily unavailable. Please try again later or switch to another delivery address.",
     110113: "Information payment has expired. Please retry!",
 
     // OTHER

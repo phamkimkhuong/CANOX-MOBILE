@@ -23,7 +23,7 @@ import {
     VoucherScope
 } from '@/types/shop';
 import { transformProduct } from '@/utils/adapter/product/productAdapter';
-import { formatDate, formatMonthYear, safeParseDate } from '@/utils/date';
+import { formatDateTime, formatMonthYear, safeParseDate } from '@/utils/date';
 import { formatPriceShort } from '@/utils/format';
 import { toSizedImageUrl } from '@/utils/url';
 
@@ -109,8 +109,8 @@ export const transformShopVoucher = (dto: ShopVoucherDTO): ShopVoucherUI => {
         voucherScope,
         maxDiscount: maxDiscountVal,
         minOrderAmount: minSpend,
-        startDate: startD ? formatDate(startD, 'DD/MM/YYYY HH:mm') : '',
-        endDate: endD ? formatDate(endD, 'DD/MM/YYYY HH:mm') : '',
+        startDate: startD ? formatDateTime(startD) : '',
+        endDate: endD ? formatDateTime(endD) : '',
         isExpired,
         discountType: (dto.discountType as 'PERCENTAGE' | 'FIXED_AMOUNT') || 'PERCENTAGE',
         discountValue: discountVal,
@@ -132,10 +132,7 @@ export const toShopHeaderUI = (dto: ShopDetailDTO): ShopHeaderUI => {
     let joinDate = formatMonthYear(dto.createdAt);
     if (!joinDate && dto.statistics?.shopAge) {
         const joinTimestamp = Date.now() - dto.statistics.shopAge * 86400000;
-        const d = new Date(joinTimestamp);
-        const month = (d.getMonth() + 1).toString().padStart(2, '0');
-        const year = d.getFullYear();
-        joinDate = `${month}/${year}`;
+        joinDate = formatMonthYear(new Date(joinTimestamp));
     }
 
     return {

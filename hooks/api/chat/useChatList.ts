@@ -23,6 +23,7 @@ import {
     ConversationListResponseSchema
 } from '@/types/chat/conversationDTO';
 import { toConversationListUI } from '@/utils/adapter/chat/conversationAdapter';
+import { safeParseDate } from '@/utils/date';
 import { logger } from '@/utils/logger';
 import { InfiniteData, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
@@ -167,8 +168,8 @@ export const useChatList = (
         return [...filtered].sort((a, b) => {
             if (a.isPinned && !b.isPinned) return -1;
             if (!a.isPinned && b.isPinned) return 1;
-            return new Date(b.lastMessage.createdAt).getTime() -
-                new Date(a.lastMessage.createdAt).getTime();
+            return (safeParseDate(b.lastMessage.createdAt)?.getTime() ?? 0) -
+                (safeParseDate(a.lastMessage.createdAt)?.getTime() ?? 0);
         });
     }, [allConversations, searchQuery, filter]);
 

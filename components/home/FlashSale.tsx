@@ -260,75 +260,75 @@ export const FlashSale = memo(({ onProductPress, shimmerAnimatedStyle }: FlashSa
                 <Animated.View
                     entering={FadeIn.duration(180)}
                     exiting={FadeOutUp.duration(220)}
-                    style={[styles.container, shouldShowPendingShell && styles.containerPending]}
                 >
-                    <View style={styles.header}>
-                        <View style={styles.titleRow}>
-                            <Text style={styles.title}>{t('flashSale.title')}</Text>
+                    <View style={[styles.container, shouldShowPendingShell && styles.containerPending]}>
+                        <View style={styles.header}>
+                            <View style={styles.titleRow}>
+                                <Text style={styles.title}>{t('flashSale.title')}</Text>
 
-                            <Animated.View
-                                key={statusTimerKey}
-                                entering={FadeIn.duration(200)}
-                                exiting={FadeOut.duration(140)}
-                                style={styles.statusTimerGroup}
-                            >
-                                {displayedIsUpcoming ? (
-                                    <Text style={styles.upcomingLabel}>{t('flashSale.startingIn')}</Text>
-                                ) : null}
-
-                                <View style={styles.timerRow}>
-                                    {timeLeft.days > 0 ? (
-                                        <>
-                                            <View style={[styles.timerBox, displayedIsUpcoming && styles.timerBoxUpcoming]}>
-                                                <Text style={styles.timerText}>{timeLeft.days}</Text>
-                                            </View>
-                                            <Text style={styles.timerDayText}>ngày</Text>
-                                        </>
+                                <Animated.View
+                                    key={statusTimerKey}
+                                    entering={FadeIn.duration(200)}
+                                    exiting={FadeOut.duration(140)}
+                                    style={styles.statusTimerGroup}
+                                >
+                                    {displayedIsUpcoming ? (
+                                        <Text style={styles.upcomingLabel}>{t('flashSale.startingIn')}</Text>
                                     ) : null}
 
-                                    <View style={[styles.timerBox, displayedIsUpcoming && styles.timerBoxUpcoming]}>
-                                        <Text style={styles.timerText}>{formatNumber(timeLeft.hours)}</Text>
+                                    <View style={styles.timerRow}>
+                                        {timeLeft.days > 0 ? (
+                                            <>
+                                                <View style={[styles.timerBox, displayedIsUpcoming && styles.timerBoxUpcoming]}>
+                                                    <Text style={styles.timerText}>{timeLeft.days}</Text>
+                                                </View>
+                                                <Text style={styles.timerDayText}>ngày</Text>
+                                            </>
+                                        ) : null}
+
+                                        <View style={[styles.timerBox, displayedIsUpcoming && styles.timerBoxUpcoming]}>
+                                            <Text style={styles.timerText}>{formatNumber(timeLeft.hours)}</Text>
+                                        </View>
+                                        <Text style={styles.timerColon}>:</Text>
+                                        <View style={[styles.timerBox, displayedIsUpcoming && styles.timerBoxUpcoming]}>
+                                            <Text style={styles.timerText}>{formatNumber(timeLeft.minutes)}</Text>
+                                        </View>
+                                        <Text style={styles.timerColon}>:</Text>
+                                        <View style={[styles.timerBox, displayedIsUpcoming && styles.timerBoxUpcoming]}>
+                                            <Text style={styles.timerText}>{formatNumber(timeLeft.seconds)}</Text>
+                                        </View>
                                     </View>
-                                    <Text style={styles.timerColon}>:</Text>
-                                    <View style={[styles.timerBox, displayedIsUpcoming && styles.timerBoxUpcoming]}>
-                                        <Text style={styles.timerText}>{formatNumber(timeLeft.minutes)}</Text>
-                                    </View>
-                                    <Text style={styles.timerColon}>:</Text>
-                                    <View style={[styles.timerBox, displayedIsUpcoming && styles.timerBoxUpcoming]}>
-                                        <Text style={styles.timerText}>{formatNumber(timeLeft.seconds)}</Text>
-                                    </View>
-                                </View>
-                            </Animated.View>
+                                </Animated.View>
+                            </View>
+
+                            <TouchableOpacity
+                                style={styles.seeAllBtn}
+                                onPress={() => Navigator.push(ROUTES.CAMPAIGN.FLASH_SALE)}
+                            >
+                                <Text style={styles.seeAllText}>{t('flashSale.seeAll')}</Text>
+                                <IconSymbol name="chevron-right" size={16} color={theme.colors.secondary} />
+                            </TouchableOpacity>
                         </View>
 
-                        <TouchableOpacity
-                            style={styles.seeAllBtn}
-                            onPress={() => Navigator.push(ROUTES.CAMPAIGN.FLASH_SALE)}
-                        >
-                            <Text style={styles.seeAllText}>{t('flashSale.seeAll')}</Text>
-                            <IconSymbol name="chevron-right" size={16} color={theme.colors.secondary} />
-                        </TouchableOpacity>
-                    </View>
+                        {shouldShowPendingShell ? (
+                            <View style={styles.pendingBadge}>
+                                <View style={styles.pendingDot} />
+                                <Text style={styles.pendingText}>Đang cập nhật khung giờ...</Text>
+                            </View>
+                        ) : null}
 
-                    {shouldShowPendingShell ? (
-                        <View style={styles.pendingBadge}>
-                            <View style={styles.pendingDot} />
-                            <Text style={styles.pendingText}>Đang cập nhật khung giờ...</Text>
-                        </View>
-                    ) : null}
-
-                    <Animated.View
-                        key={productStripKey}
-                        entering={FadeIn.duration(220)}
-                        exiting={FadeOut.duration(140)}
-                        style={styles.productsSection}
-                    >
-                        <ScrollView
-                            horizontal
-                            showsHorizontalScrollIndicator={false}
-                            contentContainerStyle={styles.scrollContent}
+                        <Animated.View
+                            key={productStripKey}
+                            entering={FadeIn.duration(220)}
+                            exiting={FadeOut.duration(140)}
+                            style={styles.productsSection}
                         >
-                            {displayedData.items.map((item) => {
+                            <ScrollView
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                                contentContainerStyle={styles.scrollContent}
+                            >
+                                {displayedData.items.map((item) => {
                                 const isUrgent = item.progress >= 80 && !item.isSoldOut;
                                 const upcomingCurrentPrice =
                                     displayedIsUpcoming && item.originalPrice > item.price
@@ -446,11 +446,12 @@ export const FlashSale = memo(({ onProductPress, shimmerAnimatedStyle }: FlashSa
                                         </View>
                                     </TouchableOpacity>
                                 );
-                            })}
-                        </ScrollView>
+                                })}
+                            </ScrollView>
 
-                        {shouldShowPendingShell ? <View style={styles.productsVeil} /> : null}
-                    </Animated.View>
+                            {shouldShowPendingShell ? <View style={styles.productsVeil} /> : null}
+                        </Animated.View>
+                    </View>
                 </Animated.View>
             ) : null}
         </Animated.View>

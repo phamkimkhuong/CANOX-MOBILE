@@ -629,7 +629,7 @@ export interface CheckoutTranslation {
             name: string;
             description: string;
         };
-        bankTransfer: {
+        payos: {
             name: string;
             description: string;
         };
@@ -697,6 +697,13 @@ export interface CheckoutTranslation {
         orderFailed: string;
         orderFailedDetail: string;
     };
+    error: {
+        previewTitle: string;
+        previewMessage: string;
+        internationalShippingUnavailableTitle: string;
+        internationalShippingUnavailableMessage: string;
+        retryPreview: string;
+    };
 }
 
 /**
@@ -706,6 +713,7 @@ export interface OrderTranslation {
     paymentMethods: {
         COD: string;
         PAYOS: string;
+        VNPAY: string;
         STRIPE: string;
         BANK_TRANSFER: string;
     };

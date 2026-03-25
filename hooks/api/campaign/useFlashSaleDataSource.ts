@@ -1,6 +1,7 @@
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { request } from '@/services/api/client';
 import { ActiveSlotsResponse, ActiveSlotsResponseSchema, CampaignSlotResponse } from '@/types/campaign';
+import { formatLocalDateKey, safeParseDate } from '@/utils/date';
 import { QueryClient, useQuery } from '@tanstack/react-query';
 
 const DEFAULT_UPCOMING_HOURS = 24;
@@ -57,18 +58,18 @@ export const filterApprovedFlashSaleSlots = (slots: CampaignSlotResponse[]): Cam
 
 export const sortFlashSaleSlotsByStartTime = (slots: CampaignSlotResponse[]): CampaignSlotResponse[] => {
     return [...slots].sort((a, b) => {
-        return new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
+        return (safeParseDate(a.startTime)?.getTime() ?? 0) - (safeParseDate(b.startTime)?.getTime() ?? 0);
     });
 };
 
 export const selectBestFlashSaleSlot = (slots: CampaignSlotResponse[]): CampaignSlotResponse | null => {
     if (slots.length === 0) return null;
 
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = formatLocalDateKey(new Date());
 
     const sorted = [...slots].sort((a, b) => {
-        const dateA = a.slotDate || a.startTime.split('T')[0];
-        const dateB = b.slotDate || b.startTime.split('T')[0];
+        const dateA = a.slotDate || formatLocalDateKey(a.startTime);
+        const dateB = b.slotDate || formatLocalDateKey(b.startTime);
 
         const isAToday = dateA === todayStr;
         const isBToday = dateB === todayStr;

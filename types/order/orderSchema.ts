@@ -41,7 +41,7 @@ export const OrderStatusSchema = z.string().transform((value): KnownOrderStatus 
   return 'CREATED';
 });
 
-const PAYMENT_METHOD_VALUES = ['COD', 'PAYOS', 'STRIPE', 'BANK_TRANSFER'] as const;
+const PAYMENT_METHOD_VALUES = ['COD', 'PAYOS', 'VNPAY', 'STRIPE', 'BANK_TRANSFER'] as const;
 type KnownPaymentMethod = (typeof PAYMENT_METHOD_VALUES)[number];
 const PAYMENT_METHOD_SET = new Set<string>(PAYMENT_METHOD_VALUES);
 
@@ -114,6 +114,7 @@ export const OrderShopInfoSchema = z
   .looseObject({
     shopName: stringOrEmpty,
     logoUrl: nullableString,
+    logoPath: nullableString,
     userId: stringOrEmpty,
   })
   .nullish()

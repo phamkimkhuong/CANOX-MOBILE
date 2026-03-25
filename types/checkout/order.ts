@@ -28,7 +28,7 @@ export interface CreateOrderRequest {
         addressType?: number;
         taxAddress?: string;
     };
-    paymentMethod: 'COD' | 'BANK_TRANSFER' | 'PAYOS' | 'CREDIT_CARD' | 'VNPAY';
+    paymentMethod: 'COD' | 'PAYOS' | 'VNPAY';
     customerNote?: string;
     previewId?: string;
     previewChecksum?: string;
@@ -38,10 +38,13 @@ export interface CreateOrderRequest {
         variantId: string;
         quantity: number;
         options?: {
+            vouchers?: string[];
+            globalVouchers?: string[];
             loyaltyPoints?: number;
             platformLoyaltyPoints?: number;
             serviceCode?: number;
-            [key: string]: any;
+            internationalServiceCode?: number;
+            firstMileServiceCode?: number;
         };
     };
 }

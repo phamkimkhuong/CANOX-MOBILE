@@ -6,10 +6,12 @@
 
 import { TicketSeparator } from '@/components/ui/TicketSeparator';
 import type { VoucherUI } from '@/types/cart';
+import { formatDate } from '@/utils/date';
 import { formatCurrency } from '@/utils/format';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { memo, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -33,6 +35,7 @@ export const VoucherPickerCard = memo<VoucherPickerCardProps>(({
     onPress,
 }) => {
     const { theme } = useUnistyles();
+    const { t } = useTranslation('checkout');
     const isDisabled = !voucher.isApplicable;
     const isPercentage = voucher.discountType === 'PERCENTAGE';
 
@@ -42,13 +45,8 @@ export const VoucherPickerCard = memo<VoucherPickerCardProps>(({
     // Format expiry date
     const expiryDisplay = useMemo(() => {
         if (!voucher.expiresAt) return null;
-        try {
-            const date = new Date(voucher.expiresAt);
-            return `HSD: ${date.toLocaleDateString('vi-VN')}`;
-        } catch {
-            return null;
-        }
-    }, [voucher.expiresAt]);
+        return t('voucher.expiry', { date: formatDate(voucher.expiresAt) });
+    }, [voucher.expiresAt, t]);
 
     // Format calculated discount
     const savingsDisplay = useMemo(() => {

@@ -17,6 +17,7 @@ import { v4 as uuidv4 } from 'uuid';
 export const useCreateOrder = () => {
     return useMutation({
         mutationKey: ['create-order'],
+        meta: { handledLocally: true },
 
         /**
          * Call Create Order API.

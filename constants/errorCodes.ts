@@ -54,6 +54,7 @@ const VI_MAP: Record<number, string> = {
     3005: "Tên bộ sưu tập đã tồn tại trong danh sách của bạn",
 
     // CHECKOUT (9500-9599)
+    13100: "Tạm thời chưa thể tính phí vận chuyển quốc tế. Vui lòng thử lại sau hoặc đổi địa chỉ nhận hàng khác.",
     110113: "Thông tin thanh toán đã hết hạn. Vui lòng thực hiện lại",
 } as const;
 

@@ -68,9 +68,9 @@ export const CHECKOUT_STRINGS: CheckoutTranslation = {
             name: 'Cash on Delivery (COD)',
             description: 'Pay with cash upon delivery',
         },
-        bankTransfer: {
-            name: 'Bank Transfer',
-            description: 'Transfer via bank account',
+        payos: {
+            name: 'Bank Transfer (QR)',
+            description: 'Transfer via bank account QR',
         },
         vnpay: {
             name: 'VNPAY E-Wallet',
@@ -135,5 +135,12 @@ export const CHECKOUT_STRINGS: CheckoutTranslation = {
         orderSuccess: 'Order placed successfully',
         orderFailed: 'Order failed. Please try again.',
         orderFailedDetail: 'An error occurred. {{error}}',
+    },
+    error: {
+        previewTitle: 'Unable to load checkout details',
+        previewMessage: 'We could not load your checkout details right now. Please try again in a moment.',
+        internationalShippingUnavailableTitle: 'International shipping cannot be calculated',
+        internationalShippingUnavailableMessage: 'International carriers are temporarily unavailable for this address. Please try again later or switch to another delivery address.',
+        retryPreview: 'Retry',
     },
 };

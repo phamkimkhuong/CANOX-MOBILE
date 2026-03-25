@@ -408,7 +408,8 @@ export default function OrderDetailScreen() {
                             {/* Order Items & Shop info */}
                             <View style={styles.section}>
                                 <OrderShopHeader
-                                    shopInfo={rawOrder?.shopInfo}
+                                    shopName={order.shopName}
+                                    shopLogoUrl={order.shopLogoUrl}
                                     status={order.status}
                                     onShopPress={handleShopPress}
                                 />

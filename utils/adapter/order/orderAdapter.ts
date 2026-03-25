@@ -13,7 +13,7 @@ import {
     OrderUI,
     PaymentMethod
 } from '@/types/order/order';
-import { formatDate } from '@/utils/date';
+import { formatClockTime, formatDate } from '@/utils/date';
 import { toPublicUrl, toSizedImageUrl } from '@/utils/url';
 import { getStatusDisplay } from './orderStatusMapper';
 
@@ -26,7 +26,8 @@ const CARRIER_NAMES: Record<Carrier, string> = {
 
 const PAYMENT_METHOD_NAMES: Record<PaymentMethod, string> = {
     COD: 'Thanh toán khi nhận hàng',
-    PAYOS: 'PayOS',
+    PAYOS: 'Chuyển khoản ngân hàng (QR)',
+    VNPAY: 'Ví điện tử VNPAY',
     STRIPE: 'Stripe',
     BANK_TRANSFER: 'Chuyển khoản ngân hàng',
 };
@@ -56,25 +57,6 @@ export const transformOrderItem = (item: OrderItem): OrderItemUI => {
 
 
 /**
- * Format time from ISO string
- * Returns empty string if input is null/invalid
- */
-const formatTime = (isoString: string | null): string => {
-    if (!isoString) return '';
-
-    try {
-        const date = new Date(isoString);
-        if (isNaN(date.getTime())) return '';
-
-        const hours = date.getHours().toString().padStart(2, '0');
-        const minutes = date.getMinutes().toString().padStart(2, '0');
-        return `${hours}:${minutes}`;
-    } catch {
-        return '';
-    }
-};
-
-/**
  * Build full address string from OrderShippingAddress
  * Returns default message if address is null
  */
@@ -100,7 +82,11 @@ const buildFullAddress = (address: OrderShippingAddress | null): string => {
  */
 export const transformOrder = (order: Order): OrderUI => {
     const statusDisplay = getStatusDisplay(order.status);
-    const shopLogoUrl = order.shopInfo?.logoUrl ? toPublicUrl(order.shopInfo.logoUrl) : null;
+    const shopLogoUrl = toSizedImageUrl(
+        order.shopInfo?.logoPath ?? order.shopInfo?.logoUrl,
+        null,
+        'thumb'
+    ) ?? toPublicUrl(order.shopInfo?.logoUrl) ?? null;
 
     // Extract nested objects with safe defaults
     const pricing = order.pricing ?? {
@@ -136,7 +122,7 @@ export const transformOrder = (order: Order): OrderUI => {
 
         // Formatted dates - handle null createdAt
         formattedDate: (order.createdAt || order.createdDate) ? formatDate((order.createdAt || order.createdDate)!) : '',
-        formattedTime: formatTime(order.createdAt || order.createdDate),
+        formattedTime: formatClockTime(order.createdAt || order.createdDate),
 
         // Prices - from nested pricing object
         subtotal: pricing.subtotal,

@@ -81,7 +81,8 @@ export const OrderCard = memo<OrderCardProps>(({
         >
             {/* 1. Shop Header + Status */}
             <OrderShopHeader
-                shopInfo={order._raw.shopInfo}
+                shopName={order.shopName}
+                shopLogoUrl={order.shopLogoUrl}
                 status={order.status}
                 onShopPress={handleShopPress}
             />

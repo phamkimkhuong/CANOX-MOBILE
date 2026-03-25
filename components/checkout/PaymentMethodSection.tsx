@@ -2,7 +2,7 @@
  * PaymentMethodSection Component
  * 
  * Allows user to select payment method.
- * Options: COD, Bank Transfer, E-Wallet, Credit Card
+ * Options: COD, PAYOS (QR bank transfer), VNPAY
  * Opens bottom sheet for selection.
  */
 
@@ -43,9 +43,9 @@ export const PaymentMethodSection: React.FC<PaymentMethodSectionProps> = ({
             iconColor: '#10B981',
         },
         {
-            id: 'bank_transfer',
-            name: t('payment.bankTransfer.name'),
-            description: t('payment.bankTransfer.description'),
+            id: 'payos',
+            name: t('payment.payos.name'),
+            description: t('payment.payos.description'),
             icon: 'bank',
             iconColor: '#3B82F6',
         },

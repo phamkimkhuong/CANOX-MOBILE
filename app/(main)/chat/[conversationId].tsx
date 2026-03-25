@@ -46,6 +46,7 @@ import {
     groupMessagesByDate,
 } from '@/utils/adapter/chat/messageAdapter';
 import { Alert } from '@/utils/AlertHelper';
+import { isWithinTimeThreshold } from '@/utils/date';
 import { logger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -83,10 +84,7 @@ const isSameUserWithinThreshold = (
 ): boolean => {
     if (!msg1 || !msg2) return false;
     if (msg1.sender.userId !== msg2.sender.userId) return false;
-
-    const time1 = new Date(msg1.sentAt).getTime();
-    const time2 = new Date(msg2.sentAt).getTime();
-    return Math.abs(time2 - time1) < thresholdMinutes * 60 * 1000;
+    return isWithinTimeThreshold(msg1.sentAt, msg2.sentAt, thresholdMinutes);
 };
 
 /**

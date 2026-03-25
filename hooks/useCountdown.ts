@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
+import { safeParseDate } from '@/utils/date';
 
 // ============================================
 // TYPES
@@ -52,7 +53,7 @@ interface UseCountdownReturn {
  * Calculate duration from target date
  */
 const calculateDurationFromTarget = (targetDate: string): CountdownDuration => {
-    const diff = new Date(targetDate).getTime() - Date.now();
+    const diff = (safeParseDate(targetDate)?.getTime() ?? 0) - Date.now();
     const totalSeconds = Math.max(0, Math.floor(diff / 1000));
 
     return {
