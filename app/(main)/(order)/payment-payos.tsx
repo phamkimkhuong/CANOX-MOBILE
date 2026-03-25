@@ -1,12 +1,13 @@
 import { PaymentCountdown } from '@/components/checkout/PaymentCountdown';
 import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES, orderRoutes } from '@/constants/routes';
+import { useCancelPaymentByOrder } from '@/hooks/api/order/useCancelPaymentByOrder';
 import { useOrderDetail } from '@/hooks/api/order/useOrderDetail';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { Alert } from '@/utils/AlertHelper';
+import { logger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
 import * as Clipboard from 'expo-clipboard';
-import * as Linking from 'expo-linking';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
@@ -86,6 +87,7 @@ export default function PaymentPayOSScreen() {
     const styles = stylesheet;
     const router = useRouter();
     const [isExpired, setIsExpired] = useState(false);
+    const [hasCancelledManually, setHasCancelledManually] = useState(false);
     const { id, paymentInfo: paymentInfoRaw } = useLocalSearchParams<{ id?: string, paymentInfo?: string }>();
 
     const paymentInfo = useMemo<PayOSInfo | null>(() => {
@@ -93,10 +95,21 @@ export default function PaymentPayOSScreen() {
         try {
             return JSON.parse(paymentInfoRaw);
         } catch (e) {
-            console.error('Failed to parse paymentInfo', e);
+            logger.orders.error('Failed to parse paymentInfo', { error: e });
             return null;
         }
     }, [paymentInfoRaw]);
+
+    const { mutate: cancelPaymentByOrder, isPending: isCancellingPayment } = useCancelPaymentByOrder({
+        onSuccess: () => {
+            setHasCancelledManually(true);
+            if (id) {
+                router.replace(orderRoutes.detail(id));
+            } else {
+                Navigator.back();
+            }
+        },
+    });
 
     // Polling logic using useOrderDetail
     const { data: orderResponse } = useOrderDetail(id || null, {
@@ -117,7 +130,7 @@ export default function PaymentPayOSScreen() {
         const status = orderResponse?.raw?.status;
         if (status === 'PAID') {
             router.replace(ROUTES.ORDERS.SUCCESS);
-        } else if (status === 'CANCELLED') {
+        } else if (status === 'CANCELLED' && !hasCancelledManually) {
             Alert.show({
                 title: 'Thanh toán thất bại',
                 message: 'Đơn hàng đã bị hủy hoặc hết hạn thanh toán.',
@@ -131,13 +144,23 @@ export default function PaymentPayOSScreen() {
                 }
             });
         }
-    }, [orderResponse?.raw?.status, id, router]);
+    }, [orderResponse?.raw?.status, hasCancelledManually, id, router]);
 
-    const handleOpenBankApp = useCallback(() => {
-        if (paymentInfo?.paymentLink) {
-            Linking.openURL(paymentInfo.paymentLink);
-        }
-    }, [paymentInfo?.paymentLink]);
+    const handleCancelPayment = useCallback(() => {
+        if (!id || isCancellingPayment) return;
+
+        Alert.show({
+            title: 'Huỷ thanh toán?',
+            message: 'Giao dịch chuyển khoản này sẽ bị huỷ. Bạn cần tạo lại thanh toán nếu muốn tiếp tục mua hàng.',
+            type: 'warning',
+            showCancel: true,
+            confirmText: 'Huỷ thanh toán',
+            cancelText: 'Quay lại',
+            onConfirm: () => {
+                cancelPaymentByOrder({ orderId: id });
+            },
+        });
+    }, [cancelPaymentByOrder, id, isCancellingPayment]);
 
     const handleCancelOrder = useCallback(() => {
         Alert.show({
@@ -312,18 +335,22 @@ export default function PaymentPayOSScreen() {
                 {/* Footer Buttons */}
                 <View style={styles.footerActions}>
                     <Pressable
-                        style={[styles.primaryButton, isExpired && styles.disabledButton]}
-                        onPress={handleOpenBankApp}
-                        disabled={isExpired}
+                        style={[styles.dangerButton, (isExpired || isCancellingPayment) && styles.disabledButton]}
+                        onPress={handleCancelPayment}
+                        disabled={isExpired || isCancellingPayment}
                     >
-                        <Text style={styles.primaryButtonText}>Mở App Ngân hàng</Text>
+                        <Text style={styles.dangerButtonText}>
+                            {isCancellingPayment ? 'Đang huỷ thanh toán...' : 'Huỷ thanh toán'}
+                        </Text>
                     </Pressable>
                     <Pressable
                         style={styles.secondaryButton}
                         onPress={handleCancelOrder}
-                        disabled={isExpired}
+                        disabled={isExpired || isCancellingPayment}
                     >
-                        <Text style={[styles.secondaryButtonText, isExpired && styles.disabledText]}>Thanh toán sau</Text>
+                        <Text style={[styles.secondaryButtonText, (isExpired || isCancellingPayment) && styles.disabledText]}>
+                            Thanh toán sau
+                        </Text>
                     </Pressable>
                 </View>
 
@@ -549,6 +576,18 @@ const stylesheet = StyleSheet.create((theme) => ({
         ...theme.shadows.medium,
     },
     primaryButtonText: {
+        color: theme.colors.onPrimary,
+        fontSize: 16,
+        fontWeight: '700',
+    },
+    dangerButton: {
+        backgroundColor: theme.colors.error,
+        paddingVertical: 14,
+        borderRadius: theme.radius.xl,
+        alignItems: 'center',
+        ...theme.shadows.medium,
+    },
+    dangerButtonText: {
         color: theme.colors.onPrimary,
         fontSize: 16,
         fontWeight: '700',

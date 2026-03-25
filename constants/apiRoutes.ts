@@ -218,6 +218,7 @@ export const API_ROUTES = {
         STATUS: (paymentId: string) => `${API_PREFIX}/payments/${paymentId}/status`,
         ORDER_STATUS: (orderId: string) => `${API_PREFIX}/payments/order/${orderId}/status`,
         ORDER_PAYOS: (orderId: string) => `${API_PREFIX}/payments/order/${orderId}/payos`,
+        ORDER_CANCEL: (orderId: string) => `${API_PREFIX}/payments/order/${orderId}/cancel`,
         VERIFY_ORDER: (orderId: string) => `${API_PREFIX}/payments/order/${orderId}/verify`,
         RENEW: (paymentId: string) => `${API_PREFIX}/payments/${paymentId}/renew`,
         CANCEL: (paymentId: string) => `${API_PREFIX}/payments/${paymentId}/cancel`,

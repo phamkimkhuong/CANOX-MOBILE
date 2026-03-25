@@ -400,6 +400,7 @@ export default function CheckoutScreen() {
 
         // Check Address
         if (req.shippingAddress?.addressId !== preview.addressId) return false;
+        if (req.paymentMethod !== preview.paymentMethod) return false;
 
         if (req.buyNow) {
             const previewShop = preview.shops[0];
@@ -494,7 +495,10 @@ export default function CheckoutScreen() {
             setLoadingPreview(true);
             callPreviewRef.current(request, {
                 onSuccess: (data) => {
-                    setPreviewData(data);
+                    setPreviewData({
+                        ...data,
+                        paymentMethod: request.paymentMethod,
+                    });
                     setLoadingPreview(false);
                     setPreviewError(null);
                 },
@@ -525,7 +529,6 @@ export default function CheckoutScreen() {
 
         const triggeringRequest = {
             ...debouncedRequest,
-            paymentMethod: undefined,
             shops: debouncedRequest.shops.map((s: CheckoutPreviewShopRequest) => ({
                 ...s,
                 shippingFee: undefined,

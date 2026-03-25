@@ -49,7 +49,7 @@ export const CheckoutPreviewRequestSchema = z.object({
     shippingAddress: CheckoutPreviewShippingAddressSchema.optional(),
     addressId: z.string().optional(),
     effectiveAddressId: z.string().optional(),
-    paymentMethod: z.string().optional(),
+    paymentMethod: z.enum(['COD', 'PAYOS', 'VNPAY']).optional(),
     allDiscountCodes: z.array(z.string()).optional(),
     buyNow: z.boolean().optional(),
     directItem: CheckoutPreviewDirectItemSchema.optional(),

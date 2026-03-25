@@ -7,6 +7,7 @@
 
 import type { VoucherUI } from '@/types/cart';
 import type {
+    CheckoutApiPaymentMethod,
     CheckoutCalculationResult,
     CheckoutItemUI,
     CheckoutLoyaltyInfoUI,
@@ -422,6 +423,7 @@ export interface CheckoutPreviewUI {
     currency: string;
     previewAt: string;
     previewChecksum?: string;
+    paymentMethod?: CheckoutApiPaymentMethod;
     addressId: string;
     shops: CheckoutShopUI[];
     calculation: CheckoutCalculationResult;
@@ -466,8 +468,8 @@ export const toCheckoutPreviewUI = (dto: CheckoutPreviewDataDTO): CheckoutPrevie
  * Lần đầu (chưa chọn voucher, shipping, payment): chỉ gửi
  * { shops: [{ shopId, items: [{ itemId, quantity }] }], shippingAddress: { addressId } }.
  *
- * Các lần sau (user đã chọn): thêm vouchers, serviceCode, globalVouchers khi có giá trị.
- * Không gửi: allSelectedItemIds, previewAllSelected, addressChanged, paymentMethod,
+ * Các lần sau (user đã chọn): thêm vouchers, serviceCode, globalVouchers, paymentMethod khi có giá trị.
+ * Không gửi: allSelectedItemIds, previewAllSelected, addressChanged,
  * itemIds, shippingFee và mọi field undefined
  */
 export function toCheckoutPreviewAPIRequestBody(req: CheckoutPreviewRequest): Record<string, unknown> {
