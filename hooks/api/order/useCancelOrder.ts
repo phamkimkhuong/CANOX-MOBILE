@@ -95,7 +95,6 @@ export const useCancelOrder = (options: UseCancelOrderOptions = {}) => {
             });
 
             options.onSuccess?.();
-            options.onSuccess?.();
         },
 
         onError: (error: Error, variables) => {

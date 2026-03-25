@@ -12,7 +12,7 @@
 
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { ApiError, request } from '@/services/api/client';
-import type { Order } from '@/types/order/order';
+import type { Order, OrderUI } from '@/types/order/order';
 import { OrderDetailApiResponseSchema } from '@/types/order/orderSchema';
 import { transformOrder } from '@/utils/adapter/order/orderAdapter';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -41,6 +41,30 @@ const fetchOrderDetail = async (orderId: string): Promise<Order> => {
     return response.data;
 };
 
+type OrderDetailQueryData = {
+    raw: Order;
+    ui: OrderUI;
+};
+
+const isOrderUI = (value: unknown): value is OrderUI => {
+    if (!value || typeof value !== 'object') return false;
+    return '_raw' in value && 'statusDisplay' in value;
+};
+
+const toOrderDetailQueryData = (value: Order | OrderUI): OrderDetailQueryData => {
+    if (isOrderUI(value)) {
+        return {
+            raw: value._raw,
+            ui: value,
+        };
+    }
+
+    return {
+        raw: value,
+        ui: transformOrder(value),
+    };
+};
+
 /**
  * useOrderDetail - Hook to fetch single order detail
  * 
@@ -64,10 +88,7 @@ export const useOrderDetail = (
         queryFn: async () => {
             if (!orderId) throw new Error('Order ID is required');
             const order = await fetchOrderDetail(orderId);
-            return {
-                raw: order,
-                ui: transformOrder(order),
-            };
+            return toOrderDetailQueryData(order);
         },
 
         enabled: !!orderId && (options.enabled ?? true),
@@ -80,18 +101,15 @@ export const useOrderDetail = (
         placeholderData: () => {
             // Try to find this order in any list cache
             const lists = queryClient.getQueriesData<{
-                pages: Array<{ content: Order[] }>;
+                pages?: Array<{ content?: Array<Order | OrderUI> }>;
             }>({ queryKey: orderKeys.lists() });
 
             for (const [, data] of lists) {
                 if (!data?.pages) continue;
                 for (const page of data.pages) {
-                    const found = page.content.find((o) => o.orderId === orderId);
+                    const found = page.content?.find((o) => o.orderId === orderId);
                     if (found) {
-                        return {
-                            raw: found,
-                            ui: transformOrder(found),
-                        };
+                        return toOrderDetailQueryData(found);
                     }
                 }
             }
@@ -115,10 +133,7 @@ export const usePrefetchOrderDetail = () => {
             queryKey: orderKeys.detail(orderId),
             queryFn: async () => {
                 const order = await fetchOrderDetail(orderId);
-                return {
-                    raw: order,
-                    ui: transformOrder(order),
-                };
+                return toOrderDetailQueryData(order);
             },
             staleTime: 5 * 60 * 1000,
         });

@@ -88,8 +88,8 @@ export default function CancelOrderScreen() {
         if (!rawOrder) return false;
         // Check if order has any discount (voucher applied)
         return (
-            (rawOrder.pricing.totalDiscount ?? 0) > 0 ||
-            !!rawOrder.pricing.appliedVoucherCodes
+            (rawOrder.pricing?.totalDiscount ?? 0) > 0 ||
+            !!rawOrder.pricing?.appliedVoucherCodes
         );
     }, [rawOrder]);
 
