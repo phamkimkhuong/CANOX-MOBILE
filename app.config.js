@@ -36,6 +36,11 @@ module.exports = {
         "ios": {
             "supportsTablet": true,
             "bundleIdentifier": IS_DEV ? "com.cano.canox.dev" : (IS_PREVIEW ? "com.cano.canox.preview" : "com.cano.canox"),
+            "googleServicesFile": IS_DEV
+                ? "./google-services/GoogleService-Info.dev.plist"
+                : (IS_PREVIEW
+                    ? "./google-services/GoogleService-Info.preview.plist"
+                    : "./google-services/GoogleService-Info.production.plist"),
             "infoPlist": {
                 "ITSAppUsesNonExemptEncryption": false
             }
