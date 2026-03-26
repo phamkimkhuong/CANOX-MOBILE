@@ -41,6 +41,10 @@ export const CHECKOUT_STRINGS: CheckoutTranslation = {
         discountVoucherTitle: 'Voucher mã giảm giá',
         noDiscountVoucher: 'Không có mã giảm giá',
         noApplicableVouchers: 'Không có voucher phù hợp',
+        reasons: {
+            noDiscount: 'Mã giảm giá này không áp dụng cho đơn hàng hiện tại',
+            genericInvalid: 'Mã giảm giá này không áp dụng cho đơn hàng hiện tại',
+        },
     },
     shipping: {
         title: 'Phương thức vận chuyển',

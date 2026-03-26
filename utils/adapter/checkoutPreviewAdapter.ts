@@ -149,6 +149,7 @@ export const toVoucherUI = (dto: CheckoutVoucherDetailDTO, isValid: boolean): Vo
     expiresAt: null,
     // Map discountTarget to category for UI filtering
     category: dto.target === 'SHIP' || dto.target === 'SHIPPING' ? 'SHIPPING' : 'DISCOUNT',
+    reason: dto.reason ?? null,
 });
 
 /**
@@ -381,7 +382,7 @@ export const toCheckoutCalculation = (
     if (invalidPlatform) {
         platformVoucherValidation = {
             isValid: false,
-            invalidReason: invalidPlatform.reason || 'Voucher không hợp lệ cho đơn hàng này',
+            invalidReason: invalidPlatform.reason || undefined,
             discountAmount: 0,
             shouldAutoRemove: true,
         };

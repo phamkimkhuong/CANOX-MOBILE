@@ -602,6 +602,10 @@ export interface CheckoutTranslation {
         discountVoucherTitle: string;
         noDiscountVoucher: string;
         noApplicableVouchers: string;
+        reasons: {
+            noDiscount: string;
+            genericInvalid: string;
+        };
     };
     shipping: {
         title: string;

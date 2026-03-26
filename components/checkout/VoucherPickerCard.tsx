@@ -8,6 +8,7 @@ import { TicketSeparator } from '@/components/ui/TicketSeparator';
 import type { VoucherUI } from '@/types/cart';
 import { formatDate } from '@/utils/date';
 import { formatCurrency } from '@/utils/format';
+import { getFriendlyVoucherReason } from '@/utils/voucherReason';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { memo, useMemo } from 'react';
@@ -55,6 +56,11 @@ export const VoucherPickerCard = memo<VoucherPickerCardProps>(({
         }
         return `Tiết kiệm: -${formatCurrency(voucher.calculatedDiscount)}`;
     }, [voucher.isApplicable, voucher.calculatedDiscount]);
+
+    const disabledReason = useMemo(
+        () => getFriendlyVoucherReason(voucher.reason ?? voucher.description, t),
+        [voucher.reason, voucher.description, t]
+    );
 
     const handlePress = () => {
         if (!isDisabled) {
@@ -146,9 +152,9 @@ export const VoucherPickerCard = memo<VoucherPickerCardProps>(({
                     )}
 
                     {/* Row 4: Calculated discount or Reason */}
-                    {isDisabled && voucher.reason ? (
+                    {isDisabled && disabledReason ? (
                         <View style={styles.reasonRow}>
-                            <Text style={styles.reasonText}>{voucher.reason}</Text>
+                            <Text style={styles.reasonText}>{disabledReason}</Text>
                         </View>
                     ) : savingsDisplay ? (
                         <View style={styles.savingsRow}>

@@ -41,6 +41,10 @@ export const CHECKOUT_STRINGS: CheckoutTranslation = {
         discountVoucherTitle: 'Discount Voucher',
         noDiscountVoucher: 'No discount vouchers available',
         noApplicableVouchers: 'No applicable vouchers',
+        reasons: {
+            noDiscount: 'This voucher cannot be applied to current order.',
+            genericInvalid: 'This voucher cannot be applied to current order.',
+        },
     },
     shipping: {
         title: 'Shipping Method',

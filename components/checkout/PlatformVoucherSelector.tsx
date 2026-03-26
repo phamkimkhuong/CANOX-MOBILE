@@ -10,6 +10,7 @@ import { createScaledFontSize } from '@/constants/unistyles';
 import type { VoucherUI } from '@/types/cart';
 import { formatDate } from '@/utils/date';
 import { formatCurrency } from '@/utils/format';
+import { getFriendlyVoucherReason } from '@/utils/voucherReason';
 import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native';
@@ -47,6 +48,7 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
     const { theme } = useUnistyles();
     const { t } = useTranslation('checkout');
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const resolvedWarningMessage = getFriendlyVoucherReason(warningMessage, t);
 
     // Local state for modal interaction - only commit on "Xong"
     const [tempDiscountId, setTempDiscountId] = useState<string | null>(null);
@@ -183,14 +185,14 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
             </Pressable>
 
             {/* Warning Message - Only show if invalid and outside pressable to not trigger press */}
-            {isInvalid && warningMessage && (
+            {isInvalid && resolvedWarningMessage && (
                 <View style={styles.warningRow}>
                     <IconSymbol
                         name="alert-circle-outline"
                         size={16}
                         color={theme.colors.warning}
                     />
-                    <Text style={styles.warningText}>{warningMessage}</Text>
+                    <Text style={styles.warningText}>{resolvedWarningMessage}</Text>
                 </View>
             )}
 
@@ -335,6 +337,7 @@ const VoucherItem: React.FC<VoucherItemProps> = ({ voucher, isSelected, onPress 
     const { t } = useTranslation('checkout');
     const isShipping = voucher.category === 'SHIPPING';
     const isDisabled = !voucher.isApplicable;
+    const displayReason = getFriendlyVoucherReason(voucher.reason ?? voucher.description, t);
 
     const handlePress = () => {
         if (isDisabled) return; // Prevent selection if not applicable
@@ -399,9 +402,9 @@ const VoucherItem: React.FC<VoucherItemProps> = ({ voucher, isSelected, onPress 
                         {voucher.minOrderDisplay}
                     </Text>
                     {/* Show reason why voucher is not applicable */}
-                    {isDisabled && voucher.description && (
+                    {isDisabled && displayReason && (
                         <Text style={styles.voucherNotApplicableReason}>
-                            {voucher.description}
+                            {displayReason}
                         </Text>
                     )}
                     {!isDisabled && voucher.expiresAt && (

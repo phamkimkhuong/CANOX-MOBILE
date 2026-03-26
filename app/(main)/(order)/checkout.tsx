@@ -65,6 +65,7 @@ import type { CreateOrderRequest } from '@/types/checkout/order';
 import type { RecommendPlatformVoucherRequest } from '@/types/checkout/platformVoucherRecommendation';
 import { CheckoutPreviewUI } from '@/utils/adapter/checkoutPreviewAdapter';
 import { logger } from '@/utils/logger';
+import { getFriendlyVoucherReason } from '@/utils/voucherReason';
 
 // ============================================
 // SCREEN COMPONENT
@@ -184,21 +185,28 @@ export default function CheckoutScreen() {
                     (v) => !v.isApplicable &&
                         (v.code === selectedPlatformDiscountVoucher || v.code === selectedPlatformShippingVoucher)
                 );
-                if (invalidSelected && invalidSelected.description) {
-                    return invalidSelected.description;
+                const invalidSelectedReason = getFriendlyVoucherReason(
+                    invalidSelected?.reason ?? invalidSelected?.description,
+                    t
+                );
+                if (invalidSelectedReason) {
+                    return invalidSelectedReason;
                 }
             }
         }
 
         if (calculation.platformVoucherValidation && !calculation.platformVoucherValidation.isValid) {
-            return calculation.platformVoucherValidation.invalidReason ?? 'Mã giảm giá sàn không hợp lệ cho đơn hàng này';
+            return getFriendlyVoucherReason(
+                calculation.platformVoucherValidation.invalidReason,
+                t
+            ) ?? t('voucher.reasons.genericInvalid');
         }
 
         const voucherWarning = warnings.find(
             (w) => w.toLowerCase().includes('voucher') || w.toLowerCase().includes('mã giảm')
         );
-        return voucherWarning ?? null;
-    }, [warnings, calculation.platformVoucherValidation, shops, selectedPlatformDiscountVoucher, selectedPlatformShippingVoucher]);
+        return getFriendlyVoucherReason(voucherWarning, t) ?? null;
+    }, [warnings, calculation.platformVoucherValidation, shops, selectedPlatformDiscountVoucher, selectedPlatformShippingVoucher, t]);
 
     const isPlatformVoucherValid = platformVoucherWarning === null;
 
@@ -209,7 +217,7 @@ export default function CheckoutScreen() {
             if (lastToastRef.current !== platformVoucherWarning) {
                 Toast.show({
                     type: 'error',
-                    text1: 'CanoX Voucher',
+                    text1: t('voucher.platformTitle'),
                     text2: platformVoucherWarning,
                     position: 'bottom',
                     visibilityTime: 4000,
@@ -219,7 +227,7 @@ export default function CheckoutScreen() {
         } else {
             lastToastRef.current = null;
         }
-    }, [platformVoucherWarning]);
+    }, [platformVoucherWarning, t]);
 
     // Address from Global Store
     const selectedAddressId = useUserAddressStore((s) => s.selectedAddressId);
@@ -815,7 +823,7 @@ export default function CheckoutScreen() {
 
             if (
                 error instanceof ApiError &&
-                (error.code === CHECKOUT_PREVIEW_MISMATCH_ERROR_CODE || error.code === CHECKOUT_EXPIRED_ERROR_CODE)
+                error.code === CHECKOUT_EXPIRED_ERROR_CODE
             ) {
                 logger.checkout.warn('Checkout preview became stale before create order', {
                     status: error.status,
