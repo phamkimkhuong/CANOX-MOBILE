@@ -38,6 +38,7 @@ import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { useAuthStore } from '@/store/useAuthStore';
 import { hideGlobalLoading, showGlobalLoading } from '@/store/useLoadingStore';
 import { OrderItemUI } from '@/types/order/order';
+import { transformOrder } from '@/utils/adapter/order/orderAdapter';
 import { Alert as CustomAlertHelper } from '@/utils/AlertHelper';
 import { logger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
@@ -89,8 +90,10 @@ export default function OrderDetailScreen() {
     const { data, isLoading, isError, error, refetch } = useOrderDetail(id);
 
     // Computed values
-    const order = data?.ui;
-    const rawOrder = data?.raw;
+    const rawOrder = data;
+    const order = useMemo(() => (
+        rawOrder ? transformOrder(rawOrder) : undefined
+    ), [rawOrder]);
 
     // Check if any item can be reviewed
 

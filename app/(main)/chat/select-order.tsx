@@ -3,7 +3,7 @@
  */
 
 import { IconSymbol } from '@/components/ui/Icon';
-import { useShopOrders } from '@/hooks/api/order/useOrders';
+import { useShopOrdersUI } from '@/hooks/api/order/useOrders';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { useChatPickerStore } from '@/store/useChatPickerStore';
 import { OrderUI } from '@/types/order/order';
@@ -67,22 +67,22 @@ export default function SelectOrderScreen() {
 
     // Fetch shop orders with infinite scroll
     const {
-        data,
-        isLoading,
-        isFetchingNextPage,
-        hasNextPage,
-        fetchNextPage,
-    } = useShopOrders(shopId);
+        query: {
+            data,
+            isLoading,
+            isFetchingNextPage,
+            hasNextPage,
+            fetchNextPage,
+        },
+        orders,
+    } = useShopOrdersUI(shopId);
 
     // Flatten pages into single array
     const allOrders = useMemo(() => {
-        if (!data?.pages) return [];
-        const flatOrders = data.pages.flatMap(page => page.content);
-
         const uniqueOrders: OrderUI[] = [];
         const seenIds = new Set<string>();
 
-        flatOrders.forEach(order => {
+        orders.forEach(order => {
             if (!seenIds.has(order.orderId)) {
                 seenIds.add(order.orderId);
                 uniqueOrders.push(order);
@@ -90,7 +90,7 @@ export default function SelectOrderScreen() {
         });
 
         return uniqueOrders;
-    }, [data?.pages]);
+    }, [orders]);
 
     // Client-side filtering for order number
     const filteredOrders = useMemo(() => {

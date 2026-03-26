@@ -13,13 +13,7 @@
  * - /product/[id] → prefetch product detail (future)
  */
 
-import { API_ROUTES } from '@/constants/apiRoutes';
-import { orderKeys } from '@/hooks/api/order/useOrders';
-import { request } from '@/services/api/client';
-import type { Order } from '@/types/order/order';
-import { OrderDetailApiResponseSchema } from '@/types/order/orderSchema';
-import { transformOrder } from '@/utils/adapter/order/orderAdapter';
-import { useQueryClient } from '@tanstack/react-query';
+import { usePrefetchOrderDetail } from '@/hooks/api/order/useOrderDetail';
 import { useCallback, useRef } from 'react';
 
 /**
@@ -47,20 +41,6 @@ const parseActionUrl = (url: string | null | undefined): { type: 'order' | 'prod
     return { type: 'unknown', id: null };
 };
 
-const fetchOrderDetail = async (orderId: string): Promise<Order> => {
-    const response = await request(
-        {
-            url: API_ROUTES.ORDERS.DETAIL(orderId),
-            method: 'GET',
-        },
-        OrderDetailApiResponseSchema
-    );
-    if (!response.success) {
-        throw new Error(response.message || 'Failed to fetch order');
-    }
-    return response.data;
-};
-
 /**
  * Hook to prefetch data based on notification's actionUrl
  * 
@@ -75,7 +55,7 @@ const fetchOrderDetail = async (orderId: string): Promise<Order> => {
  * ```
  */
 export const usePrefetchNotificationNav = () => {
-    const queryClient = useQueryClient();
+    const prefetchOrderDetail = usePrefetchOrderDetail();
 
     /**
      * Ref to store pending prefetch timeout
@@ -107,18 +87,7 @@ export const usePrefetchNotificationNav = () => {
 
         switch (type) {
             case 'order':
-                // Prefetch order detail - Pure 0ms architecture
-                queryClient.prefetchQuery({
-                    queryKey: orderKeys.detail(id),
-                    queryFn: async () => {
-                        const order = await fetchOrderDetail(id);
-                        return {
-                            raw: order,
-                            ui: transformOrder(order),
-                        };
-                    },
-                    staleTime: 5 * 60 * 1000, // 5 minutes
-                });
+                prefetchOrderDetail(id);
                 break;
 
             case 'product':
@@ -128,7 +97,7 @@ export const usePrefetchNotificationNav = () => {
             default:
                 break;
         }
-    }, [queryClient, cancelPrefetch]);
+    }, [prefetchOrderDetail, cancelPrefetch]);
 
     return { prefetch, cancelPrefetch };
 };

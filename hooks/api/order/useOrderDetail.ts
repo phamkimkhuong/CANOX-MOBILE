@@ -12,10 +12,9 @@
 
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { ApiError, request } from '@/services/api/client';
-import type { Order, OrderUI } from '@/types/order/order';
+import type { Order } from '@/types/order/order';
 import { OrderDetailApiResponseSchema } from '@/types/order/orderSchema';
-import { transformOrder } from '@/utils/adapter/order/orderAdapter';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { UseQueryOptions, useQuery, useQueryClient } from '@tanstack/react-query';
 import { orderKeys } from './useOrders';
 
 /**
@@ -41,28 +40,11 @@ const fetchOrderDetail = async (orderId: string): Promise<Order> => {
     return response.data;
 };
 
-type OrderDetailQueryData = {
-    raw: Order;
-    ui: OrderUI;
-};
-
-const isOrderUI = (value: unknown): value is OrderUI => {
-    if (!value || typeof value !== 'object') return false;
-    return '_raw' in value && 'statusDisplay' in value;
-};
-
-const toOrderDetailQueryData = (value: Order | OrderUI): OrderDetailQueryData => {
-    if (isOrderUI(value)) {
-        return {
-            raw: value._raw,
-            ui: value,
-        };
-    }
-
-    return {
-        raw: value,
-        ui: transformOrder(value),
-    };
+type UseOrderDetailOptions = Omit<
+    UseQueryOptions<Order, Error, Order>,
+    'queryKey' | 'queryFn' | 'placeholderData'
+> & {
+    enabled?: boolean;
 };
 
 /**
@@ -72,13 +54,13 @@ const toOrderDetailQueryData = (value: Order | OrderUI): OrderDetailQueryData =>
  * @param options - Additional query options
  * 
  * Features:
- * - Returns transformed OrderUI for easy rendering
- * - Includes raw Order data for actions
+ * - Returns raw Order as the cache/source-of-truth shape
+ * - Lets screens derive OrderUI locally for rendering
  * - Caches aggressively since order detail rarely changes
  */
 export const useOrderDetail = (
     orderId: string | null,
-    options: { enabled?: boolean } = {}
+    options: UseOrderDetailOptions = {}
 ) => {
     const queryClient = useQueryClient();
 
@@ -87,11 +69,8 @@ export const useOrderDetail = (
 
         queryFn: async () => {
             if (!orderId) throw new Error('Order ID is required');
-            const order = await fetchOrderDetail(orderId);
-            return toOrderDetailQueryData(order);
+            return fetchOrderDetail(orderId);
         },
-
-        enabled: !!orderId && (options.enabled ?? true),
 
         // Cache for 5 minutes - order details don't change often
         staleTime: 5 * 60 * 1000,
@@ -101,7 +80,7 @@ export const useOrderDetail = (
         placeholderData: () => {
             // Try to find this order in any list cache
             const lists = queryClient.getQueriesData<{
-                pages?: Array<{ content?: Array<Order | OrderUI> }>;
+                pages?: Array<{ content?: Order[] }>;
             }>({ queryKey: orderKeys.lists() });
 
             for (const [, data] of lists) {
@@ -109,7 +88,7 @@ export const useOrderDetail = (
                 for (const page of data.pages) {
                     const found = page.content?.find((o) => o.orderId === orderId);
                     if (found) {
-                        return toOrderDetailQueryData(found);
+                        return found;
                     }
                 }
             }
@@ -118,6 +97,8 @@ export const useOrderDetail = (
 
         // Refetch on window focus (user might have taken action elsewhere)
         refetchOnWindowFocus: true,
+        ...options,
+        enabled: !!orderId && (options.enabled ?? true),
     });
 };
 
@@ -131,10 +112,7 @@ export const usePrefetchOrderDetail = () => {
     return (orderId: string) => {
         queryClient.prefetchQuery({
             queryKey: orderKeys.detail(orderId),
-            queryFn: async () => {
-                const order = await fetchOrderDetail(orderId);
-                return toOrderDetailQueryData(order);
-            },
+            queryFn: () => fetchOrderDetail(orderId),
             staleTime: 5 * 60 * 1000,
         });
     };

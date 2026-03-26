@@ -112,11 +112,10 @@ export default function PaymentPayOSScreen() {
     });
 
     // Polling logic using useOrderDetail
-    const { data: orderResponse } = useOrderDetail(id || null, {
+    const { data: order } = useOrderDetail(id || null, {
         enabled: !!id,
-        // @ts-expect-error: PayOS SDK might have loose types - refetchInterval can be a function in TanStack Query
-        refetchInterval: (query: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
-            const status = query.state.data?.raw?.status;
+        refetchInterval: (query) => {
+            const status = query.state.data?.status;
             if (status === 'PAID' || status === 'CANCELLED') {
                 return false;
             }
@@ -127,7 +126,7 @@ export default function PaymentPayOSScreen() {
 
     // Listen for status changes
     useEffect(() => {
-        const status = orderResponse?.raw?.status;
+        const status = order?.status;
         if (status === 'PAID') {
             router.replace(ROUTES.ORDERS.SUCCESS);
         } else if (status === 'CANCELLED' && !hasCancelledManually) {
@@ -144,7 +143,7 @@ export default function PaymentPayOSScreen() {
                 }
             });
         }
-    }, [orderResponse?.raw?.status, hasCancelledManually, id, router]);
+    }, [order?.status, hasCancelledManually, id, router]);
 
     const handleCancelPayment = useCallback(() => {
         if (!id || isCancellingPayment) return;

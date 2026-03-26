@@ -24,6 +24,7 @@ import { useOrderDetail } from '@/hooks/api/order/useOrderDetail';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import type { CancelReasonCode } from '@/types/order/cancel';
 import { MIN_OTHER_REASON_LENGTH } from '@/types/order/cancelReasons';
+import { transformOrder } from '@/utils/adapter/order/orderAdapter';
 import { Alert as CustomAlertHelper } from '@/utils/AlertHelper';
 import { logger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
@@ -63,9 +64,10 @@ export default function CancelOrderScreen() {
     const [showOtherError, setShowOtherError] = useState(false);
 
     // === DATA FETCHING ===
-    const { data: orderData, isLoading: isLoadingOrder } = useOrderDetail(orderId);
-    const order = orderData?.ui;
-    const rawOrder = orderData?.raw;
+    const { data: rawOrder, isLoading: isLoadingOrder } = useOrderDetail(orderId);
+    const order = useMemo(() => (
+        rawOrder ? transformOrder(rawOrder) : undefined
+    ), [rawOrder]);
 
     // === MUTATION ===
     const { mutate: cancelOrder, isPending: isCancelling } = useCancelOrder({

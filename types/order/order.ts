@@ -241,6 +241,7 @@ export interface OrderUI {
 
     // Payment (from payment object)
     paymentMethod: PaymentMethod;
+    paymentUrl: string | null;
     paymentMethodDisplay: string; //  "Thanh toán khi nhận hàng"
 
     // Delivery address (formatted from shippingAddress object)
@@ -251,7 +252,4 @@ export interface OrderUI {
     // Notes
     customerNote: string | null;
     cancellationReason: string | null;
-
-    // Raw data (for actions)
-    _raw: Order; //  Keep original for detail screen
 }

@@ -9,11 +9,12 @@
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { useSmartRefresh } from '@/hooks/useSmartRefresh';
 import { apiClient, ApiError, request } from '@/services/api/client';
-import { OrdersApiResponse, OrdersPageResponse, OrderTabStatus, OrderUI } from '@/types/order/order';
+import { Order, OrdersApiResponse, OrdersPageResponse, OrderTabStatus, OrderUI } from '@/types/order/order';
 import { OrdersApiResponseSchema } from '@/types/order/orderSchema';
 import { transformOrder } from '@/utils/adapter/order/orderAdapter';
 import { ORDER_TABS } from '@/utils/adapter/order/orderStatusMapper';
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
 
 const PAGE_SIZE = 20;
 
@@ -65,13 +66,7 @@ const fetchOrdersByStatus = async (
 export const useOrderList = (status: OrderTabStatus, enabled: boolean = true) => {
     return useInfiniteQuery({
         queryKey: orderKeys.list(status),
-        queryFn: async ({ pageParam }) => {
-            const data = await fetchOrdersByStatus(status, pageParam);
-            return {
-                ...data,
-                content: data.content.map(transformOrder),
-            };
-        },
+        queryFn: ({ pageParam }) => fetchOrdersByStatus(status, pageParam),
         initialPageParam: 0,
         getNextPageParam: (lastPage) => {
             // Nếu còn trang tiếp theo, trả về page number
@@ -119,11 +114,7 @@ export const useShopOrders = (shopId: string | undefined, enabled: boolean = tru
         queryKey: orderKeys.byShop(shopId || ''),
         queryFn: async ({ pageParam }) => {
             if (!shopId) return { content: [], page: 0, totalElements: 0, hasNext: false, nextPage: 0 };
-            const data = await fetchShopOrders(shopId, pageParam);
-            return {
-                ...data,
-                content: data.content.map(transformOrder),
-            };
+            return fetchShopOrders(shopId, pageParam);
         },
         initialPageParam: 0,
         getNextPageParam: (lastPage) => lastPage.hasNext ? lastPage.nextPage : undefined,
@@ -149,27 +140,47 @@ export const useRefreshOrderList = (status: OrderTabStatus) => {
  */
 export const flattenOrders = (
     data: ReturnType<typeof useOrderList>['data']
-): OrderUI[] => {
+): Order[] => {
     if (!data?.pages) return [];
     return data.pages.flatMap((page) => page.content);
 };
 
 /**
- * Cancel order mutation
+ * Build transformed orders for UI rendering from raw query data.
  */
-export const useCancelOrder = () => {
-    const queryClient = useQueryClient();
+const buildOrderUIs = (
+    data: ReturnType<typeof useOrderList>['data'] | ReturnType<typeof useShopOrders>['data']
+): OrderUI[] => {
+    if (!data?.pages) return [];
+    return data.pages.flatMap((page) => page.content.map(transformOrder));
+};
 
-    return useMutation({
-        mutationFn: async (orderId: string) => {
-            const response = await apiClient.post(API_ROUTES.ORDERS.CANCEL(orderId));
-            return response.data;
-        },
-        onSuccess: () => {
-            // Invalidate all order lists to refetch
-            queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
-        },
-    });
+/**
+ * useOrderListUI - Memoized UI projection of raw order list query.
+ * Rebuilds OrderUI[] only when underlying query pages change.
+ */
+export const useOrderListUI = (status: OrderTabStatus, enabled: boolean = true) => {
+    const query = useOrderList(status, enabled);
+    const orders = useMemo(() => buildOrderUIs(query.data), [query.data?.pages]);
+
+    return {
+        query,
+        orders,
+    };
+};
+
+/**
+ * useShopOrdersUI - Memoized UI projection of raw shop orders query.
+ * Rebuilds OrderUI[] only when underlying query pages change.
+ */
+export const useShopOrdersUI = (shopId: string | undefined, enabled: boolean = true) => {
+    const query = useShopOrders(shopId, enabled);
+    const orders = useMemo(() => buildOrderUIs(query.data), [query.data?.pages]);
+
+    return {
+        query,
+        orders,
+    };
 };
 
 /**

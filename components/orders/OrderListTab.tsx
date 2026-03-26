@@ -12,7 +12,7 @@ import { cartRoutes, chatRoutes, orderRoutes, reviewRoutes } from '@/constants/r
 import { useAddToCart } from '@/hooks/api/cart';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
 import { usePrefetchOrderDetail } from '@/hooks/api/order/useOrderDetail';
-import { flattenOrders, useOrderList, useRefreshOrderList } from '@/hooks/api/order/useOrders';
+import { useOrderListUI, useRefreshOrderList } from '@/hooks/api/order/useOrders';
 import { PREFETCH_GRACE_PERIOD_MS } from '@/hooks/usePrefetchTiming';
 import { useAuthStore } from '@/store/useAuthStore';
 import { hideGlobalLoading, showGlobalLoading } from '@/store/useLoadingStore';
@@ -47,7 +47,7 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
     const pressTimingMap = useRef<Map<string, number>>(new Map());
 
     // Fetch orders với useInfiniteQuery
-    const query = useOrderList(status);
+    const { query, orders } = useOrderListUI(status);
     const { fetchNextPage, hasNextPage, isFetchingNextPage } = query;
 
     // Smart refresh: Reset to page 0 only (not refetch ALL loaded pages)
@@ -155,7 +155,7 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
                 break;
             }
             case 'contact': {
-                const shopUserId = order._raw.shopInfo?.userId;
+                const shopUserId = order.shopUserId;
                 const shopName = order.shopName;
                 const shopLogoUrl = order.shopLogoUrl;
 
@@ -197,8 +197,8 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
                 break;
             }
             case 'pay':
-                if (order._raw.payment.url) {
-                    Linking.openURL(order._raw.payment.url);
+                if (order.paymentUrl) {
+                    Linking.openURL(order.paymentUrl);
                 } else {
                     Toast.show({
                         type: 'error',
@@ -249,9 +249,7 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
             isDataEmpty={() => false}
             onSecondaryAction={handleShopNow}
         >
-            {(guardData, meta) => {
-                const orders = flattenOrders(guardData);
-
+            {(_guardData, meta) => {
                 if (orders.length === 0) {
                     return (
                         <EmptyOrderState

@@ -110,6 +110,9 @@ export const transformOrder = (order: Order): OrderUI => {
         carrier: null,
     };
     const shippingAddress = order.shippingAddress;
+    // Defensive fallback for partial or stale cache entries.
+    const items = Array.isArray(order.items) ? order.items : [];
+    const totalQuantity = items.reduce((sum, item) => sum + (item.quantity || 0), 0);
 
     return {
         orderId: order.orderId,
@@ -138,9 +141,9 @@ export const transformOrder = (order: Order): OrderUI => {
         grandTotal: pricing.grandTotal,
 
         // Items
-        items: order.items.map(transformOrderItem),
-        itemCount: order.itemCount,
-        totalQuantity: order.totalQuantity,
+        items: items.map(transformOrderItem),
+        itemCount: order.itemCount ?? items.length,
+        totalQuantity: order.totalQuantity ?? totalQuantity,
 
         // Shipping - from nested shipment object
         trackingNumber: shipment.trackingNumber,
@@ -149,6 +152,7 @@ export const transformOrder = (order: Order): OrderUI => {
 
         // Payment - from nested payment object
         paymentMethod: payment.method,
+        paymentUrl: payment.url,
         paymentMethodDisplay: PAYMENT_METHOD_NAMES[payment.method],
 
         // Address - from nested shippingAddress object
@@ -159,9 +163,6 @@ export const transformOrder = (order: Order): OrderUI => {
         // Notes
         customerNote: order.customerNote,
         cancellationReason: order.cancellationReason,
-
-        // Raw data
-        _raw: order,
     };
 };
 

@@ -17,7 +17,7 @@ import { orderRoutes, ROUTES } from '@/constants/routes';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { formatDateTime } from '@/utils/date';
-import { formatCurrency } from '@/utils/format';
+import { formatMoney } from '@/utils/format';
 import { Navigator } from '@/utils/navigation';
 import { AuthorizationStatus, getMessaging, hasPermission } from '@react-native-firebase/messaging';
 import * as Clipboard from 'expo-clipboard';
@@ -39,6 +39,7 @@ interface OrderInfo {
     orderNumber: string;
     shopName: string;
     grandTotal?: number;
+    currency?: string;
     paymentMethod?: string;
     createdAt?: string;
     itemCount?: number;
@@ -244,7 +245,7 @@ export default function OrderSuccessScreen() {
                     <View style={styles.totalRow}>
                         <Text style={styles.detailLabel}>{t('order:success.totalLabel')}</Text>
                         <Text style={styles.totalValue}>
-                            {formatCurrency(singleOrder.grandTotal || 0)}
+                            {formatMoney(singleOrder.grandTotal || 0, singleOrder.currency || 'VND')}
                         </Text>
                     </View>
                 </View>

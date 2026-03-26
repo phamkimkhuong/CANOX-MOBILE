@@ -3,7 +3,7 @@
  * Used in chat to send order cards to partner
  */
 import { IconSymbol } from '@/components/ui/Icon';
-import { useShopOrders } from '@/hooks/api/order/useOrders';
+import { useShopOrdersUI } from '@/hooks/api/order/useOrders';
 import { OrderUI } from '@/types/order/order';
 import { formatMoney } from '@/utils/format';
 import {
@@ -46,18 +46,15 @@ export const ShopOrderPicker = forwardRef<BottomSheetModal, ShopOrderPickerProps
 
         // Fetch shop orders with infinite scroll
         const {
-            data,
-            isLoading,
-            isFetchingNextPage,
-            hasNextPage,
-            fetchNextPage,
-        } = useShopOrders(shopId);
-
-        // Flatten pages into single array
-        const allOrders = useMemo(() => {
-            if (!data?.pages) return [];
-            return data.pages.flatMap(page => page.content);
-        }, [data?.pages]);
+            query: {
+                data,
+                isLoading,
+                isFetchingNextPage,
+                hasNextPage,
+                fetchNextPage,
+            },
+            orders: allOrders,
+        } = useShopOrdersUI(shopId);
 
         // Client-side filtering for order number
         const filteredOrders = useMemo(() => {

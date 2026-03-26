@@ -783,6 +783,7 @@ export default function CheckoutScreen() {
                 shopName: order.shopInfo?.shopName || 'Shop',
                 // Additional fields for single order display
                 grandTotal: order.pricing?.grandTotal,
+                currency: order.currency || 'VND',
                 paymentMethod: order.payment?.paymentMethod,
                 createdAt: order.createdAt,
                 itemCount: order.itemCount || order.items?.length || 0,
