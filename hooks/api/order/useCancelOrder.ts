@@ -59,6 +59,7 @@ const getListStatusFromKey = (queryKey: QueryKey): OrderTabStatus | null => {
 
     const status = queryKey[2];
     if (
+        status === 'ALL' ||
         status === 'AWAITING_PAYMENT' ||
         status === 'CREATED' ||
         status === 'FULFILLING' ||
@@ -267,6 +268,9 @@ export const useCancelOrder = (options: UseCancelOrderOptions = {}) => {
                     if (status === 'CANCELLED') {
                         if (!cancelledOrder) continue;
                         nextDataResult = upsertCancelledOrder(cachedData, cancelledOrder);
+                    } else if (status === 'ALL') {
+                        if (!cancelledOrder) continue;
+                        nextDataResult = replaceOrderInPages(cachedData, cancelledOrder);
                     } else {
                         nextDataResult = removeOrderFromPages(cachedData, variables.orderId);
                     }

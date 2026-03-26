@@ -24,10 +24,12 @@ jest.mock('@/utils/adapter/order/orderStatusMapper', () => ({
 import type { Order } from '@/types/order/order';
 import { OrderDetailApiResponseSchema } from '@/types/order/orderSchema';
 import { transformOrder } from '@/utils/adapter/order/orderAdapter';
+import { getStatusDisplay } from '@/utils/adapter/order/orderStatusMapper';
 import { toPublicUrl, toSizedImageUrl } from '@/utils/url';
 
 const mockedToPublicUrl = jest.mocked(toPublicUrl);
 const mockedToSizedImageUrl = jest.mocked(toSizedImageUrl);
+const mockedGetStatusDisplay = jest.mocked(getStatusDisplay);
 
 const createOrder = (overrides: Partial<Order> = {}): Order => ({
   orderId: '824506622667345920',
@@ -41,6 +43,7 @@ const createOrder = (overrides: Partial<Order> = {}): Order => ({
     userId: '331c5916-03e9-456c-ba50-cf2a952b8be2',
   },
   status: 'CREATED',
+  statusRaw: 'CREATED',
   pricing: {
     subtotal: 1000000,
     shopDiscount: 50000,
@@ -98,6 +101,7 @@ describe('order detail shop logo flow', () => {
   beforeEach(() => {
     mockedToPublicUrl.mockClear();
     mockedToSizedImageUrl.mockClear();
+    mockedGetStatusDisplay.mockClear();
   });
 
   it('keeps shop logoPath after schema validation', () => {
@@ -164,5 +168,16 @@ describe('order detail shop logo flow', () => {
     );
     expect(mockedToPublicUrl).toHaveBeenCalledWith('public/shops/logos/2026/02/shop-logo.jpg');
     expect(result.shopLogoUrl).toBe('public:public/shops/logos/2026/02/shop-logo.jpg');
+  });
+
+  it('passes statusRaw to status display for unknown statuses', () => {
+    transformOrder(
+      createOrder({
+        status: 'UNKNOWN_STATUS',
+        statusRaw: 'UNDER_REVIEW',
+      })
+    );
+
+    expect(mockedGetStatusDisplay).toHaveBeenCalledWith('UNKNOWN_STATUS', 'UNDER_REVIEW');
   });
 });

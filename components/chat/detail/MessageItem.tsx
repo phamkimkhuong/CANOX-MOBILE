@@ -996,11 +996,22 @@ const formatPrice = (amount: number, currency: string = 'VND'): string => {
 
 const ORDER_STATUS_CONFIG: Record<string, { label: string; color: string }> = {
     CREATED: { label: 'Mới tạo', color: '#3B82F6' },
+    AWAITING_PAYMENT: { label: 'Chờ thanh toán', color: '#F59E0B' },
+    PAID: { label: 'Đã thanh toán', color: '#10B981' },
     CONFIRMED: { label: 'Đã xác nhận', color: '#8B5CF6' },
     PROCESSING: { label: 'Đang xử lý', color: '#F59E0B' },
+    FULFILLING: { label: 'Đang xử lý', color: '#F59E0B' },
+    READY_FOR_PICKUP: { label: 'Sẵn sàng lấy', color: '#0284C7' },
     SHIPPING: { label: 'Đang giao', color: '#10B981' },
+    SHIPPED: { label: 'Đã gửi hàng', color: '#0284C7' },
+    OUT_FOR_DELIVERY: { label: 'Đang giao', color: '#F59E0B' },
     DELIVERED: { label: 'Đã giao', color: '#059669' },
     COMPLETED: { label: 'Hoàn thành', color: '#059669' },
+    FINALIZED: { label: 'Hoàn thành', color: '#059669' },
+    REJECTED: { label: 'Bị từ chối', color: '#EF4444' },
+    DELIVERY_FAILED: { label: 'Giao thất bại', color: '#EF4444' },
+    RETURNING_TO_SENDER: { label: 'Đang hoàn', color: '#F59E0B' },
+    RETURNED_TO_SENDER: { label: 'Đã hoàn', color: '#6B7280' },
     CANCELLED: { label: 'Đã hủy', color: '#EF4444' },
     RETURN_REQUESTED: { label: 'Chờ shop xác nhận', color: '#F59E0B' },
     RETURN_APPROVED: { label: 'Đã duyệt trả hàng', color: '#0284C7' },
@@ -1162,7 +1173,7 @@ const OrderCardContent: React.FC<CardContentProps> = ({
     }
 
     const statusConfig = ORDER_STATUS_CONFIG[data.status] || {
-        label: data.status,
+        label: `UNKNOWN: ${data.status}`,
         color: '#6B7280',
     };
 

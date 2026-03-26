@@ -151,16 +151,27 @@ export const ORDER_STATUS_MAP: Record<OrderStatus, Omit<StatusDisplay, 'label'> 
         bgColor: 'rgba(239, 68, 68, 0.1)',
         icon: 'close-circle',
     },
+    UNKNOWN_STATUS: {
+        labelKey: 'order:statusLabel.unknown',
+        color: '#6b7280',
+        bgColor: 'rgba(107, 114, 128, 0.1)',
+        icon: 'warning',
+    },
 };
 
 /**
  * Lấy thông tin hiển thị cho status
  */
-export const getStatusDisplay = (status: OrderStatus): StatusDisplay => {
-    const config = ORDER_STATUS_MAP[status] || ORDER_STATUS_MAP.CREATED;
+export const getStatusDisplay = (status: OrderStatus, statusRaw?: string): StatusDisplay => {
+    const config = ORDER_STATUS_MAP[status] ?? ORDER_STATUS_MAP.UNKNOWN_STATUS;
     return {
         ...config,
-        label: i18n.t(config.labelKey as never),
+        label: i18n.t(
+            config.labelKey as never,
+            status === 'UNKNOWN_STATUS'
+                ? { status: statusRaw || 'UNKNOWN_STATUS' }
+                : undefined
+        ),
     };
 };
 
@@ -172,20 +183,22 @@ export const ORDER_TABS: Array<{
     labelKey: string;
     apiStatus: string;
 }> = [
-        { key: 'AWAITING_PAYMENT', labelKey: 'order:tabs.awaitingPayment', apiStatus: 'AWAITING_PAYMENT' },
-        { key: 'CREATED', labelKey: 'order:tabs.created', apiStatus: 'CREATED' },
-        { key: 'FULFILLING', labelKey: 'order:tabs.processing', apiStatus: 'FULFILLING' },
-        { key: 'DELIVERED', labelKey: 'order:tabs.delivered', apiStatus: 'DELIVERED' },
-        { key: 'COMPLETED', labelKey: 'order:tabs.completed', apiStatus: 'UI_COMPLETED' },
-        { key: 'RETURN_REFUND', labelKey: 'order:tabs.returned', apiStatus: 'RETURN_REFUND' },
-        { key: 'CANCELLED', labelKey: 'order:tabs.cancelled', apiStatus: 'CANCELLED' },
-    ];
+    { key: 'ALL', labelKey: 'order:tabs.all', apiStatus: 'ALL' },
+    { key: 'AWAITING_PAYMENT', labelKey: 'order:tabs.awaitingPayment', apiStatus: 'AWAITING_PAYMENT' },
+    { key: 'CREATED', labelKey: 'order:tabs.created', apiStatus: 'CREATED' },
+    { key: 'FULFILLING', labelKey: 'order:tabs.processing', apiStatus: 'FULFILLING' },
+    { key: 'DELIVERED', labelKey: 'order:tabs.delivered', apiStatus: 'DELIVERED' },
+    { key: 'COMPLETED', labelKey: 'order:tabs.completed', apiStatus: 'UI_COMPLETED' },
+    { key: 'RETURN_REFUND', labelKey: 'order:tabs.returned', apiStatus: 'RETURN_REFUND' },
+    { key: 'CANCELLED', labelKey: 'order:tabs.cancelled', apiStatus: 'CANCELLED' },
+];
 
 /**
  * Lấy màu cho indicator của Tab
  */
 export const getTabColor = (status: OrderTabStatus): string => {
     const colorMap: Record<OrderTabStatus, string> = {
+        ALL: '#6b7280', // Neutral
         AWAITING_PAYMENT: '#f59e0b', // Orange (Urgent)
         CREATED: '#f59e0b',    // Orange
         FULFILLING: '#0088cc', // Blue

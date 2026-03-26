@@ -28,6 +28,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface OrderTrackerProps {
     status: OrderStatus;
+    statusRaw?: string;
     createdAt?: string | null;
 }
 
@@ -122,11 +123,12 @@ StepItem.displayName = 'StepItem';
  */
 const AbnormalStatusBanner = memo<{
     status: OrderStatus;
+    statusRaw?: string;
     message: string;
-}>(({ status, message }) => {
+}>(({ status, statusRaw, message }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const statusDisplay = getStatusDisplay(status);
+    const statusDisplay = getStatusDisplay(status, statusRaw);
     const iconName = statusDisplay.icon === 'close-circle' ? 'close-circle' : statusDisplay.icon;
     const textColor = statusDisplay.color || theme.colors.warning;
     const bgColor = statusDisplay.bgColor || 'rgba(245, 158, 11, 0.1)';
@@ -152,6 +154,7 @@ AbnormalStatusBanner.displayName = 'AbnormalStatusBanner';
  */
 export const OrderTracker: React.FC<OrderTrackerProps> = ({
     status,
+    statusRaw,
     createdAt,
 }) => {
     const styles = stylesheet;
@@ -163,13 +166,13 @@ export const OrderTracker: React.FC<OrderTrackerProps> = ({
 
     // Check if we should show abnormal status banner instead
     const showTimeline = canShowTimeline(status);
-    const abnormalMessage = getAbnormalStatusMessage(status);
+    const abnormalMessage = getAbnormalStatusMessage(status, statusRaw);
 
     // If abnormal status, show banner instead of timeline
     if (!showTimeline && abnormalMessage) {
         return (
             <View style={styles.container}>
-                <AbnormalStatusBanner status={status} message={abnormalMessage} />
+                <AbnormalStatusBanner status={status} statusRaw={statusRaw} message={abnormalMessage} />
             </View>
         );
     }

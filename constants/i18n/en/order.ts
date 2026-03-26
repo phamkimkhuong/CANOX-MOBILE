@@ -121,6 +121,10 @@ export const ORDER_STRINGS: OrderTranslation = {
         placedAt: 'Placed at {{time}}',
         viewMore: 'View {{count}} more products',
         emptyState: {
+            all: {
+                title: 'No orders yet',
+                description: 'All of your orders will appear here',
+            },
             awaitingPayment: {
                 title: 'No orders awaiting payment',
                 description: 'Orders that need payment will be displayed here',
@@ -175,6 +179,7 @@ export const ORDER_STRINGS: OrderTranslation = {
         refundPending: 'Refund Pending',
         refunded: 'Refunded',
         cancelled: 'Cancelled',
+        unknown: 'UNKNOWN: {{status}}',
     },
     success: {
         title: 'Order Successful',

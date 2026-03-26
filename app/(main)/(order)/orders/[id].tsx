@@ -387,6 +387,7 @@ export default function OrderDetailScreen() {
                             {/* Order Tracker */}
                             <OrderTracker
                                 status={order.status}
+                                statusRaw={order.statusRaw}
                                 createdAt={rawOrder?.createdAt || rawOrder?.createdDate}
                             />
 
@@ -416,6 +417,7 @@ export default function OrderDetailScreen() {
                                     shopName={order.shopName}
                                     shopLogoUrl={order.shopLogoUrl}
                                     status={order.status}
+                                    statusRaw={order.statusRaw}
                                     onShopPress={handleShopPress}
                                 />
                                 <OrderDetailItemsList

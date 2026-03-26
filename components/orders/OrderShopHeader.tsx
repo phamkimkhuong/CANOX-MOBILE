@@ -17,6 +17,7 @@ interface OrderShopHeaderProps {
     shopName: string;
     shopLogoUrl?: string | null;
     status: OrderStatus;
+    statusRaw?: string;
     metaText?: string;
     onShopPress?: () => void;
 }
@@ -25,13 +26,14 @@ export const OrderShopHeader: React.FC<OrderShopHeaderProps> = ({
     shopName,
     shopLogoUrl,
     status,
+    statusRaw,
     metaText,
     onShopPress,
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
 
-    const statusDisplay = getStatusDisplay(status);
+    const statusDisplay = getStatusDisplay(status, statusRaw);
 
     return (
         <View style={styles.container}>

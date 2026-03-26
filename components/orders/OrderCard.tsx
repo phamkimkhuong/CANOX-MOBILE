@@ -88,6 +88,7 @@ export const OrderCard = memo<OrderCardProps>(({
                 shopName={order.shopName}
                 shopLogoUrl={order.shopLogoUrl}
                 status={order.status}
+                statusRaw={order.statusRaw}
                 metaText={order.formattedPlacedAt ? t('list.placedAt', { time: order.formattedPlacedAt }) : undefined}
                 onShopPress={handleShopPress}
             />

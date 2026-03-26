@@ -5,7 +5,7 @@
  */
 
 // Enum cho các trạng thái đơn hàng
-export type OrderStatus =
+export type KnownOrderStatus =
     | 'CREATED'           // Chờ xác nhận
     | 'AWAITING_PAYMENT'  // Chờ thanh toán
     | 'PAID'              // Đã thanh toán
@@ -30,8 +30,11 @@ export type OrderStatus =
     | 'REFUNDED'            // Đã hoàn tiền
     | 'CANCELLED';          // Đã hủy
 
+export type OrderStatus = KnownOrderStatus | 'UNKNOWN_STATUS';
+
 // Các tab hiển thị trong UI (simplified)
 export type OrderTabStatus =
+    | 'ALL'               // Tất cả
     | 'AWAITING_PAYMENT'  // Chờ thanh toán
     | 'CREATED'           // Chờ xác nhận
     | 'FULFILLING'        // Đang xử lý/Giao
@@ -133,6 +136,7 @@ export interface Order {
     shopId: string | null;
     shopInfo: OrderShopInfo | null;
     status: OrderStatus;
+    statusRaw: string;
     currency: string;
 
     // Nested objects
@@ -211,6 +215,7 @@ export interface OrderUI {
     shopName: string;
     shopLogoUrl: string | null; // Pre-built URL
     status: OrderStatus;
+    statusRaw: string;
     currency: string;
     statusDisplay: {
         label: string;

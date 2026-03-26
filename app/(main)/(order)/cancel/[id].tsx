@@ -234,6 +234,7 @@ export default function CancelOrderScreen() {
                         currency={order.currency}
                         orderNumber={order.orderNumber}
                         status={order.status}
+                        statusRaw={order.statusRaw}
                         shopName={order.shopName}
                     />
 

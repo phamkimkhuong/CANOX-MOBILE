@@ -24,6 +24,8 @@ import { StyleSheet } from 'react-native-unistyles';
  */
 const mapProfileTabToOrderTab = (profileTab: string | undefined): OrderTabStatus => {
     switch (profileTab) {
+        case 'all':
+            return 'ALL';
         case 'pendingPayment':
             return 'AWAITING_PAYMENT';
         case 'processing':

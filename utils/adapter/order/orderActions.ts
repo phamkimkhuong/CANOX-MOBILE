@@ -107,6 +107,10 @@ const ACTION_MATRIX: Record<OrderStatus, OrderAction[]> = {
     CANCELLED: [
         { labelKey: 'order:actions.rebuy', type: 'primary', action: 'rebuy', icon: 'cart' },
     ],
+    // Unknown status - only allow safe, non-destructive action
+    UNKNOWN_STATUS: [
+        { labelKey: 'order:actions.contact', type: 'secondary', action: 'contact', icon: 'chat-dots' },
+    ],
 };
 
 /**

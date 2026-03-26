@@ -1,5 +1,5 @@
 import { ResponseDefaultSchema } from '@/types/responseSchema';
-import type { PaymentMethod } from './order';
+import type { OrderStatus, PaymentMethod } from './order';
 import { z } from 'zod';
 
 const numberOrZero = z.coerce.number().nullish().transform((value) => value ?? 0);
@@ -39,14 +39,21 @@ const ORDER_STATUS_VALUES = [
   'CANCELLED',
 ] as const;
 
-type KnownOrderStatus = (typeof ORDER_STATUS_VALUES)[number];
 const ORDER_STATUS_SET = new Set<string>(ORDER_STATUS_VALUES);
 
-export const OrderStatusSchema = z.string().transform((value): KnownOrderStatus => {
-  const normalized = value.toUpperCase();
-  if (normalized === 'UI_COMPLETED') return 'COMPLETED';
-  if (ORDER_STATUS_SET.has(normalized)) return normalized as KnownOrderStatus;
-  return 'CREATED';
+const normalizeOrderStatus = (value: string): OrderStatus => {
+  if (value === 'UI_COMPLETED') return 'COMPLETED';
+  if (ORDER_STATUS_SET.has(value)) return value as OrderStatus;
+  return 'UNKNOWN_STATUS';
+};
+
+export const RawOrderStatusSchema = z
+  .string()
+  .nullish()
+  .transform((value) => value?.trim().toUpperCase() || 'UNKNOWN_STATUS');
+
+export const OrderStatusSchema = RawOrderStatusSchema.transform((value): OrderStatus => {
+  return normalizeOrderStatus(value);
 });
 
 const PAYMENT_METHOD_VALUES = ['COD', 'PAYOS', 'VNPAY', 'STRIPE', 'BANK_TRANSFER'] as const;
@@ -132,7 +139,7 @@ export const OrderSchema = z.looseObject({
     orderNumber: z.string(),
     shopId: nullableString,
     shopInfo: OrderShopInfoSchema,
-    status: OrderStatusSchema,
+    status: RawOrderStatusSchema,
     currency: currencyCodeOrDefault,
     pricing: OrderPricingSchema,
     payment: OrderPaymentSchema,
@@ -145,7 +152,11 @@ export const OrderSchema = z.looseObject({
     createdAt: nullableString,
     createdDate: nullableString,
     items: arrayOrEmpty(OrderItemSchema),
-  });
+  }).transform((value) => ({
+    ...value,
+    statusRaw: value.status,
+    status: normalizeOrderStatus(value.status),
+  }));
 
 export const OrdersPageResponseSchema = z.looseObject({
     content: z.array(OrderSchema).default([]),

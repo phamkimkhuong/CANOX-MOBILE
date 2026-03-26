@@ -121,6 +121,10 @@ export const ORDER_STRINGS: OrderTranslation = {
         placedAt: 'Đặt lúc {{time}}',
         viewMore: 'Xem thêm {{count}} sản phẩm khác',
         emptyState: {
+            all: {
+                title: 'Chưa có đơn hàng nào',
+                description: 'Tất cả đơn hàng của bạn sẽ hiển thị ở đây',
+            },
             awaitingPayment: {
                 title: 'Chưa có đơn hàng chờ thanh toán',
                 description: 'Các đơn hàng cần thanh toán sẽ hiển thị ở đây',
@@ -175,6 +179,7 @@ export const ORDER_STRINGS: OrderTranslation = {
         refundPending: 'Chờ hoàn tiền',
         refunded: 'Đã hoàn tiền',
         cancelled: 'Đã hủy',
+        unknown: 'UNKNOWN: {{status}}',
     },
     success: {
         title: 'Đặt hàng thành công',

@@ -838,6 +838,7 @@ export interface OrderTranslation {
         placedAt: string;
         viewMore: string;
         emptyState: {
+            all: { title: string; description: string };
             awaitingPayment: { title: string; description: string };
             created: { title: string; description: string };
             fulfilling: { title: string; description: string };
@@ -871,6 +872,7 @@ export interface OrderTranslation {
         refundPending: string;
         refunded: string;
         cancelled: string;
+        unknown: string;
     };
     success: {
         title: string;

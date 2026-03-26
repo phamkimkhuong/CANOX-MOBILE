@@ -60,6 +60,7 @@ const STATUS_TO_STEP_INDEX: Record<OrderStatus, number> = {
     REFUND_PENDING: -1,
     REFUNDED: -1,
     CANCELLED: -1,
+    UNKNOWN_STATUS: -1,
 };
 
 /**
@@ -77,6 +78,7 @@ const ABNORMAL_STATUSES: OrderStatus[] = [
     'RETURN_DISPUTED',
     'REFUND_PENDING',
     'REFUNDED',
+    'UNKNOWN_STATUS',
 ];
 
 /**
@@ -133,7 +135,7 @@ export const generateTimeline = (
  * Get status message for abnormal orders
  * Used when timeline cannot be displayed
  */
-export const getAbnormalStatusMessage = (status: OrderStatus): string | null => {
+export const getAbnormalStatusMessage = (status: OrderStatus, statusRaw?: string): string | null => {
     const messages: Partial<Record<OrderStatus, string>> = {
         CANCELLED: i18n.t('order:timeline.abnormal.cancelled'),
         REJECTED: i18n.t('order:timeline.abnormal.rejected'),
@@ -147,6 +149,7 @@ export const getAbnormalStatusMessage = (status: OrderStatus): string | null => 
         REFUND_PENDING: i18n.t('order:statusLabel.refundPending'),
         REFUNDED: i18n.t('order:statusLabel.refunded'),
         DELIVERY_FAILED: i18n.t('order:timeline.abnormal.deliveryFailed'),
+        UNKNOWN_STATUS: i18n.t('order:statusLabel.unknown', { status: statusRaw || 'UNKNOWN_STATUS' }),
     };
     return messages[status] ?? null;
 };

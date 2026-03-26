@@ -29,6 +29,8 @@ interface OrderSummarySnippetProps {
     orderNumber: string;
     /** Trạng thái đơn hàng */
     status: OrderStatus;
+    /** Raw status from backend for safe unknown rendering */
+    statusRaw?: string;
     /** Tên shop (optional) */
     shopName?: string;
 }
@@ -39,6 +41,7 @@ export const OrderSummarySnippet: React.FC<OrderSummarySnippetProps> = ({
     currency,
     orderNumber,
     status,
+    statusRaw,
     shopName,
 }) => {
     const { theme } = useUnistyles();
@@ -46,7 +49,7 @@ export const OrderSummarySnippet: React.FC<OrderSummarySnippetProps> = ({
 
     // Lấy item đầu tiên để hiển thị
     const firstItem = items[0];
-    const statusDisplay = getStatusDisplay(status);
+    const statusDisplay = getStatusDisplay(status, statusRaw);
     const remainingCount = items.length - 1;
 
     if (!firstItem) return null;

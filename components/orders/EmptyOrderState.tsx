@@ -10,6 +10,7 @@ interface EmptyOrderStateProps {
 }
 
 const STATUS_ICONS: Record<string, IconSymbolName> = {
+    ALL: 'bag',
     AWAITING_PAYMENT: 'card',
     CREATED: 'time',
     FULFILLING: 'truck-step',
@@ -32,6 +33,7 @@ export const EmptyOrderState: React.FC<EmptyOrderStateProps> = ({
     // Map status key to i18n path
     const getI18nPath = (key: string) => {
         const pathMap: Record<string, string> = {
+            ALL: 'all',
             AWAITING_PAYMENT: 'awaitingPayment',
             CREATED: 'created',
             FULFILLING: 'fulfilling',
@@ -40,7 +42,7 @@ export const EmptyOrderState: React.FC<EmptyOrderStateProps> = ({
             RETURN_REFUND: 'returned',
             CANCELLED: 'cancelled',
         };
-        return pathMap[key] || 'created';
+        return pathMap[key] || 'all';
     };
 
     const i18nPath = getI18nPath(status);

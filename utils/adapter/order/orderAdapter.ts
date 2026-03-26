@@ -83,7 +83,7 @@ const buildFullAddress = (address: OrderShippingAddress | null): string => {
  * Updated to read from nested objects
  */
 export const transformOrder = (order: Order): OrderUI => {
-    const statusDisplay = getStatusDisplay(order.status);
+    const statusDisplay = getStatusDisplay(order.status, order.statusRaw);
     const placedAt = order.createdAt || order.createdDate;
     const shopLogoUrl = toSizedImageUrl(
         order.shopInfo?.logoPath ?? order.shopInfo?.logoUrl,
@@ -124,6 +124,7 @@ export const transformOrder = (order: Order): OrderUI => {
         shopName: order.shopInfo?.shopName || 'Cửa hàng',
         shopLogoUrl,
         status: order.status,
+        statusRaw: order.statusRaw,
         currency: order.currency,
         statusDisplay,
 
