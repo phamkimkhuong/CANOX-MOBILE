@@ -25,6 +25,9 @@ export type OrderStatus =
     | 'RETURN_REJECTED'     // Từ chối trả hàng
     | 'RETURNING'           // Đang trả hàng
     | 'RETURNED'            // Đã trả hàng
+    | 'RETURN_DISPUTED'     // Đang tranh chấp trả hàng
+    | 'REFUND_PENDING'      // Chờ hoàn tiền
+    | 'REFUNDED'            // Đã hoàn tiền
     | 'CANCELLED';          // Đã hủy
 
 // Các tab hiển thị trong UI (simplified)
@@ -34,9 +37,11 @@ export type OrderTabStatus =
     | 'FULFILLING'        // Đang xử lý/Giao
     | 'DELIVERED'         // Đã giao
     | 'COMPLETED'         // Hoàn thành
+    | 'RETURN_REFUND'     // Trả hàng/Hoàn tiền
     | 'CANCELLED';        // Đã hủy
 
-export type PaymentMethod = 'COD' | 'PAYOS' | 'VNPAY' | 'STRIPE' | 'BANK_TRANSFER';
+export type KnownPaymentMethod = 'COD' | 'PAYOS' | 'VNPAY' | 'STRIPE' | 'BANK_TRANSFER';
+export type PaymentMethod = KnownPaymentMethod | (string & {});
 export type Carrier = 'GHN' | 'SUPERSHIP' | 'GHTK' | 'VIETTEL_POST';
 
 // ============================================

@@ -1,4 +1,5 @@
 import { ResponseDefaultSchema } from '@/types/responseSchema';
+import type { PaymentMethod } from './order';
 import { z } from 'zod';
 
 const numberOrZero = z.coerce.number().nullish().transform((value) => value ?? 0);
@@ -32,6 +33,9 @@ const ORDER_STATUS_VALUES = [
   'RETURN_REJECTED',
   'RETURNING',
   'RETURNED',
+  'RETURN_DISPUTED',
+  'REFUND_PENDING',
+  'REFUNDED',
   'CANCELLED',
 ] as const;
 
@@ -46,13 +50,12 @@ export const OrderStatusSchema = z.string().transform((value): KnownOrderStatus 
 });
 
 const PAYMENT_METHOD_VALUES = ['COD', 'PAYOS', 'VNPAY', 'STRIPE', 'BANK_TRANSFER'] as const;
-type KnownPaymentMethod = (typeof PAYMENT_METHOD_VALUES)[number];
 const PAYMENT_METHOD_SET = new Set<string>(PAYMENT_METHOD_VALUES);
 
-export const PaymentMethodSchema = z.string().transform((value): KnownPaymentMethod => {
-  const normalized = value.toUpperCase();
-  if (PAYMENT_METHOD_SET.has(normalized)) return normalized as KnownPaymentMethod;
-  return 'COD';
+export const PaymentMethodSchema = z.string().nullish().transform((value): PaymentMethod => {
+  const normalized = value?.trim().toUpperCase() || 'COD';
+  if (PAYMENT_METHOD_SET.has(normalized)) return normalized as PaymentMethod;
+  return normalized as PaymentMethod;
 });
 
 const CARRIER_VALUES = ['GHN', 'SUPERSHIP', 'GHTK', 'VIETTEL_POST'] as const;

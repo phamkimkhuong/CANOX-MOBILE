@@ -843,6 +843,7 @@ export interface OrderTranslation {
             fulfilling: { title: string; description: string };
             delivered: { title: string; description: string };
             completed: { title: string; description: string };
+            returned: { title: string; description: string };
             cancelled: { title: string; description: string };
             shopNow: string;
         };
@@ -866,6 +867,9 @@ export interface OrderTranslation {
         returnRejected: string;
         returning: string;
         returned: string;
+        returnDisputed: string;
+        refundPending: string;
+        refunded: string;
         cancelled: string;
     };
     success: {

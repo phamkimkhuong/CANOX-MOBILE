@@ -92,6 +92,15 @@ const ACTION_MATRIX: Record<OrderStatus, OrderAction[]> = {
         { labelKey: 'order:actions.track', type: 'primary', action: 'track', icon: 'truck-step' },
     ],
     RETURNED: [
+        { labelKey: 'order:actions.contact', type: 'secondary', action: 'contact', icon: 'chat-dots' },
+    ],
+    RETURN_DISPUTED: [
+        { labelKey: 'order:actions.contact', type: 'secondary', action: 'contact', icon: 'chat-dots' },
+    ],
+    REFUND_PENDING: [
+        { labelKey: 'order:actions.contact', type: 'secondary', action: 'contact', icon: 'chat-dots' },
+    ],
+    REFUNDED: [
         { labelKey: 'order:actions.rebuy', type: 'primary', action: 'rebuy', icon: 'cart' },
     ],
     // Cancelled

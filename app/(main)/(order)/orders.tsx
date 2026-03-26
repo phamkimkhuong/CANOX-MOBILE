@@ -15,7 +15,7 @@ import { useCartStore } from '@/store/useCartStore';
 import { OrderTabStatus } from '@/types/order/order';
 import { Navigator } from '@/utils/navigation';
 import { useLocalSearchParams } from 'expo-router';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
@@ -35,12 +35,15 @@ const mapProfileTabToOrderTab = (profileTab: string | undefined): OrderTabStatus
         case 'review':
         case 'completed':
             return 'COMPLETED';
+        case 'returned':
+        case 'returnRefund':
+            return 'RETURN_REFUND';
         case 'cancelled':
             return 'CANCELLED';
         default:
             // Log invalid param for debugging (only in dev)
             if (__DEV__ && profileTab) {
-                console.warn(`[Orders] Unknown tab param: "${profileTab}", using default CREATED`);
+                console.warn(`[Orders] Unknown tab param: "${profileTab}", using default COMPLETED`);
             }
             return 'COMPLETED';
     }
@@ -62,11 +65,9 @@ export default function OrderHistoryScreen() {
     // State for active tab - initialized from URL param
     const [activeTab, setActiveTab] = useState<OrderTabStatus>(initialTab);
 
-    const [prevInitialTab, setPrevInitialTab] = useState(initialTab);
-    if (initialTab !== prevInitialTab) {
-        setPrevInitialTab(initialTab);
+    useEffect(() => {
         setActiveTab(initialTab);
-    }
+    }, [initialTab]);
 
     // Cart badge from store
     const cartItemCount = useCartStore((state) => state.totalQuantity);

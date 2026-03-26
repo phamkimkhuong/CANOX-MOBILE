@@ -101,31 +101,49 @@ export const ORDER_STATUS_MAP: Record<OrderStatus, Omit<StatusDisplay, 'label'> 
         labelKey: 'order:statusLabel.returnRequested',
         color: '#f59e0b',
         bgColor: 'rgba(245, 158, 11, 0.1)',
-        icon: 'cube',
+        icon: 'time',
     },
     RETURN_APPROVED: {
         labelKey: 'order:statusLabel.returnApproved',
-        color: '#10b981',
-        bgColor: 'rgba(16, 185, 129, 0.1)',
-        icon: 'cube',
+        color: '#0088cc',
+        bgColor: 'rgba(0, 136, 204, 0.1)',
+        icon: 'check-circle',
     },
     RETURN_REJECTED: {
         labelKey: 'order:statusLabel.returnRejected',
         color: '#ef4444',
         bgColor: 'rgba(239, 68, 68, 0.1)',
-        icon: 'cube',
+        icon: 'close-circle',
     },
     RETURNING: {
         labelKey: 'order:statusLabel.returning',
-        color: '#f59e0b',
-        bgColor: 'rgba(245, 158, 11, 0.1)',
+        color: '#0088cc',
+        bgColor: 'rgba(0, 136, 204, 0.1)',
         icon: 'truck-step',
     },
     RETURNED: {
         labelKey: 'order:statusLabel.returned',
-        color: '#6b7280',
-        bgColor: 'rgba(107, 114, 128, 0.1)',
+        color: '#0088cc',
+        bgColor: 'rgba(0, 136, 204, 0.1)',
         icon: 'cube',
+    },
+    RETURN_DISPUTED: {
+        labelKey: 'order:statusLabel.returnDisputed',
+        color: '#f97316',
+        bgColor: 'rgba(249, 115, 22, 0.1)',
+        icon: 'warning',
+    },
+    REFUND_PENDING: {
+        labelKey: 'order:statusLabel.refundPending',
+        color: '#0088cc',
+        bgColor: 'rgba(0, 136, 204, 0.1)',
+        icon: 'wallet',
+    },
+    REFUNDED: {
+        labelKey: 'order:statusLabel.refunded',
+        color: '#10b981',
+        bgColor: 'rgba(16, 185, 129, 0.1)',
+        icon: 'wallet',
     },
     CANCELLED: {
         labelKey: 'order:statusLabel.cancelled',
@@ -159,6 +177,7 @@ export const ORDER_TABS: Array<{
         { key: 'FULFILLING', labelKey: 'order:tabs.processing', apiStatus: 'FULFILLING' },
         { key: 'DELIVERED', labelKey: 'order:tabs.delivered', apiStatus: 'DELIVERED' },
         { key: 'COMPLETED', labelKey: 'order:tabs.completed', apiStatus: 'UI_COMPLETED' },
+        { key: 'RETURN_REFUND', labelKey: 'order:tabs.returned', apiStatus: 'RETURN_REFUND' },
         { key: 'CANCELLED', labelKey: 'order:tabs.cancelled', apiStatus: 'CANCELLED' },
     ];
 
@@ -172,6 +191,7 @@ export const getTabColor = (status: OrderTabStatus): string => {
         FULFILLING: '#0088cc', // Blue
         DELIVERED: '#10b981',  // Green
         COMPLETED: '#6b7280',  // Gray
+        RETURN_REFUND: '#f97316', // Orange
         CANCELLED: '#ef4444',  // Red
     };
     return colorMap[status];

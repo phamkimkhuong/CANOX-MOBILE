@@ -1002,7 +1002,14 @@ const ORDER_STATUS_CONFIG: Record<string, { label: string; color: string }> = {
     DELIVERED: { label: 'Đã giao', color: '#059669' },
     COMPLETED: { label: 'Hoàn thành', color: '#059669' },
     CANCELLED: { label: 'Đã hủy', color: '#EF4444' },
-    RETURNED: { label: 'Hoàn trả', color: '#F97316' },
+    RETURN_REQUESTED: { label: 'Chờ shop xác nhận', color: '#F59E0B' },
+    RETURN_APPROVED: { label: 'Đã duyệt trả hàng', color: '#0284C7' },
+    RETURN_REJECTED: { label: 'Từ chối trả hàng', color: '#EF4444' },
+    RETURNING: { label: 'Đang gửi trả', color: '#0284C7' },
+    RETURNED: { label: 'Shop đã nhận hàng trả', color: '#0284C7' },
+    RETURN_DISPUTED: { label: 'Đang tranh chấp', color: '#F97316' },
+    REFUND_PENDING: { label: 'Chờ hoàn tiền', color: '#0284C7' },
+    REFUNDED: { label: 'Đã hoàn tiền', color: '#10B981' },
 };
 
 interface CardContentProps {

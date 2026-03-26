@@ -6,6 +6,7 @@
 
 import {
     Carrier,
+    KnownPaymentMethod,
     Order,
     OrderItem,
     OrderItemUI,
@@ -15,6 +16,7 @@ import {
 } from '@/types/order/order';
 import { formatClockTime, formatDate, formatDateTime } from '@/utils/date';
 import { toPublicUrl, toSizedImageUrl } from '@/utils/url';
+import { getPaymentMethodDisplayName } from './paymentMethodLabel';
 import { getStatusDisplay } from './orderStatusMapper';
 
 const CARRIER_NAMES: Record<Carrier, string> = {
@@ -24,7 +26,7 @@ const CARRIER_NAMES: Record<Carrier, string> = {
     VIETTEL_POST: 'Viettel Post',
 };
 
-const PAYMENT_METHOD_NAMES: Record<PaymentMethod, string> = {
+const PAYMENT_METHOD_NAMES: Record<KnownPaymentMethod, string> = {
     COD: 'Thanh toán khi nhận hàng',
     PAYOS: 'Chuyển khoản ngân hàng (QR)',
     VNPAY: 'Ví điện tử VNPAY',
@@ -153,7 +155,8 @@ export const transformOrder = (order: Order): OrderUI => {
         // Payment - from nested payment object
         paymentMethod: payment.method,
         paymentUrl: payment.url,
-        paymentMethodDisplay: PAYMENT_METHOD_NAMES[payment.method],
+        paymentMethodDisplay: PAYMENT_METHOD_NAMES[payment.method as KnownPaymentMethod]
+            ?? getPaymentMethodDisplayName(payment.method),
 
         // Address - from nested shippingAddress object
         recipientName: shippingAddress?.recipientName || '',

@@ -15,6 +15,7 @@ const STATUS_ICONS: Record<string, IconSymbolName> = {
     FULFILLING: 'truck-step',
     DELIVERED: 'cube',
     COMPLETED: 'checkmark-done',
+    RETURN_REFUND: 'wallet',
     CANCELLED: 'close-circle',
 };
 
@@ -36,6 +37,7 @@ export const EmptyOrderState: React.FC<EmptyOrderStateProps> = ({
             FULFILLING: 'fulfilling',
             DELIVERED: 'delivered',
             COMPLETED: 'completed',
+            RETURN_REFUND: 'returned',
             CANCELLED: 'cancelled',
         };
         return pathMap[key] || 'created';

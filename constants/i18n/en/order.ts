@@ -141,6 +141,10 @@ export const ORDER_STRINGS: OrderTranslation = {
                 title: 'No completed orders yet',
                 description: 'Completed orders will be displayed here',
             },
+            returned: {
+                title: 'No return or refund requests yet',
+                description: 'Orders in the return or refund flow will be displayed here',
+            },
             cancelled: {
                 title: 'No cancelled orders',
                 description: 'Cancelled orders will be displayed here',
@@ -162,11 +166,14 @@ export const ORDER_STRINGS: OrderTranslation = {
         deliveryFailed: 'Delivery Failed',
         returningToSender: 'Returning',
         returnedToSender: 'Returned',
-        returnRequested: 'Return Requested',
+        returnRequested: 'Awaiting Return Approval',
         returnApproved: 'Return Approved',
         returnRejected: 'Return Rejected',
-        returning: 'Returning',
-        returned: 'Returned',
+        returning: 'Returning Item',
+        returned: 'Return Received',
+        returnDisputed: 'Return Disputed',
+        refundPending: 'Refund Pending',
+        refunded: 'Refunded',
         cancelled: 'Cancelled',
     },
     success: {

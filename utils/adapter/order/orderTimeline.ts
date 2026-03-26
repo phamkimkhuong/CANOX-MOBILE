@@ -51,11 +51,14 @@ const STATUS_TO_STEP_INDEX: Record<OrderStatus, number> = {
     DELIVERY_FAILED: 2,
     RETURNING_TO_SENDER: 2,
     RETURNED_TO_SENDER: -1,
-    RETURN_REQUESTED: 3,
-    RETURN_APPROVED: 3,
-    RETURN_REJECTED: 3,
-    RETURNING: 3,
+    RETURN_REQUESTED: -1,
+    RETURN_APPROVED: -1,
+    RETURN_REJECTED: -1,
+    RETURNING: -1,
     RETURNED: -1,
+    RETURN_DISPUTED: -1,
+    REFUND_PENDING: -1,
+    REFUNDED: -1,
     CANCELLED: -1,
 };
 
@@ -66,7 +69,14 @@ const ABNORMAL_STATUSES: OrderStatus[] = [
     'REJECTED',
     'CANCELLED',
     'RETURNED_TO_SENDER',
+    'RETURN_REQUESTED',
+    'RETURN_APPROVED',
+    'RETURN_REJECTED',
+    'RETURNING',
     'RETURNED',
+    'RETURN_DISPUTED',
+    'REFUND_PENDING',
+    'REFUNDED',
 ];
 
 /**
@@ -128,7 +138,14 @@ export const getAbnormalStatusMessage = (status: OrderStatus): string | null => 
         CANCELLED: i18n.t('order:timeline.abnormal.cancelled'),
         REJECTED: i18n.t('order:timeline.abnormal.rejected'),
         RETURNED_TO_SENDER: i18n.t('order:timeline.abnormal.returnedToSender'),
+        RETURN_REQUESTED: i18n.t('order:statusLabel.returnRequested'),
+        RETURN_APPROVED: i18n.t('order:statusLabel.returnApproved'),
+        RETURN_REJECTED: i18n.t('order:statusLabel.returnRejected'),
+        RETURNING: i18n.t('order:statusLabel.returning'),
         RETURNED: i18n.t('order:timeline.abnormal.returned'),
+        RETURN_DISPUTED: i18n.t('order:statusLabel.returnDisputed'),
+        REFUND_PENDING: i18n.t('order:statusLabel.refundPending'),
+        REFUNDED: i18n.t('order:statusLabel.refunded'),
         DELIVERY_FAILED: i18n.t('order:timeline.abnormal.deliveryFailed'),
     };
     return messages[status] ?? null;

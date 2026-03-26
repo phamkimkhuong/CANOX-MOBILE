@@ -11,6 +11,7 @@
 
 import { IconSymbol } from '@/components/ui/Icon';
 import { PaymentMethod } from '@/types/order/order';
+import { getPaymentMethodDisplayName } from '@/utils/adapter/order/paymentMethodLabel';
 import { formatMoney } from '@/utils/format';
 import React, { memo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -182,8 +183,9 @@ export const OrderDetailPriceSummary: React.FC<OrderDetailPriceSummaryProps> = (
                 />
                 <Text style={styles.paymentLabel}>{t('order:detail.paymentMethod')}</Text>
                 <Text style={styles.paymentValue}>
-                    {/* Translate if known payment method, else render fallback string */}
-                    {t(`order:paymentMethods.${paymentMethod}` as never, { defaultValue: paymentMethod })}
+                    {t(`order:paymentMethods.${paymentMethod}` as never, {
+                        defaultValue: getPaymentMethodDisplayName(paymentMethod),
+                    })}
                 </Text>
             </View>
         </View>

@@ -16,6 +16,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import { orderRoutes, ROUTES } from '@/constants/routes';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
+import { getPaymentMethodDisplayName } from '@/utils/adapter/order/paymentMethodLabel';
 import { formatDateTime } from '@/utils/date';
 import { formatMoney } from '@/utils/format';
 import { Navigator } from '@/utils/navigation';
@@ -45,28 +46,6 @@ interface OrderInfo {
     itemCount?: number;
     productImages?: string[];
 }
-
-/**
- * Format payment method to localized display
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const formatPaymentMethod = (method: string | undefined, t: any): string => {
-    if (!method) return t('checkout:payment.cod.name');
-    switch (method.toUpperCase()) {
-        case 'COD':
-            return t('checkout:payment.cod.name');
-        case 'PAYOS':
-            return t('checkout:payment.payos.name');
-        case 'VNPAY':
-            return t('checkout:payment.vnpay.name');
-        case 'BANK_TRANSFER':
-            return t('order:paymentMethods.BANK_TRANSFER');
-        case 'CREDIT_CARD':
-            return t('order:statusLabel.paid'); // Defaulting to paid label or method name
-        default:
-            return method;
-    }
-};
 
 export default function OrderSuccessScreen() {
     // Unlock navigation when screen gains focus
@@ -231,7 +210,9 @@ export default function OrderSuccessScreen() {
                     <View style={styles.detailRow}>
                         <Text style={styles.detailLabel}>{t('order:success.paymentLabel')}</Text>
                         <Text style={styles.detailValue}>
-                            {formatPaymentMethod(singleOrder.paymentMethod, t)}
+                            {t(`order:paymentMethods.${singleOrder.paymentMethod}` as never, {
+                                defaultValue: getPaymentMethodDisplayName(singleOrder.paymentMethod),
+                            })}
                         </Text>
                     </View>
                     {singleOrder.createdAt && (

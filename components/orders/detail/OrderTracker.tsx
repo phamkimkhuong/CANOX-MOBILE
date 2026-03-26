@@ -20,6 +20,7 @@ import {
     getAbnormalStatusMessage,
     type TimelineStep,
 } from '@/utils/adapter/order/orderTimeline';
+import { getStatusDisplay } from '@/utils/adapter/order/orderStatusMapper';
 import { formatDate } from '@/utils/date';
 import React, { memo, useMemo } from 'react';
 import { Text, View } from 'react-native';
@@ -125,15 +126,15 @@ const AbnormalStatusBanner = memo<{
 }>(({ status, message }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-
-    const isCancelled = status === 'CANCELLED';
-    const bgColor = isCancelled ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)';
-    const textColor = isCancelled ? theme.colors.error : theme.colors.warning;
+    const statusDisplay = getStatusDisplay(status);
+    const iconName = statusDisplay.icon === 'close-circle' ? 'close-circle' : statusDisplay.icon;
+    const textColor = statusDisplay.color || theme.colors.warning;
+    const bgColor = statusDisplay.bgColor || 'rgba(245, 158, 11, 0.1)';
 
     return (
         <View style={[styles.abnormalBanner, styles.dynamicAbnormalBg(bgColor)]}>
             <IconSymbol
-                name={isCancelled ? 'close-circle' : 'alert-circle'}
+                name={iconName}
                 size={20}
                 color={textColor}
             />

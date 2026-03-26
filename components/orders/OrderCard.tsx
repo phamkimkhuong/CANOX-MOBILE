@@ -67,6 +67,8 @@ export const OrderCard = memo<OrderCardProps>(({
         'SHIPPED',
         'OUT_FOR_DELIVERY',
         'DELIVERED',
+        'RETURN_APPROVED',
+        'RETURNING',
     ].includes(order.status);
 
     return (
