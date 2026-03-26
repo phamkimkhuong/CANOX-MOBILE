@@ -8,12 +8,12 @@
 
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { useSmartRefresh } from '@/hooks/useSmartRefresh';
-import { apiClient, ApiError, request } from '@/services/api/client';
+import { ApiError, request } from '@/services/api/client';
 import { Order, OrdersApiResponse, OrdersPageResponse, OrderTabStatus, OrderUI } from '@/types/order/order';
 import { OrdersApiResponseSchema } from '@/types/order/orderSchema';
 import { transformOrder } from '@/utils/adapter/order/orderAdapter';
 import { ORDER_TABS } from '@/utils/adapter/order/orderStatusMapper';
-import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
 const PAGE_SIZE = 20;
@@ -181,24 +181,6 @@ export const useShopOrdersUI = (shopId: string | undefined, enabled: boolean = t
         query,
         orders,
     };
-};
-
-/**
- * Confirm received order mutation
- */
-export const useConfirmReceivedOrder = () => {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationFn: async (orderId: string) => {
-            const response = await apiClient.post(API_ROUTES.ORDERS.CONFIRM_RECEIVED(orderId));
-            return response.data;
-        },
-        onSuccess: () => {
-            // Invalidate relevant order lists
-            queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
-        },
-    });
 };
 
 /**

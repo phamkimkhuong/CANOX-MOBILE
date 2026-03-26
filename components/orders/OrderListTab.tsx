@@ -11,12 +11,14 @@ import { CHAT_STRINGS } from '@/constants/i18n/vi/chat';
 import { cartRoutes, chatRoutes, orderRoutes, reviewRoutes } from '@/constants/routes';
 import { useAddToCart } from '@/hooks/api/cart';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
+import { useConfirmReceivedOrder } from '@/hooks/api/order/useConfirmReceivedOrder';
 import { usePrefetchOrderDetail } from '@/hooks/api/order/useOrderDetail';
 import { useOrderListUI, useRefreshOrderList } from '@/hooks/api/order/useOrders';
 import { PREFETCH_GRACE_PERIOD_MS } from '@/hooks/usePrefetchTiming';
 import { useAuthStore } from '@/store/useAuthStore';
 import { hideGlobalLoading, showGlobalLoading } from '@/store/useLoadingStore';
 import { OrderAction, OrderTabStatus, OrderUI } from '@/types/order/order';
+import { Alert as CustomAlertHelper } from '@/utils/AlertHelper';
 import { logger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
 import { FlashList, ListRenderItem } from '@shopify/flash-list';
@@ -42,6 +44,7 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
     const prefetchChat = usePrefetchShopChat();
     const prefetchOrderDetail = usePrefetchOrderDetail();
     const { mutateAsync: addToCart } = useAddToCart();
+    const { mutateAsync: confirmReceived, isPending: isConfirmingReceived } = useConfirmReceivedOrder();
     const { t } = useTranslation(['order', 'common']);
 
     const pressTimingMap = useRef<Map<string, number>>(new Map());
@@ -93,7 +96,34 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
                 Navigator.push(orderRoutes.detail(orderId));
                 break;
             case 'received':
-                logger.orders.info('Confirm received:', orderId);
+                if (isConfirmingReceived) return;
+
+                CustomAlertHelper.show({
+                    title: t('order:detail.confirmReceivedTitle'),
+                    message: t('order:detail.confirmReceivedMessage'),
+                    type: 'success',
+                    confirmText: t('common:actions.yes'),
+                    cancelText: t('common:actions.no'),
+                    onConfirm: async () => {
+                        showGlobalLoading();
+                        try {
+                            await confirmReceived({ orderId });
+                            Toast.show({
+                                type: 'success',
+                                text1: t('order:detail.confirmReceivedSuccess'),
+                            });
+                        } catch (err: unknown) {
+                            logger.orders.error('Confirm received failed from list', err);
+                            Toast.show({
+                                type: 'error',
+                                text1: t('order:detail.confirmReceivedError'),
+                                text2: err instanceof Error ? err.message : t('common:status.error'),
+                            });
+                        } finally {
+                            hideGlobalLoading();
+                        }
+                    },
+                });
                 break;
             case 'review': {
                 const unreviewedItems = (order.items || []).filter((i) => !i.reviewed);
@@ -210,7 +240,7 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
             default:
                 break;
         }
-    }, [myShopId, prefetchChat, addToCart, t]);
+    }, [myShopId, prefetchChat, addToCart, confirmReceived, isConfirmingReceived, t]);
 
     const handleTrackingPress = useCallback((orderId: string) => {
         Navigator.push(orderRoutes.detail(orderId));

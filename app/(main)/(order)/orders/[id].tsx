@@ -33,6 +33,7 @@ import { OrderShopHeader } from '@/components/orders/OrderShopHeader';
 import { cartRoutes, chatRoutes, orderRoutes, reviewRoutes, shopRoutes } from '@/constants/routes';
 import { useAddToCart } from '@/hooks/api/cart';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
+import { useConfirmReceivedOrder } from '@/hooks/api/order/useConfirmReceivedOrder';
 import { useOrderDetail } from '@/hooks/api/order/useOrderDetail';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -69,6 +70,7 @@ export default function OrderDetailScreen() {
     const { t } = useTranslation(['order', 'common', 'profile', 'product', 'chat']);
     const styles = stylesheet;
     const prefetchChat = usePrefetchShopChat();
+    const { mutateAsync: confirmReceived } = useConfirmReceivedOrder();
 
     // ============================================
     // STATE
@@ -209,26 +211,24 @@ export default function OrderDetailScreen() {
             onConfirm: async () => {
                 setLoadingAction('confirm');
                 try {
-                    // TODO: Call confirm received API
-                    logger.api.info('Confirm received:', rawOrder.orderId);
+                    await confirmReceived({ orderId: rawOrder.orderId });
                     Toast.show({
                         type: 'success',
                         text1: t('order:detail.confirmReceivedSuccess'),
                     });
-                    await refetch();
-                } catch (err) {
+                } catch (err: unknown) {
                     logger.api.error('Confirm received failed:', err);
                     Toast.show({
                         type: 'error',
                         text1: t('order:detail.confirmReceivedError'),
-                        text2: t('common:status.error'),
+                        text2: err instanceof Error ? err.message : t('common:status.error'),
                     });
                 } finally {
                     setLoadingAction(null);
                 }
             },
         });
-    }, [rawOrder, refetch, t]);
+    }, [confirmReceived, rawOrder, t]);
 
     const handleReturnOrder = useCallback(() => {
         if (!rawOrder) return;
