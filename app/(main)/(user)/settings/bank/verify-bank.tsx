@@ -1,9 +1,10 @@
 import { CountdownDigits } from '@/components/ui/CountdownDigits';
 import { IconSymbol } from '@/components/ui/Icon';
-import { ROUTES } from '@/constants/routes';
+import { ROUTES, orderRoutes } from '@/constants/routes';
 import { useVerifyAndCreateBank } from '@/hooks/api/bank/useBank';
 import { useCountdown } from '@/hooks/useCountdown';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
+import { useReturnRequestDraftStore } from '@/store/useReturnRequestDraftStore';
 import { Navigator } from '@/utils/navigation';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -37,10 +38,13 @@ export default function VerifyBankScreen() {
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
     const { t } = useTranslation(['bank', 'common']);
+    const setBankAccountId = useReturnRequestDraftStore((state) => state.setBankAccountId);
     const params = useLocalSearchParams<{
         verificationId: string;
         bankName: string;
-        accountNumber: string
+        accountNumber: string;
+        returnTo?: string;
+        orderId?: string;
     }>();
 
     // State
@@ -65,7 +69,13 @@ export default function VerifyBankScreen() {
                 otpCode: code,
             },
             {
-                onSuccess: () => {
+                onSuccess: (createdBankAccount) => {
+                    if (params.returnTo === 'return-request' && params.orderId) {
+                        setBankAccountId(params.orderId, createdBankAccount.bankAccountId);
+                        Navigator.dismissTo(orderRoutes.return(params.orderId));
+                        return;
+                    }
+
                     Navigator.replace(ROUTES.SETTINGS.BANK_CARDS);
                 },
                 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
@@ -74,7 +84,7 @@ export default function VerifyBankScreen() {
                 }
             }
         );
-    }, [params.verificationId, verifyOtp, t]);
+    }, [params.orderId, params.returnTo, params.verificationId, setBankAccountId, verifyOtp, t]);
 
     const handleVerify = () => performVerification(otp);
     const handleVerifyAuto = (code: string) => performVerification(code);

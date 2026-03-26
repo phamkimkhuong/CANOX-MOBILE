@@ -273,6 +273,10 @@ export const orderRoutes = {
         pathname: '/cancel/[id]',
         params: { id: orderId, ...params },
     }),
+    return: (orderId: string, params?: Record<string, string | number | boolean | undefined | null>): Href => ({
+        pathname: '/return/[id]',
+        params: { id: orderId, ...params },
+    } as unknown as Href),
     payos: (orderId: string, paymentInfo: string): Href => ({
         pathname: '/(main)/(order)/payment-payos',
         params: { id: orderId, paymentInfo },

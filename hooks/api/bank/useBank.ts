@@ -25,6 +25,21 @@ export const bankQueryKeys = {
     detail: (id: string) => [...bankQueryKeys.all, 'detail', id] as const,
 };
 
+const upsertBankAccount = (
+    current: UserBankAccountUI[] | undefined,
+    nextAccount: UserBankAccountUI
+): UserBankAccountUI[] => {
+    const withoutNext = (current ?? [])
+        .filter((account) => account.id !== nextAccount.id)
+        .map((account) => (
+            nextAccount.isDefault
+                ? { ...account, isDefault: false }
+                : account
+        ));
+
+    return [nextAccount, ...withoutNext];
+};
+
 // ============================================
 // HOOKS - QUERIES
 // ============================================
@@ -64,6 +79,9 @@ export const useMyBankAccounts = () => {
                 {
                     url: API_ROUTES.BANKS.ME_ACCOUNTS,
                     method: 'GET',
+                    params: {
+                        type: 'BUYER',
+                    },
                 },
                 BankAccountListResponseSchema
             );
@@ -170,8 +188,19 @@ export const useVerifyAndCreateBank = () => {
             );
             return response.data;
         },
-        onSuccess: () => {
-            // Refresh bank lists
+        onSuccess: (createdBankDto) => {
+            const createdBank = transformUserBankAccount(createdBankDto);
+
+            queryClient.setQueryData<UserBankAccountUI[]>(
+                bankQueryKeys.myAccounts(),
+                (current) => upsertBankAccount(current, createdBank)
+            );
+            queryClient.setQueryData(bankQueryKeys.detail(createdBank.id), createdBank);
+            if (createdBank.isDefault) {
+                queryClient.setQueryData(bankQueryKeys.default(), createdBank);
+            }
+
+            // Background reconcile with backend source of truth
             queryClient.invalidateQueries({ queryKey: bankQueryKeys.myAccounts() });
             queryClient.invalidateQueries({ queryKey: bankQueryKeys.default() });
             Toast.show({

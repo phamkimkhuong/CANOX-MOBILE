@@ -100,6 +100,21 @@ export const Navigator = {
     },
 
     /**
+     * Dismiss screens until target href is reached, or replace if not found.
+     * Protected by navigation lock to prevent duplicate dismiss chains.
+     */
+    dismissTo: (route: Href | string) => {
+        if (isNavigationLocked()) {
+            logNav(`[NAV] Blocked DismissTo (locked): ${route}`, true);
+            return;
+        }
+        lockNavigation();
+        const routePath = typeof route === 'string' ? route : (route as { pathname?: string }).pathname || 'complex route';
+        logNav(`[NAV] Dismissing to: ${routePath}`);
+        router.dismissTo(route as Href);
+    },
+
+    /**
      * Go back to previous screen
      * NOT protected by lock - user may need to go back multiple times quickly
      */

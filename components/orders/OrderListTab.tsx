@@ -150,8 +150,7 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
                 break;
             }
             case 'return':
-                // TODO: Navigate to return request screen
-                logger.orders.info('Return request:', orderId);
+                Navigator.push(orderRoutes.return(orderId));
                 break;
             case 'rebuy': {
                 if (!order.items || order.items.length === 0) return;

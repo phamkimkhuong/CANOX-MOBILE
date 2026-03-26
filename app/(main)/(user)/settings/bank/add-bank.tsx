@@ -10,6 +10,7 @@ import { Alert } from '@/utils/AlertHelper';
 import { Navigator } from '@/utils/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -39,6 +40,10 @@ export default function AddBankScreen() {
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
     const { t } = useTranslation(['bank', 'common']);
+    const params = useLocalSearchParams<{
+        returnTo?: string;
+        orderId?: string;
+    }>();
 
     const handleHelp = useCallback(() => {
         Alert.show({
@@ -89,6 +94,8 @@ export default function AddBankScreen() {
                             verificationId: res.verificationId,
                             bankName: selectedBank.shortName,
                             accountNumber: data.bankAccountNumber,
+                            ...(params.returnTo && { returnTo: params.returnTo }),
+                            ...(params.orderId && { orderId: params.orderId }),
                         },
                     });
                 },

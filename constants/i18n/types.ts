@@ -827,6 +827,37 @@ export interface OrderTranslation {
             voucherWarning: string;
         };
     };
+    returnRequest: {
+        title: string;
+        selectReason: string;
+        reasonPlaceholder: string;
+        modalTitle: string;
+        closeSelector: string;
+        refundBankLabel: string;
+        refundBankPlaceholder: string;
+        refundBankLoading: string;
+        refundBankAdd: string;
+        refundBankModalTitle: string;
+        refundBankDefault: string;
+        closeBankSelector: string;
+        descriptionLabel: string;
+        descriptionPlaceholder: string;
+        continue: string;
+        loading: string;
+        notFound: string;
+        notFoundDetail: string;
+        nextStepPendingTitle: string;
+        nextStepPendingMessage: string;
+        reasons: {
+            MISSING_PARTS: string;
+            WRONG_ITEM: string;
+            DAMAGED_IN_SHIPPING: string;
+            DEFECTIVE_ITEM: string;
+            NOT_AS_DESCRIBED: string;
+            QUALITY_ISSUE: string;
+            FAKE_COUNTERFEIT: string;
+        };
+    };
     review: {
         reviewed: string;
         pending: string;

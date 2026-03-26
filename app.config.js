@@ -63,6 +63,7 @@ module.exports = {
         },
 
         "plugins": [
+            // loadPlugin("./plugins/withFirebaseiOSFix"),
             loadPlugin("./plugins/withDisableLint"),
             loadPlugin("./plugins/withAndroid16KB"),
             loadPlugin("./plugins/withNotifee"),
@@ -84,7 +85,15 @@ module.exports = {
                 "expo-build-properties",
                 {
                     "ios": {
-                        "useFrameworks": "static"
+                        "useFrameworks": "static",
+                        "forceStaticLinking": [
+                            "RNFBApp",
+                            "RNFBMessaging",
+                            "RNFBCrashlytics",
+                            "RNFBPerf",
+                            "RNFBAnalytics",
+                            "RNFBRemoteConfig"
+                        ]
                     }
                 }
             ],

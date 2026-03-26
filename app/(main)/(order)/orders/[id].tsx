@@ -232,14 +232,8 @@ export default function OrderDetailScreen() {
 
     const handleReturnOrder = useCallback(() => {
         if (!rawOrder) return;
-        // TODO: Navigate to return request screen
-        Toast.show({
-            type: 'info',
-            text1: t('order:detail.returnRequestTitle'),
-            text2: t('order:detail.returnRequestMessage'),
-        });
-        logger.api.info('Return order request:', rawOrder.orderId);
-    }, [rawOrder, t]);
+        Navigator.push(orderRoutes.return(rawOrder.orderId, { fromDetail: 'true' }));
+    }, [rawOrder]);
 
     const { mutateAsync: addToCart } = useAddToCart();
     const handleRebuy = useCallback(async () => {
