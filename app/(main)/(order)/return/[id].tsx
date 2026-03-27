@@ -1,7 +1,11 @@
 import {
     OrderSummarySnippet,
 } from '@/components/orders/cancel';
-import { RefundBankSelector, ReturnReasonSelector } from '@/components/orders/return';
+import {
+    RefundBankSelector,
+    ReturnMediaSection,
+    ReturnReasonSelector,
+} from '@/components/orders/return';
 import { ROUTES } from '@/constants/routes';
 import { useMyBankAccounts } from '@/hooks/api/bank/useBank';
 import { IconSymbol } from '@/components/ui/Icon';
@@ -9,9 +13,16 @@ import { useOrderDetail } from '@/hooks/api/order/useOrderDetail';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { useReturnRequestDraftStore } from '@/store/useReturnRequestDraftStore';
 import type { UserBankAccountUI } from '@/types/bank/ui';
-import { RETURN_DESCRIPTION_MAX_LENGTH, type ReturnReasonCode } from '@/types/order/return';
+import {
+    RETURN_DESCRIPTION_MAX_LENGTH,
+    RETURN_MEDIA_LIMITS,
+    type ReturnReasonCode,
+    type ReturnMediaItem,
+    type ReturnRequestDraft,
+} from '@/types/order/return';
 import { transformOrder } from '@/utils/adapter/order/orderAdapter';
 import { Navigator } from '@/utils/navigation';
+import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -25,8 +36,17 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { v4 as uuidv4 } from 'uuid';
+
+const EMPTY_RETURN_REQUEST_DRAFT: ReturnRequestDraft = {
+    reasonCode: null,
+    bankAccountId: null,
+    description: '',
+    mediaItems: [],
+};
 
 export default function ReturnRequestScreen() {
     useNavigationUnlockOnFocus();
@@ -35,19 +55,20 @@ export default function ReturnRequestScreen() {
     const { theme } = useUnistyles();
     const { t } = useTranslation(['order', 'common']);
     const styles = stylesheet;
+    const { bottom } = useSafeAreaInsets();
 
-    const selectedReason = useReturnRequestDraftStore((state) => (
-        state.drafts[orderId ?? '']?.reasonCode ?? null
-    ));
-    const selectedBankAccountId = useReturnRequestDraftStore((state) => (
-        state.drafts[orderId ?? '']?.bankAccountId ?? null
-    ));
-    const description = useReturnRequestDraftStore((state) => (
-        state.drafts[orderId ?? '']?.description ?? ''
+    const draft = useReturnRequestDraftStore((state) => (
+        state.drafts[orderId ?? ''] ?? EMPTY_RETURN_REQUEST_DRAFT
     ));
     const setReasonCode = useReturnRequestDraftStore((state) => state.setReasonCode);
     const setBankAccountId = useReturnRequestDraftStore((state) => state.setBankAccountId);
     const setDescription = useReturnRequestDraftStore((state) => state.setDescription);
+    const setMediaItems = useReturnRequestDraftStore((state) => state.setMediaItems);
+
+    const selectedReason = draft.reasonCode;
+    const selectedBankAccountId = draft.bankAccountId;
+    const description = draft.description;
+    const mediaItems = draft.mediaItems;
 
     const { data: rawOrder, isLoading: isLoadingOrder } = useOrderDetail(orderId);
     const { data: bankAccounts = [], isLoading: isLoadingBankAccounts } = useMyBankAccounts();
@@ -107,6 +128,120 @@ export default function ReturnRequestScreen() {
         if (trimmed === description) return;
         setDescription(orderId, trimmed);
     }, [description, orderId, setDescription]);
+
+    const requestLibraryPermission = useCallback(async (): Promise<boolean> => {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status === 'granted') return true;
+
+        Toast.show({
+            type: 'error',
+            text1: t('returnRequest.mediaPermissionTitle'),
+            text2: t('returnRequest.mediaPermissionMessage'),
+        });
+        return false;
+    }, [t]);
+
+    const handlePickImages = useCallback(async () => {
+        if (!orderId) return;
+
+        const currentImageCount = mediaItems.filter((item) => item.type === 'IMAGE').length;
+        const remainingSlots = RETURN_MEDIA_LIMITS.MAX_IMAGES - currentImageCount;
+
+        if (remainingSlots <= 0) {
+            Toast.show({
+                type: 'info',
+                text1: t('returnRequest.imageLimitReachedTitle'),
+                text2: t('returnRequest.imageLimitReachedMessage', {
+                    max: RETURN_MEDIA_LIMITS.MAX_IMAGES,
+                }),
+            });
+            return;
+        }
+
+        const hasPermission = await requestLibraryPermission();
+        if (!hasPermission) return;
+
+        try {
+            const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ['images'],
+                allowsMultipleSelection: true,
+                selectionLimit: remainingSlots,
+                quality: 0.8,
+            });
+
+            if (result.canceled || !result.assets?.length) return;
+
+            const newMediaItems: ReturnMediaItem[] = result.assets.map((asset) => ({
+                id: uuidv4(),
+                uri: asset.uri,
+                type: 'IMAGE',
+                uploadStatus: 'pending',
+                progress: 0,
+                fileSize: asset.fileSize,
+            }));
+
+            setMediaItems(orderId, [...mediaItems, ...newMediaItems]);
+        } catch {
+            Toast.show({
+                type: 'error',
+                text1: t('returnRequest.imagePickErrorTitle'),
+                text2: t('returnRequest.imagePickErrorMessage'),
+            });
+        }
+    }, [mediaItems, orderId, requestLibraryPermission, setMediaItems, t]);
+
+    const handlePickVideo = useCallback(async () => {
+        if (!orderId) return;
+
+        const currentVideoCount = mediaItems.filter((item) => item.type === 'VIDEO').length;
+        if (currentVideoCount >= RETURN_MEDIA_LIMITS.MAX_VIDEOS) {
+            Toast.show({
+                type: 'info',
+                text1: t('returnRequest.videoLimitReachedTitle'),
+                text2: t('returnRequest.videoLimitReachedMessage', {
+                    max: RETURN_MEDIA_LIMITS.MAX_VIDEOS,
+                }),
+            });
+            return;
+        }
+
+        const hasPermission = await requestLibraryPermission();
+        if (!hasPermission) return;
+
+        try {
+            const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ['videos'],
+                allowsMultipleSelection: false,
+                quality: 0.8,
+            });
+
+            if (result.canceled || !result.assets?.[0]) return;
+
+            const asset = result.assets[0];
+            const newMediaItem: ReturnMediaItem = {
+                id: uuidv4(),
+                uri: asset.uri,
+                type: 'VIDEO',
+                uploadStatus: 'pending',
+                progress: 0,
+                fileSize: asset.fileSize,
+                duration: asset.duration ?? undefined,
+            };
+
+            setMediaItems(orderId, [...mediaItems, newMediaItem]);
+        } catch {
+            Toast.show({
+                type: 'error',
+                text1: t('returnRequest.videoPickErrorTitle'),
+                text2: t('returnRequest.videoPickErrorMessage'),
+            });
+        }
+    }, [mediaItems, orderId, requestLibraryPermission, setMediaItems, t]);
+
+    const handleRemoveMedia = useCallback((mediaId: string) => {
+        if (!orderId) return;
+        setMediaItems(orderId, mediaItems.filter((item) => item.id !== mediaId));
+    }, [mediaItems, orderId, setMediaItems]);
 
     useEffect(() => {
         if (!orderId) return;
@@ -186,7 +321,15 @@ export default function ReturnRequestScreen() {
             >
                 <ScrollView
                     style={styles.scrollView}
-                    contentContainerStyle={styles.scrollContent}
+                    contentContainerStyle={[
+                        styles.scrollContent,
+                        {
+                            paddingBottom: Math.max(
+                                bottom + theme.margins.md,
+                                theme.margins.lg
+                            ),
+                        },
+                    ]}
                     showsVerticalScrollIndicator={false}
                 >
                     <View style={styles.sectionCard}>
@@ -244,6 +387,15 @@ export default function ReturnRequestScreen() {
                                 </Text>
                             </View>
                         </View>
+
+                        <View style={styles.fieldDivider} />
+
+                        <ReturnMediaSection
+                            mediaItems={mediaItems}
+                            onAddImages={handlePickImages}
+                            onAddVideo={handlePickVideo}
+                            onRemoveItem={handleRemoveMedia}
+                        />
                     </View>
                 </ScrollView>
             </KeyboardAvoidingView>
@@ -296,7 +448,6 @@ const stylesheet = StyleSheet.create((theme) => ({
     scrollContent: {
         paddingHorizontal: theme.margins.md,
         paddingTop: theme.margins.md,
-        paddingBottom: theme.margins.xl,
     },
     spacer: {
         height: theme.margins.md,

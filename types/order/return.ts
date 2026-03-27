@@ -64,3 +64,7 @@ export interface ReturnRequestDraft {
 }
 
 export const RETURN_DESCRIPTION_MAX_LENGTH = 2000;
+export const RETURN_MEDIA_LIMITS = {
+    MAX_IMAGES: 5,
+    MAX_VIDEOS: 2,
+} as const;

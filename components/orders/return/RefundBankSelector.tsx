@@ -2,7 +2,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import type { UserBankAccountUI } from '@/types/bank/ui';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Modal, Pressable, Text, View } from 'react-native';
+import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -104,7 +104,16 @@ export const RefundBankSelector: React.FC<RefundBankSelectorProps> = ({
                 <View style={styles.modalRoot}>
                     <Pressable style={styles.backdrop} onPress={() => setIsOpen(false)} />
 
-                    <View style={[styles.sheet, { paddingBottom: insets.bottom + theme.margins.md }]}>
+                    <View
+                        style={[
+                            styles.sheet,
+                            {
+                                paddingBottom: insets.bottom > 0
+                                    ? insets.bottom + theme.margins.md
+                                    : theme.margins.xl,
+                            },
+                        ]}
+                    >
                         <View style={styles.sheetHeader}>
                             <Text style={styles.sheetTitle}>{t('returnRequest.refundBankModalTitle')}</Text>
                             <Pressable
@@ -121,7 +130,12 @@ export const RefundBankSelector: React.FC<RefundBankSelectorProps> = ({
                             </Pressable>
                         </View>
 
-                        <View style={styles.optionList}>
+                        <ScrollView
+                            style={styles.optionScroll}
+                            contentContainerStyle={styles.optionList}
+                            showsVerticalScrollIndicator={false}
+                            bounces={false}
+                        >
                             {accounts.map((account) => {
                                 const isSelected = account.id === selectedBankAccountId;
                                 return (
@@ -184,7 +198,7 @@ export const RefundBankSelector: React.FC<RefundBankSelectorProps> = ({
                                     {t('returnRequest.refundBankAdd')}
                                 </Text>
                             </Pressable>
-                        </View>
+                        </ScrollView>
                     </View>
                 </View>
             </Modal>
@@ -259,6 +273,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         backgroundColor: 'rgba(18, 18, 18, 0.45)',
     },
     sheet: {
+        maxHeight: '78%',
         backgroundColor: theme.colors.surface,
         borderTopLeftRadius: theme.radius.xl,
         borderTopRightRadius: theme.radius.xl,
@@ -266,6 +281,9 @@ const stylesheet = StyleSheet.create((theme) => ({
         paddingTop: theme.margins.md,
         gap: theme.margins.md,
         ...theme.shadows.large,
+    },
+    optionScroll: {
+        flexGrow: 0,
     },
     sheetHeader: {
         flexDirection: 'row',
