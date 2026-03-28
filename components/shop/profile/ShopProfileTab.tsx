@@ -29,7 +29,6 @@ interface ShopProfileTabProps {
     shop: ShopHeaderUI;
     /** Brand profile data from API */
     brandProfile: ShopBrandProfileUI | null;
-    isLoadingBrandProfile?: boolean;
     products?: ShopProductItemUI[];
     onVideoPress?: (url: string) => void;
 }
@@ -37,7 +36,6 @@ interface ShopProfileTabProps {
 export const ShopProfileTab = memo(({
     shop,
     brandProfile,
-    isLoadingBrandProfile = false,
     products = [],
     onVideoPress,
 }: ShopProfileTabProps) => {

@@ -60,7 +60,7 @@ import {
 } from '@/store/useCheckoutStore';
 import { hideGlobalLoading, showGlobalLoading } from '@/store/useLoadingStore';
 import { useUserAddressStore } from '@/store/useUserAddressStore';
-import { toCheckoutApiPaymentMethod, type CheckoutShopUI, type PaymentMethodType } from '@/types/checkout';
+import { toCheckoutApiPaymentMethod, type CheckoutShopUI, type PaymentMethodType, type ShippingMethod } from '@/types/checkout';
 import type { CheckoutPreviewRequest, CheckoutPreviewShopRequest } from '@/types/checkout/checkoutPreview';
 import type { CreateOrderRequest } from '@/types/checkout/order';
 import type { RecommendPlatformVoucherRequest } from '@/types/checkout/platformVoucherRecommendation';
@@ -73,7 +73,6 @@ import { getFriendlyVoucherReason } from '@/utils/voucherReason';
 // ============================================
 
 const INTERNATIONAL_SHIPPING_UNAVAILABLE_ERROR_CODE = 13100;
-const CHECKOUT_PREVIEW_MISMATCH_ERROR_CODE = 110112;
 const CHECKOUT_EXPIRED_ERROR_CODE = 110113;
 
 export const ErrorBoundary = createRouteErrorBoundary({
@@ -339,7 +338,7 @@ export default function CheckoutScreen() {
                             (s: CheckoutShopUI) => s.shopId === shop.shopId
                         );
                         if (!previewShop || !finalShippingCode) return undefined;
-                        return previewShop.shippingOptions.methods.find((m: any) => m.id === finalShippingCode)?.fee;
+                        return previewShop.shippingOptions.methods.find((m: ShippingMethod) => m.id === finalShippingCode)?.fee;
                     })(),
                     loyaltyPoints: isBuyNowMode ? undefined : (selectedLoyaltyRedemptions.get(shop.shopId) || undefined),
                     platformLoyaltyPoints: isBuyNowMode ? undefined : getPlatformLoyaltyPointsForShop(shop.shopId),
@@ -375,7 +374,7 @@ export default function CheckoutScreen() {
                         if (!shop || !previewShop) return undefined;
                         const userShippingCode = selectedShipping.get(shop.shopId);
                         const finalCode = userShippingCode || previewShop.shippingOptions.selectedMethodId;
-                        return previewShop.shippingOptions.methods.find((m: any) => m.id === finalCode)?.fee;
+                        return previewShop.shippingOptions.methods.find((m: ShippingMethod) => m.id === finalCode)?.fee;
                     })()
                 }
             } : undefined,
@@ -740,7 +739,7 @@ export default function CheckoutScreen() {
                         })),
                         vouchers: (!isBuyNowMode && shopVouchers.length > 0) ? shopVouchers : undefined,
                         serviceCode: isBuyNowMode ? undefined : (Number(finalShippingCode) || undefined),
-                        shippingFee: shop.shippingOptions.methods.find((m: any) => m.id === finalShippingCode)?.fee,
+                        shippingFee: shop.shippingOptions.methods.find((m: ShippingMethod) => m.id === finalShippingCode)?.fee,
                         globalVouchers: (!isBuyNowMode && globalVouchersArray.length > 0) ? globalVouchersArray : undefined,
                         loyaltyPoints: isBuyNowMode ? undefined : (shop.loyaltyPoints || undefined),
                         platformLoyaltyPoints: isBuyNowMode ? undefined : getPlatformLoyaltyPointsForShop(shop.shopId),

@@ -45,10 +45,10 @@ import { Alert as CustomAlertHelper } from '@/utils/AlertHelper';
 import { logger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
 import * as Clipboard from 'expo-clipboard';
-import { useLocalSearchParams } from 'expo-router';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { InteractionManager, Linking, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { Linking, RefreshControl, ScrollView, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -88,12 +88,11 @@ export default function OrderDetailScreen() {
     // DEFERRED RENDERING: Wait for navigation animation to finish
     const [canRenderComplexUI, setCanRenderComplexUI] = useState(false);
 
-    useEffect(() => {
-        const task = InteractionManager.runAfterInteractions(() => {
+    useFocusEffect(
+        useCallback(() => {
             setCanRenderComplexUI(true);
-        });
-        return () => task.cancel();
-    }, []);
+        }, [])
+    );
 
     // Fetch order detail
     const { data, isLoading, isError, error, refetch } = useOrderDetail(id);

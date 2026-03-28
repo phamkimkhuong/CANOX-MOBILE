@@ -621,7 +621,7 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
             default:
                 return null;
         }
-    }, [product, selectionResult, selectedOptions, heroPreviewUrl, areSecondaryQueriesEnabled, handleFlashSaleExpired, handleImagePress, handleOpenVariantSheet, handleOpenPriceBreakdown, handleViewAllReviews, handleShopPress, loyaltyPolicy, shippingCompatibility, shouldShowFlashSaleScopeHelper, t]);
+    }, [product, selectionResult, selectedOptions, heroPreviewUrl, areSecondaryQueriesEnabled, handleFlashSaleExpired, handleImagePress, handleOpenVariantSheet, handleOpenPriceBreakdown, handleViewAllReviews, handleShopPress, loyaltyPolicy, shippingCompatibility, selectedAddress, shouldShowFlashSaleScopeHelper, t]);
 
     const overrideItemLayout = useCallback((layout: { span?: number }, item: ProductDetailListItem) => {
         if (item.type !== 'related_product') layout.span = 2;
