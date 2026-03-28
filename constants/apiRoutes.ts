@@ -112,6 +112,7 @@ export const API_ROUTES = {
         BY_SHOP: (shopId: string) => `${API_PREFIX}/buyer/orders/shop/${shopId}`,
         DETAIL: (orderId: string) => `${API_PREFIX}/buyer/orders/${orderId}`,
         CANCEL: (orderId: string) => `${API_PREFIX}/buyer/orders/${orderId}/cancel`,
+        RETURN_REQUEST: (orderId: string) => `${API_PREFIX}/buyer/orders/${orderId}/return-request`,
         CONFIRM_RECEIVED: (orderId: string) => `${API_PREFIX}/buyer/orders/${orderId}/confirm-received`,
         COUNT_BY_STATUS: `${API_PREFIX}/buyer/orders/count-by-status`,
     },

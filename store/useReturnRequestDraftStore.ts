@@ -7,6 +7,13 @@ interface ReturnRequestDraftState {
     setBankAccountId: (orderId: string, bankAccountId: string | null) => void;
     setDescription: (orderId: string, description: string) => void;
     setMediaItems: (orderId: string, mediaItems: ReturnMediaItem[]) => void;
+    appendMediaItems: (orderId: string, mediaItems: ReturnMediaItem[]) => void;
+    updateMediaItem: (
+        orderId: string,
+        mediaId: string,
+        patch: Partial<ReturnMediaItem>
+    ) => void;
+    removeMediaItem: (orderId: string, mediaId: string) => void;
     clearDraft: (orderId: string) => void;
 }
 
@@ -64,6 +71,54 @@ export const useReturnRequestDraftStore = create<ReturnRequestDraftState>((set) 
             },
         },
     })),
+
+    appendMediaItems: (orderId, mediaItems) => set((state) => {
+        const draft = getOrCreateDraft(state.drafts, orderId);
+        return {
+            drafts: {
+                ...state.drafts,
+                [orderId]: {
+                    ...draft,
+                    mediaItems: [...draft.mediaItems, ...mediaItems],
+                },
+            },
+        };
+    }),
+
+    updateMediaItem: (orderId, mediaId, patch) => set((state) => {
+        const draft = getOrCreateDraft(state.drafts, orderId);
+        const hasItem = draft.mediaItems.some((item) => item.id === mediaId);
+        if (!hasItem) {
+            return state;
+        }
+
+        return {
+            drafts: {
+                ...state.drafts,
+                [orderId]: {
+                    ...draft,
+                    mediaItems: draft.mediaItems.map((item) => (
+                        item.id === mediaId
+                            ? { ...item, ...patch }
+                            : item
+                    )),
+                },
+            },
+        };
+    }),
+
+    removeMediaItem: (orderId, mediaId) => set((state) => {
+        const draft = getOrCreateDraft(state.drafts, orderId);
+        return {
+            drafts: {
+                ...state.drafts,
+                [orderId]: {
+                    ...draft,
+                    mediaItems: draft.mediaItems.filter((item) => item.id !== mediaId),
+                },
+            },
+        };
+    }),
 
     clearDraft: (orderId) => set((state) => {
         const nextDrafts = { ...state.drafts };

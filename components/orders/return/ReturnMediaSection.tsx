@@ -6,24 +6,28 @@ import {
 import { Image } from 'expo-image';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface ReturnMediaSectionProps {
     mediaItems: ReturnMediaItem[];
+    hasUploadingMedia?: boolean;
     onAddImages: () => void;
     onAddVideo: () => void;
     onRemoveItem: (id: string) => void;
+    onRetryItem: (id: string) => void;
 }
 
 export const ReturnMediaSection: React.FC<ReturnMediaSectionProps> = ({
     mediaItems,
+    hasUploadingMedia = false,
     onAddImages,
     onAddVideo,
     onRemoveItem,
+    onRetryItem,
 }) => {
     const { theme } = useUnistyles();
-    const { t } = useTranslation(['order']);
+    const { t } = useTranslation(['order', 'common']);
     const styles = stylesheet;
 
     const imageCount = useMemo(() => (
@@ -46,12 +50,20 @@ export const ReturnMediaSection: React.FC<ReturnMediaSectionProps> = ({
                         maxVideos: RETURN_MEDIA_LIMITS.MAX_VIDEOS,
                     })}
                 </Text>
+                {hasUploadingMedia && (
+                    <Text style={styles.uploadingHint}>
+                        {t('returnRequest.mediaUploadingHint')}
+                    </Text>
+                )}
             </View>
 
             {hasMedia ? (
                 <View style={styles.previewGrid}>
                     {mediaItems.map((item) => {
                         const isVideo = item.type === 'VIDEO';
+                        const isUploading = item.uploadStatus === 'pending' || item.uploadStatus === 'uploading';
+                        const hasError = item.uploadStatus === 'error';
+
                         return (
                             <View key={item.id} style={styles.previewTile}>
                                 {isVideo ? (
@@ -73,6 +85,37 @@ export const ReturnMediaSection: React.FC<ReturnMediaSectionProps> = ({
                                         style={styles.previewImage}
                                         contentFit="cover"
                                     />
+                                )}
+
+                                {isUploading && (
+                                    <View style={styles.uploadOverlay}>
+                                        <ActivityIndicator
+                                            size="small"
+                                            color={theme.colors.surface}
+                                        />
+                                        <Text style={styles.uploadOverlayText}>
+                                            {t('returnRequest.mediaUploadingProgress', {
+                                                progress: Math.max(1, Math.round(item.progress)),
+                                            })}
+                                        </Text>
+                                    </View>
+                                )}
+
+                                {hasError && (
+                                    <View style={styles.errorOverlay}>
+                                        <Text style={styles.errorOverlayText}>
+                                            {t('returnRequest.mediaUploadFailed')}
+                                        </Text>
+                                        <Pressable
+                                            style={styles.retryButton}
+                                            onPress={() => onRetryItem(item.id)}
+                                            accessibilityRole="button"
+                                        >
+                                            <Text style={styles.retryButtonText}>
+                                                {t('common:actions.retry')}
+                                            </Text>
+                                        </Pressable>
+                                    </View>
                                 )}
 
                                 {isVideo && (
@@ -192,6 +235,10 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: theme.fontSizes.sm,
         color: theme.colors.typographySecondary,
     },
+    uploadingHint: {
+        fontSize: theme.fontSizes.sm,
+        color: theme.colors.accent,
+    },
     emptyState: {
         alignItems: 'center',
         justifyContent: 'center',
@@ -275,10 +322,52 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderRadius: theme.radius.m,
         overflow: 'hidden',
         backgroundColor: theme.colors.backgroundNewInput,
+        position: 'relative',
     },
     previewImage: {
         width: '100%',
         height: '100%',
+    },
+    uploadOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: theme.margins.xs,
+        backgroundColor: 'rgba(18, 18, 18, 0.56)',
+        zIndex: 2,
+    },
+    uploadOverlayText: {
+        fontSize: theme.fontSizes.xsm,
+        fontWeight: theme.fontWeights.semibold,
+        color: theme.colors.surface,
+    },
+    errorOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: theme.margins.xs,
+        paddingHorizontal: theme.margins.xs,
+        backgroundColor: 'rgba(18, 18, 18, 0.62)',
+        zIndex: 2,
+    },
+    errorOverlayText: {
+        fontSize: theme.fontSizes.xsm,
+        fontWeight: theme.fontWeights.semibold,
+        color: theme.colors.surface,
+        textAlign: 'center',
+    },
+    retryButton: {
+        minHeight: 26,
+        paddingHorizontal: theme.margins.sm,
+        borderRadius: theme.radius.full,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: theme.colors.surface,
+    },
+    retryButtonText: {
+        fontSize: theme.fontSizes.xsm,
+        fontWeight: theme.fontWeights.semibold,
+        color: theme.colors.typography,
     },
     videoTileContent: {
         flex: 1,
@@ -327,5 +416,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: 'rgba(18, 18, 18, 0.65)',
+        zIndex: 3,
     },
 }));

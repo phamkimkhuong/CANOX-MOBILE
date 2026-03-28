@@ -905,6 +905,11 @@ export interface OrderTranslation {
         videoCount: string;
         videoBadge: string;
         mediaPendingMessage: string;
+        mediaUploadingHint: string;
+        mediaUploadingProgress: string;
+        mediaUploadFailed: string;
+        mediaUploadErrorTitle: string;
+        mediaUploadErrorMessage: string;
         mediaPermissionTitle: string;
         mediaPermissionMessage: string;
         imageLimitReachedTitle: string;
@@ -915,6 +920,12 @@ export interface OrderTranslation {
         imagePickErrorMessage: string;
         videoPickErrorTitle: string;
         videoPickErrorMessage: string;
+        submit: string;
+        submitting: string;
+        submitSuccess: string;
+        submitSuccessDetail: string;
+        submitError: string;
+        submitErrorDetail: string;
         continue: string;
         loading: string;
         notFound: string;

@@ -50,7 +50,10 @@ export const RefundBankSelector: React.FC<RefundBankSelectorProps> = ({
     return (
         <>
             <View style={styles.container}>
-                <Text style={styles.label}>{t('returnRequest.refundBankLabel')}</Text>
+                <View style={styles.labelRow}>
+                    <Text style={styles.label}>{t('returnRequest.refundBankLabel')}</Text>
+                    <Text style={styles.requiredMark}>*</Text>
+                </View>
 
                 <Pressable
                     style={[
@@ -214,6 +217,17 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: theme.fontSizes.md,
         fontWeight: theme.fontWeights.semibold,
         color: theme.colors.typography,
+    },
+    labelRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+    },
+    requiredMark: {
+        fontSize: theme.fontSizes.md,
+        fontWeight: theme.fontWeights.bold,
+        color: theme.colors.error,
+        lineHeight: 20,
     },
     trigger: {
         minHeight: 52,

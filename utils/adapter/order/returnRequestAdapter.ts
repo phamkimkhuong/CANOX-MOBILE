@@ -17,19 +17,19 @@ export const toCreateReturnRequestPayload = (
 ): CreateReturnRequestPayload => {
     const mediaItems = params.mediaItems ?? [];
     const successfulMediaItems = mediaItems.filter(
-        (item) => item.uploadStatus === 'success' && !!item.url
+        (item) => item.uploadStatus === 'success' && !!item.assetId
     );
 
     return {
         reasonCode: params.reasonCode,
         reason: getReturnReasonPayloadLabel(params.reasonCode),
         description: (params.description ?? '').trim(),
-        imageUrls: successfulMediaItems
+        imageAssetIds: successfulMediaItems
             .filter((item) => item.type === 'IMAGE')
-            .map((item) => item.url!),
-        videoUrls: successfulMediaItems
+            .map((item) => item.assetId!),
+        videoAssetIds: successfulMediaItems
             .filter((item) => item.type === 'VIDEO')
-            .map((item) => item.url!),
+            .map((item) => item.assetId!),
         bankAccountId: params.bankAccountId,
     };
 };

@@ -13,7 +13,7 @@ export interface CreateReturnRequestPayload {
     reasonCode: ReturnReasonCode;
     reason: string;
     description: string;
-    imageUrls: string[];
-    videoUrls: string[];
+    imageAssetIds: string[];
+    videoAssetIds: string[];
     bankAccountId: string;
 }
