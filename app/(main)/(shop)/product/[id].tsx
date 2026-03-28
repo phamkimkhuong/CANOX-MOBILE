@@ -2,6 +2,7 @@ import {
     ProductDetailSkeleton,
     ProductNavBar,
 } from '@/components/product';
+import { createRouteErrorBoundary } from '@/components/common/AppCrashFallback';
 import { ProductDetailContent } from '@/components/product/ProductDetailContent';
 import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
@@ -24,6 +25,12 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
  *
  * Ghost Frame + Cache-aware + Proper transition timing.
  */
+export const ErrorBoundary = createRouteErrorBoundary({
+    scope: 'screen',
+    titleKey: 'common:crash.productDetail.title',
+    messageKey: 'common:crash.productDetail.message',
+});
+
 export default function ProductDetailScreen() {
     useNavigationUnlockOnFocus();
 

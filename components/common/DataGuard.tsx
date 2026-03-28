@@ -24,6 +24,7 @@ import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
 import { ActivityIndicator, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import { AppRenderErrorFallback } from './AppCrashFallback';
 import { StateType, StateView } from './StateView';
 
 // ============================================
@@ -163,18 +164,20 @@ const defaultIsEmpty = (data: unknown): boolean => {
 // ============================================
 
 const ErrorFallback: React.FC<FallbackProps & { onSecondaryAction?: () => void }> = ({
+    error,
     resetErrorBoundary,
     onSecondaryAction,
 }) => (
-    <StateView
-        type="server"
-        title="Lỗi hiển thị"
-        message="Đã xảy ra lỗi khi hiển thị dữ liệu. Vui lòng thử lại."
-        onAction={resetErrorBoundary}
-        actionLabel="Thử lại"
+    <AppRenderErrorFallback
+        error={error}
+        resetErrorBoundary={resetErrorBoundary}
+        scope="section"
+        presentation="fullScreen"
+        titleKey="common:crash.section.title"
+        messageKey="common:crash.section.message"
+        retryLabelKey="common:actions.retry"
         onSecondaryAction={onSecondaryAction}
-        secondaryActionLabel="Về trang chủ"
-        fullScreen
+        secondaryActionLabelKey="common:stateView.actions.home"
     />
 );
 

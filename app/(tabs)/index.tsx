@@ -1,5 +1,6 @@
 import { MarketingHeader } from '@/components/home/MarketingHeader';
 import { ProductTabs } from '@/components/home/ProductTabs';
+import { createRouteErrorBoundary } from '@/components/common/AppCrashFallback';
 import { HomeHeader } from '@/components/home/SearchHomeHeader';
 import { ProductCard } from '@/components/ui/product/ProductCard';
 import { ProductCardSkeleton } from '@/components/ui/product/ProductCardSkeleton';
@@ -59,6 +60,12 @@ interface SkeletonItem {
 }
 
 type ListItem = HeaderItem | TabsItem | ProductItem | SkeletonItem;
+
+export const ErrorBoundary = createRouteErrorBoundary({
+  scope: 'screen',
+  titleKey: 'common:crash.home.title',
+  messageKey: 'common:crash.home.message',
+});
 
 /**
  * TabsRowItem

@@ -12,7 +12,14 @@
  * 3. KHÔNG tạo thêm Stack Navigator ở các cấp con để tránh Layout Hell
  */
 
+import { createRouteErrorBoundary } from '@/components/common/AppCrashFallback';
 import { Stack } from 'expo-router';
+
+export const ErrorBoundary = createRouteErrorBoundary({
+    scope: 'group',
+    titleKey: 'common:crash.main.title',
+    messageKey: 'common:crash.main.message',
+});
 
 export default function MainLayout() {
     return (

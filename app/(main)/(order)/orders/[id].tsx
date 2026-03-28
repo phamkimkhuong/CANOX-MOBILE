@@ -19,6 +19,7 @@
  * Perceived lag when user taps quickly
  */
 
+import { createRouteErrorBoundary } from '@/components/common/AppCrashFallback';
 import { StaticOrderDetailShell } from '@/components/order/StaticOrderDetailShell';
 import {
     OrderAddressCard,
@@ -53,6 +54,12 @@ import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 type LoadingActionType = 'cancel' | 'confirm' | null;
+
+export const ErrorBoundary = createRouteErrorBoundary({
+    scope: 'screen',
+    titleKey: 'common:crash.orderDetail.title',
+    messageKey: 'common:crash.orderDetail.message',
+});
 
 export default function OrderDetailScreen() {
     // Unlock navigation when screen gains focus

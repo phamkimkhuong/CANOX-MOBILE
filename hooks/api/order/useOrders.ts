@@ -161,7 +161,7 @@ const buildOrderUIs = (
  */
 export const useOrderListUI = (status: OrderTabStatus, enabled: boolean = true) => {
     const query = useOrderList(status, enabled);
-    const orders = useMemo(() => buildOrderUIs(query.data), [query.data?.pages]);
+    const orders = useMemo(() => buildOrderUIs(query.data), [query.data]);
 
     return {
         query,
@@ -175,7 +175,7 @@ export const useOrderListUI = (status: OrderTabStatus, enabled: boolean = true) 
  */
 export const useShopOrdersUI = (shopId: string | undefined, enabled: boolean = true) => {
     const query = useShopOrders(shopId, enabled);
-    const orders = useMemo(() => buildOrderUIs(query.data), [query.data?.pages]);
+    const orders = useMemo(() => buildOrderUIs(query.data), [query.data]);
 
     return {
         query,

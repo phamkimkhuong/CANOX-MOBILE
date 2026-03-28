@@ -5,6 +5,7 @@
  * - User selections: store Maps (shipping, vouchers, notes)
  */
 
+import { createRouteErrorBoundary } from '@/components/common/AppCrashFallback';
 import { ROUTES } from '@/constants/routes';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { ApiError } from '@/services/api/client';
@@ -74,6 +75,12 @@ import { getFriendlyVoucherReason } from '@/utils/voucherReason';
 const INTERNATIONAL_SHIPPING_UNAVAILABLE_ERROR_CODE = 13100;
 const CHECKOUT_PREVIEW_MISMATCH_ERROR_CODE = 110112;
 const CHECKOUT_EXPIRED_ERROR_CODE = 110113;
+
+export const ErrorBoundary = createRouteErrorBoundary({
+    scope: 'screen',
+    titleKey: 'common:crash.checkout.title',
+    messageKey: 'common:crash.checkout.message',
+});
 
 export default function CheckoutScreen() {
     // Unlock navigation when screen gains focus

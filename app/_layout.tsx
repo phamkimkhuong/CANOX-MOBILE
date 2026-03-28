@@ -1,5 +1,6 @@
 import { ForceUpdateScreen } from '@/components/common/ForceUpdateScreen';
 import { MaintenanceScreen } from '@/components/common/MaintenanceScreen';
+import { createRouteErrorBoundary } from '@/components/common/AppCrashFallback';
 import { SoftUpdateBanner } from '@/components/common/SoftUpdateBanner';
 import '@/constants/i18n';
 import i18n from '@/constants/i18n';
@@ -68,10 +69,11 @@ const NavigationTheme = {
   },
 };
 
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary
-} from 'expo-router';
+export const ErrorBoundary = createRouteErrorBoundary({
+  scope: 'app',
+  titleKey: 'common:crash.app.title',
+  messageKey: 'common:crash.app.message',
+});
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.

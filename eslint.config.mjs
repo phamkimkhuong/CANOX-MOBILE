@@ -16,6 +16,8 @@ export default [
             '.expo/**',
             'web-build/**',
             'dist/**',
+            'coverage/**',
+            'test-utils/**',
             'babel.config.js',
             'metro.config.js',
             'package.json',

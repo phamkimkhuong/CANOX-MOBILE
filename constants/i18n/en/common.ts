@@ -55,6 +55,59 @@ export const COMMON_STRINGS: CommonTranslation = {
         updateNow: 'Update Now',
         later: 'Maybe Later',
     },
+    crash: {
+        debugTitle: 'Debug details',
+        scope: {
+            app: 'App',
+            group: 'Area',
+            screen: 'Screen',
+            section: 'Content',
+        },
+        app: {
+            title: 'The app is temporarily unavailable',
+            message: 'The app UI could not be rendered right now. Please try again to re-render the application.',
+        },
+        tabs: {
+            title: 'The tab area is temporarily unavailable',
+            message: 'The main tab area cannot be displayed right now. Please try again.',
+        },
+        main: {
+            title: 'The navigation area is temporarily unavailable',
+            message: 'The screen you opened cannot be displayed right now. Please try again to recover this area.',
+        },
+        auth: {
+            title: 'The sign-in area is temporarily unavailable',
+            message: 'The authentication screen cannot be displayed right now. Please try again in a few seconds.',
+        },
+        home: {
+            title: 'Home is temporarily unavailable',
+            message: 'Home content cannot be displayed right now. Please try again to re-render this screen.',
+        },
+        cart: {
+            title: 'Cart is temporarily unavailable',
+            message: 'Your cart cannot be displayed right now. Please try again to recover this screen.',
+        },
+        checkout: {
+            title: 'Checkout is temporarily unavailable',
+            message: 'The checkout screen cannot be displayed right now. Please try again to recover this checkout session.',
+        },
+        productDetail: {
+            title: 'Product details are temporarily unavailable',
+            message: 'Product details cannot be displayed right now. Please try again to re-render this screen.',
+        },
+        orderDetail: {
+            title: 'Order details are temporarily unavailable',
+            message: 'Order details cannot be displayed right now. Please try again to re-render this screen.',
+        },
+        chatDetail: {
+            title: 'Chat is temporarily unavailable',
+            message: 'This conversation cannot be displayed right now. Please try again to recover this screen.',
+        },
+        section: {
+            title: 'Display error',
+            message: 'An error occurred while rendering this content. Please try again.',
+        },
+    },
     stateView: {
         network: {
             title: 'No connection',

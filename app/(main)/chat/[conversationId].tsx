@@ -9,6 +9,7 @@
  * - Performance optimized with React.memo and FlatList props
  */
 
+import { createRouteErrorBoundary } from '@/components/common/AppCrashFallback';
 import {
     AttachmentMenu,
     ChatDetailHeader,
@@ -69,6 +70,12 @@ interface MessageListItem {
 }
 
 type BubblePosition = 'single' | 'first' | 'middle' | 'last';
+
+export const ErrorBoundary = createRouteErrorBoundary({
+    scope: 'screen',
+    titleKey: 'common:crash.chatDetail.title',
+    messageKey: 'common:crash.chatDetail.message',
+});
 
 // ============================================
 // HELPER FUNCTIONS

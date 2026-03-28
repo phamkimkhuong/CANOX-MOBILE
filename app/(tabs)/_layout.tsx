@@ -1,3 +1,4 @@
+import { createRouteErrorBoundary } from '@/components/common/AppCrashFallback';
 import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 import { useScrollToTopContext } from '@/contexts/ScrollToTopContext';
@@ -16,6 +17,12 @@ function TabBarIcon(props: {
 }) {
   return <IconSymbol size={24} name={props.name} color={props.color} />;
 }
+
+export const ErrorBoundary = createRouteErrorBoundary({
+  scope: 'group',
+  titleKey: 'common:crash.tabs.title',
+  messageKey: 'common:crash.tabs.message',
+});
 
 export default function TabLayout() {
   const { theme } = useUnistyles();

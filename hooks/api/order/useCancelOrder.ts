@@ -159,7 +159,6 @@ const upsertCancelledOrder = (
         return { data, changed: false };
     }
 
-    const firstPage = data.pages[0];
     const nextPages = data.pages.map((page, index) => {
         const nextTotalElements = page.totalElements + 1;
         if (index !== 0) {

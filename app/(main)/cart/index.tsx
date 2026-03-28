@@ -24,6 +24,7 @@ import {
     CartSkeleton,
     RecommendedProducts
 } from '@/components/cart';
+import { createRouteErrorBoundary } from '@/components/common/AppCrashFallback';
 import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES, addressRoutes, shopRoutes } from '@/constants/routes';
 import {
@@ -61,6 +62,12 @@ interface CartHeaderProps {
     onEditPress: () => void;
     isEditMode: boolean;
 }
+
+export const ErrorBoundary = createRouteErrorBoundary({
+    scope: 'screen',
+    titleKey: 'common:crash.cart.title',
+    messageKey: 'common:crash.cart.message',
+});
 
 const CART_PROMOTION_EXPIRED_PROBE_DELAYS_MS = [0, 1500, 3000] as const;
 const CART_PROMOTION_RESET_THRESHOLD_SECONDS = 30;

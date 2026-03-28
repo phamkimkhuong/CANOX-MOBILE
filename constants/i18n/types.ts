@@ -378,6 +378,59 @@ export interface CommonTranslation {
         updateNow: string;
         later: string;
     };
+    crash: {
+        debugTitle: string;
+        scope: {
+            app: string;
+            group: string;
+            screen: string;
+            section: string;
+        };
+        app: {
+            title: string;
+            message: string;
+        };
+        tabs: {
+            title: string;
+            message: string;
+        };
+        main: {
+            title: string;
+            message: string;
+        };
+        auth: {
+            title: string;
+            message: string;
+        };
+        home: {
+            title: string;
+            message: string;
+        };
+        cart: {
+            title: string;
+            message: string;
+        };
+        checkout: {
+            title: string;
+            message: string;
+        };
+        productDetail: {
+            title: string;
+            message: string;
+        };
+        orderDetail: {
+            title: string;
+            message: string;
+        };
+        chatDetail: {
+            title: string;
+            message: string;
+        };
+        section: {
+            title: string;
+            message: string;
+        };
+    };
     stateView: {
         network: {
             title: string;
