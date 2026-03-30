@@ -829,11 +829,49 @@ export interface OrderTranslation {
         trackOrder: string;
     };
     timeline: {
+        title: string;
+        latestUpdate: string;
+        historyTitle: string;
+        showHistory: string;
+        hideHistory: string;
+        currentBadge: string;
         created: string;
         confirmed: string;
         shipped: string;
         delivered: string;
         completed: string;
+        summary: {
+            createdTitle: string;
+            createdDescription: string;
+            awaitingPaymentTitle: string;
+            awaitingPaymentDescription: string;
+            processingTitle: string;
+            processingDescription: string;
+            shippingTitle: string;
+            shippingDescription: string;
+            deliveredTitle: string;
+            deliveredDescription: string;
+            completedTitle: string;
+            completedDescription: string;
+            cancelledTitle: string;
+            cancelledDescription: string;
+        };
+        events: {
+            createdTitle: string;
+            createdDescription: string;
+            confirmedTitle: string;
+            confirmedDescription: string;
+            shippedTitle: string;
+            shippedDescription: string;
+            deliveredTitle: string;
+            deliveredDescription: string;
+            paidTitle: string;
+            paidDescription: string;
+            completedTitle: string;
+            completedDescription: string;
+            cancelledTitle: string;
+            cancelledDescription: string;
+        };
         abnormal: {
             cancelled: string;
             rejected: string;
@@ -1152,14 +1190,21 @@ export interface ProfileTranslation {
         legal_policies: string;
     };
     guestState: {
+        eyebrow: string;
         title: string;
         subtitle: string;
+        helper: string;
+        signals: {
+            secure: string;
+            synced: string;
+            rewards: string;
+        };
         login: string;
         register: string;
-        benefitsTitle: string;
-        benefits: {
-            exclusive: string;
-            shipping: string;
+        capabilities: {
+            orders: string;
+            address: string;
+            vouchers: string;
             coins: string;
         };
     };

@@ -109,7 +109,7 @@ cd CanoX
 
 ### 2. Cài đặt Dependencies
 ```bash
-npm install
+npx expo install
 ```
 
 ### 3. Cấu hình Environment

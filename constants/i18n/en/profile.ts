@@ -87,15 +87,22 @@ export const PROFILE_STRINGS: ProfileTranslation = {
         legal_policies: 'Policies & Terms',
     },
     guestState: {
+        eyebrow: 'Your CanoX account',
         title: 'Welcome to CanoX',
         subtitle: 'Sign in to enjoy exclusive offers and track your orders easily',
+        helper: 'Connect your account to sync orders, save addresses, manage vouchers, and unlock more relevant benefits faster.',
+        signals: {
+            secure: 'More secure',
+            synced: 'Order sync',
+            rewards: 'Unlock perks',
+        },
         login: 'Login',
         register: 'Create New Account',
-        benefitsTitle: 'Member Benefits',
-        benefits: {
-            exclusive: 'Exclusive Offers',
-            shipping: 'Free Shipping',
-            coins: 'Earn Coins on Every Order',
+        capabilities: {
+            orders: 'Track purchases',
+            address: 'Save addresses fast',
+            vouchers: 'Keep personal vouchers',
+            coins: 'Earn coins per order',
         },
     },
     editProfile: {

@@ -87,15 +87,22 @@ export const PROFILE_STRINGS: ProfileTranslation = {
         legal_policies: 'Chính sách & Điều khoản',
     },
     guestState: {
+        eyebrow: 'Tài khoản CanoX',
         title: 'Chào mừng bạn đến với CanoX',
         subtitle: 'Đăng nhập để nhận nhiều ưu đãi hấp dẫn và theo dõi đơn hàng dễ dàng',
+        helper: 'Kết nối tài khoản để đồng bộ đơn hàng, lưu địa chỉ, quản lý voucher và nhận ưu đãi cá nhân hóa nhanh hơn.',
+        signals: {
+            secure: 'An toàn hơn',
+            synced: 'Đồng bộ đơn hàng',
+            rewards: 'Mở khóa ưu đãi',
+        },
         login: 'Đăng nhập',
         register: 'Đăng ký tài khoản mới',
-        benefitsTitle: 'Quyền lợi thành viên',
-        benefits: {
-            exclusive: 'Ưu đãi độc quyền',
-            shipping: 'Miễn phí vận chuyển',
-            coins: 'Tích xu mỗi đơn hàng',
+        capabilities: {
+            orders: 'Theo dõi đơn mua',
+            address: 'Lưu địa chỉ nhanh',
+            vouchers: 'Giữ voucher riêng',
+            coins: 'Tích xu mỗi đơn',
         },
     },
     editProfile: {
