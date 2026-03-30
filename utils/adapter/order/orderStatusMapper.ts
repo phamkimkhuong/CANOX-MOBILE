@@ -187,8 +187,7 @@ export const ORDER_TABS: Array<{
     { key: 'AWAITING_PAYMENT', labelKey: 'order:tabs.awaitingPayment', apiStatus: 'AWAITING_PAYMENT' },
     { key: 'CREATED', labelKey: 'order:tabs.created', apiStatus: 'CREATED' },
     { key: 'FULFILLING', labelKey: 'order:tabs.processing', apiStatus: 'FULFILLING' },
-    { key: 'DELIVERED', labelKey: 'order:tabs.delivered', apiStatus: 'DELIVERED' },
-    { key: 'COMPLETED', labelKey: 'order:tabs.completed', apiStatus: 'UI_COMPLETED' },
+    { key: 'POST_DELIVERY', labelKey: 'order:tabs.delivered', apiStatus: 'UI_COMPLETED' },
     { key: 'RETURN_REFUND', labelKey: 'order:tabs.returned', apiStatus: 'RETURN_REFUND' },
     { key: 'CANCELLED', labelKey: 'order:tabs.cancelled', apiStatus: 'CANCELLED' },
 ];
@@ -202,8 +201,7 @@ export const getTabColor = (status: OrderTabStatus): string => {
         AWAITING_PAYMENT: '#f59e0b', // Orange (Urgent)
         CREATED: '#f59e0b',    // Orange
         FULFILLING: '#0088cc', // Blue
-        DELIVERED: '#10b981',  // Green
-        COMPLETED: '#6b7280',  // Gray
+        POST_DELIVERY: '#6b7280',  // Gray
         RETURN_REFUND: '#f97316', // Orange
         CANCELLED: '#ef4444',  // Red
     };

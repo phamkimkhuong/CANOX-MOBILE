@@ -63,8 +63,7 @@ const getListStatusFromKey = (queryKey: QueryKey): OrderTabStatus | null => {
         status === 'AWAITING_PAYMENT' ||
         status === 'CREATED' ||
         status === 'FULFILLING' ||
-        status === 'DELIVERED' ||
-        status === 'COMPLETED' ||
+        status === 'POST_DELIVERY' ||
         status === 'CANCELLED'
     ) {
         return status;

@@ -33,10 +33,10 @@ const mapProfileTabToOrderTab = (profileTab: string | undefined): OrderTabStatus
         case 'shipping':
             return 'FULFILLING';
         case 'delivered':
-            return 'DELIVERED';
+            return 'POST_DELIVERY';
         case 'review':
         case 'completed':
-            return 'COMPLETED';
+            return 'POST_DELIVERY';
         case 'returned':
         case 'returnRefund':
             return 'RETURN_REFUND';
@@ -45,9 +45,9 @@ const mapProfileTabToOrderTab = (profileTab: string | undefined): OrderTabStatus
         default:
             // Log invalid param for debugging (only in dev)
             if (__DEV__ && profileTab) {
-                console.warn(`[Orders] Unknown tab param: "${profileTab}", using default COMPLETED`);
+                console.warn(`[Orders] Unknown tab param: "${profileTab}", using default POST_DELIVERY`);
             }
-            return 'COMPLETED';
+            return 'POST_DELIVERY';
     }
 };
 

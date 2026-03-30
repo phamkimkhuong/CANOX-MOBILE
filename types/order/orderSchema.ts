@@ -151,6 +151,13 @@ export const OrderSchema = z.looseObject({
     cancellationReason: nullableString,
     createdAt: nullableString,
     createdDate: nullableString,
+    paidAt: nullableString,
+    confirmedAt: nullableString,
+    shippedAt: nullableString,
+    deliveredAt: nullableString,
+    completedAt: nullableString,
+    cancelledAt: nullableString,
+    resolvedAt: nullableString,
     items: arrayOrEmpty(OrderItemSchema),
   }).transform((value) => ({
     ...value,

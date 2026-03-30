@@ -786,7 +786,6 @@ export interface OrderTranslation {
         processing: string;
         shipping: string;
         delivered: string;
-        completed: string;
         cancelled: string;
         returned: string;
     };
@@ -831,8 +830,9 @@ export interface OrderTranslation {
     };
     timeline: {
         created: string;
-        processing: string;
-        shipping: string;
+        confirmed: string;
+        shipped: string;
+        delivered: string;
         completed: string;
         abnormal: {
             cancelled: string;
@@ -958,7 +958,6 @@ export interface OrderTranslation {
             created: { title: string; description: string };
             fulfilling: { title: string; description: string };
             delivered: { title: string; description: string };
-            completed: { title: string; description: string };
             returned: { title: string; description: string };
             cancelled: { title: string; description: string };
             shopNow: string;

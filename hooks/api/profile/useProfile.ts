@@ -125,6 +125,7 @@ export const usePendingReviewsCount = () => {
                     url: API_ROUTES.ORDERS.LIST,
                     method: 'GET',
                     params: {
+                        // Aggregate bucket for post-delivery orders: DELIVERED + COMPLETED
                         status: 'UI_COMPLETED',
                         page: 0,
                         size: 20, // Only fetch first 20 for optimization

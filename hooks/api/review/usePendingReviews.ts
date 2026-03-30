@@ -15,9 +15,10 @@ import { reviewKeys } from './useReviews';
 const PAGE_SIZE = 20;
 
 /**
- * Fetch orders that may contain unreviewed items
+ * Fetch the post-delivery aggregate bucket (UI_COMPLETED),
+ * which may include both DELIVERED and COMPLETED orders.
  */
-const fetchCompletedOrders = async (page: number): Promise<OrdersPageResponse> => {
+const fetchPostDeliveryOrders = async (page: number): Promise<OrdersPageResponse> => {
     const response = await apiClient.get<OrdersApiResponse>(API_ROUTES.ORDERS.LIST, {
         params: { status: 'UI_COMPLETED', page, size: PAGE_SIZE },
     });
@@ -36,7 +37,7 @@ export const usePendingReviews = () => {
     const query = useInfiniteQuery({
         queryKey: reviewKeys.pending(),
         queryFn: async ({ pageParam }) => {
-            const data = await fetchCompletedOrders(pageParam);
+            const data = await fetchPostDeliveryOrders(pageParam);
             return {
                 ...data,
                 groups: extractPendingReviews(data.content),

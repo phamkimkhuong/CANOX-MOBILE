@@ -14,8 +14,7 @@ const STATUS_ICONS: Record<string, IconSymbolName> = {
     AWAITING_PAYMENT: 'card',
     CREATED: 'time',
     FULFILLING: 'truck-step',
-    DELIVERED: 'cube',
-    COMPLETED: 'checkmark-done',
+    POST_DELIVERY: 'cube',
     RETURN_REFUND: 'wallet',
     CANCELLED: 'close-circle',
 };
@@ -37,8 +36,7 @@ export const EmptyOrderState: React.FC<EmptyOrderStateProps> = ({
             AWAITING_PAYMENT: 'awaitingPayment',
             CREATED: 'created',
             FULFILLING: 'fulfilling',
-            DELIVERED: 'delivered',
-            COMPLETED: 'completed',
+            POST_DELIVERY: 'delivered',
             RETURN_REFUND: 'returned',
             CANCELLED: 'cancelled',
         };

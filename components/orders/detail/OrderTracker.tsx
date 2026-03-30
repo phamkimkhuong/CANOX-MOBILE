@@ -2,7 +2,7 @@
  * ==============================================
  * ORDER TRACKER - Timeline/Stepper Component
  * ==============================================
- * Hiển thị tiến trình đơn hàng theo 4 bước
+ * Hiển thị tiến trình đơn hàng theo lifecycle 5 mốc
  * 
  * Features:
  * - Horizontal stepper with connecting lines
@@ -13,7 +13,7 @@
  */
 
 import { IconSymbol } from '@/components/ui/Icon';
-import type { OrderStatus } from '@/types/order/order';
+import type { OrderLifecycleTimestamps, OrderStatus } from '@/types/order/order';
 import {
     canShowTimeline,
     generateTimeline,
@@ -29,7 +29,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 interface OrderTrackerProps {
     status: OrderStatus;
     statusRaw?: string;
-    createdAt?: string | null;
+    lifecycle?: Partial<OrderLifecycleTimestamps> | null;
 }
 
 /**
@@ -155,14 +155,14 @@ AbnormalStatusBanner.displayName = 'AbnormalStatusBanner';
 export const OrderTracker: React.FC<OrderTrackerProps> = ({
     status,
     statusRaw,
-    createdAt,
+    lifecycle,
 }) => {
     const styles = stylesheet;
 
     // Generate timeline based on current status
     const timeline = useMemo(() => {
-        return generateTimeline(status, createdAt);
-    }, [status, createdAt]);
+        return generateTimeline(status, lifecycle);
+    }, [status, lifecycle]);
 
     // Check if we should show abnormal status banner instead
     const showTimeline = canShowTimeline(status);

@@ -16,7 +16,6 @@ export const ORDER_STRINGS: OrderTranslation = {
         processing: 'To Ship',
         shipping: 'To Receive',
         delivered: 'Delivered',
-        completed: 'Completed',
         cancelled: 'Cancelled',
         returned: 'Return/Refund',
     },
@@ -60,9 +59,10 @@ export const ORDER_STRINGS: OrderTranslation = {
         trackOrder: 'Track Order',
     },
     timeline: {
-        created: 'Order Placed',
-        processing: 'Processing',
-        shipping: 'Shipping',
+        created: 'Placed',
+        confirmed: 'Confirmed',
+        shipped: 'Shipped',
+        delivered: 'Delivered',
         completed: 'Completed',
         abnormal: {
             cancelled: 'Order Cancelled',
@@ -201,11 +201,7 @@ export const ORDER_STRINGS: OrderTranslation = {
             },
             delivered: {
                 title: 'No delivered orders yet',
-                description: 'Successfully delivered orders will be displayed here',
-            },
-            completed: {
-                title: 'No completed orders yet',
-                description: 'Completed orders will be displayed here',
+                description: 'Delivered and completed orders will be displayed here',
             },
             returned: {
                 title: 'No return or refund requests yet',

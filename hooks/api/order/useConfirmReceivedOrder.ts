@@ -29,47 +29,35 @@ const findOrderSnapshot = (
     const detailOrder = queryClient.getQueryData<Order>(orderKeys.detail(orderId));
     if (detailOrder) return detailOrder;
 
-    const deliveredList = queryClient.getQueryData<OrdersInfiniteData>(
-        orderKeys.list('DELIVERED')
-    );
+    const lists = queryClient.getQueriesData<OrdersInfiniteData>({
+        queryKey: orderKeys.lists(),
+    });
 
-    if (!deliveredList?.pages) return undefined;
-
-    for (const page of deliveredList.pages) {
-        const found = page.content.find((order) => order.orderId === orderId);
-        if (found) return found;
+    for (const [, data] of lists) {
+        if (!data?.pages) continue;
+        for (const page of data.pages) {
+            const found = page.content.find((order) => order.orderId === orderId);
+            if (found) return found;
+        }
     }
 
     return undefined;
 };
 
-const removeOrderFromDeliveredList = (
+const replaceOrderInPages = (
     data: OrdersInfiniteData,
-    orderId: string
-): OrdersInfiniteData => {
-    let removedCount = 0;
-
-    const pages = data.pages.map((page) => {
-        const nextContent = page.content.filter((order) => order.orderId !== orderId);
-        removedCount += page.content.length - nextContent.length;
-        return {
-            ...page,
-            content: nextContent,
-        };
-    });
-
-    if (removedCount === 0) {
-        return data;
-    }
-
-    return {
-        ...data,
-        pages: pages.map((page) => ({
-            ...page,
-            totalElements: Math.max(0, page.totalElements - removedCount),
-        })),
-    };
-};
+    nextOrder: Order
+): OrdersInfiniteData => ({
+    ...data,
+    pages: data.pages.map((page) => ({
+        ...page,
+        content: page.content.map((order) => (
+            order.orderId === nextOrder.orderId
+                ? nextOrder
+                : order
+        )),
+    })),
+});
 
 export const useConfirmReceivedOrder = (
     options: UseConfirmReceivedOrderOptions = {}
@@ -102,22 +90,31 @@ export const useConfirmReceivedOrder = (
         },
         onSuccess: (response, variables) => {
             const currentOrder = findOrderSnapshot(queryClient, variables.orderId);
-
-            if (currentOrder) {
-                queryClient.setQueryData<Order>(orderKeys.detail(variables.orderId), {
+            const completedOrder = currentOrder
+                ? {
                     ...currentOrder,
-                    status: 'COMPLETED',
+                    status: 'COMPLETED' as const,
                     statusRaw: 'COMPLETED',
-                });
+                }
+                : undefined;
+
+            if (completedOrder) {
+                queryClient.setQueryData<Order>(orderKeys.detail(variables.orderId), completedOrder);
             }
 
-            queryClient.setQueryData<OrdersInfiniteData | undefined>(
-                orderKeys.list('DELIVERED'),
-                (cachedData) => {
-                    if (!cachedData?.pages?.length) return cachedData;
-                    return removeOrderFromDeliveredList(cachedData, variables.orderId);
-                }
-            );
+            if (completedOrder) {
+                queryClient.setQueryData<OrdersInfiniteData | undefined>(
+                    orderKeys.list('ALL'),
+                    (cachedData) => {
+                        if (!cachedData?.pages?.length) return cachedData;
+                        return replaceOrderInPages(cachedData, completedOrder);
+                    }
+                );
+            }
+
+            queryClient.invalidateQueries({
+                queryKey: orderKeys.detail(variables.orderId),
+            });
 
             queryClient.invalidateQueries({
                 queryKey: orderKeys.list('ALL'),
@@ -125,9 +122,16 @@ export const useConfirmReceivedOrder = (
             });
 
             queryClient.invalidateQueries({
-                queryKey: orderKeys.list('COMPLETED'),
+                queryKey: orderKeys.list('POST_DELIVERY'),
                 exact: true,
             });
+
+            if (currentOrder?.shopId) {
+                queryClient.invalidateQueries({
+                    queryKey: orderKeys.byShop(currentOrder.shopId),
+                    exact: true,
+                });
+            }
 
             queryClient.invalidateQueries({
                 queryKey: profileQueryKeys.orderStats(),

@@ -36,16 +36,17 @@ export const OrderStatusRail: React.FC<OrderStatusRailProps> = memo(({
     const { t } = useTranslation(['profile', 'common']);
 
     const handlePress = useCallback((statusKey: string) => {
+        const targetTab = statusKey === 'completed' ? 'delivered' : statusKey;
         Navigator.push({
             pathname: ROUTES.ORDERS.LIST,
-            params: { tab: statusKey },
+            params: { tab: targetTab },
         });
     }, []);
 
     const handleViewHistory = useCallback(() => {
         Navigator.push({
             pathname: ROUTES.ORDERS.LIST,
-            params: { tab: 'completed' },
+            params: { tab: 'delivered' },
         });
     }, []);
 

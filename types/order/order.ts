@@ -38,14 +38,25 @@ export type OrderTabStatus =
     | 'AWAITING_PAYMENT'  // Chờ thanh toán
     | 'CREATED'           // Chờ xác nhận
     | 'FULFILLING'        // Đang xử lý/Giao
-    | 'DELIVERED'         // Đã giao
-    | 'COMPLETED'         // Hoàn thành
+    | 'POST_DELIVERY'     // Bucket UI_COMPLETED: gồm DELIVERED + COMPLETED
     | 'RETURN_REFUND'     // Trả hàng/Hoàn tiền
     | 'CANCELLED';        // Đã hủy
 
 export type KnownPaymentMethod = 'COD' | 'PAYOS' | 'VNPAY' | 'STRIPE' | 'BANK_TRANSFER';
 export type PaymentMethod = KnownPaymentMethod | (string & {});
 export type Carrier = 'GHN' | 'SUPERSHIP' | 'GHTK' | 'VIETTEL_POST';
+
+export interface OrderLifecycleTimestamps {
+    createdAt: string | null;
+    createdDate: string | null;
+    paidAt?: string | null;
+    confirmedAt?: string | null;
+    shippedAt?: string | null;
+    deliveredAt?: string | null;
+    completedAt?: string | null;
+    cancelledAt?: string | null;
+    resolvedAt?: string | null;
+}
 
 // ============================================
 // NESTED OBJECTS - NEW API STRUCTURE
@@ -130,7 +141,7 @@ export interface OrderItem {
 /**
  * Order 
  */
-export interface Order {
+export interface Order extends OrderLifecycleTimestamps {
     orderId: string;
     orderNumber: string;
     shopId: string | null;
@@ -150,8 +161,6 @@ export interface Order {
     totalQuantity: number;
     customerNote: string | null;
     cancellationReason: string | null;
-    createdAt: string | null;
-    createdDate: string | null;
 
     // Items
     items: OrderItem[];

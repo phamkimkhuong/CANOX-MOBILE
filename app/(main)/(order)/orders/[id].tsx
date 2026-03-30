@@ -5,7 +5,7 @@
  * Route: /orders/[id]
  * 
  * Features:
- * - Static Timeline (4 steps) for normal orders
+ * - Lifecycle timeline with backend timestamps for normal orders
  * - Abnormal status banner (cancelled, rejected)
  * - Copy tracking number, order number, address
  * - Dynamic action buttons based on status
@@ -388,7 +388,7 @@ export default function OrderDetailScreen() {
                             <OrderTracker
                                 status={order.status}
                                 statusRaw={order.statusRaw}
-                                createdAt={rawOrder?.createdAt || rawOrder?.createdDate}
+                                lifecycle={rawOrder}
                             />
 
                             {/* Shipping Info */}

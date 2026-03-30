@@ -16,7 +16,6 @@ export const ORDER_STRINGS: OrderTranslation = {
         processing: 'Đang xử lý',
         shipping: 'Đang giao',
         delivered: 'Đã giao',
-        completed: 'Hoàn thành',
         cancelled: 'Đã hủy',
         returned: 'Trả hàng/Hoàn tiền',
     },
@@ -61,8 +60,9 @@ export const ORDER_STRINGS: OrderTranslation = {
     },
     timeline: {
         created: 'Đặt hàng',
-        processing: 'Đang xử lý',
-        shipping: 'Đang giao',
+        confirmed: 'Xác nhận',
+        shipped: 'Gửi hàng',
+        delivered: 'Đã giao',
         completed: 'Hoàn thành',
         abnormal: {
             cancelled: 'Đơn hàng đã bị hủy',
@@ -201,11 +201,7 @@ export const ORDER_STRINGS: OrderTranslation = {
             },
             delivered: {
                 title: 'Chưa có đơn hàng đã giao',
-                description: 'Đơn hàng đã giao thành công sẽ hiển thị ở đây',
-            },
-            completed: {
-                title: 'Chưa có đơn hàng hoàn thành',
-                description: 'Đơn hàng đã hoàn tất sẽ hiển thị ở đây',
+                description: 'Các đơn đã giao và đã hoàn thành sẽ hiển thị ở đây',
             },
             returned: {
                 title: 'Chưa có yêu cầu trả hàng/hoàn tiền',

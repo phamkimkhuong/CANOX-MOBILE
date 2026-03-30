@@ -1,6 +1,6 @@
 import { OrderSchema } from '@/types/order/orderSchema';
 
-const createRawOrder = (status: string) => ({
+const createRawOrder = (status: string, overrides: Record<string, unknown> = {}) => ({
   orderId: '824831965117378560',
   orderNumber: 'ORD-MN6URCAA-5797',
   shopId: 'ff9e495e-5267-4c86-b284-64b4ca6971cf',
@@ -46,7 +46,15 @@ const createRawOrder = (status: string) => ({
   cancellationReason: null,
   createdAt: null,
   createdDate: '2026-03-26T02:28:33.986913871Z',
+  paidAt: null,
+  confirmedAt: null,
+  shippedAt: null,
+  deliveredAt: null,
+  completedAt: null,
+  cancelledAt: null,
+  resolvedAt: null,
   items: [],
+  ...overrides,
 });
 
 describe('OrderSchema status normalization', () => {
@@ -58,7 +66,7 @@ describe('OrderSchema status normalization', () => {
     expect(parsed.currency).toBe('VND');
   });
 
-  it('maps UI_COMPLETED to COMPLETED while preserving raw status', () => {
+  it('maps the UI_COMPLETED aggregate filter value to actual COMPLETED status while preserving raw status', () => {
     const parsed = OrderSchema.parse(createRawOrder('UI_COMPLETED'));
 
     expect(parsed.status).toBe('COMPLETED');
@@ -70,5 +78,24 @@ describe('OrderSchema status normalization', () => {
 
     expect(parsed.status).toBe('UNKNOWN_STATUS');
     expect(parsed.statusRaw).toBe('UNDER_REVIEW');
+  });
+
+  it('preserves lifecycle timestamps from the backend detail payload', () => {
+    const parsed = OrderSchema.parse(
+      createRawOrder('DELIVERED', {
+        paidAt: '2026-03-20T10:10:48.766560Z',
+        confirmedAt: '2026-03-13T07:30:48.230235Z',
+        shippedAt: '2026-03-20T10:10:48.567157Z',
+        deliveredAt: '2026-03-20T10:10:48.766560Z',
+        completedAt: null,
+        resolvedAt: '2026-03-27T11:02:00.193375Z',
+      })
+    );
+
+    expect(parsed.confirmedAt).toBe('2026-03-13T07:30:48.230235Z');
+    expect(parsed.shippedAt).toBe('2026-03-20T10:10:48.567157Z');
+    expect(parsed.deliveredAt).toBe('2026-03-20T10:10:48.766560Z');
+    expect(parsed.completedAt).toBeNull();
+    expect(parsed.resolvedAt).toBe('2026-03-27T11:02:00.193375Z');
   });
 });
