@@ -103,6 +103,14 @@ export const transformOrder = (order: Order): OrderUI => {
         shippingFee: 0,
         grandTotal: 0,
     };
+    const loyalty = order.loyalty ?? {
+        pointsUsed: 0,
+        discountAmount: 0,
+        pointsEarned: 0,
+        platformPointsUsed: 0,
+        platformDiscountAmount: 0,
+        platformPointsEarned: 0,
+    };
     const payment = order.payment ?? {
         method: 'COD' as PaymentMethod,
         url: null,
@@ -138,6 +146,8 @@ export const transformOrder = (order: Order): OrderUI => {
         shopDiscount: pricing.shopDiscount,
         platformDiscount: pricing.platformDiscount,
         shippingDiscount: pricing.shippingDiscount,
+        loyaltyDiscount: loyalty.discountAmount,
+        platformLoyaltyDiscount: loyalty.platformDiscountAmount,
         totalDiscount: pricing.totalDiscount,
         taxAmount: pricing.taxAmount,
         shippingFee: pricing.shippingFee,

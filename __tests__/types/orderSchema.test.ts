@@ -23,6 +23,14 @@ const createRawOrder = (status: string, overrides: Record<string, unknown> = {})
     shippingFee: 80000,
     grandTotal: 255500,
   },
+  loyalty: {
+    pointsUsed: 0,
+    discountAmount: 0,
+    pointsEarned: 0,
+    platformPointsUsed: 0,
+    platformDiscountAmount: 0,
+    platformPointsEarned: 0,
+  },
   payment: {
     method: 'COD',
     url: null,
@@ -97,5 +105,35 @@ describe('OrderSchema status normalization', () => {
     expect(parsed.deliveredAt).toBe('2026-03-20T10:10:48.766560Z');
     expect(parsed.completedAt).toBeNull();
     expect(parsed.resolvedAt).toBe('2026-03-27T11:02:00.193375Z');
+  });
+
+  it('parses loyalty discount amounts used in order payment breakdown', () => {
+    const parsed = OrderSchema.parse(
+      createRawOrder('CREATED', {
+        pricing: {
+          subtotal: 33500,
+          shopDiscount: 0,
+          platformDiscount: 0,
+          shippingDiscount: 0,
+          appliedVoucherCodes: null,
+          totalDiscount: 9999,
+          taxAmount: 0,
+          shippingFee: 21001,
+          grandTotal: 44502,
+        },
+        loyalty: {
+          pointsUsed: 9999,
+          discountAmount: 9999,
+          pointsEarned: 0,
+          platformPointsUsed: 0,
+          platformDiscountAmount: 0,
+          platformPointsEarned: 0,
+        },
+      })
+    );
+
+    expect(parsed.loyalty.discountAmount).toBe(9999);
+    expect(parsed.loyalty.platformDiscountAmount).toBe(0);
+    expect(parsed.pricing.totalDiscount).toBe(9999);
   });
 });

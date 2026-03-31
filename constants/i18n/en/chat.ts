@@ -19,10 +19,6 @@ export const CHAT_STRINGS: ChatTranslation = {
         messageProduct: 'Product: {{name}}',
         responseRate: 'Response rate {{rate}}%',
     },
-    promo: {
-        title: '50% Off International Shipping',
-        subtitle: 'Upcoming 11.11 Event!',
-    },
     detail: {
         loadingMessages: 'Loading messages...',
         cannotLoadMessages: 'Could not load messages',

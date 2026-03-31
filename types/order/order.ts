@@ -77,6 +77,15 @@ export interface OrderPricing {
     grandTotal: number;
 }
 
+export interface OrderLoyalty {
+    pointsUsed: number;
+    discountAmount: number;
+    pointsEarned: number;
+    platformPointsUsed: number;
+    platformDiscountAmount: number;
+    platformPointsEarned: number;
+}
+
 /**
  * Order Payment - Payment method and status
  */
@@ -152,6 +161,7 @@ export interface Order extends OrderLifecycleTimestamps {
 
     // Nested objects
     pricing: OrderPricing;
+    loyalty: OrderLoyalty;
     payment: OrderPayment;
     shipment: OrderShipment;
     shippingAddress: OrderShippingAddress | null; // Can be null
@@ -243,6 +253,8 @@ export interface OrderUI {
     shopDiscount: number;
     platformDiscount: number;
     shippingDiscount: number;
+    loyaltyDiscount: number;
+    platformLoyaltyDiscount: number;
     totalDiscount: number;
     taxAmount: number;
     shippingFee: number;

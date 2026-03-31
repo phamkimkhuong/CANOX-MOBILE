@@ -55,6 +55,14 @@ const createOrder = (overrides: Partial<Order> = {}): Order => ({
     shippingFee: 36002,
     grandTotal: 836002,
   },
+  loyalty: {
+    pointsUsed: 0,
+    discountAmount: 0,
+    pointsEarned: 0,
+    platformPointsUsed: 0,
+    platformDiscountAmount: 0,
+    platformPointsEarned: 0,
+  },
   payment: {
     method: 'COD',
     url: null,
@@ -179,5 +187,35 @@ describe('order detail shop logo flow', () => {
     );
 
     expect(mockedGetStatusDisplay).toHaveBeenCalledWith('UNKNOWN_STATUS', 'UNDER_REVIEW');
+  });
+
+  it('flattens loyalty discounts for the payment summary breakdown', () => {
+    const result = transformOrder(
+      createOrder({
+        pricing: {
+          subtotal: 33500,
+          shopDiscount: 0,
+          platformDiscount: 0,
+          shippingDiscount: 0,
+          appliedVoucherCodes: null,
+          totalDiscount: 9999,
+          taxAmount: 0,
+          shippingFee: 21001,
+          grandTotal: 44502,
+        },
+        loyalty: {
+          pointsUsed: 9999,
+          discountAmount: 9999,
+          pointsEarned: 0,
+          platformPointsUsed: 0,
+          platformDiscountAmount: 0,
+          platformPointsEarned: 0,
+        },
+      })
+    );
+
+    expect(result.loyaltyDiscount).toBe(9999);
+    expect(result.platformLoyaltyDiscount).toBe(0);
+    expect(result.totalDiscount).toBe(9999);
   });
 });

@@ -81,6 +81,24 @@ export const OrderPricingSchema = z.looseObject({
     grandTotal: numberOrZero,
   });
 
+export const OrderLoyaltySchema = z.looseObject({
+    pointsUsed: numberOrZero,
+    discountAmount: numberOrZero,
+    pointsEarned: numberOrZero,
+    platformPointsUsed: numberOrZero,
+    platformDiscountAmount: numberOrZero,
+    platformPointsEarned: numberOrZero,
+  })
+  .nullish()
+  .transform((value) => value ?? ({
+    pointsUsed: 0,
+    discountAmount: 0,
+    pointsEarned: 0,
+    platformPointsUsed: 0,
+    platformDiscountAmount: 0,
+    platformPointsEarned: 0,
+  }));
+
 export const OrderPaymentSchema = z.looseObject({
     method: PaymentMethodSchema,
     url: nullableString,
@@ -142,6 +160,7 @@ export const OrderSchema = z.looseObject({
     status: RawOrderStatusSchema,
     currency: currencyCodeOrDefault,
     pricing: OrderPricingSchema,
+    loyalty: OrderLoyaltySchema,
     payment: OrderPaymentSchema,
     shipment: OrderShipmentSchema,
     shippingAddress: OrderShippingAddressSchema,

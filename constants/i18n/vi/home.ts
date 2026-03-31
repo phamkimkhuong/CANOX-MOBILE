@@ -7,7 +7,7 @@ export const HOME_STRINGS: HomeTranslation = {
     },
     flashSale: {
         title: 'FLASH SALE',
-        seeAll: 'Xem tất cả',
+        seeAll: 'Xem thêm',
         soldCount: 'Đã bán {{count}}',
         sellingFast: 'Đang bán chạy',
         soldOut: 'Hết hàng',
@@ -23,7 +23,6 @@ export const HOME_STRINGS: HomeTranslation = {
         sold: 'Đã bán',
         onlyLeft: 'Chỉ còn {{count}}',
         upcomingPriceLabel: 'Giá flash sale',
-        upcomingSaveAmount: 'Tiết kiệm {{amount}}',
     },
     featured: {
         title: 'Gợi ý cho bạn',

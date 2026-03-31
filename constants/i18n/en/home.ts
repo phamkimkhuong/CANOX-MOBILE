@@ -23,7 +23,6 @@ export const HOME_STRINGS: HomeTranslation = {
         sold: 'Sold',
         onlyLeft: 'Only {{count}} left',
         upcomingPriceLabel: 'Flash sale price',
-        upcomingSaveAmount: 'Save {{amount}}',
     },
     featured: {
         title: 'Featured Categories',

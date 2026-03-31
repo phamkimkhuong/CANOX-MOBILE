@@ -5,46 +5,12 @@ import {
     useActiveFlashSaleSlots,
     useUpcomingFlashSaleSlots,
 } from '@/hooks/api/campaign/useFlashSaleDataSource';
-import { SlotDetailResponse } from '@/types/campaign';
-import { FlashSaleData, FlashSaleItem } from '@/types/home';
-import { buildImageUrl } from '@/utils/url';
+import { FlashSaleData } from '@/types/home';
+import { transformSlotProductsToFlashSaleItems } from '@/utils/adapter/campaign/flashSaleAdapter';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSlotDetail } from './useSlotDetail';
-
-/**
- * Transform slot detail products into FlashSaleItem[]
- */
-const transformSlotProducts = (slot: SlotDetailResponse['data']): FlashSaleItem[] => {
-    if (!slot?.products) return [];
-
-    return slot.products.flatMap((product) => {
-        const representativeVariant = product.variants?.[0];
-        if (!representativeVariant) return [];
-
-        const stockLimit = representativeVariant.stockLimit || 1;
-        const stockSold = representativeVariant.stockSold || 0;
-        const stockRemaining = representativeVariant.stockRemaining || 0;
-        const progress = Math.min(Math.round((stockSold / stockLimit) * 100), 100);
-
-        return [{
-            id: product.productId,
-            productId: product.productId,
-            name: product.productName || 'Sản phẩm Flash Sale',
-            image: buildImageUrl(product.productThumbnailUrl || representativeVariant.variantImagePath, null, 'thumb'),
-            rating: product.averageRating || 0,
-            price: representativeVariant.salePrice || 0,
-            originalPrice: representativeVariant.originalPrice || 0,
-            discountPercentage: representativeVariant.discountPercent || 0,
-            soldCount: stockSold,
-            totalStock: stockLimit,
-            stockRemaining,
-            progress,
-            isSoldOut: representativeVariant.isSoldOut || stockRemaining === 0,
-        }];
-    });
-};
 
 /**
  * Hook get active flash sale for Home screen
@@ -78,7 +44,9 @@ export const useActiveFlashSale = () => {
     const data = useMemo<FlashSaleData | null>(() => {
         if (!selectedSlot || !slotDetailQuery.data) return null;
 
-        const items = slotDetailQuery.data.transformedProducts || transformSlotProducts(slotDetailQuery.data);
+        const items =
+            slotDetailQuery.data.transformedProducts ||
+            transformSlotProductsToFlashSaleItems(slotDetailQuery.data);
         if (items.length === 0) return null;
 
         return {

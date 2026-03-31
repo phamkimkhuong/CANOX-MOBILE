@@ -173,7 +173,6 @@ export interface HomeTranslation {
         sold: string;
         onlyLeft: string;
         upcomingPriceLabel: string;
-        upcomingSaveAmount: string;
     };
     featured: {
         title: string;
@@ -804,6 +803,9 @@ export interface OrderTranslation {
             shopDiscount: string;
             platformDiscount: string;
             shippingDiscount: string;
+            loyaltyDiscount: string;
+            platformLoyaltyDiscount: string;
+            otherDiscount: string;
             tax: string;
             total: string;
             savings: string;
@@ -1075,10 +1077,6 @@ export interface ChatTranslation {
         messageSentImage: string;
         messageProduct: string;
         responseRate: string;
-    };
-    promo: {
-        title: string;
-        subtitle: string;
     };
     detail: {
         loadingMessages: string;

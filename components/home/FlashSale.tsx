@@ -263,51 +263,51 @@ export const FlashSale = memo(({ onProductPress, shimmerAnimatedStyle }: FlashSa
                 >
                     <View style={[styles.container, shouldShowPendingShell && styles.containerPending]}>
                         <View style={styles.header}>
-                            <View style={styles.titleRow}>
+                            <View style={styles.headerTopRow}>
                                 <Text style={styles.title}>{t('flashSale.title')}</Text>
 
-                                <Animated.View
-                                    key={statusTimerKey}
-                                    entering={FadeIn.duration(200)}
-                                    exiting={FadeOut.duration(140)}
-                                    style={styles.statusTimerGroup}
+                                <TouchableOpacity
+                                    style={styles.seeAllBtn}
+                                    onPress={() => Navigator.push(ROUTES.CAMPAIGN.FLASH_SALE)}
                                 >
-                                    {displayedIsUpcoming ? (
-                                        <Text style={styles.upcomingLabel}>{t('flashSale.startingIn')}</Text>
-                                    ) : null}
-
-                                    <View style={styles.timerRow}>
-                                        {timeLeft.days > 0 ? (
-                                            <>
-                                                <View style={[styles.timerBox, displayedIsUpcoming && styles.timerBoxUpcoming]}>
-                                                    <Text style={styles.timerText}>{timeLeft.days}</Text>
-                                                </View>
-                                                <Text style={styles.timerDayText}>ngày</Text>
-                                            </>
-                                        ) : null}
-
-                                        <View style={[styles.timerBox, displayedIsUpcoming && styles.timerBoxUpcoming]}>
-                                            <Text style={styles.timerText}>{formatNumber(timeLeft.hours)}</Text>
-                                        </View>
-                                        <Text style={styles.timerColon}>:</Text>
-                                        <View style={[styles.timerBox, displayedIsUpcoming && styles.timerBoxUpcoming]}>
-                                            <Text style={styles.timerText}>{formatNumber(timeLeft.minutes)}</Text>
-                                        </View>
-                                        <Text style={styles.timerColon}>:</Text>
-                                        <View style={[styles.timerBox, displayedIsUpcoming && styles.timerBoxUpcoming]}>
-                                            <Text style={styles.timerText}>{formatNumber(timeLeft.seconds)}</Text>
-                                        </View>
-                                    </View>
-                                </Animated.View>
+                                    <Text style={styles.seeAllText}>{t('flashSale.seeAll')}</Text>
+                                    <IconSymbol name="chevron-right" size={14} color={theme.colors.secondary} />
+                                </TouchableOpacity>
                             </View>
 
-                            <TouchableOpacity
-                                style={styles.seeAllBtn}
-                                onPress={() => Navigator.push(ROUTES.CAMPAIGN.FLASH_SALE)}
+                            <Animated.View
+                                key={statusTimerKey}
+                                entering={FadeIn.duration(200)}
+                                exiting={FadeOut.duration(140)}
+                                style={styles.statusTimerGroup}
                             >
-                                <Text style={styles.seeAllText}>{t('flashSale.seeAll')}</Text>
-                                <IconSymbol name="chevron-right" size={16} color={theme.colors.secondary} />
-                            </TouchableOpacity>
+                                {displayedIsUpcoming ? (
+                                    <Text style={styles.upcomingLabel}>{t('flashSale.startingIn')}</Text>
+                                ) : null}
+
+                                <View style={styles.timerRow}>
+                                    {timeLeft.days > 0 ? (
+                                        <>
+                                            <View style={[styles.timerBox, displayedIsUpcoming && styles.timerBoxUpcoming]}>
+                                                <Text style={styles.timerText}>{timeLeft.days}</Text>
+                                            </View>
+                                            <Text style={styles.timerDayText}>ngày</Text>
+                                        </>
+                                    ) : null}
+
+                                    <View style={[styles.timerBox, displayedIsUpcoming && styles.timerBoxUpcoming]}>
+                                        <Text style={styles.timerText}>{formatNumber(timeLeft.hours)}</Text>
+                                    </View>
+                                    <Text style={styles.timerColon}>:</Text>
+                                    <View style={[styles.timerBox, displayedIsUpcoming && styles.timerBoxUpcoming]}>
+                                        <Text style={styles.timerText}>{formatNumber(timeLeft.minutes)}</Text>
+                                    </View>
+                                    <Text style={styles.timerColon}>:</Text>
+                                    <View style={[styles.timerBox, displayedIsUpcoming && styles.timerBoxUpcoming]}>
+                                        <Text style={styles.timerText}>{formatNumber(timeLeft.seconds)}</Text>
+                                    </View>
+                                </View>
+                            </Animated.View>
                         </View>
 
                         {shouldShowPendingShell ? (
@@ -414,13 +414,6 @@ export const FlashSale = memo(({ onProductPress, shimmerAnimatedStyle }: FlashSa
                                                         <Text style={styles.upcomingInfoLabel}>
                                                             {t('flashSale.upcomingPriceLabel')}
                                                         </Text>
-                                                        {upcomingCurrentPrice ? (
-                                                            <Text style={styles.upcomingInfoHint}>
-                                                                {t('flashSale.upcomingSaveAmount', {
-                                                                    amount: formatCurrency(Math.max(upcomingCurrentPrice - item.price, 0))
-                                                                })}
-                                                            </Text>
-                                                        ) : null}
                                                     </View>
                                                     <Text style={styles.upcomingInfoValue}>
                                                         {formatCurrency(item.price)}
@@ -473,23 +466,21 @@ const stylesheet = StyleSheet.create((theme) => ({
         opacity: 0.98,
     },
     header: {
-        flexDirection: 'row',
-        alignItems: 'center',
         paddingHorizontal: theme.margins.md,
         marginBottom: 12,
-        gap: 12,
+        gap: theme.margins.xs,
     },
-    titleRow: {
-        flex: 1,
+    headerTopRow: {
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'space-between',
         gap: 12,
     },
     statusTimerGroup: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
-        flexShrink: 1,
+        gap: 10,
+        minWidth: 0,
     },
     title: {
         fontSize: theme.fontSizes.base,
@@ -502,6 +493,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: theme.fontSizes.xs,
         fontWeight: '600',
         color: theme.colors.secondary,
+        flexShrink: 1,
     },
     timerRow: {
         flexDirection: 'row',
@@ -554,11 +546,14 @@ const stylesheet = StyleSheet.create((theme) => ({
     seeAllBtn: {
         flexDirection: 'row',
         alignItems: 'center',
+        gap: 2,
+        flexShrink: 0,
+        opacity: 0.78,
     },
     seeAllText: {
         fontSize: theme.fontSizes.xs,
         color: theme.colors.secondary,
-        fontWeight: '500',
+        fontWeight: '400',
     },
     productsSection: {
         position: 'relative',
@@ -740,11 +735,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontWeight: '600',
         color: theme.colors.secondary,
         flexShrink: 1,
-    },
-    upcomingInfoHint: {
-        fontSize: theme.fontSizes.xs,
-        color: theme.colors.warning,
-        fontWeight: '600',
     },
     upcomingInfoValue: {
         fontSize: theme.fontSizes.sm,

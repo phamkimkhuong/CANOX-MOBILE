@@ -1,8 +1,7 @@
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { request } from '@/services/api/client';
 import { SlotDetailResponse, SlotDetailResponseSchema } from '@/types/campaign';
-import { FlashSaleItem } from '@/types/home';
-import { buildImageUrl } from '@/utils/url';
+import { transformSlotProductsToFlashSaleItems } from '@/utils/adapter/campaign/flashSaleAdapter';
 import { QueryClient, useQuery } from '@tanstack/react-query';
 
 /**
@@ -26,32 +25,7 @@ export const getSlotDetailQueryOptions = (slotId: string | null) => ({
         const slot = response.data;
         if (!slot) return null;
 
-        // One product card per product; use the first variant as the representative item.
-        const transformedProducts: FlashSaleItem[] = (slot.products || []).flatMap((product) => {
-            const representativeVariant = product.variants?.[0];
-            if (!representativeVariant) return [];
-
-            const stockLimit = representativeVariant.stockLimit || 1;
-            const stockSold = representativeVariant.stockSold || 0;
-            const stockRemaining = representativeVariant.stockRemaining || 0;
-            const progress = Math.min(Math.round((stockSold / stockLimit) * 100), 100);
-
-            return [{
-                id: product.productId,
-                productId: product.productId,
-                name: product.productName || 'San pham Flash Sale',
-                image: buildImageUrl(product.productThumbnailUrl || representativeVariant.variantImagePath, null, 'thumb'),
-                rating: product.averageRating || 0,
-                price: representativeVariant.salePrice || 0,
-                originalPrice: representativeVariant.originalPrice || 0,
-                discountPercentage: representativeVariant.discountPercent || 0,
-                soldCount: stockSold,
-                totalStock: stockLimit,
-                stockRemaining,
-                progress,
-                isSoldOut: representativeVariant.isSoldOut || stockRemaining === 0,
-            }];
-        });
+        const transformedProducts = transformSlotProductsToFlashSaleItems(slot);
 
         return {
             ...slot,

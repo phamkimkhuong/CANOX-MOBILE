@@ -73,6 +73,9 @@ interface OrderDetailPriceSummaryProps {
     shopDiscount: number;
     platformDiscount: number;
     shippingDiscount: number;
+    loyaltyDiscount?: number;
+    platformLoyaltyDiscount?: number;
+    totalDiscount?: number;
     shippingFee: number;
     taxAmount?: number;
     grandTotal: number;
@@ -85,6 +88,9 @@ export const OrderDetailPriceSummary: React.FC<OrderDetailPriceSummaryProps> = (
     shopDiscount,
     platformDiscount,
     shippingDiscount,
+    loyaltyDiscount = 0,
+    platformLoyaltyDiscount = 0,
+    totalDiscount = 0,
     shippingFee,
     taxAmount = 0,
     grandTotal,
@@ -95,8 +101,13 @@ export const OrderDetailPriceSummary: React.FC<OrderDetailPriceSummaryProps> = (
     const { t } = useTranslation(['order', 'common']);
     const styles = stylesheet;
 
-    const totalDiscount = shopDiscount + platformDiscount + shippingDiscount;
-    const hasDiscount = totalDiscount > 0;
+    const knownDiscountTotal =
+        shopDiscount +
+        platformDiscount +
+        shippingDiscount +
+        loyaltyDiscount +
+        platformLoyaltyDiscount;
+    const otherDiscount = Math.max(totalDiscount - knownDiscountTotal, 0);
 
     return (
         <View style={styles.container}>
@@ -143,6 +154,33 @@ export const OrderDetailPriceSummary: React.FC<OrderDetailPriceSummaryProps> = (
                     />
                 )}
 
+                {loyaltyDiscount > 0 && (
+                    <PriceRow
+                        label={t('order:detail.summary.loyaltyDiscount')}
+                        value={loyaltyDiscount}
+                        currency={currency}
+                        isDiscount
+                    />
+                )}
+
+                {platformLoyaltyDiscount > 0 && (
+                    <PriceRow
+                        label={t('order:detail.summary.platformLoyaltyDiscount')}
+                        value={platformLoyaltyDiscount}
+                        currency={currency}
+                        isDiscount
+                    />
+                )}
+
+                {otherDiscount > 0 && (
+                    <PriceRow
+                        label={t('order:detail.summary.otherDiscount')}
+                        value={otherDiscount}
+                        currency={currency}
+                        isDiscount
+                    />
+                )}
+
                 <PriceRow
                     label={t('order:detail.summary.shipping')}
                     value={shippingFee}
@@ -159,20 +197,6 @@ export const OrderDetailPriceSummary: React.FC<OrderDetailPriceSummaryProps> = (
 
             {/* Total */}
             <PriceRow label={t('order:detail.summary.total')} value={grandTotal} currency={currency} isTotal />
-
-            {/* Savings Badge */}
-            {hasDiscount && (
-                <View style={styles.savingsBadge}>
-                    <IconSymbol
-                        name="percent"
-                        size={14}
-                        color={theme.colors.success}
-                    />
-                    <Text style={styles.savingsText}>
-                        {t('order:detail.summary.savings', { amount: formatMoney(totalDiscount, currency) })}
-                    </Text>
-                </View>
-            )}
 
             {/* Payment Method */}
             <View style={styles.paymentRow}>
@@ -261,19 +285,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         backgroundColor: theme.colors.border,
         marginHorizontal: theme.margins.md,
         marginTop: theme.margins.sm,
-    },
-    savingsBadge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        alignSelf: 'flex-end',
-        marginRight: theme.margins.md,
-        marginTop: 4,
-        gap: 4,
-    },
-    savingsText: {
-        fontSize: 12,
-        fontWeight: '500',
-        color: theme.colors.success,
     },
     paymentRow: {
         flexDirection: 'row',

@@ -435,6 +435,9 @@ export default function OrderDetailScreen() {
                                     shopDiscount={order.shopDiscount}
                                     platformDiscount={order.platformDiscount}
                                     shippingDiscount={order.shippingDiscount}
+                                    loyaltyDiscount={order.loyaltyDiscount}
+                                    platformLoyaltyDiscount={order.platformLoyaltyDiscount}
+                                    totalDiscount={order.totalDiscount}
                                     shippingFee={order.shippingFee}
                                     taxAmount={order.taxAmount}
                                     grandTotal={order.grandTotal}

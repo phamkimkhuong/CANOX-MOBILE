@@ -19,10 +19,6 @@ export const CHAT_STRINGS: ChatTranslation = {
         messageProduct: 'Sản phẩm: {{name}}',
         responseRate: 'Phản hồi {{rate}}%',
     },
-    promo: {
-        title: 'Giảm 50% phí vận chuyển quốc tế',
-        subtitle: 'Sự kiện 11.11 sắp tới!',
-    },
     detail: {
         loadingMessages: 'Đang tải tin nhắn...',
         cannotLoadMessages: 'Không thể tải tin nhắn',

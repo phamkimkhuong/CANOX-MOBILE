@@ -3,7 +3,6 @@ import {
     ChatHeader,
     ChatSkeleton,
     ConversationItem,
-    PromoBanner,
 } from '@/components/chat';
 import { chatRoutes } from '@/constants/routes';
 import { useChatList, useConversationActions, useRefreshChatList } from '@/hooks/api/chat/useChatList';
@@ -15,7 +14,6 @@ import { Navigator } from '@/utils/navigation';
 import { FlashList } from '@shopify/flash-list';
 import { useFocusEffect } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, RefreshControl, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
@@ -30,7 +28,6 @@ interface ChatListScreenProps {
 
 export function ChatListScreen({ isTab = false }: ChatListScreenProps) {
     const { theme } = useUnistyles();
-    const { t } = useTranslation('chat');
     const styles = stylesheet;
 
     const [activeFilter, setActiveFilter] = useState<ChatFilter>(ChatFilter.ALL);
@@ -136,14 +133,6 @@ export function ChatListScreen({ isTab = false }: ChatListScreenProps) {
         />
     ), [handleConversationPress, handlePin, handleMute, handleDelete, handleSwipeOpen, openedRowId]);
 
-    const renderHeader = useCallback(() => (
-        <PromoBanner
-            subtitle={t('promo.subtitle')}
-            title={t('promo.title')}
-            icon="shipping"
-        />
-    ), [t]);
-
     const renderFooter = useCallback(() => {
         if (!isFetchingNextPage) return null;
         return (
@@ -202,7 +191,6 @@ export function ChatListScreen({ isTab = false }: ChatListScreenProps) {
                 extraData={openedRowId}
                 renderItem={renderItem}
                 keyExtractor={(item) => item.id}
-                ListHeaderComponent={renderHeader}
                 ListEmptyComponent={renderEmpty}
                 ListFooterComponent={renderFooter}
                 onEndReached={handleLoadMore}
