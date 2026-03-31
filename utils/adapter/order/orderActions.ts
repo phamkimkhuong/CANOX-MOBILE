@@ -7,6 +7,9 @@
  */
 
 import { OrderAction, OrderStatus, OrderUI } from '@/types/order/order';
+import { safeParseDate } from '@/utils/date';
+
+const RETURN_REQUEST_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 
 /**
  * Status - Button Matrix
@@ -113,6 +116,25 @@ const ACTION_MATRIX: Record<OrderStatus, OrderAction[]> = {
     ],
 };
 
+export const getReturnRequestDeadline = (
+    deliveredAt: string | null | undefined
+): Date | null => {
+    const deliveredDate = safeParseDate(deliveredAt);
+    if (!deliveredDate) return null;
+
+    return new Date(deliveredDate.getTime() + RETURN_REQUEST_WINDOW_MS);
+};
+
+export const isReturnRequestWindowOpen = (
+    deliveredAt: string | null | undefined,
+    nowMs: number = Date.now()
+): boolean => {
+    const deadline = getReturnRequestDeadline(deliveredAt);
+    if (!deadline) return false;
+
+    return nowMs < deadline.getTime();
+};
+
 /**
  * Get order actions based on status
  * Consider special conditions (e.g., whether reviewed, etc.)
@@ -120,7 +142,17 @@ const ACTION_MATRIX: Record<OrderStatus, OrderAction[]> = {
 export const getOrderActions = (orderOrStatus: OrderUI | OrderStatus): OrderAction[] => {
     const isStatusString = typeof orderOrStatus === 'string';
     const status = isStatusString ? orderOrStatus : orderOrStatus.status;
-    const baseActions = ACTION_MATRIX[status] || [];
+    let baseActions = ACTION_MATRIX[status] || [];
+
+    if (status === 'DELIVERED') {
+        const canShowReturn = isStatusString
+            ? canRequestReturn(status)
+            : canRequestReturn(orderOrStatus);
+
+        if (!canShowReturn) {
+            baseActions = baseActions.filter((action) => action.action !== 'return');
+        }
+    }
 
     // If we have the UI object and it's COMPLETED/FINALIZED, check if all items are reviewed
     if (!isStatusString && (status === 'COMPLETED' || status === 'FINALIZED')) {
@@ -147,8 +179,18 @@ export const canCancelOrder = (status: OrderStatus): boolean => {
 /**
  * Check if order can request return
  */
-export const canRequestReturn = (status: OrderStatus): boolean => {
-    return status === 'DELIVERED';
+export const canRequestReturn = (
+    orderOrStatus: OrderUI | OrderStatus,
+    deliveredAt?: string | null,
+    nowMs: number = Date.now()
+): boolean => {
+    if (typeof orderOrStatus === 'string') {
+        return orderOrStatus === 'DELIVERED'
+            && isReturnRequestWindowOpen(deliveredAt, nowMs);
+    }
+
+    return orderOrStatus.status === 'DELIVERED'
+        && isReturnRequestWindowOpen(orderOrStatus.deliveredAt, nowMs);
 };
 
 /**

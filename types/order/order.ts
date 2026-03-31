@@ -247,6 +247,7 @@ export interface OrderUI {
     formattedDate: string; //  "12/01/2024"
     formattedTime: string; // "14:30"
     formattedPlacedAt: string; // Locale-aware datetime string
+    deliveredAt: string | null;
 
     // Price fields (flattened from pricing object)
     subtotal: number;

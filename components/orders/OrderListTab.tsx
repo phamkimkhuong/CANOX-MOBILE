@@ -19,12 +19,14 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { hideGlobalLoading, showGlobalLoading } from '@/store/useLoadingStore';
 import { OrderAction, OrderTabStatus, OrderUI } from '@/types/order/order';
 import { Alert as CustomAlertHelper } from '@/utils/AlertHelper';
+import { canRequestReturn, getReturnRequestDeadline } from '@/utils/adapter/order/orderActions';
+import { formatDate } from '@/utils/date';
 import { logger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
 import { FlashList, ListRenderItem } from '@shopify/flash-list';
 import React, { useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Linking, RefreshControl, View } from 'react-native';
+import { ActivityIndicator, Linking, RefreshControl, Text, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { DataGuard } from '../common/DataGuard';
@@ -257,16 +259,37 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
     }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
     // Render item
-    const renderItem: ListRenderItem<OrderUI> = useCallback(({ item }) => (
-        <OrderCard
-            order={item}
-            onPress={handleOrderPress}
-            onPressIn={handleOrderPressIn}
-            onShopPress={handleShopPress}
-            onAction={handleAction}
-            onTrackingPress={handleTrackingPress}
-        />
-    ), [handleOrderPress, handleOrderPressIn, handleShopPress, handleAction, handleTrackingPress]);
+    const renderItem: ListRenderItem<OrderUI> = useCallback(({ item }) => {
+        const shouldShowReturnDeadline =
+            (status === 'POST_DELIVERY' || status === 'ALL') &&
+            item.status === 'DELIVERED' &&
+            canRequestReturn(item);
+
+        const returnDeadline = shouldShowReturnDeadline
+            ? getReturnRequestDeadline(item.deliveredAt)
+            : null;
+
+        const returnDeadlineText = returnDeadline
+            ? t('order:detail.returnDeadline', { date: formatDate(returnDeadline) })
+            : null;
+
+        return (
+            <View style={styles.orderItemContainer}>
+                <OrderCard
+                    order={item}
+                    containerStyle={returnDeadlineText ? styles.orderCardWithExternalNote : undefined}
+                    onPress={handleOrderPress}
+                    onPressIn={handleOrderPressIn}
+                    onShopPress={handleShopPress}
+                    onAction={handleAction}
+                    onTrackingPress={handleTrackingPress}
+                />
+                {returnDeadlineText ? (
+                    <Text style={styles.returnDeadlineText}>{returnDeadlineText}</Text>
+                ) : null}
+            </View>
+        );
+    }, [handleOrderPress, handleOrderPressIn, handleShopPress, handleAction, handleTrackingPress, status, styles.orderItemContainer, styles.returnDeadlineText, t]);
 
     // Key extractor
     const keyExtractor = useCallback((item: OrderUI) => item.orderId, []);
@@ -333,5 +356,18 @@ const stylesheet = StyleSheet.create((theme) => ({
     footer: {
         paddingVertical: theme.margins.md,
         alignItems: 'center',
+    },
+    orderItemContainer: {
+        marginBottom: theme.margins.sm,
+    },
+    orderCardWithExternalNote: {
+        marginBottom: 0,
+    },
+    returnDeadlineText: {
+        marginTop: theme.margins.xs,
+        marginHorizontal: theme.margins.md,
+        fontSize: 12,
+        lineHeight: 18,
+        color: theme.colors.typographySecondary,
     },
 }));

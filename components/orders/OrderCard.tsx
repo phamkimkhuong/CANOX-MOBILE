@@ -9,7 +9,7 @@
 import { OrderAction, OrderUI } from '@/types/order/order';
 import { hasTracking } from '@/utils/adapter/order/orderActions';
 import React, { memo, useCallback } from 'react';
-import { Pressable } from 'react-native';
+import { Pressable, StyleProp, ViewStyle } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet } from 'react-native-unistyles';
 
@@ -21,6 +21,7 @@ import { TrackingInfoSnippet } from './TrackingInfoSnippet';
 
 interface OrderCardProps {
     order: OrderUI;
+    containerStyle?: StyleProp<ViewStyle>;
     onPress?: (orderId: string) => void;
     onPressIn?: (orderId: string) => void;
     onShopPress?: (shopId: string) => void;
@@ -30,6 +31,7 @@ interface OrderCardProps {
 
 export const OrderCard = memo<OrderCardProps>(({
     order,
+    containerStyle,
     onPress,
     onPressIn,
     onShopPress,
@@ -75,6 +77,7 @@ export const OrderCard = memo<OrderCardProps>(({
         <Pressable
             style={({ pressed }) => [
                 styles.container,
+                containerStyle,
                 pressed && styles.pressed,
             ]}
             onPress={handlePress}

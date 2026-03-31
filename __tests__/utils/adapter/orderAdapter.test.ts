@@ -192,6 +192,7 @@ describe('order detail shop logo flow', () => {
   it('flattens loyalty discounts for the payment summary breakdown', () => {
     const result = transformOrder(
       createOrder({
+        deliveredAt: '2026-03-20T10:10:48.766560Z',
         pricing: {
           subtotal: 33500,
           shopDiscount: 0,
@@ -217,5 +218,6 @@ describe('order detail shop logo flow', () => {
     expect(result.loyaltyDiscount).toBe(9999);
     expect(result.platformLoyaltyDiscount).toBe(0);
     expect(result.totalDiscount).toBe(9999);
+    expect(result.deliveredAt).toBe('2026-03-20T10:10:48.766560Z');
   });
 });

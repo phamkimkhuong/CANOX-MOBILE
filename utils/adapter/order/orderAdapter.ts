@@ -140,6 +140,7 @@ export const transformOrder = (order: Order): OrderUI => {
         formattedDate: placedAt ? formatDate(placedAt) : '',
         formattedTime: formatClockTime(placedAt),
         formattedPlacedAt: placedAt ? formatDateTime(placedAt) : '',
+        deliveredAt: order.deliveredAt ?? null,
 
         // Prices - from nested pricing object
         subtotal: pricing.subtotal,

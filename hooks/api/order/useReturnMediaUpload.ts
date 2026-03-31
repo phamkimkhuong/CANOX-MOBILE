@@ -35,6 +35,16 @@ const getUploadErrorMessage = (error: unknown): string => {
     return 'Upload failed';
 };
 
+const normalizeAssetDurationSeconds = (
+    durationMs: number | null | undefined
+): number | undefined => {
+    if (typeof durationMs !== 'number' || durationMs <= 0) {
+        return undefined;
+    }
+
+    return Math.ceil(durationMs / 1000);
+};
+
 export const useReturnMediaUpload = (orderId?: string) => {
     const { t } = useTranslation(['order', 'common']);
 
@@ -193,11 +203,42 @@ export const useReturnMediaUpload = (orderId?: string) => {
                 mediaTypes: ['videos'],
                 allowsMultipleSelection: false,
                 quality: 0.8,
+                videoMaxDuration: RETURN_MEDIA_LIMITS.MAX_VIDEO_DURATION_SECONDS,
             });
 
             if (result.canceled || !result.assets?.[0]) return;
 
             const asset = result.assets[0];
+            const durationSeconds = normalizeAssetDurationSeconds(asset.duration);
+
+            if (
+                durationSeconds
+                && durationSeconds > RETURN_MEDIA_LIMITS.MAX_VIDEO_DURATION_SECONDS
+            ) {
+                Toast.show({
+                    type: 'error',
+                    text1: t('returnRequest.videoTooLongTitle'),
+                    text2: t('returnRequest.videoTooLongMessage', {
+                        max: RETURN_MEDIA_LIMITS.MAX_VIDEO_DURATION_SECONDS,
+                    }),
+                });
+                return;
+            }
+
+            if (
+                asset.fileSize
+                && asset.fileSize > RETURN_MEDIA_LIMITS.MAX_VIDEO_SIZE_BYTES
+            ) {
+                Toast.show({
+                    type: 'error',
+                    text1: t('returnRequest.videoTooLargeTitle'),
+                    text2: t('returnRequest.videoTooLargeMessage', {
+                        max: RETURN_MEDIA_LIMITS.MAX_VIDEO_SIZE_BYTES / (1024 * 1024),
+                    }),
+                });
+                return;
+            }
+
             const newMediaItem: ReturnMediaItem = {
                 id: uuidv4(),
                 uri: asset.uri,
@@ -205,7 +246,7 @@ export const useReturnMediaUpload = (orderId?: string) => {
                 uploadStatus: 'pending',
                 progress: 0,
                 fileSize: asset.fileSize,
-                duration: asset.duration ?? undefined,
+                duration: durationSeconds,
             };
 
             appendMediaItems(orderId, [newMediaItem]);

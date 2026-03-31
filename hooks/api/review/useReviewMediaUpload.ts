@@ -34,6 +34,16 @@ const getUploadContext = (type: ReviewMediaType): UploadContext => {
     return type === 'VIDEO' ? 'REVIEW_VIDEO' : 'REVIEW_IMAGE';
 };
 
+const normalizeAssetDurationSeconds = (
+    durationMs: number | null | undefined
+): number | undefined => {
+    if (typeof durationMs !== 'number' || durationMs <= 0) {
+        return undefined;
+    }
+
+    return Math.ceil(durationMs / 1000);
+};
+
 
 
 // ============================================
@@ -274,6 +284,19 @@ export const useReviewMediaUpload = () => {
             if (result.canceled || !result.assets?.[0]) return;
 
             const asset = result.assets[0];
+            const durationSeconds = normalizeAssetDurationSeconds(asset.duration);
+
+            if (
+                durationSeconds
+                && durationSeconds > REVIEW_MEDIA_LIMITS.MAX_VIDEO_DURATION_SECONDS
+            ) {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Video quá dài',
+                    text2: `Tối đa ${REVIEW_MEDIA_LIMITS.MAX_VIDEO_DURATION_SECONDS} giây`,
+                });
+                return;
+            }
 
             // Validate video size
             if (asset.fileSize && asset.fileSize > REVIEW_MEDIA_LIMITS.MAX_VIDEO_SIZE_BYTES) {
@@ -292,7 +315,7 @@ export const useReviewMediaUpload = () => {
                 uploadStatus: 'pending',
                 progress: 0,
                 fileSize: asset.fileSize,
-                duration: asset.duration ?? undefined,
+                duration: durationSeconds,
             };
 
             setMediaItems((prev) => [...prev, newItem]);
@@ -334,6 +357,19 @@ export const useReviewMediaUpload = () => {
             if (result.canceled || !result.assets?.[0]) return;
 
             const asset = result.assets[0];
+            const durationSeconds = normalizeAssetDurationSeconds(asset.duration);
+
+            if (
+                durationSeconds
+                && durationSeconds > REVIEW_MEDIA_LIMITS.MAX_VIDEO_DURATION_SECONDS
+            ) {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Video quá dài',
+                    text2: `Tối đa ${REVIEW_MEDIA_LIMITS.MAX_VIDEO_DURATION_SECONDS} giây`,
+                });
+                return;
+            }
 
             // Validate video size
             if (asset.fileSize && asset.fileSize > REVIEW_MEDIA_LIMITS.MAX_VIDEO_SIZE_BYTES) {
@@ -352,7 +388,7 @@ export const useReviewMediaUpload = () => {
                 uploadStatus: 'pending',
                 progress: 0,
                 fileSize: asset.fileSize,
-                duration: asset.duration ?? undefined,
+                duration: durationSeconds,
             };
 
             setMediaItems((prev) => [...prev, newItem]);

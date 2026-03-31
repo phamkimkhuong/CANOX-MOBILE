@@ -825,6 +825,7 @@ export interface OrderTranslation {
         confirmReceivedError: string;
         returnRequestTitle: string;
         returnRequestMessage: string;
+        returnDeadline: string;
         carrierTitle: string;
         trackingID: string;
         estimatedDelivery: string;
@@ -956,6 +957,10 @@ export interface OrderTranslation {
         imageLimitReachedMessage: string;
         videoLimitReachedTitle: string;
         videoLimitReachedMessage: string;
+        videoTooLongTitle: string;
+        videoTooLongMessage: string;
+        videoTooLargeTitle: string;
+        videoTooLargeMessage: string;
         imagePickErrorTitle: string;
         imagePickErrorMessage: string;
         videoPickErrorTitle: string;

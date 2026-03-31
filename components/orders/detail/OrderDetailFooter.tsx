@@ -11,7 +11,8 @@
 
 import { IconSymbol } from '@/components/ui/Icon';
 import type { OrderStatus, OrderUI } from '@/types/order/order';
-import { getOrderActions } from '@/utils/adapter/order/orderActions';
+import { formatDate } from '@/utils/date';
+import { canRequestReturn, getOrderActions, getReturnRequestDeadline } from '@/utils/adapter/order/orderActions';
 import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -143,6 +144,20 @@ export const OrderDetailFooter: React.FC<OrderDetailFooterProps> = ({
 
     // Get available actions based on status or full order
     const actions = useMemo(() => getOrderActions(order || status), [order, status]);
+    const returnDeadlineText = useMemo(() => {
+        if (!order || !canRequestReturn(order)) {
+            return null;
+        }
+
+        const deadline = getReturnRequestDeadline(order.deliveredAt);
+        if (!deadline) {
+            return null;
+        }
+
+        return t('order:detail.returnDeadline', {
+            date: formatDate(deadline),
+        });
+    }, [order, t]);
 
     // Map array actions to buttons
     const buttons = useMemo(() => {
@@ -200,6 +215,9 @@ export const OrderDetailFooter: React.FC<OrderDetailFooterProps> = ({
 
     return (
         <View style={[styles.container, { paddingBottom: bottom || 16 }]}>
+            {returnDeadlineText ? (
+                <Text style={styles.returnDeadlineText}>{returnDeadlineText}</Text>
+            ) : null}
             <View style={styles.buttonRow}>
                 {buttons.map((btn) => (
                     <ActionButton
@@ -223,6 +241,12 @@ const stylesheet = StyleSheet.create((theme) => ({
         paddingHorizontal: theme.margins.md,
         borderTopWidth: 1,
         borderTopColor: theme.colors.border,
+    },
+    returnDeadlineText: {
+        fontSize: 12,
+        lineHeight: 18,
+        color: theme.colors.typographySecondary,
+        marginBottom: theme.margins.sm,
     },
     buttonRow: {
         flexDirection: 'row',
