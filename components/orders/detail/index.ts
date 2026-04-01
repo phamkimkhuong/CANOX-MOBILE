@@ -8,6 +8,7 @@ export { OrderDetailFooter } from './OrderDetailFooter';
 export { OrderDetailHeader } from './OrderDetailHeader';
 export { OrderDetailItemsList } from './OrderDetailItemsList';
 export { OrderDetailPriceSummary } from './OrderDetailPriceSummary';
+export { OrderReturnInfoCard } from './OrderReturnInfoCard';
 export { OrderDetailSkeleton } from './OrderDetailSkeleton';
 export { OrderTracker } from './OrderTracker';
 export { ShippingInfoCard } from './ShippingInfoCard';

@@ -99,6 +99,43 @@ export const OrderLoyaltySchema = z.looseObject({
     platformPointsEarned: 0,
   }));
 
+export const OrderReturnBuyerInfoSchema = z
+  .looseObject({
+    buyerId: stringOrEmpty,
+    userId: stringOrEmpty,
+    fullName: stringOrEmpty,
+    phone: stringOrEmpty,
+    profileCompleted: booleanOrFalse,
+  })
+  .nullish()
+  .transform((value) => value ?? null);
+
+export const OrderReturnInfoSchema = z
+  .looseObject({
+    returnId: stringOrEmpty,
+    buyerInfo: OrderReturnBuyerInfoSchema,
+    status: nullableString,
+    reasonCode: nullableString,
+    reason: nullableString,
+    description: nullableString,
+    images: arrayOrEmpty(z.string()),
+    evidenceVideos: arrayOrEmpty(z.string()),
+    trackingNumber: nullableString,
+    carrier: z.string().nullish().transform((value): KnownCarrier | null => {
+      if (!value) return null;
+      const normalized = value.toUpperCase();
+      if (CARRIER_SET.has(normalized)) return normalized as KnownCarrier;
+      return null;
+    }),
+    rejectedReason: nullableString,
+    requestedAt: nullableString,
+    approvedAt: nullableString,
+    rejectedAt: nullableString,
+    returnedAt: nullableString,
+  })
+  .nullish()
+  .transform((value) => value ?? null);
+
 export const OrderPaymentSchema = z.looseObject({
     method: PaymentMethodSchema,
     url: nullableString,
@@ -164,6 +201,7 @@ export const OrderSchema = z.looseObject({
     payment: OrderPaymentSchema,
     shipment: OrderShipmentSchema,
     shippingAddress: OrderShippingAddressSchema,
+    returnInfo: OrderReturnInfoSchema,
     itemCount: numberOrZero,
     totalQuantity: numberOrZero,
     customerNote: nullableString,

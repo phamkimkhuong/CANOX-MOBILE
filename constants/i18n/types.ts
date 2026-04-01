@@ -830,6 +830,46 @@ export interface OrderTranslation {
         trackingID: string;
         estimatedDelivery: string;
         trackOrder: string;
+        returnFlow: {
+            title: string;
+            historyTitle: string;
+            fields: {
+                reason: string;
+                description: string;
+                requestedAt: string;
+                approvedAt: string;
+                rejectedAt: string;
+                returnedAt: string;
+                carrier: string;
+                trackingNumber: string;
+                rejectedReason: string;
+                evidence: string;
+            };
+            history: {
+                requested: string;
+                approved: string;
+                rejected: string;
+                returned: string;
+            };
+            summary: {
+                requestedTitle: string;
+                requestedDescription: string;
+                approvedTitle: string;
+                approvedDescription: string;
+                rejectedTitle: string;
+                rejectedDescription: string;
+                returningTitle: string;
+                returningDescription: string;
+                returnedTitle: string;
+                returnedDescription: string;
+                disputedTitle: string;
+                disputedDescription: string;
+                refundPendingTitle: string;
+                refundPendingDescription: string;
+                refundedTitle: string;
+                refundedDescription: string;
+            };
+        };
     };
     timeline: {
         title: string;

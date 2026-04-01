@@ -27,6 +27,7 @@ import {
     OrderDetailHeader,
     OrderDetailItemsList,
     OrderDetailPriceSummary,
+    OrderReturnInfoCard,
     OrderTracker,
     ShippingInfoCard,
 } from '@/components/orders/detail';
@@ -41,6 +42,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { hideGlobalLoading, showGlobalLoading } from '@/store/useLoadingStore';
 import { OrderItemUI } from '@/types/order/order';
 import { transformOrder } from '@/utils/adapter/order/orderAdapter';
+import { isReturnFlowStatus } from '@/utils/adapter/order/orderReturnInfo';
 import { Alert as CustomAlertHelper } from '@/utils/AlertHelper';
 import { logger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
@@ -102,6 +104,9 @@ export default function OrderDetailScreen() {
     const order = useMemo(() => (
         rawOrder ? transformOrder(rawOrder) : undefined
     ), [rawOrder]);
+    const shouldShowReturnFlow = useMemo(() => (
+        Boolean(order?.returnInfo) && Boolean(order?.status && isReturnFlowStatus(order.status))
+    ), [order?.returnInfo, order?.status]);
 
     // Check if any item can be reviewed
 
@@ -384,12 +389,19 @@ export default function OrderDetailScreen() {
                                 />
                             }
                         >
-                            {/* Order Tracker */}
-                            <OrderTracker
-                                status={order.status}
-                                statusRaw={order.statusRaw}
-                                lifecycle={rawOrder}
-                            />
+                            {shouldShowReturnFlow ? (
+                                <OrderReturnInfoCard
+                                    status={order.status}
+                                    statusRaw={order.statusRaw}
+                                    returnInfo={order.returnInfo}
+                                />
+                            ) : (
+                                <OrderTracker
+                                    status={order.status}
+                                    statusRaw={order.statusRaw}
+                                    lifecycle={rawOrder}
+                                />
+                            )}
 
                             {/* Shipping Info */}
                             {(order.carrier || order.trackingNumber) && (

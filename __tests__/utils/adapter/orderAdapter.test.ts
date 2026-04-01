@@ -80,6 +80,7 @@ const createOrder = (overrides: Partial<Order> = {}): Order => ({
     province: 'Hung Yen',
     postalCode: null,
   },
+  returnInfo: null,
   itemCount: 1,
   totalQuantity: 1,
   customerNote: '',
@@ -219,5 +220,54 @@ describe('order detail shop logo flow', () => {
     expect(result.platformLoyaltyDiscount).toBe(0);
     expect(result.totalDiscount).toBe(9999);
     expect(result.deliveredAt).toBe('2026-03-20T10:10:48.766560Z');
+  });
+
+  it('preserves return request details as a separate UI block', () => {
+    const parsed = OrderDetailApiResponseSchema.parse({
+      code: 1000,
+      success: true,
+      message: 'Order retrieved successfully',
+      data: createOrder({
+        status: 'RETURN_REQUESTED',
+        statusRaw: 'RETURN_REQUESTED',
+        returnInfo: {
+          returnId: '826742994338652161',
+          buyerInfo: {
+            buyerId: '8f89e720-80a7-4699-a7e0-155dc73fd9e4',
+            userId: 'c496aabb-159c-40d1-b2c9-b4c99392192a',
+            fullName: 'Le Thuong',
+            phone: '0989898999',
+            profileCompleted: true,
+          },
+          status: 'REQUESTED',
+          reasonCode: 'WRONG_ITEM',
+          reason: 'Thiếu hàng / Sai hàng',
+          description: '111111',
+          images: ['public/reviews/images/2026/03/826742988433072128_orig.jpg'],
+          evidenceVideos: ['public/reviews/videos/2026/03/826742988433072129_orig.mp4'],
+          trackingNumber: null,
+          carrier: null,
+          rejectedReason: null,
+          requestedAt: '2026-03-31T09:01:29.975367Z',
+          approvedAt: null,
+          rejectedAt: null,
+          returnedAt: null,
+        },
+      }),
+      timestamp: '2026-04-01T03:37:47.829964695Z',
+    });
+
+    const result = transformOrder(parsed.data);
+
+    expect(result.returnInfo?.returnId).toBe('826742994338652161');
+    expect(result.returnInfo?.description).toBe('111111');
+    expect(result.returnInfo?.imageUrls).toEqual([
+      'public:public/reviews/images/2026/03/826742988433072128_orig.jpg',
+    ]);
+    expect(result.returnInfo?.videoUrls).toEqual([
+      'public:public/reviews/videos/2026/03/826742988433072129_orig.mp4',
+    ]);
+    expect(result.returnInfo?.requestedAt).toBe('2026-03-31T09:01:29.975367Z');
+    expect(result.returnInfo?.reasonLabel).toBeTruthy();
   });
 });

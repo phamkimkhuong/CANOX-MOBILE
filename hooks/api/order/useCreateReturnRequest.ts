@@ -104,6 +104,23 @@ export const useCreateReturnRequest = (
                     ...currentOrder,
                     status: 'RETURN_REQUESTED' as const,
                     statusRaw: 'RETURN_REQUESTED',
+                    returnInfo: {
+                        returnId: currentOrder.returnInfo?.returnId ?? '',
+                        buyerInfo: currentOrder.returnInfo?.buyerInfo ?? null,
+                        status: 'REQUESTED',
+                        reasonCode: variables.payload.reasonCode,
+                        reason: variables.payload.reason,
+                        description: variables.payload.description,
+                        images: currentOrder.returnInfo?.images ?? [],
+                        evidenceVideos: currentOrder.returnInfo?.evidenceVideos ?? [],
+                        trackingNumber: currentOrder.returnInfo?.trackingNumber ?? null,
+                        carrier: currentOrder.returnInfo?.carrier ?? null,
+                        rejectedReason: null,
+                        requestedAt: currentOrder.returnInfo?.requestedAt ?? new Date().toISOString(),
+                        approvedAt: null,
+                        rejectedAt: null,
+                        returnedAt: null,
+                    },
                 }
                 : undefined;
 

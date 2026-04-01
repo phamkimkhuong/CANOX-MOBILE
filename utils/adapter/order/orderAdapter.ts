@@ -4,6 +4,7 @@
  * ==============================================
  */
 
+import i18n from '@/constants/i18n';
 import {
     Carrier,
     KnownPaymentMethod,
@@ -120,9 +121,15 @@ export const transformOrder = (order: Order): OrderUI => {
         carrier: null,
     };
     const shippingAddress = order.shippingAddress;
+    const returnInfo = order.returnInfo;
     // Defensive fallback for partial or stale cache entries.
     const items = Array.isArray(order.items) ? order.items : [];
     const totalQuantity = items.reduce((sum, item) => sum + (item.quantity || 0), 0);
+    const returnReasonLabel = returnInfo?.reasonCode
+        ? i18n.t(`order:returnRequest.reasons.${returnInfo.reasonCode}` as never, {
+            defaultValue: returnInfo.reason || '',
+        })
+        : (returnInfo?.reason || '');
 
     return {
         orderId: order.orderId,
@@ -169,6 +176,26 @@ export const transformOrder = (order: Order): OrderUI => {
         paymentUrl: payment.url,
         paymentMethodDisplay: PAYMENT_METHOD_NAMES[payment.method as KnownPaymentMethod]
             ?? getPaymentMethodDisplayName(payment.method),
+        returnInfo: returnInfo ? {
+            returnId: returnInfo.returnId,
+            status: returnInfo.status,
+            reasonCode: returnInfo.reasonCode,
+            reasonLabel: returnReasonLabel,
+            description: returnInfo.description,
+            imageUrls: returnInfo.images
+                .map((path) => toPublicUrl(path))
+                .filter((url): url is string => Boolean(url)),
+            videoUrls: returnInfo.evidenceVideos
+                .map((path) => toPublicUrl(path))
+                .filter((url): url is string => Boolean(url)),
+            trackingNumber: returnInfo.trackingNumber,
+            carrier: returnInfo.carrier,
+            rejectedReason: returnInfo.rejectedReason,
+            requestedAt: returnInfo.requestedAt,
+            approvedAt: returnInfo.approvedAt,
+            rejectedAt: returnInfo.rejectedAt,
+            returnedAt: returnInfo.returnedAt,
+        } : null,
 
         // Address - from nested shippingAddress object
         recipientName: shippingAddress?.recipientName || '',

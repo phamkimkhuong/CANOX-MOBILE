@@ -59,6 +59,7 @@ const createOrderUI = (overrides: Partial<OrderUI> = {}): OrderUI => ({
   paymentMethod: 'COD',
   paymentUrl: null,
   paymentMethodDisplay: 'Thanh toán khi nhận hàng',
+  returnInfo: null,
   recipientName: 'Nguyễn Văn A',
   phoneNumber: '0961415400',
   fullAddress: 'Độc Lập, Lê Quý Đôn, Hưng Yên',

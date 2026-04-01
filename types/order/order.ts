@@ -86,6 +86,32 @@ export interface OrderLoyalty {
     platformPointsEarned: number;
 }
 
+export interface OrderReturnBuyerInfo {
+    buyerId: string;
+    userId: string;
+    fullName: string;
+    phone: string;
+    profileCompleted: boolean;
+}
+
+export interface OrderReturnInfo {
+    returnId: string;
+    buyerInfo: OrderReturnBuyerInfo | null;
+    status: string | null;
+    reasonCode: string | null;
+    reason: string | null;
+    description: string | null;
+    images: string[];
+    evidenceVideos: string[];
+    trackingNumber: string | null;
+    carrier: Carrier | null;
+    rejectedReason: string | null;
+    requestedAt: string | null;
+    approvedAt: string | null;
+    rejectedAt: string | null;
+    returnedAt: string | null;
+}
+
 /**
  * Order Payment - Payment method and status
  */
@@ -165,6 +191,7 @@ export interface Order extends OrderLifecycleTimestamps {
     payment: OrderPayment;
     shipment: OrderShipment;
     shippingAddress: OrderShippingAddress | null; // Can be null
+    returnInfo: OrderReturnInfo | null;
 
     // Order summary
     itemCount: number;
@@ -275,6 +302,23 @@ export interface OrderUI {
     paymentMethod: PaymentMethod;
     paymentUrl: string | null;
     paymentMethodDisplay: string; //  "Thanh toán khi nhận hàng"
+
+    returnInfo: {
+        returnId: string;
+        status: string | null;
+        reasonCode: string | null;
+        reasonLabel: string;
+        description: string | null;
+        imageUrls: string[];
+        videoUrls: string[];
+        trackingNumber: string | null;
+        carrier: Carrier | null;
+        rejectedReason: string | null;
+        requestedAt: string | null;
+        approvedAt: string | null;
+        rejectedAt: string | null;
+        returnedAt: string | null;
+    } | null;
 
     // Delivery address (formatted from shippingAddress object)
     recipientName: string;
