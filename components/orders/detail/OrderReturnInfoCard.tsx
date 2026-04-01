@@ -195,13 +195,6 @@ export const OrderReturnInfoCard: React.FC<OrderReturnInfoCardProps> = ({
                     />
                 ) : null}
 
-                {returnInfo.rejectedReason ? (
-                    <InfoBlock
-                        label={t('detail.returnFlow.fields.rejectedReason')}
-                        value={returnInfo.rejectedReason}
-                    />
-                ) : null}
-
                 {carrierText ? (
                     <InfoBlock
                         label={t('detail.returnFlow.fields.carrier')}
@@ -234,6 +227,9 @@ export const OrderReturnInfoCard: React.FC<OrderReturnInfoCardProps> = ({
                                     </View>
                                     <View style={styles.historyBody}>
                                         <Text style={styles.historyTitle}>{event.title}</Text>
+                                        {event.description ? (
+                                            <Text style={styles.historyDescription}>{event.description}</Text>
+                                        ) : null}
                                         <Text style={styles.historyTime}>{formatDateTime(event.timestamp)}</Text>
                                     </View>
                                 </View>
@@ -494,6 +490,11 @@ const stylesheet = StyleSheet.create((theme) => ({
     historyTime: {
         fontSize: 12,
         color: theme.colors.typographySecondary,
+    },
+    historyDescription: {
+        fontSize: 13,
+        lineHeight: 18,
+        color: theme.colors.typography,
     },
     mediaGrid: {
         flexDirection: 'row',

@@ -74,7 +74,7 @@ export const ORDER_STRINGS: OrderTranslation = {
                 carrier: 'Đơn vị vận chuyển trả hàng',
                 trackingNumber: 'Mã vận đơn trả hàng',
                 rejectedReason: 'Lý do từ chối',
-                evidence: 'Bằng chứng đã gửi',
+                evidence: 'Bằng chứng người mua đã gửi',
             },
             history: {
                 requested: 'Bạn đã gửi yêu cầu',

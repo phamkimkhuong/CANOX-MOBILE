@@ -28,6 +28,7 @@ export interface ReturnFlowHistoryEvent {
     title: string;
     timestamp: string;
     icon: string;
+    description?: string;
 }
 
 interface ReturnFlowInfoLike {
@@ -35,6 +36,7 @@ interface ReturnFlowInfoLike {
     approvedAt?: string | null;
     rejectedAt?: string | null;
     returnedAt?: string | null;
+    rejectedReason?: string | null;
 }
 
 const buildTimestampMeta = (
@@ -192,6 +194,7 @@ export const buildReturnFlowHistory = (
                 title: i18n.t('order:detail.returnFlow.history.rejected'),
                 timestamp: returnInfo.rejectedAt,
                 icon: 'close-circle',
+                description: returnInfo.rejectedReason ?? undefined,
             }
             : null,
         returnInfo.returnedAt

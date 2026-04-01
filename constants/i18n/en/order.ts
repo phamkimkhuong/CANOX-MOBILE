@@ -74,7 +74,7 @@ export const ORDER_STRINGS: OrderTranslation = {
                 carrier: 'Return carrier',
                 trackingNumber: 'Return tracking number',
                 rejectedReason: 'Rejection reason',
-                evidence: 'Submitted evidence',
+                evidence: 'Evidence submitted by the buyer',
             },
             history: {
                 requested: 'You submitted the request',
