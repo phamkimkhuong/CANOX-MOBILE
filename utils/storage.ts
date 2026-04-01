@@ -1,6 +1,3 @@
-import { md5 as calculateMd5 } from 'js-md5';
-import { devLog } from './logger';
-
 /**
  * Extract file extension from URI or filename
  */
@@ -22,52 +19,6 @@ export const getFileExtension = (uri: string): StorageExtension => {
 
     // Default to jpg for unknown types
     return 'jpg';
-};
-
-/**
- * Calculate MD5 hash from ArrayBuffer
- */
-export const calculateMD5FromArrayBuffer = (arrayBuffer: ArrayBuffer): string => {
-    const hash = calculateMd5(arrayBuffer);
-    return hash;
-};
-
-/**
- * Read file once and return all needed data
- * This ensures MD5 is calculated from the exact same bytes that will be uploaded
- */
-export const readFileAsArrayBuffer = async (fileUri: string): Promise<{
-    blob: Blob;
-    arrayBuffer: ArrayBuffer;
-    size: number;
-}> => {
-    try {
-        const response = await fetch(fileUri);
-        const blob = await response.blob();
-
-        // Convert blob to ArrayBuffer using FileReader
-        const arrayBuffer = await new Promise<ArrayBuffer>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => {
-                if (reader.result instanceof ArrayBuffer) {
-                    resolve(reader.result);
-                } else {
-                    reject(new Error('FileReader did not return ArrayBuffer'));
-                }
-            };
-            reader.onerror = () => reject(reader.error);
-            reader.readAsArrayBuffer(blob);
-        });
-
-        return {
-            blob,
-            arrayBuffer,
-            size: blob.size,
-        };
-    } catch (error) {
-        devLog('[storageUtils] File read error:', error);
-        throw new Error('Failed to read file');
-    }
 };
 
 /**

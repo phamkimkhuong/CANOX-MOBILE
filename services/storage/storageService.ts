@@ -11,6 +11,12 @@
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { request } from '@/services/api/client';
 import {
+    getNativeFileMetadata,
+    NativeFileUploadMethod,
+    NativeFileUploadTarget,
+    uploadFileUriWithNativeTask,
+} from '@/services/storage/nativeFileUpload';
+import {
     PresignUploadRequest,
     PresignUploadResponse,
     PresignUploadResponseSchema,
@@ -21,16 +27,7 @@ import {
     UploadContext,
 } from '@/types/storage';
 import { logger } from '@/utils/logger';
-import {
-    calculateMD5FromArrayBuffer,
-    getFileExtension,
-    readFileAsArrayBuffer,
-} from '@/utils/storage';
-import {
-    createUploadTask,
-    FileSystemUploadType,
-    getInfoAsync,
-} from 'expo-file-system/legacy';
+import { getFileExtension } from '@/utils/storage';
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -42,41 +39,15 @@ export interface UploadProgress {
     percentage: number;
 }
 
-type NativeFileMetadata = {
-    size: number;
-    md5: string;
-};
-
 type SignedUploadTarget = {
     url: string;
-    method: 'POST' | 'PUT' | 'PATCH';
+    method: NativeFileUploadMethod;
     headers: Record<string, string>;
 };
 
 const isVideoContext = (context: UploadContext): boolean => context.includes('VIDEO');
 
-const getNativeFileMetadata = async (fileUri: string): Promise<NativeFileMetadata> => {
-    const fileInfo = await getInfoAsync(fileUri, { md5: true });
-
-    if (!fileInfo.exists || fileInfo.isDirectory) {
-        throw new Error('Failed to access upload file');
-    }
-
-    if (typeof fileInfo.size !== 'number' || fileInfo.size <= 0) {
-        throw new Error('Failed to determine file size');
-    }
-
-    if (!fileInfo.md5) {
-        throw new Error('Failed to calculate file checksum');
-    }
-
-    return {
-        size: fileInfo.size,
-        md5: fileInfo.md5,
-    };
-};
-
-const normalizeUploadMethod = (method: string): 'POST' | 'PUT' | 'PATCH' => {
+const normalizeUploadMethod = (method: string): NativeFileUploadMethod => {
     const normalizedMethod = method.toUpperCase();
 
     if (normalizedMethod === 'POST' || normalizedMethod === 'PUT' || normalizedMethod === 'PATCH') {
@@ -112,56 +83,6 @@ const getSignedUploadHeaders = (
     return uploadHeaders;
 };
 
-const uploadArrayBufferToSignedUrl = async (
-    target: SignedUploadTarget,
-    arrayBuffer: ArrayBuffer
-): Promise<void> => {
-    const uploadResponse = await fetch(target.url, {
-        method: target.method,
-        headers: target.headers,
-        body: arrayBuffer,
-    });
-
-    if (!uploadResponse.ok) {
-        const errorText = await uploadResponse.text();
-        throw new Error(`Cloud storage upload failed: ${uploadResponse.status} - ${errorText}`);
-    }
-};
-
-const uploadFileUriToSignedUrl = async (
-    target: SignedUploadTarget,
-    fileUri: string,
-    onProgress?: (progressFraction: number) => void
-): Promise<void> => {
-    const uploadTask = createUploadTask(
-        target.url,
-        fileUri,
-        {
-            headers: target.headers,
-            httpMethod: target.method,
-            uploadType: FileSystemUploadType.BINARY_CONTENT,
-        },
-        ({ totalBytesExpectedToSend, totalBytesSent }) => {
-            if (totalBytesExpectedToSend <= 0) {
-                return;
-            }
-
-            onProgress?.(Math.min(1, totalBytesSent / totalBytesExpectedToSend));
-        }
-    );
-
-    const uploadResponse = await uploadTask.uploadAsync();
-    if (!uploadResponse) {
-        throw new Error('Cloud storage upload was interrupted');
-    }
-
-    if (uploadResponse.status < 200 || uploadResponse.status >= 300) {
-        throw new Error(
-            `Cloud storage upload failed: ${uploadResponse.status} - ${uploadResponse.body}`
-        );
-    }
-};
-
 /**
  * Handle the complete 4-step upload flow for any context
  * 
@@ -181,20 +102,7 @@ export const uploadFileToStorage = async (
         // --- STEP 0: PREPARE FILE METADATA & CHECKSUM ---
         onProgress?.({ step: 'READING', percentage: 5 });
         const extension = getFileExtension(fileUri);
-        let fileSizeBytes = 0;
-        let md5 = '';
-        let imageUploadBuffer: ArrayBuffer | undefined;
-
-        if (isVideo) {
-            const videoMetadata = await getNativeFileMetadata(fileUri);
-            fileSizeBytes = videoMetadata.size;
-            md5 = videoMetadata.md5;
-        } else {
-            const imageFileData = await readFileAsArrayBuffer(fileUri);
-            fileSizeBytes = imageFileData.size;
-            md5 = calculateMD5FromArrayBuffer(imageFileData.arrayBuffer);
-            imageUploadBuffer = imageFileData.arrayBuffer;
-        }
+        const fileMetadata = await getNativeFileMetadata(fileUri);
         onProgress?.({ step: 'READING', percentage: 20 });
 
         // --- STEP 1: PRESIGN UPLOAD ---
@@ -202,8 +110,8 @@ export const uploadFileToStorage = async (
         const presignPayload: PresignUploadRequest = {
             context,
             extension,
-            fileSizeBytes,
-            md5,
+            fileSizeBytes: fileMetadata.size,
+            md5: fileMetadata.md5,
             isPrivate: false,
         };
 
@@ -228,27 +136,23 @@ export const uploadFileToStorage = async (
             headers: getSignedUploadHeaders(url, headers),
         };
 
-        if (isVideo) {
-            await uploadFileUriToSignedUrl(
-                uploadTarget,
-                fileUri,
-                (progressFraction) => {
-                    onProgress?.({
-                        step: 'UPLOADING',
-                        percentage: Math.max(
-                            45,
-                            Math.min(70, Math.round(45 + (progressFraction * 25)))
-                        ),
-                    });
-                }
-            );
-        } else {
-            if (!imageUploadBuffer) {
-                throw new Error('Image upload buffer is missing');
-            }
+        const nativeUploadTarget: NativeFileUploadTarget = {
+            ...uploadTarget,
+            fileUri,
+        };
 
-            await uploadArrayBufferToSignedUrl(uploadTarget, imageUploadBuffer);
-        }
+        await uploadFileUriWithNativeTask(
+            nativeUploadTarget,
+            (progressFraction) => {
+                onProgress?.({
+                    step: 'UPLOADING',
+                    percentage: Math.max(
+                        45,
+                        Math.min(70, Math.round(45 + (progressFraction * 25)))
+                    ),
+                });
+            }
+        );
         onProgress?.({ step: 'UPLOADING', percentage: 70 });
 
         // --- STEP 3: PRE-CHECK (Trigger Processing) ---

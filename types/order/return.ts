@@ -1,3 +1,6 @@
+import { RETURN_MEDIA_POLICY } from '@/constants/mediaPolicies';
+import type { SharedRefType } from 'expo';
+
 /**
  * ==============================================
  * RETURN REQUEST TYPES
@@ -54,6 +57,7 @@ export interface ReturnMediaItem {
     error?: string;
     fileSize?: number;
     duration?: number;
+    thumbnailSource?: SharedRefType<'image'> | string;
 }
 
 export interface ReturnRequestDraft {
@@ -67,6 +71,6 @@ export const RETURN_DESCRIPTION_MAX_LENGTH = 2000;
 export const RETURN_MEDIA_LIMITS = {
     MAX_IMAGES: 5,
     MAX_VIDEOS: 2,
-    MAX_VIDEO_DURATION_SECONDS: 60,
-    MAX_VIDEO_SIZE_BYTES: 50 * 1024 * 1024,
+    MAX_VIDEO_DURATION_SECONDS: RETURN_MEDIA_POLICY.video?.maxDurationSeconds ?? 60,
+    MAX_VIDEO_SIZE_BYTES: RETURN_MEDIA_POLICY.video?.maxSizeBytes ?? 50 * 1024 * 1024,
 } as const;

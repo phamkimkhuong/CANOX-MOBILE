@@ -1,3 +1,4 @@
+import { AVATAR_MEDIA_POLICY } from '@/constants/mediaPolicies';
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { request } from '@/services/api/client';
 import { uploadFileToStorage } from '@/services/storage/storageService';
@@ -7,6 +8,7 @@ import {
     UpdateUserAvatarResponseSchema
 } from '@/types/storage';
 import { devLog } from '@/utils/logger';
+import { validateImageSelection } from '@/utils/validation/mediaValidation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
 import { useCallback, useState } from 'react';
@@ -134,6 +136,16 @@ export const useAvatarUpload = () => {
 
             if (!result.canceled && result.assets[0]) {
                 const asset = result.assets[0];
+
+                if (!validateImageSelection(asset.fileSize, AVATAR_MEDIA_POLICY.image).valid) {
+                    Toast.show({
+                        type: 'error',
+                        text1: 'Ảnh quá lớn',
+                        text2: `Tối đa ${(AVATAR_MEDIA_POLICY.image?.maxSizeBytes ?? 0) / (1024 * 1024)}MB`,
+                    });
+                    return null;
+                }
+
                 return asset.uri;
             }
 
@@ -161,6 +173,16 @@ export const useAvatarUpload = () => {
 
             if (!result.canceled && result.assets[0]) {
                 const asset = result.assets[0];
+
+                if (!validateImageSelection(asset.fileSize, AVATAR_MEDIA_POLICY.image).valid) {
+                    Toast.show({
+                        type: 'error',
+                        text1: 'Ảnh quá lớn',
+                        text2: `Tối đa ${(AVATAR_MEDIA_POLICY.image?.maxSizeBytes ?? 0) / (1024 * 1024)}MB`,
+                    });
+                    return null;
+                }
+
                 devLog('[useAvatarUpload] Photo taken:', {
                     uri: asset.uri,
                     width: asset.width,

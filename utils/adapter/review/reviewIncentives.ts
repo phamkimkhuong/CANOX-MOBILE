@@ -1,3 +1,5 @@
+import { REVIEW_MEDIA_POLICY } from '@/constants/mediaPolicies';
+
 /**
  * ==============================================
  * REVIEW INCENTIVES - Gamification Config
@@ -39,7 +41,7 @@ export const REVIEW_INCENTIVE: ReviewIncentive = {
 export const REVIEW_MEDIA_LIMITS = {
     MAX_IMAGES: 5,
     MAX_VIDEOS: 1,
-    MAX_VIDEO_DURATION_SECONDS: 60,
-    MAX_VIDEO_SIZE_BYTES: 50 * 1024 * 1024,
-    MAX_IMAGE_SIZE_BYTES: 10 * 1024 * 1024,
+    MAX_VIDEO_DURATION_SECONDS: REVIEW_MEDIA_POLICY.video?.maxDurationSeconds ?? 60,
+    MAX_VIDEO_SIZE_BYTES: REVIEW_MEDIA_POLICY.video?.maxSizeBytes ?? 50 * 1024 * 1024,
+    MAX_IMAGE_SIZE_BYTES: REVIEW_MEDIA_POLICY.image?.maxSizeBytes ?? 10 * 1024 * 1024,
 };

@@ -6,6 +6,7 @@ import {
     BottomSheetView
 } from '@gorhom/bottom-sheet';
 import React, { forwardRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet } from 'react-native-unistyles';
@@ -27,6 +28,7 @@ export const AttachmentMenu = forwardRef<BottomSheetModal, AttachmentMenuProps>(
     ({ onSelectOption }, ref) => {
         const styles = stylesheet;
         const insets = useSafeAreaInsets();
+        const { t } = useTranslation('chat');
 
         // Backdrop when opening menu
         const renderBackdrop = useCallback(
@@ -52,10 +54,10 @@ export const AttachmentMenu = forwardRef<BottomSheetModal, AttachmentMenuProps>(
                 bottomInset={insets.bottom}
             >
                 <BottomSheetView style={styles.content}>
-                    <Text style={styles.title}>Gửi nội dung</Text>
+                    <Text style={styles.title}>{t('detail.attachment.title')}</Text>
 
                     <View style={styles.optionsGrid}>
-                        {/* Option: Hình ảnh */}
+                        {/* Option: Ảnh / Video */}
                         <TouchableOpacity
                             style={styles.optionItem}
                             onPress={() => onSelectOption('media')}
@@ -63,7 +65,7 @@ export const AttachmentMenu = forwardRef<BottomSheetModal, AttachmentMenuProps>(
                             <View style={styles.iconCircleBlue}>
                                 <IconSymbol name="image" size={24} color="#1976D2" />
                             </View>
-                            <Text style={styles.optionLabel}>Hình ảnh</Text>
+                            <Text style={styles.optionLabel}>{t('detail.attachment.mediaLabel')}</Text>
                         </TouchableOpacity>
 
                         {/* Option: Gửi sản phẩm */}
@@ -74,7 +76,7 @@ export const AttachmentMenu = forwardRef<BottomSheetModal, AttachmentMenuProps>(
                             <View style={styles.iconCircleGreen}>
                                 <IconSymbol name="shopping-bag" size={24} color="#388E3C" />
                             </View>
-                            <Text style={styles.optionLabel}>Sản phẩm</Text>
+                            <Text style={styles.optionLabel}>{t('detail.attachment.productLabel')}</Text>
                         </TouchableOpacity>
 
                         {/* Option: Gửi đơn hàng */}
@@ -85,7 +87,7 @@ export const AttachmentMenu = forwardRef<BottomSheetModal, AttachmentMenuProps>(
                             <View style={styles.iconCircleOrange}>
                                 <IconSymbol name="shipping" size={24} color="#F57C00" />
                             </View>
-                            <Text style={styles.optionLabel}>Đơn hàng</Text>
+                            <Text style={styles.optionLabel}>{t('detail.attachment.orderLabel')}</Text>
                         </TouchableOpacity>
                     </View>
                 </BottomSheetView>

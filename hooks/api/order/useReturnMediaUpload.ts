@@ -1,3 +1,4 @@
+import { RETURN_MEDIA_POLICY } from '@/constants/mediaPolicies';
 import { uploadFileToStorage } from '@/services/storage/storageService';
 import { useReturnRequestDraftStore } from '@/store/useReturnRequestDraftStore';
 import type {
@@ -7,8 +8,14 @@ import type {
 } from '@/types/order/return';
 import type { UploadContext } from '@/types/storage';
 import { RETURN_MEDIA_LIMITS } from '@/types/order/return';
+import { generateVideoThumbnailSource } from '@/utils/media/videoThumbnail';
 import { toPublicUrl } from '@/utils/url';
 import { logger } from '@/utils/logger';
+import {
+    normalizeAssetDurationSeconds,
+    validateImageSelection,
+    validateVideoSelection,
+} from '@/utils/validation/mediaValidation';
 import * as ImagePicker from 'expo-image-picker';
 import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -33,16 +40,6 @@ const getUploadErrorMessage = (error: unknown): string => {
     }
 
     return 'Upload failed';
-};
-
-const normalizeAssetDurationSeconds = (
-    durationMs: number | null | undefined
-): number | undefined => {
-    if (typeof durationMs !== 'number' || durationMs <= 0) {
-        return undefined;
-    }
-
-    return Math.ceil(durationMs / 1000);
 };
 
 export const useReturnMediaUpload = (orderId?: string) => {
@@ -159,6 +156,19 @@ export const useReturnMediaUpload = (orderId?: string) => {
 
             if (result.canceled || !result.assets?.length) return;
 
+            const invalidAsset = result.assets.find((asset) => (
+                !validateImageSelection(asset.fileSize, RETURN_MEDIA_POLICY.image).valid
+            ));
+
+            if (invalidAsset) {
+                Toast.show({
+                    type: 'error',
+                    text1: t('returnRequest.imagePickErrorTitle'),
+                    text2: t('returnRequest.imagePickErrorMessage'),
+                });
+                return;
+            }
+
             const newMediaItems: ReturnMediaItem[] = result.assets.map((asset) => ({
                 id: uuidv4(),
                 uri: asset.uri,
@@ -211,10 +221,13 @@ export const useReturnMediaUpload = (orderId?: string) => {
             const asset = result.assets[0];
             const durationSeconds = normalizeAssetDurationSeconds(asset.duration);
 
-            if (
-                durationSeconds
-                && durationSeconds > RETURN_MEDIA_LIMITS.MAX_VIDEO_DURATION_SECONDS
-            ) {
+            const validation = validateVideoSelection({
+                sizeBytes: asset.fileSize,
+                durationSeconds,
+                policy: RETURN_MEDIA_POLICY.video,
+            });
+
+            if (!validation.valid && validation.code === 'VIDEO_TOO_LONG') {
                 Toast.show({
                     type: 'error',
                     text1: t('returnRequest.videoTooLongTitle'),
@@ -225,18 +238,25 @@ export const useReturnMediaUpload = (orderId?: string) => {
                 return;
             }
 
-            if (
-                asset.fileSize
-                && asset.fileSize > RETURN_MEDIA_LIMITS.MAX_VIDEO_SIZE_BYTES
-            ) {
+            if (!validation.valid && validation.code === 'FILE_TOO_LARGE') {
                 Toast.show({
                     type: 'error',
                     text1: t('returnRequest.videoTooLargeTitle'),
                     text2: t('returnRequest.videoTooLargeMessage', {
-                        max: RETURN_MEDIA_LIMITS.MAX_VIDEO_SIZE_BYTES / (1024 * 1024),
+                        max: (RETURN_MEDIA_POLICY.video?.maxSizeBytes ?? RETURN_MEDIA_LIMITS.MAX_VIDEO_SIZE_BYTES) / (1024 * 1024),
                     }),
                 });
                 return;
+            }
+
+            let thumbnailSource: ReturnMediaItem['thumbnailSource'];
+            try {
+                thumbnailSource = await generateVideoThumbnailSource(
+                    asset.uri,
+                    durationSeconds
+                ) ?? undefined;
+            } catch (thumbnailError) {
+                logger.orders.warn('[useReturnMediaUpload] Failed to generate return video thumbnail', thumbnailError);
             }
 
             const newMediaItem: ReturnMediaItem = {
@@ -247,6 +267,7 @@ export const useReturnMediaUpload = (orderId?: string) => {
                 progress: 0,
                 fileSize: asset.fileSize,
                 duration: durationSeconds,
+                thumbnailSource,
             };
 
             appendMediaItems(orderId, [newMediaItem]);

@@ -6,6 +6,7 @@
  * Sử dụng presigned URL pattern
  */
 
+import { REVIEW_MEDIA_POLICY } from '@/constants/mediaPolicies';
 import { uploadFileToStorage } from '@/services/storage/storageService';
 import { useCallback, useState } from 'react';
 import Toast from 'react-native-toast-message';
@@ -25,6 +26,11 @@ import type { ReviewMediaItem, ReviewMediaType } from '@/types/review';
 import { UploadContext } from '@/types/storage';
 import { REVIEW_MEDIA_LIMITS } from '@/utils/adapter/review/reviewIncentives';
 import { logger } from '@/utils/logger';
+import {
+    normalizeAssetDurationSeconds,
+    validateImageSelection,
+    validateVideoSelection,
+} from '@/utils/validation/mediaValidation';
 import * as ImagePicker from 'expo-image-picker';
 
 /**
@@ -33,18 +39,6 @@ import * as ImagePicker from 'expo-image-picker';
 const getUploadContext = (type: ReviewMediaType): UploadContext => {
     return type === 'VIDEO' ? 'REVIEW_VIDEO' : 'REVIEW_IMAGE';
 };
-
-const normalizeAssetDurationSeconds = (
-    durationMs: number | null | undefined
-): number | undefined => {
-    if (typeof durationMs !== 'number' || durationMs <= 0) {
-        return undefined;
-    }
-
-    return Math.ceil(durationMs / 1000);
-};
-
-
 
 // ============================================
 // HOOK
@@ -184,6 +178,19 @@ export const useReviewMediaUpload = () => {
 
             if (result.canceled || !result.assets?.length) return;
 
+            const invalidAsset = result.assets.find((asset) => (
+                !validateImageSelection(asset.fileSize, REVIEW_MEDIA_POLICY.image).valid
+            ));
+
+            if (invalidAsset) {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Ảnh quá lớn',
+                    text2: `Tối đa ${REVIEW_MEDIA_LIMITS.MAX_IMAGE_SIZE_BYTES / (1024 * 1024)}MB`,
+                });
+                return;
+            }
+
             const newItems: ReviewMediaItem[] = result.assets.map((asset) => ({
                 id: uuidv4(),
                 uri: asset.uri,
@@ -285,11 +292,13 @@ export const useReviewMediaUpload = () => {
 
             const asset = result.assets[0];
             const durationSeconds = normalizeAssetDurationSeconds(asset.duration);
+            const validation = validateVideoSelection({
+                sizeBytes: asset.fileSize,
+                durationSeconds,
+                policy: REVIEW_MEDIA_POLICY.video,
+            });
 
-            if (
-                durationSeconds
-                && durationSeconds > REVIEW_MEDIA_LIMITS.MAX_VIDEO_DURATION_SECONDS
-            ) {
+            if (!validation.valid && validation.code === 'VIDEO_TOO_LONG') {
                 Toast.show({
                     type: 'error',
                     text1: 'Video quá dài',
@@ -298,8 +307,7 @@ export const useReviewMediaUpload = () => {
                 return;
             }
 
-            // Validate video size
-            if (asset.fileSize && asset.fileSize > REVIEW_MEDIA_LIMITS.MAX_VIDEO_SIZE_BYTES) {
+            if (!validation.valid && validation.code === 'FILE_TOO_LARGE') {
                 Toast.show({
                     type: 'error',
                     text1: 'Video quá lớn',
@@ -358,11 +366,13 @@ export const useReviewMediaUpload = () => {
 
             const asset = result.assets[0];
             const durationSeconds = normalizeAssetDurationSeconds(asset.duration);
+            const validation = validateVideoSelection({
+                sizeBytes: asset.fileSize,
+                durationSeconds,
+                policy: REVIEW_MEDIA_POLICY.video,
+            });
 
-            if (
-                durationSeconds
-                && durationSeconds > REVIEW_MEDIA_LIMITS.MAX_VIDEO_DURATION_SECONDS
-            ) {
+            if (!validation.valid && validation.code === 'VIDEO_TOO_LONG') {
                 Toast.show({
                     type: 'error',
                     text1: 'Video quá dài',
@@ -371,8 +381,7 @@ export const useReviewMediaUpload = () => {
                 return;
             }
 
-            // Validate video size
-            if (asset.fileSize && asset.fileSize > REVIEW_MEDIA_LIMITS.MAX_VIDEO_SIZE_BYTES) {
+            if (!validation.valid && validation.code === 'FILE_TOO_LARGE') {
                 Toast.show({
                     type: 'error',
                     text1: 'Video quá lớn',

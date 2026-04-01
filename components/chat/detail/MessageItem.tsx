@@ -135,6 +135,49 @@ const stylesheet = StyleSheet.create((theme, _runtime) => ({
         width: 240,
         height: 180,
     },
+    videoPreviewContainer: {
+        width: 240,
+        height: 180,
+        position: 'relative',
+        backgroundColor: theme.colors.backgroundInput,
+        justifyContent: 'center',
+        alignItems: 'center',
+        overflow: 'hidden',
+    },
+    videoPlaceholderMe: {
+        backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    },
+    videoOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.22)',
+    },
+    videoPlayButton: {
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.55)',
+    },
+    videoMetaBadge: {
+        position: 'absolute',
+        left: 8,
+        bottom: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 12,
+        backgroundColor: 'rgba(0, 0, 0, 0.55)',
+    },
+    videoMetaText: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: '#fff',
+    },
     plusOverlay: {
         ...StyleSheet.absoluteFillObject,
         backgroundColor: 'rgba(0, 0, 0, 0.4)',
@@ -439,6 +482,7 @@ interface MessageItemProps {
     onPress?: (message: Message) => void;
     onLongPress?: (message: Message) => void;
     onImagePress?: (url: string) => void;
+    onVideoPress?: (url: string) => void;
     onRetry?: (message: Message) => void;
 }
 
@@ -453,6 +497,7 @@ const MessageItem: React.FC<MessageItemProps> = React.memo(({
     onPress,
     onLongPress,
     onImagePress,
+    onVideoPress,
     onRetry,
 }) => {
     const { theme } = useUnistyles();
@@ -497,6 +542,18 @@ const MessageItem: React.FC<MessageItemProps> = React.memo(({
                         attachments={message.attachments}
                         isMe={isMe}
                         onPress={onImagePress}
+                        onLongPress={handleLongPress}
+                        sentAt={message.sentAt}
+                        status={message.status}
+                    />
+                );
+            case 'VIDEO':
+                return (
+                    <VideoContent
+                        content={message.content}
+                        attachments={message.attachments}
+                        isMe={isMe}
+                        onPress={onVideoPress}
                         onLongPress={handleLongPress}
                         sentAt={message.sentAt}
                         status={message.status}
@@ -577,6 +634,17 @@ const MessageItem: React.FC<MessageItemProps> = React.memo(({
         </View>
     );
 });
+
+const formatVideoDuration = (durationSeconds?: number): string | null => {
+    if (typeof durationSeconds !== 'number' || durationSeconds <= 0) {
+        return null;
+    }
+
+    const minutes = Math.floor(durationSeconds / 60);
+    const seconds = durationSeconds % 60;
+
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+};
 
 // ============================================
 // SUB-COMPONENTS
@@ -897,6 +965,94 @@ const ImageContent: React.FC<{
             </View>
         );
     };
+
+const VideoContent: React.FC<{
+    content?: string;
+    attachments: MessageAttachment[];
+    isMe: boolean;
+    sentAt: string;
+    status: string;
+    onPress?: (url: string) => void;
+    onLongPress?: () => void;
+}> = ({
+    content,
+    attachments,
+    isMe,
+    sentAt,
+    status,
+    onPress,
+    onLongPress,
+}) => {
+    const styles = stylesheet;
+    const video = attachments[0];
+
+    if (!video) return null;
+
+    const durationLabel = formatVideoDuration(video.duration);
+    const metaLabel = durationLabel || formatFileSize(video.fileSize || 0);
+    const thumbnailSource = video.thumbnailSource ?? (video.thumbnail
+        ? buildImageUrl(video.thumbnail, null, 'medium')
+        : null);
+
+    return (
+        <View style={styles.mediaContainerMain}>
+            <TouchableOpacity
+                activeOpacity={0.9}
+                onPress={() => onPress?.(video.url)}
+                onLongPress={onLongPress}
+                style={styles.singleImageWrapper}
+            >
+                {thumbnailSource ? (
+                    <Image
+                        source={thumbnailSource}
+                        style={styles.messageImage}
+                        contentFit="cover"
+                        transition={200}
+                    />
+                ) : (
+                    <View style={[
+                        styles.videoPreviewContainer,
+                        isMe && styles.videoPlaceholderMe,
+                    ]}>
+                        <IconSymbol
+                            name="videocam-fill"
+                            size={34}
+                            color={isMe ? '#FFFFFF' : '#64748B'}
+                        />
+                    </View>
+                )}
+
+                <View style={styles.videoOverlay}>
+                    <View style={styles.videoPlayButton}>
+                        <IconSymbol name="play-fill" size={26} color="#FFFFFF" />
+                    </View>
+                </View>
+
+                <View style={styles.videoMetaBadge}>
+                    <IconSymbol name="video" size={14} color="#FFFFFF" />
+                    <Text style={styles.videoMetaText}>{metaLabel}</Text>
+                </View>
+
+                {!content && (
+                    <View style={styles.timeOverlayImage}>
+                        <MessageTime sentAt={sentAt} isMe={isMe} onImage status={status} />
+                    </View>
+                )}
+            </TouchableOpacity>
+            {content ? (
+                <View style={styles.captionContainer}>
+                    <Text style={[styles.textContent, isMe && styles.textContentMe]}>
+                        {content}
+                        <Text>{"          "}</Text>
+                    </Text>
+                    <View style={styles.timeOverlayCaption}>
+                        <MessageTime sentAt={sentAt} isMe={isMe} status={status} />
+                    </View>
+                </View>
+            ) : null}
+        </View>
+    );
+};
 
 const FileContent: React.FC<{ content?: string; attachments: MessageAttachment[]; isMe: boolean; sentAt: string; status: string }> = ({
     content,

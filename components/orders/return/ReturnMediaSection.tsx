@@ -16,6 +16,7 @@ interface ReturnMediaSectionProps {
     onAddVideo: () => void;
     onRemoveItem: (id: string) => void;
     onRetryItem: (id: string) => void;
+    onPreviewVideo: (item: ReturnMediaItem) => void;
 }
 
 export const ReturnMediaSection: React.FC<ReturnMediaSectionProps> = ({
@@ -25,6 +26,7 @@ export const ReturnMediaSection: React.FC<ReturnMediaSectionProps> = ({
     onAddVideo,
     onRemoveItem,
     onRetryItem,
+    onPreviewVideo,
 }) => {
     const { theme } = useUnistyles();
     const { t } = useTranslation(['order', 'common']);
@@ -39,6 +41,17 @@ export const ReturnMediaSection: React.FC<ReturnMediaSectionProps> = ({
     ), [mediaItems]);
 
     const hasMedia = mediaItems.length > 0;
+
+    const formatDurationLabel = (duration?: number) => {
+        if (typeof duration !== 'number' || duration <= 0) {
+            return null;
+        }
+
+        const minutes = Math.floor(duration / 60);
+        const seconds = duration % 60;
+
+        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    };
 
     return (
         <View style={styles.container}>
@@ -63,29 +76,74 @@ export const ReturnMediaSection: React.FC<ReturnMediaSectionProps> = ({
                         const isVideo = item.type === 'VIDEO';
                         const isUploading = item.uploadStatus === 'pending' || item.uploadStatus === 'uploading';
                         const hasError = item.uploadStatus === 'error';
+                        const videoDurationLabel = formatDurationLabel(item.duration);
+                        const canPreviewVideo = isVideo && !isUploading && !hasError;
 
                         return (
                             <View key={item.id} style={styles.previewTile}>
-                                {isVideo ? (
-                                    <View style={styles.videoTileContent}>
-                                        <View style={styles.videoTileIconWrap}>
-                                            <IconSymbol
-                                                name="videocam"
-                                                size={20}
-                                                color={theme.colors.success}
+                                <Pressable
+                                    style={styles.previewPressable}
+                                    onPress={() => {
+                                        if (canPreviewVideo) {
+                                            onPreviewVideo(item);
+                                        }
+                                    }}
+                                    disabled={!canPreviewVideo}
+                                >
+                                    {isVideo ? (
+                                        item.thumbnailSource ? (
+                                            <Image
+                                                source={item.thumbnailSource}
+                                                style={styles.previewImage}
+                                                contentFit="cover"
+                                                transition={150}
                                             />
-                                        </View>
-                                        <Text style={styles.videoTileText}>
-                                            {t('returnRequest.videoBadge')}
-                                        </Text>
-                                    </View>
-                                ) : (
-                                    <Image
-                                        source={{ uri: item.uri }}
-                                        style={styles.previewImage}
-                                        contentFit="cover"
-                                    />
-                                )}
+                                        ) : (
+                                            <View style={styles.videoTileContent}>
+                                                <View style={styles.videoTileIconWrap}>
+                                                    <IconSymbol
+                                                        name="videocam"
+                                                        size={20}
+                                                        color={theme.colors.success}
+                                                    />
+                                                </View>
+                                                <Text style={styles.videoTileText}>
+                                                    {t('returnRequest.videoBadge')}
+                                                </Text>
+                                            </View>
+                                        )
+                                    ) : (
+                                        <Image
+                                            source={{ uri: item.uri }}
+                                            style={styles.previewImage}
+                                            contentFit="cover"
+                                        />
+                                    )}
+
+                                    {isVideo && (
+                                        <>
+                                            <View style={styles.videoOverlay}>
+                                                <View style={styles.videoPlayBadge}>
+                                                    <IconSymbol
+                                                        name="play-fill"
+                                                        size={16}
+                                                        color={theme.colors.surface}
+                                                    />
+                                                </View>
+                                            </View>
+                                            <View style={styles.videoBadge}>
+                                                <IconSymbol
+                                                    name="play-fill"
+                                                    size={12}
+                                                    color={theme.colors.surface}
+                                                />
+                                                <Text style={styles.videoBadgeText}>
+                                                    {videoDurationLabel ?? t('returnRequest.videoBadge')}
+                                                </Text>
+                                            </View>
+                                        </>
+                                    )}
+                                </Pressable>
 
                                 {isUploading && (
                                     <View style={styles.uploadOverlay}>
@@ -115,19 +173,6 @@ export const ReturnMediaSection: React.FC<ReturnMediaSectionProps> = ({
                                                 {t('common:actions.retry')}
                                             </Text>
                                         </Pressable>
-                                    </View>
-                                )}
-
-                                {isVideo && (
-                                    <View style={styles.videoBadge}>
-                                        <IconSymbol
-                                            name="play-fill"
-                                            size={12}
-                                            color={theme.colors.surface}
-                                        />
-                                        <Text style={styles.videoBadgeText}>
-                                            {t('returnRequest.videoBadge')}
-                                        </Text>
                                     </View>
                                 )}
 
@@ -324,9 +369,26 @@ const stylesheet = StyleSheet.create((theme) => ({
         backgroundColor: theme.colors.backgroundNewInput,
         position: 'relative',
     },
+    previewPressable: {
+        flex: 1,
+    },
     previewImage: {
         width: '100%',
         height: '100%',
+    },
+    videoOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(18, 18, 18, 0.14)',
+    },
+    videoPlayBadge: {
+        width: 28,
+        height: 28,
+        borderRadius: theme.radius.full,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.52)',
     },
     uploadOverlay: {
         ...StyleSheet.absoluteFillObject,

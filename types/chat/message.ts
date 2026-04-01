@@ -6,6 +6,7 @@
  * @see utils/chat/messageHelpers.ts - Helper functions
  */
 
+import type { SharedRefType } from 'expo';
 import { z } from 'zod';
 import { ResponseDefaultSchema } from '../responseSchema';
 
@@ -168,6 +169,7 @@ export interface MessageAttachment {
     type: 'IMAGE' | 'VIDEO' | 'FILE' | 'AUDIO';
     url: string;
     thumbnail?: string;
+    thumbnailSource?: string | SharedRefType<'image'>;
     fileName?: string;
     fileSize?: number;
     mimeType?: string;
@@ -233,7 +235,7 @@ const MessageUserDTOSchema = z.object({
 
 const AttachmentDTOSchema = z.object({
     id: z.string(),
-    type: z.string().optional().nullable().transform(v => v || 'IMAGE'),
+    type: z.string().optional().nullable().transform(v => v || undefined),
     url: z.string().optional().nullable().transform(v => v || ''),
     fileUrl: z.string().optional().nullable(),
     thumbnailUrl: z.string().nullable().optional(),

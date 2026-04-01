@@ -58,6 +58,7 @@ export const UPLOAD_SIZE_LIMITS = {
     SHOP_BANNER: 5 * 1024 * 1024,      // 5MB (assumed)
     PRODUCT_IMAGE: 10 * 1024 * 1024,   // 10MB (assumed)
     CHAT_IMAGE: 5 * 1024 * 1024,       // 5MB (assumed)
+    CHAT_VIDEO: 50 * 1024 * 1024,      // 50MB UX policy for chat video
     DEFAULT: 10 * 1024 * 1024,         // 10MB default
 } as const;
 

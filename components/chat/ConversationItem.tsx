@@ -87,6 +87,8 @@ export const ConversationItem = memo<ConversationItemProps>(({
         switch (lastMessage.type) {
             case MessageType.IMAGE:
                 return { icon: 'image', text: `${prefix}${t('chat:list.messageSentImage')}` };
+            case MessageType.VIDEO:
+                return { icon: 'video', text: `${prefix}${t('chat:list.messageSentVideo')}` };
             case MessageType.PRODUCT_CARD:
                 return {
                     icon: 'bag',

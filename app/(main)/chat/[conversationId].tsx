@@ -24,6 +24,7 @@ import {
     SafetyBanner
 } from '@/components/chat/detail';
 import { IconSymbol } from '@/components/ui/Icon';
+import VideoPlayerModal from '@/components/ui/VideoPlayerModal';
 import { CHAT_STRINGS } from '@/constants/i18n/vi/chat';
 import { chatRoutes, orderRoutes, productRoutes } from '@/constants/routes';
 import type { DeleteType } from '@/hooks/api/chat';
@@ -56,6 +57,7 @@ import { Image } from 'expo-image';
 import { useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, FlatList, Keyboard, ListRenderItem, Modal, Pressable, Text, View } from 'react-native';
 import Gallery, { RenderItemInfo } from 'react-native-awesome-gallery';
 import { KeyboardAvoidingView, KeyboardProvider } from 'react-native-keyboard-controller';
@@ -140,6 +142,7 @@ const calculateShowTime = (
 // ============================================
 
 export default function ChatDetailScreen() {
+    const { t } = useTranslation('chat');
     // Unlock navigation when screen gains focus
     useNavigationUnlockOnFocus();
 
@@ -219,6 +222,7 @@ export default function ChatDetailScreen() {
     // View images full screen
     const [viewerVisible, setViewerVisible] = useState(false);
     const [viewerIndex, setViewerIndex] = useState(0);
+    const [activeVideoUrl, setActiveVideoUrl] = useState<string | null>(null);
 
     const chatImages = useMemo(() => {
         const allImages: { uri: string; id: string }[] = [];
@@ -243,6 +247,10 @@ export default function ChatDetailScreen() {
             setViewerVisible(true);
         }
     }, [chatImages]);
+
+    const handleVideoPress = useCallback((url: string) => {
+        setActiveVideoUrl(url);
+    }, []);
 
     // ============================================
     // EFFECTS & LOGIC
@@ -722,7 +730,7 @@ export default function ChatDetailScreen() {
     }, [deleteMessageMutation]);
 
     // Hook xử lý chọn ảnh/chụp ảnh
-    const { pickMultipleImages, takePhoto } = useChatImagePicker();
+    const { pickMultipleImages, pickVideo, takePhoto } = useChatImagePicker();
 
     /**
      * Handle multi-image selection from gallery
@@ -733,6 +741,7 @@ export default function ChatDetailScreen() {
             sendMediaMessageMutation.mutate({
                 files: images.map((img: PickedImage) => ({
                     uri: img.uri,
+                    type: 'IMAGE',
                     fileName: img.fileName || `image_${Date.now()}.jpg`,
                     fileSize: img.fileSize,
                     mimeType: img.mimeType,
@@ -752,6 +761,7 @@ export default function ChatDetailScreen() {
             sendMediaMessageMutation.mutate({
                 files: [{
                     uri: photo.uri,
+                    type: 'IMAGE',
                     fileName: photo.fileName || `photo_${Date.now()}.jpg`,
                     fileSize: photo.fileSize,
                     mimeType: photo.mimeType,
@@ -762,19 +772,41 @@ export default function ChatDetailScreen() {
         }
     }, [takePhoto, sendMediaMessageMutation]);
 
+    /**
+     * Handle selecting a single video from library
+     */
+    const handlePickVideo = useCallback(async () => {
+        const video = await pickVideo();
+        if (video) {
+            sendMediaMessageMutation.mutate({
+                files: [{
+                    uri: video.uri,
+                    type: 'VIDEO',
+                    fileName: video.fileName || `video_${Date.now()}.mp4`,
+                    fileSize: video.fileSize,
+                    mimeType: video.mimeType,
+                    width: video.width,
+                    height: video.height,
+                    duration: video.duration,
+                    thumbnailSource: video.thumbnailSource,
+                }],
+            });
+        }
+    }, [pickVideo, sendMediaMessageMutation]);
+
     const handleSelectAttachmentOption = useCallback(async (type: 'media' | 'product' | 'order') => {
         attachmentMenuRef.current?.dismiss();
         logger.chat.info('Selected attachment option', { type });
 
         if (type === 'media') {
-            // Show selection menu for media source - similar to WriteReviewScreen
             Alert.show({
-                title: 'Thêm hình ảnh',
-                message: 'Chọn nguồn ảnh bạn muốn sử dụng',
+                title: t('detail.media.chooseMediaTitle'),
+                message: t('detail.media.chooseMediaMessage'),
                 buttons: [
-                    { text: 'Chụp ảnh mới', onPress: handleTakePhoto },
-                    { text: 'Chọn từ thư viện', onPress: handlePickImages },
-                    { text: 'Hủy', style: 'cancel' },
+                    { text: t('detail.media.choosePhotoAction'), onPress: handleTakePhoto },
+                    { text: t('detail.media.chooseImageLibraryAction'), onPress: handlePickImages },
+                    { text: t('detail.media.chooseVideoAction'), onPress: handlePickVideo },
+                    { text: t('detail.media.cancelAction'), style: 'cancel' },
                 ]
             });
         } else if (type === 'product') {
@@ -789,7 +821,7 @@ export default function ChatDetailScreen() {
                 conversationId: currentConvId,
             }));
         }
-    }, [handleTakePhoto, handlePickImages, partnerShopId, currentConvId, partner]);
+    }, [currentConvId, handlePickImages, handlePickVideo, handleTakePhoto, partner, partnerShopId, t]);
 
     // ============================================
     // RENDER FUNCTIONS
@@ -822,10 +854,11 @@ export default function ChatDetailScreen() {
                     onPress={handleMessagePress}
                     onLongPress={handleMessageLongPress}
                     onImagePress={handleImagePress}
+                    onVideoPress={handleVideoPress}
                 />
             );
         },
-        [userId, flatListData, handleMessageLongPress, handleMessagePress, handleImagePress]
+        [userId, flatListData, handleMessageLongPress, handleMessagePress, handleImagePress, handleVideoPress]
     );
 
     // Memoized keyExtractor to avoid recreating function on each render
@@ -1078,6 +1111,12 @@ export default function ChatDetailScreen() {
                     </View>
                     <StatusBar style="light" hidden />
                 </Modal>
+
+                <VideoPlayerModal
+                    visible={!!activeVideoUrl}
+                    videoUrl={activeVideoUrl ?? ''}
+                    onClose={() => setActiveVideoUrl(null)}
+                />
             </SafeAreaView>
         </KeyboardProvider>
     );

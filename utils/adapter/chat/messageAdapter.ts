@@ -55,12 +55,21 @@ export const transformMessageUser = (user: MessageDTO['user']): MessageSender =>
  * Transform AttachmentDTO to MessageAttachment (UI type)
  */
 export const transformAttachment = (
-    attachment: MessageDTO['attachments'][0]
+    attachment: MessageDTO['attachments'][0],
+    fallbackType?: MessageDTO['type']
 ): MessageAttachment => ({
     id: attachment.id,
-    type: (attachment.type as MessageAttachment['type']) || 'IMAGE',
+    type: (attachment.type as MessageAttachment['type']) || (
+        fallbackType === 'VIDEO'
+            ? 'VIDEO'
+            : fallbackType === 'FILE'
+                ? 'FILE'
+                : fallbackType === 'AUDIO'
+                    ? 'AUDIO'
+                    : 'IMAGE'
+    ),
     url: toPublicUrl(attachment.fileUrl || attachment.url) || '',
-    thumbnail: toPublicUrl(attachment.thumbnailUrl),
+    thumbnail: attachment.thumbnailUrl ? toPublicUrl(attachment.thumbnailUrl) : undefined,
     fileName: attachment.fileName || undefined,
     fileSize: attachment.fileSize || undefined,
     mimeType: attachment.mimeType || undefined,
@@ -91,7 +100,7 @@ export const transformMessage = (
         sentAt: dto.sentAt,
         isEdited: dto.isEdited,
         isDeleted,
-        attachments: dto.attachments.map(transformAttachment),
+        attachments: dto.attachments.map((attachment) => transformAttachment(attachment, dto.type)),
         metadata: dto.metadata || undefined,
         replyTo: dto.replyToMessage
             ? {

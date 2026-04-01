@@ -1080,6 +1080,7 @@ export interface ChatTranslation {
         actionUnmute: string;
         messageYou: string;
         messageSentImage: string;
+        messageSentVideo: string;
         messageProduct: string;
         responseRate: string;
     };
@@ -1090,6 +1091,40 @@ export interface ChatTranslation {
         emptySubtext: string;
         sendPlaceholder: string;
         ghostHeader: string;
+        attachment: {
+            title: string;
+            mediaLabel: string;
+            productLabel: string;
+            orderLabel: string;
+        };
+        media: {
+            permissionTitle: string;
+            mediaLibraryPermissionMessage: string;
+            cameraPermissionMessage: string;
+            chooseMediaTitle: string;
+            chooseMediaMessage: string;
+            choosePhotoAction: string;
+            chooseImageLibraryAction: string;
+            chooseVideoAction: string;
+            cancelAction: string;
+            mixedMediaTypeMessage: string;
+            singleVideoOnlyMessage: string;
+            imageTooLargeTitle: string;
+            imageTooLargeMessage: string;
+            videoTooLargeTitle: string;
+            videoTooLargeMessage: string;
+            videoTooLongTitle: string;
+            videoTooLongMessage: string;
+            pickImageFailedTitle: string;
+            pickImageFailedMessage: string;
+            takePhotoFailedTitle: string;
+            takePhotoFailedMessage: string;
+            pickVideoFailedTitle: string;
+            pickVideoFailedMessage: string;
+            sendImageFailedTitle: string;
+            sendVideoFailedTitle: string;
+            sendMediaFailedFallback: string;
+        };
     };
     error: {
         startChatFailed: string;

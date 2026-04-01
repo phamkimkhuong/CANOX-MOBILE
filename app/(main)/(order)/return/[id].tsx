@@ -6,6 +6,7 @@ import {
     ReturnMediaSection,
     ReturnReasonSelector,
 } from '@/components/orders/return';
+import VideoPlayerModal from '@/components/ui/VideoPlayerModal';
 import { ROUTES } from '@/constants/routes';
 import { orderRoutes } from '@/constants/routes';
 import { useMyBankAccounts } from '@/hooks/api/bank/useBank';
@@ -18,13 +19,14 @@ import { useReturnRequestDraftStore } from '@/store/useReturnRequestDraftStore';
 import type { UserBankAccountUI } from '@/types/bank/ui';
 import {
     RETURN_DESCRIPTION_MAX_LENGTH,
+    type ReturnMediaItem,
     type ReturnReasonCode,
 } from '@/types/order/return';
 import { transformOrder } from '@/utils/adapter/order/orderAdapter';
 import { toCreateReturnRequestPayload } from '@/utils/adapter/order/returnRequestAdapter';
 import { Navigator } from '@/utils/navigation';
 import { useLocalSearchParams } from 'expo-router';
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     ActivityIndicator,
@@ -48,6 +50,7 @@ export default function ReturnRequestScreen() {
     const { t } = useTranslation(['order', 'common']);
     const styles = stylesheet;
     const { bottom } = useSafeAreaInsets();
+    const [activeVideoUrl, setActiveVideoUrl] = useState<string | null>(null);
 
     const selectedReason = useReturnRequestDraftStore((state) => (
         state.drafts[orderId ?? '']?.reasonCode ?? null
@@ -193,6 +196,12 @@ export default function ReturnRequestScreen() {
         selectedReason,
         t,
     ]);
+
+    const handlePreviewVideo = useCallback((item: ReturnMediaItem) => {
+        const playableUrl = item.url ?? item.uri;
+        if (!playableUrl) return;
+        setActiveVideoUrl(playableUrl);
+    }, []);
 
     useEffect(() => {
         if (!orderId) return;
@@ -351,6 +360,7 @@ export default function ReturnRequestScreen() {
                             onAddVideo={pickVideo}
                             onRemoveItem={removeMedia}
                             onRetryItem={retryMediaUpload}
+                            onPreviewVideo={handlePreviewVideo}
                         />
                     </View>
                 </ScrollView>
@@ -382,6 +392,12 @@ export default function ReturnRequestScreen() {
                     </Text>
                 </TouchableOpacity>
             </View>
+
+            <VideoPlayerModal
+                visible={!!activeVideoUrl}
+                videoUrl={activeVideoUrl ?? ''}
+                onClose={() => setActiveVideoUrl(null)}
+            />
         </View>
     );
 }
