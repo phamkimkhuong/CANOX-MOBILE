@@ -17,12 +17,12 @@ import { evaluateProductShippingCompatibility } from '@/utils/productShipping';
 import { toSizedImageUrl } from '@/utils/url';
 import { FlashList, FlashListRef, ListRenderItemInfo } from '@shopify/flash-list';
 import { useQueryClient } from '@tanstack/react-query';
+import { useFocusEffect } from 'expo-router';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     ActionSheetIOS,
     ActivityIndicator,
-    InteractionManager,
     NativeScrollEvent,
     NativeSyntheticEvent,
     Platform,
@@ -114,17 +114,13 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
     );
     const isBuyNowBlockedByShipping = isAuthenticated && shippingCompatibility.isDeterministicallyBlocked;
 
-    React.useEffect(() => {
-        setAreSecondaryQueriesEnabled(false);
 
-        const task = InteractionManager.runAfterInteractions(() => {
+    useFocusEffect(
+        React.useCallback(() => {
             setAreSecondaryQueriesEnabled(true);
-        });
-
-        return () => {
-            task.cancel?.();
-        };
-    }, [product.id]);
+            return () => setAreSecondaryQueriesEnabled(false);
+        }, [])
+    );
 
     // === Related Products (lazy-loaded: waits for transition to finish) ===
     const { data: relatedData, isLoading: isLoadingRelated } = useRelatedProducts(
@@ -297,7 +293,6 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
             Toast.show({
                 type: 'info',
                 text1: t('chat:error.chatWithSelf'),
-                text2: t('product:error.authRequiredGeneric'),
             });
             return;
         }
@@ -505,16 +500,55 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
         return items;
     }, [isAuthenticated, product, relatedProducts, selectionResult.selectedVariant?.dimensions]);
 
+    // Stable render context ref — updated every render, read by renderItem
+    const renderContextRef = useRef({
+        product,
+        selectionResult,
+        selectedOptions,
+        heroPreviewUrl,
+        areSecondaryQueriesEnabled,
+        loyaltyPolicy,
+        shippingCompatibility,
+        selectedAddress,
+        shouldShowFlashSaleScopeHelper,
+        handleFlashSaleExpired,
+        handleImagePress,
+        handleOpenVariantSheet,
+        handleOpenPriceBreakdown,
+        handleViewAllReviews,
+        handleShopPress,
+        t,
+    });
+    renderContextRef.current = {
+        product,
+        selectionResult,
+        selectedOptions,
+        heroPreviewUrl,
+        areSecondaryQueriesEnabled,
+        loyaltyPolicy,
+        shippingCompatibility,
+        selectedAddress,
+        shouldShowFlashSaleScopeHelper,
+        handleFlashSaleExpired,
+        handleImagePress,
+        handleOpenVariantSheet,
+        handleOpenPriceBreakdown,
+        handleViewAllReviews,
+        handleShopPress,
+        t,
+    };
+
     const renderItem = useCallback(({ item }: ListRenderItemInfo<ProductDetailListItem>) => {
+        const ctx = renderContextRef.current;
         switch (item.type) {
             case 'gallery':
                 return (
                     <View style={styles.fullWidthSection}>
                         <ProductGallery
                             ref={galleryRef}
-                            gallery={product.gallery}
-                            heroPreviewUrl={heroPreviewUrl}
-                            onImagePress={handleImagePress}
+                            gallery={ctx.product.gallery}
+                            heroPreviewUrl={ctx.heroPreviewUrl}
+                            onImagePress={ctx.handleImagePress}
                         />
                     </View>
                 );
@@ -522,18 +556,18 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
                 return (
                     <View style={styles.fullWidthSection}>
                         <ProductInfoSection
-                            name={product.name}
-                            priceDisplay={selectionResult.displayPrice}
-                            rating={product.rating}
-                            totalReviews={product.totalReviews}
-                            totalSold={product.totalSold}
-                            flashSale={product.flashSale}
-                            loyaltyPolicy={loyaltyPolicy}
-                            vouchers={product.vouchers}
-                            isInternational={product.isInternational}
-                            onFlashSaleExpired={handleFlashSaleExpired}
-                            onShowPriceBreakdown={handleOpenPriceBreakdown}
-                            showFlashSaleScopeHelper={shouldShowFlashSaleScopeHelper}
+                            name={ctx.product.name}
+                            priceDisplay={ctx.selectionResult.displayPrice}
+                            rating={ctx.product.rating}
+                            totalReviews={ctx.product.totalReviews}
+                            totalSold={ctx.product.totalSold}
+                            flashSale={ctx.product.flashSale}
+                            loyaltyPolicy={ctx.loyaltyPolicy}
+                            vouchers={ctx.product.vouchers}
+                            isInternational={ctx.product.isInternational}
+                            onFlashSaleExpired={ctx.handleFlashSaleExpired}
+                            onShowPriceBreakdown={ctx.handleOpenPriceBreakdown}
+                            showFlashSaleScopeHelper={ctx.shouldShowFlashSaleScopeHelper}
                         />
                     </View>
                 );
@@ -541,8 +575,8 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
                 return (
                     <View style={styles.fullWidthSection}>
                         <ShippingDeliveryCard
-                            address={selectedAddress}
-                            compatibility={shippingCompatibility}
+                            address={ctx.selectedAddress}
+                            compatibility={ctx.shippingCompatibility}
                         />
                     </View>
                 );
@@ -550,10 +584,10 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
                 return (
                     <View style={styles.fullWidthSection}>
                         <VariantSelectorRow
-                            options={product.options}
-                            selectedOptions={selectedOptions}
-                            selectionSummary={selectionResult.selectionSummary}
-                            onPress={() => handleOpenVariantSheet('select')}
+                            options={ctx.product.options}
+                            selectedOptions={ctx.selectedOptions}
+                            selectionSummary={ctx.selectionResult.selectionSummary}
+                            onPress={() => ctx.handleOpenVariantSheet('select')}
                         />
                     </View>
                 );
@@ -561,43 +595,43 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
                 return (
                     <View style={styles.fullWidthSection}>
                         <ProductReviews
-                            productId={product.id}
-                            reviewStatistics={product.reviewStatistics}
-                            rating={product.rating}
-                            totalReviews={product.totalReviews}
-                            enablePreviewFetch={areSecondaryQueriesEnabled}
-                            onViewAllPress={handleViewAllReviews}
+                            productId={ctx.product.id}
+                            reviewStatistics={ctx.product.reviewStatistics}
+                            rating={ctx.product.rating}
+                            totalReviews={ctx.product.totalReviews}
+                            enablePreviewFetch={ctx.areSecondaryQueriesEnabled}
+                            onViewAllPress={ctx.handleViewAllReviews}
                         />
                     </View>
                 );
             case 'shop':
                 return (
                     <View style={styles.fullWidthSection}>
-                        <ShopInfoCard shop={product.shop} onViewShopPress={handleShopPress} />
+                        <ShopInfoCard shop={ctx.product.shop} onViewShopPress={ctx.handleShopPress} />
                     </View>
                 );
             case 'specs':
                 return (
                     <View style={styles.fullWidthSection}>
-                        <ProductSpecs specifications={product.specifications} />
+                        <ProductSpecs specifications={ctx.product.specifications} />
                     </View>
                 );
             case 'packaging':
-                return selectionResult.selectedVariant?.dimensions ? (
+                return ctx.selectionResult.selectedVariant?.dimensions ? (
                     <View style={styles.fullWidthSection}>
-                        <ProductPackagingInfo dimensions={selectionResult.selectedVariant.dimensions} />
+                        <ProductPackagingInfo dimensions={ctx.selectionResult.selectedVariant.dimensions} />
                     </View>
                 ) : null;
             case 'description':
                 return (
                     <View style={styles.fullWidthSection}>
-                        <ProductDescription description={product.description} />
+                        <ProductDescription description={ctx.product.description} />
                     </View>
                 );
             case 'related_header':
                 return (
                     <View style={[styles.relatedHeader, styles.fullWidthSection]}>
-                        <Text style={styles.relatedTitle}>{t('product:related.title')}</Text>
+                        <Text style={styles.relatedTitle}>{ctx.t('product:related.title')}</Text>
                     </View>
                 );
             case 'related_product':
@@ -621,7 +655,7 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
             default:
                 return null;
         }
-    }, [product, selectionResult, selectedOptions, heroPreviewUrl, areSecondaryQueriesEnabled, handleFlashSaleExpired, handleImagePress, handleOpenVariantSheet, handleOpenPriceBreakdown, handleViewAllReviews, handleShopPress, loyaltyPolicy, shippingCompatibility, selectedAddress, shouldShowFlashSaleScopeHelper, t]);
+    }, []);
 
     const overrideItemLayout = useCallback((layout: { span?: number }, item: ProductDetailListItem) => {
         if (item.type !== 'related_product') layout.span = 2;

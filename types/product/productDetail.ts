@@ -71,6 +71,7 @@ export type ProductOptionValue = OptionValue;
 
 export const VariantInventorySchema = z.object({
     available: z.coerce.number().nullish().transform(val => val ?? 0),
+    soldCount: z.coerce.number().nullish().transform(val => val ?? 0),
 });
 export type VariantInventory = z.infer<typeof VariantInventorySchema>;
 
@@ -273,7 +274,7 @@ export const ProductDetailResponseSchema = z.object({
     active: z.boolean().nullable().optional().default(true),
 
     // Stats
-    totalSold: z.number().nullable().optional().default(0),
+    soldCount: z.number().nullable().optional().default(0),
 
     // Relations
     media: z.array(ProductMediaSchema).nullable().optional().default([]),

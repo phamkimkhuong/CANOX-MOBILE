@@ -521,6 +521,16 @@ export const calculateTotalStock = (variants: ProductVariant[]): number => {
     }, 0);
 };
 
+/**
+ * Calculate total sold count from variants
+ */
+export const calculateTotalSold = (variants: ProductVariant[]): number => {
+    const variantArray = variants ?? [];
+    return variantArray.reduce((total, v) => {
+        return total + (v.inventory?.soldCount ?? 0);
+    }, 0);
+};
+
 // ============================================
 // FLASH SALE / CAMPAIGN LOGIC
 // ============================================
@@ -532,7 +542,8 @@ export const calculateTotalStock = (variants: ProductVariant[]): number => {
  */
 export const buildFlashSaleInfo = (
     data: ProductDetailResponse,
-    totalStock: number
+    totalStock: number,
+    calculatedTotalSold: number
 ): FlashSaleInfo | undefined => {
     // Check activeCampaigns for any active tactical campaign
     const tacticalCampaigns = ['FLASH_SALE', 'DAILY_DEAL', 'MEGA_SALE', 'SHOP_SALE', 'SHOP_PROMOTION'];
@@ -553,8 +564,8 @@ export const buildFlashSaleInfo = (
             secondsRemaining: activeCampaign.secondsRemaining ?? undefined,
             campaignType: activeCampaign.campaignType ?? undefined,
             discountPercentage: maxDiscount > 0 ? maxDiscount : undefined,
-            quantityLimit: totalStock + (data.totalSold ?? 0),
-            quantitySold: data.totalSold ?? 0,
+            quantityLimit: totalStock + (data.soldCount || calculatedTotalSold),
+            quantitySold: data.soldCount || calculatedTotalSold,
         };
     }
 
@@ -605,14 +616,16 @@ export const transformProductDetail = (
         maxDiscount: apiVoucher.maxDiscount ?? undefined,
     } : undefined;
 
-    // Calculate total stock
+    // Calculate total stock and sold
     const totalStock = calculateTotalStock(variantsArray);
+    const calculatedTotalSold = calculateTotalSold(variantsArray);
+    const resolvedTotalSold = data.soldCount || calculatedTotalSold;
 
     // Build specifications
     const specifications: ProductSpec[] = data.specifications ?? [];
 
     // Build Flash Sale với fallback logic
-    const flashSale = buildFlashSaleInfo(data, totalStock);
+    const flashSale = buildFlashSaleInfo(data, totalStock, calculatedTotalSold);
 
     // Transform reviewStatistics to match expected type
     const reviewStatistics: ReviewStatistics = {
@@ -649,7 +662,7 @@ export const transformProductDetail = (
         // Stats
         rating: reviewStatistics.averageRating,
         totalReviews: reviewStatistics.totalReviews,
-        totalSold: data.totalSold ?? 0,
+        totalSold: resolvedTotalSold,
         reviewStatistics,
 
         // Features - Sử dụng fallback logic

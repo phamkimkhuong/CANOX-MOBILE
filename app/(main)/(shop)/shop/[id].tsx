@@ -395,7 +395,6 @@ export default function ShopDetailScreen() {
                         <ShopProfileTab
                             shop={shop}
                             brandProfile={brandProfile}
-                            isLoadingBrandProfile={isLoadingBrandProfile}
                             products={products}
                         />
                     </View>

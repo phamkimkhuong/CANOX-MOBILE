@@ -4,9 +4,9 @@ import type {
     PriceDisplay,
     ProductDetailUI,
     ProductOptionWithAvailability,
-    ProductOptionValueWithAvailability,
     SelectedOptions,
     VariantMatrixValue,
+    VariantOptionPromotionState,
     VariantSelectionResult,
     VoucherUI,
 } from '@/types/product/productDetail';
@@ -69,147 +69,6 @@ const parseVariantMatrixKey = (key: string): Record<string, string> => {
         return {};
     }
 };
-
-/**
- * Check if value is available based on current selection
- * Used to disable unavailable options
- * 
- * Logic:
- * 1. If options not fully selected -> check if at least 1 variant containing this value is in stock
- * 2. If fully selected -> check specific variant
- */
-const isValueAvailable = (
-    optionName: string,
-    valueName: string,
-    currentSelection: SelectedOptions,
-    product: ProductDetailUI
-): boolean => {
-    // Normalize for exact comparison
-    const normalizedOptionName = normalizeString(optionName);
-    const normalizedValueName = normalizeString(valueName);
-
-    // Create fake selection with this value
-    const testSelection = {
-        ...currentSelection,
-        [optionName]: valueName,
-    };
-
-    // Count selected options (excluding empty string)
-    const selectedCount = Object.values(testSelection).filter(v => v !== '').length;
-
-    // If other options not fully selected
-    if (selectedCount < product.options.length) {
-        // Check if at least 1 variant matches
-        for (const [key, variantValue] of product.variantMatrix) {
-            // Parse key from JSON format
-            const parsedKey = parseVariantMatrixKey(key);
-
-            // Check if this variant contains the testing option value
-            const hasMatchingValue = parsedKey[normalizedOptionName] === normalizedValueName;
-
-            if (!hasMatchingValue) continue;
-
-            // Check if variant matches other selected options
-            let matchesOtherSelections = true;
-            for (const [selOptName, selOptValue] of Object.entries(testSelection)) {
-                if (selOptValue === '') continue; // Skip empty selections
-
-                const normalizedSelOptName = normalizeString(selOptName);
-                const normalizedSelOptValue = normalizeString(selOptValue);
-
-                if (parsedKey[normalizedSelOptName] !== normalizedSelOptValue) {
-                    matchesOtherSelections = false;
-                    break;
-                }
-            }
-
-            // If variant matches and in stock -> available
-            if (matchesOtherSelections && variantValue.isAvailable) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // Fully selected -> check specific variant
-    const key = createKeyFromSelection(testSelection);
-    const variant = product.variantMatrix.get(key);
-    return variant?.isAvailable ?? false;
-};
-
-const getMatchingVariantsForSelection = (
-    selection: SelectedOptions,
-    product: ProductDetailUI
-): VariantMatrixValue[] => {
-    const matches: VariantMatrixValue[] = [];
-
-    for (const [key, variantValue] of product.variantMatrix) {
-        if (!variantValue.isAvailable) continue;
-
-        const parsedKey = parseVariantMatrixKey(key);
-        let matchesSelection = true;
-
-        for (const [optionName, optionValue] of Object.entries(selection)) {
-            if (optionValue === '') continue;
-
-            const normalizedOptionName = normalizeString(optionName);
-            const normalizedOptionValue = normalizeString(optionValue);
-
-            if (parsedKey[normalizedOptionName] !== normalizedOptionValue) {
-                matchesSelection = false;
-                break;
-            }
-        }
-
-        if (matchesSelection) {
-            matches.push(variantValue);
-        }
-    }
-
-    return matches;
-};
-
-const getOptionValuePromotionSignal = (
-    optionName: string,
-    valueName: string,
-    currentSelection: SelectedOptions,
-    product: ProductDetailUI
-): Pick<ProductOptionValueWithAvailability, 'promotionState' | 'promotionType'> => {
-    const testSelection = {
-        ...currentSelection,
-        [optionName]: valueName,
-    };
-
-    const matchingVariants = getMatchingVariantsForSelection(testSelection, product);
-    if (matchingVariants.length === 0) {
-        return { promotionState: 'none' };
-    }
-
-    const promotedVariants = matchingVariants.filter((variant) =>
-        !!variant.campaignType && TACTICAL_CAMPAIGN_TYPES.has(variant.campaignType)
-    );
-
-    if (promotedVariants.length === 0) {
-        return { promotionState: 'none' };
-    }
-
-    const campaignTypes = Array.from(new Set(
-        promotedVariants
-            .map((variant) => variant.campaignType)
-            .filter((campaignType): campaignType is string => !!campaignType)
-    ));
-
-    return {
-        promotionState: promotedVariants.length === matchingVariants.length
-            ? 'active'
-            : 'possible',
-        promotionType: campaignTypes.length === 1 ? campaignTypes[0] : undefined,
-    };
-};
-
-// ============================================
-// MAIN HOOK
-// ============================================
 
 interface UseProductVariantOptions {
     /** Auto select first available variant */
@@ -297,44 +156,63 @@ export const useProductVariant = (
 
         setSelectedOptions(getInitialSelection(product));
     }, [product?.id, getInitialSelection, product]);
-
-    // ===== DERIVED: Current Variant =====
-    const currentVariant = useMemo((): VariantMatrixValue | null => {
-        if (!product) return null;
-
-        const selectedCount = Object.values(selectedOptions).filter(v => v !== '').length;
-        if (selectedCount < product.options.length) {
-            return null; // Not fully selected
-        }
-
-        const key = createKeyFromSelection(selectedOptions);
-        return product.variantMatrix.get(key) ?? null;
-    }, [product, selectedOptions]);
-
-    // ===== DERIVED: Is Fully Selected =====
-    const isFullySelected = useMemo(() => {
-        if (!product) return false;
-        const selectedCount = Object.values(selectedOptions).filter(v => v !== '').length;
-        return selectedCount === product.options.length;
-    }, [product, selectedOptions]);
-
-    // ===== DERIVED: Display Price =====
-    const displayPrice = useMemo((): PriceDisplay => {
+    // ===== DERIVED: Selection Result =====
+    const selectionResult = useMemo((): VariantSelectionResult => {
         if (!product) {
-            return { currentPrice: 0, isRange: false };
+            return {
+                selectedVariant: null,
+                isFullySelected: false,
+                displayPrice: { currentPrice: 0, isRange: false },
+                inventoryStatus: 'out_of_stock',
+                availableStock: 0,
+                canAddToCart: false,
+                selectionSummary: '',
+            };
         }
 
-        // If a specific variant is selected
+        // --- currentVariant ---
+        const selectedCount = Object.values(selectedOptions).filter(v => v !== '').length;
+        const isFullySelected = selectedCount === product.options.length;
+
+        let currentVariant: VariantMatrixValue | null = null;
+        if (isFullySelected) {
+            const key = createKeyFromSelection(selectedOptions);
+            currentVariant = product.variantMatrix.get(key) ?? null;
+        }
+
+        // --- inventoryStatus & availableStock ---
+        let availableStock: number;
+        if (currentVariant) {
+            availableStock = currentVariant.stock;
+        } else {
+            let total = 0;
+            for (const [, value] of product.variantMatrix) {
+                total += value.stock;
+            }
+            availableStock = total;
+        }
+        const inventoryStatus = getInventoryStatus(availableStock);
+
+        // --- canAddToCart ---
+        const canAddToCart = product.hasVariants
+            ? isFullySelected && currentVariant !== null && currentVariant.stock > 0
+            : product.isAvailable ?? false;
+
+        // --- selectionSummary ---
+        const selectionSummary = createSelectionSummary(selectedOptions);
+
+        // --- displayPrice ---
+        let displayPrice: PriceDisplay;
+
         if (currentVariant) {
             let finalPrice = currentVariant.price;
             let totalDiscountAmount = 0;
 
             const breakdown: PriceBreakdown = {
                 basePrice: currentVariant.originalPrice ?? currentVariant.price,
-                finalPrice: currentVariant.price, // Initial before vouchers
+                finalPrice: currentVariant.price,
             };
 
-            // Add product promotion discount to breakdown (e.g., Shop Sale, Flash Sale)
             if (currentVariant.originalPrice && currentVariant.originalPrice > currentVariant.price) {
                 breakdown.productDiscount = {
                     id: currentVariant.promotionId || 'product-discount',
@@ -346,7 +224,6 @@ export const useProductVariant = (
             }
 
             if (product.vouchers && product.vouchers.length > 0) {
-                // Find single best voucher for each sponsor type to match stacking rules
                 let bestPlatformVoucher: VoucherUI | null = null;
                 let bestPlatformAmount = 0;
                 let bestShopVoucher: VoucherUI | null = null;
@@ -365,8 +242,6 @@ export const useProductVariant = (
                         amount = discountValue;
                     }
 
-                    // Simple eligibility check (minOrderValue)
-                    // Currently checks against 1 unit (matching standard product detail behavior)
                     const isEligible = !voucher.minOrderValue || currentVariant.price >= voucher.minOrderValue;
 
                     if (isEligible) {
@@ -376,7 +251,6 @@ export const useProductVariant = (
                                 bestPlatformVoucher = voucher;
                             }
                         } else {
-                            // Default to SHOP if not specified
                             if (amount > bestShopAmount) {
                                 bestShopAmount = amount;
                                 bestShopVoucher = voucher;
@@ -385,7 +259,6 @@ export const useProductVariant = (
                     }
                 }
 
-                // Apply stacking: 1 Platform + 1 Shop
                 if (bestPlatformVoucher) {
                     totalDiscountAmount += bestPlatformAmount;
                     breakdown.platformVoucher = {
@@ -415,19 +288,15 @@ export const useProductVariant = (
 
             breakdown.finalPrice = finalPrice;
 
-            // ===== LAYERED PRICE LOGIC =====
-            //  Base Price (Original)
             const baseOriginalPrice = currentVariant.originalPrice ?? currentVariant.price;
-
-            // Variant has a Promotion/Vouchers
             const totalDiscountPercent = baseOriginalPrice > finalPrice
                 ? Math.round(((baseOriginalPrice - finalPrice) / baseOriginalPrice) * 100)
                 : undefined;
 
-            return {
-                currentPrice: finalPrice, // Shows 45,075 (Final Price)
-                originalPrice: baseOriginalPrice > finalPrice ? baseOriginalPrice : undefined, // Shows 75,000
-                discountPercentage: totalDiscountPercent, // Total discount % (e.g., 40%)
+            displayPrice = {
+                currentPrice: finalPrice,
+                originalPrice: baseOriginalPrice > finalPrice ? baseOriginalPrice : undefined,
+                discountPercentage: totalDiscountPercent,
                 voucherDiscount: totalDiscountAmount,
                 shopVoucherDiscount: breakdown.shopVoucher?.amount,
                 platformVoucherDiscount: breakdown.platformVoucher?.amount,
@@ -435,78 +304,20 @@ export const useProductVariant = (
                 isRange: false,
                 breakdown,
             };
+        } else {
+            displayPrice = product.priceDisplay;
         }
 
-        // Default state: Use prices from product detail (already includes breakdown from adapter)
-        return product.priceDisplay;
-    }, [product, currentVariant, t]);
-
-    // ===== DERIVED: Inventory Status =====
-    const inventoryStatus = useMemo((): InventoryStatus => {
-        if (currentVariant) {
-            return getInventoryStatus(currentVariant.stock);
-        }
-
-        // Not fully selected -> check total stock
-        if (!product) return 'out_of_stock';
-
-        let totalStock = 0;
-        for (const [, value] of product.variantMatrix) {
-            totalStock += value.stock;
-        }
-
-        return getInventoryStatus(totalStock);
-    }, [product, currentVariant]);
-
-    // ===== DERIVED: Available Stock =====
-    const availableStock = useMemo((): number => {
-        if (currentVariant) {
-            return currentVariant.stock;
-        }
-
-        if (!product) return 0;
-
-        let total = 0;
-        for (const [, value] of product.variantMatrix) {
-            total += value.stock;
-        }
-        return total;
-    }, [product, currentVariant]);
-
-    // ===== DERIVED: Can Add To Cart =====
-    const canAddToCart = useMemo(() => {
-        if (!product?.hasVariants) {
-            // Product has no variants -> check isAvailable
-            return product?.isAvailable ?? false;
-        }
-
-        // Has variants -> must be fully selected and in stock
-        return isFullySelected && currentVariant !== null && currentVariant.stock > 0;
-    }, [product, isFullySelected, currentVariant]);
-
-    // ===== DERIVED: Selection Summary =====
-    const selectionSummary = useMemo(() => {
-        return createSelectionSummary(selectedOptions);
-    }, [selectedOptions]);
-
-    // ===== DERIVED: Selection Result (Bundled) =====
-    const selectionResult = useMemo((): VariantSelectionResult => ({
-        selectedVariant: currentVariant,
-        isFullySelected,
-        displayPrice,
-        inventoryStatus,
-        availableStock,
-        canAddToCart,
-        selectionSummary,
-    }), [
-        currentVariant,
-        isFullySelected,
-        displayPrice,
-        inventoryStatus,
-        availableStock,
-        canAddToCart,
-        selectionSummary,
-    ]);
+        return {
+            selectedVariant: currentVariant,
+            isFullySelected,
+            displayPrice,
+            inventoryStatus,
+            availableStock,
+            canAddToCart,
+            selectionSummary,
+        };
+    }, [product, selectedOptions, t]);
 
     // ===== ACTIONS =====
     const selectOption = useCallback((optionName: string, valueName: string) => {
@@ -529,37 +340,109 @@ export const useProductVariant = (
         [selectedOptions]
     );
 
+    const availabilityIndex = useMemo(() => {
+        if (!product?.variantMatrix) return null;
+
+        const index = new Map<string, {
+            isAvailable: boolean;
+            availableMatchCount: number;
+            promotedMatchCount: number;
+            campaignTypes: string[];
+        }>();
+
+        // Normalize current selections once to avoid repeated normalization
+        const activeSelections: Array<[string, string]> = [];
+        for (const [optName, optValue] of Object.entries(selectedOptions)) {
+            if (optValue === '') continue;
+            activeSelections.push([normalizeString(optName), normalizeString(optValue)]);
+        }
+        for (const [key, variant] of product.variantMatrix) {
+            const parsedKey = parseVariantMatrixKey(key);
+            for (const [optName, optValue] of Object.entries(parsedKey)) {
+                let matchesOtherSelections = true;
+                for (const [selName, selValue] of activeSelections) {
+                    if (selName === optName) continue;
+                    if (parsedKey[selName] !== selValue) {
+                        matchesOtherSelections = false;
+                        break;
+                    }
+                }
+
+                if (!matchesOtherSelections) continue;
+
+                const compositeKey = `${optName}\0${optValue}`;
+                const existing = index.get(compositeKey);
+                const isPromoted = variant.isAvailable
+                    && !!variant.campaignType
+                    && TACTICAL_CAMPAIGN_TYPES.has(variant.campaignType);
+
+                if (!existing) {
+                    index.set(compositeKey, {
+                        isAvailable: variant.isAvailable,
+                        availableMatchCount: variant.isAvailable ? 1 : 0,
+                        promotedMatchCount: isPromoted ? 1 : 0,
+                        campaignTypes: isPromoted && variant.campaignType ? [variant.campaignType] : [],
+                    });
+                } else {
+                    if (variant.isAvailable) {
+                        existing.isAvailable = true;
+                        existing.availableMatchCount++;
+                    }
+                    if (isPromoted && variant.campaignType) {
+                        existing.promotedMatchCount++;
+                        if (!existing.campaignTypes.includes(variant.campaignType)) {
+                            existing.campaignTypes.push(variant.campaignType);
+                        }
+                    }
+                }
+            }
+        }
+
+        return index;
+    }, [product?.variantMatrix, selectedOptions]);
+
     const isOptionValueAvailable = useCallback(
         (optionName: string, valueName: string): boolean => {
-            if (!product) return false;
-            return isValueAvailable(optionName, valueName, selectedOptions, product);
+            if (!availabilityIndex) return false;
+            const compositeKey = `${normalizeString(optionName)}\0${normalizeString(valueName)}`;
+            return availabilityIndex.get(compositeKey)?.isAvailable ?? false;
         },
-        [product, selectedOptions]
+        [availabilityIndex]
     );
 
     const getOptionsWithAvailability = useCallback((): ProductOptionWithAvailability[] => {
-        if (!product) return [];
+        if (!product || !availabilityIndex) return [];
 
         return product.options.map(option => ({
             ...option,
-            values: option.values.map(value => ({
-                ...value,
-                isSelected: selectedOptions[option.name] === value.name,
-                isAvailable: isValueAvailable(
-                    option.name,
-                    value.name,
-                    selectedOptions,
-                    product
-                ),
-                ...getOptionValuePromotionSignal(
-                    option.name,
-                    value.name,
-                    selectedOptions,
-                    product
-                ),
-            })),
+            values: option.values.map(value => {
+                const compositeKey = `${normalizeString(option.name)}\0${normalizeString(value.name)}`;
+                const entry = availabilityIndex.get(compositeKey);
+                const isAvailable = entry?.isAvailable ?? false;
+
+                // Derive promotion signal from pre-computed index
+                let promotionState: VariantOptionPromotionState = 'none';
+                let promotionType: string | undefined;
+
+                if (isAvailable && entry && entry.promotedMatchCount > 0) {
+                    promotionState = entry.promotedMatchCount === entry.availableMatchCount
+                        ? 'active'
+                        : 'possible';
+                    promotionType = entry.campaignTypes.length === 1
+                        ? entry.campaignTypes[0]
+                        : undefined;
+                }
+
+                return {
+                    ...value,
+                    isSelected: selectedOptions[option.name] === value.name,
+                    isAvailable,
+                    promotionState,
+                    promotionType,
+                };
+            }),
         }));
-    }, [product, selectedOptions]);
+    }, [product, availabilityIndex, selectedOptions]);
 
     return {
         selectedOptions,
