@@ -23,7 +23,8 @@
     "build-prod": "eas build --profile production --platform android",
     "ios": "cross-env APP_VARIANT=development expo run:ios",
     "ios-dev": "cross-env APP_VARIANT=development npx expo prebuild --platform ios --clean && expo run:ios",
-    "ios-preview": "cross-env APP_VARIANT=preview expo run:ios"
+    "ios-preview": "cross-env APP_VARIANT=preview expo run:ios",
+    "android": "expo run:android"
   },
   "dependencies": {
     "@expo/vector-icons": "15.0.3",
