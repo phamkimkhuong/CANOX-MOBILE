@@ -120,8 +120,8 @@ const stylesheet = StyleSheet.create((theme) => ({
         elevation: 1,
     },
     bubbleMe: {
-        backgroundColor: theme.colors.primary,
-        borderColor: 'rgba(255, 255, 255, 0.25)',
+        backgroundColor: '#6a95b4ff',
+        borderColor: 'rgba(0, 136, 204, 0.12)',
     },
     bubbleOther: {
         backgroundColor: theme.colors.surface,

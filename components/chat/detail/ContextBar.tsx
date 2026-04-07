@@ -185,7 +185,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         gap: 6,
     },
     badge: {
-        backgroundColor: theme.colors.primarySoft,
+        backgroundColor: theme.colors.activeSoft,
         paddingHorizontal: 6,
         paddingVertical: 2,
         borderRadius: 4,
@@ -196,7 +196,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     badgeText: {
         fontSize: 10,
         fontWeight: '700',
-        color: theme.colors.primary,
+        color: theme.colors.newPrimary,
         textTransform: 'uppercase',
     },
     badgeTextOrder: {
@@ -228,20 +228,15 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.secondary,
     },
     actionButton: {
-        backgroundColor: theme.colors.primary,
+        backgroundColor: theme.colors.activeSoft,
         paddingHorizontal: theme.margins.md,
         paddingVertical: theme.margins.sm,
         borderRadius: theme.radius.m,
-        shadowColor: theme.colors.primary,
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-        elevation: 2,
     },
     actionText: {
         fontSize: 13,
         fontWeight: '600',
-        color: theme.colors.surface,
+        color: theme.colors.newPrimary,
     },
 }));
 

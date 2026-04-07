@@ -18,8 +18,7 @@ import {
     DateSeparator,
     MessageActionSheet,
     MessageActionSheetRef,
-    MessageItem,
-    SafetyBanner
+    MessageItem
 } from '@/components/chat/detail';
 import { createRouteErrorBoundary } from '@/components/common/AppCrashFallback';
 import { IconSymbol } from '@/components/ui/Icon';
@@ -972,9 +971,6 @@ export default function ChatDetailScreen() {
                         shopId: params.shopId,
                     }}
                 />
-
-                {/* Safety Banner */}
-                <SafetyBanner />
 
                 {/* Context Bar */}
                 <ContextBar

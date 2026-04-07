@@ -325,14 +325,14 @@ const stylesheet = StyleSheet.create((theme, _runtime) => ({
         borderColor: theme.colors.accent,
     },
     productActionBtnFilled: {
-        backgroundColor: theme.colors.primary,
+        backgroundColor: theme.colors.activeSoft,
     },
     productActionBtnPressed: {
-        backgroundColor: theme.colors.accentSoft,
+        backgroundColor: theme.colors.activeSubtle,
     },
     productActionBtnFilledPressed: {
         opacity: 0.8,
-        backgroundColor: theme.colors.primary,
+        backgroundColor: theme.colors.activeSoft,
     },
     productActionTextOutline: {
         fontSize: 12,
@@ -342,7 +342,7 @@ const stylesheet = StyleSheet.create((theme, _runtime) => ({
     productActionTextFilled: {
         fontSize: 12,
         fontWeight: '600',
-        color: '#fff',
+        color: theme.colors.newPrimary,
     },
     productCardFooterTime: {
         position: 'absolute',
@@ -450,7 +450,7 @@ const stylesheet = StyleSheet.create((theme, _runtime) => ({
         color: theme.colors.error,
     },
     viewOrderBtn: {
-        backgroundColor: theme.colors.primarySubtle,
+        backgroundColor: theme.colors.activeSoft,
         paddingHorizontal: 12,
         paddingVertical: 6,
         borderRadius: theme.radius.m,
@@ -458,7 +458,7 @@ const stylesheet = StyleSheet.create((theme, _runtime) => ({
     viewOrderBtnText: {
         fontSize: 12,
         fontWeight: '600',
-        color: theme.colors.primary,
+        color: theme.colors.newPrimary,
     },
     failedContainer: {
         flexDirection: 'row',

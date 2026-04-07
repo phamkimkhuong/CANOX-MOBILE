@@ -185,7 +185,7 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = React.memo(({
                                 <IconSymbol
                                     name="happy"
                                     size={22}
-                                    color={isEmojiPickerOpen ? theme.colors.primary : theme.colors.secondary}
+                                    color={isEmojiPickerOpen ? theme.colors.newPrimary : theme.colors.secondary}
                                 />
                             </TouchableOpacity>
                         </View>
@@ -202,7 +202,7 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = React.memo(({
                             <IconSymbol
                                 name="send"
                                 size={20}
-                                color={theme.colors.surface}
+                                color={theme.colors.newPrimary}
                             />
                         </TouchableOpacity>
                     )}
@@ -226,9 +226,9 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = React.memo(({
                     skinTonesContainer: theme.colors.backgroundInput,
                     category: {
                         icon: theme.colors.secondary,
-                        iconActive: theme.colors.primary,
+                        iconActive: theme.colors.newPrimary,
                         container: theme.colors.surface,
-                        containerActive: theme.colors.primaryMuted,
+                        containerActive: theme.colors.activeSoft,
                     },
                     search: {
                         text: theme.colors.typography,
@@ -237,7 +237,7 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = React.memo(({
                         background: theme.colors.backgroundInput,
                     },
                     emoji: {
-                        selected: theme.colors.primaryMuted,
+                        selected: theme.colors.activeSoft,
                     },
                 }}
             />
@@ -278,12 +278,6 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     inputContainerFocused: {
         backgroundColor: theme.colors.surface,
-        borderColor: theme.colors.primary,
-        shadowColor: theme.colors.primary,
-        shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.15,
-        shadowRadius: 6,
-        elevation: 2,
     },
     input: {
         flex: 1,
@@ -308,19 +302,13 @@ const stylesheet = StyleSheet.create((theme) => ({
         width: 46,
         height: 46,
         borderRadius: 23,
-        backgroundColor: theme.colors.primary,
+        backgroundColor: theme.colors.activeSoft,
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 0,
         borderWidth: 0.5,
-        borderColor: 'rgba(255, 255, 255, 0.3)',
-        shadowColor: theme.colors.primary,
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 5,
-        elevation: 3,
+        borderColor: theme.colors.activeLight,
     },
 }));
 
 export default ChatInputArea;
-

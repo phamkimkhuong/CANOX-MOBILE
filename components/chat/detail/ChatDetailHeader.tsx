@@ -107,7 +107,7 @@ export const ChatDetailHeader: React.FC<ChatDetailHeaderProps> = ({
                                 <IconSymbol
                                     name="verified"
                                     size={14}
-                                    color={theme.colors.primary}
+                                    color={theme.colors.newPrimary}
                                 />
                             )}
                         </View>

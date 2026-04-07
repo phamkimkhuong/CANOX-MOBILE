@@ -7,7 +7,6 @@
 export { default as ChatBubble } from './ChatBubble';
 export { default as DateSeparator } from './DateSeparator';
 export { default as MessageStatus } from './MessageStatus';
-export { default as SafetyBanner } from './SafetyBanner';
 
 // Molecules
 export { AttachmentMenu } from './AttachmentMenu';
