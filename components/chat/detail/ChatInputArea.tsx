@@ -118,7 +118,7 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = React.memo(({
                             maxLength={maxLength}
                             editable={!disabled}
                             returnKeyType="default"
-                            blurOnSubmit={false}
+                            submitBehavior="submit"
                         />
 
                         {/* Emoji button */}
