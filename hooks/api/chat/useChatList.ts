@@ -146,6 +146,12 @@ export const useChatList = (
     const conversations = useMemo(() => {
         let filtered = allConversations;
 
+        // BASE MASK (Strict UI Pruning): App của Người Mua không bao giờ hiển thị hội thoại của Người Bán
+        // Mặc dù API chung endpoint trả về (nếu user vừa có Shop vừa là Buyer), ta phải block cứng ở UI.
+        filtered = filtered.filter(
+            (conv) => conv.conversationType !== 'SHOP_TO_PLATFORM' && conv.conversationType !== 'SHOP_TO_SHOP'
+        );
+
         // Apply search filter (client-side)
         if (searchQuery && searchQuery.trim().length > 0) {
             const query = searchQuery.toLowerCase().trim();
@@ -195,30 +201,6 @@ export const useRefreshChatList = () => {
     return useSmartRefresh([CONVERSATIONS_QUERY_KEY]);
 };
 
-/**
- * Hook prefetch chat list
- */
-export const usePrefetchChat = () => {
-    const queryClient = useQueryClient();
-    const userId = useAuthStore((state) => state.userId);
-    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-
-    const prefetch = useCallback(() => {
-        if (isAuthenticated && userId) {
-            queryClient.prefetchInfiniteQuery({
-                queryKey: [CONVERSATIONS_QUERY_KEY, ChatFilter.ALL],
-                queryFn: ({ pageParam = 0 }) =>
-                    fetchConversations(pageParam as number, ChatFilter.ALL, userId),
-                initialPageParam: 0,
-                getNextPageParam: (lastPage) => (lastPage.hasNext ? lastPage.page + 1 : undefined),
-                pages: 1, // Chỉ prefetch trang đầu tiên để tối ưu
-                staleTime: 60 * 1000, // Cache 1 phút
-            });
-        }
-    }, [isAuthenticated, userId, queryClient]);
-
-    return prefetch;
-};
 
 // ============================================
 // ACTION MUTATIONS

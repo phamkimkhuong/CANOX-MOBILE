@@ -7,7 +7,7 @@ import { AddToCartApiResponseSchema, AddToCartResponse, CartApiResponseSchema, C
 import { transformCart } from '@/utils/adapter/cartAdapter';
 import { logger } from '@/utils/logger';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import 'react-native-get-random-values';
 import Toast from 'react-native-toast-message';
@@ -79,26 +79,6 @@ export const useCart = () => {
     }, [queryInfo.data, setTotalQuantity]);
 
     return queryInfo;
-};
-
-/**
- * Hook cung cấp hàm prefetch cho giỏ hàng.
- */
-export const usePrefetchCart = () => {
-    const queryClient = useQueryClient();
-    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-
-    const prefetch = useCallback(() => {
-        if (isAuthenticated) {
-            queryClient.prefetchQuery({
-                queryKey: getCartQueryKey(),
-                queryFn: () => fetchCart(),
-                staleTime: 1000 * 10,
-            });
-        }
-    }, [isAuthenticated, queryClient]);
-
-    return prefetch;
 };
 
 // ==============================================

@@ -9,7 +9,6 @@
  * - Performance optimized with React.memo and FlatList props
  */
 
-import { createRouteErrorBoundary } from '@/components/common/AppCrashFallback';
 import {
     AttachmentMenu,
     ChatDetailHeader,
@@ -23,6 +22,7 @@ import {
     QuickReplyList,
     SafetyBanner
 } from '@/components/chat/detail';
+import { createRouteErrorBoundary } from '@/components/common/AppCrashFallback';
 import { IconSymbol } from '@/components/ui/Icon';
 import VideoPlayerModal from '@/components/ui/VideoPlayerModal';
 import { CHAT_STRINGS } from '@/constants/i18n/vi/chat';
@@ -51,6 +51,7 @@ import { Alert } from '@/utils/AlertHelper';
 import { isWithinTimeThreshold } from '@/utils/date';
 import { logger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
+import { toSizedImageUrl } from '@/utils/url';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
@@ -227,16 +228,17 @@ export default function ChatDetailScreen() {
     const chatImages = useMemo(() => {
         const allImages: { uri: string; id: string }[] = [];
         // Extract all images from the conversation chronological order
-        [...messages].reverse().forEach(msg => {
+        for (let i = messages.length - 1; i >= 0; i--) {
+            const msg = messages[i];
             if (msg.type === MessageType.IMAGE && msg.attachments && msg.attachments.length > 0) {
                 msg.attachments.forEach(att => {
                     const url = att.url;
                     if (url) {
-                        allImages.push({ uri: url, id: att.id });
+                        allImages.push({ uri: toSizedImageUrl(url, null, 'large') ?? url, id: att.id });
                     }
                 });
             }
-        });
+        }
         return allImages;
     }, [messages]);
 

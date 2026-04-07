@@ -1,9 +1,7 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { SmartNavButton } from '@/components/ui/navigation/SmartNavButton';
 import { ROUTES } from '@/constants/routes';
-import { usePrefetchCart } from '@/hooks/api/cart/useCart';
 import { useUnreadMessageCount } from '@/hooks/api/chat';
-import { usePrefetchChat } from '@/hooks/api/chat/useChatList';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useCartStore } from '@/store/useCartStore';
 import { Navigator } from '@/utils/navigation';
@@ -23,7 +21,6 @@ interface HeaderButtonProps {
 export const CartHeaderButton: React.FC<HeaderButtonProps> = ({ color, badgeBorderColor }) => {
     const { theme } = useUnistyles();
     const cartItemCount = useCartStore((state) => state.totalQuantity);
-    const prefetchCart = usePrefetchCart();
     const styles = stylesheet;
 
     // Default to white if no color provided (Standard red header)
@@ -39,7 +36,6 @@ export const CartHeaderButton: React.FC<HeaderButtonProps> = ({ color, badgeBord
             route={ROUTES.CART.INDEX}
             onPress={handlePress}
             style={styles.iconBtn}
-            onPressIn={prefetchCart}
         >
             {({ pressed }) => (
                 <View style={[styles.iconWrapper, pressed && styles.pressedOpacity]}>
@@ -65,7 +61,6 @@ export const ChatHeaderButton: React.FC<HeaderButtonProps> = ({ color, badgeBord
     const { theme } = useUnistyles();
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     const { data: unreadMessageCount } = useUnreadMessageCount();
-    const prefetchChat = usePrefetchChat();
     const styles = stylesheet;
 
     // Default to white if no color provided (Standard red header)
@@ -84,7 +79,6 @@ export const ChatHeaderButton: React.FC<HeaderButtonProps> = ({ color, badgeBord
             route={ROUTES.TABS.CHAT}
             onPress={handlePress}
             style={styles.iconBtn}
-            onPressIn={prefetchChat}
         >
             {({ pressed }) => (
                 <View style={[styles.iconWrapper, pressed && styles.pressedOpacity]}>
