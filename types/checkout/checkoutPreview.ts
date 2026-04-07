@@ -36,6 +36,7 @@ export const CheckoutPreviewDirectItemOptionsSchema = z.object({
     loyaltyPoints: z.number().optional(),
     platformLoyaltyPoints: z.number().optional(),
     serviceCode: z.number().optional(),
+    shippingFee: z.number().optional(),
 }).catchall(z.unknown());
 
 export const CheckoutPreviewDirectItemSchema = z.object({
@@ -69,7 +70,7 @@ const CheckoutPromotionSchema = z.object({
 
 const CheckoutItemPricingSchema = z.object({
     discount: z.coerce.number().nullish().transform(val => val ?? 0),
-    finalPrice: z.coerce.number().nullish().transform(val => val ?? 0),
+    finalPrice: z.coerce.number({ message: 'Item finalPrice is required' }),
 }).nullish().transform(val => val ?? ({
     discount: 0,
     finalPrice: 0,
@@ -82,7 +83,7 @@ const CheckoutPreviewItemSchema = z.object({
     productName: z.string().nullish().transform(val => val ?? ''),
     imageUrl: z.string().nullish(),
     variantAttributes: z.string().nullish().transform(val => val ?? ''),
-    unitPrice: z.coerce.number().nullish().transform(val => val ?? 0),
+    unitPrice: z.coerce.number({ message: 'Item unitPrice is required' }),
     quantity: z.coerce.number().nullish().transform(val => val ?? 1),
     pricing: CheckoutItemPricingSchema,
     promotion: CheckoutPromotionSchema.nullish(),
@@ -96,7 +97,7 @@ const CheckoutServicePlanSchema = z.object({
 
 const CheckoutShippingOptionSchema = z.object({
     label: z.string().nullish().transform(val => val ?? ''),
-    totalFee: z.coerce.number().nullish().transform(val => val ?? 0),
+    totalFee: z.coerce.number({ message: 'Shipping totalFee is required' }),
     estimated: z.string().nullish().transform(val => val ?? ''),
     isSelected: z.boolean().nullish(),
     serviceCode: z.coerce.number().nullish(),
@@ -144,12 +145,12 @@ const CheckoutPlatformLoyaltyInfoSchema = z.object({
 });
 
 const CheckoutShopSummarySchema = z.object({
-    subtotal: z.coerce.number().nullish().transform(val => val ?? 0),
+    subtotal: z.coerce.number({ message: 'Shop subtotal is required' }),
     productDiscount: z.coerce.number().nullish().transform(val => val ?? 0),
     shippingDiscount: z.coerce.number().nullish().transform(val => val ?? 0),
     voucherDiscount: z.coerce.number().nullish().transform(val => val ?? 0),
-    shippingFee: z.coerce.number().nullish().transform(val => val ?? 0),
-    shopTotal: z.coerce.number().nullish().transform(val => val ?? 0),
+    shippingFee: z.coerce.number({ message: 'Shop shippingFee is required' }),
+    shopTotal: z.coerce.number({ message: 'Shop shopTotal is required' }),
 });
 
 const CheckoutShippingInfoSchema = z.object({
@@ -185,10 +186,10 @@ const CheckoutDiscountSummarySchema = z.object({
 const CheckoutOrderSummarySchema = z.object({
     totalItems: z.coerce.number().nullish().transform(val => val ?? 0),
     totalQuantity: z.coerce.number().nullish().transform(val => val ?? 0),
-    subtotal: z.coerce.number().nullish().transform(val => val ?? 0),
+    subtotal: z.coerce.number({ message: 'Order subtotal is required' }),
     discounts: CheckoutDiscountSummarySchema,
-    totalShippingFee: z.coerce.number().nullish().transform(val => val ?? 0),
-    grandTotal: z.coerce.number().nullish().transform(val => val ?? 0),
+    totalShippingFee: z.coerce.number({ message: 'Order totalShippingFee is required' }),
+    grandTotal: z.coerce.number({ message: 'Order grandTotal is required' }),
     totalTaxAmount: z.coerce.number().nullish().transform(val => val ?? 0),
 });
 

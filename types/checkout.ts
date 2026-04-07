@@ -114,6 +114,8 @@ export interface ShopShippingOptions {
     methods: ShippingMethod[];
     /** Method đang được chọn */
     selectedMethodId: string;
+    /** Fee của method đang được chọn */
+    selectedFee: number;
     /** Đang loading shipping options */
     isLoading: boolean;
 }

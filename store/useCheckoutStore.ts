@@ -8,7 +8,7 @@ import type { CheckoutPreviewUI } from '@/utils/adapter/checkoutPreviewAdapter';
 import { useMemo } from 'react';
 import { create } from 'zustand';
 
-interface CheckoutShopMinimal {
+export interface CheckoutShopMinimal {
     shopId: string;
     items: CheckoutPreviewItemRequest[];
 }
@@ -129,8 +129,6 @@ export const useCheckoutStore = create<CheckoutState>((set, get) => ({
 
     /**
      * Update preview data from API response.
-     * Server-selected shipping is derived from shipping.options[].isSelected.
-     * DO NOT sync selectedShipping from server anymore - avoid trigger re-render loop.
      */
     setPreviewData: (data) => {
         const state = get();
@@ -138,7 +136,16 @@ export const useCheckoutStore = create<CheckoutState>((set, get) => ({
         let newPlatformDiscount = state.selectedPlatformDiscountVoucher;
         let newPlatformShipping = state.selectedPlatformShippingVoucher;
 
-        // Only sync if store is empty (first load or after reset)
+        const newShipping = new Map<string, string>();
+        if (data) {
+            for (const shop of data.shops) {
+                if (shop.shippingOptions.selectedMethodId) {
+                    newShipping.set(shop.shopId, shop.shippingOptions.selectedMethodId);
+                }
+            }
+        }
+
+        // Only sync vouchers if store is empty (first load or after reset)
         const isFirstSync = newShopVouchers.size === 0 &&
             newPlatformDiscount === null &&
             newPlatformShipping === null;
@@ -173,6 +180,7 @@ export const useCheckoutStore = create<CheckoutState>((set, get) => ({
 
         set({
             previewData: data,
+            selectedShipping: newShipping,
             selectedShopVouchers: newShopVouchers,
             selectedPlatformDiscountVoucher: newPlatformDiscount,
             selectedPlatformShippingVoucher: newPlatformShipping,
@@ -290,26 +298,25 @@ export const useSelectedShippingMethod = (shopId: string) => {
  * Returns null if shop not found.
  */
 export const useShopShipping = (shopId: string) => {
-    const methods = useCheckoutStore(
-        (s) => s.previewData?.shops.find((sh) => sh.shopId === shopId)?.shippingOptions.methods ?? null
-    );
-    const serverDefault = useCheckoutStore(
-        (s) => s.previewData?.shops.find((sh) => sh.shopId === shopId)?.shippingOptions.selectedMethodId ?? null
+    const shippingOptions = useCheckoutStore(
+        (s) => s.previewData?.shops.find((sh) => sh.shopId === shopId)?.shippingOptions ?? null
     );
     const userSelection = useCheckoutStore((s) => s.selectedShipping.get(shopId) ?? null);
     const isLoading = useCheckoutStore((s) => s.isLoadingPreview);
 
-    if (!methods) return null;
+    return useMemo(() => {
+        if (!shippingOptions) return null;
 
-    const selectedId = userSelection ?? serverDefault ?? '';
-    const selectedMethod = methods.find((m) => m.id === selectedId) ?? null;
+        const selectedId = userSelection ?? shippingOptions.selectedMethodId ?? '';
+        const selectedMethod = shippingOptions.methods.find((m) => m.id === selectedId) ?? null;
 
-    return {
-        methods,
-        selectedMethodId: selectedId,
-        selectedMethod,
-        isLoading,
-    };
+        return {
+            methods: shippingOptions.methods,
+            selectedMethodId: selectedId,
+            selectedMethod,
+            isLoading,
+        };
+    }, [shippingOptions, userSelection, isLoading]);
 };
 
 export const useShopNote = (shopId: string) => {

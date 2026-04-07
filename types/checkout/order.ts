@@ -43,6 +43,7 @@ export interface CreateOrderRequest {
             loyaltyPoints?: number;
             platformLoyaltyPoints?: number;
             serviceCode?: number;
+            shippingFee?: number;
             internationalServiceCode?: number;
             firstMileServiceCode?: number;
         };

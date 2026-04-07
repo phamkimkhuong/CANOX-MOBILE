@@ -13,8 +13,7 @@ import {
 } from '@/utils/adapter/checkoutPreviewAdapter';
 import { logger } from '@/utils/logger';
 import { useMutation } from '@tanstack/react-query';
-import 'react-native-get-random-values';
-import { v4 as uuidv4 } from 'uuid';
+
 /**
  * Query key for checkout preview.
  * Can be used for cache invalidation if needed.
@@ -41,7 +40,6 @@ export const useCheckoutPreview = () => {
          * @returns Transformed UI-ready preview data
          */
         mutationFn: async (requestBody: CheckoutPreviewRequest): Promise<CheckoutPreviewUI> => {
-            const idempotencyKey = uuidv4();
             const apiBody = toCheckoutPreviewAPIRequestBody(requestBody);
             logger.checkout.debug('Checkout Preview Request Body:', apiBody);
             const response = await request(
@@ -49,9 +47,6 @@ export const useCheckoutPreview = () => {
                     url: API_ROUTES.CART.CHECKOUT_PREVIEW,
                     method: 'POST',
                     data: apiBody,
-                    headers: {
-                        'Idempotency-Key': idempotencyKey,
-                    },
                 },
                 CheckoutPreviewResponseSchema
             );

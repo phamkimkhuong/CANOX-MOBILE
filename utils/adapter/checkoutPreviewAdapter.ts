@@ -11,10 +11,10 @@ import type {
     CheckoutCalculationResult,
     CheckoutItemUI,
     CheckoutLoyaltyInfoUI,
+    CheckoutShopUI,
     CheckoutValidationIssueUI,
     PlatformLoyaltyAllocationUI,
     PlatformLoyaltyUI,
-    CheckoutShopUI,
     ShippingMethod,
     ShopShippingOptions,
     ShopSubtotal,
@@ -117,15 +117,15 @@ export const toShopShippingOptions = (
     options: CheckoutShippingOptionDTO[] | null | undefined
 ): ShopShippingOptions => {
     const safeOptions = options ?? [];
-    const selectedOption = safeOptions.find((option) => option.isSelected);
-    const selectedMethodId = selectedOption
-        ? String(selectedOption.serviceCode ?? '')
-        : (safeOptions[0] ? String(safeOptions[0].serviceCode ?? '') : '');
+    const selectedOption = safeOptions.find((option) => option.isSelected) ?? safeOptions[0];
+    const selectedMethodId = selectedOption ? String(selectedOption.serviceCode ?? '') : '';
+    const selectedFee = selectedOption?.totalFee ?? 0;
 
     return {
         shopId,
         methods: safeOptions.map(toShippingMethod),
         selectedMethodId,
+        selectedFee,
         isLoading: false,
     };
 };
