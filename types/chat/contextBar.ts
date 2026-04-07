@@ -57,54 +57,6 @@ export interface ContextBarProps {
 }
 
 // ============================================
-// QUICK REPLY TYPES
-// ============================================
-
-/**
- * Quick reply chip data
- */
-export interface QuickReply {
-    id: string;
-    text: string;
-    icon?: string;
-    isPrimary?: boolean;
-}
-
-/**
- * Get quick replies based on context type
- */
-export const getQuickRepliesByContext = (contextType: ContextType): QuickReply[] => {
-    const commonReplies: QuickReply[] = [
-        { id: 'shipping', text: 'Phí ship bao nhiêu?' },
-        { id: 'voucher', text: 'Có voucher không?' },
-        { id: 'return', text: 'Chính sách đổi trả?' },
-    ];
-
-    switch (contextType) {
-        case 'PRODUCT':
-            return [
-                { id: 'stock', text: 'Còn hàng không?', isPrimary: true },
-                { id: 'real-photo', text: 'Có ảnh thật không?' },
-                { id: 'warranty', text: 'Bảo hành thế nào?' },
-                ...commonReplies,
-            ];
-        case 'ORDER':
-            return [
-                { id: 'delivery', text: 'Đơn đến khi nào?', isPrimary: true },
-                { id: 'tracking', text: 'Số tracking?' },
-                { id: 'delay', text: 'Sao chưa giao?' },
-                { id: 'cancel', text: 'Hủy đơn được không?' },
-            ];
-        case 'NONE':
-        default:
-            return [
-                { id: 'support', text: 'Tôi cần hỗ trợ', isPrimary: true },
-                ...commonReplies,
-            ];
-    }
-};
-
-// ============================================
 // CONTEXT ACTION LABELS
 // ============================================
 

@@ -3,7 +3,7 @@ import { ChatTranslation } from '../types';
 export const CHAT_STRINGS: ChatTranslation = {
     list: {
         title: 'Tin nhắn',
-        search: 'Tìm kiếm Shop, tin nhắn...',
+        search: 'Tìm kiếm Shop...',
         emptyTitle: 'Chưa có tin nhắn',
         emptySubtitle: 'Bắt đầu trò chuyện với Shop để được hỗ trợ về sản phẩm',
         filterAll: 'Tất cả',

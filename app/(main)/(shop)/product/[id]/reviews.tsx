@@ -26,9 +26,7 @@ import {
 import { IconSymbol } from '@/components/ui/Icon';
 import { SmartNavButton } from '@/components/ui/navigation/SmartNavButton';
 import { chatRoutes, ROUTES } from '@/constants/routes';
-import { usePrefetchCart } from '@/hooks/api/cart/useCart';
 import { useUnreadMessageCount } from '@/hooks/api/chat';
-import { usePrefetchChat } from '@/hooks/api/chat/useChatList';
 import {
     useInfiniteProductReviews,
     useMarkReviewHelpful,
@@ -157,9 +155,6 @@ export default function ProductReviewsScreen() {
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     const cartItemCount = useCartStore((state) => state.totalQuantity);
     const { data: unreadMessageCount } = useUnreadMessageCount();
-
-    const prefetchCart = usePrefetchCart();
-    const prefetchChat = usePrefetchChat();
 
     const cartRoute = useMemo(() => (isAuthenticated ? ROUTES.CART.INDEX : ROUTES.AUTH.LOGIN), [isAuthenticated]);
     const chatRoute = useMemo(() => (isAuthenticated ? chatRoutes.list() : ROUTES.AUTH.LOGIN), [isAuthenticated]);
@@ -353,7 +348,6 @@ export default function ProductReviewsScreen() {
                         <View style={styles.headerRight}>
                             <SmartNavButton
                                 route={cartRoute}
-                                prefetchAction={prefetchCart}
                                 style={styles.iconButton}
                             >
                                 {({ pressed }) => (
@@ -372,7 +366,6 @@ export default function ProductReviewsScreen() {
 
                             <SmartNavButton
                                 route={chatRoute}
-                                prefetchAction={prefetchChat}
                                 style={styles.iconButton}
                             >
                                 {({ pressed }) => (

@@ -57,7 +57,6 @@ export function ChatListScreen({ isTab = false }: ChatListScreenProps) {
             });
             return () => {
                 cancelAnimationFrame(task);
-                setIsReady(false);
             };
         }, [])
     );
@@ -195,6 +194,7 @@ export function ChatListScreen({ isTab = false }: ChatListScreenProps) {
                 ListFooterComponent={renderFooter}
                 onEndReached={handleLoadMore}
                 onEndReachedThreshold={0.5}
+                getItemType={(item) => item.conversationType}
                 refreshControl={
                     <RefreshControl
                         refreshing={isRefetching && !isLoading}

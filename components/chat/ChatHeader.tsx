@@ -75,9 +75,6 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
                     value={searchQuery}
                     onChangeText={onSearchChange}
                 />
-                <TouchableOpacity style={styles.filterBtn} activeOpacity={0.7}>
-                    <IconSymbol name="tune" size={20} color={theme.colors.secondary} />
-                </TouchableOpacity>
             </View>
 
             {/* Filter Tabs */}
@@ -157,9 +154,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         paddingVertical: theme.margins.smd,
         fontSize: 14,
         color: theme.colors.typography,
-    },
-    filterBtn: {
-        padding: theme.margins.sm,
     },
     tabsContainer: {
         gap: theme.margins.lg,

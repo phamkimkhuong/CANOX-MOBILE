@@ -19,7 +19,6 @@ import {
     MessageActionSheet,
     MessageActionSheetRef,
     MessageItem,
-    QuickReplyList,
     SafetyBanner
 } from '@/components/chat/detail';
 import { createRouteErrorBoundary } from '@/components/common/AppCrashFallback';
@@ -36,10 +35,8 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { useChatPickerStore } from '@/store/useChatPickerStore';
 import {
     ContextType,
-    getQuickRepliesByContext,
     OrderContext,
     ProductContext,
-    QuickReply,
 } from '@/types/chat/contextBar';
 import { ConversationPartner } from '@/types/chat/conversation';
 import { Message, MessageType } from '@/types/chat/message';
@@ -513,11 +510,6 @@ export default function ChatDetailScreen() {
         }
     }, [selectedOrder, pickerConvId, currentConvId, isGhostMode, sendOrderCardMutation, clearSelections]);
 
-    // Quick replies based on context
-    const quickReplies = useMemo(
-        () => getQuickRepliesByContext(activeContextType),
-        [activeContextType]
-    );
 
     // ============================================
     // COMPUTED DATA
@@ -616,12 +608,6 @@ export default function ChatDetailScreen() {
         [sendMessageMutation, isGhostMode]
     );
 
-    const handleQuickReply = useCallback(
-        (reply: QuickReply) => {
-            handleSendMessage(reply.text);
-        },
-        [handleSendMessage]
-    );
 
     const handleMessagePress = useCallback((message: Message) => {
         if (message.type === 'ORDER_CARD' && message.metadata) {
@@ -1040,14 +1026,6 @@ export default function ChatDetailScreen() {
                         </>
                     ) : (
                         <ChatDetailSkeleton count={10} shimmerAnimatedStyle={shimmerAnimatedStyle} />
-                    )}
-
-                    {/* Quick Replies - Now pinned to bottom above input */}
-                    {quickReplies.length > 0 && (
-                        <QuickReplyList
-                            replies={quickReplies}
-                            onReplyPress={handleQuickReply}
-                        />
                     )}
 
                     {/* Input Area */}

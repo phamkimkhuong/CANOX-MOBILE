@@ -1,14 +1,5 @@
 /**
  * useChatList - TanStack Query hook for fetching conversations
- *
- * Features:
- * - Infinite scroll pagination (page-based)
- * - Filter by conversation type
- * - Search (client-side for now, can be server-side later)
- * - Optimistic updates for pin/mute/delete
- *
- * @see types/chat/conversationDTO.ts - API DTO types
- * @see utils/adapter/conversationAdapter.ts - DTO → UI transform
  */
 
 import { API_ROUTES } from '@/constants/apiRoutes';
@@ -26,7 +17,7 @@ import { toConversationListUI } from '@/utils/adapter/chat/conversationAdapter';
 import { safeParseDate } from '@/utils/date';
 import { logger } from '@/utils/logger';
 import { InfiniteData, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 
 const PAGE_SIZE = 20;
 
@@ -145,12 +136,6 @@ export const useChatList = (
     // Apply client-side filters
     const conversations = useMemo(() => {
         let filtered = allConversations;
-
-        // BASE MASK (Strict UI Pruning): App của Người Mua không bao giờ hiển thị hội thoại của Người Bán
-        // Mặc dù API chung endpoint trả về (nếu user vừa có Shop vừa là Buyer), ta phải block cứng ở UI.
-        filtered = filtered.filter(
-            (conv) => conv.conversationType !== 'SHOP_TO_PLATFORM' && conv.conversationType !== 'SHOP_TO_SHOP'
-        );
 
         // Apply search filter (client-side)
         if (searchQuery && searchQuery.trim().length > 0) {
@@ -296,33 +281,34 @@ export const useConversationActions = () => {
 
     /**
      * Delete a conversation.
-     * TODO: Replace with real API endpoint when available.
      */
     const deleteConversation = useMutation({
         mutationFn: async (conversationId: string) => {
-            // TODO: Implement real API call
-            // await apiClient.delete(`/api/v1/chat/conversations/${conversationId}`);
             logger.chat.info('Delete conversation:', conversationId);
-            return { success: true, conversationId };
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: [CONVERSATIONS_QUERY_KEY] });
-        },
-    });
 
-    /**
-     * Mark a conversation as read.
-     * TODO: Replace with real API endpoint when available.
-     */
-    const markAsRead = useMutation({
-        mutationFn: async (conversationId: string) => {
-            // TODO: Implement real API call
-            // await apiClient.post(`/api/v1/chat/conversations/${conversationId}/read`);
-            logger.chat.info('Mark as read:', conversationId);
+            await apiClient.delete(`/api/v1/chat/conversations/${conversationId}`);
+
             return { success: true, conversationId };
         },
-        onSuccess: () => {
+        onSuccess: ({ conversationId }) => {
+            queryClient.setQueriesData<InfiniteData<{ conversations: Conversation[]; page: number; hasNext: boolean; totalElements: number }>>(
+                { queryKey: [CONVERSATIONS_QUERY_KEY] },
+                (oldData) => {
+                    if (!oldData) return oldData;
+
+                    return {
+                        ...oldData,
+                        pages: oldData.pages.map(page => ({
+                            ...page,
+                            conversations: page.conversations.filter((conv) => conv.id !== conversationId)
+                        }))
+                    };
+                }
+            );
             queryClient.invalidateQueries({ queryKey: [CONVERSATIONS_QUERY_KEY] });
+        },
+        onError: (error) => {
+            logger.chat.error('Delete conversation failed:', error);
         },
     });
 
@@ -330,6 +316,5 @@ export const useConversationActions = () => {
         pinConversation,
         muteConversation,
         deleteConversation,
-        markAsRead,
     };
 };
