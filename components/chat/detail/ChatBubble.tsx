@@ -32,8 +32,8 @@ export const ChatBubble: React.FC<ChatBubbleProps> = React.memo(({
 
     // Memoize border radius calculation
     const borderRadius = React.useMemo((): ViewStyle => {
-        const radius = isCard ? 12 : 12;
-        const smallRadius = 4;
+        const radius = isCard ? 12 : 14;
+        const smallRadius = 6;
 
         if (position === 'single') {
             return {
@@ -90,7 +90,6 @@ export const ChatBubble: React.FC<ChatBubbleProps> = React.memo(({
                     };
             }
         }
-        return {};
     }, [isMe, position, isCard]);
 
     return (
@@ -113,24 +112,33 @@ const stylesheet = StyleSheet.create((theme) => ({
     bubble: {
         paddingHorizontal: 12,
         paddingVertical: 8,
+        borderWidth: 0.5,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 3,
+        elevation: 1,
     },
     bubbleMe: {
         backgroundColor: theme.colors.primary,
+        borderColor: 'rgba(255, 255, 255, 0.25)',
     },
     bubbleOther: {
         backgroundColor: theme.colors.surface,
+        borderColor: 'rgba(255, 255, 255, 0.15)',
     },
     cardBubble: {
         paddingHorizontal: 0,
         paddingVertical: 0,
         backgroundColor: theme.colors.surface,
-        borderWidth: 1,
-        borderColor: theme.colors.secondaryLight,
+        borderWidth: 0.5,
+        borderColor: 'rgba(255, 255, 255, 0.15)',
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 5,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.06,
+        shadowRadius: 8,
         elevation: 2,
+        overflow: 'hidden',
     },
 }));
 
