@@ -1015,6 +1015,9 @@ export default function ChatDetailScreen() {
                                     windowSize={10}
                                     updateCellsBatchingPeriod={30}
                                     removeClippedSubviews={false}
+                                    keyboardDismissMode="interactive"
+                                    keyboardShouldPersistTaps="handled"
+                                    automaticallyAdjustContentInsets={false}
                                 />
                             ) : (
                                 renderEmptyComponent()

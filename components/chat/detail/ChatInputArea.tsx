@@ -13,13 +13,6 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
-import { useKeyboardHandler } from 'react-native-keyboard-controller';
-import Animated, {
-    Extrapolation,
-    interpolate,
-    useAnimatedStyle,
-    useSharedValue
-} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import EmojiPicker, { type EmojiType } from 'rn-emoji-keyboard';
@@ -34,11 +27,6 @@ interface ChatInputAreaProps {
 
 /**
  * ChatInputArea - Smart input with dynamic send button and emoji picker
- * 
- * Features:
- * - Emoji picker using rn-emoji-keyboard
- * - Dynamic send button (appears when text is entered)
- * - Attachment menu trigger
  */
 export const ChatInputArea: React.FC<ChatInputAreaProps> = React.memo(({
     onSend,
@@ -55,45 +43,8 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = React.memo(({
     const [isFocused, setIsFocused] = useState(false);
     const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
 
-    // Reanimated shared value to track keyboard progress (0 to 1)
-    const progress = useSharedValue(0);
-
-    // Hook into native keyboard events for 60fps synchronization
-    useKeyboardHandler({
-        onStart: (e) => {
-            'worklet';
-            progress.value = e.progress;
-        },
-        onMove: (e) => {
-            'worklet';
-            progress.value = e.progress;
-        },
-        onEnd: (e) => {
-            'worklet';
-            progress.value = e.progress;
-        },
-    }, []);
-
-    // Zero-Jitter Animation: Using translateY instead of paddingBottom to avoid Layout Thrashing
-    const animatedContainerStyle = useAnimatedStyle(() => {
-        const startInset = Math.max(insets.bottom, 12);
-        const endInset = 8;
-        const diff = startInset - endInset;
-
-        const translateY = interpolate(
-            progress.value,
-            [0, 1],
-            [0, diff],
-            Extrapolation.CLAMP
-        );
-
-        return {
-            transform: [{ translateY }],
-        };
-    }, [insets.bottom]);
-
     const staticPaddingStyle = {
-        paddingBottom: Math.max(insets.bottom, 12),
+        paddingBottom: Math.max(insets.bottom, 8),
     };
 
     const hasText = text.trim().length > 0;
@@ -110,34 +61,29 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = React.memo(({
         }
     }, [text, onSend]);
 
-    const handleChangeText = useCallback((value: string) => {
-        if (value.length <= maxLength) {
-            setText(value);
-        }
-    }, [maxLength]);
-
-    const handleOpenEmojiPicker = useCallback(() => {
-        Keyboard.dismiss();
-        setIsEmojiPickerOpen(true);
-    }, []);
-
-    const handleCloseEmojiPicker = useCallback(() => {
-        setIsEmojiPickerOpen(false);
+    const handleChangeText = useCallback((newText: string) => {
+        setText(newText);
     }, []);
 
     const handleEmojiSelected = useCallback((emoji: EmojiType) => {
         setText(prev => prev + emoji.emoji);
     }, []);
 
+    const handleOpenEmojiPicker = useCallback(() => {
+        Keyboard.dismiss();
+        setTimeout(() => {
+            setIsEmojiPickerOpen(true);
+        }, 100);
+    }, []);
+
+    const handleCloseEmojiPicker = useCallback(() => {
+        setIsEmojiPickerOpen(false);
+    }, []);
+
     return (
         <>
             <View style={[styles.outerContainer, staticPaddingStyle]}>
-                <Animated.View
-                    style={[
-                        styles.container,
-                        animatedContainerStyle,
-                    ]}
-                >
+                <View style={styles.container}>
                     {/* Attachment button */}
                     <TouchableOpacity
                         style={styles.iconButton}
@@ -206,7 +152,7 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = React.memo(({
                             />
                         </TouchableOpacity>
                     )}
-                </Animated.View>
+                </View>
             </View>
 
             {/* Emoji Picker Modal */}
