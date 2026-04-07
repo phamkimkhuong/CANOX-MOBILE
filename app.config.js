@@ -22,7 +22,7 @@ module.exports = {
         "userInterfaceStyle": "light",
         "newArchEnabled": true,
         "splash": {
-            "image": "./assets/images/splash-icon.png",
+            "image": "./assets/images/splash-logo.png",
             "resizeMode": "contain",
             "backgroundColor": "#f6f6f6"
         },
@@ -48,8 +48,10 @@ module.exports = {
         "android": {
             "icon": "./assets/images/icon-android.png",
             "adaptiveIcon": {
-                "foregroundImage": "./assets/images/adaptive-icon-foreground.png",
-                "backgroundColor": "#ef4444",
+                // "foregroundImage": "./assets/images/adaptive-icon-foreground.png",
+                // "backgroundColor": "#ef4444",
+                "foregroundImage": "./assets/images/adaptive-icon-foreground2.png",
+                "backgroundColor": "#ffffff",
                 "monochromeImage": "./assets/images/monochrome-icon.png"
             },
             "edgeToEdgeEnabled": true,
@@ -70,7 +72,7 @@ module.exports = {
             [
                 loadPlugin("./plugins/withNotificationIcon"),
                 {
-                    "iconPath": "./assets/images/notification-icon.png",
+                    "iconPath": "./assets/images/notification-icon2.png",
                     "iconColor": "#ef4444"
                 }
             ],
