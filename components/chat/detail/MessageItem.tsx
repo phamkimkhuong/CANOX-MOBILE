@@ -289,10 +289,10 @@ const stylesheet = StyleSheet.create((theme, _runtime) => ({
         gap: 6,
     },
     productNameLarge: {
-        fontSize: 14,
+        fontSize: 13,
         fontWeight: '500',
         color: theme.colors.typography,
-        lineHeight: 20,
+        lineHeight: 18,
     },
     productPriceRow: {
         flexDirection: 'row',
@@ -300,7 +300,7 @@ const stylesheet = StyleSheet.create((theme, _runtime) => ({
         alignItems: 'flex-end',
     },
     productPriceLarge: {
-        fontSize: 18,
+        fontSize: 15,
         fontWeight: '700',
         color: theme.colors.error,
     },
@@ -401,7 +401,7 @@ const stylesheet = StyleSheet.create((theme, _runtime) => ({
         marginBottom: theme.margins.sm,
     },
     orderCodeLarge: {
-        fontSize: 15,
+        fontSize: 13,
         fontWeight: '700',
         color: theme.colors.typography,
     },
@@ -445,7 +445,7 @@ const stylesheet = StyleSheet.create((theme, _runtime) => ({
         color: theme.colors.typographySecondary,
     },
     totalValue: {
-        fontSize: 16,
+        fontSize: 15,
         fontWeight: '700',
         color: theme.colors.error,
     },

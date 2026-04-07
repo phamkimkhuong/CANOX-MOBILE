@@ -251,6 +251,21 @@ export const ConversationItem = memo<ConversationItemProps>(({
             );
         }
 
+        // Default avatar for standard users/shops
+        if (item.partner.type === 'SHOP') {
+            return (
+                <View style={styles.avatarContainer}>
+                    <Image
+                        source={require('@/assets/images/default_avatar.png')}
+                        style={styles.avatar}
+                        contentFit="cover"
+                        transition={200}
+                    />
+                    <OnlineStatusBadge isOnline={item.partner.isOnline} />
+                </View>
+            );
+        }
+
         // System/AI/Promo - show icon
         return (
             <View style={styles.avatarContainer}>

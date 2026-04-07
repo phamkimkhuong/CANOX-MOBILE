@@ -15,7 +15,7 @@ import type {
     ParticipantDTO,
 } from '@/types/chat/conversationDTO';
 
-const DEFAULT_AVATAR = 'https://via.placeholder.com/48';
+
 
 /**
  * Map conversationType to UI partner type
@@ -88,14 +88,14 @@ export const findCurrentUserParticipant = (
 export const resolveAvatarUrl = (
     dto: ConversationDTO,
     partner: ParticipantDTO | null
-): string => {
+): string | undefined => {
     // Priority 1: Conversation-level avatar
     if (dto.avatarUrl) {
         return dto.avatarUrl;
     }
 
     if (!partner) {
-        return DEFAULT_AVATAR;
+        return undefined;
     }
 
     // Priority 2: Shop logo (for BUYER_TO_SHOP)
@@ -107,8 +107,7 @@ export const resolveAvatarUrl = (
     if (partner.user.image) {
         return partner.user.image;
     }
-
-    return DEFAULT_AVATAR;
+    return undefined;
 };
 
 /**

@@ -78,6 +78,12 @@ export const ChatDetailHeader: React.FC<ChatDetailHeaderProps> = ({
                                 style={styles.avatar}
                                 contentFit="cover"
                             />
+                        ) : partner?.type === 'SHOP' ? (
+                            <Image
+                                source={require('@/assets/images/default_avatar.png')}
+                                style={styles.avatar}
+                                contentFit="cover"
+                            />
                         ) : (
                             <View style={[styles.avatar, styles.avatarPlaceholder]}>
                                 <IconSymbol
