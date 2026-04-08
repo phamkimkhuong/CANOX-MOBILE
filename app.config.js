@@ -68,12 +68,11 @@ module.exports = {
             // loadPlugin("./plugins/withFirebaseiOSFix"),
             loadPlugin("./plugins/withDisableLint"),
             loadPlugin("./plugins/withAndroid16KB"),
-            loadPlugin("./plugins/withNotifee"),
             [
-                loadPlugin("./plugins/withNotificationIcon"),
+                "expo-notifications",
                 {
-                    "iconPath": "./assets/images/notification-icon2.png",
-                    "iconColor": "#ef4444"
+                    "icon": "./assets/images/notification-icon2.png",
+                    "color": "#ef4444"
                 }
             ],
             "expo-router",
