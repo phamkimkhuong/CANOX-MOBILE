@@ -116,7 +116,6 @@ async function setupNotificationChannels(): Promise<void> {
         name: 'Đơn hàng',
         description: 'Thông báo về đơn hàng mới, cập nhật trạng thái',
         importance: Notifications.AndroidImportance.HIGH,
-        sound: 'default',
         enableVibrate: true,
     });
 
@@ -129,7 +128,7 @@ async function setupNotificationChannels(): Promise<void> {
 }
 
 /**
- * Hiển thị notification bằng expo-notifications
+ * Hiển thị notification
  */
 async function displayLocalNotification(
     remoteMessage: FirebaseMessagingTypes.RemoteMessage,
@@ -141,7 +140,6 @@ async function displayLocalNotification(
             title: remoteMessage.notification?.title ?? undefined,
             body: remoteMessage.notification?.body ?? undefined,
             data: (remoteMessage.data as Record<string, unknown>) ?? {},
-            sound: 'default',
         },
         trigger: {
             type: Notifications.SchedulableTriggerInputTypes.DATE,
@@ -230,7 +228,7 @@ export function usePushNotifications() {
             }
         });
 
-        // Handle notification tap khi user bấm vào notification (expo-notifications)
+        // Handle notification tap khi user bấm vào notification
         const notificationResponseSubscription =
             Notifications.addNotificationResponseReceivedListener((response) => {
                 const data = response.notification.request.content.data as
