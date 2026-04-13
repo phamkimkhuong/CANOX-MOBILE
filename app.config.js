@@ -65,7 +65,7 @@ module.exports = {
         },
 
         "plugins": [
-            // loadPlugin("./plugins/withFirebaseiOSFix"),
+            // loadPlugin("./plugins/withFirebaseiOS"),
             loadPlugin("./plugins/withDisableLint"),
             loadPlugin("./plugins/withAndroid16KB"),
             [
@@ -103,7 +103,8 @@ module.exports = {
                 {
                     "iosUrlScheme": "com.googleusercontent.apps.521840324498-qqjs0eje1gl67opcksp8e7rtsvs338d6"
                 }
-            ]
+            ],
+            loadPlugin("./plugins/withNotificationManifest")
         ],
         "experiments": {
             "typedRoutes": true

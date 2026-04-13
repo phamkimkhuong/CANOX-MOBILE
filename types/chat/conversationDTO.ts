@@ -31,6 +31,7 @@ export const ConversationStatus = {
     BLOCKED: 'BLOCKED',
     DELETED: 'DELETED',
     SUSPENDED: 'SUSPENDED',
+    CLOSED: 'CLOSED',
 } as const;
 
 export type ConversationStatus = (typeof ConversationStatus)[keyof typeof ConversationStatus];
@@ -151,7 +152,7 @@ const ConversationDTOSchema = z.object({
     ]),
     name: z.string(),
     avatarUrl: z.string().nullable().optional(),
-    status: z.enum(['ACTIVE', 'WAITING_FOR_STAFF', 'ARCHIVED', 'BLOCKED', 'DELETED', 'SUSPENDED']),
+    status: z.enum(['ACTIVE', 'WAITING_FOR_STAFF', 'ARCHIVED', 'BLOCKED', 'DELETED', 'SUSPENDED', 'CLOSED']),
     lastMessageId: z.string().nullable().optional(),
     lastMessageAt: z.string().nullable().optional(),
     lastMessagePreview: z.string().nullable().optional(),
