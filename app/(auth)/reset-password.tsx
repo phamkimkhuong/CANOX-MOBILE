@@ -163,6 +163,7 @@ export default function ResetPasswordScreen() {
                             control={control}
                             name="password"
                             label={t('resetPassword.passwordLabel')}
+                            showLabel={false}
                             icon="lock"
                             placeholder={t('resetPassword.passwordPlaceholder')}
                             isPassword
@@ -174,6 +175,7 @@ export default function ResetPasswordScreen() {
                             control={control}
                             name="confirmPassword"
                             label={t('resetPassword.confirmPasswordLabel')}
+                            showLabel={false}
                             icon="lock"
                             placeholder={t('resetPassword.confirmPasswordPlaceholder')}
                             isPassword

@@ -1,10 +1,11 @@
 import { IconSymbol } from '@/components/ui/Icon';
+import { LEGAL_URLS } from '@/constants/legal';
 import { authRoutes, ROUTES } from '@/constants/routes';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { Navigator } from '@/utils/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native';
@@ -31,7 +32,6 @@ export default function RegisterScreen() {
 
 	const { t } = useTranslation('auth');
 	const styles = stylesheet;
-	const [agreedTerms, setAgreedTerms] = useState(false);
 	const { mutate: register, isPending } = useRegister();
 
 	const { control, handleSubmit, setError, setFocus, formState: { isSubmitting } } = useForm<RegisterFormData>({
@@ -44,16 +44,26 @@ export default function RegisterScreen() {
 		},
 	});
 
+	const openLegalDocument = useCallback((slug: string, url: string, title: string) => {
+		Navigator.push({
+			pathname: ROUTES.SETTINGS.LEGAL_DETAIL,
+			params: {
+				slug,
+				url,
+				title,
+			},
+		} as never);
+	}, []);
+
+	const handleOpenTerms = useCallback(() => {
+		openLegalDocument('terms', LEGAL_URLS.TOS, t('register.termsLink'));
+	}, [openLegalDocument, t]);
+
+	const handleOpenPrivacy = useCallback(() => {
+		openLegalDocument('privacy', LEGAL_URLS.PRIVACY, t('register.privacyLink'));
+	}, [openLegalDocument, t]);
+
 	const onSubmit = async (data: RegisterFormData) => {
-		if (!agreedTerms) {
-			Toast.hide();
-			Toast.show({
-				type: 'error',
-				text1: 'Vui lòng đồng ý với Điều khoản sử dụng',
-				visibilityTime: 2000,
-			});
-			return;
-		}
 		try {
 			register(data, {
 				onError: (error: unknown) => {
@@ -129,6 +139,7 @@ export default function RegisterScreen() {
 							control={control}
 							name="username"
 							label={t('register.usernameLabel')}
+							showLabel={false}
 							placeholder={t('register.usernamePlaceholder')}
 							icon="person"
 							autoCapitalize="none"
@@ -137,6 +148,7 @@ export default function RegisterScreen() {
 							control={control}
 							name="email"
 							label={t('register.emailLabel')}
+							showLabel={false}
 							icon="mail"
 							placeholder={t('register.emailPlaceholder')}
 							keyboardType="email-address"
@@ -146,6 +158,7 @@ export default function RegisterScreen() {
 							control={control}
 							name="password"
 							label={t('register.passwordLabel')}
+							showLabel={false}
 							icon="lock"
 							placeholder={t('register.passwordPlaceholder')}
 							isPassword
@@ -155,29 +168,23 @@ export default function RegisterScreen() {
 							control={control}
 							name="confirmPassword"
 							label={t('register.confirmPasswordLabel')}
+							showLabel={false}
 							icon="verified-user"
 							placeholder={t('register.confirmPasswordPlaceholder')}
 							isPassword
 						/>
 
-						{/* Terms Checkbox */}
-						<TouchableOpacity
-							style={styles.termsRow}
-							onPress={() => setAgreedTerms(!agreedTerms)}
-							activeOpacity={0.7}
-						>
-							<View style={[styles.checkbox, agreedTerms && styles.checkboxChecked]}>
-								{agreedTerms && (
-									<IconSymbol name="check" size={14} color={theme.colors.onPrimary} />
-								)}
-							</View>
-							<Text style={styles.termsText}>
-								{t('register.agreeTermsPrefix')}
-								<Text style={styles.termsLink}>{t('register.termsLink')}</Text>
-								{t('register.agreeTermsAnd')}
-								<Text style={styles.termsLink}>{t('register.privacyLink')}</Text>
+						<Text style={styles.consentText}>
+							{t('register.agreeTermsPrefix')}
+							<Text style={styles.consentLink} onPress={handleOpenTerms}>
+								{t('register.termsLink')}
 							</Text>
-						</TouchableOpacity>
+							{t('register.agreeTermsAnd')}
+							<Text style={styles.consentLink} onPress={handleOpenPrivacy}>
+								{t('register.privacyLink')}
+							</Text>
+							{t('register.consentSuffix')}
+						</Text>
 
 						{/* Submit Button */}
 						<TouchableOpacity
@@ -266,7 +273,7 @@ const stylesheet = StyleSheet.create((theme) => ({
 		marginBottom: theme.margins.md,
 	},
 	welcomeTitle: {
-		fontSize: 26,
+		fontSize: 23,
 		fontWeight: 'bold',
 		color: theme.colors.typography,
 		marginBottom: theme.margins.sm,
@@ -281,43 +288,24 @@ const stylesheet = StyleSheet.create((theme) => ({
 		backgroundColor: theme.colors.surface,
 		marginHorizontal: theme.margins.md,
 		borderRadius: theme.radius.l + 8,
-		padding: theme.margins.lg,
+		padding: theme.margins.md,
 		shadowColor: theme.colors.typography,
 		shadowOffset: { width: 0, height: 2 },
 		shadowOpacity: 0.05,
 		shadowRadius: 10,
 		elevation: 2,
 	},
-	termsRow: {
-		flexDirection: 'row',
-		alignItems: 'flex-start',
-		gap: 12,
-		marginTop: theme.margins.sm,
-		marginBottom: theme.margins.lg,
-	},
-	checkbox: {
-		width: 20,
-		height: 20,
-		borderRadius: 4,
-		borderWidth: 1.5,
-		borderColor: theme.colors.border,
-		backgroundColor: theme.colors.surface,
-		justifyContent: 'center',
-		alignItems: 'center',
-	},
-	checkboxChecked: {
-		backgroundColor: theme.colors.buttonActive,
-		borderColor: theme.colors.buttonActive,
-	},
-	termsText: {
-		flex: 1,
-		fontSize: 14,
+	consentText: {
+		fontSize: 13,
 		color: theme.colors.typographySecondary,
 		lineHeight: 20,
+		marginTop: theme.margins.sm,
+		marginBottom: theme.margins.md,
 	},
-	termsLink: {
+	consentLink: {
 		color: theme.colors.buttonActive,
 		fontWeight: '600',
+		textDecorationLine: 'underline',
 	},
 	submitBtn: {
 		backgroundColor: theme.colors.buttonActive,
@@ -325,11 +313,6 @@ const stylesheet = StyleSheet.create((theme) => ({
 		borderRadius: theme.radius.full,
 		justifyContent: 'center',
 		alignItems: 'center',
-		shadowColor: theme.colors.buttonActive,
-		shadowOffset: { width: 0, height: 4 },
-		shadowOpacity: 0.3,
-		shadowRadius: 8,
-		elevation: 4,
 	},
 	submitBtnDisabled: {
 		opacity: 0.7,
@@ -342,7 +325,7 @@ const stylesheet = StyleSheet.create((theme) => ({
 	dividerContainer: {
 		flexDirection: 'row',
 		alignItems: 'center',
-		marginVertical: theme.margins.lg,
+		marginVertical: theme.margins.md,
 	},
 	line: {
 		flex: 1,

@@ -15,9 +15,19 @@ interface AuthInputProps extends TextInputProps {
     icon: IconSymbolName;
     isPassword?: boolean;
     placeholder: string;
+    showLabel?: boolean;
 }
 
-export const AuthInput = ({ control, name, label, icon, isPassword, placeholder, ...props }: AuthInputProps) => {
+export const AuthInput = ({
+    control,
+    name,
+    label,
+    icon,
+    isPassword,
+    placeholder,
+    showLabel = true,
+    ...props
+}: AuthInputProps) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const [isSecure, setIsSecure] = useState(isPassword);
@@ -29,7 +39,7 @@ export const AuthInput = ({ control, name, label, icon, isPassword, placeholder,
             name={name}
             render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
                 <View style={styles.container}>
-                    <Text style={styles.label}>{label}</Text>
+                    {showLabel ? <Text style={styles.label}>{label}</Text> : null}
 
                     <View style={[
                         styles.inputWrapper,
@@ -45,6 +55,7 @@ export const AuthInput = ({ control, name, label, icon, isPassword, placeholder,
                             style={styles.input}
                             placeholder={placeholder}
                             placeholderTextColor={theme.colors.secondary}
+                            accessibilityLabel={label}
                             value={value}
                             onChangeText={onChange}
                             onBlur={() => {

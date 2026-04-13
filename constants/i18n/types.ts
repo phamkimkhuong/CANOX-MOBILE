@@ -498,6 +498,7 @@ export interface AuthTranslation {
         termsLink: string;
         agreeTermsAnd: string;
         privacyLink: string;
+        consentSuffix: string;
         socialLogin: string;
         hasAccount: string;
         loginNow: string;

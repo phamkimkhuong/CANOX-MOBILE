@@ -126,6 +126,7 @@ export default function ForgotPasswordScreen() {
                             control={control}
                             name="email"
                             label={t('forgotPassword.emailLabel')}
+                            showLabel={false}
                             icon="mail"
                             placeholder={t('forgotPassword.emailPlaceholder')}
                             keyboardType="email-address"

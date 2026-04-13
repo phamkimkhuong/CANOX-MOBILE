@@ -79,6 +79,7 @@ export default function LoginScreen() {
                             control={control}
                             name="username"
                             label={t('login.usernameLabel')}
+                            showLabel={false}
                             icon="person"
                             placeholder={t('login.usernamePlaceholder')}
                             autoCapitalize="none"
@@ -88,6 +89,7 @@ export default function LoginScreen() {
                             control={control}
                             name="password"
                             label={t('login.passwordLabel')}
+                            showLabel={false}
                             icon="lock"
                             placeholder={t('login.passwordPlaceholder')}
                             isPassword
