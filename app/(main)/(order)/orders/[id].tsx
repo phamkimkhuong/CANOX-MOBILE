@@ -111,7 +111,7 @@ export default function OrderDetailScreen() {
     // Check if any item can be reviewed
 
     const canReview = useMemo(() => {
-        if (!order?.items || (order.status !== 'COMPLETED' && order.status !== 'FINALIZED')) return false;
+        if (!order?.items || order.status !== 'COMPLETED') return false;
         return order.items.some((item) => !item.reviewed);
     }, [order?.items, order?.status]);
 
@@ -435,7 +435,7 @@ export default function OrderDetailScreen() {
                                 <OrderDetailItemsList
                                     items={order.items}
                                     currency={order.currency}
-                                    showReviewStatus={order.status === 'COMPLETED' || order.status === 'FINALIZED'}
+                                    showReviewStatus={order.status === 'COMPLETED'}
                                     onPressReview={handleReviewItem}
                                 />
                             </View>
@@ -455,6 +455,9 @@ export default function OrderDetailScreen() {
                                     grandTotal={order.grandTotal}
                                     currency={order.currency}
                                     paymentMethod={order.paymentMethod}
+                                    orderStatus={order.status}
+                                    pointsEarned={order.pointsEarned}
+                                    platformPointsEarned={order.platformPointsEarned}
                                 />
                             </View>
 

@@ -16,7 +16,7 @@ export type KnownOrderStatus =
     | 'OUT_FOR_DELIVERY'  // Đang giao
     | 'DELIVERED'         // Đã giao
     | 'COMPLETED'         // Hoàn thành
-    | 'FINALIZED'         // Hoàn tất
+
     | 'DELIVERY_FAILED'   // Giao hàng thất bại
     | 'RETURNING_TO_SENDER' // Đang trả về người gửi
     | 'RETURNED_TO_SENDER'  // Đã trả về người gửi
@@ -287,6 +287,10 @@ export interface OrderUI {
     taxAmount: number;
     shippingFee: number;
     grandTotal: number;
+
+    // Loyalty earned
+    pointsEarned: number;
+    platformPointsEarned: number;
 
     // Items
     items: OrderItemUI[];

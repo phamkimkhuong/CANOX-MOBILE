@@ -50,10 +50,6 @@ export const useGoogleLogin = () => {
             await loginStore(accessToken, refreshToken, userId, buyerId);
 
             hideGlobalLoading();
-            Toast.show({
-                type: 'success',
-                text1: 'Đăng nhập Google thành công',
-            });
             router.replace(ROUTES.TABS.HOME);
         },
         onError: (error: ApiError) => {

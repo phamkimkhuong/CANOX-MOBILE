@@ -811,6 +811,13 @@ export interface OrderTranslation {
             total: string;
             savings: string;
         };
+        loyalty: {
+            earned: string;
+            willEarn: string;
+            shopPoints: string;
+            platformPoints: string;
+            pointsUnit: string;
+        };
         customerNote: string;
         cancellationReason: string;
         placedAt: string;

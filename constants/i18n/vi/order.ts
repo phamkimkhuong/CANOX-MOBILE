@@ -41,6 +41,13 @@ export const ORDER_STRINGS: OrderTranslation = {
             total: 'Thành tiền',
             savings: 'Tiết kiệm {{amount}}',
         },
+        loyalty: {
+            earned: 'Xu đã nhận',
+            willEarn: 'Xu nhận khi hoàn thành',
+            shopPoints: 'Xu thưởng từ Shop',
+            platformPoints: 'Xu thưởng từ CanoX',
+            pointsUnit: 'xu',
+        },
         customerNote: 'Ghi chú:',
         cancellationReason: 'Lý do huỷ:',
         placedAt: 'Đặt lúc {{time}}',

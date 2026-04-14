@@ -41,6 +41,13 @@ export const ORDER_STRINGS: OrderTranslation = {
             total: 'Order Total',
             savings: 'Saved {{amount}}',
         },
+        loyalty: {
+            earned: 'Points earned',
+            willEarn: 'Points upon completion',
+            shopPoints: 'Points from Shop',
+            platformPoints: 'Points from CanoX',
+            pointsUnit: 'points',
+        },
         customerNote: 'Note:',
         cancellationReason: 'Cancellation Reason:',
         placedAt: 'Placed at {{time}}',

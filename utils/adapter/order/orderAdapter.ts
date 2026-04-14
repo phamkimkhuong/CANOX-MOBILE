@@ -161,11 +161,14 @@ export const transformOrder = (order: Order): OrderUI => {
         shippingFee: pricing.shippingFee,
         grandTotal: pricing.grandTotal,
 
+        // Loyalty earned
+        pointsEarned: loyalty.pointsEarned,
+        platformPointsEarned: loyalty.platformPointsEarned,
+
         // Items
         items: items.map(transformOrderItem),
         itemCount: order.itemCount ?? items.length,
         totalQuantity: order.totalQuantity ?? totalQuantity,
-
         // Shipping - from nested shipment object
         trackingNumber: shipment.trackingNumber,
         carrier: shipment.carrier,

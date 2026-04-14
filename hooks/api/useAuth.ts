@@ -43,10 +43,6 @@ export const useLogin = () => {
             await loginStore(accessToken, refreshToken, userId, buyerId);
 
             hideGlobalLoading();
-            Toast.show({
-                type: 'success',
-                text1: 'Đăng nhập thành công',
-            });
             router.replace(ROUTES.TABS.HOME);
         },
         onError: (error: ApiError) => {

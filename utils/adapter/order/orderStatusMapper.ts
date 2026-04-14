@@ -73,12 +73,6 @@ export const ORDER_STATUS_MAP: Record<OrderStatus, Omit<StatusDisplay, 'label'> 
         bgColor: 'rgba(107, 114, 128, 0.1)',
         icon: 'checkmark-done',
     },
-    FINALIZED: {
-        labelKey: 'order:statusLabel.completed',
-        color: '#6b7280',
-        bgColor: 'rgba(107, 114, 128, 0.1)',
-        icon: 'checkmark-done',
-    },
     DELIVERY_FAILED: {
         labelKey: 'order:statusLabel.deliveryFailed',
         color: '#ef4444',

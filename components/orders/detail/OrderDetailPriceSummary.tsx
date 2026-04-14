@@ -10,7 +10,7 @@
  */
 
 import { IconSymbol } from '@/components/ui/Icon';
-import { PaymentMethod } from '@/types/order/order';
+import { OrderStatus, PaymentMethod } from '@/types/order/order';
 import { getPaymentMethodDisplayName } from '@/utils/adapter/order/paymentMethodLabel';
 import { formatMoney } from '@/utils/format';
 import React, { memo } from 'react';
@@ -81,6 +81,9 @@ interface OrderDetailPriceSummaryProps {
     grandTotal: number;
     currency: string;
     paymentMethod: PaymentMethod | string;
+    orderStatus: OrderStatus;
+    pointsEarned?: number;
+    platformPointsEarned?: number;
 }
 
 export const OrderDetailPriceSummary: React.FC<OrderDetailPriceSummaryProps> = ({
@@ -96,6 +99,9 @@ export const OrderDetailPriceSummary: React.FC<OrderDetailPriceSummaryProps> = (
     grandTotal,
     currency,
     paymentMethod,
+    orderStatus,
+    pointsEarned = 0,
+    platformPointsEarned = 0,
 }) => {
     const { theme } = useUnistyles();
     const { t } = useTranslation(['order', 'common']);
@@ -212,6 +218,56 @@ export const OrderDetailPriceSummary: React.FC<OrderDetailPriceSummaryProps> = (
                     })}
                 </Text>
             </View>
+
+            {/* Loyalty Points Earned */}
+            {(pointsEarned > 0 || platformPointsEarned > 0) && (
+                <>
+                    <View style={styles.xuDivider} />
+                    <View style={styles.xuSection}>
+                        <View style={styles.xuHeader}>
+                            <IconSymbol
+                                name="star"
+                                size={14}
+                                color={orderStatus === 'COMPLETED' ? theme.colors.warning : theme.colors.typographySecondary}
+                            />
+                            <Text style={[
+                                styles.xuHeaderText,
+                                orderStatus === 'COMPLETED' && { color: theme.colors.warning },
+                            ]}>
+                                {orderStatus === 'COMPLETED'
+                                    ? t('order:detail.loyalty.earned')
+                                    : t('order:detail.loyalty.willEarn')}
+                            </Text>
+                        </View>
+                        {pointsEarned > 0 && (
+                            <View style={styles.xuRow}>
+                                <Text style={styles.xuLabel}>
+                                    {t('order:detail.loyalty.shopPoints')}
+                                </Text>
+                                <Text style={[
+                                    styles.xuValue,
+                                    orderStatus === 'COMPLETED' && styles.xuValueEarned,
+                                ]}>
+                                    +{pointsEarned} {t('order:detail.loyalty.pointsUnit')}
+                                </Text>
+                            </View>
+                        )}
+                        {platformPointsEarned > 0 && (
+                            <View style={styles.xuRow}>
+                                <Text style={styles.xuLabel}>
+                                    {t('order:detail.loyalty.platformPoints')}
+                                </Text>
+                                <Text style={[
+                                    styles.xuValue,
+                                    orderStatus === 'COMPLETED' && styles.xuValueEarned,
+                                ]}>
+                                    +{platformPointsEarned} {t('order:detail.loyalty.pointsUnit')}
+                                </Text>
+                            </View>
+                        )}
+                    </View>
+                </>
+            )}
         </View>
     );
 };
@@ -302,5 +358,46 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: 13,
         fontWeight: '500',
         color: theme.colors.typography,
+    },
+    xuDivider: {
+        height: 1,
+        backgroundColor: theme.colors.border,
+        marginHorizontal: theme.margins.md,
+        marginTop: theme.margins.md,
+        opacity: 0.5,
+    },
+    xuSection: {
+        paddingHorizontal: theme.margins.md,
+        paddingTop: theme.margins.sm,
+    },
+    xuHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        marginBottom: 4,
+    },
+    xuHeaderText: {
+        fontSize: 13,
+        fontWeight: '600',
+        color: theme.colors.typographySecondary,
+    },
+    xuRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 3,
+    },
+    xuLabel: {
+        fontSize: 12,
+        color: theme.colors.typographySecondary,
+    },
+    xuValue: {
+        fontSize: 12,
+        fontWeight: '500',
+        color: theme.colors.typographySecondary,
+    },
+    xuValueEarned: {
+        color: theme.colors.warning,
+        fontWeight: '600',
     },
 }));

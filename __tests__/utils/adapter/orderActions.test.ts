@@ -36,6 +36,8 @@ const createOrderUI = (overrides: Partial<OrderUI> = {}): OrderUI => ({
   taxAmount: 0,
   shippingFee: 21001,
   grandTotal: 861001,
+  pointsEarned: 0,
+  platformPointsEarned: 0,
   items: [
     {
       itemId: '819513201183039488',

@@ -85,10 +85,10 @@ export const NotificationItem = memo<NotificationItemProps>(({ item, onPress, on
                 {renderIcon()}
 
                 <View style={styles.textContent}>
-                    <Text style={styles.title} numberOfLines={1}>
+                    <Text style={styles.title}>
                         {item.title}
                     </Text>
-                    <Text style={styles.message} numberOfLines={2}>
+                    <Text style={styles.message}>
                         {item.message}
                     </Text>
 

@@ -1163,7 +1163,7 @@ const ORDER_STATUS_CONFIG: Record<string, { label: string; color: string }> = {
     OUT_FOR_DELIVERY: { label: 'Đang giao', color: '#F59E0B' },
     DELIVERED: { label: 'Đã giao', color: '#059669' },
     COMPLETED: { label: 'Hoàn thành', color: '#059669' },
-    FINALIZED: { label: 'Hoàn thành', color: '#059669' },
+
     REJECTED: { label: 'Bị từ chối', color: '#EF4444' },
     DELIVERY_FAILED: { label: 'Giao thất bại', color: '#EF4444' },
     RETURNING_TO_SENDER: { label: 'Đang hoàn', color: '#F59E0B' },

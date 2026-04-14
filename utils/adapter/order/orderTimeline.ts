@@ -73,7 +73,7 @@ const EVENT_DISPLAY_ORDER: Record<OrderLifecycleEventKey, number> = {
 const NORMALIZEABLE_CREATED_STATUSES: OrderStatus[] = ['CREATED', 'AWAITING_PAYMENT'];
 const NORMALIZEABLE_PROCESSING_STATUSES: OrderStatus[] = ['PAID', 'FULFILLING', 'READY_FOR_PICKUP'];
 const NORMALIZEABLE_SHIPPING_STATUSES: OrderStatus[] = ['SHIPPED', 'OUT_FOR_DELIVERY'];
-const NORMALIZEABLE_COMPLETED_STATUSES: OrderStatus[] = ['COMPLETED', 'FINALIZED'];
+const NORMALIZEABLE_COMPLETED_STATUSES: OrderStatus[] = ['COMPLETED'];
 
 const getPrimaryEventKey = (status: OrderStatus): OrderLifecycleEventKey | null => {
     if (NORMALIZEABLE_CREATED_STATUSES.includes(status)) return 'CREATED';
