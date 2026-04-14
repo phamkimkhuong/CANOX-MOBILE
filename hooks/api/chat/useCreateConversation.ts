@@ -47,25 +47,25 @@ export const getCachedConversationId = (shopUserId: string): string | undefined 
 const createConversation = async (
     request: CreateConversationRequest
 ): Promise<CreateConversationResponse> => {
+    // Cache key: shopUserId for BUYER_TO_SHOP, conversationType for BUYER_TO_PLATFORM
     const shopUserId = request.participantIds[0];
+    const cacheKey = shopUserId || request.conversationType;
 
     // Check cache first
-    if (shopUserId) {
-        const cachedId = conversationCache.get(shopUserId);
-        if (cachedId) {
-            return {
-                data: { id: cachedId, name: request.name || '', type: request.conversationType, participants: [] },
-                success: true,
-                message: 'Lấy từ cache',
-                code: 200,
-            } as unknown as CreateConversationResponse;
-        }
+    const cachedId = conversationCache.get(cacheKey);
+    if (cachedId) {
+        return {
+            data: { id: cachedId, name: request.name || '', type: request.conversationType, participants: [] },
+            success: true,
+            message: 'Lấy từ cache',
+            code: 200,
+        } as unknown as CreateConversationResponse;
     }
 
-    // Check if there's an ongoing request for the same shopUserId
-    if (shopUserId && processingRequests.has(shopUserId)) {
-        logger.chat.info('Waiting for existing createConversation promise', { shopUserId });
-        return processingRequests.get(shopUserId)!;
+    // Check if there's an ongoing request for the same cacheKey
+    if (processingRequests.has(cacheKey)) {
+        logger.chat.info('Waiting for existing createConversation promise', { cacheKey });
+        return processingRequests.get(cacheKey)!;
     }
 
     // Perform new request and save promise to Map
@@ -83,9 +83,7 @@ const createConversation = async (
             const validated = CreateConversationResponseSchema.parse(response.data);
 
             // Cache response
-            if (shopUserId) {
-                conversationCache.set(shopUserId, validated.data.id);
-            }
+            conversationCache.set(cacheKey, validated.data.id);
 
             logger.chat.info('Conversation created/retrieved', {
                 conversationId: validated.data.id,
@@ -95,15 +93,11 @@ const createConversation = async (
             return validated;
         } finally {
             // Delete promise Map when done (success or error)
-            if (shopUserId) {
-                processingRequests.delete(shopUserId);
-            }
+            processingRequests.delete(cacheKey);
         }
     })();
 
-    if (shopUserId) {
-        processingRequests.set(shopUserId, apiPromise);
-    }
+    processingRequests.set(cacheKey, apiPromise);
 
     return apiPromise;
 };
@@ -181,6 +175,17 @@ export const buildChatWithShopRequest = (
     participantIds: [shopUserId],
     name: shopName,
     avatarUrl: shopLogoUrl,
+});
+
+/**
+ * Helper to build request for contacting Platform Help Center
+ */
+export const buildHelpCenterRequest = (
+    orderNumber?: string
+): CreateConversationRequest => ({
+    conversationType: ConversationType.BUYER_TO_PLATFORM,
+    participantIds: [],
+    name: orderNumber ? `Hỗ trợ đơn hàng #${orderNumber}` : 'Hỗ trợ khách hàng',
 });
 
 export default useCreateConversation;

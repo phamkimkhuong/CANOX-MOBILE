@@ -34,7 +34,7 @@ import {
 import { OrderShopHeader } from '@/components/orders/OrderShopHeader';
 import { cartRoutes, chatRoutes, orderRoutes, reviewRoutes, shopRoutes } from '@/constants/routes';
 import { useAddToCart } from '@/hooks/api/cart';
-import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
+import { buildHelpCenterRequest, getCachedConversationId, useCreateConversation, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
 import { useConfirmReceivedOrder } from '@/hooks/api/order/useConfirmReceivedOrder';
 import { useOrderDetail } from '@/hooks/api/order/useOrderDetail';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
@@ -80,6 +80,7 @@ export default function OrderDetailScreen() {
     const styles = stylesheet;
     const prefetchChat = usePrefetchShopChat();
     const { mutateAsync: confirmReceived } = useConfirmReceivedOrder();
+    const { mutateAsync: createConversation, isPending: isCreatingChat } = useCreateConversation();
 
     // ============================================
     // STATE
@@ -117,14 +118,41 @@ export default function OrderDetailScreen() {
 
     // === HANDLERS ===
 
-    const handleSupport = useCallback(() => {
-        // TODO: Navigate to support chat or help center
-        Toast.show({
-            type: 'info',
-            text1: t('profile:menu.support'),
-            text2: t('common:status.loading'),
-        });
-    }, [t]);
+    const handleSupport = useCallback(async () => {
+        if (isCreatingChat) return; // Prevent double tap
+
+        try {
+            showGlobalLoading();
+            const request = buildHelpCenterRequest(order?.orderNumber);
+            const response = await createConversation(request);
+            const conversationId = response.data.id;
+
+            hideGlobalLoading();
+
+            // Navigate to chat with Help Center
+            Navigator.push(chatRoutes.detail(conversationId, {
+                partnerName: 'CanoX Help Center',
+                contextType: 'ORDER',
+                orderId: order?.orderId ? String(order.orderId) : undefined,
+                orderCode: order?.orderNumber ? String(order.orderNumber) : undefined,
+                orderStatus: order?.status ? String(order.status) : undefined,
+                productImage: order?.items[0]?.imageUrl || '',
+                totalAmount: order?.grandTotal ? String(order.grandTotal) : undefined,
+                orderCurrency: order?.currency,
+                itemCount: order?.itemCount ? String(order.itemCount) : undefined,
+            }));
+
+            logger.api.info('Opened Help Center chat', { conversationId, orderId: order?.orderId });
+        } catch (err: unknown) {
+            hideGlobalLoading();
+            logger.api.error('Failed to open Help Center', err);
+            Toast.show({
+                type: 'error',
+                text1: t('common:status.error'),
+                text2: t('chat:error.tryAgainLater'),
+            });
+        }
+    }, [isCreatingChat, order?.orderNumber, order?.orderId, order?.status, createConversation, t]);
 
     const handleRefresh = useCallback(async () => {
         setRefreshing(true);
