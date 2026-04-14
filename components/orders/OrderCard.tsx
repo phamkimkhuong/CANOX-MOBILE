@@ -9,8 +9,8 @@
 import { OrderAction, OrderUI } from '@/types/order/order';
 import { hasTracking } from '@/utils/adapter/order/orderActions';
 import React, { memo, useCallback } from 'react';
-import { Pressable, StyleProp, ViewStyle } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { Pressable, StyleProp, ViewStyle } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 import { OrderActionButtons } from './OrderActionButtons';

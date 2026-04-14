@@ -16,7 +16,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 interface OrderShopHeaderProps {
     shopName: string;
     shopLogoUrl?: string | null;
-    status: OrderStatus;
+    status?: OrderStatus;
     statusRaw?: string;
     metaText?: string;
     onShopPress?: () => void;
@@ -33,7 +33,7 @@ export const OrderShopHeader: React.FC<OrderShopHeaderProps> = ({
     const { theme } = useUnistyles();
     const styles = stylesheet;
 
-    const statusDisplay = getStatusDisplay(status, statusRaw);
+    const statusDisplay = status ? getStatusDisplay(status, statusRaw) : null;
 
     return (
         <View style={styles.container}>
@@ -56,7 +56,7 @@ export const OrderShopHeader: React.FC<OrderShopHeaderProps> = ({
                     )}
                 </View>
                 <View style={styles.textContent}>
-                    <Text style={styles.shopName} numberOfLines={1}>
+                    <Text style={styles.shopName} numberOfLines={2}>
                         {shopName}
                     </Text>
                     {metaText ? (
@@ -73,21 +73,23 @@ export const OrderShopHeader: React.FC<OrderShopHeaderProps> = ({
             </Pressable>
 
             {/* Right: Status Badge */}
-            <View style={[
-                styles.statusBadge,
-                styles.dynamicStatusBadge(statusDisplay.bgColor, (status !== 'FULFILLING' && status !== 'DELIVERED') ? 4 : 0)
-            ]}>
-                {status !== 'FULFILLING' && status !== 'DELIVERED' && (
-                    <IconSymbol
-                        name={statusDisplay.icon as IconSymbolName}
-                        size={14}
-                        color={statusDisplay.color}
-                    />
-                )}
-                <Text style={[styles.statusText, styles.dynamicStatusColor(statusDisplay.color)]}>
-                    {statusDisplay.label}
-                </Text>
-            </View>
+            {status && statusDisplay && (
+                <View style={[
+                    styles.statusBadge,
+                    styles.dynamicStatusBadge(statusDisplay.bgColor, (status !== 'FULFILLING' && status !== 'DELIVERED') ? 4 : 0)
+                ]}>
+                    {status !== 'FULFILLING' && status !== 'DELIVERED' && (
+                        <IconSymbol
+                            name={statusDisplay.icon as IconSymbolName}
+                            size={14}
+                            color={statusDisplay.color}
+                        />
+                    )}
+                    <Text style={[styles.statusText, styles.dynamicStatusColor(statusDisplay.color)]}>
+                        {statusDisplay.label}
+                    </Text>
+                </View>
+            )}
         </View>
     );
 };
@@ -129,6 +131,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: 14,
         fontWeight: '600',
         color: theme.colors.typography,
+        flexShrink: 1,
     },
     metaText: {
         fontSize: 11,
@@ -141,6 +144,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         paddingHorizontal: theme.margins.sm,
         paddingVertical: 4,
         borderRadius: theme.radius.m,
+        flexShrink: 0,
     },
     dynamicStatusBadge: (backgroundColor: string, gap: number) => ({
         backgroundColor,

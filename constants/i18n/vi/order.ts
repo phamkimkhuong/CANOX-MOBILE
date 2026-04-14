@@ -133,7 +133,7 @@ export const ORDER_STRINGS: OrderTranslation = {
             deliveredTitle: 'Đơn hàng đã được giao tới bạn',
             deliveredDescription: 'Bạn có thể xác nhận đã nhận hàng hoặc gửi yêu cầu trả hàng/hoàn tiền nếu cần.',
             completedTitle: 'Đơn hàng đã hoàn thành',
-            completedDescription: 'Giao dịch đã kết thúc thành công và không còn ở giai đoạn sau giao hàng nữa.',
+            completedDescription: 'Giao dịch đã kết thúc thành công',
             cancelledTitle: 'Đơn hàng đã bị hủy',
             cancelledDescription: 'Đơn hàng đã dừng xử lý theo trạng thái hiện tại và sẽ không tiếp tục giao.',
         },
