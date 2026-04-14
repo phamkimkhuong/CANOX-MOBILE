@@ -397,6 +397,8 @@ export default function ChatDetailScreen() {
         return null;
     }, [params, messages, userId]);
     const partnerShopId = params.shopId;
+    // Platform chat = no shopId (chatting with admin, not a shop)
+    const isPlatformChat = !partnerShopId;
     const sendMessageMutation = useSendMessage(currentConvId);
     const sendProductCardMutation = useSendProductCard(currentConvId);
     const sendOrderCardMutation = useSendOrderCard(currentConvId);
@@ -803,12 +805,13 @@ export default function ChatDetailScreen() {
                 shopName: partner?.name,
             }));
         } else if (type === 'order') {
+            // Platform chat: pass empty shopId → picker shows ALL buyer orders
             Navigator.push(chatRoutes.selectOrder({
                 shopId: partnerShopId || '',
                 conversationId: currentConvId,
             }));
         }
-    }, [currentConvId, handlePickImages, handlePickVideo, handleTakePhoto, partner, partnerShopId, t]);
+    }, [currentConvId, handlePickImages, handlePickVideo, handleTakePhoto, isPlatformChat, partner, partnerShopId, t]);
 
     // ============================================
     // RENDER FUNCTIONS
@@ -1039,6 +1042,7 @@ export default function ChatDetailScreen() {
                 <AttachmentMenu
                     ref={attachmentMenuRef}
                     onSelectOption={handleSelectAttachmentOption}
+                    isPlatformChat={isPlatformChat}
                 />
 
                 {/* Message Action Sheet (Long press menu) */}

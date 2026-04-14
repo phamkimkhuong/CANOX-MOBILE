@@ -3,7 +3,7 @@
  */
 
 import { IconSymbol } from '@/components/ui/Icon';
-import { useShopOrdersUI } from '@/hooks/api/order/useOrders';
+import { useOrderListUI, useShopOrdersUI } from '@/hooks/api/order/useOrders';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { useChatPickerStore } from '@/store/useChatPickerStore';
 import { OrderUI } from '@/types/order/order';
@@ -59,30 +59,35 @@ export default function SelectOrderScreen() {
     const shopId = params.shopId as string;
     const conversationId = params.conversationId as string;
 
+    // Platform chat = no shopId → show ALL buyer orders
+    const isPlatformChat = !shopId;
+
     // Store actions
     const { selectOrderFromUI, setConversationId } = useChatPickerStore();
 
     // Search state
     const [searchKeyword, setSearchKeyword] = useState('');
 
-    // Fetch shop orders with infinite scroll
-    const {
-        query: {
-            data,
-            isLoading,
-            isFetchingNextPage,
-            hasNextPage,
-            fetchNextPage,
-        },
-        orders,
-    } = useShopOrdersUI(shopId);
+    // ---- Data hooks (conditional on isPlatformChat) ----
+    // Shop chat: orders with a specific shop
+    const shopOrdersResult = useShopOrdersUI(shopId, !isPlatformChat);
+    // Platform chat: ALL buyer orders
+    const allOrdersResult = useOrderListUI('ALL', isPlatformChat);
 
-    // Flatten pages into single array
+    // Unify interface
+    const data = isPlatformChat ? allOrdersResult.query.data : shopOrdersResult.query.data;
+    const isLoading = isPlatformChat ? allOrdersResult.query.isLoading : shopOrdersResult.query.isLoading;
+    const isFetchingNextPage = isPlatformChat ? allOrdersResult.query.isFetchingNextPage : shopOrdersResult.query.isFetchingNextPage;
+    const hasNextPage = isPlatformChat ? allOrdersResult.query.hasNextPage : shopOrdersResult.query.hasNextPage;
+    const fetchNextPage = isPlatformChat ? allOrdersResult.query.fetchNextPage : shopOrdersResult.query.fetchNextPage;
+    const rawOrders = isPlatformChat ? allOrdersResult.orders : shopOrdersResult.orders;
+
+    // Flatten pages into single array (deduplicate)
     const allOrders = useMemo(() => {
         const uniqueOrders: OrderUI[] = [];
         const seenIds = new Set<string>();
 
-        orders.forEach(order => {
+        rawOrders.forEach(order => {
             if (!seenIds.has(order.orderId)) {
                 seenIds.add(order.orderId);
                 uniqueOrders.push(order);
@@ -90,7 +95,7 @@ export default function SelectOrderScreen() {
         });
 
         return uniqueOrders;
-    }, [orders]);
+    }, [rawOrders]);
 
     // Client-side filtering for order number
     const filteredOrders = useMemo(() => {
@@ -255,17 +260,23 @@ export default function SelectOrderScreen() {
             <View style={styles.emptyContainer}>
                 <IconSymbol name="shipping" size={48} color={theme.colors.secondary} />
                 <Text style={styles.emptyText}>
-                    {searchKeyword ? 'Không tìm thấy đơn hàng' : 'Bạn chưa có đơn hàng nào tại shop này'}
+                    {searchKeyword
+                        ? 'Không tìm thấy đơn hàng'
+                        : isPlatformChat
+                            ? 'Bạn chưa có đơn hàng nào'
+                            : 'Bạn chưa có đơn hàng nào tại shop này'}
                 </Text>
                 <Text style={styles.emptySubtext}>
                     {searchKeyword
                         ? 'Thử tìm với mã đơn hàng khác'
-                        : 'Đơn hàng bạn mua tại shop sẽ hiển thị ở đây'
+                        : isPlatformChat
+                            ? 'Đơn hàng sẽ hiển thị khi bạn mua sắm'
+                            : 'Đơn hàng bạn mua tại shop sẽ hiển thị ở đây'
                     }
                 </Text>
             </View>
         );
-    }, [isLoading, searchKeyword, styles, theme.colors.secondary]);
+    }, [isLoading, isPlatformChat, searchKeyword, styles, theme.colors.secondary]);
 
     return (
         <View style={styles.container}>
@@ -433,7 +444,6 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     orderRowPressed: {
         backgroundColor: theme.colors.background,
-        // opacity: 0.9,
     },
     imageStackContainer: {
         flexDirection: 'row',

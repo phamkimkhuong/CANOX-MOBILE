@@ -22,10 +22,11 @@ import { StyleSheet } from 'react-native-unistyles';
 
 interface AttachmentMenuProps {
     onSelectOption: (type: 'media' | 'product' | 'order') => void;
+    isPlatformChat?: boolean;
 }
 
 export const AttachmentMenu = forwardRef<BottomSheetModal, AttachmentMenuProps>(
-    ({ onSelectOption }, ref) => {
+    ({ onSelectOption, isPlatformChat = false }, ref) => {
         const styles = stylesheet;
         const insets = useSafeAreaInsets();
         const { t } = useTranslation('chat');
@@ -68,16 +69,18 @@ export const AttachmentMenu = forwardRef<BottomSheetModal, AttachmentMenuProps>(
                             <Text style={styles.optionLabel}>{t('detail.attachment.mediaLabel')}</Text>
                         </TouchableOpacity>
 
-                        {/* Option: Gửi sản phẩm */}
-                        <TouchableOpacity
-                            style={styles.optionItem}
-                            onPress={() => onSelectOption('product')}
-                        >
-                            <View style={styles.iconCircleGreen}>
-                                <IconSymbol name="shopping-bag" size={24} color="#388E3C" />
-                            </View>
-                            <Text style={styles.optionLabel}>{t('detail.attachment.productLabel')}</Text>
-                        </TouchableOpacity>
+                        {/* Option: Send product (hide when chat with Platform) */}
+                        {!isPlatformChat && (
+                            <TouchableOpacity
+                                style={styles.optionItem}
+                                onPress={() => onSelectOption('product')}
+                            >
+                                <View style={styles.iconCircleGreen}>
+                                    <IconSymbol name="shopping-bag" size={24} color="#388E3C" />
+                                </View>
+                                <Text style={styles.optionLabel}>{t('detail.attachment.productLabel')}</Text>
+                            </TouchableOpacity>
+                        )}
 
                         {/* Option: Gửi đơn hàng */}
                         <TouchableOpacity
@@ -198,4 +201,3 @@ const stylesheet = StyleSheet.create((theme, runtime) => ({
         color: theme.colors.typographySecondary,
     },
 }));
-
