@@ -530,7 +530,6 @@ export default function ChatDetailScreen() {
         }
     }, [selectedOrder, pickerConvId, currentConvId, isGhostMode, sendOrderCardMutation, clearSelections]);
 
-
     // ============================================
     // COMPUTED DATA
     // ============================================
@@ -565,7 +564,6 @@ export default function ChatDetailScreen() {
     // Track if user has scrolled (to prevent auto-fetch on initial render)
     const hasUserScrolledRef = useRef(false);
 
-
     // ============================================
     // HANDLERS
     // ============================================
@@ -594,7 +592,6 @@ export default function ChatDetailScreen() {
         },
         [sendMessageMutation, isGhostMode]
     );
-
 
     const handleMessagePress = useCallback((message: Message) => {
         if (message.type === 'ORDER_CARD' && message.metadata) {
@@ -685,7 +682,6 @@ export default function ChatDetailScreen() {
         const isMe = message.sender.userId === userId;
         messageActionSheetRef.current?.present(message, isMe);
     }, [userId]);
-
 
     /**
      * Handler when user selects recall or delete message
@@ -797,7 +793,7 @@ export default function ChatDetailScreen() {
                 conversationId: currentConvId,
             }));
         }
-    }, [currentConvId, handlePickImages, handlePickVideo, handleTakePhoto, isPlatformChat, partner, partnerShopId, t]);
+    }, [currentConvId, handlePickImages, handlePickVideo, handleTakePhoto, partner, partnerShopId, t]);
 
     // ============================================
     // RENDER FUNCTIONS
@@ -851,10 +847,6 @@ export default function ChatDetailScreen() {
         }
         return null;
     }, [isFetchingNextPage, styles.loadingMore, theme.colors.primary]);
-
-    const renderListFooter = useCallback(() => {
-        return null;
-    }, []);
 
     const renderEmptyComponent = useCallback(() => {
         if (isLoading || !isReady) {
@@ -981,7 +973,6 @@ export default function ChatDetailScreen() {
                                 renderItem={renderItem}
                                 keyExtractor={keyExtractor}
                                 inverted
-                                ListHeaderComponent={renderListFooter}
                                 ListFooterComponent={renderListHeader}
                                 onEndReached={handleLoadMore}
                                 onMomentumScrollBegin={() => {
@@ -1028,7 +1019,6 @@ export default function ChatDetailScreen() {
                 ref={messageActionSheetRef}
                 onRecallMessage={handleRecallMessage}
             />
-
 
             {/* Full Screen Image Viewer*/}
             <Modal
@@ -1134,9 +1124,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         paddingHorizontal: theme.margins.md,
         paddingBottom: theme.margins.md,
     },
-    listFooter: {
-        paddingVertical: theme.margins.sm,
-    },
+
     loadingMore: {
         paddingVertical: theme.margins.md,
         alignItems: 'center',
@@ -1181,14 +1169,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.secondary,
         textAlign: 'center',
     },
-    retryButton: {
-        paddingHorizontal: theme.margins.xl,
-        paddingVertical: theme.margins.smd,
-        backgroundColor: theme.colors.primary,
-        borderRadius: theme.radius.m,
-        minWidth: 120,
-        alignItems: 'center',
-    },
+
     retryButtonWithMargin: {
         paddingHorizontal: theme.margins.xl,
         paddingVertical: theme.margins.smd,
@@ -1203,16 +1184,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontWeight: '600',
         color: theme.colors.surface,
     },
-    backButton: {
-        paddingHorizontal: theme.margins.xl,
-        paddingVertical: theme.margins.smd,
-        backgroundColor: theme.colors.background,
-        borderRadius: theme.radius.m,
-        borderWidth: 1,
-        borderColor: theme.colors.border,
-        minWidth: 120,
-        alignItems: 'center',
-    },
+
     backButtonWithMargin: {
         paddingHorizontal: theme.margins.xl,
         paddingVertical: theme.margins.smd,
