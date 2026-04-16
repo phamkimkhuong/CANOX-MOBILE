@@ -264,7 +264,7 @@ export default function FlashSaleScreen() {
 
             {renderHeader()}
 
-            <FlashList
+            <FlashList<FlashSaleItem>
                 data={products}
                 renderItem={({ item, index }: { item: FlashSaleItem; index: number }) => (
                     <View style={styles.listItemContainer}>

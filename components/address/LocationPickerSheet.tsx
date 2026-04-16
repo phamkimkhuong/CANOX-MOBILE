@@ -261,7 +261,7 @@ export const LocationPickerSheet: React.FC<LocationPickerSheetProps> = memo(({
                             </Text>
                         </View>
                     ) : (
-                        <FlashList
+                        <FlashList<Country | Province | Ward>
                             data={items}
                             renderItem={renderItem}
                             keyExtractor={keyExtractor}

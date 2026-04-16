@@ -211,7 +211,7 @@ export const SmartLocationPicker: React.FC<SmartLocationPickerProps> = memo(({
                                     onChangeText={setSearchText}
                                 />
                             </View>
-                            <FlashList
+                            <FlashList<Province | Ward>
                                 data={filteredItems}
                                 renderItem={renderLocationItem}
                                 keyExtractor={(item) => (item as Province | Ward).code}

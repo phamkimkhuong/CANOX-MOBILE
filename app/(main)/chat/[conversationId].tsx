@@ -57,7 +57,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, FlatList, Keyboard, ListRenderItem, Modal, Pressable, Text, View } from 'react-native';
 import Gallery, { RenderItemInfo } from 'react-native-awesome-gallery';
-import { KeyboardAvoidingView, KeyboardProvider } from 'react-native-keyboard-controller';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -960,8 +960,7 @@ export default function ChatDetailScreen() {
     const shouldShowList = isReady || messagesReady;
 
     return (
-        <KeyboardProvider>
-            <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
+        <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
                 {/* Header */}
                 <ChatDetailHeader
                     partner={partner || {
@@ -1101,7 +1100,6 @@ export default function ChatDetailScreen() {
                     onClose={() => setActiveVideoUrl(null)}
                 />
             </SafeAreaView>
-        </KeyboardProvider>
     );
 }
 

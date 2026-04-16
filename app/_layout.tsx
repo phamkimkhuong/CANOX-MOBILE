@@ -21,6 +21,7 @@ import { StyleSheet, View } from 'react-native';
 import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { enableFreeze } from 'react-native-screens';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 
 // Enable React Freeze for all screens in the navigation stack.
 // This prevents background screens from re-rendering, saving CPU for the active screen.
@@ -198,6 +199,7 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={styles.container}>
+      <KeyboardProvider>
       <QueryClientProvider client={queryClient}>
         <WebSocketProvider autoConnect={false}>
           <ScrollToTopProvider>
@@ -254,6 +256,7 @@ export default function RootLayout() {
           </ScrollToTopProvider>
         </WebSocketProvider>
       </QueryClientProvider>
+      </KeyboardProvider>
     </GestureHandlerRootView>
   );
 }

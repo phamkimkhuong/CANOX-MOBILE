@@ -109,7 +109,7 @@ export const ReviewHistoryList: React.FC<ReviewHistoryListProps> = ({
                 onFilterChange={onRatingFilterChange}
                 counts={counts}
             />
-            <FlashList
+            <FlashList<MyReviewUI>
                 data={reviews}
                 renderItem={renderItem}
                 keyExtractor={keyExtractor}

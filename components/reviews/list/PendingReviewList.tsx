@@ -120,7 +120,7 @@ export const PendingReviewList: React.FC<PendingReviewListProps> = ({
                     </Pressable>
                 </View>
             )}
-            <FlashList
+            <FlashList<ListItem>
                 data={listData}
                 renderItem={renderItem}
                 keyExtractor={keyExtractor}

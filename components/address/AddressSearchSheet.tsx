@@ -132,7 +132,7 @@ export const AddressSearchSheet: React.FC<AddressSearchSheetProps> = memo(({
                             </Text>
                         </View>
                     ) : (
-                        <FlashList
+                        <FlashList<MapboxAutocompleteResponse>
                             data={suggestions}
                             renderItem={renderItem}
                             keyboardShouldPersistTaps="handled"
