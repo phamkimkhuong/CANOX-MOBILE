@@ -54,7 +54,6 @@ module.exports = {
                 "backgroundColor": "#ffffff",
                 "monochromeImage": "./assets/images/monochrome-icon.png"
             },
-            "edgeToEdgeEnabled": true,
             "predictiveBackGestureEnabled": false,
             "package": IS_DEV ? "com.cano.canox.dev" : (IS_PREVIEW ? "com.cano.canox.preview" : "com.cano.canox"),
             "googleServicesFile": IS_DEV
@@ -78,6 +77,11 @@ module.exports = {
             "expo-router",
             "expo-video",
             "expo-localization",
+            "@react-native-community/datetimepicker",
+            "expo-font",
+            "expo-image",
+            "expo-secure-store",
+            "expo-web-browser",
             "@react-native-firebase/app",
             "@react-native-firebase/messaging",
             "@react-native-firebase/crashlytics",
