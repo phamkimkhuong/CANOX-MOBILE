@@ -51,7 +51,7 @@ import { toSizedImageUrl } from '@/utils/url';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
-import { useLocalSearchParams } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -279,17 +279,11 @@ export default function ChatDetailScreen() {
     // EFFECTS & LOGIC
     // ============================================
 
-    useEffect(() => {
-        // Only delay rendering of message list if data is not yet available (loading)
-        // If there is cache, we turn on isReady earlier
-        const timeout = (messages?.length ?? 0) > 0 ? 50 : 150;
-
-        const timer = setTimeout(() => {
+    useFocusEffect(
+        useCallback(() => {
             setIsReady(true);
-        }, timeout);
-
-        return () => clearTimeout(timer);
-    }, [messages?.length]);
+        }, [])
+    );
 
     // ============================================
     // STATE
@@ -568,26 +562,10 @@ export default function ChatDetailScreen() {
         return items;
     }, [messages]);
 
-    // Track if user is near bottom (for inverted list, bottom = offset near 0)
-    const [isNearBottom, setIsNearBottom] = useState(true);
-    const NEAR_BOTTOM_THRESHOLD = 150;
     // Track if user has scrolled (to prevent auto-fetch on initial render)
     const hasUserScrolledRef = useRef(false);
 
-    useEffect(() => {
-        if (flatListData.length > 0 && !isLoading) {
-            const timer = setTimeout(() => {
-                hasUserScrolledRef.current = true;
-            }, 500);
-            return () => clearTimeout(timer);
-        }
-    }, [flatListData.length, isLoading]);
 
-    const handleScroll = useCallback((event: { nativeEvent: { contentOffset: { y: number } } }) => {
-        const { contentOffset } = event.nativeEvent;
-        // For inverted list: offset 0 = bottom (newest messages)
-        setIsNearBottom(contentOffset.y < NEAR_BOTTOM_THRESHOLD);
-    }, []);
     // ============================================
     // HANDLERS
     // ============================================
@@ -1003,18 +981,15 @@ export default function ChatDetailScreen() {
                                 renderItem={renderItem}
                                 keyExtractor={keyExtractor}
                                 inverted
-                                onScroll={handleScroll}
-                                scrollEventThrottle={16}
                                 ListHeaderComponent={renderListFooter}
                                 ListFooterComponent={renderListHeader}
                                 onEndReached={handleLoadMore}
+                                onMomentumScrollBegin={() => {
+                                    hasUserScrolledRef.current = true;
+                                }}
                                 onEndReachedThreshold={0.5}
                                 contentContainerStyle={styles.listContent}
                                 showsVerticalScrollIndicator={false}
-                                maintainVisibleContentPosition={{
-                                    minIndexForVisible: 0,
-                                    autoscrollToTopThreshold: 50,
-                                }}
                                 // Performance optimizations
                                 initialNumToRender={10}
                                 maxToRenderPerBatch={10}
