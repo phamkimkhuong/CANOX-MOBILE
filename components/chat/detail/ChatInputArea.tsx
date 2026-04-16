@@ -44,7 +44,7 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = React.memo(({
     const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
 
     const staticPaddingStyle = {
-        paddingBottom: Math.max(insets.bottom, 8),
+        paddingBottom: 8,
     };
 
     const hasText = text.trim().length > 0;

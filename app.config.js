@@ -54,6 +54,7 @@ module.exports = {
                 "backgroundColor": "#ffffff",
                 "monochromeImage": "./assets/images/monochrome-icon.png"
             },
+            "softwareKeyboardLayoutMode": "pan",
             "predictiveBackGestureEnabled": false,
             "package": IS_DEV ? "com.cano.canox.dev" : (IS_PREVIEW ? "com.cano.canox.preview" : "com.cano.canox"),
             "googleServicesFile": IS_DEV

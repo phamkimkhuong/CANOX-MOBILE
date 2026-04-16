@@ -1,6 +1,6 @@
+import { createRouteErrorBoundary } from '@/components/common/AppCrashFallback';
 import { ForceUpdateScreen } from '@/components/common/ForceUpdateScreen';
 import { MaintenanceScreen } from '@/components/common/MaintenanceScreen';
-import { createRouteErrorBoundary } from '@/components/common/AppCrashFallback';
 import { SoftUpdateBanner } from '@/components/common/SoftUpdateBanner';
 import '@/constants/i18n';
 import i18n from '@/constants/i18n';
@@ -18,10 +18,10 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { enableFreeze } from 'react-native-screens';
-import { KeyboardProvider } from 'react-native-keyboard-controller';
 
 // Enable React Freeze for all screens in the navigation stack.
 // This prevents background screens from re-rendering, saving CPU for the active screen.
@@ -192,70 +192,68 @@ export default function RootLayout() {
       </GestureHandlerRootView>
     );
   }
-
   if (!isReady) {
     return <View style={styles.container} />;
   }
-
   return (
     <GestureHandlerRootView style={styles.container}>
       <KeyboardProvider>
-      <QueryClientProvider client={queryClient}>
-        <WebSocketProvider autoConnect={false}>
-          <ScrollToTopProvider>
-            <SafeAreaProvider>
-              <BottomSheetModalProvider>
-                <ThemeProvider value={NavigationTheme}>
-                  <UserSyncProvider>
-                    <IntroPopupProvider>
-                      <Stack screenOptions={{ headerShown: false }}>
-                        {/* Tab Navigator - Has Tab Bar */}
-                        <Stack.Screen name="(tabs)" />
+        <QueryClientProvider client={queryClient}>
+          <WebSocketProvider autoConnect={false}>
+            <ScrollToTopProvider>
+              <SafeAreaProvider>
+                <BottomSheetModalProvider>
+                  <ThemeProvider value={NavigationTheme}>
+                    <UserSyncProvider>
+                      <IntroPopupProvider>
+                        <Stack screenOptions={{ headerShown: false }}>
+                          {/* Tab Navigator - Has Tab Bar */}
+                          <Stack.Screen name="(tabs)" />
 
-                        {/* Auth Flow - No Tab Bar */}
-                        <Stack.Screen name="(auth)" />
+                          {/* Auth Flow - No Tab Bar */}
+                          <Stack.Screen name="(auth)" />
 
-                        {/* Main Stack - All pushed screens (No Tab Bar) */}
-                        <Stack.Screen name="(main)" />
+                          {/* Main Stack - All pushed screens (No Tab Bar) */}
+                          <Stack.Screen name="(main)" />
 
-                        {/* Global Modal */}
-                        <Stack.Screen
-                          name="modal"
-                          options={{
-                            presentation: 'modal',
-                            headerShown: true,
-                          }}
-                        />
-                      </Stack>
-                    </IntroPopupProvider>
-                    {/* Privacy Consent Popup - Shows if not accepted yet */}
-                    {/* <PrivacyConsentPopup
+                          {/* Global Modal */}
+                          <Stack.Screen
+                            name="modal"
+                            options={{
+                              presentation: 'modal',
+                              headerShown: true,
+                            }}
+                          />
+                        </Stack>
+                      </IntroPopupProvider>
+                      {/* Privacy Consent Popup - Shows if not accepted yet */}
+                      {/* <PrivacyConsentPopup
                       visible={!hasAcceptedPrivacy}
                       onClose={() => { }}
                     /> */}
-                  </UserSyncProvider>
-                  <CustomAlert ref={alertRef} />
-                  <Toast
-                    config={toastConfig}
-                    visibilityTime={3000}
-                  />
-                  {/* Global Loading Overlay - Blocks all interactions during critical operations */}
-                  <GlobalLoadingOverlay />
-                  {/* Native Update Banner — Primary update mechanism.
+                    </UserSyncProvider>
+                    <CustomAlert ref={alertRef} />
+                    <Toast
+                      config={toastConfig}
+                      visibilityTime={3000}
+                    />
+                    {/* Global Loading Overlay - Blocks all interactions during critical operations */}
+                    <GlobalLoadingOverlay />
+                    {/* Native Update Banner — Primary update mechanism.
                       Shows when a newer native version is available on the Store.
                       User can choose "Update Now" or "Maybe Later" (7-day cooldown). */}
-                  {updateStatus === 'soft' && !skippedAt && (
-                    <SoftUpdateBanner onDismiss={skipUpdate} />
-                  )}
-                  <StatusBar style="dark" />
-                  {/* Navigation Bar Background - Dark background for device navigation bar area */}
-                  <NavigationBarBackground />
-                </ThemeProvider>
-              </BottomSheetModalProvider>
-            </SafeAreaProvider>
-          </ScrollToTopProvider>
-        </WebSocketProvider>
-      </QueryClientProvider>
+                    {updateStatus === 'soft' && !skippedAt && (
+                      <SoftUpdateBanner onDismiss={skipUpdate} />
+                    )}
+                    <StatusBar style="dark" />
+                    {/* Navigation Bar Background - Dark background for device navigation bar area */}
+                    <NavigationBarBackground />
+                  </ThemeProvider>
+                </BottomSheetModalProvider>
+              </SafeAreaProvider>
+            </ScrollToTopProvider>
+          </WebSocketProvider>
+        </QueryClientProvider>
       </KeyboardProvider>
     </GestureHandlerRootView>
   );

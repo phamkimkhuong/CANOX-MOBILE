@@ -57,9 +57,9 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, FlatList, Keyboard, ListRenderItem, Modal, Pressable, Text, View } from 'react-native';
 import Gallery, { RenderItemInfo } from 'react-native-awesome-gallery';
-import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
-import { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useKeyboardHandler } from 'react-native-keyboard-controller';
+import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface MessageListItem {
@@ -188,6 +188,31 @@ export default function ChatDetailScreen() {
 
     // Flag to delay rendering of message list until the end of screen transition
     const [isReady, setIsReady] = useState(false);
+
+    // State of the art: Smooth Keyboard Handling
+    const insets = useSafeAreaInsets();
+    const keyboardHeight = useSharedValue(0);
+
+    useKeyboardHandler({
+        onMove: (e) => {
+            'worklet';
+            keyboardHeight.value = e.height;
+        },
+        onInteractive: (e) => {
+            'worklet';
+            keyboardHeight.value = e.height;
+        },
+        onEnd: (e) => {
+            'worklet';
+            keyboardHeight.value = e.height;
+        }
+    });
+
+    const animatedKeyboardStyle = useAnimatedStyle(() => {
+        return {
+            paddingBottom: Math.max(insets.bottom, keyboardHeight.value),
+        };
+    }, [insets.bottom]);
 
     // Shared Animation Pattern: One loop for all Skeletons
     const shimmerValue = useSharedValue(0.4);
@@ -563,23 +588,6 @@ export default function ChatDetailScreen() {
         // For inverted list: offset 0 = bottom (newest messages)
         setIsNearBottom(contentOffset.y < NEAR_BOTTOM_THRESHOLD);
     }, []);
-
-    // Auto scroll to bottom (offset 0) when keyboard opens (only if near bottom)
-    // For inverted list: offset 0 = bottom (newest messages)
-    useEffect(() => {
-        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
-            if (isNearBottom && flatListRef.current && flatListData.length > 0) {
-                setTimeout(() => {
-                    flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
-                }, 100);
-            }
-        });
-
-        return () => {
-            keyboardDidShowListener.remove();
-        };
-    }, [flatListData.length, isNearBottom]);
-
     // ============================================
     // HANDLERS
     // ============================================
@@ -961,145 +969,141 @@ export default function ChatDetailScreen() {
 
     return (
         <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
-                {/* Header */}
-                <ChatDetailHeader
-                    partner={partner || {
-                        id: params.shopUserId || '',
-                        name: params.partnerName || CHAT_STRINGS.detail.ghostHeader,
-                        avatar: params.partnerAvatar || undefined,
-                        type: 'SHOP',
-                        isOnline: params.partnerIsOnline === 'true',
-                        isVerified: params.partnerIsVerified === 'true',
-                        shopId: params.shopId,
-                    }}
+            {/* Header */}
+            <ChatDetailHeader
+                partner={partner || {
+                    id: params.shopUserId || '',
+                    name: params.partnerName || CHAT_STRINGS.detail.ghostHeader,
+                    avatar: params.partnerAvatar || undefined,
+                    type: 'SHOP',
+                    isOnline: params.partnerIsOnline === 'true',
+                    isVerified: params.partnerIsVerified === 'true',
+                    shopId: params.shopId,
+                }}
+            />
+
+            {/* Context Bar */}
+            <ContextBar
+                type={activeContextType}
+                productData={productContext}
+                orderData={orderContext}
+                onDismiss={handleContextDismiss}
+                onAction={handleContextAction}
+            />
+
+            {/* Main content with keyboard avoidance */}
+            <Animated.View style={[styles.keyboardView, animatedKeyboardStyle]}>
+                {/* Messages List - INVERTED: newest at bottom, no scroll needed */}
+                {shouldShowList ? (
+                    <>
+                        {messages.length > 0 ? (
+                            <FlatList
+                                ref={flatListRef}
+                                data={flatListData}
+                                renderItem={renderItem}
+                                keyExtractor={keyExtractor}
+                                inverted
+                                onScroll={handleScroll}
+                                scrollEventThrottle={16}
+                                ListHeaderComponent={renderListFooter}
+                                ListFooterComponent={renderListHeader}
+                                onEndReached={handleLoadMore}
+                                onEndReachedThreshold={0.5}
+                                contentContainerStyle={styles.listContent}
+                                showsVerticalScrollIndicator={false}
+                                maintainVisibleContentPosition={{
+                                    minIndexForVisible: 0,
+                                    autoscrollToTopThreshold: 50,
+                                }}
+                                // Performance optimizations
+                                initialNumToRender={10}
+                                maxToRenderPerBatch={10}
+                                windowSize={10}
+                                updateCellsBatchingPeriod={30}
+                                removeClippedSubviews={false}
+                                keyboardDismissMode="interactive"
+                                keyboardShouldPersistTaps="handled"
+                                automaticallyAdjustContentInsets={false}
+                            />
+                        ) : (
+                            renderEmptyComponent()
+                        )}
+                    </>
+                ) : (
+                    <ChatDetailSkeleton count={10} shimmerAnimatedStyle={shimmerAnimatedStyle} />
+                )}
+
+                {/* Input Area */}
+                <ChatInputArea
+                    onSend={handleSendMessage}
+                    onAttachment={handleOpenAttachment}
+                    disabled={sendMessageMutation.isPending}
                 />
+            </Animated.View>
 
-                {/* Context Bar */}
-                <ContextBar
-                    type={activeContextType}
-                    productData={productContext}
-                    orderData={orderContext}
-                    onDismiss={handleContextDismiss}
-                    onAction={handleContextAction}
-                />
+            {/* Attachment Menu (Floating) */}
+            <AttachmentMenu
+                ref={attachmentMenuRef}
+                onSelectOption={handleSelectAttachmentOption}
+                isPlatformChat={isPlatformChat}
+            />
 
-                {/* Main content with keyboard avoidance */}
-                <KeyboardAvoidingView
-                    style={styles.keyboardView}
-                    behavior="padding"
-                    keyboardVerticalOffset={0}
-                >
-                    {/* Messages List - INVERTED: newest at bottom, no scroll needed */}
-                    {shouldShowList ? (
-                        <>
-                            {messages.length > 0 ? (
-                                <FlatList
-                                    ref={flatListRef}
-                                    data={flatListData}
-                                    renderItem={renderItem}
-                                    keyExtractor={keyExtractor}
-                                    inverted
-                                    onScroll={handleScroll}
-                                    scrollEventThrottle={16}
-                                    ListHeaderComponent={renderListFooter}
-                                    ListFooterComponent={renderListHeader}
-                                    onEndReached={handleLoadMore}
-                                    onEndReachedThreshold={0.5}
-                                    contentContainerStyle={styles.listContent}
-                                    showsVerticalScrollIndicator={false}
-                                    maintainVisibleContentPosition={{
-                                        minIndexForVisible: 0,
-                                        autoscrollToTopThreshold: 50,
-                                    }}
-                                    // Performance optimizations
-                                    initialNumToRender={10}
-                                    maxToRenderPerBatch={10}
-                                    windowSize={10}
-                                    updateCellsBatchingPeriod={30}
-                                    removeClippedSubviews={false}
-                                    keyboardDismissMode="interactive"
-                                    keyboardShouldPersistTaps="handled"
-                                    automaticallyAdjustContentInsets={false}
-                                />
-                            ) : (
-                                renderEmptyComponent()
-                            )}
-                        </>
-                    ) : (
-                        <ChatDetailSkeleton count={10} shimmerAnimatedStyle={shimmerAnimatedStyle} />
-                    )}
+            {/* Message Action Sheet (Long press menu) */}
+            <MessageActionSheet
+                ref={messageActionSheetRef}
+                onRecallMessage={handleRecallMessage}
+            />
 
-                    {/* Input Area */}
-                    <ChatInputArea
-                        onSend={handleSendMessage}
-                        onAttachment={handleOpenAttachment}
-                        disabled={sendMessageMutation.isPending}
+
+            {/* Full Screen Image Viewer*/}
+            <Modal
+                visible={viewerVisible}
+                transparent={true}
+                onRequestClose={() => setViewerVisible(false)}
+                animationType="fade"
+            >
+                <View style={viewerStyles.container}>
+                    <Gallery
+                        data={chatImages}
+                        keyExtractor={(item) => item.id}
+                        initialIndex={viewerIndex}
+                        onIndexChange={setViewerIndex}
+                        onSwipeToClose={() => setViewerVisible(false)}
+                        renderItem={({ item, setImageDimensions }: RenderItemInfo<{ uri: string; id: string }>) => (
+                            <Image
+                                source={{ uri: item.uri }}
+                                style={viewerStyles.image}
+                                contentFit="contain"
+                                onLoad={(e) => {
+                                    const { width, height } = e.source;
+                                    setImageDimensions({ width, height });
+                                }}
+                            />
+                        )}
                     />
-                </KeyboardAvoidingView>
-
-                {/* Attachment Menu (Floating) */}
-                <AttachmentMenu
-                    ref={attachmentMenuRef}
-                    onSelectOption={handleSelectAttachmentOption}
-                    isPlatformChat={isPlatformChat}
-                />
-
-                {/* Message Action Sheet (Long press menu) */}
-                <MessageActionSheet
-                    ref={messageActionSheetRef}
-                    onRecallMessage={handleRecallMessage}
-                />
-
-
-                {/* Full Screen Image Viewer*/}
-                <Modal
-                    visible={viewerVisible}
-                    transparent={true}
-                    onRequestClose={() => setViewerVisible(false)}
-                    animationType="fade"
-                >
-                    <View style={viewerStyles.container}>
-                        <Gallery
-                            data={chatImages}
-                            keyExtractor={(item) => item.id}
-                            initialIndex={viewerIndex}
-                            onIndexChange={setViewerIndex}
-                            onSwipeToClose={() => setViewerVisible(false)}
-                            renderItem={({ item, setImageDimensions }: RenderItemInfo<{ uri: string; id: string }>) => (
-                                <Image
-                                    source={{ uri: item.uri }}
-                                    style={viewerStyles.image}
-                                    contentFit="contain"
-                                    onLoad={(e) => {
-                                        const { width, height } = e.source;
-                                        setImageDimensions({ width, height });
-                                    }}
-                                />
-                            )}
-                        />
-                        {/* Viewer Header with Close Button */}
-                        <View style={viewerStyles.header}>
-                            <Pressable
-                                style={viewerStyles.closeButton}
-                                onPress={() => setViewerVisible(false)}
-                            >
-                                <IconSymbol name="close" size={24} color="#FFF" />
-                            </Pressable>
-                            <Text style={viewerStyles.headerText}>
-                                {viewerIndex + 1} / {chatImages.length}
-                            </Text>
-                            <View style={viewerStyles.headerSpacer} />
-                        </View>
+                    {/* Viewer Header with Close Button */}
+                    <View style={viewerStyles.header}>
+                        <Pressable
+                            style={viewerStyles.closeButton}
+                            onPress={() => setViewerVisible(false)}
+                        >
+                            <IconSymbol name="close" size={24} color="#FFF" />
+                        </Pressable>
+                        <Text style={viewerStyles.headerText}>
+                            {viewerIndex + 1} / {chatImages.length}
+                        </Text>
+                        <View style={viewerStyles.headerSpacer} />
                     </View>
-                    <StatusBar style="light" hidden />
-                </Modal>
+                </View>
+                <StatusBar style="light" hidden />
+            </Modal>
 
-                <VideoPlayerModal
-                    visible={!!activeVideoUrl}
-                    videoUrl={activeVideoUrl ?? ''}
-                    onClose={() => setActiveVideoUrl(null)}
-                />
-            </SafeAreaView>
+            <VideoPlayerModal
+                visible={!!activeVideoUrl}
+                videoUrl={activeVideoUrl ?? ''}
+                onClose={() => setActiveVideoUrl(null)}
+            />
+        </SafeAreaView>
     );
 }
 
