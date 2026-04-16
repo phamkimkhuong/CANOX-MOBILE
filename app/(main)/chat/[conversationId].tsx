@@ -55,7 +55,7 @@ import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, FlatList, Keyboard, ListRenderItem, Modal, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Keyboard, ListRenderItem, Modal, Platform, Pressable, Text, View } from 'react-native';
 import Gallery, { RenderItemInfo } from 'react-native-awesome-gallery';
 import { useKeyboardHandler } from 'react-native-keyboard-controller';
 import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
@@ -66,6 +66,10 @@ interface MessageListItem {
     type: 'date-separator' | 'message';
     data: Message | string;
     id: string;
+    // Pre-calculated grouping flags for performance
+    showAvatar?: boolean;
+    showTime?: boolean;
+    position?: BubblePosition;
 }
 
 type BubblePosition = 'single' | 'first' | 'middle' | 'last';
@@ -246,6 +250,7 @@ export default function ChatDetailScreen() {
     const [viewerIndex, setViewerIndex] = useState(0);
     const [activeVideoUrl, setActiveVideoUrl] = useState<string | null>(null);
 
+    const chatImagesRef = useRef<{ uri: string; id: string }[]>([]);
     const chatImages = useMemo(() => {
         const allImages: { uri: string; id: string }[] = [];
         // Extract all images from the conversation chronological order
@@ -260,16 +265,17 @@ export default function ChatDetailScreen() {
                 });
             }
         }
+        chatImagesRef.current = allImages;
         return allImages;
     }, [messages]);
 
     const handleImagePress = useCallback((url: string) => {
-        const index = chatImages.findIndex(img => img.uri === url);
+        const index = chatImagesRef.current.findIndex(img => img.uri === url);
         if (index >= 0) {
             setViewerIndex(index);
             setViewerVisible(true);
         }
-    }, [chatImages]);
+    }, []);
 
     const handleVideoPress = useCallback((url: string) => {
         setActiveVideoUrl(url);
@@ -558,8 +564,25 @@ export default function ChatDetailScreen() {
             });
         }
 
+        const currentUserId = userId || '';
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            if (item.type !== 'message') continue;
+
+            const message = item.data as Message;
+            const newerItem = items[i - 1];
+            const olderItem = items[i + 1];
+
+            const newerMessage = newerItem?.type === 'message' ? (newerItem.data as Message) : undefined;
+            const olderMessage = olderItem?.type === 'message' ? (olderItem.data as Message) : undefined;
+
+            item.showAvatar = calculateShowAvatar(message, newerMessage, currentUserId);
+            item.showTime = calculateShowTime(message, olderMessage);
+            item.position = calculateBubblePosition(message, newerMessage, olderMessage);
+        }
+
         return items;
-    }, [messages]);
+    }, [messages, userId]);
 
     // Track if user has scrolled (to prevent auto-fetch on initial render)
     const hasUserScrolledRef = useRef(false);
@@ -800,29 +823,19 @@ export default function ChatDetailScreen() {
     // ============================================
 
     const renderItem: ListRenderItem<MessageListItem> = useCallback(
-        ({ item, index }) => {
+        ({ item }) => {
             if (item.type === 'date-separator') {
                 return <DateSeparator label={item.data as string} />;
             }
 
             const message = item.data as Message;
-            const olderItem = flatListData[index - 1];
-            const newerItem = flatListData[index + 1];
-
-            const olderMessage = olderItem?.type === 'message' ? (olderItem.data as Message) : undefined;
-            const newerMessage = newerItem?.type === 'message' ? (newerItem.data as Message) : undefined;
-            const showAvatar = calculateShowAvatar(message, olderMessage, userId || '');
-            const showTime = calculateShowTime(message, newerMessage);
-
-            const position = calculateBubblePosition(message, olderMessage, newerMessage);
-
             return (
                 <MessageItem
                     message={message}
                     currentUserId={userId || ''}
-                    position={position}
-                    showAvatar={showAvatar}
-                    showTime={showTime}
+                    position={item.position ?? 'single'}
+                    showAvatar={item.showAvatar ?? false}
+                    showTime={item.showTime ?? true}
                     onPress={handleMessagePress}
                     onLongPress={handleMessageLongPress}
                     onImagePress={handleImagePress}
@@ -830,7 +843,7 @@ export default function ChatDetailScreen() {
                 />
             );
         },
-        [userId, flatListData, handleMessageLongPress, handleMessagePress, handleImagePress, handleVideoPress]
+        [userId, handleMessageLongPress, handleMessagePress, handleImagePress, handleVideoPress]
     );
 
     // Memoized keyExtractor to avoid recreating function on each render
@@ -962,50 +975,54 @@ export default function ChatDetailScreen() {
             />
 
             {/* Main content with keyboard avoidance */}
-            <Animated.View style={[styles.keyboardView, animatedKeyboardStyle]}>
-                {/* Messages List - INVERTED: newest at bottom, no scroll needed */}
-                {shouldShowList ? (
-                    <>
-                        {messages.length > 0 ? (
-                            <FlatList
-                                ref={flatListRef}
-                                data={flatListData}
-                                renderItem={renderItem}
-                                keyExtractor={keyExtractor}
-                                inverted
-                                ListFooterComponent={renderListHeader}
-                                onEndReached={handleLoadMore}
-                                onMomentumScrollBegin={() => {
-                                    hasUserScrolledRef.current = true;
-                                }}
-                                onEndReachedThreshold={0.5}
-                                contentContainerStyle={styles.listContent}
-                                showsVerticalScrollIndicator={false}
-                                // Performance optimizations
-                                initialNumToRender={10}
-                                maxToRenderPerBatch={10}
-                                windowSize={10}
-                                updateCellsBatchingPeriod={30}
-                                removeClippedSubviews={false}
-                                keyboardDismissMode="interactive"
-                                keyboardShouldPersistTaps="handled"
-                                automaticallyAdjustContentInsets={false}
-                            />
-                        ) : (
-                            renderEmptyComponent()
-                        )}
-                    </>
-                ) : (
-                    <ChatDetailSkeleton count={10} shimmerAnimatedStyle={shimmerAnimatedStyle} />
-                )}
+            <View style={styles.keyboardView}>
+                <View style={{ flex: 1 }}>
+                    {/* Messages List - INVERTED: newest at bottom, no scroll needed */}
+                    {shouldShowList ? (
+                        <>
+                            {messages.length > 0 ? (
+                                <FlatList
+                                    ref={flatListRef}
+                                    data={flatListData}
+                                    renderItem={renderItem}
+                                    keyExtractor={keyExtractor}
+                                    inverted
+                                    ListFooterComponent={renderListHeader}
+                                    onEndReached={handleLoadMore}
+                                    onMomentumScrollBegin={() => {
+                                        hasUserScrolledRef.current = true;
+                                    }}
+                                    onEndReachedThreshold={0.5}
+                                    contentContainerStyle={styles.listContent}
+                                    showsVerticalScrollIndicator={false}
+                                    // Performance optimizations
+                                    initialNumToRender={15}
+                                    maxToRenderPerBatch={10}
+                                    windowSize={11}
+                                    updateCellsBatchingPeriod={30}
+                                    removeClippedSubviews={Platform.OS === 'android'}
+                                    keyboardDismissMode="interactive"
+                                    keyboardShouldPersistTaps="handled"
+                                    automaticallyAdjustContentInsets={false}
+                                />
+                            ) : (
+                                renderEmptyComponent()
+                            )}
+                        </>
+                    ) : (
+                        <ChatDetailSkeleton count={10} shimmerAnimatedStyle={shimmerAnimatedStyle} />
+                    )}
+                </View>
 
-                {/* Input Area */}
-                <ChatInputArea
-                    onSend={handleSendMessage}
-                    onAttachment={handleOpenAttachment}
-                    disabled={sendMessageMutation.isPending}
-                />
-            </Animated.View>
+                {/* Input Area animated with keyboard */}
+                <Animated.View style={[{ backgroundColor: theme.colors.surface }, animatedKeyboardStyle]}>
+                    <ChatInputArea
+                        onSend={handleSendMessage}
+                        onAttachment={handleOpenAttachment}
+                        disabled={sendMessageMutation.isPending}
+                    />
+                </Animated.View>
+            </View>
 
             {/* Attachment Menu (Floating) */}
             <AttachmentMenu
