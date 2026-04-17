@@ -274,7 +274,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         gap: 6,
     },
     tabActive: {
-        borderBottomColor: theme.colors.primary,
+        borderBottomColor: theme.colors.newPrimary,
     },
     tabText: {
         fontSize: 14,
@@ -282,7 +282,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.secondary,
     },
     tabTextActive: {
-        color: theme.colors.primary,
+        color: theme.colors.newPrimary,
     },
     badge: {
         backgroundColor: theme.colors.error,

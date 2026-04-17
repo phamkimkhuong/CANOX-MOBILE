@@ -8,8 +8,10 @@
 
 import { IconSymbol } from '@/components/ui/Icon';
 import type { MyReviewUI } from '@/types/review';
-import { formatRelativeDate } from '@/utils/date';
+import { formatRelativeDate, safeParseDate } from '@/utils/date';
 import { toSizedImageUrl } from '@/utils/url';
+import { BlurView } from 'expo-blur';
+import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import React, { memo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -36,7 +38,15 @@ export const ReviewHistoryCard = memo<ReviewHistoryCardProps>(({
     const { t } = useTranslation(['myReviews']);
 
     // Check if review can be edited (within 7 days and no seller response)
-    const canEdit = !review.hasSellerResponse && review.status === 'APPROVED';
+    let isWithin7Days = false;
+    if (review.createdDate) {
+        const created = safeParseDate(review.createdDate);
+        if (created) {
+            const diffDays = (Date.now() - created.getTime()) / (1000 * 60 * 60 * 24);
+            isWithin7Days = diffDays <= 7;
+        }
+    }
+    const canEdit = !review.hasSellerResponse && review.status === 'APPROVED' && isWithin7Days;
 
     // Generate stars
     const renderStars = () => {
@@ -47,7 +57,7 @@ export const ReviewHistoryCard = memo<ReviewHistoryCardProps>(({
                     key={i}
                     name={i <= review.rating ? 'star.fill' : 'star'}
                     size={14}
-                    color={i <= review.rating ? '#FFB800' : '#D1D5DB'}
+                    color={i <= review.rating ? theme.colors.accent : theme.colors.border}
                 />
             );
         }
@@ -81,6 +91,24 @@ export const ReviewHistoryCard = memo<ReviewHistoryCardProps>(({
                         </Text>
                     )}
                 </View>
+
+                {/* Edit Button moved to top right */}
+                {canEdit && onEdit && (
+                    <Pressable
+                        style={({ pressed }) => [
+                            styles.editButtonTop,
+                            pressed && styles.editButtonPressed,
+                        ]}
+                        onPress={() => {
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            onEdit();
+                        }}
+                        hitSlop={8}
+                    >
+                        <IconSymbol name="pencil" size={14} color={theme.colors.typographySecondary} />
+                        <Text style={styles.editButtonTextTop}>{t('card.editReview')}</Text>
+                    </Pressable>
+                )}
             </View>
 
             {/* Rating & Date Row */}
@@ -113,11 +141,15 @@ export const ReviewHistoryCard = memo<ReviewHistoryCardProps>(({
                             />
                             {/* Show count overlay if more than 4 */}
                             {index === 3 && mediaUrls.length > 4 && (
-                                <View style={styles.moreOverlay}>
+                                <BlurView 
+                                    intensity={40} 
+                                    tint="dark" 
+                                    style={styles.moreOverlay}
+                                >
                                     <Text style={styles.moreText}>
                                         +{mediaUrls.length - 4}
                                     </Text>
-                                </View>
+                                </BlurView>
                             )}
                         </View>
                     ))}
@@ -134,19 +166,6 @@ export const ReviewHistoryCard = memo<ReviewHistoryCardProps>(({
                 </View>
             )}
 
-            {/* Edit Button - only if editable */}
-            {canEdit && onEdit && (
-                <Pressable
-                    style={({ pressed }) => [
-                        styles.editButton,
-                        pressed && styles.editButtonPressed,
-                    ]}
-                    onPress={onEdit}
-                >
-                    <IconSymbol name="pencil" size={14} color={theme.colors.primary} />
-                    <Text style={styles.editButtonText}>{t('card.editReview')}</Text>
-                </Pressable>
-            )}
         </View>
     );
 });
@@ -160,7 +179,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         padding: theme.margins.md,
         marginHorizontal: theme.margins.md,
         marginVertical: 4,
-        shadowColor: '#000',
+        shadowColor: theme.colors.text,
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.05,
         shadowRadius: 2,
@@ -239,35 +258,34 @@ const stylesheet = StyleSheet.create((theme) => ({
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.6)',
         justifyContent: 'center',
         alignItems: 'center',
     },
     moreText: {
         fontSize: 14,
         fontWeight: '600',
-        color: '#FFFFFF',
+        color: '#FFF',
     },
     sellerResponseWrapper: {
         marginTop: 4,
     },
-    editButton: {
+    editButtonTop: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: theme.margins.smd,
-        marginTop: theme.margins.smd,
-        borderTopWidth: 1,
-        borderTopColor: theme.colors.border,
+        backgroundColor: theme.colors.backgroundNewSurface,
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        borderRadius: 12,
         gap: 4,
+        alignSelf: 'flex-start',
     },
     editButtonPressed: {
         opacity: 0.7,
     },
-    editButtonText: {
-        fontSize: 14,
-        fontWeight: '500',
-        color: theme.colors.primary,
+    editButtonTextTop: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: theme.colors.typographySecondary,
     },
 }));
 

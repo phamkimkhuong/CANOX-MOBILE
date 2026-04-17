@@ -117,8 +117,8 @@ const stylesheet = StyleSheet.create((theme) => ({
         gap: 4,
     },
     chipActive: {
-        backgroundColor: theme.colors.primary,
-        borderColor: theme.colors.primary,
+        backgroundColor: theme.colors.typography,
+        borderColor: theme.colors.typography,
     },
     chipLabel: {
         fontSize: 13,
