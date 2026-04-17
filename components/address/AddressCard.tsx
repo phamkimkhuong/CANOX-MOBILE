@@ -79,7 +79,7 @@ export const AddressCard: React.FC<AddressCardProps> = memo(({
                     <IconSymbol
                         name={isSelected ? 'radio-button-on' : 'radio-button-off'}
                         size={24}
-                        color={isSelected ? theme.colors.primary : theme.colors.secondary}
+                        color={isSelected ? theme.colors.newPrimary : theme.colors.secondary}
                     />
                 ) : (
                     <View
@@ -93,7 +93,7 @@ export const AddressCard: React.FC<AddressCardProps> = memo(({
                             size={20}
                             color={
                                 address.isDefault
-                                    ? theme.colors.primary
+                                    ? theme.colors.newPrimary
                                     : theme.colors.secondary
                             }
                         />
@@ -166,9 +166,9 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderColor: theme.colors.border,
     },
     containerSelected: {
-        borderColor: theme.colors.primary,
+        borderColor: theme.colors.newPrimary,
         borderWidth: 1.5,
-        backgroundColor: theme.colors.primaryMuted,
+        backgroundColor: theme.colors.activeSoft,
     },
     containerPressed: {
         opacity: 0.7,
@@ -186,7 +186,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         justifyContent: 'center',
     },
     iconContainerDefault: {
-        backgroundColor: theme.colors.primaryLight,
+        backgroundColor: theme.colors.activeSoft,
     },
 
     content: {
@@ -235,8 +235,8 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderColor: theme.colors.border,
     },
     badgeDefault: {
-        backgroundColor: theme.colors.primaryLight,
-        borderColor: theme.colors.primarySoft,
+        backgroundColor: theme.colors.activeLight,
+        borderColor: theme.colors.activeSoft,
     },
     badgeText: {
         fontSize: 11,
@@ -246,7 +246,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     badgeTextDefault: {
         fontSize: 11,
         fontWeight: '500',
-        color: theme.colors.primary,
+        color: theme.colors.newPrimary,
     },
 
     editButton: {
@@ -268,6 +268,6 @@ const stylesheet = StyleSheet.create((theme) => ({
     editButtonText: {
         fontSize: 13,
         fontWeight: '600',
-        color: theme.colors.newPrimary || theme.colors.primary,
+        color: theme.colors.newPrimary,
     },
 }));

@@ -95,8 +95,8 @@ export const AddressList: React.FC<AddressListProps> = memo(({
                     <RefreshControl
                         refreshing={isRefreshing}
                         onRefresh={onRefresh}
-                        colors={[theme.colors.primary]}
-                        tintColor={theme.colors.primary}
+                        colors={[theme.colors.newPrimary]}
+                        tintColor={theme.colors.newPrimary}
                     />
                 ) : undefined
             }

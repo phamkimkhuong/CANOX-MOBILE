@@ -159,7 +159,7 @@ export const LocationPickerSheet: React.FC<LocationPickerSheetProps> = memo(({
                         <IconSymbol
                             name="check"
                             size={20}
-                            color={theme.colors.primary}
+                            color={theme.colors.newPrimary}
                         />
                     )}
                 </Pressable>
@@ -366,7 +366,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderBottomColor: theme.colors.border,
     },
     itemSelected: {
-        backgroundColor: theme.colors.primaryMuted,
+        backgroundColor: theme.colors.activeSoft,
     },
     itemPressed: {
         backgroundColor: theme.colors.backgroundSurface,
@@ -377,7 +377,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.typography,
     },
     itemTextSelected: {
-        color: theme.colors.primary,
+        color: theme.colors.newPrimary,
         fontWeight: '500',
     },
 

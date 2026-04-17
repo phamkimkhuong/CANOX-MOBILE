@@ -147,10 +147,10 @@ export const SmartLocationPicker: React.FC<SmartLocationPickerProps> = memo(({
                 style={[styles.item, isSelected && styles.itemSelected]}
             >
                 <Text style={styles.itemText} numberOfLines={1}>{item.fullName}</Text>
-                {isSelected && <IconSymbol name="check" size={18} color={theme.colors.primary} />}
+                {isSelected && <IconSymbol name="check" size={18} color={theme.colors.newPrimary} />}
             </Pressable>
         );
-    }, [selectedProvince?.code, selectedWard?.code, theme.colors.primary, styles, handleProvinceSelect, handleWardSelect]);
+    }, [selectedProvince?.code, selectedWard?.code, theme.colors.newPrimary, styles, handleProvinceSelect, handleWardSelect]);
 
     return (
         <Modal
@@ -308,7 +308,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         alignItems: 'center'
     },
     breadcrumbActive: {
-        backgroundColor: theme.colors.primaryMuted
+        backgroundColor: theme.colors.activeSoft
     },
     breadcrumbText: {
         fontSize: 12,
@@ -316,7 +316,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         textAlign: 'center'
     },
     breadcrumbTextActive: {
-        color: theme.colors.primary,
+        color: theme.colors.newPrimary,
         fontWeight: 'bold'
     },
 
@@ -357,7 +357,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     nextButton: {
         width: 54,
         height: 54,
-        backgroundColor: theme.colors.primary,
+        backgroundColor: theme.colors.newPrimary,
         borderRadius: 12,
         alignItems: 'center',
         justifyContent: 'center'
@@ -372,9 +372,9 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderBottomColor: theme.colors.border,
         backgroundColor: theme.colors.background
     },
-    itemSelected: { backgroundColor: theme.colors.primaryMuted },
+    itemSelected: { backgroundColor: theme.colors.activeSoft },
     itemText: { fontSize: 15, color: theme.colors.typography },
-    itemTextSelected: { color: theme.colors.primary, fontWeight: '600' },
+    itemTextSelected: { color: theme.colors.newPrimary, fontWeight: '600' },
     flex1: { flex: 1 },
     disabledButton: { opacity: 0.5 },
     breadcrumbDone: { color: theme.colors.typography }

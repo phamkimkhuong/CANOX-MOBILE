@@ -97,15 +97,15 @@ export const stylesheet = StyleSheet.create((theme) => ({
         borderRadius: theme.radius.m,
     },
     labelOptionSelected: {
-        borderColor: theme.colors.primary,
-        backgroundColor: theme.colors.primaryMuted,
+        borderColor: theme.colors.newPrimary,
+        backgroundColor: theme.colors.activeMuted,
     },
     labelOptionText: {
         fontSize: 13,
         color: theme.colors.typographySecondary,
     },
     labelOptionTextSelected: {
-        color: theme.colors.primary,
+        color: theme.colors.newPrimary,
         fontWeight: '500',
     },
 
@@ -169,7 +169,7 @@ export const stylesheet = StyleSheet.create((theme) => ({
     },
     submitButton: {
         flex: 1,
-        backgroundColor: theme.colors.primary,
+        backgroundColor: theme.colors.newPrimary,
         borderRadius: theme.radius.m,
         alignItems: 'center',
         justifyContent: 'center',

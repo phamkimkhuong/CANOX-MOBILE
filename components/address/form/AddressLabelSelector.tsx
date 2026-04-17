@@ -50,7 +50,7 @@ export const AddressLabelSelector: React.FC<AddressLabelSelectorProps> = ({
                             size={18}
                             color={
                                 selectedLabel === option.value
-                                    ? theme.colors.primary
+                                    ? theme.colors.newPrimary
                                     : theme.colors.secondary
                             }
                         />
