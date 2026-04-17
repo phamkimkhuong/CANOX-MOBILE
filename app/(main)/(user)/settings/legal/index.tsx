@@ -27,14 +27,6 @@ interface PolicyItem {
 
 /**
  * Legal Policies Screen
- * 
- * Lists all legal documents grouped by compliance priority:
- * Mandatory: Required by Vietnamese law + Store review
- * Operational: Required for marketplace operations
- * 
- * Tapping an item:
- * - Internal (own domain): Opens in-app WebView with native header → feels like native screen
- * - External (seller portal, etc.): Opens SFSafariViewController / Custom Tabs → still in-app feel
  */
 export default function LegalPoliciesScreen() {
     useNavigationUnlockOnFocus();
@@ -42,7 +34,6 @@ export default function LegalPoliciesScreen() {
     const { t } = useTranslation('profile');
     const styles = stylesheet;
 
-    // Mandatory policies (NĐ 52/2013, NĐ 85/2021, Luật TMĐT 2025, Luật BVNTD 2023) ───
     const mandatoryItems: PolicyItem[] = useMemo(() => [
         {
             id: 'regulations',
@@ -72,16 +63,6 @@ export default function LegalPoliciesScreen() {
             icon: 'description',
             iconColor: 'sky',
             isInternal: true,
-            group: 'mandatory',
-        },
-        {
-            id: 'seller',
-            labelKey: 'menu.legal_seller',
-            fallbackLabel: 'Thông tin dành cho Nhà bán',
-            url: LEGAL_URLS.SELLER_TERMS,
-            icon: 'store',
-            iconColor: 'slate',
-            isInternal: false, // External link → in-app browser
             group: 'mandatory',
         },
         {
@@ -199,7 +180,6 @@ export default function LegalPoliciesScreen() {
                 />
             );
         });
-
     return (
         <View style={styles.container}>
             <SettingsHeader

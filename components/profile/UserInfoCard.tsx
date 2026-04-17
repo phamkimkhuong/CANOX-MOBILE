@@ -1,7 +1,7 @@
 import defaultAvatar from '@/assets/images/default_avatar.png';
 import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES } from '@/constants/routes';
-import { MEMBER_LEVEL_CONFIG, UserProfile } from '@/types/profile/profile';
+import { UserProfile } from '@/types/profile/profile';
 import { Navigator } from '@/utils/navigation';
 import { Image } from 'expo-image';
 import React, { memo, useCallback } from 'react';
@@ -24,10 +24,6 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const { t } = useTranslation(['profile', 'common']);
-
-    const levelConfig = profile?.memberLevel
-        ? MEMBER_LEVEL_CONFIG[profile.memberLevel]
-        : MEMBER_LEVEL_CONFIG.BRONZE;
 
     const handleEditProfile = useCallback(() => {
         Navigator.push(ROUTES.USER.EDIT_PROFILE);
@@ -66,17 +62,6 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
                         contentFit="cover"
                         transition={200}
                     />
-                    {/* Level badge */}
-                    <View style={[styles.levelBadge, { backgroundColor: levelConfig.color }]}>
-                        <IconSymbol
-                            name={levelConfig.icon as keyof typeof IconSymbol}
-                            size={10}
-                            color="#fff"
-                        />
-                        <Text style={styles.levelBadgeText}>
-                            {t(`memberLevel.${levelConfig.key}`).toUpperCase()}
-                        </Text>
-                    </View>
                 </View>
 
                 {/* Info */}
@@ -126,7 +111,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         paddingHorizontal: theme.margins.md,
         paddingBottom: theme.margins.sm,
         marginHorizontal: theme.margins.md,
-        marginBottom: theme.margins.sm,
         position: 'relative',
         overflow: 'hidden',
         shadowColor: '#000',
@@ -161,24 +145,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderWidth: 4,
         borderColor: theme.colors.surface,
         backgroundColor: theme.colors.secondaryLight,
-    },
-    levelBadge: {
-        position: 'absolute',
-        bottom: -4,
-        right: -4,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 2,
-        paddingHorizontal: 6,
-        paddingVertical: 2,
-        borderRadius: 10,
-        borderWidth: 2,
-        borderColor: theme.colors.surface,
-    },
-    levelBadgeText: {
-        fontSize: 9,
-        fontWeight: '700',
-        color: '#fff',
     },
     infoContainer: {
         flex: 1,
