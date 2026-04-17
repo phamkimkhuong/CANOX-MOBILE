@@ -16,7 +16,6 @@ import {
     AddressFormSchema,
     AddressLabel,
     Country,
-    MapboxAutocompleteResponse,
     Province,
     ShippingAddress,
     Ward,
@@ -36,7 +35,6 @@ import {
     View,
 } from 'react-native';
 import { useUnistyles } from 'react-native-unistyles';
-import { AddressSearchSheet } from './AddressSearchSheet';
 import { LocationPickerSheet } from './LocationPickerSheet';
 import { SmartLocationPicker } from './SmartLocationPicker';
 
@@ -47,7 +45,6 @@ import { AddressCountryPicker } from './form/AddressCountryPicker';
 import { AddressFormFooter } from './form/AddressFormFooter';
 import { AddressLabelSelector } from './form/AddressLabelSelector';
 import { AddressLocationPickers } from './form/AddressLocationPickers';
-import { AddressSearchField } from './form/AddressSearchField';
 
 // ============================================
 // TYPES & HELPERS
@@ -103,12 +100,7 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
     const [showCountryPicker, setShowCountryPicker] = useState(false);
     const [showProvincePicker, setShowProvincePicker] = useState(false);
     const [showWardPicker, setShowWardPicker] = useState(false);
-    const [showSearchSheet, setShowSearchSheet] = useState(false);
     const [showSmartPicker, setShowSmartPicker] = useState(false);
-
-    // Search & Autocomplete state
-    const [fullAddressPreview, setFullAddressPreview] = useState(initialData?.streetAddress || '');
-    const [isAutoFilling, setIsAutoFilling] = useState(false);
 
     // Selected location state
     const [selectedCountry, setSelectedCountry] = useState<Country | null>(() => {
@@ -284,37 +276,6 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
         setValue('label', label);
     }, [setValue]);
 
-    const handleSuggestionSelect = useCallback((suggestion: MapboxAutocompleteResponse) => {
-        setIsAutoFilling(true);
-        // Setting the detailed street field to the short 'address' (e.g. house number/street)
-        setValue('streetAddress', suggestion.address, { shouldValidate: true });
-        // Setting the search trigger preview to the full 'placeName'
-        setFullAddressPreview(suggestion.placeName);
-
-        if (suggestion.province) {
-            setValue('provinceName', suggestion.province, { shouldValidate: false });
-        }
-        if (suggestion.district) {
-            setValue('districtName', suggestion.district, { shouldValidate: false });
-        } else {
-            setValue('districtName', '', { shouldValidate: false });
-        }
-        if (suggestion.ward) {
-            setValue('wardName', suggestion.ward, { shouldValidate: false });
-        } else {
-            setValue('wardName', '', { shouldValidate: false });
-        }
-
-        // SEVERE CLEAR: Remove all ID/Objects so the SmartPicker resets to Step 1
-        // We set shouldValidate to false to prevent immediate red error until submit
-        setSelectedProvince(null);
-        setSelectedWard(null);
-        setValue('provinceCode', '', { shouldValidate: false });
-        setValue('wardCode', '', { shouldValidate: false });
-
-        setTimeout(() => setIsAutoFilling(false), 500);
-    }, [setValue]);
-
     const handleFormSubmit = handleSubmit((data) => {
         Keyboard.dismiss();
         onSubmit(data);
@@ -338,12 +299,6 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
                 />
 
                 <AddressBasicInfoFields control={control} errors={errors} />
-
-                <AddressSearchField
-                    onOpenSearch={() => setShowSearchSheet(true)}
-                    currentAddress={fullAddressPreview}
-                    isAutoFilling={isAutoFilling}
-                />
 
                 <AddressLocationPickers
                     control={control}
@@ -434,13 +389,6 @@ export const AddressForm: React.FC<AddressFormProps> = memo(({
                 selectedValue={selectedWard}
                 onClose={() => setShowWardPicker(false)}
                 onSelect={handleWardSelect}
-            />
-
-            <AddressSearchSheet
-                visible={showSearchSheet}
-                onClose={() => setShowSearchSheet(false)}
-                onSelect={handleSuggestionSelect}
-                countryCode={selectedCountry?.code}
             />
 
             <SmartLocationPicker
