@@ -87,8 +87,6 @@ AddressSection.displayName = 'AddressSection';
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
-        marginTop: theme.margins.lg,
-        marginBottom: theme.margins.md,
     },
     header: {
         flexDirection: 'row',
@@ -109,18 +107,18 @@ const stylesheet = StyleSheet.create((theme) => ({
     card: {
         backgroundColor: theme.colors.backgroundInput || 'rgba(0,0,0,0.02)',
         borderRadius: theme.radius.m,
-        padding: theme.margins.md,
+        padding: theme.margins.sm,
         borderWidth: 1,
         borderColor: theme.colors.border,
     },
     addressInfo: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: theme.margins.md,
+        gap: theme.margins.sm,
     },
     iconWrapper: {
-        width: 40,
-        height: 40,
+        width: 30,
+        height: 30,
         borderRadius: 20,
         backgroundColor: theme.colors.activeSoft || 'rgba(239, 68, 68, 0.12)',
         justifyContent: 'center',
@@ -137,7 +135,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     recipientName: {
         fontSize: 15,
-        fontWeight: '700',
+        fontWeight: '500',
         color: theme.colors.typography,
     },
     defaultBadge: {

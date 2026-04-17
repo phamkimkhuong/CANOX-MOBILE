@@ -69,7 +69,6 @@ export default function AddressListScreen() {
             });
             return () => {
                 cancelAnimationFrame(task);
-                setIsReady(false);
             };
         }, [])
     );
@@ -220,10 +219,7 @@ export default function AddressListScreen() {
             >
                 <Pressable
                     onPress={handleAddNew}
-                    style={({ pressed }) => [
-                        styles.addButton,
-                        pressed && styles.addButtonPressed,
-                    ]}
+                    style={styles.addButton}
                 >
                     <IconSymbol name="add" size={20} color={theme.colors.onPrimary} />
                     <Text style={styles.addButtonText}>{t('address:list.addTitle')}</Text>
@@ -255,19 +251,15 @@ const stylesheet = StyleSheet.create((theme) => ({
         alignItems: 'center',
         justifyContent: 'center',
         gap: theme.margins.sm,
-        backgroundColor: theme.colors.primary,
+        backgroundColor: theme.colors.newPrimary,
         borderRadius: theme.radius.m,
         paddingVertical: theme.margins.smd,
         height: 48,
-        shadowColor: theme.colors.primary,
+        shadowColor: theme.colors.newPrimary,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.25,
         shadowRadius: 8,
         elevation: 4,
-    },
-    addButtonPressed: {
-        opacity: 0.9,
-        transform: [{ scale: 0.98 }],
     },
     addButtonText: {
         fontSize: 16,

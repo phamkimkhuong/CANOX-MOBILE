@@ -2,7 +2,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import { useProvinces, useWards } from '@/hooks/api/useAddressData';
 import type { Province, Ward } from '@/types/address';
 import { FlashList } from '@shopify/flash-list';
-import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Modal,
@@ -40,11 +40,9 @@ export const SmartLocationPicker: React.FC<SmartLocationPickerProps> = memo(({
     const { t } = useTranslation(['address', 'common']);
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const searchInputRef = useRef<TextInput>(null);
 
     // Flow State
     const [step, setStep] = useState<PickerStep>('province');
-    const [searchText, setSearchText] = useState('');
 
     // Selections
     const [selectedProvince, setSelectedProvince] = useState<Province | null>(initialProvince || null);
@@ -66,23 +64,20 @@ export const SmartLocationPicker: React.FC<SmartLocationPickerProps> = memo(({
     const provinces = useMemo(() => provincesRes?.data || [], [provincesRes]);
     const allWards = useMemo(() => wardsRes?.data || [], [wardsRes]);
 
-    // Filtering logic based on step and searchText
-    const filteredItems = useMemo(() => {
-        const query = searchText.trim().toLowerCase();
+    const listItems = useMemo(() => {
         if (step === 'province') {
-            return provinces.filter(p => p.fullName.toLowerCase().includes(query));
+            return provinces;
         }
         if (step === 'ward') {
-            return allWards.filter(w => w.fullName.toLowerCase().includes(query));
+            return allWards;
         }
         return [];
-    }, [step, searchText, provinces, allWards]);
+    }, [step, provinces, allWards]);
 
     // Handle Reset & Sync when opening
     useEffect(() => {
         if (visible) {
             setStep('province');
-            setSearchText('');
             // Forced sync internal state with external props on every open
             setSelectedProvince(initialProvince || null);
             setSelectedDistrict(initialDistrict || '');
@@ -105,11 +100,6 @@ export const SmartLocationPicker: React.FC<SmartLocationPickerProps> = memo(({
      */
     const goToStep = useCallback((nextStep: PickerStep) => {
         setStep(nextStep);
-        setSearchText('');
-        // Pushing focus to search bar if it's a list step
-        if (nextStep !== 'district') {
-            setTimeout(() => searchInputRef.current?.focus(), 100);
-        }
     }, []);
 
     const handleProvinceSelect = useCallback((item: Province) => {
@@ -200,19 +190,8 @@ export const SmartLocationPicker: React.FC<SmartLocationPickerProps> = memo(({
                 <View style={styles.flex1}>
                     {step !== 'district' ? (
                         <View style={styles.flex1}>
-                            <View style={styles.searchContainer}>
-                                <IconSymbol name="search" size={18} color={theme.colors.secondary} />
-                                <TextInput
-                                    ref={searchInputRef}
-                                    style={styles.searchInput}
-                                    placeholder={t('address:form.search.placeholder')}
-                                    placeholderTextColor={theme.colors.secondary}
-                                    value={searchText}
-                                    onChangeText={setSearchText}
-                                />
-                            </View>
                             <FlashList<Province | Ward>
-                                data={filteredItems}
+                                data={listItems}
                                 renderItem={renderLocationItem}
                                 keyExtractor={(item) => (item as Province | Ward).code}
                                 keyboardShouldPersistTaps="handled"
@@ -319,21 +298,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.newPrimary,
         fontWeight: 'bold'
     },
-
-    searchContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginHorizontal: 16,
-        marginVertical: 12,
-        paddingHorizontal: 12,
-        backgroundColor: theme.colors.surface,
-        borderRadius: 12,
-        borderWidth: 1,
-        borderColor: theme.colors.border,
-        gap: 8
-    },
-    searchInput: { flex: 1, height: 44, fontSize: 15, color: theme.colors.typography },
-
     helperBox: { padding: 16, backgroundColor: theme.colors.backgroundSurface },
     helperText: { fontSize: 13, color: theme.colors.secondary, lineHeight: 18 },
 

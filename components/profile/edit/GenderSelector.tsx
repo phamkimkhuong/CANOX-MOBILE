@@ -87,7 +87,7 @@ export const GenderSelector: React.FC<GenderSelectorProps> = ({
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
-        marginBottom: theme.margins.lg,
+        marginBottom: theme.margins.sm,
     },
     label: {
         fontSize: 14,
@@ -112,7 +112,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: theme.margins.md,
+        paddingVertical: theme.margins.smd,
         gap: 6,
         borderRightWidth: 1,
         borderRightColor: theme.colors.border,

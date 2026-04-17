@@ -142,7 +142,7 @@ export const DatePickerField: React.FC<DatePickerFieldProps> = ({
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
-        marginBottom: theme.margins.lg,
+        marginBottom: theme.margins.sm,
     },
     label: {
         fontSize: 14,

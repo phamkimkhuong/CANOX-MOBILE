@@ -1,7 +1,7 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { SkeletonBox } from '@/components/ui/feedback/Skeleton';
-import { useBuyerProfileDetail } from '@/hooks/api/profile/useBuyerProfileDetail';
 import { useAvatarUpload } from '@/hooks/api/profile/useAvatarUpload';
+import { useBuyerProfileDetail } from '@/hooks/api/profile/useBuyerProfileDetail';
 import { useUserProfile } from '@/hooks/api/profile/useProfile';
 import {
     apiFormatToDate,
@@ -525,7 +525,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: theme.colors.newPrimary,
-        paddingVertical: 16,
+        paddingVertical: 13,
         borderRadius: theme.radius.m,
         gap: 8,
     },

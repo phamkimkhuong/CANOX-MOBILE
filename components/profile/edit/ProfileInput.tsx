@@ -1,5 +1,5 @@
 import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
-import React, { useState } from 'react';
+import React from 'react';
 import { Control, Controller, FieldValues, Path } from 'react-hook-form';
 import { Text, TextInput, TextInputProps, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -34,7 +34,6 @@ export function ProfileInput<T extends FieldValues>({
 }: ProfileInputProps<T>) {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const [isFocused, setIsFocused] = useState(false);
 
     return (
         <Controller
@@ -47,7 +46,7 @@ export function ProfileInput<T extends FieldValues>({
                     <View
                         style={[
                             styles.inputWrapper,
-                            isFocused && !disabled && styles.inputFocused,
+
                             !!error && styles.inputError,
                             disabled && styles.inputDisabled,
                         ]}
@@ -68,11 +67,7 @@ export function ProfileInput<T extends FieldValues>({
                             placeholderTextColor={theme.colors.secondary}
                             value={value as string}
                             onChangeText={onChange}
-                            onBlur={() => {
-                                onBlur();
-                                setIsFocused(false);
-                            }}
-                            onFocus={() => setIsFocused(true)}
+                            onBlur={onBlur}
                             editable={!disabled}
                             selectTextOnFocus={!disabled}
                             autoCapitalize="none"
@@ -109,7 +104,7 @@ export function ProfileInput<T extends FieldValues>({
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
-        marginBottom: theme.margins.lg,
+        marginBottom: theme.margins.xs,
     },
     label: {
         fontSize: 14,
@@ -126,10 +121,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderColor: theme.colors.border,
         borderRadius: theme.radius.m,
         height: 48,
-    },
-    inputFocused: {
-        borderColor: theme.colors.newPrimary,
-        backgroundColor: theme.colors.surface,
     },
     inputError: {
         borderColor: theme.colors.error,
