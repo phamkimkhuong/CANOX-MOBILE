@@ -25,14 +25,10 @@ export default function MainLayout() {
     return (
         <Stack
             screenOptions={{
-                headerShown: false, // Các screens tự xây header riêng
+                headerShown: false,
                 animation: 'slide_from_right',
             }}
         >
-            {/* Expo Router tự động register các screens từ file system */}
-            {/* Nếu screen cần header mặc định, override trong component:
-                <Stack.Screen options={{ headerShown: true, title: 'Tiêu đề' }} />
-            */}
         </Stack>
     );
 }
