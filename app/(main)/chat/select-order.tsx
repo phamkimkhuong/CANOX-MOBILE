@@ -334,6 +334,7 @@ export default function SelectOrderScreen() {
                     renderItem={renderItem}
                     keyExtractor={keyExtractor}
                     getItemType={getItemType}
+                    keyboardShouldPersistTaps="handled"
                     contentContainerStyle={styles.listContent}
                     showsVerticalScrollIndicator={false}
                     onEndReached={handleLoadMore}

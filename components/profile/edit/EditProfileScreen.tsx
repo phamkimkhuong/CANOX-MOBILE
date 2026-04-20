@@ -26,6 +26,7 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
+import { useHeaderHeight } from '@react-navigation/elements';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -43,6 +44,7 @@ export default function EditProfileScreen() {
     const { t } = useTranslation(['profile', 'common']);
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
+    const headerHeight = useHeaderHeight();
 
     // Fetch current profile data
     const { data: profile, isLoading: isLoadingProfile } = useUserProfile();
@@ -259,7 +261,7 @@ export default function EditProfileScreen() {
             <KeyboardAvoidingView
                 style={styles.container}
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? headerHeight : 0}
             >
                 <ScrollView
                     style={styles.scrollView}

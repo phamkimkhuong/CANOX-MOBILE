@@ -109,7 +109,11 @@ export default function RegisterScreen() {
 				behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
 				style={styles.flex1}
 			>
-				<ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+				<ScrollView
+					contentContainerStyle={styles.scrollContent}
+					showsVerticalScrollIndicator={false}
+					keyboardShouldPersistTaps="handled"
+				>
 					{/* Header */}
 					<View style={styles.header}>
 						<TouchableOpacity

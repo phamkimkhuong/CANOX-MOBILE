@@ -72,6 +72,7 @@ export const BankSelectModal: React.FC<BankSelectModalProps> = memo(({
                         <FlatList
                             data={filteredBanks}
                             keyExtractor={(item) => item.id}
+                            keyboardShouldPersistTaps="handled"
                             showsVerticalScrollIndicator={false}
                             contentContainerStyle={[
                                 styles.listContent,

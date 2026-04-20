@@ -258,6 +258,7 @@ export default function VoucherScreen() {
                 data={vouchers}
                 renderItem={renderItem}
                 keyExtractor={keyExtractor}
+                keyboardShouldPersistTaps="handled"
                 onScroll={scrollHandler}
                 scrollEventThrottle={16}
                 ListHeaderComponent={ListHeader}

@@ -291,6 +291,7 @@ export default function ReturnRequestScreen() {
                         },
                     ]}
                     showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="handled"
                 >
                     <View style={styles.sectionCard}>
                         <OrderSummarySnippet

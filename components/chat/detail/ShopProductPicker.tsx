@@ -264,6 +264,7 @@ export const ShopProductPicker = forwardRef<BottomSheetModal, ShopProductPickerP
                         data={products}
                         renderItem={renderProduct}
                         keyExtractor={(item: ShopProductItemUI) => item.id}
+                        keyboardShouldPersistTaps="handled"
                         contentContainerStyle={[
                             styles.listContent,
                             { paddingBottom: insets.bottom + 16 }

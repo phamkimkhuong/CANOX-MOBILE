@@ -248,6 +248,7 @@ export const ShopOrderPicker = forwardRef<BottomSheetModal, ShopOrderPickerProps
                             data={filteredOrders}
                             renderItem={renderOrder}
                             keyExtractor={(item: OrderUI) => item.orderId}
+                            keyboardShouldPersistTaps="handled"
                             contentContainerStyle={styles.listContent}
                             showsVerticalScrollIndicator={false}
                             onEndReached={handleLoadMore}

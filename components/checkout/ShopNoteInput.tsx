@@ -23,6 +23,7 @@ import {
     TouchableWithoutFeedback,
     View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface ShopNoteInputProps {
@@ -43,6 +44,7 @@ export const ShopNoteInput: React.FC<ShopNoteInputProps> = ({
     placeholder,
 }) => {
     const { theme } = useUnistyles();
+    const insets = useSafeAreaInsets();
     const { t } = useTranslation('checkout');
     const styles = stylesheet;
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -182,7 +184,7 @@ export const ShopNoteInput: React.FC<ShopNoteInputProps> = ({
                                     </View>
 
                                     {/* Save Button */}
-                                    <View style={styles.modalFooter}>
+                                    <View style={[styles.modalFooter, { paddingBottom: insets.bottom + theme.margins.xl }]}>
                                         <Pressable
                                             style={({ pressed }) => [
                                                 styles.saveButton,

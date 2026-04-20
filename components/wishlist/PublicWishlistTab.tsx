@@ -83,6 +83,7 @@ export const PublicWishlistTab: React.FC = () => {
                         <FlatList
                             data={searchData}
                             keyExtractor={(item) => item.id}
+                            keyboardShouldPersistTaps="handled"
                             contentContainerStyle={styles.flatListContent}
                             renderItem={({ item }) => (
                                 <WishlistCard
@@ -98,7 +99,10 @@ export const PublicWishlistTab: React.FC = () => {
                 </View>
             ) : (
                 // DEFAULT DISCOVERY VIEW
-                <ScrollView contentContainerStyle={styles.scrollContent}>
+                <ScrollView
+                    contentContainerStyle={styles.scrollContent}
+                    keyboardShouldPersistTaps="handled"
+                >
                     {/* Popular Wishlists */}
                     <View style={styles.section}>
                         <View style={styles.sectionTitleContainer}>

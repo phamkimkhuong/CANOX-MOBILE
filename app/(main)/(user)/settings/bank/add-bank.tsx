@@ -120,6 +120,7 @@ export default function AddBankScreen() {
                         { paddingBottom: insets.bottom + 40 }
                     ]}
                     showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="handled"
                 >
                     {/* Progress Indicator */}
                     <View style={styles.progressContainer}>

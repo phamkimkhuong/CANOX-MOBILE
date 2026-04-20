@@ -12,6 +12,7 @@ import { formatCurrency } from '@/utils/format';
 import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { VoucherPickerCard } from './VoucherPickerCard';
 
@@ -36,6 +37,7 @@ export const CheckoutVoucherRow: React.FC<CheckoutVoucherRowProps> = ({
     disabled = false,
 }) => {
     const { theme } = useUnistyles();
+    const insets = useSafeAreaInsets();
     const { t } = useTranslation('checkout');
     const styles = stylesheet;
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -180,6 +182,7 @@ export const CheckoutVoucherRow: React.FC<CheckoutVoucherRowProps> = ({
                                     style={styles.voucherList}
                                     contentContainerStyle={styles.scrollContent}
                                     showsVerticalScrollIndicator={false}
+                                    keyboardShouldPersistTaps="handled"
                                 >
                                     {/* Manual Input Section - Integrated into ScrollView */}
                                     <View style={styles.manualInputSection}>
@@ -259,7 +262,7 @@ export const CheckoutVoucherRow: React.FC<CheckoutVoucherRowProps> = ({
                                 </ScrollView>
 
                                 {/* Footer spacing */}
-                                <View style={styles.modalFooter} />
+                                <View style={[styles.modalFooter, { height: insets.bottom + theme.margins.lg }]} />
                             </Pressable>
                         </KeyboardAvoidingView>
                     </View>

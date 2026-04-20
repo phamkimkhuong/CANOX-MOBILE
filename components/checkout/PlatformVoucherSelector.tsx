@@ -14,6 +14,7 @@ import { getFriendlyVoucherReason } from '@/utils/voucherReason';
 import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface PlatformVoucherSelectorProps {
@@ -46,6 +47,7 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
     isLoading = false,
 }) => {
     const { theme } = useUnistyles();
+    const insets = useSafeAreaInsets();
     const { t } = useTranslation('checkout');
     const [isModalVisible, setIsModalVisible] = useState(false);
     const resolvedWarningMessage = getFriendlyVoucherReason(warningMessage, t);
@@ -240,6 +242,7 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
                                     style={styles.voucherList}
                                     contentContainerStyle={styles.scrollContent}
                                     showsVerticalScrollIndicator={false}
+                                    keyboardShouldPersistTaps="handled"
                                 >
                                     {/* Manual Input Section - Integrated into ScrollView */}
                                     <View style={styles.manualInputSection}>
@@ -317,7 +320,7 @@ export const PlatformVoucherSelector: React.FC<PlatformVoucherSelectorProps> = (
                                 </ScrollView>
 
                                 {/* Footer spacing */}
-                                <View style={styles.modalFooter} />
+                                <View style={[styles.modalFooter, { height: insets.bottom + theme.margins.lg }]} />
                             </Pressable>
                         </KeyboardAvoidingView>
                     </View>

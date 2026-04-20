@@ -196,6 +196,7 @@ export const EditWishlistItemSheet = forwardRef<
         >
             <BottomSheetScrollView
                 style={styles.content}
+                keyboardShouldPersistTaps="handled"
                 contentContainerStyle={{
                     paddingBottom: insets.bottom > 0 ? insets.bottom + theme.margins.md : theme.margins.xl,
                 }}

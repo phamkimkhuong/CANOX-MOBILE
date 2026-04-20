@@ -238,6 +238,7 @@ export default function SelectProductScreen() {
                     data={products}
                     renderItem={renderProduct}
                     keyExtractor={(item) => item.id}
+                    keyboardShouldPersistTaps="handled"
                     contentContainerStyle={styles.listContent}
                     showsVerticalScrollIndicator={false}
                     onEndReached={handleLoadMore}

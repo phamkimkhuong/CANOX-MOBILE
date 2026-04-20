@@ -135,6 +135,7 @@ export default function EditBankScreen() {
                         { paddingBottom: insets.bottom + 40 }
                     ]}
                     showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="handled"
                 >
                     {/* Form Card */}
                     <Animated.View entering={FadeInUp.duration(600)} style={styles.card}>

@@ -82,6 +82,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.tabsContainer}
+                keyboardShouldPersistTaps="handled"
             >
                 {translatedTabs.map((tab) => {
                     const isActive = activeFilter === tab.key;
