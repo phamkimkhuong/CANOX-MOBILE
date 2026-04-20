@@ -47,6 +47,12 @@ const LANGUAGE_OPTIONS: LanguageOption[] = [
         englishName: 'English',
         flag: '🇺🇸',
     },
+    {
+        code: 'lo',
+        nativeName: 'ພາສາລາວ',
+        englishName: 'Lao',
+        flag: '🇱🇦',
+    },
 ];
 
 // ============================================
@@ -140,8 +146,11 @@ export default function LanguageSettingsScreen() {
     // Checks if there are unsaved changes
     const hasChanges = selectedLang !== currentLanguage;
 
-    // Memoized header title (bilingual)
-    const headerTitle = useMemo(() => 'Ngôn ngữ / Language', []);
+    // Memoized header title (trilingual)
+    const headerTitle = useMemo(() => 'Ngôn ngữ / Language / ພາສາ', []);
+
+    // Helper text
+    const getText = (vi: string, en: string, lo: string) => selectedLang === 'vi' ? vi : selectedLang === 'lo' ? lo : en;
 
     /**
      * Handle apply changes
@@ -161,7 +170,7 @@ export default function LanguageSettingsScreen() {
 
         Toast.show({
             type: 'success',
-            text1: selectedLang === 'vi' ? 'Đã cập nhật ngôn ngữ' : 'Language updated',
+            text1: getText('Đã cập nhật ngôn ngữ', 'Language updated', 'ອັບເດດພາສາແລ້ວ'),
             text2: langInfo?.nativeName,
             visibilityTime: 2000,
         });
@@ -190,10 +199,7 @@ export default function LanguageSettingsScreen() {
                         color={theme.colors.primary}
                     />
                     <Text style={styles.sectionTitle}>
-                        {selectedLang === 'vi'
-                            ? 'Chọn ngôn ngữ hiển thị'
-                            : 'Select display language'
-                        }
+                        {getText('Chọn ngôn ngữ hiển thị', 'Select display language', 'ເລືອກພາສາສະແດງຜົນ')}
                     </Text>
                 </View>
 
@@ -217,17 +223,18 @@ export default function LanguageSettingsScreen() {
                         color={theme.colors.typographySecondary}
                     />
                     <Text style={styles.footerNoteText}>
-                        {selectedLang === 'vi'
-                            ? 'Nhấn nút "Áp dụng" bên dưới để thay đổi ngôn ngữ cho toàn bộ ứng dụng.'
-                            : 'Press the "Apply" button below to change the language for the entire app.'
-                        }
+                        {getText(
+                            'Nhấn nút "Áp dụng" bên dưới để thay đổi ngôn ngữ cho toàn bộ ứng dụng.',
+                            'Press the "Apply" button below to change the language for the entire app.',
+                            'ກົດປຸ່ມ "ນຳໃຊ້" ຂ້າງລຸ່ມນີ້ເພື່ອປ່ຽນພາສາສຳລັບແອັບທັງໝົດ.'
+                        )}
                     </Text>
                 </View>
 
                 {/* Current Language Info (ReadOnly) */}
                 <View style={styles.currentBadge}>
                     <Text style={styles.currentBadgeLabel}>
-                        {selectedLang === 'vi' ? 'Đang hoạt động:' : 'Currently active:'}
+                        {getText('Đang hoạt động:', 'Currently active:', 'ກຳລັງໃຊ້ງານ:')}
                     </Text>
                     <View style={styles.currentBadgeValue}>
                         <Text style={styles.currentBadgeFlag}>
@@ -257,7 +264,7 @@ export default function LanguageSettingsScreen() {
                         color={theme.colors.onPrimary}
                     />
                     <Text style={styles.applyButtonText}>
-                        {selectedLang === 'vi' ? 'Áp dụng thay đổi' : 'Apply Changes'}
+                        {getText('Áp dụng thay đổi', 'Apply Changes', 'ນຳໃຊ້ການປ່ຽນແປງ')}
                     </Text>
                 </TouchableOpacity>
             </View>

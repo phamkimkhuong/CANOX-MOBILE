@@ -9,13 +9,13 @@
 import * as Localization from 'expo-localization';
 
 /** Supported languages in the app */
-export type SupportedLanguage = 'vi' | 'en';
+export type SupportedLanguage = 'vi' | 'en' | 'lo';
 
 /** Default fallback language */
 export const DEFAULT_LANGUAGE: SupportedLanguage = 'en';
 
 /** List of supported language codes */
-export const SUPPORTED_LANGUAGES: SupportedLanguage[] = ['vi', 'en'];
+export const SUPPORTED_LANGUAGES: SupportedLanguage[] = ['vi', 'en', 'lo'];
 
 /**
  * Get device language and map to supported language.

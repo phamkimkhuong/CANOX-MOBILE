@@ -24,6 +24,28 @@ import { VIDEO_STRINGS as videoEn } from './en/video';
 import { VOUCHER_STRINGS as voucherEn } from './en/voucher';
 import { WISHLIST_STRINGS as wishlistEn } from './en/wishlist';
 
+// Import resources - LO
+import { ADDRESS_STRINGS as addressLo } from './lo/address';
+import { AUTH_STRINGS as authLo } from './lo/auth';
+import { BANK_STRINGS as bankLo } from './lo/bank';
+import { CART_STRINGS as cartLo } from './lo/cart';
+import { CATEGORY_STRINGS as categoryLo } from './lo/category';
+import { CHAT_STRINGS as chatLo } from './lo/chat';
+import { CHECKOUT_STRINGS as checkoutLo } from './lo/checkout';
+import { COMMON_STRINGS as commonLo } from './lo/common';
+import { HOME_STRINGS as homeLo } from './lo/home';
+import { LOYALTY_STRINGS as loyaltyLo } from './lo/loyalty';
+import { myReviews as myReviewsLo } from './lo/myReviews';
+import { NOTIFICATION_STRINGS as notificationLo } from './lo/notification';
+import { ORDER_STRINGS as orderLo } from './lo/order';
+import { PRODUCT_STRINGS as productLo } from './lo/product';
+import { PROFILE_STRINGS as profileLo } from './lo/profile';
+import { SEARCH_STRINGS as searchLo } from './lo/search';
+import { SHOP_STRINGS as shopLo } from './lo/shop';
+import { VIDEO_STRINGS as videoLo } from './lo/video';
+import { VOUCHER_STRINGS as voucherLo } from './lo/voucher';
+import { WISHLIST_STRINGS as wishlistLo } from './lo/wishlist';
+
 // Import resources - VI
 import { ADDRESS_STRINGS as addressVi } from './vi/address';
 import { AUTH_STRINGS as authVi } from './vi/auth';
@@ -90,6 +112,28 @@ const resources = {
         wishlist: wishlistEn,
         shop: shopEn,
         loyalty: loyaltyEn,
+    },
+    lo: {
+        common: commonLo,
+        auth: authLo,
+        product: productLo,
+        voucher: voucherLo,
+        cart: cartLo,
+        order: orderLo,
+        chat: chatLo,
+        profile: profileLo,
+        home: homeLo,
+        category: categoryLo,
+        search: searchLo,
+        notification: notificationLo,
+        checkout: checkoutLo,
+        myReviews: myReviewsLo,
+        bank: bankLo,
+        address: addressLo,
+        video: videoLo,
+        wishlist: wishlistLo,
+        shop: shopLo,
+        loyalty: loyaltyLo,
     },
 } as const;
 

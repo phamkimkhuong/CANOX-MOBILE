@@ -136,7 +136,9 @@ export default function SettingsScreen() {
             case 'app-version':
                 return `v${currentVersion}`;
             case 'language':
-                return i18n.language?.startsWith('vi') ? 'Tiếng Việt' : 'English';
+                if (i18n.language?.startsWith('vi')) return 'Tiếng Việt';
+                if (i18n.language?.startsWith('lo')) return 'ພາສາລາວ';
+                return 'English';
             default:
                 if (item.type === 'toggle' && item.storeKey) {
                     return darkModeEnabled;
