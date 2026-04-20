@@ -150,7 +150,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     item: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 16,
+        paddingVertical: 12,
         paddingHorizontal: 20,
         borderBottomWidth: 1,
         borderBottomColor: theme.colors.border,

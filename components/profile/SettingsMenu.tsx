@@ -129,7 +129,7 @@ SettingsMenu.displayName = 'SettingsMenu';
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
         marginHorizontal: theme.margins.md,
-        gap: theme.margins.md,
+        // gap: theme.margins.md,
     },
     groupTitle: {
         fontSize: 13,
@@ -151,12 +151,12 @@ const stylesheet = StyleSheet.create((theme) => ({
         elevation: 3,
     },
     groupLast: {
-        marginBottom: 100, // Space for tab bar
+        marginBottom: 20, // Space for tab bar
     },
     menuItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 16,
+        paddingVertical: 12,
         paddingHorizontal: 20,
         borderBottomWidth: 1,
         borderBottomColor: theme.colors.border,
