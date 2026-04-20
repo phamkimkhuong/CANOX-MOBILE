@@ -95,14 +95,6 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
                 route: ROUTES.SETTINGS.CHANGE_PASSWORD,
             },
             {
-                id: 'linked-accounts',
-                type: 'link',
-                label: 'Tài khoản liên kết',
-                icon: 'link',
-                iconColor: 'purple',
-                route: ROUTES.SETTINGS.LINKED_ACCOUNTS,
-            },
-            {
                 id: 'support',
                 type: 'link',
                 label: 'Trung tâm hỗ trợ',
