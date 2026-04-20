@@ -46,6 +46,28 @@ import { VIDEO_STRINGS as videoLo } from './lo/video';
 import { VOUCHER_STRINGS as voucherLo } from './lo/voucher';
 import { WISHLIST_STRINGS as wishlistLo } from './lo/wishlist';
 
+// Import resources - KM
+import { ADDRESS_STRINGS as addressKm } from './km/address';
+import { AUTH_STRINGS as authKm } from './km/auth';
+import { BANK_STRINGS as bankKm } from './km/bank';
+import { CART_STRINGS as cartKm } from './km/cart';
+import { CATEGORY_STRINGS as categoryKm } from './km/category';
+import { CHAT_STRINGS as chatKm } from './km/chat';
+import { CHECKOUT_STRINGS as checkoutKm } from './km/checkout';
+import { COMMON_STRINGS as commonKm } from './km/common';
+import { HOME_STRINGS as homeKm } from './km/home';
+import { LOYALTY_STRINGS as loyaltyKm } from './km/loyalty';
+import { myReviews as myReviewsKm } from './km/myReviews';
+import { NOTIFICATION_STRINGS as notificationKm } from './km/notification';
+import { ORDER_STRINGS as orderKm } from './km/order';
+import { PRODUCT_STRINGS as productKm } from './km/product';
+import { PROFILE_STRINGS as profileKm } from './km/profile';
+import { SEARCH_STRINGS as searchKm } from './km/search';
+import { SHOP_STRINGS as shopKm } from './km/shop';
+import { VIDEO_STRINGS as videoKm } from './km/video';
+import { VOUCHER_STRINGS as voucherKm } from './km/voucher';
+import { WISHLIST_STRINGS as wishlistKm } from './km/wishlist';
+
 // Import resources - VI
 import { ADDRESS_STRINGS as addressVi } from './vi/address';
 import { AUTH_STRINGS as authVi } from './vi/auth';
@@ -134,6 +156,28 @@ const resources = {
         wishlist: wishlistLo,
         shop: shopLo,
         loyalty: loyaltyLo,
+    },
+    km: {
+        common: commonKm,
+        auth: authKm,
+        product: productKm,
+        voucher: voucherKm,
+        cart: cartKm,
+        order: orderKm,
+        chat: chatKm,
+        profile: profileKm,
+        home: homeKm,
+        category: categoryKm,
+        search: searchKm,
+        notification: notificationKm,
+        checkout: checkoutKm,
+        myReviews: myReviewsKm,
+        bank: bankKm,
+        address: addressKm,
+        video: videoKm,
+        wishlist: wishlistKm,
+        shop: shopKm,
+        loyalty: loyaltyKm,
     },
 } as const;
 

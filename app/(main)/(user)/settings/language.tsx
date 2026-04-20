@@ -53,6 +53,12 @@ const LANGUAGE_OPTIONS: LanguageOption[] = [
         englishName: 'Lao',
         flag: '🇱🇦',
     },
+    {
+        code: 'km',
+        nativeName: 'ភាសាខ្មែរ',
+        englishName: 'Khmer',
+        flag: '🇰🇭',
+    },
 ];
 
 // ============================================
@@ -146,11 +152,11 @@ export default function LanguageSettingsScreen() {
     // Checks if there are unsaved changes
     const hasChanges = selectedLang !== currentLanguage;
 
-    // Memoized header title (trilingual)
-    const headerTitle = useMemo(() => 'Ngôn ngữ / Language / ພາສາ', []);
+    // Memoized header title (quadlingual)
+    const headerTitle = useMemo(() => 'Ngôn ngữ / Language / ພາສາ / ភាសា', []);
 
     // Helper text
-    const getText = (vi: string, en: string, lo: string) => selectedLang === 'vi' ? vi : selectedLang === 'lo' ? lo : en;
+    const getText = (vi: string, en: string, lo: string, km: string) => selectedLang === 'vi' ? vi : selectedLang === 'lo' ? lo : selectedLang === 'km' ? km : en;
 
     /**
      * Handle apply changes
@@ -170,7 +176,7 @@ export default function LanguageSettingsScreen() {
 
         Toast.show({
             type: 'success',
-            text1: getText('Đã cập nhật ngôn ngữ', 'Language updated', 'ອັບເດດພາສາແລ້ວ'),
+            text1: getText('Đã cập nhật ngôn ngữ', 'Language updated', 'ອັບເດດພາສາແລ້ວ', 'បានធ្វើបច្ចុប្បន្នភាពភាសា'),
             text2: langInfo?.nativeName,
             visibilityTime: 2000,
         });
@@ -199,7 +205,7 @@ export default function LanguageSettingsScreen() {
                         color={theme.colors.primary}
                     />
                     <Text style={styles.sectionTitle}>
-                        {getText('Chọn ngôn ngữ hiển thị', 'Select display language', 'ເລືອກພາສາສະແດງຜົນ')}
+                        {getText('Chọn ngôn ngữ hiển thị', 'Select display language', 'ເລືອກພາສາສະແດງຜົນ', 'ជ្រើសរើសភាសាបង្ហាញ')}
                     </Text>
                 </View>
 
@@ -226,7 +232,8 @@ export default function LanguageSettingsScreen() {
                         {getText(
                             'Nhấn nút "Áp dụng" bên dưới để thay đổi ngôn ngữ cho toàn bộ ứng dụng.',
                             'Press the "Apply" button below to change the language for the entire app.',
-                            'ກົດປຸ່ມ "ນຳໃຊ້" ຂ້າງລຸ່ມນີ້ເພື່ອປ່ຽນພາສາສຳລັບແອັບທັງໝົດ.'
+                            'ກົດປຸ່ມ "ນຳໃຊ້" ຂ້າງລຸ່ມນີ້ເພື່ອປ່ຽນພາສາສຳລັບແອັບທັງໝົດ.',
+                            'ចុចប៊ូតុង "អនុវត្ត" ខាងក្រោមដើម្បីផ្លាស់ប្តូរភាសាសម្រាប់កម្មវិធីទាំងមូល។'
                         )}
                     </Text>
                 </View>
@@ -234,7 +241,7 @@ export default function LanguageSettingsScreen() {
                 {/* Current Language Info (ReadOnly) */}
                 <View style={styles.currentBadge}>
                     <Text style={styles.currentBadgeLabel}>
-                        {getText('Đang hoạt động:', 'Currently active:', 'ກຳລັງໃຊ້ງານ:')}
+                        {getText('Đang hoạt động:', 'Currently active:', 'ກຳລັງໃຊ້ງານ:', 'កំពុងសកម្ម:')}
                     </Text>
                     <View style={styles.currentBadgeValue}>
                         <Text style={styles.currentBadgeFlag}>
@@ -264,7 +271,7 @@ export default function LanguageSettingsScreen() {
                         color={theme.colors.onPrimary}
                     />
                     <Text style={styles.applyButtonText}>
-                        {getText('Áp dụng thay đổi', 'Apply Changes', 'ນຳໃຊ້ການປ່ຽນແປງ')}
+                        {getText('Áp dụng thay đổi', 'Apply Changes', 'ນຳໃຊ້ການປ່ຽນແປງ', 'អនុវត្តការផ្លាស់ប្តូរ')}
                     </Text>
                 </TouchableOpacity>
             </View>

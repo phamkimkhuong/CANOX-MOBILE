@@ -138,6 +138,7 @@ export default function SettingsScreen() {
             case 'language':
                 if (i18n.language?.startsWith('vi')) return 'Tiếng Việt';
                 if (i18n.language?.startsWith('lo')) return 'ພາສາລາວ';
+                if (i18n.language?.startsWith('km')) return 'ភាសាខ្មែរ';
                 return 'English';
             default:
                 if (item.type === 'toggle' && item.storeKey) {
