@@ -204,7 +204,7 @@ export const EditWishlistItemSheet = forwardRef<
                 {/* Header */}
                 <View style={styles.header}>
                     <View style={styles.headerIconWrap}>
-                        <IconSymbol name="edit" size={18} color="#fff" />
+                        <IconSymbol name="edit" size={18} color={theme.colors.newPrimary} />
                     </View>
                     <View style={styles.headerTextWrap}>
                         <Text style={styles.headerTitle}>{t('editItem.title')}</Text>
@@ -214,9 +214,9 @@ export const EditWishlistItemSheet = forwardRef<
                     </View>
                 </View>
 
-                {/* Current Price Info */}
+                {/* Current Price Info — Read-only Banner */}
                 {data && (
-                    <View style={styles.currentPriceRow}>
+                    <View style={styles.currentPriceBanner}>
                         <Text style={styles.currentPriceLabel}>{t('editItem.currentPriceLabel')}</Text>
                         <Text style={styles.currentPriceValue}>
                             {formatCurrency(data.currentPrice)}
@@ -230,9 +230,9 @@ export const EditWishlistItemSheet = forwardRef<
                     <View style={styles.priceInputRow}>
                         <View style={styles.priceInputWrap}>
                             <IconSymbol
-                                name="flag"
+                                name="pricetag"
                                 size={16}
-                                color={theme.colors.accent}
+                                color={theme.colors.newPrimary}
                                 style={styles.priceIcon}
                             />
                             <BottomSheetTextInput
@@ -469,7 +469,7 @@ const sheetStyles = StyleSheet.create((theme) => ({
         width: 36,
         height: 36,
         borderRadius: 18,
-        backgroundColor: theme.colors.newPrimary,
+        backgroundColor: theme.colors.redSoft,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -488,16 +488,12 @@ const sheetStyles = StyleSheet.create((theme) => ({
         marginTop: 1,
     },
 
-    // Current price info
-    currentPriceRow: {
+    // Current price — read-only Info Banner (NOT an input)
+    currentPriceBanner: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: theme.margins.sm,
-        paddingVertical: theme.margins.smd,
-        paddingHorizontal: theme.margins.smd,
-        backgroundColor: theme.colors.backgroundNewInput,
-        borderRadius: theme.radius.m,
-        marginBottom: theme.margins.lg,
+        marginBottom: theme.margins.md,
     },
     currentPriceLabel: {
         fontSize: 13,
@@ -505,9 +501,9 @@ const sheetStyles = StyleSheet.create((theme) => ({
         fontWeight: '500',
     },
     currentPriceValue: {
-        fontSize: 15,
-        fontWeight: '700',
-        color: theme.colors.error,
+        fontSize: 16,
+        fontWeight: '800',
+        color: theme.colors.newPrimary,
     },
 
     // Input sections
@@ -551,7 +547,7 @@ const sheetStyles = StyleSheet.create((theme) => ({
     },
     priceHint: {
         fontSize: 12,
-        color: theme.colors.accent,
+        color: theme.colors.forestGreen,
         fontWeight: '500',
         marginTop: theme.margins.xs,
         marginLeft: theme.margins.xs,
@@ -600,7 +596,6 @@ const sheetStyles = StyleSheet.create((theme) => ({
         fontSize: 11,
         color: theme.colors.typographySecondary,
         textAlign: 'right',
-        marginTop: theme.margins.xs,
     },
 
     // Priority
@@ -611,10 +606,10 @@ const sheetStyles = StyleSheet.create((theme) => ({
     priorityCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
-        padding: 12,
+        gap: 7,
+        padding: 4,
         borderRadius: theme.radius.m,
-        borderWidth: 1.5,
+        borderWidth: 0.5,
         borderColor: theme.colors.border,
         backgroundColor: theme.colors.surface,
     },
@@ -624,7 +619,7 @@ const sheetStyles = StyleSheet.create((theme) => ({
     },
     priorityCardUrgentActive: {
         borderColor: theme.colors.error,
-        backgroundColor: theme.colors.errorLight,
+        backgroundColor: theme.colors.errorSubtle,
     },
     priorityContent: {
         flex: 1,
@@ -643,11 +638,10 @@ const sheetStyles = StyleSheet.create((theme) => ({
     priorityDesc: {
         fontSize: 11,
         color: theme.colors.typographySecondary,
-        marginTop: 2,
     },
 
+    // Wishlist Chips
     wishlistList: {
-        paddingVertical: 4,
         gap: 8,
     },
     flex1: {
@@ -655,25 +649,24 @@ const sheetStyles = StyleSheet.create((theme) => ({
     },
     wlChip: {
         paddingHorizontal: theme.margins.md,
-        paddingVertical: 8,
-        borderRadius: 20,
-        backgroundColor: theme.colors.backgroundNewInput,
-        borderWidth: 1,
+        paddingVertical: 6,
+        borderRadius: 18,
+        backgroundColor: theme.colors.surface,
+        borderWidth: 0.5,
         borderColor: theme.colors.border,
-        marginRight: theme.margins.sm,
     },
     wlChipActive: {
-        backgroundColor: theme.colors.newPrimary,
+        backgroundColor: theme.colors.redSoft,
         borderColor: theme.colors.newPrimary,
     },
     wlChipText: {
         fontSize: 13,
         fontWeight: '500',
-        color: theme.colors.typographySecondary,
+        color: theme.colors.typography,
     },
     wlChipTextActive: {
-        color: theme.colors.onPrimary,
-        fontWeight: '700',
+        color: theme.colors.newPrimary,
+        fontWeight: '600',
     },
 
     // Actions
@@ -685,7 +678,6 @@ const sheetStyles = StyleSheet.create((theme) => ({
     },
     cancelButton: {
         flex: 1,
-        paddingVertical: theme.margins.smd,
         borderRadius: theme.radius.m,
         borderWidth: 1,
         borderColor: theme.colors.border,

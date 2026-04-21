@@ -49,7 +49,7 @@ export const WishlistCollectionChips: React.FC<WishlistCollectionChipsProps> = (
                     <IconSymbol
                         name="star"
                         size={14}
-                        color={isActive ? '#fff' : theme.colors.warning}
+                        color={isActive ? theme.colors.surface : theme.colors.warning}
                     />
                 )}
 
@@ -107,7 +107,7 @@ export const WishlistCollectionChips: React.FC<WishlistCollectionChipsProps> = (
                         style={styles.createChip}
                         onPress={onCreate}
                     >
-                        <IconSymbol name="add" size={16} color={theme.colors.newPrimary} />
+                        <IconSymbol name="add" size={16} color={theme.colors.typographySecondary} />
                         <Text style={styles.createText}>{t('create.newButton')}</Text>
                     </Pressable>
                 </>
@@ -136,7 +136,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         maxWidth: 150,
     },
     chipActive: {
-        backgroundColor: theme.colors.newPrimary,
+        backgroundColor: theme.colors.redSoft,
         borderColor: theme.colors.newPrimary,
     },
     chipText: {
@@ -145,7 +145,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.typography,
     },
     chipTextActive: {
-        color: '#fff',
+        color: theme.colors.newPrimary,
         fontWeight: '600',
     },
     countBadge: {
@@ -158,7 +158,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         paddingHorizontal: 4,
     },
     countBadgeActive: {
-        backgroundColor: 'rgba(255,255,255,0.25)',
+        backgroundColor: theme.colors.newPrimary,
     },
     countText: {
         fontSize: 11,
@@ -166,7 +166,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.typographySecondary,
     },
     countTextActive: {
-        color: '#fff',
+        color: theme.colors.surface,
     },
     createChip: {
         flexDirection: 'row',
@@ -175,14 +175,15 @@ const stylesheet = StyleSheet.create((theme) => ({
         paddingVertical: 8,
         borderRadius: 20,
         borderWidth: 1,
-        borderColor: theme.colors.newPrimary,
+        borderColor: theme.colors.border,
         borderStyle: 'dashed',
+        backgroundColor: theme.colors.backgroundSurface,
         gap: 4,
     },
     createText: {
         fontSize: 13,
         fontWeight: '500',
-        color: theme.colors.newPrimary,
+        color: theme.colors.typographySecondary,
     },
     chipSkeleton: {
         width: 90,

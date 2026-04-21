@@ -170,6 +170,7 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     'location-outline': { ios: 'location-outline', android: 'location-outline' },
     sparkles: { ios: 'sparkles-outline', android: 'sparkles-outline' },
     edit: { ios: 'create-outline', android: 'create-outline' },
+    'edit-note': { ios: 'create-outline', android: 'create-outline' },
     gender: { ios: 'male-female-outline', android: 'male-female-outline' },
     transgender: { ios: 'transgender-outline', android: 'transgender-outline' },
     'location-on': { ios: 'location-outline', android: 'location-outline' },
@@ -209,6 +210,7 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     'bookmark-outline': { ios: 'bookmark-outline', android: 'bookmark-outline' },
     trophy: { ios: 'trophy', android: 'trophy' },
     flag: { ios: 'flag-outline', android: 'flag-outline' },
+    pricetag: { ios: 'pricetag-outline', android: 'pricetag-outline' },
     collections: { ios: 'albums-outline', android: 'albums-outline' },
 
     // === SF Symbols Aliases (for cross-platform compatibility) ===

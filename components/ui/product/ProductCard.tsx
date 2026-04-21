@@ -120,6 +120,7 @@ export const ProductCard = React.memo(({
                         {priority === 2 && (
                             <View style={styles.urgentBadge}>
                                 <IconSymbol name="fire" size={10} color="#fff" />
+                                <Text style={styles.urgentBadgeText}>{t('badges.urgent', { defaultValue: 'GẤP' })}</Text>
                             </View>
                         )}
 
@@ -197,11 +198,16 @@ export const ProductCard = React.memo(({
                             </View>
                         ) : null}
 
-                        {/* Badge (e.g. "Đã giảm giá!") */}
+                        {/* Badge (e.g. "Đã đạt giá!") */}
                         {badgeText && (
                             <View style={[styles.infoBadge, badgeColor ? { backgroundColor: badgeColor } : undefined]}>
-                                <IconSymbol name="check-circle" size={11} color="#16a34a" />
-                                <Text style={[styles.infoBadgeText, badgeColor === '#dcfce7' ? undefined : styles.badgeTextWhite]}>{badgeText}</Text>
+                                <IconSymbol name="check-circle" size={11} color={theme.colors.forestGreen} />
+                                <Text style={[
+                                    styles.infoBadgeText, 
+                                    badgeColor && badgeColor !== theme.colors.successSoft ? styles.badgeTextWhite : undefined
+                                ]}>
+                                    {badgeText}
+                                </Text>
                             </View>
                         )}
 
@@ -225,7 +231,7 @@ export const ProductCard = React.memo(({
                         {/* Note Indicator (wishlist context) */}
                         {hasNotes && (
                             <View style={styles.noteIndicator}>
-                                <IconSymbol name="note" size={10} color={theme.colors.typographySecondary} />
+                                <IconSymbol name="edit-note" size={12} color={theme.colors.info} />
                                 <Text style={styles.noteIndicatorText}>{t('wishlist.hasNotes')}</Text>
                             </View>
                         )}
@@ -407,17 +413,17 @@ const stylesheet = StyleSheet.create((theme) => ({
         alignSelf: 'flex-start',
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 3,
+        gap: 4,
         paddingHorizontal: 6,
         paddingVertical: 3,
         borderRadius: 4,
-        backgroundColor: '#dcfce7',
+        backgroundColor: theme.colors.successSoft,
         marginTop: 4,
     },
     infoBadgeText: {
         fontSize: 10,
         fontWeight: '600',
-        color: '#16a34a',
+        color: theme.colors.forestGreen,
     },
     badgeTextWhite: {
         color: '#fff',
@@ -449,27 +455,30 @@ const stylesheet = StyleSheet.create((theme) => ({
         position: 'absolute',
         bottom: 8,
         right: 8,
-        width: 24,
-        height: 24,
-        borderRadius: 12,
-        backgroundColor: theme.colors.error,
-        justifyContent: 'center',
+        flexDirection: 'row',
         alignItems: 'center',
+        gap: 2,
+        paddingHorizontal: 6,
+        paddingVertical: 3,
+        borderRadius: 4,
+        backgroundColor: theme.colors.sunsetOrange,
         zIndex: 2,
-        borderWidth: 1.5,
-        borderColor: 'rgba(255,255,255,0.6)',
+    },
+    urgentBadgeText: {
+        fontSize: 9,
+        fontWeight: '700',
+        color: '#FFF',
+        textTransform: 'uppercase',
     },
     noteIndicator: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 3,
-        marginTop: 3,
-        opacity: 0.6,
+        gap: 4,
+        marginTop: 4,
     },
     noteIndicatorText: {
-        fontSize: 10,
+        fontSize: 11,
         fontWeight: '500',
         color: theme.colors.typographySecondary,
-        fontStyle: 'italic',
     },
 }));

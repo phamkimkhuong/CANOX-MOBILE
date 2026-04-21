@@ -27,7 +27,8 @@ import { IconSymbol } from '../ui/Icon';
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const COLUMN_GAP = 8;
 const HORIZONTAL_PADDING = 12;
-const CARD_WIDTH = (SCREEN_WIDTH - HORIZONTAL_PADDING * 2 - COLUMN_GAP) / 2;
+const COLUMN_AVAILABLE_WIDTH = (SCREEN_WIDTH - HORIZONTAL_PADDING * 2) / 2;
+const ACTUAL_CARD_WIDTH = COLUMN_AVAILABLE_WIDTH - COLUMN_GAP;
 
 interface WishlistProductGridProps {
     items: WishlistItemUI[];
@@ -49,19 +50,33 @@ const GridSkeleton: React.FC = () => {
 
     return (
         <View style={styles.skeletonGrid}>
-            {Array.from({ length: 4 }).map((_, i) => (
-                <View key={i} style={styles.skeletonCard}>
+            {Array.from({ length: 8 }).map((_, i) => (
+                <View key={i} style={styles.skeletonCardWrapper}>
                     <SkeletonBox
-                        width={CARD_WIDTH}
-                        height={CARD_WIDTH}
+                        width="100%"
+                        height={ACTUAL_CARD_WIDTH}
                         borderRadius={12}
                         animatedStyle={shimmerStyle}
                     />
                     <View style={styles.skeletonContent}>
                         <SkeletonBox
                             width="100%"
-                            height={40}
-                            borderRadius={8}
+                            height={14}
+                            borderRadius={4}
+                            animatedStyle={shimmerStyle}
+                        />
+                        <View style={styles.skeletonMargin6} />
+                        <SkeletonBox
+                            width="70%"
+                            height={14}
+                            borderRadius={4}
+                            animatedStyle={shimmerStyle}
+                        />
+                        <View style={styles.skeletonMargin8} />
+                        <SkeletonBox
+                            width="50%"
+                            height={18}
+                            borderRadius={4}
                             animatedStyle={shimmerStyle}
                         />
                     </View>
@@ -235,11 +250,11 @@ const stylesheet = StyleSheet.create((theme) => ({
         flexDirection: 'row',
         flexWrap: 'wrap',
         paddingHorizontal: HORIZONTAL_PADDING,
-        gap: COLUMN_GAP,
         paddingTop: theme.margins.sm,
     },
-    skeletonCard: {
-        width: CARD_WIDTH,
+    skeletonCardWrapper: {
+        width: COLUMN_AVAILABLE_WIDTH,
+        padding: COLUMN_GAP / 2,
         marginBottom: theme.margins.md,
     },
     skeletonContent: {
