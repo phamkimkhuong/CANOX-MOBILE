@@ -106,5 +106,6 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
         manageButton: 'Manage Collections',
         successMessage: 'Congratulations! {{totalItems}} items have reached your target price!',
         deepDiscountBadge: 'DEEP DISCT',
+        buyNow: 'BUY NOW',
     },
 };

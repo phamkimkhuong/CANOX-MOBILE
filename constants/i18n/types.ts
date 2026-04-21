@@ -2034,6 +2034,7 @@ export interface WishlistTranslation {
         manageButton: string;
         successMessage: string;
         deepDiscountBadge: string;
+        buyNow: string;
     };
 }
 

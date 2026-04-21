@@ -624,7 +624,7 @@ const sheetStyles = StyleSheet.create((theme) => ({
     },
     priorityCardUrgentActive: {
         borderColor: theme.colors.error,
-        backgroundColor: '#FFF5F5',
+        backgroundColor: theme.colors.errorLight,
     },
     priorityContent: {
         flex: 1,
@@ -672,7 +672,7 @@ const sheetStyles = StyleSheet.create((theme) => ({
         color: theme.colors.typographySecondary,
     },
     wlChipTextActive: {
-        color: '#fff',
+        color: theme.colors.onPrimary,
         fontWeight: '700',
     },
 
@@ -713,6 +713,6 @@ const sheetStyles = StyleSheet.create((theme) => ({
     submitText: {
         fontSize: 14,
         fontWeight: '700',
-        color: '#fff',
+        color: theme.colors.onPrimary,
     },
 }));

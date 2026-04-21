@@ -106,5 +106,6 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
         manageButton: 'គ្រប់គ្រងបណ្តុំ',
         successMessage: 'អបអរសាទរ! ទំនិញចំនួន {{totalItems}} បានឈានដល់តម្លៃគោលដៅរបស់អ្នក!',
         deepDiscountBadge: 'បញ្ចុះតម្លៃខ្លាំង',
+        buyNow: 'ទិញឥឡូវ',
     },
 };

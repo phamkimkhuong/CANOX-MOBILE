@@ -106,5 +106,6 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
         manageButton: 'Quản lý bộ sưu tập',
         successMessage: 'Chúc mừng! Có {{totalItems}} sản phẩm đã về đúng giá bạn mơ ước!',
         deepDiscountBadge: 'GIẢM SÂU',
+        buyNow: 'MUA NGAY',
     }
 };

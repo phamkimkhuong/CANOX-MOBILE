@@ -7,9 +7,9 @@ import { formatCurrency } from '@/utils/format';
 import { Navigator } from '@/utils/navigation';
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Image } from 'expo-image';
 import {
     ActivityIndicator,
-    Image,
     Pressable,
     RefreshControl,
     ScrollView,
@@ -85,7 +85,7 @@ export const PriceTargetTab: React.FC<PriceTargetTabProps> = ({ onSwitchToPrivat
         >
             <View style={styles.headerBox}>
                 <View style={styles.headerBoxContent}>
-                    <IconSymbol name="celebration" size={20} color={theme.colors.newPrimary} />
+                    <IconSymbol name="celebration" size={20} color={theme.colors.success} />
                     <Text style={styles.headerBoxText}>
                         {t('priceTargetTab.successMessage', { totalItems })}
                     </Text>
@@ -109,7 +109,8 @@ export const PriceTargetTab: React.FC<PriceTargetTabProps> = ({ onSwitchToPrivat
                                 <Image
                                     source={{ uri: item.imageUrl ?? undefined }}
                                     style={styles.image}
-                                    resizeMode="cover"
+                                    contentFit="cover"
+                                    transition={200}
                                 />
                                 <View style={styles.tagDeepDiscount}>
                                     <Text style={styles.tagText}>{t('priceTargetTab.deepDiscountBadge')}</Text>
@@ -136,8 +137,8 @@ export const PriceTargetTab: React.FC<PriceTargetTabProps> = ({ onSwitchToPrivat
                                     style={styles.buyButton}
                                     onPress={() => handleBuyNow(item)}
                                 >
-                                    <Text style={styles.buyButtonText}>MUA NGAY</Text>
-                                    <IconSymbol name="shopping-cart" size={12} color="#fff" />
+                                    <Text style={styles.buyButtonText}>{t('priceTargetTab.buyNow')}</Text>
+                                    <IconSymbol name="shopping-cart" size={12} color={theme.colors.onAccent} />
                                 </Pressable>
                             </View>
                         </Pressable>
@@ -190,17 +191,17 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderRadius: 24,
     },
     emptyButtonText: {
-        color: '#fff',
+        color: theme.colors.onPrimary,
         fontSize: 14,
         fontWeight: '600',
     },
     headerBox: {
-        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+        backgroundColor: theme.colors.successSoft,
         padding: theme.margins.md,
         borderRadius: 12,
         marginBottom: theme.margins.md,
         borderWidth: 1,
-        borderColor: 'rgba(239, 68, 68, 0.2)',
+        borderColor: theme.colors.successLight,
     },
     headerBoxContent: {
         flexDirection: 'row',
@@ -209,7 +210,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         gap: 6,
     },
     headerBoxText: {
-        color: theme.colors.newPrimary,
+        color: theme.colors.forestGreen,
         fontSize: 14,
         fontWeight: '600',
         flexShrink: 1,
@@ -256,13 +257,13 @@ const stylesheet = StyleSheet.create((theme) => ({
         position: 'absolute',
         top: 0,
         left: 0,
-        backgroundColor: theme.colors.newPrimary,
+        backgroundColor: theme.colors.accent,
         paddingHorizontal: 6,
         paddingVertical: 4,
         borderBottomRightRadius: 8,
     },
     tagText: {
-        color: '#fff',
+        color: theme.colors.onAccent,
         fontSize: 10,
         fontWeight: 'bold',
     },
@@ -287,13 +288,13 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     targetPriceBox: {
         alignSelf: 'flex-start',
-        backgroundColor: 'rgba(34, 197, 94, 0.15)',
+        backgroundColor: theme.colors.successSoft,
         paddingHorizontal: 6,
         paddingVertical: 4,
         borderRadius: 4,
     },
     targetPriceText: {
-        color: '#15803d',
+        color: theme.colors.forestGreen,
         fontWeight: '600',
         fontSize: 11,
     },
@@ -302,7 +303,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         alignItems: 'center',
         justifyContent: 'center',
         gap: 6,
-        backgroundColor: theme.colors.newPrimary,
+        backgroundColor: theme.colors.accent,
         paddingVertical: 8,
         paddingHorizontal: 16,
         borderRadius: 20,
@@ -311,7 +312,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         alignSelf: 'flex-end',
     },
     buyButtonText: {
-        color: '#fff',
+        color: theme.colors.onAccent,
         fontSize: 12,
         fontWeight: '700',
     },

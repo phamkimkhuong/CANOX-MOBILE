@@ -123,7 +123,7 @@ const snackbarStyles = StyleSheet.create((theme) => ({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        backgroundColor: '#323232',
+        backgroundColor: theme.colors.inkBlack,
         paddingHorizontal: theme.margins.md,
         paddingVertical: theme.margins.smd,
         borderRadius: theme.radius.l,
@@ -153,7 +153,7 @@ const snackbarStyles = StyleSheet.create((theme) => ({
     undoText: {
         fontSize: 14,
         fontWeight: '700',
-        color: '#FFA726',
+        color: theme.colors.accent,
         textTransform: 'uppercase',
         letterSpacing: 0.5,
     },

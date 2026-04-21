@@ -116,7 +116,7 @@ export const WishlistProductGrid: React.FC<WishlistProductGridProps> = ({
         const imageUrl = item.imageUrl || toPublicUrl(null) || '';
         // Determine badge text for price target status
         const badgeText = item.isPriceTargetMet ? t('targetPriceMet') : undefined;
-        const badgeColor = item.isPriceTargetMet ? '#dcfce7' : undefined;
+        const badgeColor = item.isPriceTargetMet ? theme.colors.successSoft : undefined;
         // Determine if notes exist (non-null, non-empty)
         const hasNotes = !!item.notes && item.notes.trim().length > 0;
 

@@ -106,5 +106,6 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
         manageButton: 'ຈັດການຄໍເລັກຊັນ',
         successMessage: 'ຍິນດີນຳ! {{totalItems}} ລາຍການຮອດລາຄາເປົ້າໝາຍແລ້ວ!',
         deepDiscountBadge: 'ຫຼຸດລາຄາແຮງ',
+        buyNow: 'ຊື້ດຽວນີ້',
     },
 };

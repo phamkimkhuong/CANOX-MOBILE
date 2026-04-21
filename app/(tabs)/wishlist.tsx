@@ -45,7 +45,7 @@ export default function WishlistTabsScreen() {
         <View style={styles.container}>
             {/* Header */}
             <LinearGradient
-                colors={[theme.colors.newPrimary, '#FF512F']}
+                colors={[theme.colors.newPrimary, theme.colors.vibrantRed]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={[styles.header, { paddingTop: insets.top }]}
@@ -54,8 +54,8 @@ export default function WishlistTabsScreen() {
                     <Text style={styles.title}>{t('title', { defaultValue: 'Yêu thích' })}</Text>
 
                     <View style={styles.actions}>
-                        <CartHeaderButton color="#FFFFFF" badgeBorderColor={theme.colors.newPrimary} />
-                        <ChatHeaderButton color="#FFFFFF" badgeBorderColor={theme.colors.newPrimary} />
+                        <CartHeaderButton color={theme.colors.onPrimary} badgeBorderColor={theme.colors.newPrimary} />
+                        <ChatHeaderButton color={theme.colors.onPrimary} badgeBorderColor={theme.colors.newPrimary} />
                     </View>
                 </View>
 
