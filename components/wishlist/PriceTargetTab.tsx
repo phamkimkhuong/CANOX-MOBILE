@@ -5,9 +5,10 @@ import { usePriceTargetMet } from '@/hooks/api/wishlist/usePriceTargetMet';
 import type { WishlistItemUI } from '@/types/wishlist';
 import { formatCurrency } from '@/utils/format';
 import { Navigator } from '@/utils/navigation';
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Image } from 'expo-image';
+import { FlashList } from '@shopify/flash-list';
 import {
     ActivityIndicator,
     Pressable,
@@ -45,6 +46,52 @@ export const PriceTargetTab: React.FC<PriceTargetTabProps> = ({ onSwitchToPrivat
     const groups = targetData?.groups ?? [];
     const totalItems = targetData?.totalItems ?? 0;
 
+    const flatItems = useMemo(() => groups.flatMap(g => g.items), [groups]);
+
+    const renderItem = useCallback(({ item }: { item: WishlistItemUI }) => (
+        <Pressable
+            style={styles.card}
+            onPress={() => Navigator.push(productRoutes.detail(item.productId))}
+        >
+            <View style={styles.imageContainer}>
+                <Image
+                    source={{ uri: item.imageUrl ?? undefined }}
+                    style={styles.image}
+                    contentFit="cover"
+                    transition={200}
+                />
+                <View style={styles.tagDeepDiscount}>
+                    <Text style={styles.tagText}>{t('priceTargetTab.deepDiscountBadge')}</Text>
+                </View>
+            </View>
+
+            <View style={styles.infoContainer}>
+                <Text style={styles.productName} numberOfLines={2}>
+                    {item.productName}
+                </Text>
+
+                <View style={styles.priceRow}>
+                    <Text style={styles.currentPrice}>
+                        {formatCurrency(item.price)}
+                    </Text>
+                    <View style={styles.targetPriceBox}>
+                        <Text style={styles.targetPriceText}>
+                            {t('targetPriceGoal', { price: formatCurrency(item.desiredPrice || 0) })}
+                        </Text>
+                    </View>
+                </View>
+
+                <Pressable
+                    style={styles.buyButton}
+                    onPress={() => handleBuyNow(item)}
+                >
+                    <Text style={styles.buyButtonText}>{t('priceTargetTab.buyNow')}</Text>
+                    <IconSymbol name="shopping-cart" size={12} color={theme.colors.onAccent} />
+                </Pressable>
+            </View>
+        </Pressable>
+    ), [handleBuyNow, theme, t]);
+
     if (groups.length === 0) {
         return (
             <ScrollView
@@ -71,81 +118,32 @@ export const PriceTargetTab: React.FC<PriceTargetTabProps> = ({ onSwitchToPrivat
     }
 
     return (
-        <ScrollView
-            style={styles.container}
-            contentContainerStyle={styles.content}
-            refreshControl={
-                <RefreshControl
-                    refreshing={isRefetching}
-                    onRefresh={refetch}
-                    tintColor={theme.colors.newPrimary}
-                    colors={[theme.colors.newPrimary]}
-                />
-            }
-        >
-            <View style={styles.headerBox}>
-                <View style={styles.headerBoxContent}>
-                    <IconSymbol name="celebration" size={20} color={theme.colors.success} />
-                    <Text style={styles.headerBoxText}>
-                        {t('priceTargetTab.successMessage', { totalItems })}
-                    </Text>
-                </View>
-            </View>
-
-            {groups.map((group: PriceTargetGroupUI) => (
-                <View key={group.wishlistId} style={styles.groupContainer}>
-                    <View style={styles.groupHeader}>
-                        <IconSymbol name="folder" size={16} color={theme.colors.typographySecondary} />
-                        <Text style={styles.groupTitle}>{group.wishlistName}</Text>
+        <View style={styles.container}>
+            <FlashList<WishlistItemUI>
+                data={flatItems}
+                keyExtractor={(item) => item.id}
+                renderItem={renderItem}
+                contentContainerStyle={styles.content}
+                ListHeaderComponent={
+                    <View style={styles.headerBox}>
+                        <View style={styles.headerBoxContent}>
+                            <IconSymbol name="celebration" size={20} color={theme.colors.success} />
+                            <Text style={styles.headerBoxText}>
+                                {t('priceTargetTab.successMessage', { totalItems })}
+                            </Text>
+                        </View>
                     </View>
-
-                    {group.items.map((item) => (
-                        <Pressable
-                            key={item.id}
-                            style={styles.card}
-                            onPress={() => Navigator.push(productRoutes.detail(item.productId))}
-                        >
-                            <View style={styles.imageContainer}>
-                                <Image
-                                    source={{ uri: item.imageUrl ?? undefined }}
-                                    style={styles.image}
-                                    contentFit="cover"
-                                    transition={200}
-                                />
-                                <View style={styles.tagDeepDiscount}>
-                                    <Text style={styles.tagText}>{t('priceTargetTab.deepDiscountBadge')}</Text>
-                                </View>
-                            </View>
-
-                            <View style={styles.infoContainer}>
-                                <Text style={styles.productName} numberOfLines={2}>
-                                    {item.productName}
-                                </Text>
-
-                                <View style={styles.priceRow}>
-                                    <Text style={styles.currentPrice}>
-                                        {formatCurrency(item.price)}
-                                    </Text>
-                                    <View style={styles.targetPriceBox}>
-                                        <Text style={styles.targetPriceText}>
-                                            {t('targetPriceGoal', { price: formatCurrency(item.desiredPrice || 0) })}
-                                        </Text>
-                                    </View>
-                                </View>
-
-                                <Pressable
-                                    style={styles.buyButton}
-                                    onPress={() => handleBuyNow(item)}
-                                >
-                                    <Text style={styles.buyButtonText}>{t('priceTargetTab.buyNow')}</Text>
-                                    <IconSymbol name="shopping-cart" size={12} color={theme.colors.onAccent} />
-                                </Pressable>
-                            </View>
-                        </Pressable>
-                    ))}
-                </View>
-            ))}
-        </ScrollView>
+                }
+                refreshControl={
+                    <RefreshControl
+                        refreshing={isRefetching}
+                        onRefresh={refetch}
+                        tintColor={theme.colors.newPrimary}
+                        colors={[theme.colors.newPrimary]}
+                    />
+                }
+            />
+        </View>
     );
 };
 
@@ -215,21 +213,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontWeight: '600',
         flexShrink: 1,
     },
-    groupContainer: {
-        marginBottom: theme.margins.lg,
-    },
-    groupHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        marginBottom: theme.margins.sm,
-        paddingHorizontal: 4,
-    },
-    groupTitle: {
-        fontSize: 15,
-        fontWeight: '700',
-        color: theme.colors.typography,
-    },
+
     card: {
         flexDirection: 'row',
         backgroundColor: theme.colors.surface,

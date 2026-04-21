@@ -6,9 +6,10 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
     targetPriceMet: 'ដើរដល់គោលដៅហើយ!',
     targetPriceGoal: 'គោលដៅ: {{price}}',
     isPublic: 'សាធារណៈ',
+    defaultName: 'ចំណូលចិត្តរបស់ខ្ញុំ',
     tabs: {
-        priceTarget: 'ជូនដំណឹងតម្លៃ',
-        private: 'ផ្ទាល់ខ្លួន',
+        priceTarget: 'បញ្ចុះតម្លៃ',
+        private: 'បណ្តុំ',
         public: 'ស្វែងរក',
     },
     guest: {

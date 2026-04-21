@@ -1932,6 +1932,7 @@ export interface WishlistTranslation {
     title: string;
     productCount: string;
     targetPriceMet: string;
+    defaultName: string;
     targetPriceGoal: string;
     isPublic: string;
     tabs: {

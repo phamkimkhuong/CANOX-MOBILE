@@ -6,9 +6,10 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
     targetPriceMet: 'ຮອດເປົ້າໝາຍແລ້ວ!',
     targetPriceGoal: 'ເປົ້າໝາຍ: {{price}}',
     isPublic: 'ສາທາລະນະ',
+    defaultName: 'ລາຍການທີ່ມັກຂອງຂ້ອຍ',
     tabs: {
-        priceTarget: 'ແຈ້ງເຕືອນລາຄາ',
-        private: 'ສ່ວນຕົວ',
+        priceTarget: 'ຫຼຸດລາຄາ',
+        private: 'ຄໍເລັກຊັນ',
         public: 'ຄົ້ນພົບ',
     },
     guest: {

@@ -6,9 +6,10 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
     targetPriceMet: 'Target reached!',
     targetPriceGoal: 'Goal: {{price}}',
     isPublic: 'Public',
+    defaultName: 'My Favorites',
     tabs: {
-        priceTarget: 'Price Alert',
-        private: 'Personal',
+        priceTarget: 'Deals',
+        private: 'Collections',
         public: 'Discover',
     },
     guest: {

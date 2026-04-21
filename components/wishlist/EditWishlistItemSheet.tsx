@@ -347,7 +347,7 @@ export const EditWishlistItemSheet = forwardRef<
                                             styles.wlChipText,
                                             isActive && styles.wlChipTextActive
                                         ]}>
-                                            {w.name}
+                                            {w.name || t('defaultName')}
                                         </Text>
                                     </Pressable>
                                 );

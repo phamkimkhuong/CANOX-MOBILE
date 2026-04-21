@@ -59,7 +59,7 @@ export const WishlistItemSchema = z.object({
 
 export const WishlistSummarySchema = z.object({
     id: z.string().nullish().transform((val) => val ?? ''),
-    name: z.string().nullish().transform((val) => val ?? 'Untitled Wishlist'),
+    name: z.string().nullish().transform((val) => val && val.trim() !== '' ? val : ''),
     description: z.string().nullish().default(null),
     isPublic: z.coerce.boolean().nullish().transform(val => val ?? false),
     isDefault: z.coerce.boolean().nullish().transform(val => val ?? false),

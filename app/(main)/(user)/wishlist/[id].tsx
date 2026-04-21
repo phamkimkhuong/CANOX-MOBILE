@@ -423,7 +423,7 @@ export default function WishlistDetailScreen() {
         <View style={styles.container}>
             {/* Header */}
             <DetailHeader
-                title={wishlist.name}
+                title={wishlist.name || t('defaultName')}
                 isPublic={wishlist.isPublic}
                 onBack={handleBack}
                 onShare={handleShare}

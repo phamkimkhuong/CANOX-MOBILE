@@ -82,7 +82,7 @@ export const WishlistCard: React.FC<WishlistCardProps> = ({
             <View style={styles.content}>
                 <View style={styles.header}>
                     <Text style={styles.name} numberOfLines={1}>
-                        {wishlist.name}
+                        {wishlist.name || t('defaultName')}
                     </Text>
                     <IconSymbol
                         name={wishlist.isPublic ? 'public' : 'lock'}
