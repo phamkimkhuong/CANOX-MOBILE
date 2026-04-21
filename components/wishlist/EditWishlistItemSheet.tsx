@@ -197,6 +197,7 @@ export const EditWishlistItemSheet = forwardRef<
             <BottomSheetScrollView
                 style={styles.content}
                 keyboardShouldPersistTaps="handled"
+                keyboardDismissMode="interactive"
                 contentContainerStyle={{
                     paddingBottom: insets.bottom > 0 ? insets.bottom + theme.margins.md : theme.margins.xl,
                 }}
@@ -262,7 +263,13 @@ export const EditWishlistItemSheet = forwardRef<
                         </Text>
                     )}
                     {data && data.currentPrice > 0 && (
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.suggestionList}>
+                        <ScrollView
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            keyboardShouldPersistTaps="handled"
+                            keyboardDismissMode="interactive"
+                            contentContainerStyle={styles.suggestionList}
+                        >
                             {[50000, 100000, 150000].map((discount) => {
                                 const suggestedPrice = data.currentPrice - discount;
                                 if (suggestedPrice <= 0) return null;
@@ -319,6 +326,8 @@ export const EditWishlistItemSheet = forwardRef<
                     <ScrollView
                         horizontal
                         showsHorizontalScrollIndicator={false}
+                        keyboardShouldPersistTaps="handled"
+                        keyboardDismissMode="interactive"
                         contentContainerStyle={styles.wishlistList}
                     >
                         {isLoadingWishlists ? (
