@@ -219,7 +219,7 @@ export function createRouteErrorBoundary(
         <AppRouteErrorBoundary {...props} {...config} />
     );
 
-    RouteErrorBoundary.displayName = `RouteErrorBoundary(${config.title})`;
+    RouteErrorBoundary.displayName = `RouteErrorBoundary(${config.title ?? config.titleKey ?? 'fallback'})`;
 
     return RouteErrorBoundary;
 }
@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
         paddingVertical: 24,
     },
     embeddedShell: {
-        minHeight: 320,
+        minHeight: 176,
         padding: 16,
         borderRadius: 20,
     },
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
         elevation: 6,
     },
     embeddedCard: {
-        padding: 20,
+        padding: 16,
     },
     badge: {
         alignSelf: 'flex-start',

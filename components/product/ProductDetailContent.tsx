@@ -1,3 +1,4 @@
+import { SectionCrashBoundary } from '@/components/common/SectionCrashBoundary';
 import { ProductCard } from '@/components/ui/product/ProductCard';
 import { ROUTES, chatRoutes, checkoutRoutes, productRoutes, shopRoutes } from '@/constants/routes';
 import { useAddToCart } from '@/hooks/api/cart';
@@ -540,9 +541,24 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
 
     const renderItem = useCallback(({ item }: ListRenderItemInfo<ProductDetailListItem>) => {
         const ctx = renderContextRef.current;
+        const withSectionBoundary = (children: React.ReactNode) => (
+            <SectionCrashBoundary
+                resetKeys={[ctx.product.id, item.id]}
+                onError={(error, info) => {
+                    log.error('Product detail section render failed', {
+                        section: item.id,
+                        error,
+                        componentStack: info.componentStack,
+                    });
+                }}
+            >
+                {children}
+            </SectionCrashBoundary>
+        );
+
         switch (item.type) {
             case 'gallery':
-                return (
+                return withSectionBoundary(
                     <View style={styles.fullWidthSection}>
                         <ProductGallery
                             ref={galleryRef}
@@ -553,7 +569,7 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
                     </View>
                 );
             case 'info':
-                return (
+                return withSectionBoundary(
                     <View style={styles.fullWidthSection}>
                         <ProductInfoSection
                             name={ctx.product.name}
@@ -572,7 +588,7 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
                     </View>
                 );
             case 'shipping':
-                return (
+                return withSectionBoundary(
                     <View style={styles.fullWidthSection}>
                         <ShippingDeliveryCard
                             address={ctx.selectedAddress}
@@ -581,7 +597,7 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
                     </View>
                 );
             case 'variants':
-                return (
+                return withSectionBoundary(
                     <View style={styles.fullWidthSection}>
                         <VariantSelectorRow
                             options={ctx.product.options}
@@ -592,7 +608,7 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
                     </View>
                 );
             case 'reviews':
-                return (
+                return withSectionBoundary(
                     <View style={styles.fullWidthSection}>
                         <ProductReviews
                             productId={ctx.product.id}
@@ -605,37 +621,39 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
                     </View>
                 );
             case 'shop':
-                return (
+                return withSectionBoundary(
                     <View style={styles.fullWidthSection}>
                         <ShopInfoCard shop={ctx.product.shop} onViewShopPress={ctx.handleShopPress} />
                     </View>
                 );
             case 'specs':
-                return (
+                return withSectionBoundary(
                     <View style={styles.fullWidthSection}>
                         <ProductSpecs specifications={ctx.product.specifications} />
                     </View>
                 );
             case 'packaging':
                 return ctx.selectionResult.selectedVariant?.dimensions ? (
-                    <View style={styles.fullWidthSection}>
-                        <ProductPackagingInfo dimensions={ctx.selectionResult.selectedVariant.dimensions} />
-                    </View>
+                    withSectionBoundary(
+                        <View style={styles.fullWidthSection}>
+                            <ProductPackagingInfo dimensions={ctx.selectionResult.selectedVariant.dimensions} />
+                        </View>
+                    )
                 ) : null;
             case 'description':
-                return (
+                return withSectionBoundary(
                     <View style={styles.fullWidthSection}>
                         <ProductDescription description={ctx.product.description} />
                     </View>
                 );
             case 'related_header':
-                return (
+                return withSectionBoundary(
                     <View style={[styles.relatedHeader, styles.fullWidthSection]}>
                         <Text style={styles.relatedTitle}>{ctx.t('product:related.title')}</Text>
                     </View>
                 );
             case 'related_product':
-                return (
+                return withSectionBoundary(
                     <ProductCard
                         title={item.data.title}
                         price={item.data.price}
@@ -689,69 +707,113 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
 
             <View style={styles.flex1}>
                 <View style={styles.flex1}>
-                    <FlashList<ProductDetailListItem>
-                        ref={listRef}
-                        data={listData}
-                        renderItem={renderItem}
-                        keyExtractor={(item) => item.id}
-                        getItemType={(item) => item.type}
-                        numColumns={2}
-                        masonry={true}
-                        optimizeItemArrangement={true}
-                        overrideItemLayout={overrideItemLayout}
-                        onScroll={handleScroll}
-                        scrollEventThrottle={16}
-                        showsVerticalScrollIndicator={false}
-                        ListFooterComponent={renderListFooter}
-                        contentContainerStyle={styles.listContent}
-                        refreshControl={
-                            <RefreshControl
-                                refreshing={isRefetching}
-                                onRefresh={handleRefresh}
-                                tintColor={theme.colors.buttonActive}
-                            />
-                        }
-                    />
+                    <SectionCrashBoundary
+                        resetKeys={[product.id, 'product-detail-list']}
+                        onError={(error, info) => {
+                            log.error('Product detail list render failed', {
+                                section: 'product-detail-list',
+                                error,
+                                componentStack: info.componentStack,
+                            });
+                        }}
+                    >
+                        <FlashList<ProductDetailListItem>
+                            ref={listRef}
+                            data={listData}
+                            renderItem={renderItem}
+                            keyExtractor={(item) => item.id}
+                            getItemType={(item) => item.type}
+                            numColumns={2}
+                            masonry={true}
+                            optimizeItemArrangement={true}
+                            overrideItemLayout={overrideItemLayout}
+                            onScroll={handleScroll}
+                            scrollEventThrottle={16}
+                            showsVerticalScrollIndicator={false}
+                            ListFooterComponent={renderListFooter}
+                            contentContainerStyle={styles.listContent}
+                            refreshControl={
+                                <RefreshControl
+                                    refreshing={isRefetching}
+                                    onRefresh={handleRefresh}
+                                    tintColor={theme.colors.buttonActive}
+                                />
+                            }
+                        />
+                    </SectionCrashBoundary>
                 </View>
             </View>
 
             {/* Bottom Bar */}
-            <StickyBottomBar
-                isFullySelected={selectionResult.isFullySelected}
-                inventoryStatus={selectionResult.inventoryStatus}
-                onChatPress={handleChatPress}
-                onPrefetchChat={handlePrefetchChat}
-                onAddToCartPress={handleAddToCart}
-                onBuyNowPress={handleBuyNow}
-                isBuyNowBlocked={isBuyNowBlockedByShipping}
-            />
+            <SectionCrashBoundary
+                resetKeys={[product.id, 'sticky-bottom-bar', selectedVariantId, selectionResult.inventoryStatus]}
+                onError={(error, info) => {
+                    log.error('Product detail bottom bar render failed', {
+                        section: 'sticky-bottom-bar',
+                        error,
+                        componentStack: info.componentStack,
+                    });
+                }}
+            >
+                <StickyBottomBar
+                    isFullySelected={selectionResult.isFullySelected}
+                    inventoryStatus={selectionResult.inventoryStatus}
+                    onChatPress={handleChatPress}
+                    onPrefetchChat={handlePrefetchChat}
+                    onAddToCartPress={handleAddToCart}
+                    onBuyNowPress={handleBuyNow}
+                    isBuyNowBlocked={isBuyNowBlockedByShipping}
+                />
+            </SectionCrashBoundary>
 
             {/* Variant Bottom Sheet */}
-            <VariantBottomSheet
-                visible={variantSheetVisible}
-                onClose={handleCloseVariantSheet}
-                options={optionsWithAvailability}
-                selectedOptions={selectedOptions}
-                onSelectOption={selectOption}
-                currentPrice={selectionResult.displayPrice.currentPrice}
-                originalPrice={selectionResult.displayPrice.originalPrice}
-                currentStock={selectionResult.availableStock}
-                selectedImage={currentImage}
-                selectedPromotionType={selectionResult.selectedVariant?.campaignType}
-                selectedPromotionPercentage={selectionResult.selectedVariant?.promotionPercentage}
-                quantity={quantity}
-                onQuantityChange={setQuantity}
-                mode={variantSheetMode}
-                onConfirm={handleConfirmVariant}
-                isConfirmDisabled={!selectionResult.canAddToCart}
-            />
+            <SectionCrashBoundary
+                resetKeys={[product.id, 'variant-bottom-sheet', variantSheetVisible, selectedVariantId]}
+                onError={(error, info) => {
+                    log.error('Product detail variant sheet render failed', {
+                        section: 'variant-bottom-sheet',
+                        error,
+                        componentStack: info.componentStack,
+                    });
+                }}
+            >
+                <VariantBottomSheet
+                    visible={variantSheetVisible}
+                    onClose={handleCloseVariantSheet}
+                    options={optionsWithAvailability}
+                    selectedOptions={selectedOptions}
+                    onSelectOption={selectOption}
+                    currentPrice={selectionResult.displayPrice.currentPrice}
+                    originalPrice={selectionResult.displayPrice.originalPrice}
+                    currentStock={selectionResult.availableStock}
+                    selectedImage={currentImage}
+                    selectedPromotionType={selectionResult.selectedVariant?.campaignType}
+                    selectedPromotionPercentage={selectionResult.selectedVariant?.promotionPercentage}
+                    quantity={quantity}
+                    onQuantityChange={setQuantity}
+                    mode={variantSheetMode}
+                    onConfirm={handleConfirmVariant}
+                    isConfirmDisabled={!selectionResult.canAddToCart}
+                />
+            </SectionCrashBoundary>
 
             {/* Price Breakdown Bottom Sheet */}
-            <PriceBreakdownBottomSheet
-                visible={priceBreakdownVisible}
-                onClose={() => setPriceBreakdownVisible(false)}
-                breakdown={selectionResult.displayPrice.breakdown}
-            />
+            <SectionCrashBoundary
+                resetKeys={[product.id, 'price-breakdown-sheet', priceBreakdownVisible, selectedVariantId]}
+                onError={(error, info) => {
+                    log.error('Product detail price breakdown sheet render failed', {
+                        section: 'price-breakdown-sheet',
+                        error,
+                        componentStack: info.componentStack,
+                    });
+                }}
+            >
+                <PriceBreakdownBottomSheet
+                    visible={priceBreakdownVisible}
+                    onClose={() => setPriceBreakdownVisible(false)}
+                    breakdown={selectionResult.displayPrice.breakdown}
+                />
+            </SectionCrashBoundary>
         </>
     );
 });

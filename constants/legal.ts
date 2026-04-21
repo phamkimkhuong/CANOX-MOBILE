@@ -2,7 +2,7 @@
  * Legal Policy URLs
  */
 
-export const LEGAL_BASE_URL = 'https://calatha.com/docs';
+export const LEGAL_BASE_URL = 'https://calatha.com/docs?doc=';
 
 // ───────────────
 // BẮT BUỘC
@@ -10,33 +10,33 @@ export const LEGAL_BASE_URL = 'https://calatha.com/docs';
 
 export const LEGAL_URLS = {
     /** Quy chế hoạt động sàn TMĐT */
-    MARKETPLACE_REGULATIONS: `${LEGAL_BASE_URL}/regulations`,
+    MARKETPLACE_REGULATIONS: `${LEGAL_BASE_URL}regulations`,
 
     /** Chính sách bảo mật */
-    PRIVACY: `${LEGAL_BASE_URL}/privacy`,
+    PRIVACY: `${LEGAL_BASE_URL}privacy`,
 
     /** Điều khoản dịch vụ */
-    TOS: `${LEGAL_BASE_URL}/services`,
+    TOS: `${LEGAL_BASE_URL}services`,
 
     /** Điều khoản dành cho Seller */
-    SELLER_TERMS: `${LEGAL_BASE_URL}/seller-terms`,
+    SELLER_TERMS: `${LEGAL_BASE_URL}seller-terms`,
 
     /** Chính sách đổi trả & hoàn tiền */
-    RETURN: `${LEGAL_BASE_URL}/return-refund`,
+    RETURN: `${LEGAL_BASE_URL}return-refund`,
 
     // ───────────────
     // Vận hành 
     // ───────────────
 
     /** Chính sách vận chuyển */
-    SHIPPING: `${LEGAL_BASE_URL}/shipping`,
+    SHIPPING: `${LEGAL_BASE_URL}shipping`,
 
     /** Chính sách thanh toán */
-    PAYMENT: `${LEGAL_BASE_URL}/payment`,
+    PAYMENT: `${LEGAL_BASE_URL}payment`,
 
     /** Sản phẩm cấm & hạn chế */
-    PROHIBITED_ITEMS: `${LEGAL_BASE_URL}/prohibited-items`,
+    PROHIBITED_ITEMS: `${LEGAL_BASE_URL}prohibited-items`,
 
     /** Chính sách bảo hành */
-    WARRANTY: `${LEGAL_BASE_URL}/warranty`,
+    WARRANTY: `${LEGAL_BASE_URL}warranty`,
 };

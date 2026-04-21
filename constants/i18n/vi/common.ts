@@ -108,6 +108,33 @@ export const COMMON_STRINGS: CommonTranslation = {
             message: 'Đã xảy ra lỗi khi hiển thị dữ liệu. Vui lòng thử lại.',
         },
     },
+    sectionState: {
+        secondaryDataError: {
+            title: 'Chưa tải được phần này',
+            message: 'Dữ liệu phụ đang tạm gián đoạn. Các nội dung chính vẫn có thể sử dụng bình thường.',
+            actionLabel: 'Tải lại',
+        },
+        backgroundError: {
+            title: 'Đang hiển thị dữ liệu gần nhất',
+            message: 'Lần cập nhật mới chưa thành công. Bạn vẫn có thể tiếp tục với dữ liệu hiện có.',
+            actionLabel: 'Cập nhật lại',
+        },
+        businessGuidance: {
+            title: 'Chưa sẵn sàng',
+            message: 'Trạng thái hiện tại chưa đáp ứng điều kiện để thực hiện thao tác này.',
+            actionLabel: 'Xem hướng dẫn',
+        },
+        empty: {
+            title: 'Chưa có nội dung',
+            message: 'Phần này hiện chưa có dữ liệu để hiển thị.',
+            actionLabel: 'Tải lại',
+        },
+        unavailable: {
+            title: 'Tạm thời chưa khả dụng',
+            message: 'Phần này chưa thể hiển thị ngay lúc này. Các nội dung khác vẫn hoạt động bình thường.',
+            actionLabel: 'Thử lại',
+        },
+    },
     stateView: {
         network: {
             title: 'Mất kết nối mạng',

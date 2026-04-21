@@ -63,6 +63,7 @@ export interface LoyaltyOverviewUI {
     totalPoints: number;
     shopCount: number;
     expiringPoints: number;
+    hasUrgentPoints?: boolean;
     shops: ShopPointSummaryUI[];
 }
 

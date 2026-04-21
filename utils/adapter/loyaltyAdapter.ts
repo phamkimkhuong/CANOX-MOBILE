@@ -108,12 +108,24 @@ const transformShopSummary = (dto: ShopPointSummaryDTO): ShopPointSummaryUI => {
     };
 };
 
-export const transformLoyaltyOverview = (dto: LoyaltyOverviewDTO): LoyaltyOverviewUI => ({
-    totalPoints: dto.totalPointsAllShops,
-    shopCount: dto.totalShopsWithPoints,
-    expiringPoints: dto.totalExpiringPoints,
-    shops: dto.shops.map(transformShopSummary),
-});
+export const transformLoyaltyOverview = (dto: LoyaltyOverviewDTO): LoyaltyOverviewUI => {
+    const shops = dto.shops.map(transformShopSummary);
+    const hasUrgentPoints = dto.shops.some(s => {
+        if (!s.nearestExpiryDate || s.expiringPoints <= 0) return false;
+        const date = safeParseDate(s.nearestExpiryDate);
+        if (!date) return false;
+        const daysUntil = Math.ceil((date.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+        return daysUntil > 0 && daysUntil <= 15;
+    });
+
+    return {
+        totalPoints: dto.totalPointsAllShops,
+        shopCount: dto.totalShopsWithPoints,
+        expiringPoints: dto.totalExpiringPoints,
+        hasUrgentPoints,
+        shops,
+    };
+};
 
 // ============================================
 // PUBLIC SHOP POLICY

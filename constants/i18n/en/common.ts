@@ -108,6 +108,33 @@ export const COMMON_STRINGS: CommonTranslation = {
             message: 'An error occurred while rendering this content. Please try again.',
         },
     },
+    sectionState: {
+        secondaryDataError: {
+            title: 'This section could not be loaded',
+            message: 'Supplementary data is temporarily unavailable. The main content remains usable.',
+            actionLabel: 'Reload',
+        },
+        backgroundError: {
+            title: 'Showing the latest available data',
+            message: 'The newest update did not finish successfully. You can continue with the current data.',
+            actionLabel: 'Update again',
+        },
+        businessGuidance: {
+            title: 'Not ready yet',
+            message: 'The current state does not meet the conditions required for this action.',
+            actionLabel: 'View guidance',
+        },
+        empty: {
+            title: 'No content yet',
+            message: 'There is no data to show in this section right now.',
+            actionLabel: 'Reload',
+        },
+        unavailable: {
+            title: 'Temporarily unavailable',
+            message: 'This section cannot be displayed right now. Other content is still available.',
+            actionLabel: 'Try again',
+        },
+    },
     stateView: {
         network: {
             title: 'No connection',

@@ -35,9 +35,6 @@ export const checkServerStatus = async (): Promise<boolean> => {
             status = error.response?.status;
         }
         logger.api.warn(`Server health check failed. Status: ${status ?? 'Timeout/Network Error'}`);
-
-        // Even if it returns 401 or 404, the Gateway/Nginx is ALIVE.
-        // Only 5xx or Network/Timeout errors count as "System Down".
         if (status && status < 500) {
             return true;
         }

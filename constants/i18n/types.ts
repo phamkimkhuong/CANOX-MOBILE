@@ -430,6 +430,33 @@ export interface CommonTranslation {
             message: string;
         };
     };
+    sectionState: {
+        secondaryDataError: {
+            title: string;
+            message: string;
+            actionLabel: string;
+        };
+        backgroundError: {
+            title: string;
+            message: string;
+            actionLabel: string;
+        };
+        businessGuidance: {
+            title: string;
+            message: string;
+            actionLabel: string;
+        };
+        empty: {
+            title: string;
+            message: string;
+            actionLabel: string;
+        };
+        unavailable: {
+            title: string;
+            message: string;
+            actionLabel: string;
+        };
+    };
     stateView: {
         network: {
             title: string;

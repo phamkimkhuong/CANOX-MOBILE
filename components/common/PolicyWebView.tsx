@@ -100,7 +100,6 @@ export const PolicyWebView: React.FC<PolicyWebViewProps> = memo(({
                 backgroundColor="transparent"
                 translucent
             />
-
             {/* Native Header */}
             <View style={styles.header}>
                 <TouchableOpacity
@@ -120,7 +119,6 @@ export const PolicyWebView: React.FC<PolicyWebViewProps> = memo(({
                 <Text style={styles.headerTitle} numberOfLines={1}>
                     {title}
                 </Text>
-
                 {/* Placeholder for symmetry */}
                 <View style={styles.headerButton} />
             </View>
@@ -153,6 +151,9 @@ export const PolicyWebView: React.FC<PolicyWebViewProps> = memo(({
                     <WebView
                         ref={webViewRef}
                         source={{ uri: url }}
+                        {...((__DEV__ && url?.includes('calatha.com')) ? {
+                            basicAuthCredential: { username: 'cliz', password: 'cliz' }
+                        } : {})}
                         style={styles.webview}
                         onLoadStart={() => setIsLoading(true)}
                         onLoadEnd={() => setIsLoading(false)}

@@ -1,5 +1,6 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { ROUTES, SERVICE_MENU_ROUTES, SETTINGS_MENU_ROUTES } from '@/constants/routes';
+import { mmkvStorage } from '@/store/storage';
 import { LoyaltyOverviewUI } from '@/types/loyalty/ui';
 import { UserProfile } from '@/types/profile/profile';
 import { Navigator } from '@/utils/navigation';
@@ -7,11 +8,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
-import Animated, { FadeInDown, FadeOutUp } from 'react-native-reanimated';
+import Animated, { FadeInDown, FadeOutUp, LinearTransition } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-
-// Manage dismiss buffer outside the Component to remember when switching tabs
-const dismissMemory: Record<string, number> = {};
 
 interface SmartInsightBannerProps {
     userProfile?: UserProfile;
@@ -37,22 +35,22 @@ export const SmartInsightBanner: React.FC<SmartInsightBannerProps> = ({
     const activeInsight = React.useMemo<InsightPriority>(() => {
         if (!userProfile && !loyaltyOverview) return null;
 
-        // Priority 1 (Engagement/UGC): Pending reviews waiting for user action -> Highest priority for platform content
-        if (pendingReviewsCount !== undefined && pendingReviewsCount > 0) {
-            return 'PENDING_REVIEW';
-        }
-
-        // Priority 2 (Loss Aversion / Urgent): Have reward points expiring soon -> Fear of losing money
-        if (loyaltyOverview?.expiringPoints && loyaltyOverview.expiringPoints > 0) {
-            return 'URGENT_COIN';
-        }
-
-        // Priority 3 (Core Application Utility): Missing contact / security information (No phone number or not verified)
+        // Priority 1: Core Application Utility - Missing contact or unverified
         if (userProfile && (!userProfile.phone || !userProfile.isVerified)) {
             return 'PROFILE_INCOMPLETE';
         }
 
-        // Priority 4 (Awareness): Have reward points but haven't used them yet
+        // Priority 2: Loss Aversion / Urgent - Expiring points under 15 days
+        if (loyaltyOverview?.hasUrgentPoints) {
+            return 'URGENT_COIN';
+        }
+
+        // Priority 3: Engagement/UGC - Pending reviews waiting for user action
+        if (pendingReviewsCount !== undefined && pendingReviewsCount > 0) {
+            return 'PENDING_REVIEW';
+        }
+
+        // Priority 4: Awareness - Have reward points but haven't used them yet
         if (loyaltyOverview?.totalPoints && loyaltyOverview.totalPoints > 0) {
             return 'IDLE_COIN';
         }
@@ -60,12 +58,16 @@ export const SmartInsightBanner: React.FC<SmartInsightBannerProps> = ({
         return null; // Nothing to remind
     }, [userProfile, loyaltyOverview, pendingReviewsCount]);
 
-    // Check if already dismissed
+    // Check if already dismissed via persistent storage (MMKV)
     useEffect(() => {
-        if (activeInsight && dismissMemory[activeInsight] && Date.now() < dismissMemory[activeInsight]) {
-            setIsDismissed(true);
-        } else {
-            setIsDismissed(false); // If dismiss expired or insight changed => show again
+        if (activeInsight) {
+            const memoryKey = `dismissed_insight_${activeInsight}`;
+            const dismissedUntil = mmkvStorage.getNumber(memoryKey);
+            if (dismissedUntil && Date.now() < dismissedUntil) {
+                setIsDismissed(true);
+            } else {
+                setIsDismissed(false);
+            }
         }
     }, [activeInsight]);
 
@@ -73,8 +75,9 @@ export const SmartInsightBanner: React.FC<SmartInsightBannerProps> = ({
 
     const handleDismiss = () => {
         setIsDismissed(true);
-        // Temporarily save to memory for 5 minutes (5 * 60 * 1000)
-        dismissMemory[activeInsight] = Date.now() + 5 * 60 * 1000;
+        // Persist to MMKV for 24 hours (24 * 60 * 60 * 1000)
+        const memoryKey = `dismissed_insight_${activeInsight}`;
+        mmkvStorage.set(memoryKey, Date.now() + 24 * 60 * 60 * 1000);
     };
 
     // Get UX configuration corresponding to the activated insight
@@ -94,7 +97,7 @@ export const SmartInsightBanner: React.FC<SmartInsightBannerProps> = ({
                     message: t('smartInsight.profileIncomplete.message'),
                     icon: 'shield-checkmark-outline',
                     btnText: t('smartInsight.profileIncomplete.action'),
-                    colors: [theme.colors.surfaceOverlay, theme.colors.surfaceOverlay] as const,
+                    colors: [theme.colors.warningSoft, theme.colors.warningLight] as const,
                     iconColor: theme.colors.warning,
                     action: () => Navigator.push(SETTINGS_MENU_ROUTES.security as never),
                 };
@@ -133,6 +136,7 @@ export const SmartInsightBanner: React.FC<SmartInsightBannerProps> = ({
         <Animated.View
             entering={FadeInDown.duration(400).springify()}
             exiting={FadeOutUp.duration(300)}
+            layout={LinearTransition.springify().damping(18).stiffness(150)}
             style={styles.container}
         >
             <LinearGradient
