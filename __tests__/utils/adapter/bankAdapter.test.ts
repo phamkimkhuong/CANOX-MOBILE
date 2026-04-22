@@ -38,8 +38,8 @@ describe('bankAdapter', () => {
       bankDisplayName: 'VCB',
       branch: undefined,
       isDefault: true,
-      formattedInfo: 'VCB - 1234567890',
-      maskedNumber: '1234567890',
+      formattedInfo: 'VCB - ****7890',
+      maskedNumber: '****7890',
     });
   });
 });
