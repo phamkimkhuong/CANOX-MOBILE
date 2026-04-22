@@ -25,12 +25,6 @@ jest.mock('@/services/auth/tokenManager', () => ({
     isTokenExpiringSoon: jest.fn().mockResolvedValue(false),
 }));
 
-// ─── Mock expo-secure-store (used by useAuthStore.login/logout) ───
-jest.mock('expo-secure-store', () => ({
-    getItemAsync: jest.fn().mockResolvedValue(null),
-    setItemAsync: jest.fn().mockResolvedValue(undefined),
-    deleteItemAsync: jest.fn().mockResolvedValue(undefined),
-}));
 
 // ─── Mock cache clearing (used by logout) ───
 jest.mock('@/utils/cache', () => ({
@@ -46,6 +40,29 @@ jest.mock('@/services/api/queryClient', () => ({
         setDefaultOptions: jest.fn(),
         mount: jest.fn(),
         unmount: jest.fn(),
+    },
+}));
+
+// ─── Mock loading store (used by useLogout onMutate/onSuccess/onError) ───
+jest.mock('@/store/useLoadingStore', () => ({
+    showGlobalLoading: jest.fn(),
+    hideGlobalLoading: jest.fn(),
+}));
+
+// ─── Mock dependent stores (used by useAuthStore.logout) ───
+jest.mock('@/store/useCartStore', () => ({
+    useCartStore: {
+        getState: jest.fn(() => ({ clear: jest.fn() })),
+    },
+}));
+jest.mock('@/store/useCheckoutStore', () => ({
+    useCheckoutStore: {
+        getState: jest.fn(() => ({ resetSession: jest.fn() })),
+    },
+}));
+jest.mock('@/store/useUserAddressStore', () => ({
+    useUserAddressStore: {
+        getState: jest.fn(() => ({ clear: jest.fn() })),
     },
 }));
 
@@ -260,6 +277,19 @@ describe('useLogout', () => {
     });
 
     it('logs out successfully and clears store', async () => {
+        // Spy on store.logout to avoid deep dependency chain
+        const mockLogout = jest.fn().mockImplementation(async () => {
+            useAuthStore.setState({
+                token: null,
+                userId: null,
+                buyerId: null,
+                shopId: null,
+                isAuthenticated: false,
+                hydrated: true,
+            });
+        });
+        useAuthStore.setState({ logout: mockLogout } as never);
+
         const { Wrapper } = createWrapper();
         const { result } = renderHook(() => useLogout(), { wrapper: Wrapper });
 
@@ -268,6 +298,9 @@ describe('useLogout', () => {
         });
 
         await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+        // Verify store.logout was called
+        expect(mockLogout).toHaveBeenCalled();
 
         // Store should be cleared
         const storeState = useAuthStore.getState();
@@ -301,5 +334,95 @@ describe('useLogout', () => {
         expect(Toast.show).toHaveBeenCalledWith(
             expect.objectContaining({ type: 'error' })
         );
+    });
+});
+
+// ═══════════════════════════════════════
+// OTP & Forgot Password Flow
+// ═══════════════════════════════════════
+import {
+    useVerifyOtp,
+    useResendOtp,
+    useCheckEmailExists,
+    useForgotPassword,
+    useVerifyForgotPasswordOtp,
+    useResetPassword,
+} from '@/hooks/api/useAuth';
+
+describe('OTP and Forgot Password Hooks', () => {
+    it('useVerifyOtp sends verification data', async () => {
+        const { Wrapper } = createWrapper();
+        const { result } = renderHook(() => useVerifyOtp(), { wrapper: Wrapper });
+
+        await act(async () => {
+            result.current.mutate({ email: 'test@example.com', otpCode: '123456' });
+        });
+
+        await waitFor(() => expect(result.current.isSuccess).toBe(true));
+        expect(result.current.data?.message).toBe('OTP verified');
+    });
+
+    it('useResendOtp requests new OTP', async () => {
+        const { Wrapper } = createWrapper();
+        const { result } = renderHook(() => useResendOtp(), { wrapper: Wrapper });
+
+        await act(async () => {
+            result.current.mutate('test@example.com');
+        });
+
+        await waitFor(() => expect(result.current.isSuccess).toBe(true));
+        expect(result.current.data?.message).toBe('OTP resent');
+    });
+
+    it('useCheckEmailExists returns true for existing email', async () => {
+        const { Wrapper } = createWrapper();
+        const { result } = renderHook(() => useCheckEmailExists(), { wrapper: Wrapper });
+
+        await act(async () => {
+            result.current.mutate('existing@example.com');
+        });
+
+        await waitFor(() => expect(result.current.isSuccess).toBe(true));
+        expect(result.current.data?.data).toBe(true);
+    });
+
+    it('useForgotPassword sends reset instruction', async () => {
+        const { Wrapper } = createWrapper();
+        const { result } = renderHook(() => useForgotPassword(), { wrapper: Wrapper });
+
+        await act(async () => {
+            result.current.mutate('test@example.com');
+        });
+
+        await waitFor(() => expect(result.current.isSuccess).toBe(true));
+        expect(result.current.data?.message).toBe('Password reset OTP sent');
+    });
+
+    it('useVerifyForgotPasswordOtp verifies token and returns success', async () => {
+        const { Wrapper } = createWrapper();
+        const { result } = renderHook(() => useVerifyForgotPasswordOtp(), { wrapper: Wrapper });
+
+        await act(async () => {
+            result.current.mutate({ email: 'test@example.com', otpCode: '654321' });
+        });
+
+        await waitFor(() => expect(result.current.isSuccess).toBe(true));
+        expect(result.current.data?.message).toBe('Password reset OTP verified');
+    });
+
+    it('useResetPassword successfully changes password', async () => {
+        const { Wrapper } = createWrapper();
+        const { result } = renderHook(() => useResetPassword(), { wrapper: Wrapper });
+
+        await act(async () => {
+            result.current.mutate({
+                email: 'test@example.com',
+                password: 'NewPassword123',
+                confirmPassword: 'NewPassword123',
+            });
+        });
+
+        await waitFor(() => expect(result.current.isSuccess).toBe(true));
+        expect(result.current.data?.message).toBe('Password reset successful');
     });
 });

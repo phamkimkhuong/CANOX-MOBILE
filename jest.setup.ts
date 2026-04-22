@@ -1,18 +1,20 @@
+process.env.EXPO_PUBLIC_API_URL = 'http://app.test';
+
 import 'react-native-gesture-handler/jestSetup';
 
 jest.mock('react-native-worklets', () => {
-    return {
-        createSerializable: (x: any) => x,
-        isWorkletFunction: () => false,
-        RuntimeKind: { Main: 1, UI: 2 },
-        scheduleOnUI: (fn: any) => fn?.(),
-        scheduleOnRN: (fn: any, ...args: any[]) => fn?.(...args),
-        serializableMappingCache: new Map(),
-        Worklets: {
-            createRunInContextFn: () => () => {},
-            createRunInJSFn: () => () => {},
-        }
-    };
+  return {
+    createSerializable: (x: any) => x,
+    isWorkletFunction: () => false,
+    RuntimeKind: { Main: 1, UI: 2 },
+    scheduleOnUI: (fn: any) => fn?.(),
+    scheduleOnRN: (fn: any, ...args: any[]) => fn?.(...args),
+    serializableMappingCache: new Map(),
+    Worklets: {
+      createRunInContextFn: () => () => { },
+      createRunInJSFn: () => () => { },
+    }
+  };
 });
 
 require('react-native-unistyles/mocks');

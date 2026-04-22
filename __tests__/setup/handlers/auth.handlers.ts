@@ -44,20 +44,19 @@ const registerSuccessResponse = {
     },
 };
 
-/** Default logout response */
 const logoutSuccessResponse = {
     code: 200,
     success: true,
     message: 'Logged out successfully',
     data: {
-        accessToken: '',
-        refreshToken: '',
+        accessToken: 'mock-token',
+        refreshToken: 'mock-token',
         emailVerified: true,
-        email: '',
+        email: 'test@example.com',
         user: {
-            userId: '',
-            username: '',
-            email: 'placeholder@test.com',
+            userId: 'test',
+            username: 'test',
+            email: 'test@example.com',
             image: null,
             buyerId: null,
         },
@@ -88,6 +87,26 @@ export const authHandlers = [
     // Resend OTP
     rest.post(`http://app.test${API_PREFIX}/auth/otp/resend`, (req, res, ctx) => {
         return res(ctx.status(200), ctx.json({ code: 200, success: true, message: 'OTP resent', data: null }));
+    }),
+
+    // Forgot Password Flow
+    rest.post(`http://app.test${API_PREFIX}/auth/password/forgot`, (req, res, ctx) => {
+        return res(ctx.status(200), ctx.json({ code: 200, success: true, message: 'Password reset OTP sent', data: null }));
+    }),
+    rest.post(`http://app.test${API_PREFIX}/auth/password/verify`, (req, res, ctx) => {
+        return res(ctx.status(200), ctx.json({ code: 200, success: true, message: 'Password reset OTP verified', data: null }));
+    }),
+    rest.post(`http://app.test${API_PREFIX}/auth/password/reset`, (req, res, ctx) => {
+        return res(ctx.status(200), ctx.json({ code: 200, success: true, message: 'Password reset successful', data: null }));
+    }),
+
+    // Check email exists
+    rest.get(`http://app.test${API_PREFIX}/users/exists/email`, (req, res, ctx) => {
+        const email = req.url.searchParams.get('email');
+        if (email === 'existing@example.com') {
+            return res(ctx.status(200), ctx.json({ code: 200, success: true, message: 'Email exists', data: true }));
+        }
+        return res(ctx.status(200), ctx.json({ code: 200, success: true, message: 'Email not found', data: false }));
     }),
 ];
 
