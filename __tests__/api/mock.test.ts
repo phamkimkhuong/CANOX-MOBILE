@@ -1,20 +1,22 @@
+import axios from 'axios';
 import { rest } from 'msw';
 import { server } from '../setup/server';
-import { apiClient } from '@/services/api/client';
 
-describe('MSW Setup', () => {
-  beforeAll(() => {
-    apiClient.defaults.baseURL = 'http://app.test';
-  });
+describe('MSW API Mocking', () => {
 
-  it('intercepts requests successfully', async () => {
+  it('should receive mock data from msw server', async () => {
+    // 1. Phục kích một request tạm thời để test
     server.use(
-      rest.get('http://app.test/public/test', (req, res, ctx) => {
-        return res(ctx.json({ success: true }));
+      rest.get(`http://app.test/test-mock`, (req, res, ctx) => {
+        return res(
+          ctx.status(200),
+          ctx.json({ message: 'Hello from MSW' })
+        );
       })
     );
 
-    const response = await apiClient.get('/public/test');
-    expect(response.data.success).toBe(true);
+    // 2. Kích hoạt request thực tế thông qua axios
+    const response = await axios.get('http://app.test/test-mock');
+    expect(response.data.message).toBe('Hello from MSW');
   });
 });

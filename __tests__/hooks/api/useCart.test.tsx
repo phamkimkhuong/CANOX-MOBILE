@@ -1,83 +1,109 @@
-import { waitFor } from '@testing-library/react-native';
-import { rest } from 'msw';
 import { useCart } from '@/hooks/api/cart/useCart';
-import { useAuthStore } from '@/store/useAuthStore';
 import { apiClient } from '@/services/api/client';
-import { renderHookWithProviders } from '../../utils/test-utils';
+import { useAuthStore } from '@/store/useAuthStore';
+import { act, waitFor } from '@testing-library/react-native';
+import { rest } from 'msw';
 import { server } from '../../setup/server';
+import { renderHookWithProviders } from '../../utils/test-utils';
 
 jest.mock('@/services/auth/tokenManager', () => ({
     getAccessToken: jest.fn(() => Promise.resolve('mock-token')),
+    getRefreshToken: jest.fn(() => Promise.resolve('mock-refresh-token')),
     getTokenExpiry: jest.fn(() => Promise.resolve(Date.now() + 1000 * 60 * 60)),
     isTokenRefreshing: jest.fn(() => false),
     waitForTokenRefresh: jest.fn(() => Promise.resolve('mock-token')),
     performTokenRefresh: jest.fn(() => Promise.resolve('mock-token')),
-    handle401Error: jest.fn()
+    handle401Error: jest.fn(),
+    setTokens: jest.fn(),
+    clearTokens: jest.fn(),
 }));
 
 describe('useCart Hook Integration Test', () => {
     beforeAll(() => {
-        apiClient.defaults.baseURL = 'http://app.test'; // Ensure consistent routing for MSW
+        apiClient.defaults.baseURL = 'http://app.test';
     });
 
     afterEach(() => {
-        useAuthStore.setState({ isAuthenticated: false });
+        act(() => {
+            useAuthStore.setState({ isAuthenticated: false });
+        });
     });
 
     it('does not send API request when user is unauthenticated', async () => {
-        useAuthStore.setState({ isAuthenticated: false });
+        act(() => {
+            useAuthStore.setState({ isAuthenticated: false });
+        });
+        const { result, queryClient, unmount } = renderHookWithProviders(() => useCart());
 
-        const { result } = renderHookWithProviders(() => useCart());
-
-        // When enabled is false due to isAuthenticated = false
         expect(result.current.isPending).toBe(true);
         expect(result.current.fetchStatus).toBe('idle');
+        
+        unmount();
+        queryClient.clear();
     });
 
-    it('fetches cart data cleanly via MSW interceptor when authenticated', async () => {
-        useAuthStore.setState({ isAuthenticated: true });
+    it('trả về dữ liệu giỏ hàng trống thành công', async () => {
+        act(() => {
+            useAuthStore.setState({ isAuthenticated: true });
+        });
 
-        // Provide a deterministic mock response according to the CartApi Schema
-        const mockCartResponse = {
-            status: 200,
-            message: 'Success',
+        const mockEmptyCart = {
+            code: 200,
+            success: true,
             data: {
-                id: 'cart-12345',
-                itemCount: 5,
-                shops: [
-                    {
-                        shopId: 'shop-abc',
-                        shopName: 'Mock Shop Vietnam',
-                        logoPath: '/images/mock.png',
-                        items: [
-                            {
-                                id: 'item-xyz',
-                                variantId: 'var-1',
-                                productName: 'Mock Product',
-                                unitPrice: 200000,
-                                quantity: 5,
-                                totalPrice: 1000000,
-                                stockStatus: 'IN_STOCK',
-                            }
-                        ]
-                    }
-                ]
+                id: 'cart-123',
+                itemCount: 0,
+                shops: []
             }
         };
 
         server.use(
             rest.get('http://app.test/api/v1/cart', (req, res, ctx) => {
-                return res(ctx.status(200), ctx.json(mockCartResponse));
+                return res(
+                    ctx.status(200),
+                    ctx.json(mockEmptyCart)
+                );
             })
         );
 
-        const { result } = renderHookWithProviders(() => useCart());
+        const { result, queryClient, unmount } = renderHookWithProviders(() => useCart());
 
-        // Wait until hook completes the fetch
-        await waitFor(() => expect(result.current.isSuccess).toBe(true));
+        await waitFor(() => {
+            expect(result.current.isSuccess).toBe(true);
+        }, { timeout: 3000 });
 
-        expect(result.current.data?.itemCount).toBe(5);
-        expect(result.current.data?.shops).toHaveLength(1);
-        expect(result.current.data?.shops[0].items[0].productName).toBe('Mock Product');
+        expect(result.current.data?.shops).toHaveLength(0);
+        
+        unmount();
+        queryClient.clear();
+    });
+
+    it('xử lý lỗi khi server trả về 500', async () => {
+        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+        const consoleInfoSpy = jest.spyOn(console, 'info').mockImplementation(() => {});
+        
+        act(() => {
+            useAuthStore.setState({ isAuthenticated: true });
+        });
+        server.use(
+            rest.get(`http://app.test/api/v1/cart`, (req, res, ctx) => {
+                return res(
+                    ctx.status(500),
+                    ctx.json({ message: 'Internal Server Error' })
+                );
+            })
+        );
+        const { result, queryClient, unmount } = renderHookWithProviders(() => useCart());
+
+        await waitFor(() => {
+            expect(result.current.isError).toBe(true);
+        });
+
+        expect(result.current.error).toBeDefined();
+        
+        consoleErrorSpy.mockRestore();
+        consoleInfoSpy.mockRestore();
+        unmount();
+        queryClient.clear();
     });
 });

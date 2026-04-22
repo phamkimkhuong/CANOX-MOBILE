@@ -8,6 +8,8 @@
     "test:ci": "jest --coverage --runInBand --watchAll=false",
     "test:adapter": "jest --testPathPattern=\"__tests__/utils/adapter\"",
     "test:store": "jest --testPathPattern=\"__tests__/store\"",
+    "test:hook": "jest --testPathPattern=\"__tests__/hooks\"",
+    "test:component": "jest --testPathPattern=\"__tests__/components\"",
     "test:api": "cross-env RUN_API_CONTRACT_TESTS=true jest --runInBand --watchAll=false __tests__/api-contract",
     "lint": "eslint .",
     "type-check": "tsc --noEmit",
