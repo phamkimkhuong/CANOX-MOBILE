@@ -14,3 +14,21 @@ if (typeof globalThis !== 'undefined') {
     delete global.ReadableStream;
   }
 }
+
+import { server } from './__tests__/setup/server';
+beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
+
+jest.mock('react-native-mmkv', () => ({
+  createMMKV: () => ({
+    set: jest.fn(),
+    getBoolean: jest.fn(),
+    getString: jest.fn(),
+    getNumber: jest.fn(),
+    delete: jest.fn(),
+    contains: jest.fn(() => false),
+    clearAll: jest.fn(),
+  }),
+}));
+
