@@ -11,12 +11,16 @@ const withNotificationManifestFix: ConfigPlugin = (config) => {
 
         const manifestAttrs = (manifest.$ ?? {}) as Record<string, string>;
         manifestAttrs['xmlns:tools'] = 'http://schemas.android.com/tools';
+        // Manifest $ type requires xmlns attrs not in the strict type definition
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         manifest.$ = manifestAttrs as any;
         const conflictingKeys = [
             'com.google.firebase.messaging.default_notification_color',
             'com.google.firebase.messaging.default_notification_icon',
         ];
 
+        // meta-data entries can have arbitrary XML attributes beyond strict ManifestMetaData
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const metaDataArray: any[] = mainApplication['meta-data'] ?? [];
 
         let patchCount = 0;

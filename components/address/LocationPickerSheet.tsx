@@ -165,7 +165,7 @@ export const LocationPickerSheet: React.FC<LocationPickerSheetProps> = memo(({
                 </Pressable>
             );
         },
-        [selectedValue, handleSelect, styles, theme.colors.primary]
+        [selectedValue, handleSelect, styles, theme.colors.newPrimary]
     );
 
     // Render footer (loading indicator)

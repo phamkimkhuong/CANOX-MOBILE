@@ -194,7 +194,6 @@ export default function ReturnRequestScreen() {
         orderId,
         selectedBankAccountId,
         selectedReason,
-        t,
     ]);
 
     const handlePreviewVideo = useCallback((item: ReturnMediaItem) => {

@@ -156,7 +156,7 @@ export default function LanguageSettingsScreen() {
     const headerTitle = useMemo(() => 'Ngôn ngữ / Language / ພາສາ / ភាសា', []);
 
     // Helper text
-    const getText = (vi: string, en: string, lo: string, km: string) => selectedLang === 'vi' ? vi : selectedLang === 'lo' ? lo : selectedLang === 'km' ? km : en;
+    const getText = useCallback((vi: string, en: string, lo: string, km: string) => selectedLang === 'vi' ? vi : selectedLang === 'lo' ? lo : selectedLang === 'km' ? km : en, [selectedLang]);
 
     /**
      * Handle apply changes
@@ -180,7 +180,7 @@ export default function LanguageSettingsScreen() {
             text2: langInfo?.nativeName,
             visibilityTime: 2000,
         });
-    }, [selectedLang, hasChanges, setLanguage, i18n]);
+    }, [selectedLang, hasChanges, setLanguage, i18n, getText]);
 
     return (
         <View style={styles.container}>

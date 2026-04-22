@@ -79,7 +79,7 @@ export const WishlistCollectionChips: React.FC<WishlistCollectionChipsProps> = (
                 )}
             </Pressable>
         );
-    }, [activeId, onSelect, styles, theme.colors.warning]);
+    }, [activeId, onSelect, styles, theme.colors.warning, theme.colors.surface]);
 
     return (
         <ScrollView

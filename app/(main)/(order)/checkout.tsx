@@ -125,7 +125,6 @@ export default function CheckoutScreen() {
         isInitialized,
         previewData,
         paymentMethod,
-        selectedShipping,
         selectedPlatformDiscountVoucher,
         selectedPlatformShippingVoucher,
         isLoadingPreview,
@@ -138,7 +137,6 @@ export default function CheckoutScreen() {
         isInitialized: s.isInitialized,
         previewData: s.previewData,
         paymentMethod: s.paymentMethod,
-        selectedShipping: s.selectedShipping,
         selectedPlatformDiscountVoucher: s.selectedPlatformDiscountVoucher,
         selectedPlatformShippingVoucher: s.selectedPlatformShippingVoucher,
         isLoadingPreview: s.isLoadingPreview,
@@ -286,7 +284,7 @@ export default function CheckoutScreen() {
     // ========================================
     // Create Order Flow
     // ========================================
-    const { handlePlaceOrder, isPlacingOrder } = useCreateOrderFlow({
+    const { handlePlaceOrder } = useCreateOrderFlow({
         isBuyNowMode: !!isBuyNowMode,
         quantity,
         variantId,

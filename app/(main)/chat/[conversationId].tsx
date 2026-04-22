@@ -976,7 +976,7 @@ export default function ChatDetailScreen() {
 
             {/* Main content with keyboard avoidance */}
             <View style={styles.keyboardView}>
-                <View style={{ flex: 1 }}>
+                <View style={styles.messageListContainer}>
                     {/* Messages List - INVERTED: newest at bottom, no scroll needed */}
                     {shouldShowList ? (
                         <>
@@ -1134,6 +1134,9 @@ const stylesheet = StyleSheet.create((theme) => ({
         backgroundColor: theme.colors.background,
     },
     keyboardView: {
+        flex: 1,
+    },
+    messageListContainer: {
         flex: 1,
     },
     listContent: {

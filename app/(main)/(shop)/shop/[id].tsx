@@ -138,7 +138,7 @@ export default function ShopDetailScreen() {
     const { data: productsData, isLoading: isLoadingProducts, isRefetching: isRefetchingProducts, isFetchingNextPage, hasNextPage, fetchNextPage } = useShopProducts(shopId, filters);
     const { data: vouchers = [], isLoading: isLoadingVouchers } = useShopVouchers(shopId);
     const { data: categories = [], isLoading: isLoadingCategories } = useShopCategories(shopId);
-    const { data: brandProfile = null, isLoading: isLoadingBrandProfile } = useShopBrandProfile(shopId);
+    const { data: brandProfile = null } = useShopBrandProfile(shopId);
 
     // Minimum skeleton duration for instant nav (prevents flash)
     const [minSkeletonComplete, setMinSkeletonComplete] = useState(!isInstantNav);
@@ -432,7 +432,7 @@ export default function ShopDetailScreen() {
             }
             default: return null;
         }
-    }, [shouldShowSkeleton, shop, brandProfile, isLoadingBrandProfile, activeTab, totalProductCount, vouchers, isLoadingVouchers, hasVouchers, handleChatPress, handleFollowPress, handleTabChange, handleCollectVoucher, handlePrefetchChat, handleProductPress, handleHeaderLayout, categories, isLoadingCategories, handleCategoryPress, products]);
+    }, [shouldShowSkeleton, shop, brandProfile, activeTab, totalProductCount, vouchers, isLoadingVouchers, hasVouchers, handleChatPress, handleFollowPress, handleTabChange, handleCollectVoucher, handlePrefetchChat, handleProductPress, handleHeaderLayout, categories, isLoadingCategories, handleCategoryPress, products]);
 
     if (isShopError) {
         return (

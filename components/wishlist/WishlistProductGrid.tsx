@@ -164,6 +164,7 @@ export const WishlistProductGrid: React.FC<WishlistProductGridProps> = ({
         onItemLongPress,
         styles.cardWrapper,
         t,
+        theme.colors.successSoft,
     ]);
 
     return (

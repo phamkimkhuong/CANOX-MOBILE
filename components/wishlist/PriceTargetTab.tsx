@@ -1,6 +1,6 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { productRoutes } from '@/constants/routes';
-import type { PriceTargetGroupUI } from '@/hooks/api/wishlist/usePriceTargetMet';
+
 import { usePriceTargetMet } from '@/hooks/api/wishlist/usePriceTargetMet';
 import type { WishlistItemUI } from '@/types/wishlist';
 import { formatCurrency } from '@/utils/format';
@@ -30,23 +30,13 @@ export const PriceTargetTab: React.FC<PriceTargetTabProps> = ({ onSwitchToPrivat
 
     const { data: targetData, isLoading, isRefetching, refetch } = usePriceTargetMet();
 
+    const groups = useMemo(() => targetData?.groups ?? [], [targetData?.groups]);
+    const totalItems = targetData?.totalItems ?? 0;
+    const flatItems = useMemo(() => groups.flatMap(g => g.items), [groups]);
+
     const handleBuyNow = useCallback((item: WishlistItemUI) => {
-        // Navigate to product with instant buy action
         Navigator.push(productRoutes.detail(item.productId, { action: 'buy-now' }));
     }, []);
-
-    if (isLoading) {
-        return (
-            <View style={styles.centerTarget}>
-                <ActivityIndicator size="large" color={theme.colors.newPrimary} />
-            </View>
-        );
-    }
-
-    const groups = targetData?.groups ?? [];
-    const totalItems = targetData?.totalItems ?? 0;
-
-    const flatItems = useMemo(() => groups.flatMap(g => g.items), [groups]);
 
     const renderItem = useCallback(({ item }: { item: WishlistItemUI }) => (
         <Pressable
@@ -90,7 +80,15 @@ export const PriceTargetTab: React.FC<PriceTargetTabProps> = ({ onSwitchToPrivat
                 </Pressable>
             </View>
         </Pressable>
-    ), [handleBuyNow, theme, t]);
+    ), [handleBuyNow, styles, theme, t]);
+
+    if (isLoading) {
+        return (
+            <View style={styles.centerTarget}>
+                <ActivityIndicator size="large" color={theme.colors.newPrimary} />
+            </View>
+        );
+    }
 
     if (groups.length === 0) {
         return (

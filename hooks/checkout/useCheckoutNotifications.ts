@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { CheckoutShopUI, CheckoutCalculationResult } from '@/types/checkout';
 import { CheckoutPreviewUI } from '@/utils/adapter/checkoutPreviewAdapter';
 import { getFriendlyVoucherReason } from '@/utils/voucherReason';
@@ -28,7 +29,8 @@ export function useCheckoutNotifications({
     isLoadingPreview,
     canPlaceOrder
 }: UseCheckoutNotificationsProps) {
-    const { t } = useTranslation();
+    const { t } = useTranslation('checkout');
+    const tCheckout = t as TFunction<'checkout'>;
 
     const platformVoucherWarning = useMemo(() => {
         if (selectedPlatformDiscountVoucher || selectedPlatformShippingVoucher) {
@@ -39,7 +41,7 @@ export function useCheckoutNotifications({
                 );
                 const invalidSelectedReason = getFriendlyVoucherReason(
                     invalidSelected?.reason ?? invalidSelected?.description,
-                    t as any
+                    tCheckout
                 );
                 if (invalidSelectedReason) {
                     return invalidSelectedReason;
@@ -50,15 +52,15 @@ export function useCheckoutNotifications({
         if (calculation.platformVoucherValidation && !calculation.platformVoucherValidation.isValid) {
             return getFriendlyVoucherReason(
                 calculation.platformVoucherValidation.invalidReason,
-                t as any
-            ) ?? (t('voucher.reasons.genericInvalid' as any) as string);
+                tCheckout
+            ) ?? t('voucher.reasons.genericInvalid');
         }
 
         const voucherWarning = warnings.find(
             (w) => w.toLowerCase().includes('voucher') || w.toLowerCase().includes('mã giảm')
         );
-        return getFriendlyVoucherReason(voucherWarning, t as any) ?? null;
-    }, [warnings, calculation.platformVoucherValidation, shops, selectedPlatformDiscountVoucher, selectedPlatformShippingVoucher, t]);
+        return getFriendlyVoucherReason(voucherWarning, tCheckout) ?? null;
+    }, [warnings, calculation.platformVoucherValidation, shops, selectedPlatformDiscountVoucher, selectedPlatformShippingVoucher, t, tCheckout]);
 
     const isPlatformVoucherValid = platformVoucherWarning === null;
 
@@ -69,8 +71,8 @@ export function useCheckoutNotifications({
             if (lastToastRef.current !== platformVoucherWarning) {
                 Toast.show({
                     type: 'error',
-                    text1: t('voucher.platformTitle' as any) as string,
-                    text2: platformVoucherWarning as string,
+                    text1: t('voucher.platformTitle'),
+                    text2: platformVoucherWarning,
                     position: 'bottom',
                     visibilityTime: 4000,
                 });
@@ -98,8 +100,8 @@ export function useCheckoutNotifications({
                 const timer = setTimeout(() => {
                     Toast.show({
                         type: 'success',
-                        text1: t('voucher.bestApplied' as any) as string,
-                        text2: t('voucher.bestAppliedDetail' as any) as string,
+                        text1: t('voucher.bestApplied'),
+                        text2: t('voucher.bestAppliedDetail'),
                         position: 'bottom',
                         visibilityTime: 3000,
                     });

@@ -13,7 +13,6 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import EmojiPicker, { type EmojiType } from 'rn-emoji-keyboard';
 
@@ -37,7 +36,6 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = React.memo(({
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-    const insets = useSafeAreaInsets();
     const inputRef = useRef<TextInput>(null);
     const [text, setText] = useState('');
     const [isFocused, setIsFocused] = useState(false);

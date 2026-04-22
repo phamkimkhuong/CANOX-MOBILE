@@ -7,10 +7,10 @@ jest.mock('react-native-reanimated', () => {
 });
 
 if (typeof globalThis !== 'undefined') {
-  // @ts-ignore
+  // @ts-expect-error -- globalThis typings don't include delete for ReadableStream
   delete globalThis.ReadableStream;
   if (typeof global !== 'undefined') {
-    // @ts-ignore
+    // @ts-expect-error -- globalThis typings don't include delete for ReadableStream
     delete global.ReadableStream;
   }
 }

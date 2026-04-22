@@ -131,7 +131,7 @@ export function useCreateOrderFlow(options: UseCreateOrderFlowOptions) {
                     },
                 } as never);
             }
-        } catch (error: unknown) {
+        } catch {
             hideGlobalLoading();
 
             const message = t('status.orderFailed');

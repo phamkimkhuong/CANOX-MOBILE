@@ -152,7 +152,7 @@ export default function OrderDetailScreen() {
                 text2: t('chat:error.tryAgainLater'),
             });
         }
-    }, [isCreatingChat, order?.orderNumber, order?.orderId, order?.status, createConversation, t]);
+    }, [isCreatingChat, order?.orderNumber, order?.orderId, order?.status, order?.currency, order?.grandTotal, order?.itemCount, order?.items, createConversation, t]);
 
     const handleRefresh = useCallback(async () => {
         setRefreshing(true);

@@ -289,7 +289,7 @@ export const OrderListTab: React.FC<OrderListTabProps> = ({ status }) => {
                 ) : null}
             </View>
         );
-    }, [handleOrderPress, handleOrderPressIn, handleShopPress, handleAction, handleTrackingPress, status, styles.orderItemContainer, styles.returnDeadlineText, t]);
+    }, [handleOrderPress, handleOrderPressIn, handleShopPress, handleAction, handleTrackingPress, status, styles.orderItemContainer, styles.orderCardWithExternalNote, styles.returnDeadlineText, t]);
 
     // Key extractor
     const keyExtractor = useCallback((item: OrderUI) => item.orderId, []);
