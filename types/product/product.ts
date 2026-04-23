@@ -22,6 +22,9 @@ export type ReviewStatsRaw = z.infer<typeof ReviewStatsRawSchema>;
 // Variant Schema — Zod Pruning: only parse `id` for favorite check
 const VariantMinimalSchema = z.object({
     id: z.string(),
+    inventory: z.object({
+        soldCount: z.coerce.number().nullish().transform(val => val ?? 0),
+    }).nullish(),
 });
 
 export const ProductResponseItemSchema = z.object({
@@ -82,5 +85,10 @@ export interface BaseProductDTO {
         shop_location?: string | null;
     } | null;
     availableRegions?: string[] | null;
-    variants?: { id: string }[] | null;
+    variants?: { 
+        id: string;
+        inventory?: {
+            soldCount?: number | null;
+        } | null;
+    }[] | null;
 }

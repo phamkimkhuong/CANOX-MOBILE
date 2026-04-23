@@ -66,7 +66,7 @@ export const transformProduct = (raw: BaseProductDTO): ProductFeedItem => {
         discountPercentage: discountPercentage > 0 ? discountPercentage : undefined,
         rating: raw.reviewStatistics?.averageRating ?? 0,
         reviews: raw.reviewStatistics?.totalReviews ?? 0,
-        sold: raw.reviewStatistics?.verifiedPurchaseCount ?? 0,
+        sold: (raw.variants ?? []).reduce((acc, v) => acc + (v.inventory?.soldCount ?? 0), 0) || raw.reviewStatistics?.verifiedPurchaseCount || 0,
         location,
         isInternational: isInternational || undefined,
         defaultVariantId: sortedVariantIds[0],

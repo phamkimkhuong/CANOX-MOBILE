@@ -690,9 +690,21 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
         return <View style={styles.footerSpacer} />;
     }, [isLoadingRelated, theme]);
 
-    // ============================================
-    // RENDER
-    // ============================================
+    const listExtraData = useMemo(() => ({
+        selectedAddressId: selectedAddress?.id,
+        shippingCompatibility,
+        selectionSummary: selectionResult.selectionSummary,
+        displayPrice: selectionResult.displayPrice,
+        loyaltyPolicy,
+        areSecondaryQueriesEnabled,
+    }), [
+        selectedAddress?.id,
+        shippingCompatibility,
+        selectionResult.selectionSummary,
+        selectionResult.displayPrice,
+        loyaltyPolicy,
+        areSecondaryQueriesEnabled,
+    ]);
 
     return (
         <>
@@ -723,6 +735,7 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
                             renderItem={renderItem}
                             keyExtractor={(item) => item.id}
                             getItemType={(item) => item.type}
+                            extraData={listExtraData}
                             numColumns={2}
                             masonry={true}
                             optimizeItemArrangement={true}
