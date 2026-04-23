@@ -423,13 +423,13 @@ export default function HomeScreen() {
       case 'tabs':
         return item.id;
       case 'product':
-        return `${activeTab}_${item.data.id}_${index}`;
+        return `product_${item.data.id}`;
       case 'skeleton':
         return item.id;
       default:
         return `item-${index}`;
     }
-  }, [activeTab]);
+  }, []);
 
   /**
    * Render từng item trong FlashList

@@ -23,10 +23,13 @@ export const HOME_STRINGS: HomeTranslation = {
         sold: 'Đã bán',
         onlyLeft: 'Chỉ còn {{count}}',
         upcomingPriceLabel: 'Giá flash sale',
+        day: 'ngày',
+        pendingBoundary: 'Đang cập nhật khung giờ...',
     },
     featured: {
         title: 'Gợi ý cho bạn',
         subtitle: 'Dựa trên sở thích của bạn',
+        editorBadge: 'Yêu thích',
     },
     tabs: {
         new: 'Mới nhất',

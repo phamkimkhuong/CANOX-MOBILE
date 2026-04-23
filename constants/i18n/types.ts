@@ -173,10 +173,13 @@ export interface HomeTranslation {
         sold: string;
         onlyLeft: string;
         upcomingPriceLabel: string;
+        day: string;
+        pendingBoundary: string;
     };
     featured: {
         title: string;
         subtitle: string;
+        editorBadge: string;
     };
     tabs: {
         new: string;

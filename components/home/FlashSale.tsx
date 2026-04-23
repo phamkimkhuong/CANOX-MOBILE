@@ -291,7 +291,7 @@ export const FlashSale = memo(({ onProductPress, shimmerAnimatedStyle }: FlashSa
                                             <View style={[styles.timerBox, displayedIsUpcoming && styles.timerBoxUpcoming]}>
                                                 <Text style={styles.timerText}>{timeLeft.days}</Text>
                                             </View>
-                                            <Text style={styles.timerDayText}>ngày</Text>
+                                            <Text style={styles.timerDayText}>{t('flashSale.day')}</Text>
                                         </>
                                     ) : null}
 
@@ -313,7 +313,7 @@ export const FlashSale = memo(({ onProductPress, shimmerAnimatedStyle }: FlashSa
                         {shouldShowPendingShell ? (
                             <View style={styles.pendingBadge}>
                                 <View style={styles.pendingDot} />
-                                <Text style={styles.pendingText}>Đang cập nhật khung giờ...</Text>
+                                <Text style={styles.pendingText}>{t('flashSale.pendingBoundary')}</Text>
                             </View>
                         ) : null}
 

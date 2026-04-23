@@ -177,7 +177,7 @@ export const FeaturedSection = memo(({ onProductPress, shimmerAnimatedStyle }: F
                 <View style={styles.mainOverlay}>
                     <View style={styles.mainBadgesRow}>
                         <View style={styles.editorBadge}>
-                            <Text style={styles.editorBadgeText}>Yêu thích</Text>
+                            <Text style={styles.editorBadgeText}>{t('featured.editorBadge')}</Text>
                         </View>
                         {mainProduct.isInternational && (
                             <View style={styles.liquidGlassBadgeContainer}>
@@ -244,7 +244,7 @@ export const FeaturedSection = memo(({ onProductPress, shimmerAnimatedStyle }: F
                         <View style={styles.mainActionRow}>
                             {mainProduct.sold > 0 && (
                                 <Text style={styles.mainSoldText}>
-                                    Đã bán {formatSoldCount(mainProduct.sold)}
+                                    {t('product:info.soldCountTemplate', { soldCount: formatSoldCount(mainProduct.sold) })}
                                 </Text>
                             )}
                             <TouchableOpacity

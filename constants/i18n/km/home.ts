@@ -23,10 +23,13 @@ export const HOME_STRINGS: HomeTranslation = {
         sold: 'លក់បាន',
         onlyLeft: 'នៅសល់តែ {{count}} ទៀតប៉ុណ្ណោះ',
         upcomingPriceLabel: 'តម្លៃបញ្ចុះពិសេស',
+        day: 'ថ្ងៃ',
+        pendingBoundary: 'កំពុងធ្វើបច្ចុប្បន្នភាពរន្ធពេលវេលា...',
     },
     featured: {
         title: 'ប្រភេទលេចធ្លោ',
         subtitle: 'ផ្អែកលើចំណូលចិត្តរបស់អ្នក',
+        editorBadge: 'សំណព្វ',
     },
     tabs: {
         new: 'ថ្មីៗ',

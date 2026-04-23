@@ -23,10 +23,13 @@ export const HOME_STRINGS: HomeTranslation = {
         sold: 'ຂາຍແລ້ວ',
         onlyLeft: 'ເຫຼືອພຽງ {{count}}',
         upcomingPriceLabel: 'ລາຄາແຟດເຊວ',
+        day: 'ມື້',
+        pendingBoundary: 'ກຳລັງອັບເດດຊ່ອງເວລາ...',
     },
     featured: {
         title: 'ໝວດໝູ່ແນະນຳ',
         subtitle: 'ອີງຕາມຄວາມສົນໃຈຂອງທ່ານ',
+        editorBadge: 'ລາຍການທີ່ມັກ',
     },
     tabs: {
         new: 'ໃໝ່ລ່າສຸດ',

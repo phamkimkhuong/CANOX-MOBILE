@@ -23,10 +23,13 @@ export const HOME_STRINGS: HomeTranslation = {
         sold: 'Sold',
         onlyLeft: 'Only {{count}} left',
         upcomingPriceLabel: 'Flash sale price',
+        day: 'days',
+        pendingBoundary: 'Updating time slot...',
     },
     featured: {
         title: 'Featured Categories',
         subtitle: 'Based on your interests',
+        editorBadge: 'Favorites',
     },
     tabs: {
         new: 'Latest',
