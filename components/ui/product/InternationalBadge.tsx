@@ -17,38 +17,38 @@ interface InternationalBadgeProps {
     label: string;
     /** Size variant: 'sm' for FeaturedSection cards, 'md' for ProductCard */
     size?: 'sm' | 'md';
+    /** Shared shimmer sweep style from parent */
+    shimmerStyle?: object;
 }
 
 /**
  * International Shipping Badge
  * 
  * Premium gradient pill with shimmer sweep animation.
- * The shimmer effect runs on the UI thread via Reanimated
- * so it won't cause React re-renders even inside React.memo.
  * 
  * Usage:
  * <InternationalBadge label={t('badges.international')} />
- * <InternationalBadge label="Quốc tế" size="sm" />
  */
-export const InternationalBadge = React.memo(({ label, size = 'md' }: InternationalBadgeProps) => {
-    const shimmerX = useSharedValue(-50);
+export const InternationalBadge = React.memo(({ label, size = 'md', shimmerStyle }: InternationalBadgeProps) => {
+    const localShimmerX = useSharedValue(-50);
 
     useEffect(() => {
-        // Sweep from left (-50) to right (120), then reset
-        // withDelay: pause 4s between sweeps so it's not annoying
-        shimmerX.value = withRepeat(
+        if (shimmerStyle) return;
+        localShimmerX.value = withRepeat(
             withSequence(
-                withTiming(-50, { duration: 0 }),       // reset to start
-                withDelay(4000, withTiming(120, { duration: 600 })), // sweep right
+                withTiming(-50, { duration: 0 }),
+                withDelay(4000, withTiming(120, { duration: 600 })),
             ),
-            -1,    // infinite repeats
-            false, // don't reverse
+            -1,
+            false,
         );
-    }, [shimmerX]);
+    }, [localShimmerX, shimmerStyle]);
 
-    const shimmerStyle = useAnimatedStyle(() => ({
-        transform: [{ translateX: `${shimmerX.value}%` as unknown as number }],
+    const localStyle = useAnimatedStyle(() => ({
+        transform: [{ translateX: `${localShimmerX.value}%` as unknown as number }],
     }));
+
+    const effectiveShimmerStyle = shimmerStyle ?? localStyle;
 
     const isSmall = size === 'sm';
 
@@ -61,7 +61,7 @@ export const InternationalBadge = React.memo(({ label, size = 'md' }: Internatio
         >
             {/* Shimmer sweep overlay */}
             <View style={styles.shimmerMask}>
-                <Animated.View style={[styles.shimmerStrip, shimmerStyle]}>
+                <Animated.View style={[styles.shimmerStrip, effectiveShimmerStyle]}>
                     <LinearGradient
                         colors={[
                             'transparent',

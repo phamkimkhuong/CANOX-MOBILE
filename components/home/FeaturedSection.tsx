@@ -3,20 +3,14 @@ import { useProductFeed } from '@/hooks/api/useHomeProducts';
 import type { ProductFeedItem } from '@/types/product/product';
 import { formatCurrency, formatSoldCount } from '@/utils/format';
 import { toSizedImageUrl } from '@/utils/url';
+import { FlashList } from '@shopify/flash-list';
 import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { memo, useEffect, useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, Text, TouchableOpacity, useWindowDimensions, View, ViewStyle } from 'react-native';
-import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withDelay,
-    withRepeat,
-    withSequence,
-    withTiming,
-} from 'react-native-reanimated';
+import { Text, TouchableOpacity, useWindowDimensions, View, ViewStyle } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { IconSymbol } from '../ui/Icon';
 import { InternationalBadge } from '../ui/product/InternationalBadge';
@@ -79,30 +73,14 @@ interface FeaturedSectionProps {
     ) => void;
     /** Shared shimmer animation from MarketingHeader — avoids multiple animation loops */
     shimmerAnimatedStyle?: object;
+    liquidGlassShimmerStyle?: object;
 }
 
-export const FeaturedSection = memo(({ onProductPress, shimmerAnimatedStyle }: FeaturedSectionProps = {}) => {
+export const FeaturedSection = memo(({ onProductPress, shimmerAnimatedStyle, liquidGlassShimmerStyle }: FeaturedSectionProps = {}) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
     const { t } = useTranslation(['home', 'product']);
     const { width: screenWidth } = useWindowDimensions();
-
-    const shimmerX = useSharedValue(-50);
-
-    useEffect(() => {
-        shimmerX.value = withRepeat(
-            withSequence(
-                withTiming(-50, { duration: 0 }),
-                withDelay(4000, withTiming(120, { duration: 600 })),
-            ),
-            -1,
-            false,
-        );
-    }, [shimmerX]);
-
-    const liquidGlassShimmerStyle = useAnimatedStyle(() => ({
-        transform: [{ translateX: `${shimmerX.value}%` as unknown as number }],
-    }));
 
     const VISIBLE_CARDS = 2.6;
     const horizontalPadding = theme.margins.md * 2;
@@ -264,13 +242,12 @@ export const FeaturedSection = memo(({ onProductPress, shimmerAnimatedStyle }: F
 
             {/* Small Featured Products - Horizontal Scrollable */}
             {smallProducts.length > 0 && (
-                <FlatList<ProductFeedItem>
+                <FlashList<ProductFeedItem>
                     data={smallProducts}
                     horizontal
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={styles.smallProductsList}
                     keyExtractor={(item) => item.id}
-                    ItemSeparatorComponent={() => <View style={styles.smallSeparator} />}
                     renderItem={({ item: product }) => {
 
                         const badge = getBadge(product);
@@ -278,7 +255,7 @@ export const FeaturedSection = memo(({ onProductPress, shimmerAnimatedStyle }: F
 
                         return (
                             <TouchableOpacity
-                                style={[styles.smallCard, { width: cardWidth }]}
+                                style={[styles.smallCard, { width: cardWidth, marginRight: theme.margins.sm }]}
                                 activeOpacity={0.85}
                                 onPress={() => onProductPress?.(
                                     product.id,
@@ -316,7 +293,7 @@ export const FeaturedSection = memo(({ onProductPress, shimmerAnimatedStyle }: F
 
                                     {/* International badge */}
                                     {product.isInternational && (
-                                        <InternationalBadge label={t('product:badges.international')} size="sm" />
+                                        <InternationalBadge label={t('product:badges.international')} size="sm" shimmerStyle={liquidGlassShimmerStyle} />
                                     )}
 
                                     {/* Rating Row */}
@@ -348,7 +325,7 @@ export const FeaturedSection = memo(({ onProductPress, shimmerAnimatedStyle }: F
                                     </View>
                                     {product.sold > 0 && (
                                         <Text style={styles.smallSoldText}>
-                                            Đã bán {formatSoldCount(product.sold)}
+                                            {t('product:info.soldCountTemplate', { soldCount: formatSoldCount(product.sold) })}
                                         </Text>
                                     )}
                                 </View>
@@ -531,9 +508,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: 'rgba(0,0,0,0.04)',
         paddingBottom: 4,
-    },
-    smallSeparator: {
-        width: theme.margins.sm,
     },
     smallImageContainer: {
         width: '100%',

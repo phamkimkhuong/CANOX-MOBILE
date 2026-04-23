@@ -3,7 +3,9 @@ import { LayoutChangeEvent, View } from 'react-native';
 import {
     useAnimatedStyle,
     useSharedValue,
+    withDelay,
     withRepeat,
+    withSequence,
     withTiming,
 } from 'react-native-reanimated';
 import { StyleSheet } from 'react-native-unistyles';
@@ -62,6 +64,22 @@ export const MarketingHeader = memo(({ onHeightMeasured, onProductPress }: Marke
         opacity: shimmerValue.value,
     }));
 
+    const liquidGlassX = useSharedValue(-50);
+    useEffect(() => {
+        liquidGlassX.value = withRepeat(
+            withSequence(
+                withTiming(-50, { duration: 0 }),
+                withDelay(4000, withTiming(120, { duration: 600 })),
+            ),
+            -1,
+            false,
+        );
+    }, [liquidGlassX]);
+
+    const liquidGlassShimmerStyle = useAnimatedStyle(() => ({
+        transform: [{ translateX: `${liquidGlassX.value}%` as unknown as number }],
+    }));
+
     /**
      * Đo chiều cao của Marketing Header
      * Chỉ gọi callback khi height thay đổi đáng kể (> threshold)
@@ -81,7 +99,7 @@ export const MarketingHeader = memo(({ onHeightMeasured, onProductPress }: Marke
                 <CategoryRail />
             </View>
             <FlashSale onProductPress={onProductPress} shimmerAnimatedStyle={shimmerAnimatedStyle} />
-            <FeaturedSection onProductPress={onProductPress} shimmerAnimatedStyle={shimmerAnimatedStyle} />
+            <FeaturedSection onProductPress={onProductPress} shimmerAnimatedStyle={shimmerAnimatedStyle} liquidGlassShimmerStyle={liquidGlassShimmerStyle} />
         </View>
     );
 });

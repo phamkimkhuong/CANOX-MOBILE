@@ -1,6 +1,6 @@
+import { createRouteErrorBoundary } from '@/components/common/AppCrashFallback';
 import { MarketingHeader } from '@/components/home/MarketingHeader';
 import { ProductTabs } from '@/components/home/ProductTabs';
-import { createRouteErrorBoundary } from '@/components/common/AppCrashFallback';
 import { HomeHeader } from '@/components/home/SearchHomeHeader';
 import { ProductCard } from '@/components/ui/product/ProductCard';
 import { ProductCardSkeleton } from '@/components/ui/product/ProductCardSkeleton';
@@ -87,9 +87,9 @@ TabsRowItem.displayName = 'TabsRowItem';
  * Seeds a lightweight preview into memory, then navigates immediately on press.
  */
 const ProductRowItem = memo(({
-    item,
-    onFavoritePress,
-    onPress,
+  item,
+  onFavoritePress,
+  onPress,
 }: {
   item: ProductFeedItem;
   onFavoritePress?: (variantId: string) => void;
@@ -138,6 +138,7 @@ export default function HomeScreen() {
   const { height: screenHeight } = useWindowDimensions();
 
   const [activeTab, setActiveTab] = useState<FeedType>('new');
+  const activeTabRef = useRef<FeedType>(activeTab);
   const listRef = useRef<FlashListRef<ListItem>>(null);
 
   // scrollY: Vị trí cuộn hiện tại (chạy trên UI Thread)
@@ -147,8 +148,10 @@ export default function HomeScreen() {
   // Ref để lưu giá trị JS cho logic đổi tab
   const headerHeightRef = useRef(0);
   const scrollYRef = useRef(0);
-  const tabTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const tabRafRef = useRef<number | null>(null);
   const isTabTransitioningRef = useRef(false);
+  const handleTabChangeRef = useRef<(tab: FeedType) => void>(() => { });
+  const isAuthenticatedRef = useRef(isAuthenticated);
 
   // Deferred Rendering: Only render heavy content after transition
   const [isReady, setIsReady] = useState(false);
@@ -157,7 +160,7 @@ export default function HomeScreen() {
       const task = setTimeout(() => setIsReady(true), 50);
       return () => {
         clearTimeout(task);
-        if (tabTimerRef.current) clearTimeout(tabTimerRef.current);
+        if (tabRafRef.current) cancelAnimationFrame(tabRafRef.current);
         isTabTransitioningRef.current = false;
       };
     }, [])
@@ -188,9 +191,6 @@ export default function HomeScreen() {
   // State để quản lý chiều cao HomeHeader (search bar)
   const [homeHeaderHeight, setHomeHeaderHeight] = useState(0);
 
-  const minHeightStyle = useMemo(() => ({
-    minHeight: screenHeight + headerHeightRef.current
-  }), [screenHeight]);
 
   const {
     data,
@@ -310,8 +310,8 @@ export default function HomeScreen() {
     scrollY.value = y;
     scrollYRef.current = y;
     // Lưu scroll position cho tab hiện tại
-    scrollPositions.current[activeTab] = y;
-  }, [scrollY, activeTab]);
+    scrollPositions.current[activeTabRef.current] = y;
+  }, [scrollY]);
 
   /**
    * Animated Style cho Sticky Tabs Overlay
@@ -331,7 +331,8 @@ export default function HomeScreen() {
    * LOGIC Xử lý đổi tab - Preserve Scroll Position
    */
   const handleTabChange = useCallback((newTab: FeedType) => {
-    if (newTab === activeTab) return;
+    const currentTab = activeTabRef.current;
+    if (newTab === currentTab) return;
 
     // Reset favorite cache for new tab's products
     resetCheckedIds();
@@ -344,7 +345,7 @@ export default function HomeScreen() {
       }
 
       const tabStartTime = Date.now();
-      scrollPositions.current[activeTab] = scrollYRef.current;
+      scrollPositions.current[currentTab] = scrollYRef.current;
       const savedPosition = scrollPositions.current[newTab];
 
       // Lock scrollY shared value to prevent sticky overlay flicker
@@ -352,35 +353,43 @@ export default function HomeScreen() {
       isTabTransitioningRef.current = true;
 
       // Đổi tab
+      activeTabRef.current = newTab;
       setActiveTab(newTab);
 
-      // Clear previous timer if any
-      if (tabTimerRef.current) clearTimeout(tabTimerRef.current);
+      // Cancel previous rAF chain if any
+      if (tabRafRef.current) cancelAnimationFrame(tabRafRef.current);
 
       const targetOffset = (savedPosition >= headerHeightRef.current && savedPosition > 0)
         ? savedPosition
         : headerHeightRef.current;
 
-      tabTimerRef.current = setTimeout(() => {
-        listRef.current?.scrollToOffset({
-          offset: targetOffset,
-          animated: false,
-        });
-        scrollYRef.current = targetOffset;
-        scrollY.value = targetOffset;
-        scrollPositions.current[newTab] = targetOffset;
+      tabRafRef.current = requestAnimationFrame(() => {
+        tabRafRef.current = requestAnimationFrame(() => {
+          listRef.current?.scrollToOffset({
+            offset: targetOffset,
+            animated: false,
+          });
+          scrollYRef.current = targetOffset;
+          scrollY.value = targetOffset;
+          scrollPositions.current[newTab] = targetOffset;
 
-        // Unlock after next frame to ensure scroll event has settled
-        requestAnimationFrame(() => {
-          isTabTransitioningRef.current = false;
-        });
+          // Unlock after next frame to ensure scroll event has settled
+          requestAnimationFrame(() => {
+            isTabTransitioningRef.current = false;
+          });
 
-        if (__DEV__) log.info(`TabChange_${newTab} took ${Date.now() - tabStartTime}ms`);
-      }, 100);
+          if (__DEV__) log.info(`TabChange_${newTab} took ${Date.now() - tabStartTime}ms`);
+        });
+      });
     } else {
+      activeTabRef.current = newTab;
       setActiveTab(newTab);
     }
-  }, [activeTab, scrollY, resetCheckedIds]);
+  }, [scrollY, resetCheckedIds]);
+
+  // Keep refs in sync for stable renderItem closure
+  handleTabChangeRef.current = handleTabChange;
+  isAuthenticatedRef.current = isAuthenticated;
 
   /**
    * Navigate tới Product Detail
@@ -439,18 +448,17 @@ export default function HomeScreen() {
       case 'header':
         return <MarketingHeader onHeightMeasured={handleMarketingHeaderLayout} onProductPress={handleProductPress} />;
       case 'tabs':
-        // Tabs inline - sẽ cuộn đi khi scroll
         return (
           <TabsRowItem
-            activeTab={activeTab}
-            onTabChange={handleTabChange}
+            activeTab={activeTabRef.current}
+            onTabChange={handleTabChangeRef.current}
           />
         );
       case 'product':
         return (
           <ProductRowItem
             item={item.data}
-            onFavoritePress={isAuthenticated ? handleFavoritePress : undefined}
+            onFavoritePress={isAuthenticatedRef.current ? handleFavoritePress : undefined}
             onPress={handleGridProductPress}
           />
         );
@@ -459,7 +467,7 @@ export default function HomeScreen() {
       default:
         return null;
     }
-  }, [activeTab, handleGridProductPress, handleTabChange, handleProductPress, handleMarketingHeaderLayout, shimmerAnimatedStyle, handleFavoritePress, isAuthenticated]);
+  }, [handleGridProductPress, handleProductPress, handleMarketingHeaderLayout, shimmerAnimatedStyle, handleFavoritePress]);
 
   /**
    * Item type cho FlashList recycling optimization
@@ -534,6 +542,7 @@ export default function HomeScreen() {
         ref={listRef}
         data={listData}
         renderItem={renderItem}
+        extraData={activeTab}
         keyExtractor={keyExtractor}
         numColumns={2}
         masonry={true}
@@ -558,7 +567,9 @@ export default function HomeScreen() {
         }
         contentContainerStyle={[
           styles.listContent,
-          (isLoading || listData.length < 5) && minHeightStyle
+          (isLoading || listData.length < 5) && {
+            minHeight: screenHeight + headerHeightRef.current,
+          }
         ]}
         showsVerticalScrollIndicator={false}
       />
