@@ -39,8 +39,8 @@ const PROTECTION_POLICIES: ProtectionPolicyMeta[] = [
     {
         id: 'support',
         icon: 'headset-outline',
-        slug: 'regulations',
-        url: LEGAL_URLS.MARKETPLACE_REGULATIONS,
+        slug: 'help',
+        url: LEGAL_URLS.HELP_CENTER,
     },
 ];
 
@@ -69,17 +69,14 @@ export const ProductOrderProtectionCard = memo(() => {
     }, []);
 
     const handleLearnMore = useCallback((policy: typeof policies[number]) => {
-        setIsSheetVisible(false);
-        requestAnimationFrame(() => {
-            Navigator.push({
-                pathname: ROUTES.SETTINGS.LEGAL_DETAIL,
-                params: {
-                    slug: policy.slug,
-                    url: policy.url,
-                    title: policy.policyTitle,
-                },
-            } as never);
-        });
+        Navigator.push({
+            pathname: ROUTES.SETTINGS.LEGAL_DETAIL,
+            params: {
+                slug: policy.slug,
+                url: policy.url,
+                title: policy.policyTitle,
+            },
+        } as never);
     }, []);
 
     return (
@@ -155,7 +152,7 @@ export const ProductOrderProtectionCard = memo(() => {
                                             <Text style={styles.policyDescription}>
                                                 {policy.description}
                                             </Text>
-                                            {policy.id !== 'payment' && (
+                                            {policy.id !== 'payment' && policy.id !== 'shipping' && (
                                                 <Pressable
                                                     style={styles.learnMoreButton}
                                                     onPress={() => handleLearnMore(policy)}

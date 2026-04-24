@@ -128,7 +128,7 @@ export const PRODUCT_STRINGS: ProductTranslation = {
                 summaryTitle: 'ຮ້ອງຮຽນ 24/7',
                 title: 'ຊ່ວຍເຫຼືອການຮ້ອງຮຽນ 24/7',
                 description: 'ເຂົ້າເຖິງສູນຊ່ວຍເຫຼືອອອນລາຍ 24/7 ຂອງ Canox ຫຼື ຕິດຕໍ່ພະນັກງານເພື່ອຮັບການຊ່ວຍເຫຼືອ ແລະ ແກ້ໄຂບັນຫາກ່ຽວກັບຄຳສັ່ງຊື້.',
-                policyTitle: 'ລະບຽບການຂອງແພລດຟອມ',
+                policyTitle: 'ສູນຊ່ວຍເຫຼືອ',
             },
         },
     },

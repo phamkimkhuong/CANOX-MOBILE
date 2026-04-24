@@ -3,6 +3,7 @@
  */
 
 export const LEGAL_BASE_URL = 'https://calatha.com/docs?doc=';
+export const HELP_CENTER_URL = 'https://calatha.com/help';
 
 // ───────────────
 // BẮT BUỘC
@@ -39,4 +40,7 @@ export const LEGAL_URLS = {
 
     /** Chính sách bảo hành */
     WARRANTY: `${LEGAL_BASE_URL}warranty`,
+
+    /** Trung tâm hỗ trợ */
+    HELP_CENTER: HELP_CENTER_URL,
 };

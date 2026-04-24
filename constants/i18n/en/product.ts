@@ -128,7 +128,7 @@ export const PRODUCT_STRINGS: ProductTranslation = {
                 summaryTitle: '24/7 Support',
                 title: '24/7 Claim support',
                 description: 'Access Canox\'s 24/7 online help center or connect with support staff for assistance and resolution of any order-related issues.',
-                policyTitle: 'Marketplace Regulations',
+                policyTitle: 'Help Center',
             },
         },
     },

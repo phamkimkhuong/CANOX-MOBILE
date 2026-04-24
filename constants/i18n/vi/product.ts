@@ -144,7 +144,7 @@ export const PRODUCT_STRINGS: ProductTranslation = {
                 summaryTitle: 'Khiếu nại 24/7',
                 title: 'Hỗ trợ khiếu nại 24/7',
                 description: 'Truy cập trung tâm trợ giúp trực tuyến 24/7 của Canox hoặc kết nối với nhân viên hỗ trợ để được tiếp nhận và xử lý khi có vấn đề phát sinh với đơn hàng.',
-                policyTitle: 'Quy chế hoạt động sàn TMĐT',
+                policyTitle: 'Trung tâm hỗ trợ',
             },
         },
     },
