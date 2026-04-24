@@ -14,6 +14,7 @@ import {
     SettingsItem,
     SettingsSection
 } from '@/components/settings';
+import { HELP_CENTER_URL } from '@/constants/legal';
 import { ROUTES } from '@/constants/routes';
 import { SETTINGS_SECTIONS } from '@/constants/settings';
 import { useCache } from '@/hooks/useCache';
@@ -65,7 +66,18 @@ export default function SettingsScreen() {
     // Handle navigation for link items
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     const handleNavigation = useCallback((route: any) => {
-        Navigator.push(route);
+        if (route === ROUTES.PROFILE.SUPPORT) {
+            Navigator.push({
+                pathname: ROUTES.SETTINGS.LEGAL_DETAIL,
+                params: {
+                    slug: 'help',
+                    url: HELP_CENTER_URL,
+                    title: 'Trung tâm hỗ trợ',
+                },
+            } as never);
+        } else {
+            Navigator.push(route);
+        }
     }, []);
 
     // Handle dark mode toggle

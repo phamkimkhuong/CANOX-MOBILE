@@ -8,6 +8,8 @@ import {
     SmartInsightBanner,
     UserInfoCard,
 } from '@/components/profile';
+import { HELP_CENTER_URL } from '@/constants/legal';
+import { ROUTES } from '@/constants/routes';
 import { useLoyaltyOverview } from '@/hooks/api/loyalty/useLoyalty';
 import {
     // useFollowedShops,
@@ -102,7 +104,18 @@ export default function MeScreen() {
 
     // Handle settings menu item press
     const handleSettingsPress = useCallback((route: string) => {
-        Navigator.push(route as never);
+        if (route === ROUTES.PROFILE.SUPPORT) {
+            Navigator.push({
+                pathname: ROUTES.SETTINGS.LEGAL_DETAIL,
+                params: {
+                    slug: 'help',
+                    url: HELP_CENTER_URL,
+                    title: 'Trung tâm hỗ trợ',
+                },
+            } as never);
+        } else {
+            Navigator.push(route as never);
+        }
     }, []);
 
     // TODO: Enable when BE has follow shop API
