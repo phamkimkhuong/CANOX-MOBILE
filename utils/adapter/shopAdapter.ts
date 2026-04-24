@@ -135,6 +135,11 @@ export const toShopHeaderUI = (dto: ShopDetailDTO): ShopHeaderUI => {
         joinDate = formatMonthYear(new Date(joinTimestamp));
     }
 
+    const createdAt = safeParseDate(dto.createdAt);
+    const shopAgeDays = createdAt
+        ? Math.max(0, Math.floor((Date.now() - createdAt.getTime()) / 86400000))
+        : dto.statistics?.shopAge ?? null;
+
     return {
         id: dto.shopId,
         userId: dto.userId ?? null,
@@ -152,6 +157,8 @@ export const toShopHeaderUI = (dto: ShopDetailDTO): ShopHeaderUI => {
             followerCount: null,
             rating: dto.statistics?.averageRating ?? null,
             reviewCount: dto.statistics?.totalReviews ?? null,
+            completedOrders: dto.statistics?.totalOrdersCompleted ?? null,
+            shopAgeDays,
             responseRate: null,
         },
     };

@@ -23,8 +23,6 @@ import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { enableFreeze } from 'react-native-screens';
 
-// Enable React Freeze for all screens in the navigation stack.
-// This prevents background screens from re-rendering, saving CPU for the active screen.
 enableFreeze(true);
 
 import { IntroPopupProvider } from '@/components/IntroPopupProvider';
@@ -207,16 +205,9 @@ export default function RootLayout() {
                     <UserSyncProvider>
                       <IntroPopupProvider>
                         <Stack screenOptions={{ headerShown: false }}>
-                          {/* Tab Navigator - Has Tab Bar */}
                           <Stack.Screen name="(tabs)" />
-
-                          {/* Auth Flow - No Tab Bar */}
                           <Stack.Screen name="(auth)" />
-
-                          {/* Main Stack - All pushed screens (No Tab Bar) */}
                           <Stack.Screen name="(main)" />
-
-                          {/* Global Modal */}
                           <Stack.Screen
                             name="modal"
                             options={{

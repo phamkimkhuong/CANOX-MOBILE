@@ -60,10 +60,13 @@ export const shopKeys = {
  * - Adapter transformation to ShopHeaderUI
  * - 5 minute cache (shop info rarely changes)
  */
-export const useShopDetail = (shopId: string | undefined) => {
+export const useShopDetail = (
+    shopId: string | undefined,
+    options?: { enabled?: boolean }
+) => {
     return useQuery({
         queryKey: shopKeys.detail(shopId ?? ''),
-        enabled: !!shopId,
+        enabled: (options?.enabled ?? true) && !!shopId,
         queryFn: async (): Promise<ShopHeaderUI> => {
             const response = await request<ShopDetailResponse>(
                 {
@@ -215,15 +218,6 @@ export const useShopProductCount = (shopId: string | undefined) => {
 
 /**
  * Fetch shop vouchers for horizontal display
- * 
- * Features:
- * - Zod validation
- * - Adapter transformation to ShopVoucherUI[]
- * - 5 minute cache (vouchers don't change frequently)
- * - Returns empty array when no vouchers
- * 
- * @param shopId - Shop UUID
- * @returns Query result with vouchers array
  */
 export const useShopVouchers = (shopId: string | undefined) => {
     return useQuery({

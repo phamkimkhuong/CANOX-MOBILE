@@ -133,6 +133,8 @@ export interface ShopHeaderUI {
         followerCount: number | null;
         rating: number | null;
         reviewCount: number | null;
+        completedOrders: number | null;
+        shopAgeDays: number | null;
         responseRate: number | null;
     };
 }

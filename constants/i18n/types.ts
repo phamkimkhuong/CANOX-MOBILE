@@ -40,9 +40,15 @@ export interface ProductTranslation {
         rating: string;
         responseRate: string;
         responseTime: string;
+        completedOrders: string;
+        joined: string;
+        notAvailable: string;
         products: string;
         viewShop: string;
         defaultResponseTime: string;
+        durationDays: string;
+        durationMonths: string;
+        durationYears: string;
         online: string;
     };
     info: {

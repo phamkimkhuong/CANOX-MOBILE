@@ -5,6 +5,7 @@ import { useAddToCart } from '@/hooks/api/cart';
 import { getCachedConversationId, usePrefetchShopChat } from '@/hooks/api/chat/useCreateConversation';
 import { usePublicShopLoyaltyPolicy } from '@/hooks/api/loyalty/usePublicLoyaltyPolicy';
 import { PRODUCT_DETAIL_QUERY_KEYS, useRelatedProducts } from '@/hooks/api/product/useProductDetail';
+import { useShopDetail } from '@/hooks/api/useShop';
 import { useProductVariant } from '@/hooks/useProductVariant';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useSelectedAddress } from '@/store/useUserAddressStore';
@@ -210,6 +211,10 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
     const shopName = product.shop?.shopName;
     const shopLogoUrl = product.shop?.logoUrl;
     const productGallery = product.gallery;
+
+    const { data: publicShop } = useShopDetail(shopId, {
+        enabled: isTransitionFinished && areSecondaryQueriesEnabled,
+    });
 
     const { data: loyaltyPolicy } = usePublicShopLoyaltyPolicy(shopId, {
         enabled: areSecondaryQueriesEnabled,
@@ -509,6 +514,7 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
         heroPreviewUrl,
         areSecondaryQueriesEnabled,
         loyaltyPolicy,
+        publicShop,
         shippingCompatibility,
         selectedAddress,
         shouldShowFlashSaleScopeHelper,
@@ -527,6 +533,7 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
         heroPreviewUrl,
         areSecondaryQueriesEnabled,
         loyaltyPolicy,
+        publicShop,
         shippingCompatibility,
         selectedAddress,
         shouldShowFlashSaleScopeHelper,
@@ -623,7 +630,11 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
             case 'shop':
                 return withSectionBoundary(
                     <View style={styles.fullWidthSection}>
-                        <ShopInfoCard shop={ctx.product.shop} onViewShopPress={ctx.handleShopPress} />
+                        <ShopInfoCard
+                            shop={ctx.product.shop}
+                            publicShop={ctx.publicShop}
+                            onViewShopPress={ctx.handleShopPress}
+                        />
                     </View>
                 );
             case 'specs':
@@ -696,6 +707,7 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
         selectionSummary: selectionResult.selectionSummary,
         displayPrice: selectionResult.displayPrice,
         loyaltyPolicy,
+        publicShop,
         areSecondaryQueriesEnabled,
     }), [
         selectedAddress?.id,
@@ -703,6 +715,7 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
         selectionResult.selectionSummary,
         selectionResult.displayPrice,
         loyaltyPolicy,
+        publicShop,
         areSecondaryQueriesEnabled,
     ]);
 

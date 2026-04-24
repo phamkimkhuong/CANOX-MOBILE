@@ -1,5 +1,6 @@
 import { shopRoutes } from '@/constants/routes';
 import type { ShopUI } from '@/types/product/productDetail';
+import type { ShopHeaderUI } from '@/types/shop';
 import { Navigator } from '@/utils/navigation';
 import { Image } from 'expo-image';
 import React, { memo, useCallback, useMemo } from 'react';
@@ -10,9 +11,11 @@ import { IconSymbol } from '../ui/Icon';
 import { SmartNavButton } from '../ui/navigation/SmartNavButton';
 
 const IMAGE_PLACEHOLDER = 'L6PZfSi_.AyE_3t7t7R**0o#DgR4';
+const METRIC_PENDING_PLACEHOLDER = '-';
 
 interface ShopInfoCardProps {
     shop: ShopUI;
+    publicShop?: ShopHeaderUI | null;
     onViewShopPress?: () => void;
 }
 
@@ -20,12 +23,15 @@ interface ShopInfoCardProps {
 // HELPER FUNCTIONS
 // ============================================
 
-const formatCount = (count?: number): string => {
-    if (!count) return '0';
+const formatCount = (count: number): string => {
     if (count >= 1000) {
         return `${(count / 1000).toFixed(1)}k`;
     }
     return count.toString();
+};
+
+const formatMetricCount = (count: number | null | undefined): string => {
+    return typeof count === 'number' ? formatCount(count) : '-';
 };
 
 // ============================================
@@ -36,39 +42,76 @@ const formatCount = (count?: number): string => {
  */
 export const ShopInfoCard = memo<ShopInfoCardProps>(({
     shop,
+    publicShop,
     onViewShopPress,
 }) => {
     const { theme } = useUnistyles();
     const { t } = useTranslation('product');
+
+    const displayShopId = publicShop?.id || shop.id;
+    const displayShopName = publicShop?.name || shop.shopName;
+    const displayAvatar = publicShop?.logoUrl || shop.avatar;
+    const displayLocation = publicShop?.location || shop.location;
+    const isVerified = publicShop?.isVerified ?? shop.isVerified;
+    const publicStats = publicShop?.stats;
 
     // Memoize handleViewShop để tránh tạo function mới mỗi render
     const handleViewShop = useCallback(() => {
         if (onViewShopPress) {
             onViewShopPress();
         } else {
-            Navigator.push(shopRoutes.detail(shop.id));
+            Navigator.push(shopRoutes.detail(displayShopId));
         }
-    }, [onViewShopPress, shop.id]);
+    }, [onViewShopPress, displayShopId]);
 
     // Memoize formatted values
-    const formattedRating = useMemo(() =>
-        shop.rating?.toFixed(1) ?? '-',
-        [shop.rating]
-    );
+    const ratingMetric = useMemo(() => {
+        const rating = publicStats?.rating;
+        const reviewCount = publicStats?.reviewCount;
+        const hasRating = typeof rating === 'number'
+            && rating > 0
+            && (reviewCount == null || reviewCount > 0);
 
-    const formattedResponseRate = useMemo(() =>
-        shop.responseRate ? `${shop.responseRate}%` : '-',
-        [shop.responseRate]
-    );
+        if (!publicStats) {
+            return { value: METRIC_PENDING_PLACEHOLDER, isEmpty: true };
+        }
 
-    const formattedResponseTime = useMemo(() =>
-        shop.responseTime || t('shop.defaultResponseTime'),
-        [shop.responseTime, t]
-    );
+        return hasRating
+            ? { value: rating.toFixed(1), isEmpty: false }
+            : { value: t('shop.notAvailable'), isEmpty: true };
+    }, [publicStats, publicStats?.rating, publicStats?.reviewCount, t]);
+
+    const completedOrdersMetric = useMemo(() => {
+        const completedOrders = publicStats?.completedOrders;
+        const hasCompletedOrders = typeof completedOrders === 'number' && completedOrders > 0;
+
+        if (!publicStats) {
+            return { value: METRIC_PENDING_PLACEHOLDER, isEmpty: true };
+        }
+
+        return hasCompletedOrders
+            ? { value: formatCount(completedOrders), isEmpty: false }
+            : { value: t('shop.notAvailable'), isEmpty: true };
+    }, [publicStats, publicStats?.completedOrders, t]);
+
+    const formattedJoinedDuration = useMemo(() => {
+        const shopAgeDays = publicStats?.shopAgeDays;
+        if (typeof shopAgeDays !== 'number') return '-';
+
+        if (shopAgeDays < 30) {
+            return t('shop.durationDays', { count: Math.max(1, Math.round(shopAgeDays)) });
+        }
+
+        if (shopAgeDays < 365) {
+            return t('shop.durationMonths', { count: Math.max(1, Math.round(shopAgeDays / 30)) });
+        }
+
+        return t('shop.durationYears', { count: Math.max(1, Math.round(shopAgeDays / 365)) });
+    }, [publicStats?.shopAgeDays, t]);
 
     const formattedProductCount = useMemo(() =>
-        formatCount(shop.productCount),
-        [shop.productCount]
+        formatMetricCount(publicStats?.productCount),
+        [publicStats?.productCount]
     );
 
     return (
@@ -79,14 +122,14 @@ export const ShopInfoCard = memo<ShopInfoCardProps>(({
                 <Pressable onPress={handleViewShop}>
                     <View style={styles.avatarContainer}>
                         <Image
-                            source={{ uri: shop.avatar ?? undefined }}
+                            source={{ uri: displayAvatar ?? undefined }}
                             style={styles.avatar}
                             contentFit="cover"
                             placeholder={IMAGE_PLACEHOLDER}
                             cachePolicy="memory-disk"
-                            recyclingKey={`shop-avatar-${shop.id}`}
+                            recyclingKey={`shop-avatar-${displayShopId}`}
                         />
-                        {shop.isVerified && (
+                        {isVerified && (
                             <View style={styles.verifiedBadge}>
                                 <IconSymbol
                                     name="verified-user"
@@ -106,10 +149,10 @@ export const ShopInfoCard = memo<ShopInfoCardProps>(({
                             numberOfLines={2}
                             ellipsizeMode="tail"
                         >
-                            {shop.shopName}
+                            {displayShopName}
                         </Text>
                     </Pressable>
-                    {shop.location && (
+                    {displayLocation && (
                         <View style={styles.locationRow}>
                             <IconSymbol
                                 name="location-outline"
@@ -117,7 +160,7 @@ export const ShopInfoCard = memo<ShopInfoCardProps>(({
                                 color={theme.colors.secondary}
                             />
                             <Text style={styles.location} numberOfLines={1}>
-                                {shop.location}
+                                {displayLocation}
                             </Text>
                         </View>
                     )}
@@ -131,7 +174,7 @@ export const ShopInfoCard = memo<ShopInfoCardProps>(({
                 {/* Action Buttons */}
                 <View style={styles.actions}>
                     <SmartNavButton
-                        route={onViewShopPress ? undefined : shopRoutes.detail(shop.id)}
+                        route={onViewShopPress ? undefined : shopRoutes.detail(displayShopId)}
                         onPress={handleViewShop}
                         style={styles.viewShopButton}
                     >
@@ -147,22 +190,26 @@ export const ShopInfoCard = memo<ShopInfoCardProps>(({
             {/* Stats Row - Sử dụng memoized values */}
             <View style={styles.statsRow}>
                 <View style={styles.statItem}>
-                    <Text style={styles.statValue}>{formattedRating}</Text>
+                    <Text style={[styles.statValue, ratingMetric.isEmpty && styles.statValueMuted]}>
+                        {ratingMetric.value}
+                    </Text>
                     <Text style={styles.statLabel}>{t('shop.rating')}</Text>
                 </View>
 
                 <View style={styles.statDivider} />
 
                 <View style={styles.statItem}>
-                    <Text style={styles.statValue}>{formattedResponseRate}</Text>
-                    <Text style={styles.statLabel}>{t('shop.responseRate')}</Text>
+                    <Text style={[styles.statValue, completedOrdersMetric.isEmpty && styles.statValueMuted]}>
+                        {completedOrdersMetric.value}
+                    </Text>
+                    <Text style={styles.statLabel}>{t('shop.completedOrders')}</Text>
                 </View>
 
                 <View style={styles.statDivider} />
 
                 <View style={styles.statItem}>
-                    <Text style={styles.statValue}>{formattedResponseTime}</Text>
-                    <Text style={styles.statLabel}>{t('shop.responseTime')}</Text>
+                    <Text style={styles.statValue}>{formattedJoinedDuration}</Text>
+                    <Text style={styles.statLabel}>{t('shop.joined')}</Text>
                 </View>
 
                 <View style={styles.statDivider} />
@@ -281,6 +328,10 @@ const styles = StyleSheet.create((theme) => ({
         fontSize: 14,
         fontWeight: '700',
         color: theme.colors.newPrimary,
+    },
+    statValueMuted: {
+        color: theme.colors.typographySecondary,
+        fontWeight: '600',
     },
     statLabel: {
         fontSize: 11,
