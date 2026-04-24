@@ -74,6 +74,7 @@ const lightTheme = {
         secondary: '#94a3b8',
         error: '#ef4444',
         success: '#22c55e',
+        success2: '#0d6e31ff',
         warning: '#f97316',
         typography: '#1c3024',
         // Header & Screen Titles

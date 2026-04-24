@@ -97,6 +97,42 @@ export const PRODUCT_STRINGS: ProductTranslation = {
         loading: 'Loading reviews...',
     },
 
+    // === Order Protection ===
+    orderProtection: {
+        cardTitle: 'Canox order protection policy',
+        cardSubtitle: 'Orders are protected when paid and processed through the Canox platform',
+        sheetTitle: 'Order protection',
+        sheetHeading: 'Canox order protection policy',
+        sheetIntro: 'Canox helps protect orders when the transaction is paid and processed through the platform.',
+        learnMore: 'Learn more',
+        items: {
+            payment: {
+                summaryTitle: 'Secure payment',
+                title: 'Secure payment',
+                description: 'Choose local payment methods, credit/debit cards, bank transfers, or e-wallets.\nAll transactions through Canox are protected by SSL encryption and strict PCI DSS data security protocols.',
+                policyTitle: 'Payment Policy',
+            },
+            shipping: {
+                summaryTitle: 'Delivery tracking',
+                title: 'Delivery tracking',
+                description: 'Canox helps track order status from placement until successful delivery.',
+                policyTitle: 'Shipping Policy',
+            },
+            return: {
+                summaryTitle: 'Return & Refund',
+                title: 'Returns by policy',
+                description: 'Submit a return/refund request if the order has issues, is incorrect, or incurs damage upon arrival.',
+                policyTitle: 'Return & Refund Policy',
+            },
+            support: {
+                summaryTitle: '24/7 Support',
+                title: '24/7 Claim support',
+                description: 'Access Canox\'s 24/7 online help center or connect with support staff for assistance and resolution of any order-related issues.',
+                policyTitle: 'Marketplace Regulations',
+            },
+        },
+    },
+
     // === Gallery ===
     gallery: {
         noImages: 'No images available',

@@ -42,6 +42,7 @@ import type { ProductGalleryRef } from './ProductGallery';
 import { ProductGallery } from './ProductGallery';
 import { ProductInfoSection } from './ProductInfoSection';
 import { ProductNavBar } from './ProductNavBar';
+import { ProductOrderProtectionCard } from './ProductOrderProtectionCard';
 import { ProductPackagingInfo } from './ProductPackagingInfo';
 import { ProductReviews } from './ProductReviews';
 import { ProductSpecs } from './ProductSpecs';
@@ -63,6 +64,7 @@ type ProductDetailListItem =
     | { type: 'shipping'; id: string }
     | { type: 'variants'; id: string }
     | { type: 'reviews'; id: string }
+    | { type: 'order_protection'; id: string }
     | { type: 'shop'; id: string }
     | { type: 'specs'; id: string }
     | { type: 'packaging'; id: string }
@@ -495,7 +497,11 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
         ];
         if (isAuthenticated) items.push({ type: 'shipping', id: 'shipping' });
         if (product.hasVariants) items.push({ type: 'variants', id: 'variants' });
-        items.push({ type: 'reviews', id: 'reviews' }, { type: 'shop', id: 'shop' });
+        items.push(
+            { type: 'reviews', id: 'reviews' },
+            { type: 'order_protection', id: 'order_protection' },
+            { type: 'shop', id: 'shop' }
+        );
         if (product.specifications?.length > 0) items.push({ type: 'specs', id: 'specs' });
         if (selectionResult.selectedVariant?.dimensions) items.push({ type: 'packaging', id: 'packaging' });
         if (product.description) items.push({ type: 'description', id: 'description' });
@@ -625,6 +631,12 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
                             enablePreviewFetch={ctx.areSecondaryQueriesEnabled}
                             onViewAllPress={ctx.handleViewAllReviews}
                         />
+                    </View>
+                );
+            case 'order_protection':
+                return withSectionBoundary(
+                    <View style={styles.fullWidthSection}>
+                        <ProductOrderProtectionCard />
                     </View>
                 );
             case 'shop':

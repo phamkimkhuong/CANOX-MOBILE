@@ -84,6 +84,40 @@ export interface ProductTranslation {
         viewAllReviews: string;
         loading: string;
     };
+    orderProtection: {
+        cardTitle: string;
+        cardSubtitle: string;
+        sheetTitle: string;
+        sheetHeading: string;
+        sheetIntro: string;
+        learnMore: string;
+        items: {
+            payment: {
+                summaryTitle: string;
+                title: string;
+                description: string;
+                policyTitle: string;
+            };
+            shipping: {
+                summaryTitle: string;
+                title: string;
+                description: string;
+                policyTitle: string;
+            };
+            return: {
+                summaryTitle: string;
+                title: string;
+                description: string;
+                policyTitle: string;
+            };
+            support: {
+                summaryTitle: string;
+                title: string;
+                description: string;
+                policyTitle: string;
+            };
+        };
+    };
     gallery: {
         noImages: string;
     };

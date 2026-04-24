@@ -226,7 +226,7 @@ const thumbnailStyles = StyleSheet.create((theme) => ({
         borderColor: 'transparent',
     },
     containerActive: {
-        borderColor: theme.colors.newPrimary,
+        borderColor: theme.colors.secondary,
     },
     image: {
         width: '100%',
@@ -411,8 +411,8 @@ export const ProductGallery = memo(forwardRef<ProductGalleryRef, ProductGalleryP
                 height={galleryHeight}
                 previewUrl={
                     shouldUseHeroPreview &&
-                    !isHeroUpgraded &&
-                    index === correctedInitialIndex
+                        !isHeroUpgraded &&
+                        index === correctedInitialIndex
                         ? heroPreviewUrl
                         : null
                 }

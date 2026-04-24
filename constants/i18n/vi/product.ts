@@ -113,6 +113,42 @@ export const PRODUCT_STRINGS: ProductTranslation = {
         loading: 'Đang tải đánh giá...',
     },
 
+    // === Order Protection ===
+    orderProtection: {
+        cardTitle: 'Chính sách bảo vệ đơn hàng của Canox',
+        cardSubtitle: 'Các đơn hàng được bảo vệ khi thanh toán và xử lý qua nền tảng Canox',
+        sheetTitle: 'Bảo vệ đơn hàng',
+        sheetHeading: 'Chính sách bảo vệ đơn hàng của Canox',
+        sheetIntro: 'Canox hỗ trợ bảo vệ đơn hàng khi giao dịch được thanh toán và xử lý qua nền tảng.',
+        learnMore: 'Tìm hiểu thêm',
+        items: {
+            payment: {
+                summaryTitle: 'Thanh toán an toàn',
+                title: 'Thanh toán an toàn',
+                description: 'Chọn phương thức thanh toán nội địa, thẻ tín dụng/thẻ ghi nợ, chuyển khoản ngân hàng hoặc ví điện tử.\nMọi giao dịch thực hiện thông qua Canox đều được bảo vệ bằng tiêu chuẩn mã hoá SSL và giao thức bảo mật dữ liệu PCI DSS nghiêm ngặt.',
+                policyTitle: 'Chính sách thanh toán',
+            },
+            shipping: {
+                summaryTitle: 'Theo dõi giao hàng',
+                title: 'Theo dõi giao hàng',
+                description: 'Canox hỗ trợ theo dõi trạng thái đơn hàng từ khi đặt hàng đến khi giao thành công.',
+                policyTitle: 'Chính sách vận chuyển',
+            },
+            return: {
+                summaryTitle: 'Đổi trả - Hoàn tiền',
+                title: 'Đổi trả theo chính sách',
+                description: 'Gửi yêu cầu đổi trả/hoàn tiền nếu đơn hàng gặp lỗi, không đúng hoặc phát sinh hư hỏng khi về tay bạn.',
+                policyTitle: 'Chính sách đổi trả & hoàn tiền',
+            },
+            support: {
+                summaryTitle: 'Khiếu nại 24/7',
+                title: 'Hỗ trợ khiếu nại 24/7',
+                description: 'Truy cập trung tâm trợ giúp trực tuyến 24/7 của Canox hoặc kết nối với nhân viên hỗ trợ để được tiếp nhận và xử lý khi có vấn đề phát sinh với đơn hàng.',
+                policyTitle: 'Quy chế hoạt động sàn TMĐT',
+            },
+        },
+    },
+
     // === Gallery ===
     gallery: {
         noImages: 'Không có hình ảnh',
