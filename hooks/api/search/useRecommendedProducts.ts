@@ -62,7 +62,7 @@ const transformProduct = (raw: NonNullable<SearchProductsResponse['data']>['cont
         sold: raw.reviewStatistics?.verifiedPurchaseCount ?? 0,
         shopName: raw.shop?.shopName ?? '',
         shopId: raw.shop?.shopId ?? undefined,
-        location: raw.shop?.place ?? undefined,
+        location: raw.shop?.shop_location ?? undefined,
         hasVoucher: !!raw.bestShopVoucher,
         isFlashSale,
         categoryName: raw.category?.name ?? undefined,

@@ -159,11 +159,11 @@ export const SearchProductItemSchema = z.object({
     category: z.object({
         name: z.string().nullable().optional().default(''),
     }).nullable().optional(),
-    // Shop - pruned + added place
+    // Shop - pruned + shop_location for product card display
     shop: z.object({
         shopId: z.string().nullable().optional(),
         shopName: z.string().nullable().optional().default(''),
-        place: z.string().nullable().optional().default(''),
+        shop_location: z.string().nullable().optional().default(''),
     }).nullable().optional(),
     // Media - pruned imagePath (used for toSizedImageUrl)
     media: z.array(z.object({
