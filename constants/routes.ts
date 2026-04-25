@@ -405,9 +405,13 @@ export const searchRoutes = {
             ...(params?.q && { q: params.q }),
         },
     } as unknown as Href),
-    results: (params: { q: string }): Href => ({
+    results: (params: { q?: string; categoryId?: string; categoryName?: string }): Href => ({
         pathname: '/(main)/search/results',
-        params: { q: params.q },
+        params: {
+            ...(params.q && { q: params.q }),
+            ...(params.categoryId && { categoryId: params.categoryId }),
+            ...(params.categoryName && { categoryName: params.categoryName }),
+        },
     } as unknown as Href),
 } as const;
 

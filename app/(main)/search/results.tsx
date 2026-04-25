@@ -106,8 +106,14 @@ export default function SearchResultsScreen() {
     const insets = useSafeAreaInsets();
     const { t } = useTranslation('search');
 
-    // Get search params (global search only - shop search is separate)
-    const { q: keyword = '' } = useLocalSearchParams<{ q: string }>();
+    // Get search params (keyword search OR category browse)
+    const params = useLocalSearchParams<{ q?: string; categoryId?: string; categoryName?: string }>();
+    const keyword = params.q ?? '';
+    const categoryId = params.categoryId;
+    const categoryName = params.categoryName;
+
+    // Determine display text for header
+    const headerDisplayText = categoryName || keyword;
 
     // ========================================
     // STATE & REFS
@@ -134,7 +140,8 @@ export default function SearchResultsScreen() {
         sortBy,
         quickFilters,
         advancedFilters,
-        enabled: keyword.length > 0,
+        categoryId,
+        enabled: keyword.length > 0 || !!categoryId,
     });
 
     // Recommended products query (when search is empty)
@@ -332,7 +339,7 @@ export default function SearchResultsScreen() {
         <View style={styles.container}>
             {/* Header & Controls - Static Shell */}
             <SearchResultHeader
-                keyword={keyword}
+                keyword={headerDisplayText}
                 onSearchPress={handleSearchPress}
                 onFilterPress={handleFilterPress}
                 onBack={handleBack}

@@ -93,14 +93,13 @@ export const AddressCard: React.FC<AddressCardProps> = memo(({
                             size={20}
                             color={
                                 address.isDefault
-                                    ? theme.colors.newPrimary
+                                    ? theme.colors.typography
                                     : theme.colors.secondary
                             }
                         />
                     </View>
                 )}
             </View>
-
             {/* Center: Content */}
             <View style={styles.content}>
                 {/* Name & Phone */}
@@ -113,12 +112,10 @@ export const AddressCard: React.FC<AddressCardProps> = memo(({
                         {formatPhoneNumber(address.phone)}
                     </Text>
                 </View>
-
                 {/* Full Address */}
                 <Text style={styles.address} numberOfLines={2}>
                     {fullAddress}
                 </Text>
-
                 {/* Badges */}
                 <View style={styles.badgeRow}>
                     {address.isDefault && (
@@ -130,10 +127,9 @@ export const AddressCard: React.FC<AddressCardProps> = memo(({
                         <Text style={styles.badgeText}>{labelConfig.text}</Text>
                     </View>
                 </View>
-
             </View>
 
-            {/* Right: Edit Button - Only show in selection mode (management mode uses card press) */}
+            {/* Right: Edit Button */}
             {onEdit && mode !== 'management' && (
                 <Pressable
                     onPress={handleEdit}
@@ -147,7 +143,6 @@ export const AddressCard: React.FC<AddressCardProps> = memo(({
                 >
                     <Text style={styles.editButtonText}>{t('address:form.actions.submitUpdate')}</Text>
                 </Pressable>
-
             )}
         </Pressable>
     );
@@ -166,9 +161,9 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderColor: theme.colors.border,
     },
     containerSelected: {
-        borderColor: theme.colors.newPrimary,
-        borderWidth: 1.5,
-        backgroundColor: theme.colors.activeSoft,
+        borderColor: theme.colors.typography,
+        borderWidth: 0.7,
+        backgroundColor: theme.colors.surface,
     },
     containerPressed: {
         opacity: 0.7,
@@ -186,7 +181,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         justifyContent: 'center',
     },
     iconContainerDefault: {
-        backgroundColor: theme.colors.activeSoft,
+        backgroundColor: theme.colors.secondarySoft,
     },
 
     content: {
@@ -235,8 +230,8 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderColor: theme.colors.border,
     },
     badgeDefault: {
-        backgroundColor: theme.colors.activeLight,
-        borderColor: theme.colors.activeSoft,
+        backgroundColor: theme.colors.backgroundNewSurface,
+        borderColor: theme.colors.border,
     },
     badgeText: {
         fontSize: 11,
@@ -245,8 +240,8 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     badgeTextDefault: {
         fontSize: 11,
-        fontWeight: '500',
-        color: theme.colors.newPrimary,
+        fontWeight: '600',
+        color: theme.colors.typography,
     },
 
     editButton: {
@@ -268,6 +263,6 @@ const stylesheet = StyleSheet.create((theme) => ({
     editButtonText: {
         fontSize: 13,
         fontWeight: '600',
-        color: theme.colors.newPrimary,
+        color: theme.colors.typography,
     },
 }));

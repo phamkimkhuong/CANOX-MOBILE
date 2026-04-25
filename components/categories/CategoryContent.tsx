@@ -5,6 +5,8 @@ import type {
     FlattenedCategoryItem,
     SubCategory,
 } from '@/types/category';
+import { searchRoutes } from '@/constants/routes';
+import { Navigator } from '@/utils/navigation';
 import { buildImageUrl } from '@/utils/url';
 import { FlashList } from '@shopify/flash-list';
 import { Image } from 'expo-image';
@@ -116,9 +118,20 @@ export const CategoryContent: React.FC<CategoryContentProps> = ({
         [styles, theme.colors.primary, t]
     );
 
+    const handleItemPress = useCallback((item: CategoryItem) => {
+        Navigator.push(searchRoutes.results({
+            categoryId: item.id,
+            categoryName: item.name,
+        }));
+    }, []);
+
     const renderGridItem = useCallback(
         (item: CategoryItem) => (
-            <TouchableOpacity style={styles.gridItem} activeOpacity={0.7}>
+            <TouchableOpacity
+                style={styles.gridItem}
+                activeOpacity={0.7}
+                onPress={() => handleItemPress(item)}
+            >
                 <View style={styles.gridItemImageContainer}>
                     {item.image ? (
                         <Image
@@ -142,7 +155,7 @@ export const CategoryContent: React.FC<CategoryContentProps> = ({
                 </Text>
             </TouchableOpacity>
         ),
-        [styles, theme.colors.primarySoft]
+        [styles, theme.colors.primarySoft, handleItemPress]
     );
 
     const brandNameStyle = useCallback((name: string) => ({
