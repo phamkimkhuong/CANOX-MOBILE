@@ -1,8 +1,9 @@
 import { FlashSaleCountdown } from '@/components/flash-sale/FlashSaleCountdown';
+import { FlashSaleEmptyState } from '@/components/flash-sale/FlashSaleEmptyState';
 import { FlashSaleProductCard } from '@/components/flash-sale/FlashSaleProductCard';
 import { FlashSaleTimeline } from '@/components/flash-sale/FlashSaleTimeline';
 import { IconSymbol } from '@/components/ui/Icon';
-import { productRoutes } from '@/constants/routes';
+import { ROUTES, productRoutes } from '@/constants/routes';
 import { useCampaignDetail } from '@/hooks/api/campaign/useCampaignDetail';
 import { refreshFlashSaleQueries } from '@/hooks/api/campaign/useFlashSaleDataSource';
 import { useFlashSaleTabs } from '@/hooks/api/campaign/useFlashSaleTabs';
@@ -22,6 +23,7 @@ import { ActivityIndicator, RefreshControl, StatusBar, Text, TouchableOpacity, V
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
+import Toast from 'react-native-toast-message';
 
 const formatSlotRange = (startTime: string, endTime: string) => {
     return `${formatClockTime(startTime)} - ${formatClockTime(endTime)}`;
@@ -106,7 +108,27 @@ export default function FlashSaleScreen() {
     }, []);
 
     const handleRemindMe = useCallback((_id: string) => {
-        // Reminder flow can be implemented later without blocking UI polish now.
+        Toast.show({
+            type: 'info',
+            text1: t('home:flashSale.emptyState.reminderToastTitle'),
+            text2: t('home:flashSale.emptyState.reminderToastMessage'),
+        });
+    }, [t]);
+
+    const handleBrowseProducts = useCallback(() => {
+        Navigator.replace(ROUTES.TABS.HOME);
+    }, []);
+
+    const handleOpenCategories = useCallback(() => {
+        Navigator.push(ROUTES.CATEGORY.INDEX);
+    }, []);
+
+    const handleOpenTrustedShops = useCallback(() => {
+        Navigator.replace(ROUTES.TABS.HOME);
+    }, []);
+
+    const handleOpenCart = useCallback(() => {
+        Navigator.push(ROUTES.CART.INDEX);
     }, []);
 
     const handleProductPress = useCallback((productId: string) => {
@@ -222,7 +244,7 @@ export default function FlashSaleScreen() {
                             <IconSymbol name="cart.badge.minus" size={64} color={theme.colors.secondaryLight} />
                         </BlurView>
                     </View>
-                    <Text style={styles.emptyText}>Chưa có sản phẩm nào cho đợt này</Text>
+                    <Text style={styles.emptyText}>{t('home:flashSale.emptyState.slotEmptyTitle')}</Text>
                 </Animated.View>
             </View>
         );
@@ -246,6 +268,23 @@ export default function FlashSaleScreen() {
                 <View style={styles.loadingCard}>
                     <ActivityIndicator size="large" color={theme.colors.newPrimary} />
                 </View>
+            </View>
+        );
+    }
+
+    if (tabs.length === 0) {
+        return (
+            <View style={styles.container}>
+                <Stack.Screen options={{ headerShown: false }} />
+                <StatusBar barStyle="dark-content" />
+                <FlashSaleEmptyState
+                    onBack={handleBack}
+                    onNotifyPress={() => handleRemindMe('flash-sale-empty')}
+                    onBrowsePress={handleBrowseProducts}
+                    onCategoriesPress={handleOpenCategories}
+                    onTrustedShopsPress={handleOpenTrustedShops}
+                    onCartPress={handleOpenCart}
+                />
             </View>
         );
     }

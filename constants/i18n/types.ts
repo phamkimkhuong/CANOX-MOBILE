@@ -215,6 +215,34 @@ export interface HomeTranslation {
         upcomingPriceLabel: string;
         day: string;
         pendingBoundary: string;
+        emptyState: {
+            eyebrow: string;
+            title: string;
+            description: string;
+            statusChip: string;
+            notifyCta: string;
+            browseCta: string;
+            howItWorksTitle: string;
+            slotTitle: string;
+            slotDescription: string;
+            limitedTitle: string;
+            limitedDescription: string;
+            notifyTitle: string;
+            notifyDescription: string;
+            trustTitle: string;
+            verifiedSellerTitle: string;
+            verifiedSellerDescription: string;
+            curatedDealsTitle: string;
+            curatedDealsDescription: string;
+            whileWaitingTitle: string;
+            categoriesTitle: string;
+            categoriesDescription: string;
+            trustedShopsTitle: string;
+            trustedShopsDescription: string;
+            slotEmptyTitle: string;
+            reminderToastTitle: string;
+            reminderToastMessage: string;
+        };
     };
     featured: {
         title: string;
