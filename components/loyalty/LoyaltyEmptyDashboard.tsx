@@ -152,12 +152,12 @@ export const LoyaltyEmptyDashboard: React.FC<LoyaltyEmptyDashboardProps> = memo(
     const { t } = useTranslation('loyalty');
     const formattedPoints = overview.totalPoints.toLocaleString('vi-VN');
     const palette: IllustrationPalette = {
-        accent: theme.colors.accent,
-        accentLight: theme.colors.accentLight,
-        warning: theme.colors.warning,
+        accent: theme.colors.sunsetOrange,
+        accentLight: theme.colors.activeSoft,
+        warning: theme.colors.sunsetOrange,
         warningLight: theme.colors.warningLight,
-        warningSoft: theme.colors.warningSoft,
-        warningSubtle: theme.colors.warningSubtle,
+        warningSoft: theme.colors.activeSoft,
+        warningSubtle: theme.colors.activeSubtle,
         success: theme.colors.forestGreen,
         successSoft: theme.colors.greenSoft,
         surface: theme.colors.surface,
@@ -167,7 +167,7 @@ export const LoyaltyEmptyDashboard: React.FC<LoyaltyEmptyDashboardProps> = memo(
     return (
         <Animated.View entering={FadeInDown.duration(350).delay(100)} style={styles.container}>
             <LinearGradient
-                colors={[theme.colors.surface, theme.colors.warningSubtle]}
+                colors={[theme.colors.surface, theme.colors.activeSubtle]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.balanceCard}
@@ -188,7 +188,15 @@ export const LoyaltyEmptyDashboard: React.FC<LoyaltyEmptyDashboardProps> = memo(
                 </View>
                 <View style={styles.heroActions}>
                     <Pressable style={styles.primaryButton} onPress={onShopNow}>
-                        <Text style={styles.primaryButtonText}>{t('emptyDashboard.hero.primaryAction')}</Text>
+                        <LinearGradient
+                            colors={[theme.colors.accent, theme.colors.buttonActive]}
+                            locations={[0, 1]}
+                            start={{ x: 0, y: 0.5 }}
+                            end={{ x: 1, y: 0.5 }}
+                            style={styles.primaryButtonFill}
+                        >
+                            <Text style={styles.primaryButtonText}>{t('emptyDashboard.hero.primaryAction')}</Text>
+                        </LinearGradient>
                     </Pressable>
                     <Pressable style={styles.secondaryButton} onPress={onLearnMore}>
                         <Text style={styles.secondaryButtonText}>{t('emptyDashboard.hero.secondaryAction')}</Text>
@@ -210,7 +218,7 @@ export const LoyaltyEmptyDashboard: React.FC<LoyaltyEmptyDashboardProps> = memo(
                         <Text style={styles.cardDescription}>{t('emptyDashboard.shopPoints.emptyMessage')}</Text>
                         <View style={styles.cardLinkRow}>
                             <Text style={styles.cardLink}>{t('emptyDashboard.shopPoints.action')}</Text>
-                            <IconSymbol name="chevron-right" size={14} color={theme.colors.accent} />
+                            <IconSymbol name="chevron-right" size={14} color={theme.colors.sunsetOrange} />
                         </View>
                     </View>
                 </Pressable>
@@ -221,12 +229,12 @@ export const LoyaltyEmptyDashboard: React.FC<LoyaltyEmptyDashboardProps> = memo(
                 <View style={styles.earnGrid}>
                     <Pressable style={[styles.earnCard, styles.earnCardWarm]} onPress={onShopNow}>
                         <View style={styles.earnIconWarm}>
-                            <IconSymbol name="cart" size={26} color={theme.colors.accent} />
+                            <IconSymbol name="cart" size={26} color={theme.colors.sunsetOrange} />
                         </View>
                         <Text style={styles.earnTitle}>{t('emptyDashboard.earn.purchaseTitle')}</Text>
                         <View style={styles.earnAction}>
                             <Text style={styles.earnActionText}>{t('emptyDashboard.earn.action')}</Text>
-                            <IconSymbol name="chevron-right" size={12} color={theme.colors.accent} />
+                            <IconSymbol name="chevron-right" size={12} color={theme.colors.sunsetOrange} />
                         </View>
                     </Pressable>
                     <Pressable style={[styles.earnCard, styles.earnCardCool]} onPress={onReviewOrders}>
@@ -236,7 +244,7 @@ export const LoyaltyEmptyDashboard: React.FC<LoyaltyEmptyDashboardProps> = memo(
                         <Text style={styles.earnTitle}>{t('emptyDashboard.earn.reviewTitle')}</Text>
                         <View style={styles.earnAction}>
                             <Text style={styles.earnActionText}>{t('emptyDashboard.earn.action')}</Text>
-                            <IconSymbol name="chevron-right" size={12} color={theme.colors.accent} />
+                            <IconSymbol name="chevron-right" size={12} color={theme.colors.sunsetOrange} />
                         </View>
                     </Pressable>
                     <Pressable style={[styles.earnCard, styles.earnCardGreen]} onPress={onCampaigns}>
@@ -246,7 +254,7 @@ export const LoyaltyEmptyDashboard: React.FC<LoyaltyEmptyDashboardProps> = memo(
                         <Text style={styles.earnTitle}>{t('emptyDashboard.earn.programTitle')}</Text>
                         <View style={styles.earnAction}>
                             <Text style={styles.earnActionText}>{t('emptyDashboard.earn.action')}</Text>
-                            <IconSymbol name="chevron-right" size={12} color={theme.colors.accent} />
+                            <IconSymbol name="chevron-right" size={12} color={theme.colors.sunsetOrange} />
                         </View>
                     </Pressable>
                 </View>
@@ -279,11 +287,11 @@ const stylesheet = StyleSheet.create((theme) => ({
     balanceCard: {
         borderRadius: theme.radius.l,
         borderWidth: 1,
-        borderColor: theme.colors.warningSoft,
+        borderColor: theme.colors.activeSoft,
         padding: theme.margins.md,
         minHeight: 208,
         overflow: 'hidden',
-        shadowColor: theme.colors.warning,
+        shadowColor: theme.colors.buttonActive,
         shadowOffset: { width: 0, height: 8 },
         shadowOpacity: 0.08,
         shadowRadius: 16,
@@ -303,7 +311,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: theme.fontSizes['4xl'],
         lineHeight: 40,
         fontWeight: '800',
-        color: theme.colors.accent,
+        color: theme.colors.sunsetOrange,
     },
     balanceUnit: {
         fontSize: theme.fontSizes['2xl'],
@@ -320,7 +328,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         flexDirection: 'row',
         alignItems: 'center',
         gap: theme.margins.xs,
-        backgroundColor: theme.colors.warningLight,
+        backgroundColor: theme.colors.activeLight,
         borderRadius: theme.radius.full,
         paddingHorizontal: theme.margins.sm,
         paddingVertical: theme.margins.xs,
@@ -348,7 +356,11 @@ const stylesheet = StyleSheet.create((theme) => ({
         flex: 1,
         minHeight: 44,
         borderRadius: theme.radius.m,
-        backgroundColor: theme.colors.accent,
+        overflow: 'hidden',
+    },
+    primaryButtonFill: {
+        flex: 1,
+        minHeight: 44,
         alignItems: 'center',
         justifyContent: 'center',
         paddingHorizontal: theme.margins.sm,
@@ -364,13 +376,13 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderRadius: theme.radius.m,
         backgroundColor: theme.colors.surfaceOverlay,
         borderWidth: 1,
-        borderColor: theme.colors.accent,
+        borderColor: theme.colors.sunsetOrange,
         alignItems: 'center',
         justifyContent: 'center',
         paddingHorizontal: theme.margins.sm,
     },
     secondaryButtonText: {
-        color: theme.colors.accent,
+        color: theme.colors.sunsetOrange,
         fontSize: theme.fontSizes.md,
         fontWeight: theme.fontWeights.semibold,
     },
@@ -434,7 +446,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     cardLink: {
         fontSize: theme.fontSizes.sm,
         fontWeight: theme.fontWeights.semibold,
-        color: theme.colors.accent,
+        color: theme.colors.sunsetOrange,
     },
     earnGrid: {
         flexDirection: 'row',
@@ -452,8 +464,8 @@ const stylesheet = StyleSheet.create((theme) => ({
         gap: theme.margins.xs,
     },
     earnCardWarm: {
-        backgroundColor: theme.colors.warningSubtle,
-        borderColor: theme.colors.warningLight,
+        backgroundColor: theme.colors.activeSubtle,
+        borderColor: theme.colors.activeLight,
     },
     earnCardCool: {
         backgroundColor: theme.colors.infoSubtle,
@@ -467,7 +479,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         width: 46,
         height: 46,
         borderRadius: theme.radius.full,
-        backgroundColor: theme.colors.warningLight,
+        backgroundColor: theme.colors.activeLight,
         alignItems: 'center',
         justifyContent: 'center',
     },
