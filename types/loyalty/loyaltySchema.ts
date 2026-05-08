@@ -90,10 +90,14 @@ export const ShopPointSummarySchema = z.object({
 });
 
 export const LoyaltyOverviewSchema = z.object({
-    totalPointsAllShops: z.number().default(0),
-    totalShopsWithPoints: z.number().default(0),
-    totalExpiringPoints: z.number().default(0),
+    totalPointsAllShops: z.coerce.number().default(0),
+    totalShopsWithPoints: z.coerce.number().default(0),
+    totalExpiringPoints: z.coerce.number().default(0),
     shops: z.array(ShopPointSummarySchema).default([]),
+    platformPointBalance: z.unknown().nullable().default(null),
+    platformEnabled: z.boolean().default(false),
+    platformExpiryDays: z.coerce.number().default(30),
+    totalCombinedBalance: z.coerce.number().optional(),
 });
 
 export const LoyaltyOverviewResponseSchema = ResponseDefaultSchema.extend({

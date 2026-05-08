@@ -110,6 +110,7 @@ const transformShopSummary = (dto: ShopPointSummaryDTO): ShopPointSummaryUI => {
 
 export const transformLoyaltyOverview = (dto: LoyaltyOverviewDTO): LoyaltyOverviewUI => {
     const shops = dto.shops.map(transformShopSummary);
+    const totalCombinedBalance = dto.totalCombinedBalance ?? dto.totalPointsAllShops;
     const hasUrgentPoints = dto.shops.some(s => {
         if (!s.nearestExpiryDate || s.expiringPoints <= 0) return false;
         const date = safeParseDate(s.nearestExpiryDate);
@@ -119,9 +120,12 @@ export const transformLoyaltyOverview = (dto: LoyaltyOverviewDTO): LoyaltyOvervi
     });
 
     return {
-        totalPoints: dto.totalPointsAllShops,
+        totalPoints: totalCombinedBalance,
+        totalCombinedBalance,
         shopCount: dto.totalShopsWithPoints,
         expiringPoints: dto.totalExpiringPoints,
+        platformEnabled: dto.platformEnabled ?? false,
+        platformExpiryDays: dto.platformExpiryDays ?? 30,
         hasUrgentPoints,
         shops,
     };

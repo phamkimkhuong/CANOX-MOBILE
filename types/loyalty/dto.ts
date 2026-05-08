@@ -82,6 +82,10 @@ export interface LoyaltyOverviewDTO {
     totalShopsWithPoints: number;
     totalExpiringPoints: number;
     shops: ShopPointSummaryDTO[];
+    platformPointBalance?: unknown | null;
+    platformEnabled?: boolean;
+    platformExpiryDays?: number;
+    totalCombinedBalance?: number;
 }
 
 export interface ShopPointSummaryDTO {

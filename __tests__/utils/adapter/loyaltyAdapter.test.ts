@@ -217,8 +217,23 @@ describe('transformLoyaltyOverview', () => {
         const result = transformLoyaltyOverview(createDTO());
 
         expect(result.totalPoints).toBe(5000);
+        expect(result.totalCombinedBalance).toBe(5000);
         expect(result.shopCount).toBe(3);
         expect(result.expiringPoints).toBe(500);
+    });
+
+    it('prefers totalCombinedBalance when platform balance contributes to overview', () => {
+        const result = transformLoyaltyOverview(createDTO({
+            totalPointsAllShops: 5000,
+            totalCombinedBalance: 6500,
+            platformEnabled: true,
+            platformExpiryDays: 30,
+        }));
+
+        expect(result.totalPoints).toBe(6500);
+        expect(result.totalCombinedBalance).toBe(6500);
+        expect(result.platformEnabled).toBe(true);
+        expect(result.platformExpiryDays).toBe(30);
     });
 
     it('transforms shop summaries', () => {

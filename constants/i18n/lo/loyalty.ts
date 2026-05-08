@@ -1,7 +1,7 @@
 import { LoyaltyTranslation } from '../types';
 
 export const LOYALTY_STRINGS: LoyaltyTranslation = {
-    title: 'ຫຼຽນສະສົມ',
+    title: 'ຫຼຽນ Canox',
     hero: {
         totalCoinsLabel: 'ຫຼຽນສະສົມທັງໝົດ',
         unit: 'ຫຼຽນ',
@@ -20,6 +20,62 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
         title: 'ຍັງບໍ່ມີຫຼຽນສະສົມ',
         message: 'ຊື້ສິນຄ້າເພື່ອຮັບຫຼຽນສະສົມຈາກຮ້ານຄ້າ.\nໃຊ້ຫຼຽນເພື່ອເປັນສ່ວນຫຼຸດໃນຄຳສັ່ງຊື້ຄັ້ງຕໍ່ໄປ!',
         shopNowBtn: 'ຊື້ເລີຍ'
+    },
+    emptyDashboard: {
+        hero: {
+            label: 'ຫຼຽນ Canox ທີ່ໃຊ້ໄດ້',
+            description: 'ທ່ານຍັງບໍ່ມີຫຼຽນທີ່ໃຊ້ໄດ້',
+            expiryStatus: 'ຍັງບໍ່ມີຫຼຽນລໍຖ້າ ຫຼື ໃກ້ຫມົດອາຍຸ',
+            primaryAction: 'ຊື້ສິນຄ້າສະສົມຫຼຽນ',
+            secondaryAction: 'ວິທີເຮັດວຽກ',
+        },
+        shopPoints: {
+            title: 'ຄະແນນຈາກຮ້ານ',
+            status: 'ຍັງບໍ່ມີຄະແນນທີ່ໃຊ້ໄດ້',
+            emptyTitle: 'ທ່ານຍັງບໍ່ມີຄະແນນຈາກຮ້ານ',
+            emptyMessage: 'ຊື້ຈາກຮ້ານທີ່ມີໂຄງການຄະແນນ ເພື່ອສະສົມຄະແນນຂອງຮ້ານ.',
+            action: 'ເບິ່ງຮ້ານທີ່ໃຫ້ຄະແນນ',
+        },
+        earn: {
+            title: 'ວິທີຮັບຫຼຽນ',
+            purchaseTitle: 'ຊື້ສິນຄ້າສະສົມຫຼຽນ',
+            reviewTitle: 'ຣີວິວຮັບຫຼຽນ',
+            programTitle: 'ໂຄງການ Canox',
+            action: 'ສະສົມ',
+        },
+        history: {
+            title: 'ປະຫວັດຫຼ້າສຸດ',
+            emptyTitle: 'ຍັງບໍ່ມີທຸລະກຳຫຼຽນ',
+            emptyMessage: 'ປະຫວັດການຮັບ ໃຊ້ ຫມົດອາຍຸ ຫຼື ຄືນຫຼຽນ ຈະສະແດງຢູ່ນີ້.',
+        },
+    },
+    guideSheet: {
+        title: 'ວິທີເຮັດວຽກ',
+        understood: 'ເຂົ້າໃຈແລ້ວ',
+        what: {
+            title: 'ຫຼຽນ Canox ແມ່ນຫຍັງ?',
+            body: 'ຫຼຽນ Canox ແມ່ນຄະແນນລາງວັນທີ່ໃຊ້ເພື່ອຫຼຸດລາຄາຄຳສັ່ງຊື້ທີ່ມີເງື່ອນໄຂໃນ Canox. ຫຼຽນບໍ່ສາມາດແລກເປັນເງິນສົດໄດ້.',
+        },
+        earn: {
+            title: 'ວິທີຮັບຫຼຽນ',
+            bullets: {
+                purchase: 'ຊື້ສິນຄ້າທີ່ມີເງື່ອນໄຂ',
+                review: 'ຣີວິວຫຼັງຈາກຮັບສິນຄ້າ',
+                program: 'ເຂົ້າຮ່ວມໂຄງການ Canox',
+            },
+        },
+        use: {
+            title: 'ວິທີໃຊ້ຫຼຽນ',
+            body: 'ທ່ານສາມາດໃຊ້ຫຼຽນໃນຂັ້ນຕອນຊຳລະເງິນສຳລັບຄຳສັ່ງຊື້ທີ່ມີເງື່ອນໄຂ.',
+        },
+        available: {
+            title: 'ເມື່ອໃດຫຼຽນຈຶ່ງໃຊ້ໄດ້?',
+            body: 'ຫຼຽນລາງວັນຈະຖືກເພີ່ມຫຼັງຈາກຄຳສັ່ງຊື້ສຳເລັດ ແລະບໍ່ມີການຍົກເລີກ ຄືນສິນຄ້າ ຫຼື ຄືນເງິນ.',
+        },
+        note: {
+            title: 'ໝາຍເຫດ',
+            callout: 'ຫຼຽນອາດມີວັນໝົດອາຍຸ. ກະລຸນາຕິດຕາມຫຼຽນທີ່ໃກ້ໝົດອາຍຸເພື່ອໃຊ້ໃຫ້ທັນເວລາ.',
+        },
     },
     howItWorks: {
         title: 'ວິທີການໃຊ້ຫຼຽນ',

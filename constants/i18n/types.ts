@@ -2133,6 +2133,62 @@ export interface LoyaltyTranslation {
         message: string;
         shopNowBtn: string;
     };
+    emptyDashboard: {
+        hero: {
+            label: string;
+            description: string;
+            expiryStatus: string;
+            primaryAction: string;
+            secondaryAction: string;
+        };
+        shopPoints: {
+            title: string;
+            status: string;
+            emptyTitle: string;
+            emptyMessage: string;
+            action: string;
+        };
+        earn: {
+            title: string;
+            purchaseTitle: string;
+            reviewTitle: string;
+            programTitle: string;
+            action: string;
+        };
+        history: {
+            title: string;
+            emptyTitle: string;
+            emptyMessage: string;
+        };
+    };
+    guideSheet: {
+        title: string;
+        understood: string;
+        what: {
+            title: string;
+            body: string;
+        };
+        earn: {
+            title: string;
+            bullets: {
+                purchase: string;
+                review: string;
+                program: string;
+            };
+        };
+        use: {
+            title: string;
+            body: string;
+        };
+        available: {
+            title: string;
+            body: string;
+        };
+        note: {
+            title: string;
+            callout: string;
+        };
+    };
     howItWorks: {
         title: string;
         steps: {

@@ -61,8 +61,11 @@ export interface PointHistoryUI {
 
 export interface LoyaltyOverviewUI {
     totalPoints: number;
+    totalCombinedBalance: number;
     shopCount: number;
     expiringPoints: number;
+    platformEnabled: boolean;
+    platformExpiryDays: number;
     hasUrgentPoints?: boolean;
     shops: ShopPointSummaryUI[];
 }
