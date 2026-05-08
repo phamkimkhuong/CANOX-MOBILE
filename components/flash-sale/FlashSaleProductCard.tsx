@@ -38,6 +38,7 @@ export const FlashSaleProductCard = memo(({
     const isUpcoming = status === SlotStatus.UPCOMING;
     const isSoldOut = item.isSoldOut || (item.soldCount >= item.totalStock);
     const hasDiscount = !isSoldOut && item.discountPercentage > 0;
+    const shopName = (item.shopName || '').trim();
 
     return (
         <Animated.View
@@ -88,7 +89,18 @@ export const FlashSaleProductCard = memo(({
 
                 <View style={styles.content}>
                     <View style={styles.contentTop}>
-                        <Text style={styles.title} numberOfLines={2}>{item.name}</Text>
+                        <View style={styles.titleBlock}>
+                            <Text style={styles.title} numberOfLines={2}>{item.name}</Text>
+                            {shopName ? (
+                                <Text
+                                    style={styles.shopName}
+                                    numberOfLines={2}
+                                    ellipsizeMode="tail"
+                                >
+                                    {shopName}
+                                </Text>
+                            ) : null}
+                        </View>
 
                         {item.rating > 0 ? (
                             <View style={styles.metaRow}>
@@ -127,13 +139,22 @@ export const FlashSaleProductCard = memo(({
 
                         <View style={styles.ctaWrapper}>
                             {isUpcoming ? (
-                                <Pressable
-                                    onPress={() => onRemindMe?.(item.id)}
-                                    style={({ pressed }) => [styles.remindBtn, pressed && styles.btnPressed]}
-                                >
-                                    <IconSymbol name="notifications" size={16} color={theme.colors.warning} />
-                                    <Text style={styles.remindBtnText}>{t('flashSale.remindMe')}</Text>
-                                </Pressable>
+                                <View style={styles.upcomingActionRow}>
+                                    <View style={styles.limitedSeatChip}>
+                                        <IconSymbol name="calendar" size={13} color={theme.colors.secondary} />
+                                        <Text style={styles.limitedSeatText} numberOfLines={1}>
+                                            {t('flashSale.limitedSeats', { count: item.totalStock })}
+                                        </Text>
+                                    </View>
+
+                                    <Pressable
+                                        onPress={() => onRemindMe?.(item.id)}
+                                        style={({ pressed }) => [styles.remindBtn, styles.remindBtnCompact, pressed && styles.btnPressed]}
+                                    >
+                                        <IconSymbol name="notifications" size={15} color={theme.colors.warning} />
+                                        <Text style={styles.remindBtnText}>{t('flashSale.remindMe')}</Text>
+                                    </Pressable>
+                                </View>
                             ) : isSoldOut ? (
                                 <View style={[styles.buyBtn, styles.disabledBtn]}>
                                     <Text style={[styles.buyBtnText, styles.buyBtnTextDisabled]}>
@@ -210,11 +231,11 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     discountBadge: {
         position: 'absolute',
-        top: theme.margins.sm,
-        left: theme.margins.sm,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: theme.radius.full,
+        top: theme.margins.xs,
+        left: theme.margins.xs,
+        paddingHorizontal: 6,
+        paddingVertical: 3,
+        borderRadius: theme.radius.l,
     },
     discountText: {
         fontSize: theme.fontSizes.xsm,
@@ -242,6 +263,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     content: {
         flex: 1,
+        minWidth: 0,
         justifyContent: 'space-between',
     },
     contentTop: {
@@ -250,11 +272,23 @@ const stylesheet = StyleSheet.create((theme) => ({
     contentBottom: {
         gap: theme.margins.sm,
     },
+    titleBlock: {
+        minWidth: 0,
+        gap: 2,
+    },
     title: {
         fontSize: theme.fontSizes.md,
         fontWeight: theme.fontWeights.medium,
         color: theme.colors.typography,
         lineHeight: 20,
+        flexShrink: 1,
+    },
+    shopName: {
+        fontSize: theme.fontSizes.sm,
+        fontWeight: theme.fontWeights.regular,
+        color: theme.colors.secondary,
+        lineHeight: 15,
+        flexShrink: 1,
     },
     metaRow: {
         flexDirection: 'row',
@@ -297,6 +331,31 @@ const stylesheet = StyleSheet.create((theme) => ({
     ctaWrapper: {
         marginTop: 2,
     },
+    upcomingActionRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: theme.margins.sm,
+    },
+    limitedSeatChip: {
+        minHeight: 34,
+        flex: 1,
+        minWidth: 0,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 4,
+        paddingHorizontal: theme.margins.sm,
+        borderRadius: theme.radius.l,
+        backgroundColor: theme.colors.backgroundNewSurface,
+        borderWidth: 1,
+        borderColor: theme.colors.borderMuted,
+    },
+    limitedSeatText: {
+        flexShrink: 1,
+        fontSize: theme.fontSizes.xs,
+        fontWeight: theme.fontWeights.medium,
+        color: theme.colors.typographySecondary,
+    },
     buyBtn: {
         borderRadius: theme.radius.l,
         paddingVertical: theme.margins.sm,
@@ -322,6 +381,12 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderWidth: 1,
         borderColor: theme.colors.warningLight,
         backgroundColor: theme.colors.warningSubtle,
+    },
+    remindBtnCompact: {
+        minHeight: 34,
+        flexShrink: 0,
+        paddingHorizontal: theme.margins.smd,
+        paddingVertical: theme.margins.xs,
     },
     remindBtnText: {
         color: theme.colors.warning,

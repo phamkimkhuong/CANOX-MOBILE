@@ -212,6 +212,9 @@ export interface HomeTranslation {
         almostGone: string;
         sold: string;
         onlyLeft: string;
+        limitedSeats: string;
+        productReminderToastTitle: string;
+        productReminderToastMessage: string;
         upcomingPriceLabel: string;
         day: string;
         pendingBoundary: string;

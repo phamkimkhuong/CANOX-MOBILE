@@ -22,6 +22,7 @@ export const FlashSaleItemSchema = z.object({
     id: z.string(),
     productId: z.string(),
     name: z.string(),
+    shopName: z.string().default(''),
     image: z.string(),
     rating: z.number(),
     price: z.number(),

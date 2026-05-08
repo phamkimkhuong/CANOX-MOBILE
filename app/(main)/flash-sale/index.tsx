@@ -107,11 +107,19 @@ export default function FlashSaleScreen() {
         Navigator.back();
     }, []);
 
-    const handleRemindMe = useCallback((_id: string) => {
+    const handleEmptyRemindMe = useCallback(() => {
         Toast.show({
             type: 'info',
             text1: t('home:flashSale.emptyState.reminderToastTitle'),
             text2: t('home:flashSale.emptyState.reminderToastMessage'),
+        });
+    }, [t]);
+
+    const handleProductRemindMe = useCallback((_id: string) => {
+        Toast.show({
+            type: 'info',
+            text1: t('home:flashSale.productReminderToastTitle'),
+            text2: t('home:flashSale.productReminderToastMessage'),
         });
     }, [t]);
 
@@ -279,7 +287,7 @@ export default function FlashSaleScreen() {
                 <StatusBar barStyle="dark-content" />
                 <FlashSaleEmptyState
                     onBack={handleBack}
-                    onNotifyPress={() => handleRemindMe('flash-sale-empty')}
+                    onNotifyPress={handleEmptyRemindMe}
                     onBrowsePress={handleBrowseProducts}
                     onCategoriesPress={handleOpenCategories}
                     onTrustedShopsPress={handleOpenTrustedShops}
@@ -312,7 +320,7 @@ export default function FlashSaleScreen() {
                             index={index}
                             status={activeTab?.status || SlotStatus.UPCOMING}
                             onPress={(productId) => handleProductPress(productId)}
-                            onRemindMe={handleRemindMe}
+                            onRemindMe={handleProductRemindMe}
                         />
                     </View>
                 )}

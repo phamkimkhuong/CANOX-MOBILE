@@ -92,6 +92,7 @@ export const PublicSlotProductResponseSchema = z.object({
     productName: z.string().nullable().optional(),
     productThumbnailUrl: z.string().nullable().optional(),
     averageRating: z.number().nullable().optional().default(0),
+    shopName: z.string().nullable().optional().default(''),
     variants: z.array(PublicSlotVariantResponseSchema).nullable().optional().default([]),
 });
 

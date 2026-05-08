@@ -24,6 +24,7 @@ export const transformSlotProductsToFlashSaleItems = (
             id: product.productId,
             productId: product.productId,
             name: product.productName || 'Sản phẩm Flash Sale',
+            shopName: product.shopName || '',
             image: buildImageUrl(
                 product.productThumbnailUrl || representativeVariant.variantImagePath,
                 null,
