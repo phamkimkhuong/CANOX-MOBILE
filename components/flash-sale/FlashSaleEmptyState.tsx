@@ -1,4 +1,5 @@
 import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
+import { useCartStore } from '@/store/useCartStore';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { memo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -40,6 +41,7 @@ export const FlashSaleEmptyState = memo(({
     const { t } = useTranslation(['home']);
     const { theme } = useUnistyles();
     const insets = useSafeAreaInsets();
+    const cartItemCount = useCartStore((state) => state.totalQuantity);
     const styles = stylesheet;
 
     const howItWorksCards: InfoCard[] = [
@@ -97,6 +99,13 @@ export const FlashSaleEmptyState = memo(({
                     accessibilityRole="button"
                 >
                     <IconSymbol name="cart" size={24} color={theme.colors.typography} />
+                    {cartItemCount > 0 ? (
+                        <View style={styles.cartBadge}>
+                            <Text style={styles.cartBadgeText}>
+                                {cartItemCount > 99 ? '99+' : cartItemCount}
+                            </Text>
+                        </View>
+                    ) : null}
                 </Pressable>
             </View>
 
@@ -364,6 +373,27 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderRadius: theme.radius.full,
         alignItems: 'center',
         justifyContent: 'center',
+        position: 'relative',
+    },
+    cartBadge: {
+        position: 'absolute',
+        top: 2,
+        right: 1,
+        minWidth: 18,
+        height: 18,
+        paddingHorizontal: 4,
+        borderRadius: theme.radius.full,
+        backgroundColor: theme.colors.error,
+        borderWidth: 1.5,
+        borderColor: theme.colors.surface,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    cartBadgeText: {
+        color: theme.colors.onPrimary,
+        fontSize: theme.fontSizes.xs,
+        fontWeight: theme.fontWeights.bold,
+        lineHeight: 12,
     },
     headerTitle: {
         fontSize: theme.fontSizes.lg,
