@@ -9,7 +9,7 @@
  * - Horizontal collection chips (from user's wishlists)
  * - 2-column product grid showing items of selected wishlist
  * - Default wishlist selected by default
- * - Heart toggle: always red, tap to remove with undo snackbar
+ * - Heart toggle: always red, tap to confirm removal
  */
 
 import { IconSymbol } from '@/components/ui/Icon';
@@ -18,7 +18,6 @@ import {
     EditWishlistItemSheet,
     type EditWishlistItemSheetRef,
 } from '@/components/wishlist/EditWishlistItemSheet';
-import { UndoSnackbar } from '@/components/wishlist/UndoSnackbar';
 import {
     WishlistActionSheet,
     type WishlistActionSheetRef,
@@ -58,15 +57,6 @@ import {
 } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
-
-// ============================================
-// PENDING REMOVAL STATE
-// ============================================
-
-interface PendingRemoval {
-    item: WishlistItemUI;
-    wishlistId: string;
-}
 
 interface PrivateWishlistTabProps {
     isWishlistEmpty?: boolean;
@@ -149,11 +139,6 @@ export const PrivateWishlistTab: React.FC<PrivateWishlistTabProps> = ({
     // ============================================
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showRenameModal, setShowRenameModal] = useState(false);
-    // ============================================
-    // UNDO SNACKBAR STATE
-    // ============================================
-    const [pendingRemoval, setPendingRemoval] = useState<PendingRemoval | null>(null);
-    const pendingRemovalRef = useRef<PendingRemoval | null>(null);
 
     // ---- DERIVED STATE ----
     const isPendingSelection = !isLoadingWishlists && sortedWishlists.length > 0 && !effectiveWishlistId;
@@ -164,18 +149,9 @@ export const PrivateWishlistTab: React.FC<PrivateWishlistTabProps> = ({
         [sortedWishlists, effectiveWishlistId]
     );
 
-    // Items with pending removal filtered out visually
-    const displayItems = useMemo(() => {
-        const items = wishlistDetail?.items ?? [];
-        if (!pendingRemoval) return items;
-        return items.filter(item => item.id !== pendingRemoval.item.id);
-    }, [wishlistDetail?.items, pendingRemoval]);
+    const displayItems = useMemo(() => wishlistDetail?.items ?? [], [wishlistDetail?.items]);
 
-    // Adjusted counts: subtract pending removal from displayed counts
-    const pendingInActiveWishlist = pendingRemoval?.wishlistId === effectiveWishlistId;
-    const adjustedActiveItemCount = activeWishlist
-        ? activeWishlist.itemCount - (pendingInActiveWishlist ? 1 : 0)
-        : 0;
+    const adjustedActiveItemCount = activeWishlist?.itemCount ?? 0;
 
     const hasNoFavoriteItems = !isLoadingWishlists
         && !isPendingSelection
@@ -237,13 +213,13 @@ export const PrivateWishlistTab: React.FC<PrivateWishlistTabProps> = ({
     }, [refetchWishlists, refetchItems, effectiveWishlistId]);
 
     // ============================================
-    // HEART PRESS → UNDO FLOW
+    // HEART PRESS → CONFIRM REMOVE FLOW
     // ============================================
 
     /**
      * User taps heart on a product in the grid.
      * Since we're in wishlist, all items are already favorited.
-     * Tapping heart = request to remove from wishlist.
+     * Tapping heart = ask buyer to confirm before removing.
      */
     const handleFavoritePress = useCallback((variantId: string) => {
         if (!wishlistDetail) return;
@@ -252,47 +228,22 @@ export const PrivateWishlistTab: React.FC<PrivateWishlistTabProps> = ({
         const item = wishlistDetail.items.find(i => i.variantId === variantId);
         if (!item) return;
 
-        // If another item is already pending, commit that removal first
-        if (pendingRemovalRef.current) {
-            const prev = pendingRemovalRef.current;
-            removeItemMutation.mutate({
-                wishlistId: prev.wishlistId,
-                itemId: prev.item.id,
-                variantId: prev.item.variantId,
-            });
-        }
-
-        const newPending: PendingRemoval = {
-            item,
-            wishlistId: item.wishlistId,
-        };
-        pendingRemovalRef.current = newPending;
-        setPendingRemoval(newPending);
-    }, [wishlistDetail, removeItemMutation]);
-
-    /**
-     * Snackbar auto-dismisses → Actually delete
-     */
-    const handleSnackbarDismiss = useCallback(() => {
-        const current = pendingRemovalRef.current;
-        if (current) {
-            removeItemMutation.mutate({
-                wishlistId: current.wishlistId,
-                itemId: current.item.id,
-                variantId: current.item.variantId,
-            });
-        }
-        pendingRemovalRef.current = null;
-        setPendingRemoval(null);
-    }, [removeItemMutation]);
-
-    /**
-     * User taps "Undo" → Cancel the removal
-     */
-    const handleUndo = useCallback(() => {
-        pendingRemovalRef.current = null;
-        setPendingRemoval(null);
-    }, []);
+        CustomAlert.show({
+            title: t('removeItem.confirmTitle'),
+            message: t('removeItem.confirmMessage', { name: item.productName }),
+            type: 'warning',
+            confirmText: t('removeItem.confirmAction'),
+            cancelText: t('manage.cancel'),
+            showCancel: true,
+            onConfirm: () => {
+                removeItemMutation.mutate({
+                    wishlistId: item.wishlistId,
+                    itemId: item.id,
+                    variantId: item.variantId,
+                });
+            },
+        });
+    }, [wishlistDetail, removeItemMutation, t]);
 
     // ---- ACTION SHEET HANDLERS ----
 
@@ -554,14 +505,6 @@ export const PrivateWishlistTab: React.FC<PrivateWishlistTabProps> = ({
                     onRefresh={handleRefresh}
                 />
             )}
-
-            {/* Undo Snackbar */}
-            <UndoSnackbar
-                visible={pendingRemoval !== null}
-                productName={pendingRemoval?.item.productName ?? ''}
-                onUndo={handleUndo}
-                onDismiss={handleSnackbarDismiss}
-            />
 
             {/* Create Wishlist Modal */}
             <CreateWishlistModal

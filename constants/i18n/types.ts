@@ -2086,9 +2086,10 @@ export interface WishlistTranslation {
     cart: {
         addSuccess: string;
     };
-    snackbar: {
-        removed: string;
-        undo: string;
+    removeItem: {
+        confirmTitle: string;
+        confirmMessage: string;
+        confirmAction: string;
     };
     create: {
         title: string;

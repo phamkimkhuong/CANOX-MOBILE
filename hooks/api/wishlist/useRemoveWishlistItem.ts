@@ -4,7 +4,7 @@
  * ==============================================
  * Handles removing an item from wishlist.
  * Uses optimistic update to instantly hide item on UI.
- * Supports undo by rolling back the cache.
+ * Rolls back the cache if the delete request fails.
  */
 
 import { wishlistService } from '@/services/api/wishlist';

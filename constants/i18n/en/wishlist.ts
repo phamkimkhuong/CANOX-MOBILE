@@ -57,9 +57,10 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
     cart: {
         addSuccess: 'Added to cart',
     },
-    snackbar: {
-        removed: 'Removed "{{name}}"',
-        undo: 'Undo',
+    removeItem: {
+        confirmTitle: 'Remove from favorites?',
+        confirmMessage: '"{{name}}" will be removed from this collection.',
+        confirmAction: 'Remove',
     },
     create: {
         title: 'New Collection',

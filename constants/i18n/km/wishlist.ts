@@ -57,9 +57,10 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
     cart: {
         addSuccess: 'បានបន្ថែមទៅរទេះទំនិញ',
     },
-    snackbar: {
-        removed: 'បានលុប "{{name}}"',
-        undo: 'មិនធ្វើវិញ',
+    removeItem: {
+        confirmTitle: 'លុបចេញពីសំណព្វចិត្ត?',
+        confirmMessage: '"{{name}}" នឹងត្រូវបានលុបចេញពីបណ្តុំនេះ។',
+        confirmAction: 'លុបចេញ',
     },
     create: {
         title: 'បណ្តុំថ្មី',

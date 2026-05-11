@@ -57,9 +57,10 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
     cart: {
         addSuccess: 'Đã thêm vào giỏ hàng',
     },
-    snackbar: {
-        removed: 'Đã xoá "{{name}}"',
-        undo: 'Hoàn tác',
+    removeItem: {
+        confirmTitle: 'Bỏ yêu thích sản phẩm?',
+        confirmMessage: '"{{name}}" sẽ được xoá khỏi bộ sưu tập này.',
+        confirmAction: 'Bỏ yêu thích',
     },
     create: {
         title: 'Bộ sưu tập mới',

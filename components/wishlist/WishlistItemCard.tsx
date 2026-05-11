@@ -6,7 +6,7 @@
  * - Product info, price, options
  * - Desired price tracking
  * - Priority indicator
- * - Red heart toggle (tap to remove with undo)
+ * - Red heart toggle (tap to confirm removal)
  * - Quick add to cart
  */
 
@@ -31,8 +31,6 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 interface WishlistItemCardProps {
     item: WishlistItemUI;
-    /** Whether this item is pending removal (shown faded) */
-    isPendingRemoval?: boolean;
     onPress: (item: WishlistItemUI) => void;
     onAddToCart?: (item: WishlistItemUI) => void;
     /** Called when user taps the heart (toggle unfavorite) */
@@ -52,7 +50,6 @@ interface WishlistItemCardProps {
  */
 export const WishlistItemCard: React.FC<WishlistItemCardProps> = ({
     item,
-    isPendingRemoval = false,
     onPress,
     onAddToCart,
     onHeartPress,
@@ -106,11 +103,9 @@ export const WishlistItemCard: React.FC<WishlistItemCardProps> = ({
             <Pressable
                 style={({ pressed }) => [
                     styles.container,
-                    isPendingRemoval && styles.pendingRemoval,
                     pressed && styles.pressed,
                 ]}
                 onPress={handlePress}
-                disabled={isPendingRemoval}
             >
                 {/* Product Image */}
                 <View style={styles.imageWrapper}>
@@ -205,7 +200,6 @@ export const WishlistItemCard: React.FC<WishlistItemCardProps> = ({
                         style={[styles.heartButton, heartAnimatedStyle]}
                         onPress={handleHeartPress}
                         hitSlop={10}
-                        disabled={isPendingRemoval}
                     >
                         <IconSymbol
                             name="heart"
@@ -219,7 +213,6 @@ export const WishlistItemCard: React.FC<WishlistItemCardProps> = ({
                         style={styles.actionButton}
                         onPress={handleAddToCart}
                         hitSlop={8}
-                        disabled={isPendingRemoval}
                     >
                         <IconSymbol
                             name="cart"
@@ -245,10 +238,6 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     pressed: {
         opacity: 0.7,
-    },
-    pendingRemoval: {
-        opacity: 0.35,
-        transform: [{ scale: 0.97 }],
     },
     imageWrapper: {
         position: 'relative',
