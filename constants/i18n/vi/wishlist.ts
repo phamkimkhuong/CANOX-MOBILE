@@ -24,6 +24,20 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
         addProduct: 'Thêm sản phẩm',
         productTitle: 'đang trống',
     },
+    emptyState: {
+        title: 'Bạn chưa có sản phẩm yêu thích',
+        subtitlePrefix: 'Nhấn biểu tượng',
+        subtitleSuffix: 'trên thẻ sản phẩm để lưu lại.',
+        subtitleTracking: 'Canox sẽ giúp bạn theo dõi giá và thông báo khi sản phẩm đạt mức giá mong muốn.',
+        primaryCta: 'Khám phá sản phẩm',
+        benefitsTitle: 'Yêu thích giúp bạn',
+        saveTitle: 'Lưu để mua sau',
+        saveSubtitle: 'Xem lại sản phẩm bạn quan tâm',
+        trackTitle: 'Theo dõi giá mong muốn',
+        trackSubtitle: 'Đặt mức giá bạn muốn mua',
+        notifyTitle: 'Nhận thông báo khi đạt giá',
+        notifySubtitle: 'Canox báo khi sản phẩm chạm mức giá đã đặt',
+    },
     error: {
         loadFailed: 'Không thể tải bộ sưu tập',
         retry: 'Thử lại',
@@ -106,7 +120,8 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
         emptySubtitle: 'Chưa có deal nào rớt xuống mức giá bạn mong muốn hôm nay. Hãy tiếp tục săn nhé!',
         manageButton: 'Quản lý bộ sưu tập',
         successMessage: 'Chúc mừng! Có {{totalItems}} sản phẩm đã về đúng giá bạn mơ ước!',
-        deepDiscountBadge: 'GIẢM SÂU',
+        reachedBadge: 'Đã đạt giá',
+        savingsComparedToSaved: 'Tiết kiệm {{amount}} so với lúc lưu',
         buyNow: 'MUA NGAY',
     }
 };

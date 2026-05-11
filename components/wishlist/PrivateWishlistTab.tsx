@@ -27,6 +27,10 @@ import {
     WishlistCollectionChips,
 } from '@/components/wishlist/WishlistCollectionChips';
 import {
+    WishlistEmptyState,
+    WishlistEmptyStateSkeleton,
+} from '@/components/wishlist/WishlistEmptyState';
+import {
     WishlistProductGrid,
 } from '@/components/wishlist/WishlistProductGrid';
 import {
@@ -64,11 +68,19 @@ interface PendingRemoval {
     wishlistId: string;
 }
 
+interface PrivateWishlistTabProps {
+    isWishlistEmpty?: boolean;
+    isWishlistListLoading?: boolean;
+}
+
 // ============================================
 // MAIN SCREEN
 // ============================================
 
-export const PrivateWishlistTab = () => {
+export const PrivateWishlistTab: React.FC<PrivateWishlistTabProps> = ({
+    isWishlistEmpty,
+    isWishlistListLoading,
+}) => {
     useNavigationUnlockOnFocus();
 
     const styles = stylesheet;
@@ -164,6 +176,14 @@ export const PrivateWishlistTab = () => {
     const adjustedActiveItemCount = activeWishlist
         ? activeWishlist.itemCount - (pendingInActiveWishlist ? 1 : 0)
         : 0;
+
+    const hasNoFavoriteItems = !isLoadingWishlists
+        && !isPendingSelection
+        && displayItems.length === 0
+        && (sortedWishlists.length === 0 || sortedWishlists.every(wishlist => wishlist.itemCount === 0));
+
+    const shouldShowEmptySkeleton = isWishlistListLoading ?? (isLoadingWishlists && !wishlistsData);
+    const shouldShowEmptyState = isWishlistEmpty ?? (hasNoFavoriteItems && !isLoading);
 
     // ---- HANDLERS ----
 
@@ -515,17 +535,25 @@ export const PrivateWishlistTab = () => {
 
     return (
         <View style={styles.container}>
-            {/* Product Grid (includes chips as header) */}
-            <WishlistProductGrid
-                items={displayItems}
-                isLoading={isLoading}
-                onFavoritePress={handleFavoritePress}
-                onItemLongPress={handleItemLongPress}
-                ListHeaderComponent={ListHeader}
-                wishlistName={activeWishlist?.name}
-                isRefetching={isRefetchingWishlists || isRefetchingItems}
-                onRefresh={handleRefresh}
-            />
+            {shouldShowEmptySkeleton ? (
+                <WishlistEmptyStateSkeleton />
+            ) : shouldShowEmptyState ? (
+                <WishlistEmptyState
+                    isRefetching={isRefetchingWishlists || isRefetchingItems}
+                    onRefresh={handleRefresh}
+                />
+            ) : (
+                <WishlistProductGrid
+                    items={displayItems}
+                    isLoading={isLoading}
+                    onFavoritePress={handleFavoritePress}
+                    onItemLongPress={handleItemLongPress}
+                    ListHeaderComponent={ListHeader}
+                    wishlistName={activeWishlist?.name}
+                    isRefetching={isRefetchingWishlists || isRefetchingItems}
+                    onRefresh={handleRefresh}
+                />
+            )}
 
             {/* Undo Snackbar */}
             <UndoSnackbar

@@ -63,20 +63,6 @@ export const WishlistCollectionChips: React.FC<WishlistCollectionChipsProps> = (
                     {item.name}
                 </Text>
 
-                {/* Item count badge */}
-                {item.itemCount > 0 && (
-                    <View style={[
-                        styles.countBadge,
-                        isActive && styles.countBadgeActive,
-                    ]}>
-                        <Text style={[
-                            styles.countText,
-                            isActive && styles.countTextActive,
-                        ]}>
-                            {item.itemCount}
-                        </Text>
-                    </View>
-                )}
             </Pressable>
         );
     }, [activeId, onSelect, styles, theme.colors.warning, theme.colors.surface]);
@@ -147,26 +133,6 @@ const stylesheet = StyleSheet.create((theme) => ({
     chipTextActive: {
         color: theme.colors.newPrimary,
         fontWeight: '600',
-    },
-    countBadge: {
-        minWidth: 18,
-        height: 18,
-        borderRadius: 9,
-        backgroundColor: theme.colors.backgroundSurface,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: 4,
-    },
-    countBadgeActive: {
-        backgroundColor: theme.colors.newPrimary,
-    },
-    countText: {
-        fontSize: 11,
-        fontWeight: '600',
-        color: theme.colors.typographySecondary,
-    },
-    countTextActive: {
-        color: theme.colors.surface,
     },
     createChip: {
         flexDirection: 'row',

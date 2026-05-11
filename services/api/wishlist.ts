@@ -6,6 +6,7 @@
  */
 
 import { API_ROUTES } from '@/constants/apiRoutes';
+import i18n from '@/constants/i18n';
 import { useAuthStore } from '@/store/useAuthStore';
 import {
     WishlistCheckVariantsResponseSchema,
@@ -20,6 +21,23 @@ import {
     type WishlistQueryParams
 } from '@/types/wishlist';
 import { apiClient } from './client';
+import { ApiError } from './errors';
+
+const DEFAULT_WISHLIST_NOT_FOUND_CODE = 3006;
+let ensureDefaultWishlistPromise: Promise<void> | null = null;
+
+const isDefaultWishlistNotFoundError = (error: unknown) => (
+    error instanceof ApiError &&
+    error.status === 404 &&
+    error.code === DEFAULT_WISHLIST_NOT_FOUND_CODE
+);
+
+const getLocalizedDefaultWishlistName = () => {
+    const translatedName = i18n.t('wishlist:defaultName', { defaultValue: 'My Favorites' });
+    return typeof translatedName === 'string' && translatedName.trim().length > 0
+        ? translatedName.trim()
+        : 'My Favorites';
+};
 
 export const wishlistService = {
     // ============================================
@@ -93,6 +111,45 @@ export const wishlistService = {
     addToDefaultWishlist: async (data: Omit<AddWishlistItemRequest, 'wishlistId'>) => {
         const response = await apiClient.post(API_ROUTES.WISHLISTS.ADD_ITEM_DEFAULT, data);
         return WishlistItemMutationResponseSchema.parse(response.data).data;
+    },
+
+    /** Ensure the buyer has a default wishlist before first favorite write. */
+    ensureDefaultWishlist: async () => {
+        if (!ensureDefaultWishlistPromise) {
+            ensureDefaultWishlistPromise = (async () => {
+                try {
+                    await wishlistService.createWishlist({
+                        name: getLocalizedDefaultWishlistName(),
+                        isDefault: true,
+                        isPublic: false,
+                    });
+                } catch (createError) {
+                    try {
+                        await wishlistService.getDefaultWishlist();
+                    } catch {
+                        throw createError;
+                    }
+                }
+            })().finally(() => {
+                ensureDefaultWishlistPromise = null;
+            });
+        }
+
+        return ensureDefaultWishlistPromise;
+    },
+
+    /** Add to default wishlist, lazily creating the default collection if backend reports it missing. */
+    addToDefaultWishlistEnsured: async (data: Omit<AddWishlistItemRequest, 'wishlistId'>) => {
+        try {
+            return await wishlistService.addToDefaultWishlist(data);
+        } catch (error) {
+            if (!isDefaultWishlistNotFoundError(error)) {
+                throw error;
+            }
+
+            await wishlistService.ensureDefaultWishlist();
+            return wishlistService.addToDefaultWishlist(data);
+        }
     },
 
     /** Add a Variant to Wishlist */

@@ -11,6 +11,7 @@ export * from './UndoSnackbar';
 export * from './WishlistActionSheet';
 export * from './WishlistCard';
 export * from './WishlistCollectionChips';
+export * from './WishlistEmptyState';
 export * from './WishlistItemCard';
 export * from './WishlistLoginPrompt';
 export * from './WishlistProductGrid';

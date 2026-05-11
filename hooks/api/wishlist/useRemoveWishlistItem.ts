@@ -68,6 +68,9 @@ export const useRemoveWishlistItem = () => {
         },
         onSettled: (_data, _error, { wishlistId }) => {
             queryClient.invalidateQueries({ queryKey: wishlistKeys.detail(wishlistId) });
+            queryClient.invalidateQueries({ queryKey: wishlistKeys.items(wishlistId) });
+            queryClient.invalidateQueries({ queryKey: wishlistKeys.default() });
+            queryClient.invalidateQueries({ queryKey: wishlistKeys.lists(), exact: true });
             queryClient.invalidateQueries({ queryKey: [...wishlistKeys.all, 'check-variants'] });
         },
     });

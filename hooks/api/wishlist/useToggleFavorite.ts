@@ -27,12 +27,12 @@ export const useToggleFavorite = () => {
         mutationFn: async ({ variantId, targetState }: { variantId: string, targetState: boolean }) => {
             if (targetState) {
                 // ACTION: ADD TO DEFAULT WISHLIST (Final state is Heart=Red)
-                await wishlistService.addToDefaultWishlist({
+                const addedItem = await wishlistService.addToDefaultWishlistEnsured({
                     variantId,
                     quantity: 1,
                     priority: 0,
                 });
-                return { action: 'added' };
+                return { action: 'added', wishlistId: addedItem.wishlistId };
             } else {
                 // ACTION: REMOVE FROM WISHLIST (Final state is Heart=White)
                 const defaultWl = await wishlistService.getDefaultWishlist();
@@ -40,12 +40,12 @@ export const useToggleFavorite = () => {
 
                 if (itemToRemove && itemToRemove.id) {
                     await wishlistService.removeFromWishlist(defaultWl.id, itemToRemove.id);
-                    return { action: 'removed' };
+                    return { action: 'removed', wishlistId: defaultWl.id };
                 } else {
                     // It's possible the item was in a custom wishlist, not the default one.
                     // For now, if we can't find it to remove, we just resolve.
                     console.warn('Item not found in default wishlist to remove');
-                    return { action: 'ignored' };
+                    return { action: 'ignored', wishlistId: defaultWl.id };
                 }
             }
         },
@@ -79,10 +79,15 @@ export const useToggleFavorite = () => {
                 });
             }
         },
-        onSettled: (_, __, { variantId }) => {
+        onSettled: (data, __, { variantId }) => {
             // Clean up tracking and invalidate cache
             delete previousStates.current[variantId];
+            if (data?.wishlistId) {
+                queryClient.invalidateQueries({ queryKey: wishlistKeys.detail(data.wishlistId) });
+                queryClient.invalidateQueries({ queryKey: wishlistKeys.items(data.wishlistId) });
+            }
             queryClient.invalidateQueries({ queryKey: wishlistKeys.default() });
+            queryClient.invalidateQueries({ queryKey: wishlistKeys.lists(), exact: true });
             queryClient.invalidateQueries({ queryKey: [...wishlistKeys.all, 'check-variants'] });
         },
     });

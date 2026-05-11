@@ -5,10 +5,10 @@ import { usePriceTargetMet } from '@/hooks/api/wishlist/usePriceTargetMet';
 import type { WishlistItemUI } from '@/types/wishlist';
 import { formatCurrency } from '@/utils/format';
 import { Navigator } from '@/utils/navigation';
+import { FlashList } from '@shopify/flash-list';
+import { Image } from 'expo-image';
 import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Image } from 'expo-image';
-import { FlashList } from '@shopify/flash-list';
 import {
     ActivityIndicator,
     Pressable,
@@ -38,49 +38,73 @@ export const PriceTargetTab: React.FC<PriceTargetTabProps> = ({ onSwitchToPrivat
         Navigator.push(productRoutes.detail(item.productId, { action: 'buy-now' }));
     }, []);
 
-    const renderItem = useCallback(({ item }: { item: WishlistItemUI }) => (
-        <Pressable
-            style={styles.card}
-            onPress={() => Navigator.push(productRoutes.detail(item.productId))}
-        >
-            <View style={styles.imageContainer}>
-                <Image
-                    source={{ uri: item.imageUrl ?? undefined }}
-                    style={styles.image}
-                    contentFit="cover"
-                    transition={200}
-                />
-                <View style={styles.tagDeepDiscount}>
-                    <Text style={styles.tagText}>{t('priceTargetTab.deepDiscountBadge')}</Text>
+    const renderItem = useCallback(({ item }: { item: WishlistItemUI }) => {
+        const hasTargetPrice = item.desiredPrice != null && item.desiredPrice > 0;
+        const savingsAmount = hasTargetPrice && item.desiredPrice! > item.price
+            ? item.desiredPrice! - item.price
+            : 0;
+
+        return (
+            <Pressable
+                style={styles.card}
+                onPress={() => Navigator.push(productRoutes.detail(item.productId))}
+            >
+                <View style={styles.imageContainer}>
+                    <Image
+                        source={{ uri: item.imageUrl ?? undefined }}
+                        style={styles.image}
+                        contentFit="cover"
+                        transition={200}
+                    />
                 </View>
-            </View>
 
-            <View style={styles.infoContainer}>
-                <Text style={styles.productName} numberOfLines={2}>
-                    {item.productName}
-                </Text>
-
-                <View style={styles.priceRow}>
-                    <Text style={styles.currentPrice}>
-                        {formatCurrency(item.price)}
+                <View style={styles.infoContainer}>
+                    <Text style={styles.productName} numberOfLines={2}>
+                        {item.productName}
                     </Text>
-                    <View style={styles.targetPriceBox}>
-                        <Text style={styles.targetPriceText}>
-                            {t('targetPriceGoal', { price: formatCurrency(item.desiredPrice || 0) })}
-                        </Text>
-                    </View>
-                </View>
 
-                <Pressable
-                    style={styles.buyButton}
-                    onPress={() => handleBuyNow(item)}
-                >
-                    <Text style={styles.buyButtonText}>{t('priceTargetTab.buyNow')}</Text>
-                    <IconSymbol name="shopping-cart" size={12} color={theme.colors.onAccent} />
-                </Pressable>
-            </View>
-        </Pressable>
-    ), [handleBuyNow, styles, theme, t]);
+                    <View style={styles.priceBlock}>
+                        <View style={styles.priceLine}>
+                            <Text style={styles.currentPrice}>
+                                {formatCurrency(item.price)}
+                            </Text>
+                            {hasTargetPrice && (
+                                <Text style={styles.targetPriceText} numberOfLines={1}>
+                                    {t('targetPriceGoal', { price: formatCurrency(item.desiredPrice!) })}
+                                </Text>
+                            )}
+                        </View>
+
+                        <View style={styles.reachedPill}>
+                            <IconSymbol name="check-circle" size={12} color={theme.colors.forestGreen} />
+                            <Text style={styles.reachedPillText}>
+                                {t('priceTargetTab.reachedBadge')}
+                            </Text>
+                        </View>
+
+                        {savingsAmount > 0 && (
+                            <View style={styles.savingsPill}>
+                                <IconSymbol name="pricetag" size={12} color={theme.colors.forestGreen} />
+                                <Text style={styles.savingsText} numberOfLines={1}>
+                                    {t('priceTargetTab.savingsComparedToSaved', {
+                                        amount: formatCurrency(savingsAmount),
+                                    })}
+                                </Text>
+                            </View>
+                        )}
+                    </View>
+
+                    <Pressable
+                        style={styles.buyButton}
+                        onPress={() => handleBuyNow(item)}
+                    >
+                        <Text style={styles.buyButtonText}>{t('priceTargetTab.buyNow')}</Text>
+                        <IconSymbol name="shopping-cart" size={12} color={theme.colors.onAccent} />
+                    </Pressable>
+                </View>
+            </Pressable>
+        );
+    }, [handleBuyNow, styles, theme, t]);
 
     if (isLoading) {
         return (
@@ -215,14 +239,10 @@ const stylesheet = StyleSheet.create((theme) => ({
     card: {
         flexDirection: 'row',
         backgroundColor: theme.colors.surface,
-        borderRadius: 12,
+        borderRadius: 10,
         padding: theme.margins.sm,
         marginBottom: theme.margins.sm,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
-        elevation: 2,
+        elevation: 1,
     },
     imageContainer: {
         width: 100,
@@ -235,20 +255,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         width: '100%',
         height: '100%',
     },
-    tagDeepDiscount: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        backgroundColor: theme.colors.accent,
-        paddingHorizontal: 6,
-        paddingVertical: 4,
-        borderBottomRightRadius: 8,
-    },
-    tagText: {
-        color: theme.colors.onAccent,
-        fontSize: 10,
-        fontWeight: 'bold',
-    },
     infoContainer: {
         flex: 1,
         marginLeft: theme.margins.sm,
@@ -259,23 +265,56 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.typography,
         fontWeight: '500',
     },
-    priceRow: {
+    priceBlock: {
         marginTop: theme.margins.xs,
         gap: 4,
+    },
+    priceLine: {
+        flexDirection: 'row',
+        alignItems: 'baseline',
+        flexWrap: 'wrap',
+        gap: theme.margins.xs,
     },
     currentPrice: {
         fontSize: 18,
         fontWeight: '700',
         color: theme.colors.newPrimary,
     },
-    targetPriceBox: {
+    targetPriceText: {
+        color: theme.colors.typographySecondary,
+        fontWeight: '500',
+        fontSize: 11,
+    },
+    reachedPill: {
+        flexDirection: 'row',
+        alignItems: 'center',
         alignSelf: 'flex-start',
+        gap: 4,
         backgroundColor: theme.colors.successSoft,
         paddingHorizontal: 6,
-        paddingVertical: 4,
-        borderRadius: 4,
+        paddingVertical: 3,
+        borderRadius: theme.radius.full,
+        borderWidth: 1,
+        borderColor: theme.colors.successLight,
     },
-    targetPriceText: {
+    reachedPillText: {
+        color: theme.colors.forestGreen,
+        fontWeight: '600',
+        fontSize: 11,
+    },
+    savingsPill: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        alignSelf: 'flex-start',
+        maxWidth: '100%',
+        gap: 4,
+        backgroundColor: theme.colors.successSoft,
+        paddingHorizontal: 6,
+        paddingVertical: 3,
+        borderRadius: theme.radius.s,
+    },
+    savingsText: {
+        flexShrink: 1,
         color: theme.colors.forestGreen,
         fontWeight: '600',
         fontSize: 11,
@@ -288,7 +327,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         backgroundColor: theme.colors.accent,
         paddingVertical: 8,
         paddingHorizontal: 16,
-        borderRadius: 20,
+        borderRadius: 8,
         ...theme.shadows.small,
         marginTop: theme.margins.sm,
         alignSelf: 'flex-end',

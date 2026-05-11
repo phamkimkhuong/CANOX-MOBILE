@@ -2053,6 +2053,20 @@ export interface WishlistTranslation {
         addProduct: string;
         productTitle: string;
     };
+    emptyState: {
+        title: string;
+        subtitlePrefix: string;
+        subtitleSuffix: string;
+        subtitleTracking: string;
+        primaryCta: string;
+        benefitsTitle: string;
+        saveTitle: string;
+        saveSubtitle: string;
+        trackTitle: string;
+        trackSubtitle: string;
+        notifyTitle: string;
+        notifySubtitle: string;
+    };
     error: {
         loadFailed: string;
         retry: string;
@@ -2135,7 +2149,8 @@ export interface WishlistTranslation {
         emptySubtitle: string;
         manageButton: string;
         successMessage: string;
-        deepDiscountBadge: string;
+        reachedBadge: string;
+        savingsComparedToSaved: string;
         buyNow: string;
     };
 }
