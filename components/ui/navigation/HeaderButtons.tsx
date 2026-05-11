@@ -12,13 +12,19 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 interface HeaderButtonProps {
     color?: string;
     badgeBorderColor?: string;
+    showBadge?: boolean;
+    showWhenGuest?: boolean;
 }
 
 /**
  * CartHeaderButton - Nút giỏ hàng dùng chung cho header
  * Hiển thị số lượng item hiện có.
  */
-export const CartHeaderButton: React.FC<HeaderButtonProps> = ({ color, badgeBorderColor }) => {
+export const CartHeaderButton: React.FC<HeaderButtonProps> = ({
+    color,
+    badgeBorderColor,
+    showBadge = true,
+}) => {
     const { theme } = useUnistyles();
     const cartItemCount = useCartStore((state) => state.totalQuantity);
     const styles = stylesheet;
@@ -40,7 +46,7 @@ export const CartHeaderButton: React.FC<HeaderButtonProps> = ({ color, badgeBord
             {({ pressed }) => (
                 <View style={[styles.iconWrapper, pressed && styles.pressedOpacity]}>
                     <IconSymbol name="cart" size={26} color={iconColor} />
-                    {cartItemCount > 0 && (
+                    {showBadge && cartItemCount > 0 && (
                         <View style={[styles.badge, { borderColor }]}>
                             <Text style={styles.badgeText}>
                                 {cartItemCount > 99 ? '99+' : cartItemCount}
@@ -57,7 +63,12 @@ export const CartHeaderButton: React.FC<HeaderButtonProps> = ({ color, badgeBord
  * ChatHeaderButton - Nút chat dùng chung cho header
  * Hiển thị số tin nhắn chưa đọc.
  */
-export const ChatHeaderButton: React.FC<HeaderButtonProps> = ({ color, badgeBorderColor }) => {
+export const ChatHeaderButton: React.FC<HeaderButtonProps> = ({
+    color,
+    badgeBorderColor,
+    showBadge = true,
+    showWhenGuest = false,
+}) => {
     const { theme } = useUnistyles();
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     const { data: unreadMessageCount } = useUnreadMessageCount();
@@ -71,8 +82,7 @@ export const ChatHeaderButton: React.FC<HeaderButtonProps> = ({ color, badgeBord
         Navigator.push(ROUTES.TABS.CHAT);
     }, []);
 
-    // Chỉ hiển thị tin nhắn nếu đã đăng nhập
-    if (!isAuthenticated) return null;
+    if (!isAuthenticated && !showWhenGuest) return null;
 
     return (
         <SmartNavButton
@@ -83,7 +93,7 @@ export const ChatHeaderButton: React.FC<HeaderButtonProps> = ({ color, badgeBord
             {({ pressed }) => (
                 <View style={[styles.iconWrapper, pressed && styles.pressedOpacity]}>
                     <IconSymbol name="chatbubble-ellipses-outline" size={26} color={iconColor} />
-                    {unreadMessageCount !== undefined && unreadMessageCount > 0 && (
+                    {showBadge && unreadMessageCount !== undefined && unreadMessageCount > 0 && (
                         <View style={[styles.badge, { borderColor }]}>
                             <Text style={styles.badgeText}>
                                 {unreadMessageCount > 99 ? '99+' : unreadMessageCount}

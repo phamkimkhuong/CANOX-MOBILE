@@ -1,8 +1,11 @@
 import { IconSymbol } from '@/components/ui/Icon';
+import { WishlistHeroArtwork } from '@/components/wishlist/WishlistHeroArtwork';
+import { ROUTES } from '@/constants/routes';
 import { Navigator } from '@/utils/navigation';
-import React from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
+import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 export const WishlistLoginPrompt = () => {
@@ -10,107 +13,124 @@ export const WishlistLoginPrompt = () => {
     const styles = stylesheet;
     const { t } = useTranslation('wishlist');
 
-    return (
-        <View style={styles.container}>
-            <View style={styles.iconContainer}>
-                <IconSymbol
-                    name="favorite"
-                    size={64}
-                    color={theme.colors.newPrimary}
-                />
-                <View style={styles.lockBadge}>
-                    <IconSymbol
-                        name="lock"
-                        size={16}
-                        color={'#FFFFFF'}
-                    />
-                </View>
-            </View>
-            <Text style={styles.title}>
-                {t('guest.title')}
-            </Text>
-            <Text style={styles.subtitle}>
-                {t('guest.subtitle')}
-            </Text>
+    const handleLogin = useCallback(() => {
+        Navigator.push(ROUTES.AUTH.LOGIN);
+    }, []);
 
-            <Pressable
-                onPress={() => Navigator.push('/(auth)/login')}
-                style={({ pressed }) => [
-                    styles.loginButton,
-                    pressed && styles.buttonPressed
-                ]}
-                accessibilityLabel={t('guest.loginButton')}
-                accessibilityRole="button"
-            >
-                <Text style={styles.loginButtonText}>{t('guest.loginButton')}</Text>
-            </Pressable>
-        </View>
+    return (
+        <ScrollView
+            style={styles.container}
+            contentContainerStyle={styles.content}
+            showsVerticalScrollIndicator={false}
+        >
+            <View style={styles.card}>
+                <WishlistHeroArtwork variant="guest" style={styles.hero} />
+
+                <View style={styles.copyBlock}>
+                    <Text style={styles.title}>
+                        {t('guest.title')}
+                    </Text>
+                    <Text style={styles.subtitle}>
+                        {t('guest.subtitle')}
+                    </Text>
+                </View>
+
+                <Pressable
+                    onPress={handleLogin}
+                    style={({ pressed }) => [
+                        styles.loginButtonPressable,
+                        pressed && styles.buttonPressed,
+                    ]}
+                    accessibilityLabel={t('guest.loginButton')}
+                    accessibilityRole="button"
+                >
+                    <LinearGradient
+                        colors={[theme.colors.newPrimary, theme.colors.vibrantRed]}
+                        start={{ x: 0, y: 0.5 }}
+                        end={{ x: 1, y: 0.5 }}
+                        style={styles.loginButton}
+                    >
+                        <Text style={styles.loginButtonText}>
+                            {t('guest.loginButton')}
+                        </Text>
+                        <IconSymbol
+                            name="chevron-right"
+                            size={22}
+                            color={theme.colors.onPrimary}
+                        />
+                    </LinearGradient>
+                </Pressable>
+            </View>
+        </ScrollView>
     );
 };
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: theme.margins.xl,
-        paddingBottom: theme.margins.xl * 2,
+        backgroundColor: theme.colors.surface,
     },
-    iconContainer: {
-        width: 120,
-        height: 120,
-        borderRadius: 60,
-        backgroundColor: theme.colors.primaryMuted,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: theme.margins.lg,
-        position: 'relative',
+    content: {
+        flexGrow: 1,
+        paddingHorizontal: theme.margins.smd,
+        paddingTop: theme.margins.md,
+        paddingBottom: theme.margins.xxl,
     },
-    lockBadge: {
-        position: 'absolute',
-        bottom: 12,
-        right: 12,
-        width: 32,
-        height: 32,
-        borderRadius: 16,
-        backgroundColor: theme.colors.typography,
-        justifyContent: 'center',
+    card: {
+        borderRadius: theme.radius.l,
+        borderWidth: 1,
+        borderColor: theme.colors.borderMuted,
+        backgroundColor: theme.colors.surface,
+        overflow: 'hidden',
+        paddingHorizontal: theme.margins.md,
+        paddingTop: theme.margins.xs,
+        paddingBottom: theme.margins.lg,
+    },
+    hero: {
+        marginHorizontal: -theme.margins.md,
+    },
+    copyBlock: {
         alignItems: 'center',
-        borderWidth: 3,
-        borderColor: theme.colors.background,
+        marginTop: -theme.margins.sm,
+        paddingHorizontal: theme.margins.lg,
     },
     title: {
-        fontSize: 18,
-        fontWeight: '700',
-        color: theme.colors.typography,
-        marginBottom: theme.margins.sm,
+        fontSize: theme.fontSizes.xl,
+        lineHeight: 28,
+        fontWeight: '800',
+        color: theme.colors.inkBlack,
         textAlign: 'center',
+        marginBottom: theme.margins.sm,
     },
     subtitle: {
-        fontSize: 14,
+        fontSize: theme.fontSizes.sm,
+        lineHeight: 20,
         color: theme.colors.typographySecondary,
         textAlign: 'center',
-        lineHeight: 20,
+    },
+    loginButtonPressable: {
+        width: '78%',
+        alignSelf: 'center',
+        marginTop: theme.margins.lg,
+        borderRadius: theme.radius.full,
+        ...theme.shadows.medium,
     },
     loginButton: {
-        marginTop: theme.margins.xl,
-        backgroundColor: theme.colors.newPrimary,
-        paddingVertical: theme.margins.md,
-        paddingHorizontal: theme.margins.xl * 1.5,
+        minHeight: 44,
         borderRadius: theme.radius.full,
-        elevation: 2,
-        shadowColor: theme.colors.newPrimary,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: theme.margins.sm,
+        paddingHorizontal: theme.margins.lg,
     },
     buttonPressed: {
         opacity: 0.9,
-        transform: [{ scale: 0.96 }],
+        transform: [{ scale: 0.98 }],
     },
     loginButtonText: {
-        color: '#FFFFFF',
-        fontSize: 16,
-        fontWeight: '700',
+        color: theme.colors.onPrimary,
+        fontSize: theme.fontSizes.md,
+        fontWeight: '800',
     },
 }));

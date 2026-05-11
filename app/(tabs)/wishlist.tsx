@@ -67,7 +67,7 @@ export default function WishlistTabsScreen() {
     const isEmptyWishlistExperience =
         isAuthenticated && hasResolvedPriceTarget && priceTargetCount === 0 && isPrivateWishlistEmpty;
     const useEmptyChrome = isResolvingWishlistEntry || isEmptyWishlistExperience;
-    const useLightHeader = isAuthenticated;
+    const useLightHeader = true;
     const headerIconColor = useLightHeader ? theme.colors.inkBlack : theme.colors.onPrimary;
     const headerBadgeBorderColor = useLightHeader ? theme.colors.surface : theme.colors.newPrimary;
 
@@ -94,8 +94,17 @@ export default function WishlistTabsScreen() {
                     </Text>
 
                     <View style={styles.actions}>
-                        <CartHeaderButton color={headerIconColor} badgeBorderColor={headerBadgeBorderColor} />
-                        <ChatHeaderButton color={headerIconColor} badgeBorderColor={headerBadgeBorderColor} />
+                        <CartHeaderButton
+                            color={headerIconColor}
+                            badgeBorderColor={headerBadgeBorderColor}
+                            showBadge={isAuthenticated}
+                        />
+                        <ChatHeaderButton
+                            color={headerIconColor}
+                            badgeBorderColor={headerBadgeBorderColor}
+                            showBadge={isAuthenticated}
+                            showWhenGuest
+                        />
                     </View>
                 </View>
 

@@ -11,6 +11,7 @@ export * from './WishlistActionSheet';
 export * from './WishlistCard';
 export * from './WishlistCollectionChips';
 export * from './WishlistEmptyState';
+export * from './WishlistHeroArtwork';
 export * from './WishlistItemCard';
 export * from './WishlistLoginPrompt';
 export * from './WishlistProductGrid';
