@@ -203,7 +203,7 @@ export const ProductCard = React.memo(({
                             <View style={[styles.infoBadge, badgeColor ? { backgroundColor: badgeColor } : undefined]}>
                                 <IconSymbol name="check-circle" size={11} color={theme.colors.forestGreen} />
                                 <Text style={[
-                                    styles.infoBadgeText, 
+                                    styles.infoBadgeText,
                                     badgeColor && badgeColor !== theme.colors.successSoft ? styles.badgeTextWhite : undefined
                                 ]}>
                                     {badgeText}
@@ -253,17 +253,12 @@ const stylesheet = StyleSheet.create((theme) => ({
         opacity: 0.96,
     },
     shadowWrapper: {
-        borderRadius: 24,
+        borderRadius: 23,
         backgroundColor: theme.colors.surface,
-        // Premium Shadow
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.1,
-        shadowRadius: 12,
-        elevation: 6,
+        elevation: 2,
     },
     surface: {
-        borderRadius: 24,
+        borderRadius: 16,
         backgroundColor: theme.colors.surface,
         overflow: 'hidden',
         borderWidth: 1,

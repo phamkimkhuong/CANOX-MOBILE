@@ -1,5 +1,5 @@
 import { IconSymbol } from '@/components/ui/Icon';
-import { ROUTES, SERVICE_MENU_ROUTES, SETTINGS_MENU_ROUTES } from '@/constants/routes';
+import { ROUTES, SERVICE_MENU_ROUTES } from '@/constants/routes';
 import { mmkvStorage } from '@/store/storage';
 import { LoyaltyOverviewUI } from '@/types/loyalty/ui';
 import { UserProfile } from '@/types/profile/profile';
@@ -99,7 +99,7 @@ export const SmartInsightBanner: React.FC<SmartInsightBannerProps> = ({
                     btnText: t('smartInsight.profileIncomplete.action'),
                     colors: [theme.colors.warningSoft, theme.colors.warningLight] as const,
                     iconColor: theme.colors.warning,
-                    action: () => Navigator.push(SETTINGS_MENU_ROUTES.security as never),
+                    action: () => Navigator.push(ROUTES.USER.EDIT_PROFILE as never),
                 };
             case 'PENDING_REVIEW':
                 return {

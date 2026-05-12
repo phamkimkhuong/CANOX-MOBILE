@@ -8,10 +8,33 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
         shopCountLabel: 'ហាង',
         expiringLabel: 'ជិតផុតកំណត់'
     },
-    guest: {
-        title: 'ចូលគណនីដើម្បីមើលកាក់',
-        message: 'ចូលគណនីឥឡូវនេះ ដើម្បីតាមដាន និងស្វែងរកការផ្តល់ជូនប្តូរពិន្ទុពីហាងដែលអ្នកចូលចិត្ត។',
-        actionLabel: 'ចូលគណនី'
+    guestDashboard: {
+        hero: {
+            title: 'ចូលគណនីដើម្បីមើលកាក់ Canox',
+            description: 'កាក់ Canox និងពិន្ទុពីហាងត្រូវបានរក្សាទុកតាមគណនីរបស់អ្នក។ ចូលគណនីដើម្បីមើលសមតុល្យ ប្រវត្តិ និងអត្ថប្រយោជន៍ដែលអាចប្រើបាន។',
+            loginAction: 'ចូល / ចុះឈ្មោះ',
+        },
+        benefits: {
+            title: 'កាក់ Canox ជួយអ្នក',
+            discount: {
+                title: 'ប្រើកាក់បញ្ចុះតម្លៃ',
+                description: 'អនុវត្តលើការបញ្ជាទិញដែលមានលក្ខខណ្ឌ',
+            },
+            balance: {
+                title: 'តាមដានសមតុល្យ',
+                description: 'មើលកាក់ដែលអាចប្រើបាន កាក់រង់ចាំ និងជិតផុតកំណត់',
+            },
+            shop: {
+                title: 'ទទួលពិន្ទុពីហាង',
+                description: 'សន្សំពិន្ទុពីហាងដែលចូលរួមកម្មវិធី',
+            },
+        },
+        earn: {
+            title: 'វិធីរកកាក់',
+            purchase: 'ទិញទំនិញដែលមានលក្ខខណ្ឌ',
+            review: 'វាយតម្លៃបន្ទាប់ពីទទួលទំនិញ',
+            program: 'ចូលរួមកម្មវិធី Canox',
+        },
     },
     shopSection: {
         title: 'កាក់តាមហាង'

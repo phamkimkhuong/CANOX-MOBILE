@@ -25,8 +25,8 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { IconSymbol } from '../ui/Icon';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
-const COLUMN_GAP = 8;
-const HORIZONTAL_PADDING = 12;
+const COLUMN_GAP = 1;
+const HORIZONTAL_PADDING = 10;
 const COLUMN_AVAILABLE_WIDTH = (SCREEN_WIDTH - HORIZONTAL_PADDING * 2) / 2;
 const ACTUAL_CARD_WIDTH = COLUMN_AVAILABLE_WIDTH - COLUMN_GAP;
 

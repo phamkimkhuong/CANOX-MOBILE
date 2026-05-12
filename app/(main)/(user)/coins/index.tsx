@@ -8,11 +8,11 @@
  */
 
 import { DataGuard } from '@/components/common/DataGuard';
-import { StateView } from '@/components/common/StateView';
 import {
     HowItWorks,
     LoyaltyEmptyDashboard,
     LoyaltyEmptyState,
+    LoyaltyGuestDashboard,
     LoyaltyHeader,
     LoyaltyHowItWorksSheet,
     LoyaltyHeroCard,
@@ -85,14 +85,15 @@ export default function LoyaltyOverviewScreen() {
             <LoyaltyHeader onBack={handleBack} />
 
             {!isAuthenticated ? (
-                <StateView
-                    type="forbidden"
-                    title={t('guest.title')}
-                    message={t('guest.message')}
-                    actionLabel={t('guest.actionLabel')}
-                    onAction={handleLogin}
-                    fullScreen={true}
-                />
+                <ScrollView
+                    style={styles.scrollView}
+                    contentContainerStyle={[styles.scrollContent, { paddingBottom: bottom + 40 }]}
+                    showsVerticalScrollIndicator={false}
+                >
+                    <LoyaltyGuestDashboard
+                        onLogin={handleLogin}
+                    />
+                </ScrollView>
             ) : (
                 <DataGuard
                     query={query}
@@ -153,14 +154,14 @@ export default function LoyaltyOverviewScreen() {
                                     </>
                                 )}
                             </ScrollView>
-                            <LoyaltyHowItWorksSheet
-                                visible={guideVisible}
-                                onClose={handleCloseGuide}
-                            />
                         </>
                     )}
                 </DataGuard>
             )}
+            <LoyaltyHowItWorksSheet
+                visible={guideVisible}
+                onClose={handleCloseGuide}
+            />
         </View>
     );
 }

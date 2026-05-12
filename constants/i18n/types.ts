@@ -2167,10 +2167,24 @@ export interface LoyaltyTranslation {
         shopCountLabel: string;
         expiringLabel: string;
     };
-    guest: {
-        title: string;
-        message: string;
-        actionLabel: string;
+    guestDashboard: {
+        hero: {
+            title: string;
+            description: string;
+            loginAction: string;
+        };
+        benefits: {
+            title: string;
+            discount: { title: string; description: string };
+            balance: { title: string; description: string };
+            shop: { title: string; description: string };
+        };
+        earn: {
+            title: string;
+            purchase: string;
+            review: string;
+            program: string;
+        };
     };
     shopSection: {
         title: string;

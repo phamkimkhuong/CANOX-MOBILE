@@ -8,10 +8,33 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
         shopCountLabel: 'shop',
         expiringLabel: 'sắp hết hạn'
     },
-    guest: {
-        title: 'Đăng nhập để xem điểm',
-        message: 'Đăng nhập ngay để theo dõi và săn các ưu đãi đổi điểm thưởng từ các shop bạn yêu thích.',
-        actionLabel: 'Đăng nhập'
+    guestDashboard: {
+        hero: {
+            title: 'Đăng nhập để xem Xu Canox',
+            description: 'Xu Canox và điểm từ shop được lưu theo tài khoản của bạn. Đăng nhập để xem số dư, lịch sử và ưu đãi có thể sử dụng.',
+            loginAction: 'Đăng nhập / Đăng ký',
+        },
+        benefits: {
+            title: 'Xu Canox giúp bạn',
+            discount: {
+                title: 'Dùng xu giảm giá',
+                description: 'Áp dụng cho đơn hàng đủ điều kiện',
+            },
+            balance: {
+                title: 'Theo dõi số dư',
+                description: 'Xem xu khả dụng, xu đang chờ và sắp hết hạn',
+            },
+            shop: {
+                title: 'Nhận điểm từ shop',
+                description: 'Tích điểm riêng từ các shop tham gia chương trình',
+            },
+        },
+        earn: {
+            title: 'Cách kiếm xu',
+            purchase: 'Mua hàng đủ điều kiện',
+            review: 'Đánh giá sau khi nhận hàng',
+            program: 'Tham gia chương trình Canox',
+        },
     },
     shopSection: {
         title: 'Xu theo từng shop'

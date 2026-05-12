@@ -5,6 +5,7 @@
 export { HowItWorks } from './HowItWorks';
 export { LoyaltyEmptyDashboard } from './LoyaltyEmptyDashboard';
 export { LoyaltyEmptyState } from './LoyaltyEmptyState';
+export { LoyaltyGuestDashboard } from './LoyaltyGuestDashboard';
 export { LoyaltyHeader } from './LoyaltyHeader';
 export { LoyaltyHowItWorksSheet } from './LoyaltyHowItWorksSheet';
 export { LoyaltyHeroCard } from './LoyaltyHeroCard';

@@ -168,6 +168,7 @@ const ICON_MAP: Record<string, { ios: keyof typeof Ionicons.glyphMap; android: k
     'play-circle': { ios: 'play-circle', android: 'play-circle' },
     location: { ios: 'location-sharp', android: 'location-sharp' },
     'location-outline': { ios: 'location-outline', android: 'location-outline' },
+    'location-off': { ios: 'location-outline', android: 'location-outline' },
     sparkles: { ios: 'sparkles-outline', android: 'sparkles-outline' },
     edit: { ios: 'create-outline', android: 'create-outline' },
     'edit-note': { ios: 'create-outline', android: 'create-outline' },

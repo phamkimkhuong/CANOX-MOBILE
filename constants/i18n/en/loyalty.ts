@@ -8,10 +8,33 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
         shopCountLabel: 'shops',
         expiringLabel: 'expiring soon'
     },
-    guest: {
-        title: 'Login to view coins',
-        message: 'Login now to track and hunt for point redemption offers from your favorite shops.',
-        actionLabel: 'Login'
+    guestDashboard: {
+        hero: {
+            title: 'Login to view Canox Coins',
+            description: 'Canox Coins and shop points are saved to your account. Login to view balances, history, and usable offers.',
+            loginAction: 'Login / Sign up',
+        },
+        benefits: {
+            title: 'How Canox Coins help',
+            discount: {
+                title: 'Use coins for discounts',
+                description: 'Applies to eligible orders',
+            },
+            balance: {
+                title: 'Track balances',
+                description: 'View available, pending, and expiring coins',
+            },
+            shop: {
+                title: 'Earn shop points',
+                description: 'Collect points from participating shops',
+            },
+        },
+        earn: {
+            title: 'Ways to earn coins',
+            purchase: 'Buy eligible items',
+            review: 'Review after receiving orders',
+            program: 'Join Canox programs',
+        },
     },
     shopSection: {
         title: 'Coins by shop'

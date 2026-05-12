@@ -9,7 +9,7 @@ import { IconSymbol } from '@/components/ui/Icon';
 import type { WishlistCardUI } from '@/types/wishlist';
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface WishlistCollectionChipsProps {
@@ -105,7 +105,7 @@ export const WishlistCollectionChips: React.FC<WishlistCollectionChipsProps> = (
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
         paddingHorizontal: theme.margins.md,
-        paddingVertical: theme.margins.smd,
+        paddingVertical: theme.margins.xs,
         gap: 8,
         alignItems: 'center',
     },
@@ -113,8 +113,8 @@ const stylesheet = StyleSheet.create((theme) => ({
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 14,
-        paddingVertical: 8,
-        borderRadius: 20,
+        paddingVertical: 7,
+        borderRadius: 10,
         backgroundColor: theme.colors.surface,
         borderWidth: 1,
         borderColor: theme.colors.border,
@@ -139,7 +139,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         alignItems: 'center',
         paddingHorizontal: 14,
         paddingVertical: 8,
-        borderRadius: 20,
+        borderRadius: 10,
         borderWidth: 1,
         borderColor: theme.colors.border,
         borderStyle: 'dashed',
@@ -154,7 +154,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     chipSkeleton: {
         width: 90,
         height: 36,
-        borderRadius: 20,
+        borderRadius: 10,
         backgroundColor: theme.colors.backgroundSurface,
     },
 }));
