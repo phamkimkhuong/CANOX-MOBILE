@@ -190,8 +190,8 @@ export const PROFILE_STRINGS: ProfileTranslation = {
     settings: {
         title: 'ការកំណត់គណនី',
         header: {
-            help: 'ជំនួយ',
             back: 'ត្រឡប់ក្រោយ',
+            help: 'ជំនួយ',
         },
         sections: {
             account: 'គណនី និងសុវត្ថិភាព',
@@ -232,8 +232,6 @@ export const PROFILE_STRINGS: ProfileTranslation = {
             deleteAccountHint: 'លុបគណនី និងទិន្នន័យរបស់អ្នកជារៀងរហូត',
             deleteAccountAccessibility: 'សំណើសុំលុបគណនី',
         },
-        helpTitle: 'ការកំណត់គណនី',
-        helpMessage: '• គ្រប់គ្រងព័ត៌មានផ្ទាល់ខ្លួន អាស័យដ្ឋាន និងសុវត្ថិភាពរបស់អ្នក។\n• ការកំណត់កម្មវិធីអនុញ្ញាតឱ្យអ្នកកែសម្រួលរូបរាង និងភាសា។\n• Cache ជួយកម្មវិធីឱ្យដំណើរការលឿនជាងមុន ប៉ុន្តែអ្នកអាចលុបវាដើម្បីសម្អាតទំហំបាន។',
     },
     legalWebView: {
         back: 'ត្រឡប់ក្រោយ',

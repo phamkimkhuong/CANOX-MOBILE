@@ -16,7 +16,7 @@ interface SettingsHeaderProps {
 
 /**
  * Settings Screen Header
- * Clean header with back navigation, title, and optional help action
+ * Clean header with back navigation, title, and optional help button
  */
 export const SettingsHeader: React.FC<SettingsHeaderProps> = memo(({
     title,
@@ -42,7 +42,6 @@ export const SettingsHeader: React.FC<SettingsHeaderProps> = memo(({
         if (onHelpPress) {
             onHelpPress();
         }
-        // Default: open help/support screen
     };
 
     return (
@@ -79,9 +78,9 @@ export const SettingsHeader: React.FC<SettingsHeaderProps> = memo(({
                     </Text>
                 </View>
 
-                {/* Right: Help Button */}
+                {/* Right: Help Button or Empty */}
                 <View style={styles.rightSection}>
-                    {showHelpButton && (
+                    {showHelpButton && onHelpPress && (
                         <TouchableOpacity
                             onPress={handleHelpPress}
                             style={styles.iconButton}
@@ -92,7 +91,7 @@ export const SettingsHeader: React.FC<SettingsHeaderProps> = memo(({
                             <MaterialIcons
                                 name="help-outline"
                                 size={24}
-                                color={theme.colors.typography}
+                                color={theme.colors.typographySecondary}
                             />
                         </TouchableOpacity>
                     )}

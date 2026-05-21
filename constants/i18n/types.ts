@@ -1480,8 +1480,8 @@ export interface ProfileTranslation {
     settings: {
         title: string;
         header: {
-            help: string;
             back: string;
+            help: string;
         };
         sections: {
             account: string;
@@ -1522,8 +1522,6 @@ export interface ProfileTranslation {
             deleteAccountHint: string;
             deleteAccountAccessibility: string;
         };
-        helpTitle: string;
-        helpMessage: string;
     };
     legalWebView: {
         back: string;

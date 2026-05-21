@@ -190,8 +190,8 @@ export const PROFILE_STRINGS: ProfileTranslation = {
     settings: {
         title: 'Account Settings',
         header: {
-            help: 'Help',
             back: 'Back',
+            help: 'Help',
         },
         sections: {
             account: 'Account & Security',
@@ -232,8 +232,6 @@ export const PROFILE_STRINGS: ProfileTranslation = {
             deleteAccountHint: 'Permanently delete your account and data',
             deleteAccountAccessibility: 'Request account deletion',
         },
-        helpTitle: 'Account Settings',
-        helpMessage: '• Manage your personal information, addresses, and security.\n• App settings allow you to customize the theme and language.\n• Cache helps the app run faster, but you can clear it to free up space.',
     },
     legalWebView: {
         back: 'Go back',

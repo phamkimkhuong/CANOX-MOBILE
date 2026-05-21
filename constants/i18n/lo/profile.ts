@@ -190,8 +190,8 @@ export const PROFILE_STRINGS: ProfileTranslation = {
     settings: {
         title: 'ຕັ້ງຄ່າບັນຊີ',
         header: {
-            help: 'ຊ່ວຍເຫຼືອ',
             back: 'ກັບຄືນ',
+            help: 'ຊ່ວຍເຫຼືອ',
         },
         sections: {
             account: 'ບັນຊີ & ຄວາມປອດໄພ',
@@ -232,8 +232,6 @@ export const PROFILE_STRINGS: ProfileTranslation = {
             deleteAccountHint: 'ລຶບບັນຊີ ແລະ ຂໍ້ມູນຂອງທ່ານຢ່າງຖາວອນ',
             deleteAccountAccessibility: 'ຮ້ອງຂໍລຶບບັນຊີ',
         },
-        helpTitle: 'ຕັ້ງຄ່າບັນຊີ',
-        helpMessage: '• ຈັດການຂໍ້ມູນສ່ວນຕົວ, ທີ່ຢູ່, ແລະ ຄວາມປອດໄພຂອງທ່ານ.\n• ການຕັ້ງຄ່າແອັບອະນຸຍາດໃຫ້ທ່ານປັບແຕ່ງຮູບແບບ (Theme) ແລະ ພາສາປ.\n• ແຄັດ (Cache) ຊ່ວຍໃຫ້ແອັບເຮັດວຽກໄດ້ໄວຂຶ້ນ, ແຕ່ທ່ານສາມາດລຶບມັນອອກເພື່ອເພີ່ມພື້ນທີ່ຫວ່າງໄດ້.',
     },
     legalWebView: {
         back: 'ກັບຄືນ',
