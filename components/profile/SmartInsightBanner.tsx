@@ -175,8 +175,8 @@ export const SmartInsightBanner: React.FC<SmartInsightBannerProps> = ({
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
-        marginHorizontal: theme.margins.md,
-        marginTop: 12,
+        marginHorizontal: theme.margins.smd,
+        marginTop: 10,
         marginBottom: 8,
         shadowColor: theme.colors.primary,
         shadowOffset: { width: 0, height: 6 },
@@ -185,7 +185,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         elevation: 4,
     },
     gradientCard: {
-        borderRadius: 16,
+        borderRadius: 12,
         padding: 16,
         paddingVertical: 18,
         borderWidth: 0.5,

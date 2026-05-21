@@ -134,18 +134,18 @@ ServiceGrid.displayName = 'ServiceGrid';
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
-        marginHorizontal: theme.margins.md,
+        marginHorizontal: theme.margins.smd,
         marginBottom: theme.margins.md,
     },
     grid: {
         backgroundColor: theme.colors.surface,
-        borderRadius: 24,
+        borderRadius: 10,
         overflow: 'hidden',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.05,
         shadowRadius: 12,
-        elevation: 3,
+        elevation: 1,
     },
     item: {
         flexDirection: 'row',
@@ -156,13 +156,13 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderBottomColor: theme.colors.border,
     },
     itemFirst: {
-        borderTopLeftRadius: 24,
-        borderTopRightRadius: 24,
+        borderTopLeftRadius: 12,
+        borderTopRightRadius: 12,
     },
     itemLast: {
         borderBottomWidth: 0,
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
+        borderBottomLeftRadius: 12,
+        borderBottomRightRadius: 12,
     },
     iconWrapper: {
         width: 40,

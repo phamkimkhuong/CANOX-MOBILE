@@ -128,7 +128,7 @@ SettingsMenu.displayName = 'SettingsMenu';
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
-        marginHorizontal: theme.margins.md,
+        marginHorizontal: theme.margins.smd,
         // gap: theme.margins.md,
     },
     groupTitle: {
@@ -142,13 +142,13 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     group: {
         backgroundColor: theme.colors.surface,
-        borderRadius: 24,
+        borderRadius: 10,
         overflow: 'hidden',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.05,
         shadowRadius: 12,
-        elevation: 3,
+        elevation: 0.5,
     },
     groupLast: {
         marginBottom: 20, // Space for tab bar
@@ -162,13 +162,13 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderBottomColor: theme.colors.border,
     },
     menuItemFirst: {
-        borderTopLeftRadius: 24,
-        borderTopRightRadius: 24,
+        borderTopLeftRadius: 12,
+        borderTopRightRadius: 12,
     },
     menuItemLast: {
         borderBottomWidth: 0,
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
+        borderBottomLeftRadius: 12,
+        borderBottomRightRadius: 12,
     },
     iconWrapper: {
         width: 36,

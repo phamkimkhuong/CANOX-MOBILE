@@ -145,16 +145,16 @@ OrderStatusRail.displayName = 'OrderStatusRail';
 const stylesheet = StyleSheet.create((theme) => ({
     card: {
         backgroundColor: theme.colors.surface,
-        borderRadius: 15,
+        borderRadius: 10,
         paddingHorizontal: theme.margins.md,
         paddingVertical: theme.margins.sm,
-        marginHorizontal: theme.margins.md,
+        marginHorizontal: theme.margins.smd,
         marginBottom: theme.margins.sm,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.05,
         shadowRadius: 12,
-        elevation: 3,
+        elevation: 1,
     },
     header: {
         flexDirection: 'row',

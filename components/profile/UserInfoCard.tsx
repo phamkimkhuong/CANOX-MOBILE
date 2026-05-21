@@ -107,10 +107,10 @@ UserInfoCard.displayName = 'UserInfoCard';
 const stylesheet = StyleSheet.create((theme) => ({
     card: {
         backgroundColor: theme.colors.surface,
-        borderRadius: 15,
+        borderRadius: 12,
         paddingHorizontal: theme.margins.md,
         paddingBottom: theme.margins.sm,
-        marginHorizontal: theme.margins.md,
+        marginHorizontal: theme.margins.smd,
         position: 'relative',
         overflow: 'hidden',
         shadowColor: '#000',
