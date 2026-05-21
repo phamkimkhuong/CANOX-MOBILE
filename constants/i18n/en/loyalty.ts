@@ -2,12 +2,6 @@ import { LoyaltyTranslation } from '../types';
 
 export const LOYALTY_STRINGS: LoyaltyTranslation = {
     title: 'Canox Coins',
-    hero: {
-        totalCoinsLabel: 'Total accumulated coins',
-        unit: 'coins',
-        shopCountLabel: 'shops',
-        expiringLabel: 'expiring soon'
-    },
     guestDashboard: {
         hero: {
             title: 'Login to view Canox Coins',
@@ -36,8 +30,26 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
             program: 'Join Canox programs',
         },
     },
+    overviewDashboard: {
+        hero: {
+            platformLabel: 'Available Canox Coins',
+            combinedLabel: 'Total available points',
+            platformDescription: 'Can discount up to {{amount}}đ',
+            combinedDescription: 'Usable under each shop’s conditions',
+            coinUnit: 'coins',
+            pointUnit: 'points',
+            expiringTemplate: 'Expiring soon: {{amount}} {{unit}} · {{source}} · {{date}}',
+            useNow: 'Use now',
+            howItWorks: 'How it works',
+        },
+        shopPoints: {
+            unit: 'points',
+            shopOnlyBadge: 'Shop only',
+        },
+    },
     shopSection: {
-        title: 'Coins by shop'
+        title: 'Shop points',
+        availableCount: '{{count}} shops with available points',
     },
     emptyState: {
         title: 'No loyalty coins yet',
@@ -99,14 +111,6 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
             title: 'Note',
             callout: 'Coins may expire. Track expiring coins so you can use them in time.',
         },
-    },
-    howItWorks: {
-        title: 'How to use coins',
-        steps: {
-            buy: { title: 'Buy items', desc: 'Earn coins when order completes' },
-            accumulate: { title: 'Accumulate', desc: 'Coins are automatically added to account' },
-            use: { title: 'Use', desc: 'Redeem coins for discounts at checkout' }
-        }
     },
     pdp: {
         chipEarn: 'Earn +{{points}} coins',

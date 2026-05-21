@@ -175,7 +175,7 @@ export const LoyaltyEmptyDashboard: React.FC<LoyaltyEmptyDashboardProps> = memo(
                 <View style={styles.balanceTextColumn}>
                     <Text style={styles.cardEyebrow}>{t('emptyDashboard.hero.label')}</Text>
                     <Text style={styles.balanceValue}>
-                        {formattedPoints} <Text style={styles.balanceUnit}>{t('hero.unit')}</Text>
+                        {formattedPoints} <Text style={styles.balanceUnit}>{t('overviewDashboard.hero.coinUnit')}</Text>
                     </Text>
                     <Text style={styles.balanceSub}>{t('emptyDashboard.hero.description')}</Text>
                     <View style={styles.expiryPill}>

@@ -1,45 +1,77 @@
 /**
- * HowItWorks - Hướng dẫn 3 bước sử dụng xu tích lũy
+ * HowItWorks - Ways to earn Canox loyalty value.
  */
 
 import { IconSymbol } from '@/components/ui/Icon';
+import type { IconSymbolName } from '@/components/ui/Icon';
 import React, { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
-export const HowItWorks: React.FC = memo(() => {
-    const { theme } = useUnistyles();
-    const styles = stylesheet;
-    const { t } = useTranslation('loyalty');
+type EarnCardTone = 'warm' | 'cool' | 'green';
 
-    const steps = [
-        { icon: 'bag' as const, title: t('howItWorks.steps.buy.title'), desc: t('howItWorks.steps.buy.desc') },
-        { icon: 'cash' as const, title: t('howItWorks.steps.accumulate.title'), desc: t('howItWorks.steps.accumulate.desc') },
-        { icon: 'ticket' as const, title: t('howItWorks.steps.use.title'), desc: t('howItWorks.steps.use.desc') },
-    ];
+interface EarnCardProps {
+    icon: IconSymbolName;
+    title: string;
+    tone: EarnCardTone;
+}
+
+const EarnCard = memo<EarnCardProps>(({ icon, title, tone }) => {
+    const { theme } = useUnistyles();
+    const toneStyle = {
+        warm: {
+            card: styles.earnCardWarm,
+            iconBackground: theme.colors.activeLight,
+            iconColor: theme.colors.sunsetOrange,
+        },
+        cool: {
+            card: styles.earnCardCool,
+            iconBackground: theme.colors.infoLight,
+            iconColor: theme.colors.info,
+        },
+        green: {
+            card: styles.earnCardGreen,
+            iconBackground: theme.colors.successLight,
+            iconColor: theme.colors.forestGreen,
+        },
+    }[tone];
 
     return (
-        <Animated.View entering={FadeInDown.duration(350).delay(300)}>
-            <View style={styles.howSection}>
-                <Text style={styles.sectionTitle}>{t('howItWorks.title')}</Text>
-                <View style={styles.stepsRow}>
-                    {steps.map((step, i) => (
-                        <View key={step.title} style={styles.stepItem}>
-                            <View style={styles.stepIcon}>
-                                <IconSymbol name={step.icon} size={22} color={theme.colors.buttonActive} />
-                            </View>
-                            <Text style={styles.stepTitle}>{step.title}</Text>
-                            <Text style={styles.stepDesc}>{step.desc}</Text>
-                            {i < steps.length - 1 && (
-                                <View style={styles.stepArrow}>
-                                    <IconSymbol name="chevron-right" size={14} color={theme.colors.secondary} />
-                                </View>
-                            )}
-                        </View>
-                    ))}
-                </View>
+        <View style={[styles.earnCard, toneStyle.card]}>
+            <View style={[styles.earnIcon, { backgroundColor: toneStyle.iconBackground }]}>
+                <IconSymbol name={icon} size={26} color={toneStyle.iconColor} />
+            </View>
+            <Text style={styles.earnTitle}>{title}</Text>
+        </View>
+    );
+});
+
+EarnCard.displayName = 'EarnCard';
+
+export const HowItWorks: React.FC = memo(() => {
+    const { t } = useTranslation('loyalty');
+
+    return (
+        <Animated.View entering={FadeInDown.duration(350).delay(300)} style={styles.section}>
+            <Text style={styles.sectionTitle}>{t('guestDashboard.earn.title')}</Text>
+            <View style={styles.earnGrid}>
+                <EarnCard
+                    icon="bag"
+                    title={t('guestDashboard.earn.purchase')}
+                    tone="warm"
+                />
+                <EarnCard
+                    icon="star"
+                    title={t('guestDashboard.earn.review')}
+                    tone="cool"
+                />
+                <EarnCard
+                    icon="gift"
+                    title={t('guestDashboard.earn.program')}
+                    tone="green"
+                />
             </View>
         </Animated.View>
     );
@@ -47,53 +79,55 @@ export const HowItWorks: React.FC = memo(() => {
 
 HowItWorks.displayName = 'HowItWorks';
 
-const stylesheet = StyleSheet.create((theme) => ({
-    howSection: {
+const styles = StyleSheet.create((theme) => ({
+    section: {
         marginTop: theme.margins.lg,
         marginHorizontal: theme.margins.md,
-        backgroundColor: theme.colors.surface,
-        borderRadius: 16,
-        padding: 20,
+        gap: theme.margins.smd,
     },
     sectionTitle: {
-        fontSize: 16,
-        fontWeight: '700',
+        fontSize: theme.fontSizes.base,
+        fontWeight: theme.fontWeights.bold,
         color: theme.colors.typography,
-        marginBottom: theme.margins.smd,
     },
-    stepsRow: {
+    earnGrid: {
         flexDirection: 'row',
-        gap: 8,
+        gap: theme.margins.sm,
     },
-    stepItem: {
+    earnCard: {
         flex: 1,
+        minHeight: 104,
+        borderRadius: theme.radius.m,
+        borderWidth: 1,
         alignItems: 'center',
-        position: 'relative',
-    },
-    stepIcon: {
-        width: 48,
-        height: 48,
-        borderRadius: 14,
-        backgroundColor: theme.colors.activeSoft,
         justifyContent: 'center',
+        paddingHorizontal: theme.margins.sm,
+        gap: theme.margins.sm,
+    },
+    earnCardWarm: {
+        backgroundColor: theme.colors.activeSubtle,
+        borderColor: theme.colors.activeLight,
+    },
+    earnCardCool: {
+        backgroundColor: theme.colors.infoSubtle,
+        borderColor: theme.colors.infoLight,
+    },
+    earnCardGreen: {
+        backgroundColor: theme.colors.successSubtle,
+        borderColor: theme.colors.successLight,
+    },
+    earnIcon: {
+        width: 42,
+        height: 42,
+        borderRadius: theme.radius.full,
         alignItems: 'center',
-        marginBottom: 10,
+        justifyContent: 'center',
     },
-    stepTitle: {
-        fontSize: 13,
-        fontWeight: '700',
-        color: theme.colors.typography,
-        marginBottom: 4,
-    },
-    stepDesc: {
-        fontSize: 11,
-        color: theme.colors.secondary,
-        textAlign: 'center',
+    earnTitle: {
+        fontSize: theme.fontSizes.sm,
         lineHeight: 16,
-    },
-    stepArrow: {
-        position: 'absolute',
-        right: -14,
-        top: 16,
+        fontWeight: theme.fontWeights.bold,
+        color: theme.colors.typography,
+        textAlign: 'center',
     },
 }));

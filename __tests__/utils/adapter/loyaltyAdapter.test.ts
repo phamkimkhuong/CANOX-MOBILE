@@ -207,6 +207,7 @@ describe('transformLoyaltyOverview', () => {
                 totalPoints: 3000,
                 expiringPoints: 200,
                 nearestExpiryDate: null,
+                nearestExpiryPoints: 0,
                 activeBatches: 2,
             },
         ],
@@ -218,6 +219,8 @@ describe('transformLoyaltyOverview', () => {
 
         expect(result.totalPoints).toBe(5000);
         expect(result.totalCombinedBalance).toBe(5000);
+        expect(result.displayBalance).toBe(5000);
+        expect(result.displayBalanceKind).toBe('COMBINED');
         expect(result.shopCount).toBe(3);
         expect(result.expiringPoints).toBe(500);
     });
@@ -232,8 +235,25 @@ describe('transformLoyaltyOverview', () => {
 
         expect(result.totalPoints).toBe(6500);
         expect(result.totalCombinedBalance).toBe(6500);
+        expect(result.displayBalance).toBe(6500);
+        expect(result.displayBalanceKind).toBe('COMBINED');
         expect(result.platformEnabled).toBe(true);
         expect(result.platformExpiryDays).toBe(30);
+    });
+
+    it('uses platform balance for hero display only when platform balance data exists', () => {
+        const result = transformLoyaltyOverview(createDTO({
+            totalPointsAllShops: 5000,
+            totalCombinedBalance: 6500,
+            platformEnabled: true,
+            platformPointBalance: {
+                balance: 1500,
+            },
+        }));
+
+        expect(result.platformBalance).toBe(1500);
+        expect(result.displayBalance).toBe(1500);
+        expect(result.displayBalanceKind).toBe('PLATFORM');
     });
 
     it('transforms shop summaries', () => {
@@ -255,6 +275,7 @@ describe('transformLoyaltyOverview', () => {
                 totalPoints: 1000,
                 expiringPoints: 100,
                 nearestExpiryDate: urgentDate,
+                nearestExpiryPoints: 80,
                 activeBatches: 1,
             }],
         }));
@@ -272,11 +293,71 @@ describe('transformLoyaltyOverview', () => {
                 totalPoints: 1000,
                 expiringPoints: 100,
                 nearestExpiryDate: farDate,
+                nearestExpiryPoints: 80,
                 activeBatches: 1,
             }],
         }));
 
         expect(result.hasUrgentPoints).toBe(false);
+    });
+
+    it('selects the closest nearest expiry candidate using nearestExpiryPoints', () => {
+        const soonerDate = new Date(Date.now() + 5 * 86400000).toISOString();
+        const laterDate = new Date(Date.now() + 12 * 86400000).toISOString();
+        const result = transformLoyaltyOverview(createDTO({
+            totalExpiringPoints: 9999,
+            shops: [
+                {
+                    shopId: 'shop-later',
+                    shopName: 'Later Shop',
+                    shopLogo: 'later.jpg',
+                    totalPoints: 5000,
+                    expiringPoints: 5000,
+                    nearestExpiryDate: laterDate,
+                    nearestExpiryPoints: 5000,
+                    activeBatches: 1,
+                },
+                {
+                    shopId: 'shop-sooner',
+                    shopName: 'Sooner Shop',
+                    shopLogo: 'sooner.jpg',
+                    totalPoints: 999,
+                    expiringPoints: 999,
+                    nearestExpiryDate: soonerDate,
+                    nearestExpiryPoints: 999,
+                    activeBatches: 1,
+                },
+            ],
+        }));
+
+        expect(result.nearestExpiry?.sourceName).toBe('Sooner Shop');
+        expect(result.nearestExpiry?.points).toBe(999);
+    });
+
+    it('can select platform expiry when it is closer than shop expiry', () => {
+        const platformDate = new Date(Date.now() + 3 * 86400000).toISOString();
+        const shopDate = new Date(Date.now() + 8 * 86400000).toISOString();
+        const result = transformLoyaltyOverview(createDTO({
+            platformEnabled: true,
+            platformPointBalance: {
+                balance: 1200,
+                nearestExpiryDate: platformDate,
+                nearestExpiryPoints: 300,
+            },
+            shops: [{
+                shopId: 'shop-1',
+                shopName: 'Shop A',
+                shopLogo: 'logo.jpg',
+                totalPoints: 1000,
+                expiringPoints: 100,
+                nearestExpiryDate: shopDate,
+                nearestExpiryPoints: 100,
+                activeBatches: 1,
+            }],
+        }));
+
+        expect(result.nearestExpiry?.sourceType).toBe('PLATFORM');
+        expect(result.nearestExpiry?.points).toBe(300);
     });
 });
 

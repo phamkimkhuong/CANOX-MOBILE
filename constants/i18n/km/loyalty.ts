@@ -2,12 +2,6 @@ import { LoyaltyTranslation } from '../types';
 
 export const LOYALTY_STRINGS: LoyaltyTranslation = {
     title: 'កាក់ Canox',
-    hero: {
-        totalCoinsLabel: 'ចំនួនកាក់សរុប',
-        unit: 'កាក់',
-        shopCountLabel: 'ហាង',
-        expiringLabel: 'ជិតផុតកំណត់'
-    },
     guestDashboard: {
         hero: {
             title: 'ចូលគណនីដើម្បីមើលកាក់ Canox',
@@ -36,8 +30,26 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
             program: 'ចូលរួមកម្មវិធី Canox',
         },
     },
+    overviewDashboard: {
+        hero: {
+            platformLabel: 'កាក់ Canox ដែលអាចប្រើបាន',
+            combinedLabel: 'ពិន្ទុសរុបដែលអាចប្រើបាន',
+            platformDescription: 'អាចបញ្ចុះតម្លៃបានដល់ {{amount}}đ',
+            combinedDescription: 'អាចប្រើបានតាមលក្ខខណ្ឌរបស់ហាងនីមួយៗ',
+            coinUnit: 'កាក់',
+            pointUnit: 'ពិន្ទុ',
+            expiringTemplate: 'ជិតផុតកំណត់: {{amount}} {{unit}} · {{source}} · {{date}}',
+            useNow: 'ប្រើឥឡូវនេះ',
+            howItWorks: 'របៀបដំណើរការ',
+        },
+        shopPoints: {
+            unit: 'ពិន្ទុ',
+            shopOnlyBadge: 'ប្រើនៅហាងនេះ',
+        },
+    },
     shopSection: {
-        title: 'កាក់តាមហាង'
+        title: 'ពិន្ទុពីហាង',
+        availableCount: 'មាន {{count}} ហាងដែលមានពិន្ទុអាចប្រើបាន',
     },
     emptyState: {
         title: 'មិនទាន់មានកាក់បញ្ចុះតម្លៃទេ',
@@ -99,14 +111,6 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
             title: 'ចំណាំ',
             callout: 'កាក់អាចមានថ្ងៃផុតកំណត់។ សូមតាមដានកាក់ជិតផុតកំណត់ ដើម្បីប្រើឱ្យទាន់ពេល។',
         },
-    },
-    howItWorks: {
-        title: 'របៀបប្រើកាក់',
-        steps: {
-            buy: { title: 'ទិញទំនិញ', desc: 'ទទួលបានកាក់នៅពេលការបញ្ជាទិញបានបញ្ចប់' },
-            accumulate: { title: 'សន្សំ', desc: 'កាក់ត្រូវបានបញ្ចូលទៅក្នុងគណនីរបស់អ្នកដោយស្វ័យប្រវត្តិ' },
-            use: { title: 'ប្រើប្រាស់', desc: 'ប្តូរកាក់ដើម្បីបញ្ចុះតម្លៃនៅពេលទូទាត់ប្រាក់' }
-        }
     },
     pdp: {
         chipEarn: 'ទទួលបាន +{{points}} កាក់',

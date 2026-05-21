@@ -14,8 +14,8 @@ import {
     LoyaltyEmptyState,
     LoyaltyGuestDashboard,
     LoyaltyHeader,
-    LoyaltyHowItWorksSheet,
     LoyaltyHeroCard,
+    LoyaltyHowItWorksSheet,
     ShopPointItem,
 } from '@/components/loyalty';
 import { ROUTES, loyaltyRoutes } from '@/constants/routes';
@@ -126,15 +126,24 @@ export default function LoyaltyOverviewScreen() {
                                 ) : (
                                     <>
                                         {/* Hero Card — Always show when there is loyalty value */}
-                                        <LoyaltyHeroCard overview={overview} />
+                                        <LoyaltyHeroCard
+                                            overview={overview}
+                                            onUseNow={handleShopNow}
+                                            onLearnMore={handleLearnMore}
+                                        />
 
                                         {/* Shop List or Empty */}
                                         {overview.shops.length > 0 ? (
                                             <Animated.View entering={FadeInDown.duration(350).delay(250)}>
                                                 <View style={styles.shopSection}>
-                                                    <Text style={styles.sectionTitle}>
-                                                        {t('shopSection.title', { defaultValue: 'Cửa hàng của bạn' })}
-                                                    </Text>
+                                                    <View style={styles.sectionHeader}>
+                                                        <Text style={styles.sectionTitle}>
+                                                            {t('shopSection.title')}
+                                                        </Text>
+                                                        <Text style={styles.sectionMeta}>
+                                                            {t('shopSection.availableCount', { count: overview.shopCount })}
+                                                        </Text>
+                                                    </View>
                                                     {overview.shops.map((shop, index) => (
                                                         <ShopPointItem
                                                             key={shop.shopId}
@@ -181,10 +190,22 @@ const stylesheet = StyleSheet.create((theme) => ({
         marginTop: theme.margins.lg,
         marginHorizontal: theme.margins.md,
     },
+    sectionHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: theme.margins.sm,
+        marginBottom: theme.margins.smd,
+    },
     sectionTitle: {
         fontSize: 16,
         fontWeight: '700',
         color: theme.colors.typography,
-        marginBottom: theme.margins.smd,
+    },
+    sectionMeta: {
+        flexShrink: 1,
+        fontSize: theme.fontSizes.sm,
+        color: theme.colors.typographySecondary,
+        textAlign: 'right',
     },
 }));

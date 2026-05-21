@@ -62,12 +62,25 @@ export interface PointHistoryUI {
 export interface LoyaltyOverviewUI {
     totalPoints: number;
     totalCombinedBalance: number;
+    platformBalance: number;
+    displayBalance: number;
+    displayBalanceKind: 'PLATFORM' | 'COMBINED';
     shopCount: number;
     expiringPoints: number;
     platformEnabled: boolean;
     platformExpiryDays: number;
+    nearestExpiry: LoyaltyNearestExpiryUI | null;
     hasUrgentPoints?: boolean;
     shops: ShopPointSummaryUI[];
+}
+
+export interface LoyaltyNearestExpiryUI {
+    sourceType: 'PLATFORM' | 'SHOP';
+    sourceName: string;
+    points: number;
+    expiryDate: string;
+    expiryDateISO: string;
+    expiryWarning: string | null;
 }
 
 export interface ShopPointSummaryUI {
@@ -76,7 +89,10 @@ export interface ShopPointSummaryUI {
     shopLogo: string;
     totalPoints: number;
     expiringPoints: number;
+    expiryWindowDays: number | null;
     nearestExpiryDate: string; // Formatted
+    nearestExpiryDateISO: string | null;
+    nearestExpiryPoints: number;
     expiryWarning: string | null; // e.g., "5 ngày nữa hết hạn"
     activeBatches: number;
 }

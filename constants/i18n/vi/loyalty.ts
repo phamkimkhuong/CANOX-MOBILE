@@ -2,12 +2,6 @@ import { LoyaltyTranslation } from '../types';
 
 export const LOYALTY_STRINGS: LoyaltyTranslation = {
     title: 'Xu Canox',
-    hero: {
-        totalCoinsLabel: 'Tổng xu tích lũy',
-        unit: 'xu',
-        shopCountLabel: 'shop',
-        expiringLabel: 'sắp hết hạn'
-    },
     guestDashboard: {
         hero: {
             title: 'Đăng nhập để xem Xu Canox',
@@ -36,8 +30,26 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
             program: 'Tham gia chương trình Canox',
         },
     },
+    overviewDashboard: {
+        hero: {
+            platformLabel: 'Xu Canox khả dụng',
+            combinedLabel: 'Tổng điểm khả dụng',
+            platformDescription: 'Có thể giảm đến {{amount}}đ',
+            combinedDescription: 'Có thể dùng theo điều kiện từng shop',
+            coinUnit: 'xu',
+            pointUnit: 'điểm',
+            expiringTemplate: 'Sắp hết hạn: {{amount}} {{unit}} · {{source}} · {{date}}',
+            useNow: 'Dùng ngay',
+            howItWorks: 'Cách hoạt động',
+        },
+        shopPoints: {
+            unit: 'điểm',
+            shopOnlyBadge: 'Dùng tại shop',
+        },
+    },
     shopSection: {
-        title: 'Xu theo từng shop'
+        title: 'Điểm từ shop',
+        availableCount: '{{count}} shop đang có điểm khả dụng',
     },
     emptyState: {
         title: 'Chưa có xu tích lũy',
@@ -99,14 +111,6 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
             title: 'Lưu ý',
             callout: 'Xu có thể có hạn sử dụng. Hãy theo dõi xu sắp hết hạn để dùng kịp thời.',
         },
-    },
-    howItWorks: {
-        title: 'Cách sử dụng xu',
-        steps: {
-            buy: { title: 'Mua hàng', desc: 'Nhận xu khi đơn hàng hoàn thành' },
-            accumulate: { title: 'Tích lũy', desc: 'Xu tự động cộng vào tài khoản' },
-            use: { title: 'Sử dụng', desc: 'Đổi xu lấy giảm giá khi thanh toán' }
-        }
     },
     pdp: {
         chipEarn: 'Nhận +{{points}} xu',

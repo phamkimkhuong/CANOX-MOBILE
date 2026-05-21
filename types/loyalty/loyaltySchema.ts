@@ -85,16 +85,31 @@ export const ShopPointSummarySchema = z.object({
     shopLogo: z.string().default(''),
     totalPoints: z.number().default(0),
     expiringPoints: z.number().default(0),
+    expiryWindowDays: z.coerce.number().optional(),
     nearestExpiryDate: z.string().nullable().default(null),
+    nearestExpiryPoints: z.coerce.number().default(0),
     activeBatches: z.number().default(0),
 });
+
+const PlatformPointBalanceSchema = z.preprocess(
+    (value) => typeof value === 'number' ? { balance: value } : value,
+    z.object({
+        balance: z.coerce.number().optional(),
+        totalPoints: z.coerce.number().optional(),
+        availablePoints: z.coerce.number().optional(),
+        totalAvailable: z.coerce.number().optional(),
+        expiringPoints: z.coerce.number().optional(),
+        nearestExpiryDate: z.string().nullable().optional(),
+        nearestExpiryPoints: z.coerce.number().nullable().optional(),
+    }).passthrough()
+);
 
 export const LoyaltyOverviewSchema = z.object({
     totalPointsAllShops: z.coerce.number().default(0),
     totalShopsWithPoints: z.coerce.number().default(0),
     totalExpiringPoints: z.coerce.number().default(0),
     shops: z.array(ShopPointSummarySchema).default([]),
-    platformPointBalance: z.unknown().nullable().default(null),
+    platformPointBalance: PlatformPointBalanceSchema.nullable().default(null),
     platformEnabled: z.boolean().default(false),
     platformExpiryDays: z.coerce.number().default(30),
     totalCombinedBalance: z.coerce.number().optional(),

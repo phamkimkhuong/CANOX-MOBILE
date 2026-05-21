@@ -82,10 +82,20 @@ export interface LoyaltyOverviewDTO {
     totalShopsWithPoints: number;
     totalExpiringPoints: number;
     shops: ShopPointSummaryDTO[];
-    platformPointBalance?: unknown | null;
+    platformPointBalance?: PlatformPointBalanceDTO | null;
     platformEnabled?: boolean;
     platformExpiryDays?: number;
     totalCombinedBalance?: number;
+}
+
+export interface PlatformPointBalanceDTO {
+    balance?: number;
+    totalPoints?: number;
+    availablePoints?: number;
+    totalAvailable?: number;
+    expiringPoints?: number;
+    nearestExpiryDate?: string | null;
+    nearestExpiryPoints?: number | null;
 }
 
 export interface ShopPointSummaryDTO {
@@ -94,7 +104,9 @@ export interface ShopPointSummaryDTO {
     shopLogo: string;
     totalPoints: number;
     expiringPoints: number;
+    expiryWindowDays?: number;
     nearestExpiryDate: string | null; // ISO Date, nullable
+    nearestExpiryPoints?: number;
     activeBatches: number;
 }
 

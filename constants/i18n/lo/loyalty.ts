@@ -2,12 +2,6 @@ import { LoyaltyTranslation } from '../types';
 
 export const LOYALTY_STRINGS: LoyaltyTranslation = {
     title: 'ຫຼຽນ Canox',
-    hero: {
-        totalCoinsLabel: 'ຫຼຽນສະສົມທັງໝົດ',
-        unit: 'ຫຼຽນ',
-        shopCountLabel: 'ຮ້ານຄ້າ',
-        expiringLabel: 'ໃກ້ຈະໝົດອາຍຸ'
-    },
     guestDashboard: {
         hero: {
             title: 'ເຂົ້າລະບົບເພື່ອເບິ່ງຫຼຽນ Canox',
@@ -36,8 +30,26 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
             program: 'ເຂົ້າຮ່ວມໂຄງການ Canox',
         },
     },
+    overviewDashboard: {
+        hero: {
+            platformLabel: 'ຫຼຽນ Canox ທີ່ໃຊ້ໄດ້',
+            combinedLabel: 'ຄະແນນທີ່ໃຊ້ໄດ້ທັງໝົດ',
+            platformDescription: 'ສາມາດຫຼຸດໄດ້ສູງສຸດ {{amount}}đ',
+            combinedDescription: 'ໃຊ້ໄດ້ຕາມເງື່ອນໄຂຂອງແຕ່ລະຮ້ານ',
+            coinUnit: 'ຫຼຽນ',
+            pointUnit: 'ຄະແນນ',
+            expiringTemplate: 'ໃກ້ໝົດອາຍຸ: {{amount}} {{unit}} · {{source}} · {{date}}',
+            useNow: 'ໃຊ້ດຽວນີ້',
+            howItWorks: 'ວິທີເຮັດວຽກ',
+        },
+        shopPoints: {
+            unit: 'ຄະແນນ',
+            shopOnlyBadge: 'ໃຊ້ທີ່ຮ້ານ',
+        },
+    },
     shopSection: {
-        title: 'ຫຼຽນຕາມຮ້ານຄ້າ'
+        title: 'ຄະແນນຈາກຮ້ານ',
+        availableCount: 'ມີ {{count}} ຮ້ານທີ່ມີຄະແນນໃຊ້ໄດ້',
     },
     emptyState: {
         title: 'ຍັງບໍ່ມີຫຼຽນສະສົມ',
@@ -99,14 +111,6 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
             title: 'ໝາຍເຫດ',
             callout: 'ຫຼຽນອາດມີວັນໝົດອາຍຸ. ກະລຸນາຕິດຕາມຫຼຽນທີ່ໃກ້ໝົດອາຍຸເພື່ອໃຊ້ໃຫ້ທັນເວລາ.',
         },
-    },
-    howItWorks: {
-        title: 'ວິທີການໃຊ້ຫຼຽນ',
-        steps: {
-            buy: { title: 'ຊື້ສິນຄ້າ', desc: 'ຮັບຫຼຽນເມື່ອຄຳສັ່ງຊື້ສຳເລັດ' },
-            accumulate: { title: 'ສະສົມ', desc: 'ຫຼຽນຈະຖືກເພີ່ມເຂົ້າບັນຊີອັດຕະໂນມັດ' },
-            use: { title: 'ໃຊ້', desc: 'ແລກຫຼຽນເປັນສ່ວນຫຼຸດເມື່ອຊຳລະເງິນ' }
-        }
     },
     pdp: {
         chipEarn: 'ຮັບ +{{points}} ຫຼຽນ',

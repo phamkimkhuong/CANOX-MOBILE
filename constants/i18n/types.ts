@@ -2159,12 +2159,6 @@ export interface WishlistTranslation {
  */
 export interface LoyaltyTranslation {
     title: string;
-    hero: {
-        totalCoinsLabel: string;
-        unit: string;
-        shopCountLabel: string;
-        expiringLabel: string;
-    };
     guestDashboard: {
         hero: {
             title: string;
@@ -2184,8 +2178,26 @@ export interface LoyaltyTranslation {
             program: string;
         };
     };
+    overviewDashboard: {
+        hero: {
+            platformLabel: string;
+            combinedLabel: string;
+            platformDescription: string;
+            combinedDescription: string;
+            coinUnit: string;
+            pointUnit: string;
+            expiringTemplate: string;
+            useNow: string;
+            howItWorks: string;
+        };
+        shopPoints: {
+            unit: string;
+            shopOnlyBadge: string;
+        };
+    };
     shopSection: {
         title: string;
+        availableCount: string;
     };
     emptyState: {
         title: string;
@@ -2246,14 +2258,6 @@ export interface LoyaltyTranslation {
         note: {
             title: string;
             callout: string;
-        };
-    };
-    howItWorks: {
-        title: string;
-        steps: {
-            buy: { title: string; desc: string };
-            accumulate: { title: string; desc: string };
-            use: { title: string; desc: string };
         };
     };
     pdp: {
