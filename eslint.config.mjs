@@ -121,5 +121,14 @@ export default [
             '@typescript-eslint/no-var-requires': 'off',
             'no-console': 'off',
         },
+    },
+
+    // SPECIAL CONFIG FOR TEST FILES & JEST SETUP
+    {
+        files: ['__tests__/**/*.{ts,tsx,js,jsx}', 'jest.setup.ts'],
+        rules: {
+            '@typescript-eslint/no-explicit-any': 'off',
+            'no-console': 'off',
+        },
     }
 ];

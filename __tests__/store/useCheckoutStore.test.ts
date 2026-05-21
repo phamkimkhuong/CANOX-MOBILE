@@ -52,7 +52,6 @@ describe('useCheckoutStore', () => {
 
     describe('Voucher and Shipping Synchronization from Preview Data', () => {
         it('should automatically select applied vouchers and shipping from preview response on first sync', () => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const mockPreviewData: any = {
                 shops: [
                     {
@@ -103,7 +102,6 @@ describe('useCheckoutStore', () => {
                 useCheckoutStore.getState().applyPlatformVoucher('USER-MANUAL-PLAT', 'DISCOUNT');
             });
 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const mockPreviewData: any = {
                 shops: [
                     {

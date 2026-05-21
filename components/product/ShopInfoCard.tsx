@@ -79,7 +79,7 @@ export const ShopInfoCard = memo<ShopInfoCardProps>(({
         return hasRating
             ? { value: rating.toFixed(1), isEmpty: false }
             : { value: t('shop.notAvailable'), isEmpty: true };
-    }, [publicStats, publicStats?.rating, publicStats?.reviewCount, t]);
+    }, [publicStats, t]);
 
     const completedOrdersMetric = useMemo(() => {
         const completedOrders = publicStats?.completedOrders;
@@ -92,7 +92,7 @@ export const ShopInfoCard = memo<ShopInfoCardProps>(({
         return hasCompletedOrders
             ? { value: formatCount(completedOrders), isEmpty: false }
             : { value: t('shop.notAvailable'), isEmpty: true };
-    }, [publicStats, publicStats?.completedOrders, t]);
+    }, [publicStats, t]);
 
     const formattedJoinedDuration = useMemo(() => {
         const shopAgeDays = publicStats?.shopAgeDays;
