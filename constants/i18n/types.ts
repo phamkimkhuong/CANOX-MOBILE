@@ -1504,6 +1504,7 @@ export interface ProfileTranslation {
             'app-version': string;
             support: string;
             'legal-policies': string;
+            'delete-account': string;
         };
         actions: {
             logout: string;

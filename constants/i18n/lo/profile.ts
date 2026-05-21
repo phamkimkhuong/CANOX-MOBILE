@@ -214,6 +214,7 @@ export const PROFILE_STRINGS: ProfileTranslation = {
             'app-version': 'ເວີຊັນແອັບ',
             support: 'ສູນຊ່ວຍເຫຼືອ',
             'legal-policies': 'ນະໂຍບາຍ & ເງື່ອນໄຂ',
+            'delete-account': 'ລຶບບັນຊີ',
         },
         actions: {
             logout: 'ອອກຈາກລະບົບ',

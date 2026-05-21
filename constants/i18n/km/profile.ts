@@ -214,6 +214,7 @@ export const PROFILE_STRINGS: ProfileTranslation = {
             'app-version': 'កំណែកម្មវិធី',
             support: 'មជ្ឈមណ្ឌលជំនួយ',
             'legal-policies': 'គោលការណ៍ និងលក្ខខណ្ឌ',
+            'delete-account': 'លុបគណនី',
         },
         actions: {
             logout: 'ចាកចេញ',

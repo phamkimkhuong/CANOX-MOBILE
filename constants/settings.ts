@@ -177,6 +177,14 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
                 iconColor: 'emerald',
                 valueKey: 'appVersion',
             },
+            {
+                id: 'delete-account',
+                type: 'link',
+                label: 'Xoá tài khoản',
+                icon: 'delete-forever',
+                iconColor: 'red',
+                route: ROUTES.SETTINGS.DELETE_ACCOUNT,
+            },
         ],
     },
 ];

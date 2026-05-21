@@ -214,6 +214,7 @@ export const PROFILE_STRINGS: ProfileTranslation = {
             'app-version': 'App Version',
             support: 'Help Center',
             'legal-policies': 'Policies & Terms',
+            'delete-account': 'Delete Account',
         },
         actions: {
             logout: 'Logout',

@@ -155,6 +155,9 @@ export default function SettingsScreen() {
     const getItemHandler = useCallback((item: SettingsItemType): (() => void) | undefined => {
         switch (item.type) {
             case 'link':
+                if (item.id === 'delete-account') {
+                    return handleDeleteAccount;
+                }
                 return () => handleNavigation(item.route);
             case 'toggle':
                 return undefined; // Handled by onValueChange
@@ -171,7 +174,7 @@ export default function SettingsScreen() {
             default:
                 return undefined;
         }
-    }, [handleNavigation, handleClearCache, handleAppVersionPress]);
+    }, [handleNavigation, handleClearCache, handleAppVersionPress, handleDeleteAccount]);
 
     // Get toggle handler
     const getToggleHandler = useCallback((item: SettingsItemType): ((value: boolean) => void) | undefined => {
@@ -241,8 +244,8 @@ export default function SettingsScreen() {
             .map((section) => ({
                 ...section,
                 items: section.items.filter((item) => {
-                    // Hide notifications if not authenticated (guest mode)
-                    if (item.id === 'notifications' && !isAuthenticated) {
+                    // Hide notifications or delete account if not authenticated (guest mode)
+                    if ((item.id === 'notifications' || item.id === 'delete-account') && !isAuthenticated) {
                         return false;
                     }
                     return true;
@@ -294,8 +297,7 @@ export default function SettingsScreen() {
 
                 {/* Footer */}
                 <SettingsFooter
-                    onDeleteAccount={handleDeleteAccount}
-                    showDeleteAccount={isAuthenticated}
+                    showDeleteAccount={false}
                     version={currentVersion}
                 />
             </ScrollView>

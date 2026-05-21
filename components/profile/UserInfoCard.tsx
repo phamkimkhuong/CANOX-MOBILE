@@ -72,8 +72,8 @@ export const UserInfoCard: React.FC<UserInfoCardProps> = memo(({
 
                     <View style={styles.badgesRow}>
                         {profile.isVerified ? (
-                            <View style={[styles.statusBadge, styles.verifiedBadge]}>
-                                <IconSymbol name="checkmark-circle" size={12} color={theme.colors.primary} />
+                            <View style={[styles.statusBadge]}>
+                                <IconSymbol name="checkmark-circle" size={12} color={theme.colors.success} />
                                 <Text style={[styles.statusText, styles.verifiedText]}>
                                     {t('common:status.verified', { defaultValue: 'Đã xác thực' })}
                                 </Text>
@@ -173,13 +173,8 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: 11,
         fontWeight: '600',
     },
-    verifiedBadge: {
-        backgroundColor: theme.colors.primaryMuted || 'rgba(59, 130, 246, 0.1)',
-        borderWidth: 1,
-        borderColor: theme.colors.primaryMuted || 'rgba(59, 130, 246, 0.2)',
-    },
     verifiedText: {
-        color: theme.colors.primary,
+        color: theme.colors.success,
     },
     unverifiedBadge: {
         backgroundColor: 'rgba(245, 158, 11, 0.1)',

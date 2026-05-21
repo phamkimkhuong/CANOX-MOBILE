@@ -214,6 +214,7 @@ export const PROFILE_STRINGS: ProfileTranslation = {
             'app-version': 'Phiên bản ứng dụng',
             support: 'Trung tâm hỗ trợ',
             'legal-policies': 'Chính sách & Điều khoản',
+            'delete-account': 'Xóa tài khoản',
         },
         actions: {
             logout: 'Đăng xuất',
