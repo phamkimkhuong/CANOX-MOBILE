@@ -1,73 +1,5 @@
 import { ROUTES } from '@/constants/routes';
-import type { IconColorConfig, IconColorPreset, SettingsSection, SocialLinkConfig } from '@/types/settings';
-
-// ICON COLOR PRESETS
-// ============================================
-// Maps color preset names to actual rgba values
-// Using semantic colors that work in both light/dark mode
-
-export const ICON_COLOR_MAP: Record<IconColorPreset, IconColorConfig> = {
-    blue: {
-        bg: 'rgba(59, 130, 246, 0.1)',
-        icon: '#3b82f6',
-    },
-    orange: {
-        bg: 'rgba(249, 115, 22, 0.1)',
-        icon: '#f97316',
-    },
-    purple: {
-        bg: 'rgba(168, 85, 247, 0.1)',
-        icon: '#a855f7',
-    },
-    emerald: {
-        bg: 'rgba(16, 185, 129, 0.1)',
-        icon: '#10b981',
-    },
-    teal: {
-        bg: 'rgba(20, 184, 166, 0.1)',
-        icon: '#14b8a6',
-    },
-    pink: {
-        bg: 'rgba(236, 72, 153, 0.1)',
-        icon: '#ec4899',
-    },
-    indigo: {
-        bg: 'rgba(99, 102, 241, 0.1)',
-        icon: '#6366f1',
-    },
-    slate: {
-        bg: 'rgba(100, 116, 139, 0.1)',
-        icon: '#64748b',
-    },
-    rose: {
-        bg: 'rgba(244, 63, 94, 0.1)',
-        icon: '#f43f5e',
-    },
-    cyan: {
-        bg: 'rgba(6, 182, 212, 0.1)',
-        icon: '#06b6d4',
-    },
-    sky: {
-        bg: 'rgba(14, 165, 233, 0.1)',
-        icon: '#0ea5e9',
-    },
-    yellow: {
-        bg: 'rgba(234, 179, 8, 0.1)',
-        icon: '#eab308',
-    },
-    red: {
-        bg: 'rgba(239, 68, 68, 0.1)',
-        icon: '#ef4444',
-    },
-    violet: {
-        bg: 'rgba(139, 92, 246, 0.1)',
-        icon: '#8b5cf6',
-    },
-    amber: {
-        bg: 'rgba(245, 158, 11, 0.1)',
-        icon: '#f59e0b',
-    },
-};
+import type { SettingsSection, SocialLinkConfig } from '@/types/settings';
 
 // SETTINGS SECTIONS CONFIGURATION
 // ============================================
@@ -83,7 +15,6 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
                 type: 'link',
                 label: 'Hồ sơ & Địa chỉ',
                 icon: 'badge',
-                iconColor: 'blue',
                 route: ROUTES.USER.EDIT_PROFILE,
             },
             {
@@ -91,7 +22,6 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
                 type: 'link',
                 label: 'Đổi mật khẩu',
                 icon: 'lock',
-                iconColor: 'orange',
                 route: ROUTES.SETTINGS.CHANGE_PASSWORD,
             },
             {
@@ -99,7 +29,6 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
                 type: 'link',
                 label: 'Trung tâm hỗ trợ',
                 icon: 'headset',
-                iconColor: 'blue',
                 route: ROUTES.PROFILE.SUPPORT,
             },
         ],
@@ -113,7 +42,6 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
                 type: 'link',
                 label: 'Chính sách & Điều khoản',
                 icon: 'policy',
-                iconColor: 'cyan',
                 route: ROUTES.SETTINGS.LEGAL_POLICIES,
             },
             {
@@ -121,7 +49,6 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
                 type: 'link',
                 label: 'Đánh giá ứng dụng',
                 icon: 'star',
-                iconColor: 'yellow',
                 route: ROUTES.SETTINGS.RATE_APP,
             },
         ],
@@ -135,7 +62,6 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
                 type: 'link',
                 label: 'Tài khoản / Thẻ ngân hàng',
                 icon: 'credit-card',
-                iconColor: 'teal',
                 route: ROUTES.SETTINGS.BANK_CARDS,
             },
         ],
@@ -149,7 +75,6 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
                 type: 'link',
                 label: 'Cài đặt thông báo',
                 icon: 'notifications',
-                iconColor: 'pink',
                 route: ROUTES.SETTINGS.NOTIFICATIONS,
             },
             {
@@ -157,7 +82,6 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
                 type: 'link',
                 label: 'Ngôn ngữ / Language',
                 icon: 'language',
-                iconColor: 'indigo',
                 route: ROUTES.SETTINGS.LANGUAGE,
                 subtitle: 'Tiếng Việt',
             },
@@ -166,7 +90,6 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
                 type: 'info',
                 label: 'Xóa bộ nhớ đệm',
                 icon: 'delete-sweep',
-                iconColor: 'rose',
                 valueKey: 'cacheSize',
             },
             {
@@ -174,7 +97,6 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
                 type: 'info',
                 label: 'Phiên bản ứng dụng',
                 icon: 'system-update',
-                iconColor: 'emerald',
                 valueKey: 'appVersion',
             },
             {
@@ -182,7 +104,6 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
                 type: 'link',
                 label: 'Xoá tài khoản',
                 icon: 'delete-forever',
-                iconColor: 'red',
                 route: ROUTES.SETTINGS.DELETE_ACCOUNT,
             },
         ],

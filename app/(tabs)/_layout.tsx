@@ -102,6 +102,7 @@ export default function TabLayout() {
           title: t('bottomTab.video'),
           tabBarIcon: ({ color }) => <TabBarIcon name="video" color={color} />,
           headerShown: false,
+          href: null,
         }}
       />
       {/* 4. Thông báo/Notifications ( app/(tabs)/notify.tsx) */}

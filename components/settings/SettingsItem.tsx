@@ -1,4 +1,3 @@
-import { ICON_COLOR_MAP } from '@/constants/settings';
 import type { SettingsItem as SettingsItemType } from '@/types/settings';
 import { MaterialIcons } from '@expo/vector-icons';
 import React, { memo, useCallback } from 'react';
@@ -40,8 +39,6 @@ export const SettingsItem: React.FC<SettingsItemProps> = memo(({
 }) => {
     const { theme } = useUnistyles();
     const styles = stylesheet;
-
-    const iconColors = ICON_COLOR_MAP[item.iconColor];
 
     const handlePress = useCallback(() => {
         if (item.type === 'toggle') {
@@ -177,11 +174,11 @@ export const SettingsItem: React.FC<SettingsItemProps> = memo(({
         >
             {/* Left: Icon + Label */}
             <View style={styles.leftContent}>
-                <View style={[styles.iconBox, { backgroundColor: iconColors.bg }]}>
+                <View style={styles.iconBox}>
                     <MaterialIcons
                         name={getIconName(item.icon)}
                         size={22}
-                        color={iconColors.icon}
+                        color={theme.colors.typographySecondary}
                     />
                 </View>
                 <Text style={styles.label}>{item.label}</Text>

@@ -18,7 +18,6 @@ interface PolicyItem {
     fallbackLabel: string;
     url: string;
     icon: string;
-    iconColor: 'cyan' | 'sky' | 'yellow' | 'blue' | 'rose' | 'orange' | 'slate' | 'indigo' | 'emerald' | 'violet' | 'amber';
     /** true = open in-app WebView (own domain), false = open in-app browser (external) */
     isInternal: boolean;
     /** Section group */
@@ -41,7 +40,6 @@ export default function LegalPoliciesScreen() {
             fallbackLabel: 'Quy chế hoạt động sàn TMĐT',
             url: LEGAL_URLS.MARKETPLACE_REGULATIONS,
             icon: 'article',
-            iconColor: 'indigo',
             isInternal: true,
             group: 'mandatory',
         },
@@ -51,7 +49,6 @@ export default function LegalPoliciesScreen() {
             fallbackLabel: 'Chính sách bảo mật',
             url: LEGAL_URLS.PRIVACY,
             icon: 'policy',
-            iconColor: 'cyan',
             isInternal: true,
             group: 'mandatory',
         },
@@ -61,7 +58,6 @@ export default function LegalPoliciesScreen() {
             fallbackLabel: 'Điều khoản sử dụng',
             url: LEGAL_URLS.TOS,
             icon: 'description',
-            iconColor: 'sky',
             isInternal: true,
             group: 'mandatory',
         },
@@ -71,7 +67,6 @@ export default function LegalPoliciesScreen() {
             fallbackLabel: 'Chính sách đổi trả & hoàn tiền',
             url: LEGAL_URLS.RETURN,
             icon: 'settings-backup-restore',
-            iconColor: 'rose',
             isInternal: true,
             group: 'mandatory',
         },
@@ -85,7 +80,6 @@ export default function LegalPoliciesScreen() {
             fallbackLabel: 'Chính sách vận chuyển',
             url: LEGAL_URLS.SHIPPING,
             icon: 'local-shipping',
-            iconColor: 'blue',
             isInternal: true,
             group: 'operational',
         },
@@ -95,7 +89,6 @@ export default function LegalPoliciesScreen() {
             fallbackLabel: 'Chính sách thanh toán',
             url: LEGAL_URLS.PAYMENT,
             icon: 'card',
-            iconColor: 'emerald',
             isInternal: true,
             group: 'operational',
         },
@@ -105,7 +98,6 @@ export default function LegalPoliciesScreen() {
             fallbackLabel: 'Sản phẩm cấm & hạn chế',
             url: LEGAL_URLS.PROHIBITED_ITEMS,
             icon: 'ban',
-            iconColor: 'orange',
             isInternal: true,
             group: 'operational',
         },
@@ -115,7 +107,6 @@ export default function LegalPoliciesScreen() {
             fallbackLabel: 'Chính sách bảo hành',
             url: LEGAL_URLS.WARRANTY,
             icon: 'verified-shield',
-            iconColor: 'violet',
             isInternal: true,
             group: 'operational',
         },
@@ -170,7 +161,6 @@ export default function LegalPoliciesScreen() {
                         type: 'link',
                         label: displayLabel,
                         icon: item.icon,
-                        iconColor: item.iconColor,
                         route: item.url,
                         subtitle: item.isInternal ? undefined : 'Mở link ngoài',
                     }}

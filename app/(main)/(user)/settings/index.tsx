@@ -2,13 +2,14 @@ import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
 import { Alert as CustomAlert } from '@/utils/AlertHelper';
 import { Navigator } from '@/utils/navigation';
 import * as Application from 'expo-application';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Linking, Platform, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet } from 'react-native-unistyles';
 
 import {
+    RateAppModal,
     SettingsFooter,
     SettingsHeader,
     SettingsItem,
@@ -34,6 +35,7 @@ export default function SettingsScreen() {
     const styles = stylesheet;
 
     const insets = useSafeAreaInsets();
+    const [isRateModalVisible, setIsRateModalVisible] = useState(false);
     const { t, i18n } = useTranslation(['profile', 'common']);
 
     // App Store - Global settings
@@ -157,6 +159,9 @@ export default function SettingsScreen() {
             case 'link':
                 if (item.id === 'delete-account') {
                     return handleDeleteAccount;
+                }
+                if (item.id === 'rate-app') {
+                    return () => setIsRateModalVisible(true);
                 }
                 return () => handleNavigation(item.route);
             case 'toggle':
@@ -287,7 +292,6 @@ export default function SettingsScreen() {
                                 type: 'action',
                                 label: t('settings.actions.logout'),
                                 icon: 'logout',
-                                iconColor: 'slate',
                                 actionStyle: 'default',
                             }}
                             onPress={logout}
@@ -301,6 +305,12 @@ export default function SettingsScreen() {
                     version={currentVersion}
                 />
             </ScrollView>
+
+            {/* Rate App Modal */}
+            <RateAppModal
+                visible={isRateModalVisible}
+                onClose={() => setIsRateModalVisible(false)}
+            />
         </View>
     );
 }

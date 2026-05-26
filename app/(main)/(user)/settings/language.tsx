@@ -91,11 +91,6 @@ const LanguageCard: React.FC<LanguageCardProps> = ({
             accessibilityState={{ checked: isSelected }}
             accessibilityLabel={`${option.nativeName} (${option.englishName})`}
         >
-            {/* Flag Emoji */}
-            <View style={styles.flagContainer}>
-                <Text style={styles.flagEmoji}>{option.flag}</Text>
-            </View>
-
             {/* Language Names */}
             <View style={styles.languageInfo}>
                 <Text style={[
@@ -152,8 +147,8 @@ export default function LanguageSettingsScreen() {
     // Checks if there are unsaved changes
     const hasChanges = selectedLang !== currentLanguage;
 
-    // Memoized header title (quadlingual)
-    const headerTitle = useMemo(() => 'Ngôn ngữ / Language / ພາສາ / ភាសា', []);
+    // Memoized header title
+    const headerTitle = useMemo(() => 'Ngôn ngữ / Language', []);
 
     // Helper text
     const getText = useCallback((vi: string, en: string, lo: string, km: string) => selectedLang === 'vi' ? vi : selectedLang === 'lo' ? lo : selectedLang === 'km' ? km : en, [selectedLang]);
@@ -244,9 +239,6 @@ export default function LanguageSettingsScreen() {
                         {getText('Đang hoạt động:', 'Currently active:', 'ກຳລັງໃຊ້ງານ:', 'កំពុងសកម្ម:')}
                     </Text>
                     <View style={styles.currentBadgeValue}>
-                        <Text style={styles.currentBadgeFlag}>
-                            {LANGUAGE_OPTIONS.find(l => l.code === currentLanguage)?.flag}
-                        </Text>
                         <Text style={styles.currentBadgeName}>
                             {LANGUAGE_OPTIONS.find(l => l.code === currentLanguage)?.nativeName}
                         </Text>

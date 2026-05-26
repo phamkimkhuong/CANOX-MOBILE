@@ -19,41 +19,12 @@ export type SettingsItemType = 'link' | 'toggle' | 'info' | 'action';
 export type ActionStyle = 'default' | 'danger' | 'primary';
 
 /**
- * Icon color preset - maps to theme colors
- */
-export type IconColorPreset =
-    | 'blue'
-    | 'orange'
-    | 'purple'
-    | 'emerald'
-    | 'teal'
-    | 'pink'
-    | 'indigo'
-    | 'slate'
-    | 'rose'
-    | 'cyan'
-    | 'sky'
-    | 'yellow'
-    | 'red'
-    | 'violet'
-    | 'amber';
-
-/**
- * Icon color configuration
- */
-export interface IconColorConfig {
-    bg: string;
-    icon: string;
-}
-
-/**
  * Base settings item interface
  */
 export interface BaseSettingsItem {
     id: string;
     label: string;
     icon: string;
-    iconColor: IconColorPreset;
     /** Conditional visibility function */
     visible?: () => boolean;
 }
