@@ -50,6 +50,20 @@ const transformProduct = (raw: NonNullable<SearchProductsResponse['data']>['cont
         c => c.campaignType === 'FLASH_SALE'
     ) ?? false;
 
+    // Calculate campaignLabel based on active campaigns
+    const activeCampaign = raw.activeCampaigns?.[0];
+    let campaignLabel: string | undefined = undefined;
+    if (activeCampaign?.campaignType) {
+        const type = activeCampaign.campaignType;
+        if (type === 'FLASH_SALE') {
+            campaignLabel = 'Flash Sale LIVE';
+        } else if (type === 'MEGA_SALE') {
+            campaignLabel = 'Mega Sale Live';
+        } else {
+            campaignLabel = 'Shop Sale Live';
+        }
+    }
+
     return {
         id: raw.id,
         title: raw.name ?? '',
@@ -66,6 +80,7 @@ const transformProduct = (raw: NonNullable<SearchProductsResponse['data']>['cont
         hasVoucher: !!raw.bestShopVoucher,
         isFlashSale,
         categoryName: raw.category?.name ?? undefined,
+        campaignLabel,
     };
 };
 

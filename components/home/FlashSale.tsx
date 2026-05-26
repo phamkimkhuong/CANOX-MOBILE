@@ -1,3 +1,4 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
@@ -47,7 +48,12 @@ export const FlashSale = memo(({ onProductPress, shimmerAnimatedStyle }: FlashSa
                     entering={FadeIn.duration(180)}
                     exiting={FadeOutUp.duration(220)}
                 >
-                    <View style={[styles.container, shouldShowPendingShell && styles.containerPending]}>
+                    <LinearGradient
+                        colors={['rgba(239, 68, 68, 0.04)', 'rgba(255, 122, 0, 0.04)']}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={[styles.container, shouldShowPendingShell && styles.containerPending]}
+                    >
                         <FlashSaleHeader
                             displayedData={displayedData}
                             displayedIsUpcoming={displayedIsUpcoming}
@@ -67,7 +73,7 @@ export const FlashSale = memo(({ onProductPress, shimmerAnimatedStyle }: FlashSa
                             onProductPress={onProductPress}
                             shouldShowPendingShell={shouldShowPendingShell}
                         />
-                    </View>
+                    </LinearGradient>
                 </Animated.View>
             ) : null}
         </Animated.View>
@@ -76,7 +82,6 @@ export const FlashSale = memo(({ onProductPress, shimmerAnimatedStyle }: FlashSa
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
-        backgroundColor: theme.colors.surface,
         paddingVertical: theme.margins.md,
         borderRadius: theme.radius.m,
         shadowColor: theme.colors.primary,
@@ -84,6 +89,9 @@ const stylesheet = StyleSheet.create((theme) => ({
         shadowOpacity: 0.05,
         shadowRadius: 4,
         elevation: 2,
+        borderWidth: 1,
+        borderColor: 'rgba(239, 68, 68, 0.07)',
+        overflow: 'hidden',
     },
     containerPending: {
         opacity: 0.98,

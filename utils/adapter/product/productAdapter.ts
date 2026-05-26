@@ -57,6 +57,20 @@ export const transformProduct = (raw: BaseProductDTO): ProductFeedItem => {
         .map(v => v.id)
         .sort(); // lexicographic sort = deterministic
 
+    // 6. Calculate campaignLabel based on active campaigns
+    const activeCampaign = raw.activeCampaigns?.[0];
+    let campaignLabel: string | undefined = undefined;
+    if (activeCampaign?.campaignType) {
+        const type = activeCampaign.campaignType;
+        if (type === 'FLASH_SALE') {
+            campaignLabel = 'Flash Sale LIVE';
+        } else if (type === 'MEGA_SALE') {
+            campaignLabel = 'Mega Sale Live';
+        } else {
+            campaignLabel = 'Shop Sale Live';
+        }
+    }
+
     return {
         id: raw.id,
         title: raw.name ?? '',
@@ -71,5 +85,6 @@ export const transformProduct = (raw: BaseProductDTO): ProductFeedItem => {
         isInternational: isInternational || undefined,
         defaultVariantId: sortedVariantIds[0],
         allVariantIds: sortedVariantIds.length > 0 ? sortedVariantIds : undefined,
+        campaignLabel,
     };
 };

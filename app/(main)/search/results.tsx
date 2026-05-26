@@ -91,6 +91,7 @@ const ProductItem = React.memo(({ item }: { item: SearchProductUI }) => {
             onPress={handlePress}
             onPressIn={handlePressIn}
             route={productRoutes.detail(item.id)}
+            campaignLabel={item.campaignLabel}
         />
     );
 });

@@ -27,6 +27,10 @@ const VariantMinimalSchema = z.object({
     }).nullish(),
 });
 
+const CampaignTypeSchema = z.object({
+    campaignType: z.string().nullish().transform(val => val ?? ''),
+});
+
 export const ProductResponseItemSchema = z.object({
     id: z.string().nullish().transform(val => val ?? ''),
     name: z.string().nullish().transform(val => val ?? ''),
@@ -39,6 +43,7 @@ export const ProductResponseItemSchema = z.object({
     }).nullish().transform(val => val ?? { shop_location: '' }),
     availableRegions: z.array(z.string()).nullish().transform(val => val ?? []),
     variants: z.array(VariantMinimalSchema).nullish().transform(val => val ?? []),
+    activeCampaigns: z.array(CampaignTypeSchema).nullish().transform(val => val ?? []),
 });
 export type ProductResponseItem = z.infer<typeof ProductResponseItemSchema>;
 
@@ -61,6 +66,7 @@ export interface ProductFeedItem {
     isInternational?: boolean;
     defaultVariantId?: string;
     allVariantIds?: string[];
+    campaignLabel?: string;
 }
 
 /**
@@ -90,5 +96,8 @@ export interface BaseProductDTO {
         inventory?: {
             soldCount?: number | null;
         } | null;
+    }[] | null;
+    activeCampaigns?: {
+        campaignType?: string | null;
     }[] | null;
 }

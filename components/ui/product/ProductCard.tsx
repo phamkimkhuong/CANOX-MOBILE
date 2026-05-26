@@ -47,6 +47,7 @@ interface ProductCardProps {
     onLongPress?: () => void;
     /** If true and targetPrice is not set, a prompt to set it up will be shown */
     showSetupTargetPrice?: boolean;
+    campaignLabel?: string;
 }
 
 export const ProductCard = React.memo(({
@@ -79,6 +80,7 @@ export const ProductCard = React.memo(({
     hasNotes,
     onLongPress,
     showSetupTargetPrice,
+    campaignLabel,
 }: ProductCardProps) => {
     const { t } = useTranslation(['product']);
     const { theme } = useUnistyles();
@@ -155,6 +157,14 @@ export const ProductCard = React.memo(({
                         {/* International Shipping Badge - below title */}
                         {isInternational && (
                             <InternationalBadge label={t('badges.international')} size="md" />
+                        )}
+
+                        {/* Dynamic Campaign Badge */}
+                        {campaignLabel && (
+                            <View style={styles.flashSaleBadge}>
+                                <IconSymbol name="flash-sharp" size={10} color={theme.colors.newPrimary} />
+                                <Text style={styles.flashSaleText}>{campaignLabel}</Text>
+                            </View>
                         )}
 
                         {/* Rating */}
@@ -475,5 +485,21 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: 11,
         fontWeight: '500',
         color: theme.colors.typographySecondary,
+    },
+    flashSaleBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 2,
+        backgroundColor: '#FFEBEA',
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 4,
+        alignSelf: 'flex-start',
+        marginTop: 4,
+    },
+    flashSaleText: {
+        color: theme.colors.newPrimary,
+        fontSize: 10,
+        fontWeight: '700',
     },
 }));

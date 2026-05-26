@@ -691,6 +691,7 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
                         isInternational={item.data.isInternational}
                         enableHaptic={false}
                         onPress={() => Navigator.push(productRoutes.detail(item.data.id))}
+                        campaignLabel={item.data.campaignLabel}
                     />
                 );
             default:

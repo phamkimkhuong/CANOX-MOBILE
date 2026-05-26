@@ -10,20 +10,20 @@ import { useFlashSaleTabs } from '@/hooks/api/campaign/useFlashSaleTabs';
 import { useSlotDetail } from '@/hooks/api/campaign/useSlotDetail';
 import { SlotStatus } from '@/types/campaign';
 import { FlashSaleItem } from '@/types/home';
-import { Navigator } from '@/utils/navigation';
 import { formatClockTime } from '@/utils/date';
+import { Navigator } from '@/utils/navigation';
 import { FlashList } from '@shopify/flash-list';
+import { useQueryClient } from '@tanstack/react-query';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack } from 'expo-router';
-import { useQueryClient } from '@tanstack/react-query';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, RefreshControl, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import Toast from 'react-native-toast-message';
+import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 const formatSlotRange = (startTime: string, endTime: string) => {
     return `${formatClockTime(startTime)} - ${formatClockTime(endTime)}`;

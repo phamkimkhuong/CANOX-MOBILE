@@ -114,6 +114,7 @@ const ProductRowItem = memo(({
       onPress={() => onPress(item.id, previewImageUrl)}
       variantId={item.defaultVariantId}
       onFavoritePress={onFavoritePress}
+      campaignLabel={item.campaignLabel}
     />
   );
 });

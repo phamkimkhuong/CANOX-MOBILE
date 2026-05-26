@@ -82,7 +82,7 @@ export const FeaturedSection = memo(({ onProductPress, shimmerAnimatedStyle, liq
     const { t } = useTranslation(['home', 'product']);
     const { width: screenWidth } = useWindowDimensions();
 
-    const VISIBLE_CARDS = 2.6;
+    const VISIBLE_CARDS = 2.5;
     const horizontalPadding = theme.margins.md * 2;
     const gapBetweenCards = theme.margins.sm;
     const totalGaps = gapBetweenCards * (Math.ceil(VISIBLE_CARDS) - 1);
@@ -132,7 +132,6 @@ export const FeaturedSection = memo(({ onProductPress, shimmerAnimatedStyle, liq
             <View style={styles.headerPadding}>
                 <SectionHeader
                     title={t('home:featured.title')}
-                    onSeeAll={() => { }}
                 />
             </View>
 
@@ -157,6 +156,33 @@ export const FeaturedSection = memo(({ onProductPress, shimmerAnimatedStyle, liq
                         <View style={styles.editorBadge}>
                             <Text style={styles.editorBadgeText}>{t('featured.editorBadge')}</Text>
                         </View>
+                        {mainProduct.campaignLabel && (
+                            <View style={styles.liquidGlassBadgeContainer}>
+                                <BlurView intensity={20} tint="light" style={StyleSheet.absoluteFillObject} />
+                                <LinearGradient
+                                    colors={['rgba(255, 71, 87, 0.85)', 'rgba(255, 150, 0, 0.85)']}
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 1 }}
+                                    style={StyleSheet.absoluteFillObject}
+                                />
+                                <View style={styles.shimmerMask}>
+                                    <Animated.View style={[styles.shimmerStrip, liquidGlassShimmerStyle]}>
+                                        <LinearGradient
+                                            colors={['transparent', 'rgba(255,255,255,0.45)', 'transparent']}
+                                            start={{ x: 0, y: 0 }}
+                                            end={{ x: 1, y: 0 }}
+                                            style={styles.shimmerGradient}
+                                        />
+                                    </Animated.View>
+                                </View>
+                                <View style={styles.liquidGlassBadgeContent}>
+                                    <IconSymbol name="flash-sharp" size={11} color="#FFFFFF" />
+                                    <Text style={styles.liquidGlassBadgeText}>
+                                        {mainProduct.campaignLabel}
+                                    </Text>
+                                </View>
+                            </View>
+                        )}
                         {mainProduct.isInternational && (
                             <View style={styles.liquidGlassBadgeContainer}>
                                 <BlurView intensity={20} tint="light" style={StyleSheet.absoluteFillObject} />
@@ -296,6 +322,14 @@ export const FeaturedSection = memo(({ onProductPress, shimmerAnimatedStyle, liq
                                         <InternationalBadge label={t('product:badges.international')} size="sm" shimmerStyle={liquidGlassShimmerStyle} />
                                     )}
 
+                                    {/* Dynamic Campaign Badge */}
+                                    {product.campaignLabel && (
+                                        <View style={styles.smallCampaignBadge}>
+                                            <IconSymbol name="flash-sharp" size={10} color={theme.colors.newPrimary} />
+                                            <Text style={styles.smallCampaignBadgeText}>{product.campaignLabel}</Text>
+                                        </View>
+                                    )}
+
                                     {/* Rating Row */}
                                     <View style={styles.smallRatingRow}>
                                         {[1, 2, 3, 4, 5].map((star) => (
@@ -314,14 +348,14 @@ export const FeaturedSection = memo(({ onProductPress, shimmerAnimatedStyle, liq
                                     </View>
 
                                     <View style={styles.smallPriceRow}>
-                                        <Text style={styles.smallPrice}>
-                                            {formatCurrency(product.price)}
-                                        </Text>
                                         {product.originalPrice && product.originalPrice > product.price && (
                                             <Text style={styles.smallOriginalPrice}>
                                                 {formatCurrency(product.originalPrice)}
                                             </Text>
                                         )}
+                                        <Text style={styles.smallPrice}>
+                                            {formatCurrency(product.price)}
+                                        </Text>
                                     </View>
                                     {product.sold > 0 && (
                                         <Text style={styles.smallSoldText}>
@@ -341,19 +375,22 @@ export const FeaturedSection = memo(({ onProductPress, shimmerAnimatedStyle, liq
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
         marginTop: theme.margins.smd,
-        backgroundColor: theme.colors.surface,
+        backgroundColor: '#FCF8F5',
         marginBottom: theme.margins.md,
-        borderRadius: 10
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#F0E5DE',
+        overflow: 'hidden',
     },
     headerPadding: {
         paddingHorizontal: theme.margins.md,
     },
     mainBanner: {
-        marginHorizontal: theme.margins.md,
+        marginHorizontal: theme.margins.sm,
         height: 180,
         borderRadius: theme.radius.l,
         overflow: 'hidden',
-        marginBottom: theme.margins.md,
+        marginBottom: theme.margins.sm,
     },
     mainImage: {
         width: '100%',
@@ -492,8 +529,8 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.onPrimary,
     },
     smallProductsList: {
-        paddingHorizontal: theme.margins.md,
-        paddingBottom: theme.margins.md,
+        paddingHorizontal: theme.margins.sm,
+        paddingBottom: theme.margins.sm,
     },
     smallCard: {
         backgroundColor: theme.colors.surface,
@@ -503,11 +540,10 @@ const stylesheet = StyleSheet.create((theme) => ({
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.06,
         shadowRadius: 10,
-        elevation: 3,
+        elevation: 1,
         overflow: 'hidden',
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: 'rgba(0,0,0,0.04)',
-        paddingBottom: 4,
     },
     smallImageContainer: {
         width: '100%',
@@ -568,10 +604,8 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontWeight: '500',
     },
     smallPriceRow: {
-        flexDirection: 'row',
-        alignItems: 'baseline',
-        gap: 4,
-        marginTop: 2,
+        flexDirection: 'column',
+        alignItems: 'flex-start',
     },
     smallPrice: {
         fontSize: 14,
@@ -579,7 +613,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.error,
     },
     smallOriginalPrice: {
-        fontSize: 10,
+        fontSize: 11,
         color: theme.colors.secondary,
         textDecorationLine: 'line-through',
     },
@@ -587,5 +621,36 @@ const stylesheet = StyleSheet.create((theme) => ({
         fontSize: 10,
         color: theme.colors.secondary,
         marginTop: 2,
+    },
+    campaignBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 2,
+        backgroundColor: '#FFEBEA',
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 4,
+        alignSelf: 'flex-start',
+    },
+    campaignBadgeText: {
+        color: theme.colors.newPrimary,
+        fontSize: 10,
+        fontWeight: '700',
+    },
+    smallCampaignBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 2,
+        backgroundColor: '#FFEBEA',
+        paddingHorizontal: 5,
+        paddingVertical: 2,
+        borderRadius: 4,
+        alignSelf: 'flex-start',
+        marginTop: 2,
+    },
+    smallCampaignBadgeText: {
+        color: theme.colors.newPrimary,
+        fontSize: 9,
+        fontWeight: '700',
     },
 }));

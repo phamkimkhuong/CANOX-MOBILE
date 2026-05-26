@@ -218,4 +218,5 @@ export interface SearchProductUI {
     hasVoucher?: boolean;
     isFlashSale?: boolean;
     categoryName?: string;
+    campaignLabel?: string;
 }

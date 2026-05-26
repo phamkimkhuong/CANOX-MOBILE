@@ -165,7 +165,7 @@ const OptionValueButton = memo<OptionValueButtonProps>(({
         const isFlashSale = value.promotionType === 'FLASH_SALE';
 
         return {
-            icon: isFlashSale ? 'flash-sharp' : 'pricetag',
+            icon: 'flash-sharp',
             accessibilityLabel: value.promotionState === 'active'
                 ? (isFlashSale ? t('variant.flashSaleBadge') : t('variant.promoBadge'))
                 : (isFlashSale ? t('variant.flashSaleCandidateBadge') : t('variant.promoCandidateBadge')),
@@ -210,7 +210,7 @@ const OptionValueButton = memo<OptionValueButtonProps>(({
                 >
                     <IconSymbol
                         name={promotionIndicator.icon}
-                        size={14}
+                        size={12}
                         color={theme.colors.newPrimary}
                     />
                 </View>
@@ -278,9 +278,9 @@ const valueStyles = StyleSheet.create((theme) => ({
         position: 'absolute',
         bottom: 0,
         right: 0,
-        width: 16,
-        height: 16,
-        borderTopLeftRadius: 8,
+        width: 14,
+        height: 12,
+        borderTopLeftRadius: 6,
         borderBottomRightRadius: theme.radius.m,
         backgroundColor: theme.colors.newPrimary,
         alignItems: 'center',
@@ -361,7 +361,7 @@ export const VariantBottomSheet = memo<VariantBottomSheetProps>(({
             : baseLabel;
 
         return {
-            icon: isFlashSale ? 'flash-sharp' : 'pricetag',
+            icon: 'flash-sharp',
             label,
             isFlashSale,
         } as const;
@@ -640,7 +640,7 @@ const sheetStyles = StyleSheet.create((theme) => ({
         alignItems: 'center',
         gap: 6,
         marginTop: 8,
-        borderRadius: 999,
+        borderRadius: theme.radius.m,
         borderWidth: 1,
         paddingHorizontal: 10,
         paddingVertical: 6,
