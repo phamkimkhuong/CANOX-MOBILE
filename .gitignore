@@ -44,6 +44,7 @@ yarn-error.*
 .cursor
 .claude
 .agent
+task
 AGENTS.md
 CLAUDE.md
 __tests__/api-contract/README.md
