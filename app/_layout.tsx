@@ -10,15 +10,20 @@ import { queryClient } from '@/services/api/queryClient';
 import { useAppStore } from '@/store/useAppStore';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import * as Sentry from '@sentry/react-native';
 import { QueryClientProvider } from '@tanstack/react-query';
+import { isRunningInExpoGo } from 'expo';
 import { Asset } from 'expo-asset';
 import { useFonts } from 'expo-font';
 import { Stack, useNavigationContainerRef } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import * as Sentry from '@sentry/react-native';
-import { isRunningInExpoGo } from 'expo';
+import { StyleSheet, View } from 'react-native';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
+import 'react-native-reanimated';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { enableFreeze } from 'react-native-screens';
 
 const navigationIntegration = Sentry.reactNavigationIntegration({
   enableTimeToInitialDisplay: !isRunningInExpoGo(),
@@ -34,11 +39,6 @@ Sentry.init({
   enableUserInteractionTracing: true,
   enableAutoPerformanceTracing: true,
 });
-import { StyleSheet, View } from 'react-native';
-import { KeyboardProvider } from 'react-native-keyboard-controller';
-import 'react-native-reanimated';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { enableFreeze } from 'react-native-screens';
 
 enableFreeze(true);
 
