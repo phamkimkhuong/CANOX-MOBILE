@@ -81,14 +81,14 @@ describe('useAppStore', () => {
     });
 
     describe('Privacy Consent', () => {
-        it('should initialize with no consent', () => {
+        it('should initialize with consent enabled by default', () => {
             const state = useAppStore.getState();
-            expect(state.hasAcceptedPrivacy).toBe(false);
-            expect(state.crashlyticsConsent).toBe(false);
-            expect(state.analyticsConsent).toBe(false);
+            expect(state.hasAcceptedPrivacy).toBe(true); // Default to true under clickwrap ToS
+            expect(state.crashlyticsConsent).toBe(true); // Sentry active globally by default
+            expect(state.analyticsConsent).toBe(true); // Firebase Analytics active globally by default
         });
 
-        it('should update privacy and set hasAcceptedPrivacy to true', () => {
+        it('should update privacy and set values correctly', () => {
             act(() => {
                 useAppStore.getState().updatePrivacyConsent({ crash: true, analytics: false });
             });

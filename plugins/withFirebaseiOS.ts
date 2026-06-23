@@ -14,8 +14,6 @@ import * as path from 'path';
 const RNFB_TARGETS = [
     'RNFBApp',
     'RNFBMessaging',
-    'RNFBCrashlytics',
-    'RNFBPerf',
     'RNFBAnalytics',
     'RNFBRemoteConfig',
 ];

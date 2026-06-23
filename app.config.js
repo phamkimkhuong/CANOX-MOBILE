@@ -85,8 +85,13 @@ module.exports = {
             "expo-web-browser",
             "@react-native-firebase/app",
             "@react-native-firebase/messaging",
-            "@react-native-firebase/crashlytics",
-            "@react-native-firebase/perf",
+            [
+                "@sentry/react-native/expo",
+                {
+                    "organization": process.env.SENTRY_ORG || "no-dsg",
+                    "project": process.env.SENTRY_PROJECT || "canox-mobile"
+                }
+            ],
             [
                 "expo-build-properties",
                 {
@@ -95,8 +100,6 @@ module.exports = {
                         "forceStaticLinking": [
                             "RNFBApp",
                             "RNFBMessaging",
-                            "RNFBCrashlytics",
-                            "RNFBPerf",
                             "RNFBAnalytics",
                             "RNFBRemoteConfig"
                         ]

@@ -79,12 +79,12 @@ export const useAppStore = create<AppState>()(
             setLanguage: (lang) => set({ language: lang }),
 
             // Privacy
-            hasAcceptedPrivacy: false,
-            crashlyticsConsent: false,
-            analyticsConsent: false,
+            hasAcceptedPrivacy: true, // Clickwrap consent active on registration/launch
+            crashlyticsConsent: true, // Sentry active globally by default
+            analyticsConsent: true, // Firebase Analytics active globally by default
             updatePrivacyConsent: (consent) => set({
                 hasAcceptedPrivacy: true,
-                crashlyticsConsent: consent.crash,
+                crashlyticsConsent: true,
                 analyticsConsent: consent.analytics,
             }),
 

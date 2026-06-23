@@ -13,10 +13,27 @@ import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { Asset } from 'expo-asset';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, useNavigationContainerRef } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
+import * as Sentry from '@sentry/react-native';
+import { isRunningInExpoGo } from 'expo';
+
+const navigationIntegration = Sentry.reactNavigationIntegration({
+  enableTimeToInitialDisplay: !isRunningInExpoGo(),
+});
+
+Sentry.init({
+  dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
+  enabled: !__DEV__,
+  integrations: [
+    navigationIntegration,
+  ],
+  tracesSampleRate: 1.0,
+  enableUserInteractionTracing: true,
+  enableAutoPerformanceTracing: true,
+});
 import { StyleSheet, View } from 'react-native';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import 'react-native-reanimated';
@@ -82,7 +99,15 @@ export const unstable_settings = {
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
+function RootLayout() {
+  const ref = useNavigationContainerRef();
+
+  useEffect(() => {
+    if (ref) {
+      navigationIntegration.registerNavigationContainer(ref);
+    }
+  }, [ref]);
+
   const isSystemDown = useAppStore((state) => state.isSystemDown);
   const setSystemDown = useAppStore((state) => state.setSystemDown);
   const updateStatus = useAppStore((state) => state.updateStatus);
@@ -217,11 +242,6 @@ export default function RootLayout() {
                           />
                         </Stack>
                       </IntroPopupProvider>
-                      {/* Privacy Consent Popup - Shows if not accepted yet */}
-                      {/* <PrivacyConsentPopup
-                      visible={!hasAcceptedPrivacy}
-                      onClose={() => { }}
-                    /> */}
                     </UserSyncProvider>
                     <CustomAlert ref={alertRef} />
                     <Toast
@@ -249,6 +269,8 @@ export default function RootLayout() {
     </GestureHandlerRootView>
   );
 }
+
+export default Sentry.wrap(RootLayout);
 
 const styles = StyleSheet.create({
   container: {
