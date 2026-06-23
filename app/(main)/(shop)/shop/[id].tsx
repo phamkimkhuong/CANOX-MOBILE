@@ -113,6 +113,14 @@ export default function ShopDetailScreen() {
     // SharedValue cho chiều cao NavBar để sử dụng trong worklet
     const navBarHeight = useSharedValue(HEADER_HEIGHT);
 
+    const isMounted = useRef(true);
+    React.useEffect(() => {
+        isMounted.current = true;
+        return () => {
+            isMounted.current = false;
+        };
+    }, []);
+
     // Animate StatusBar style based on scroll position
     useAnimatedReaction(
         () => scrollY.value,
@@ -122,7 +130,9 @@ export default function ShopDetailScreen() {
 
             // Only trigger update when crossing threshold
             if (shouldBeDark !== wasDark) {
-                runOnJS(setStatusBarStyle)(shouldBeDark ? 'dark-content' : 'light-content');
+                if (isMounted.current) {
+                    runOnJS(setStatusBarStyle)(shouldBeDark ? 'dark-content' : 'light-content');
+                }
             }
         },
         [STATUS_BAR_THRESHOLD]

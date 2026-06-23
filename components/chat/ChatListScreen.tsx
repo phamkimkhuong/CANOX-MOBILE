@@ -16,7 +16,7 @@ import { useFocusEffect } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, RefreshControl, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
+import { cancelAnimation, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 /** Debounce delay for search input (ms) */
@@ -44,6 +44,9 @@ export function ChatListScreen({ isTab = false }: ChatListScreenProps) {
             -1,
             true
         );
+        return () => {
+            cancelAnimation(opacity);
+        };
     }, [opacity]);
 
     const animatedStyle = useAnimatedStyle(() => ({

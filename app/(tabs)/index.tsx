@@ -24,6 +24,7 @@ import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from '
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, LayoutChangeEvent, NativeScrollEvent, NativeSyntheticEvent, RefreshControl, Text, useWindowDimensions, View } from 'react-native';
 import Animated, {
+  cancelAnimation,
   useAnimatedStyle,
   useSharedValue,
   withRepeat,
@@ -175,6 +176,9 @@ export default function HomeScreen() {
       -1,
       true
     );
+    return () => {
+      cancelAnimation(shimmerValue);
+    };
   }, [shimmerValue]);
 
   const shimmerAnimatedStyle = useAnimatedStyle(() => ({

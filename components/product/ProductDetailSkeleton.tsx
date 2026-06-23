@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useWindowDimensions, View } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
+import Animated, { cancelAnimation, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { StyleSheet, UnistylesRuntime, useUnistyles } from 'react-native-unistyles';
 
 const SHIMMER_DURATION = 1000;
@@ -52,6 +52,9 @@ export const ProductDetailSkeleton: React.FC<{
             -1,
             true
         );
+        return () => {
+            cancelAnimation(opacity);
+        };
     }, [animatedStyle, opacity]);
 
     const internalAnimatedStyle = useAnimatedStyle(() => ({

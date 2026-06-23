@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { type StyleProp, ViewStyle } from 'react-native';
 import Animated, {
+    cancelAnimation,
     useAnimatedStyle,
     useSharedValue,
     withRepeat,
@@ -50,6 +51,9 @@ export const useShimmerAnimation = (enabled: boolean = true) => {
             -1, // infinite
             true // reverse
         );
+        return () => {
+            cancelAnimation(opacity);
+        };
     }, [opacity, enabled]);
 
     const animatedStyle = useAnimatedStyle(() => ({

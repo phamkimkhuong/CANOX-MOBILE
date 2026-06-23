@@ -16,6 +16,7 @@ import React, { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import Animated, {
+    cancelAnimation,
     runOnJS,
     useAnimatedStyle,
     useSharedValue,
@@ -64,6 +65,17 @@ const AnimatedPrice: React.FC<{ value: number; isCalculating?: boolean }> = ({ v
     const rotation = useSharedValue(0);
     const opacity = useSharedValue(1);
     const [displayValue, setDisplayValue] = React.useState(value);
+    const isMounted = React.useRef(true);
+
+    // Track mount status and cleanup animations on unmount
+    React.useEffect(() => {
+        isMounted.current = true;
+        return () => {
+            isMounted.current = false;
+            cancelAnimation(rotation);
+            cancelAnimation(opacity);
+        };
+    }, [rotation, opacity]);
 
     // Trigger animation when value changes
     React.useEffect(() => {
@@ -72,7 +84,9 @@ const AnimatedPrice: React.FC<{ value: number; isCalculating?: boolean }> = ({ v
             rotation.value = withSequence(
                 withTiming(-90, { duration: 150 }, (finished) => {
                     if (finished) {
-                        runOnJS(setDisplayValue)(value);
+                        if (isMounted.current) {
+                            runOnJS(setDisplayValue)(value);
+                        }
                         rotation.value = withTiming(0, { duration: 150 });
                     }
                 })
