@@ -50,7 +50,7 @@ const ProductRowItem = memo(({
     onFavoritePress,
 }: {
     item: ProductFeedItem;
-    onFavoritePress?: (variantId: string) => void;
+    onFavoritePress?: (variantId: string, productId: string) => void;
 }) => {
     const pressInTimeRef = useRef(0);
 
@@ -83,7 +83,7 @@ const ProductRowItem = memo(({
             onPressIn={handlePressIn}
             route={productRoutes.detail(item.id)}
             variantId={item.defaultVariantId}
-            onFavoritePress={onFavoritePress}
+            onFavoritePress={(vId) => onFavoritePress && onFavoritePress(vId, item.id)}
         />
     );
 });
@@ -172,9 +172,9 @@ export default function InternationalShippingScreen() {
         }
     }, [data?.pages, syncFromProducts]);
 
-    const handleFavoritePress = useCallback((variantId: string) => {
+    const handleFavoritePress = useCallback((variantId: string, productId: string) => {
         const isCurrentlyLiked = !!useWishlistStore.getState().favoritesMap[variantId];
-        toggleFavoriteMutation.mutate({ variantId, isCurrentlyLiked });
+        toggleFavoriteMutation.mutate({ variantId, productId, isCurrentlyLiked });
     }, [toggleFavoriteMutation]);
 
     // Pull to Refresh

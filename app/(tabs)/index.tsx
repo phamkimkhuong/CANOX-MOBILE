@@ -93,7 +93,7 @@ const ProductRowItem = memo(({
   onPress,
 }: {
   item: ProductFeedItem;
-  onFavoritePress?: (variantId: string) => void;
+  onFavoritePress?: (variantId: string, productId: string) => void;
   onPress: (productId: string, previewImageUrl: string) => void;
 }) => {
   const previewImageUrl = toSizedImageUrl(item.thumbnail, null, 'medium') ?? '';
@@ -114,7 +114,7 @@ const ProductRowItem = memo(({
       enableHaptic={false}
       onPress={() => onPress(item.id, previewImageUrl)}
       variantId={item.defaultVariantId}
-      onFavoritePress={onFavoritePress}
+      onFavoritePress={(vId) => onFavoritePress && onFavoritePress(vId, item.id)}
       campaignLabel={item.campaignLabel}
     />
   );
@@ -219,9 +219,9 @@ export default function HomeScreen() {
   }, [data?.pages, syncFromProducts]);
 
   // Read state at tap-time via getState() — avoids stale closure & HomeScreen re-render
-  const handleFavoritePress = useCallback((variantId: string) => {
+  const handleFavoritePress = useCallback((variantId: string, productId: string) => {
     const isCurrentlyLiked = !!useWishlistStore.getState().favoritesMap[variantId];
-    toggleFavoriteMutation.mutate({ variantId, isCurrentlyLiked });
+    toggleFavoriteMutation.mutate({ variantId, productId, isCurrentlyLiked });
   }, [toggleFavoriteMutation]);
 
   // Smart refresh: only fetch page 0 instead of all loaded pages

@@ -10,12 +10,14 @@ export const useMoveWishlistItem = () => {
         mutationFn: async ({
             itemId,
             variantId,
+            productId,
             sourceWishlistId,
             targetWishlistId,
             data
         }: {
             itemId: string;
             variantId: string;
+            productId: string;
             sourceWishlistId: string;
             targetWishlistId: string;
             data: {
@@ -26,6 +28,7 @@ export const useMoveWishlistItem = () => {
         }) => {
             // STEP 1: Add item to target wishlist
             await wishlistService.addToWishlist(targetWishlistId, {
+                productId,
                 variantId,
                 quantity: 1,
                 priority: data.priority ?? 0,

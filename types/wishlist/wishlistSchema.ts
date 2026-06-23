@@ -79,7 +79,6 @@ export const WishlistDetailSchema = WishlistSummarySchema.extend({
     items: arrayOrEmpty(WishlistItemSchema),
     shareToken: z.string().nullish(),
     shareUrl: z.string().nullish(),
-    ogMetadata: z.unknown().nullish(),
 });
 
 // ============================================

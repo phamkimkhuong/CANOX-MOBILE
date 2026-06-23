@@ -614,7 +614,7 @@ export default function CartScreen() {
     const handleMoveToWishlist = useCallback(() => {
         if (selectedItemIds.size === 0 || !cartData) return;
 
-        const itemsToMove: { itemId: string; variantId: string; quantity: number }[] = [];
+        const itemsToMove: { itemId: string; variantId: string; productId: string; quantity: number }[] = [];
 
         cartData.shops.forEach((shop) => {
             shop.items.forEach((item) => {
@@ -622,6 +622,7 @@ export default function CartScreen() {
                     itemsToMove.push({
                         itemId: item.id,
                         variantId: item.variantId,
+                        productId: item.productId,
                         quantity: item.quantity,
                     });
                 }

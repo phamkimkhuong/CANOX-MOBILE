@@ -38,13 +38,9 @@ export interface UpdateWishlistRequest {
     coverImageAssetId?: string;
 }
 
-/**
- * Add item to wishlist
- * 
- * POST /api/v1/wishlists/{id}/items
- */
 export interface AddWishlistItemRequest {
     wishlistId: string;
+    productId: string;
     variantId: string;
     quantity?: number;
     notes?: string;

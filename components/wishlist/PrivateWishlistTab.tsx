@@ -363,12 +363,15 @@ export const PrivateWishlistTab: React.FC<PrivateWishlistTabProps> = ({
 
         // CHECK IF MOVING OR JUST UPDATING
         if (targetWishlistId && targetWishlistId !== fromWishlistId) {
+            const item = wishlistDetail?.items.find(i => i.id === itemId);
+            const productId = item?.productId ?? '';
             moveItemMutation.mutate(
                 {
                     itemId,
                     sourceWishlistId: fromWishlistId,
                     targetWishlistId,
                     variantId,
+                    productId,
                     data: {
                         desiredPrice: data.desiredPrice ?? undefined,
                         notes: data.notes ?? undefined,

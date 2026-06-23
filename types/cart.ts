@@ -39,11 +39,16 @@ export const CartItemSchema = z.object({
     regionLabel: z.string().nullable().optional(),
 });
 
-// Schema cho Shop trong giỏ
-export const CartShopSchema = z.object({
+// Schema cho Shop Info trong giỏ
+export const CartShopInfoSchema = z.object({
     shopId: z.string(),
     shopName: z.string().nullable().optional().default(''),
     logoPath: z.string().nullable().optional(),
+});
+
+// Schema cho Shop trong giỏ
+export const CartShopSchema = z.object({
+    shop: CartShopInfoSchema,
     items: z.array(CartItemSchema).default([]),
 
     // Shop totals (from API)

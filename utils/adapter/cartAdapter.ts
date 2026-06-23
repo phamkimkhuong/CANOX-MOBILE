@@ -155,14 +155,15 @@ export const transformVoucher = (voucher: Voucher): VoucherUI => {
  * Transform CartShop (API) => CartShopUI
  */
 export const transformCartShop = (shop: CartShop): CartShopUI => {
+    const shopInfo = shop.shop;
     // Sử dụng logoPath (chuẩn mới có dấu *)
-    const logoUrl = shop.logoPath
-        ? (toSizedImageUrl(shop.logoPath, null, 'thumb') ?? null)
+    const logoUrl = shopInfo?.logoPath
+        ? (toSizedImageUrl(shopInfo.logoPath, null, 'thumb') ?? null)
         : null;
 
     return {
-        shopId: shop.shopId,
-        shopName: shop.shopName ?? '',
+        shopId: shopInfo?.shopId ?? '',
+        shopName: shopInfo?.shopName ?? '',
         shopLogoUrl: logoUrl,
         items: shop.items ? shop.items.map(transformCartItem) : [],
         // Shop totals (from API)

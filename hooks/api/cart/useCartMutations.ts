@@ -385,7 +385,7 @@ export const useBatchRemoveCartItems = () => {
 // ==============================================
 
 interface MoveToWishlistParams {
-    items: { itemId: string; variantId: string; quantity: number }[];
+    items: { itemId: string; variantId: string; productId: string; quantity: number }[];
 }
 
 import { wishlistKeys } from '@/hooks/api/wishlist/useWishlists';
@@ -408,6 +408,7 @@ export const useMoveCartItemsToWishlist = () => {
             await Promise.allSettled(
                 items.map(item =>
                     wishlistService.addToDefaultWishlist({
+                        productId: item.productId,
                         variantId: item.variantId,
                         quantity: 1, // Add 1 unit to wishlist
                         priority: 0,

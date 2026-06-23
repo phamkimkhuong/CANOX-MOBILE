@@ -78,7 +78,6 @@ export interface WishlistDetailDTO extends WishlistSummaryDTO {
     items: WishlistItemDTO[];
     shareToken?: string | null;
     shareUrl?: string | null;
-    ogMetadata?: unknown | null;
 }
 
 /**

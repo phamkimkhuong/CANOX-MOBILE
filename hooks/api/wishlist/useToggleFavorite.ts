@@ -24,10 +24,11 @@ export const useToggleFavorite = () => {
     const previousStates = useRef<Record<string, boolean>>({});
 
     const mutation = useMutation({
-        mutationFn: async ({ variantId, targetState }: { variantId: string, targetState: boolean }) => {
+        mutationFn: async ({ variantId, productId, targetState }: { variantId: string, productId: string, targetState: boolean }) => {
             if (targetState) {
                 // ACTION: ADD TO DEFAULT WISHLIST (Final state is Heart=Red)
                 const addedItem = await wishlistService.addToDefaultWishlistEnsured({
+                    productId,
                     variantId,
                     quantity: 1,
                     priority: 0,
@@ -97,7 +98,7 @@ export const useToggleFavorite = () => {
      * - Immediate UI update
      * - Debounced network request
      */
-    const toggleDebounced = ({ variantId, isCurrentlyLiked: _isCurrentlyLiked }: { variantId: string, isCurrentlyLiked: boolean }) => {
+    const toggleDebounced = ({ variantId, productId, isCurrentlyLiked: _isCurrentlyLiked }: { variantId: string, productId: string, isCurrentlyLiked: boolean }) => {
         // Here we read the LIVE fresh state manually in case the parent passed a stale `isCurrentlyLiked` during rapid clicks
         const currentState = !!useWishlistStore.getState().favoritesMap[variantId];
         const targetState = !currentState;
@@ -131,7 +132,7 @@ export const useToggleFavorite = () => {
             }
 
             // STATES DIVERGED => MATCH FINAL UI STATE TO BACKEND
-            mutation.mutate({ variantId, targetState: finalState });
+            mutation.mutate({ variantId, productId, targetState: finalState });
 
         }, 1000); // 1000ms delay to absorb rapid clicks
     };

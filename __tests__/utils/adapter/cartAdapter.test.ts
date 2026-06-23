@@ -47,9 +47,11 @@ const createCartItem = (overrides: Partial<CartItem> = {}): CartItem => ({
 });
 
 const createCartShop = (overrides: Partial<CartShop> = {}): CartShop => ({
-    shopId: 'shop-1',
-    shopName: 'Test Shop',
-    logoPath: 'shops/logo.webp',
+    shop: {
+        shopId: 'shop-1',
+        shopName: 'Test Shop',
+        logoPath: 'shops/logo.webp',
+    },
     items: [createCartItem()],
     discount: 10000,
     allSelected: true,
