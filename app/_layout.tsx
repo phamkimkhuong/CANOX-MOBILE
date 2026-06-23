@@ -36,6 +36,7 @@ Sentry.init({
     navigationIntegration,
   ],
   tracesSampleRate: 1.0,
+  profilesSampleRate: 1.0, // Enable CPU profiling
   enableUserInteractionTracing: true,
   enableAutoPerformanceTracing: true,
 });

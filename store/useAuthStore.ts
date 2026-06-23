@@ -20,6 +20,7 @@ import {
 import { clearAllCache } from '@/utils/cache';
 import { logger } from '@/utils/logger';
 import { router } from 'expo-router';
+import * as Sentry from '@sentry/react-native';
 import * as SecureStore from 'expo-secure-store';
 import { create } from 'zustand';
 import { useCartStore } from './useCartStore';
@@ -87,6 +88,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                     hydrated: true,
                 });
 
+                // Set Sentry user context
+                if (storedUserId) {
+                    Sentry.setUser({
+                        id: storedUserId,
+                        username: storedBuyerId || undefined,
+                    });
+                }
+
                 // Register callback for when token refresh fails
                 // This will trigger logout flow
                 setOnRefreshFailedCallback(() => {
@@ -103,9 +112,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 return;
             }
 
+            Sentry.setUser(null);
             set({ token: null, userId: null, buyerId: null, shopId: null, isAuthenticated: false, hydrated: true });
         } catch (error) {
             logger.auth.error('Error hydrating auth state:', error);
+            Sentry.setUser(null);
             set({ token: null, userId: null, buyerId: null, shopId: null, isAuthenticated: false, hydrated: true });
         }
     },
@@ -130,6 +141,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             }
 
             logger.auth.info('Login Success - Tokens stored, proactive refresh scheduled');
+
+            // Set Sentry user context on login
+            if (userId) {
+                Sentry.setUser({
+                    id: userId,
+                    username: buyerId || undefined,
+                });
+            }
 
             set({
                 token: accessToken,
@@ -160,6 +179,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     logout: async () => {
         showGlobalLoading();
         try {
+
+            // Clear Sentry user context on logout
+            Sentry.setUser(null);
 
             set({ token: null, userId: null, buyerId: null, shopId: null, isAuthenticated: false, hydrated: true });
 
@@ -193,6 +215,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             hideGlobalLoading();
             logger.auth.error('Error during logout:', error);
             // Force reset state even if cleanup fails
+            Sentry.setUser(null);
             set({ token: null, userId: null, buyerId: null, shopId: null, isAuthenticated: false, hydrated: true });
             router.replace(ROUTES.AUTH.LOGIN);
         }
