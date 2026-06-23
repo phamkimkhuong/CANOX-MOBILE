@@ -27,6 +27,7 @@ import { useCartStore } from './useCartStore';
 import { useCheckoutStore } from './useCheckoutStore';
 import { hideGlobalLoading, showGlobalLoading } from './useLoadingStore';
 import { useUserAddressStore } from './useUserAddressStore';
+import { analytics } from '@/utils/analytics';
 
 const BUYER_ID_KEY = 'user_buyer_id';
 const USER_ID_KEY = 'user_id';
@@ -94,6 +95,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                         id: storedUserId,
                         username: storedBuyerId || undefined,
                     });
+                    // Set Firebase Analytics UserId
+                    analytics.setUserId(storedUserId);
                 }
 
                 // Register callback for when token refresh fails
@@ -148,6 +151,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                     id: userId,
                     username: buyerId || undefined,
                 });
+                analytics.setUserId(userId);
             }
 
             set({
@@ -182,6 +186,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
             // Clear Sentry user context on logout
             Sentry.setUser(null);
+            analytics.setUserId(null);
 
             set({ token: null, userId: null, buyerId: null, shopId: null, isAuthenticated: false, hydrated: true });
 

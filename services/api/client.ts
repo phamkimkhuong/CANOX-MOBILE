@@ -5,6 +5,13 @@
  * - Axios instance with base configuration
  * - Request interceptor: Auto-attach auth token
  * - Response interceptor: Error handling with token refresh
+/**
+ * API Client - Centralized HTTP client with authentication
+ * 
+ * Features:
+ * - Axios instance with base configuration
+ * - Request interceptor: Auto-attach auth token
+ * - Response interceptor: Error handling with token refresh
  * - Zod validation wrapper for type-safe responses
  * - Integration with TokenManager for 3-layer refresh strategy
  */
@@ -13,6 +20,7 @@ import { getErrorMessageByCode } from '@/constants/errorCodes';
 import i18n from '@/constants/i18n';
 import { useAppStore } from '@/store/useAppStore';
 import { logger } from '@/utils/logger';
+import * as Sentry from '@sentry/react-native';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { z } from 'zod';
 import {
@@ -265,6 +273,45 @@ apiClient.interceptors.response.use(
             data: data,
         });
 
+        // Capture critical 5xx server errors in Sentry
+        if (statusCode && statusCode >= 500) {
+            Sentry.captureException(error, {
+                tags: {
+                    type: 'api-5xx',
+                    status: statusCode.toString(),
+                    url: error.config?.url || 'unknown',
+                },
+                extra: {
+                    url: error.config?.url,
+                    method: error.config?.method?.toUpperCase(),
+                    data: data,
+                }
+            });
+        }
+
+        // Capture critical business failures (like payments/checkout) even if they are 4xx errors
+        const isCheckoutOrPayment = error.config?.url && (
+            error.config.url.includes('/buyer/orders') || 
+            error.config.url.includes('/payments/') ||
+            error.config.url.includes('/wallets/')
+        );
+
+        if (statusCode && statusCode >= 400 && statusCode < 500 && isCheckoutOrPayment) {
+            Sentry.captureException(error, {
+                tags: {
+                    type: 'api-business-4xx',
+                    status: statusCode.toString(),
+                    url: error.config?.url || 'unknown',
+                    errorCode: errorCode?.toString() || 'unknown',
+                },
+                extra: {
+                    url: error.config?.url,
+                    method: error.config?.method?.toUpperCase(),
+                    data: data,
+                }
+            });
+        }
+
         // Throw custom error for consistent handling
         const customError = new ApiError(finalMessage, statusCode, errorCode);
         return Promise.reject(customError);
@@ -298,6 +345,19 @@ export async function request<T>(
             errors: z.treeifyError(parseResult.error),
             data: response.data,
         });
+
+        // Log to Sentry
+        Sentry.captureException(new Error(`API Schema Mismatch: ${config.url || 'unknown'}`), {
+            tags: {
+                type: 'schema-validation',
+                url: config.url || 'unknown',
+            },
+            extra: {
+                errors: z.treeifyError(parseResult.error),
+                data: response.data,
+            }
+        });
+
         const currentLang = (i18n.language?.split('-')[0] || 'vi') as 'vi' | 'en';
         const validationErrorMessage = getErrorMessageByCode(6006, currentLang) || 'Invalid response structure from server!';
         throw new ApiError(validationErrorMessage, 500, 6006);
