@@ -1,8 +1,8 @@
 import { API_ROUTES } from '@/constants/apiRoutes';
 import { request } from '@/services/api/client';
-import { ShopLoyaltyPolicyResponseSchema } from '@/types/loyalty/loyaltySchema';
+import { ShopLoyaltyPreviewResponseSchema } from '@/types/loyalty/loyaltySchema';
 import { ShopLoyaltyPolicyUI } from '@/types/loyalty/ui';
-import { transformShopLoyaltyPolicy } from '@/utils/adapter/loyaltyAdapter';
+import { transformShopLoyaltyPreview } from '@/utils/adapter/loyaltyAdapter';
 import { useQuery } from '@tanstack/react-query';
 
 export const publicLoyaltyQueryKeys = {
@@ -12,7 +12,11 @@ export const publicLoyaltyQueryKeys = {
 
 export const usePublicShopLoyaltyPolicy = (
     shopId: string | undefined,
-    options?: { enabled?: boolean }
+    options?: { 
+        enabled?: boolean;
+        shopName?: string;
+        shopLogo?: string | null;
+    }
 ) => {
     return useQuery({
         queryKey: publicLoyaltyQueryKeys.shopPolicy(shopId || ''),
@@ -22,10 +26,15 @@ export const usePublicShopLoyaltyPolicy = (
                     url: API_ROUTES.PUBLIC_LOYALTY.SHOP_POLICY(shopId!),
                     method: 'GET',
                 },
-                ShopLoyaltyPolicyResponseSchema
+                ShopLoyaltyPreviewResponseSchema
             );
 
-            return transformShopLoyaltyPolicy(response.data);
+            return transformShopLoyaltyPreview(
+                response.data,
+                shopId!,
+                options?.shopName || 'Cửa hàng',
+                options?.shopLogo || ''
+            );
         },
         enabled: (options?.enabled ?? true) && !!shopId,
         staleTime: 1000 * 60 * 10,

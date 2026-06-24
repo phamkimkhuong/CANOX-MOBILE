@@ -2,16 +2,16 @@
  * Loyalty Adapter Unit Tests
  *
  * Tests actual exports: transformPointBalance, transformPointBatch,
- * transformPointHistory, transformLoyaltyOverview, transformShopLoyaltyPolicy, transformRedeemResult
+ * transformPointHistory, transformLoyaltyOverview, transformShopLoyaltyPreview, transformRedeemResult
  */
 
-import type { PointBalanceDTO, UserShopPointDTO, PointHistoryDTO, LoyaltyOverviewDTO, ShopLoyaltyPolicyDTO, PointRedeemResponseDTO } from '@/types/loyalty/dto';
+import type { PointBalanceDTO, UserShopPointDTO, PointHistoryDTO, LoyaltyOverviewDTO, ShopLoyaltyPreviewDTO, PointRedeemResponseDTO } from '@/types/loyalty/dto';
 import {
     transformPointBalance,
     transformPointBatch,
     transformPointHistory,
     transformLoyaltyOverview,
-    transformShopLoyaltyPolicy,
+    transformShopLoyaltyPreview,
     transformRedeemResult,
 } from '@/utils/adapter/loyaltyAdapter';
 
@@ -362,51 +362,58 @@ describe('transformLoyaltyOverview', () => {
 });
 
 // ============================================
-// transformShopLoyaltyPolicy
+// transformShopLoyaltyPreview
 // ============================================
 
-describe('transformShopLoyaltyPolicy', () => {
-    const createDTO = (overrides: Partial<ShopLoyaltyPolicyDTO> = {}): ShopLoyaltyPolicyDTO => ({
-        shopId: 'shop-1',
-        shopName: 'Test Shop',
-        shopLogo: 'logo.jpg',
-        loyaltyEnabled: true,
-        ruleType: 'PERCENTAGE',
+describe('transformShopLoyaltyPreview', () => {
+    const createDTO = (overrides: Partial<ShopLoyaltyPreviewDTO> = {}): ShopLoyaltyPreviewDTO => ({
+        enabled: true,
+        ruleType: 'PERCENT',
         ruleValue: 5,
         expiryDays: 90,
-        maxDiscountPercent: 20,
         maxPointPerOrder: 1000,
-        description: 'Tích điểm 5% mỗi đơn hàng',
+        maxDiscountPercent: 20,
         ...overrides,
     });
 
-    it('maps all fields', () => {
-        const result = transformShopLoyaltyPolicy(createDTO());
+    it('maps all fields including injected shop metadata', () => {
+        const result = transformShopLoyaltyPreview(
+            createDTO(),
+            'shop-123',
+            'My Shop',
+            'logo.jpg'
+        );
 
-        expect(result.shopId).toBe('shop-1');
-        expect(result.shopName).toBe('Test Shop');
+        expect(result.shopId).toBe('shop-123');
+        expect(result.shopName).toBe('My Shop');
+        expect(result.shopLogo).toBe('logo.jpg');
         expect(result.isEnabled).toBe(true);
-        expect(result.ruleType).toBe('PERCENTAGE');
+        expect(result.ruleType).toBe('PERCENT');
         expect(result.rewardValue).toBe(5);
         expect(result.expiryDays).toBe(90);
-        expect(result.maxDiscountPercent).toBe(20);
         expect(result.maxPointPerOrder).toBe(1000);
+        expect(result.maxDiscountPercent).toBe(20);
     });
 
-    it('defaults nullable fields to 0 or empty', () => {
-        const result = transformShopLoyaltyPolicy(createDTO({
-            ruleType: undefined as unknown as string,
-            ruleValue: undefined as unknown as number,
-            expiryDays: undefined as unknown as number,
-            maxDiscountPercent: undefined as unknown as number,
-            maxPointPerOrder: undefined as unknown as number,
-        }));
+    it('handles nullable and undefined fields gracefully', () => {
+        const result = transformShopLoyaltyPreview(
+            createDTO({
+                ruleType: null,
+                ruleValue: null,
+                expiryDays: null,
+                maxPointPerOrder: null,
+                maxDiscountPercent: null,
+            }),
+            'shop-123',
+            'My Shop',
+            'logo.jpg'
+        );
 
         expect(result.ruleType).toBe('');
         expect(result.rewardValue).toBe(0);
         expect(result.expiryDays).toBe(0);
-        expect(result.maxDiscountPercent).toBe(0);
         expect(result.maxPointPerOrder).toBe(0);
+        expect(result.maxDiscountPercent).toBe(0);
     });
 });
 

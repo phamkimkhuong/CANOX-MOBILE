@@ -34,9 +34,9 @@ const mockedGetStatusDisplay = jest.mocked(getStatusDisplay);
 const createOrder = (overrides: Partial<Order> = {}): Order => ({
   orderId: '824506622667345920',
   orderNumber: 'ORD-MN5KKSP8-BA37',
-  shopId: 'ff9e495e-5267-4c86-b284-64b4ca6971cf',
   currency: 'VND',
   shopInfo: {
+    shopId: 'ff9e495e-5267-4c86-b284-64b4ca6971cf',
     shopName: 'TAP HOA IT',
     logoUrl: null,
     logoPath: 'public/shops/logos/2026/02/806097597839532032_*.jpg',
@@ -162,6 +162,7 @@ describe('order detail shop logo flow', () => {
     const result = transformOrder(
       createOrder({
         shopInfo: {
+          shopId: 'ff9e495e-5267-4c86-b284-64b4ca6971cf',
           shopName: 'TAP HOA IT',
           logoUrl: 'public/shops/logos/2026/02/shop-logo.jpg',
           logoPath: null,

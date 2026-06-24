@@ -181,6 +181,7 @@ export const OrderItemSchema = z.looseObject({
 
 export const OrderShopInfoSchema = z
   .looseObject({
+    shopId: nullableString,
     shopName: stringOrEmpty,
     logoUrl: nullableString,
     logoPath: nullableString,
@@ -192,7 +193,6 @@ export const OrderShopInfoSchema = z
 export const OrderSchema = z.looseObject({
   orderId: z.string(),
   orderNumber: z.string(),
-  shopId: nullableString,
   shopInfo: OrderShopInfoSchema,
   status: RawOrderStatusSchema,
   currency: currencyCodeOrDefault,

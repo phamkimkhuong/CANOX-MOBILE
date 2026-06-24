@@ -10,7 +10,7 @@ import {
     PointBalanceDTO,
     PointHistoryDTO,
     PointRedeemResponseDTO,
-    ShopLoyaltyPolicyDTO,
+    ShopLoyaltyPreviewDTO,
     ShopPointSummaryDTO,
     UserShopPointDTO,
 } from '@/types/loyalty/dto';
@@ -222,11 +222,16 @@ export const transformLoyaltyOverview = (dto: LoyaltyOverviewDTO): LoyaltyOvervi
 // PUBLIC SHOP POLICY
 // ============================================
 
-export const transformShopLoyaltyPolicy = (dto: ShopLoyaltyPolicyDTO): ShopLoyaltyPolicyUI => ({
-    shopId: dto.shopId,
-    shopName: dto.shopName,
-    shopLogo: dto.shopLogo,
-    isEnabled: dto.loyaltyEnabled,
+export const transformShopLoyaltyPreview = (
+    dto: ShopLoyaltyPreviewDTO,
+    shopId: string,
+    shopName: string,
+    shopLogo: string
+): ShopLoyaltyPolicyUI => ({
+    shopId,
+    shopName,
+    shopLogo,
+    isEnabled: dto.enabled,
     ruleType: dto.ruleType ?? '',
     rewardValue: dto.ruleValue ?? 0,
     expiryDays: dto.expiryDays ?? 0,

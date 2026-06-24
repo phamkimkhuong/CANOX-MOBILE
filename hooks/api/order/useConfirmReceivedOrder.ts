@@ -126,9 +126,9 @@ export const useConfirmReceivedOrder = (
                 exact: true,
             });
 
-            if (currentOrder?.shopId) {
+            if (currentOrder?.shopInfo?.shopId) {
                 queryClient.invalidateQueries({
-                    queryKey: orderKeys.byShop(currentOrder.shopId),
+                    queryKey: orderKeys.byShop(currentOrder.shopInfo.shopId),
                     exact: true,
                 });
             }

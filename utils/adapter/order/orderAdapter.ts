@@ -17,8 +17,8 @@ import {
 } from '@/types/order/order';
 import { formatClockTime, formatDate, formatDateTime } from '@/utils/date';
 import { toPublicUrl, toSizedImageUrl } from '@/utils/url';
-import { getPaymentMethodDisplayName } from './paymentMethodLabel';
 import { getStatusDisplay } from './orderStatusMapper';
+import { getPaymentMethodDisplayName } from './paymentMethodLabel';
 
 const CARRIER_NAMES: Record<Carrier, string> = {
     GHN: 'Giao Hàng Nhanh',
@@ -134,7 +134,7 @@ export const transformOrder = (order: Order): OrderUI => {
     return {
         orderId: order.orderId,
         orderNumber: order.orderNumber,
-        shopId: order.shopId,
+        shopId: order.shopInfo?.shopId ?? null,
         shopUserId: order.shopInfo?.userId || '',
         shopName: order.shopInfo?.shopName || 'Cửa hàng',
         shopLogoUrl,

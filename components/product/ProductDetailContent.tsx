@@ -220,6 +220,8 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
 
     const { data: loyaltyPolicy } = usePublicShopLoyaltyPolicy(shopId, {
         enabled: areSecondaryQueriesEnabled,
+        shopName,
+        shopLogo: shopLogoUrl,
     });
 
     // === Create Conversation Mutation ===

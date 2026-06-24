@@ -147,6 +147,7 @@ export interface OrderShippingAddress {
 
 // Shop Info từ API
 export interface OrderShopInfo {
+    shopId: string | null;
     shopName: string;
     logoUrl: string | null;
     logoPath?: string | null;
@@ -179,7 +180,6 @@ export interface OrderItem {
 export interface Order extends OrderLifecycleTimestamps {
     orderId: string;
     orderNumber: string;
-    shopId: string | null;
     shopInfo: OrderShopInfo | null;
     status: OrderStatus;
     statusRaw: string;

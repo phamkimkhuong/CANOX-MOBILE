@@ -39,7 +39,7 @@ export const toPendingReviewItemUI = (
     orderId: order.orderId,
     orderNumber: order.orderNumber,
     deliveredAt: order.createdAt || order.createdDate || '',
-    shopId: order.shopId || '',
+    shopId: order.shopInfo?.shopId || '',
     shopName: order.shopInfo?.shopName || 'Shop',
     shopLogo: order.shopInfo?.logoUrl ? buildImageUrl(order.shopInfo.logoUrl, '', '') : null,
 });
