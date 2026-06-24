@@ -31,6 +31,19 @@ import { CartCheckbox } from './CartCheckbox';
 
 const PROMOTION_RESET_THRESHOLD_SECONDS = 30;
 
+const formatRegionLabel = (str?: string | null, t?: any) => {
+    if (!str) return '';
+    const upper = str.toUpperCase();
+    if (upper === 'NỘI ĐỊA & QUỐC TẾ') return t ? t('item.regionBoth', 'Nội địa & Quốc tế') : 'Nội địa & Quốc tế';
+    if (upper === 'NỘI ĐỊA') return t ? t('item.regionDomestic', 'Nội địa') : 'Nội địa';
+    if (upper === 'QUỐC TẾ') return t ? t('item.regionInternational', 'Quốc tế') : 'Quốc tế';
+    return str
+        .toLowerCase()
+        .split(' ')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+};
+
 interface CartItemProps {
     /** Cart item data */
     item: CartItemUI;
@@ -223,27 +236,16 @@ export const CartItem: React.FC<CartItemProps> = memo(({
                             <View style={styles.variantAndRegionRow}>
                                 {/* Variant Selector */}
                                 {variantAttributes && (
-                                    <Pressable
-                                        onPress={() => onVariantPress?.(item.id)}
+                                    <View
                                         style={styles.variantSelector}
-                                        disabled={isDisabled}
-                                        accessibilityLabel={t('item.selectVariation')}
-                                        accessibilityRole="button"
                                     >
                                         <Text
                                             style={styles.variantText}
                                             numberOfLines={1}
-                                            adjustsFontSizeToFit={true}
-                                            minimumFontScale={0.7}
                                         >
                                             {variantAttributes}
                                         </Text>
-                                        <IconSymbol
-                                            name="chevron-down"
-                                            size={14}
-                                            color={theme.colors.secondary}
-                                        />
-                                    </Pressable>
+                                    </View>
                                 )}
 
                                 {/* Region Badge - subtle pill tag */}
@@ -260,8 +262,8 @@ export const CartItem: React.FC<CartItemProps> = memo(({
                                             }
                                             size={12}
                                             color={
-                                                regionBadgeInfo.type === 'international' ? theme.colors.info :
-                                                    regionBadgeInfo.type === 'both' ? theme.colors.primary : theme.colors.success
+                                                regionBadgeInfo.type === 'international' ? '#0284c7' :
+                                                    regionBadgeInfo.type === 'both' ? '#4f46e5' : theme.colors.forestGreen
                                             }
                                         />
                                         <Text style={[
@@ -269,7 +271,7 @@ export const CartItem: React.FC<CartItemProps> = memo(({
                                             regionBadgeInfo.type === 'international' && styles.regionPillTextIntl,
                                             regionBadgeInfo.type === 'both' && styles.regionPillTextBoth,
                                         ]}>
-                                            {item.regionLabel?.toUpperCase() || ''}
+                                            {formatRegionLabel(item.regionLabel, t)}
                                         </Text>
                                     </View>
                                 )}
@@ -407,7 +409,7 @@ const styles = StyleSheet.create((theme, rt) => {
         },
         checkboxColumn: {
             justifyContent: 'flex-start',
-            paddingTop: 32, // Align with middle of image
+            paddingTop: 24, // Align with middle of image
         },
         contentRow: {
             flex: 1,
@@ -416,12 +418,12 @@ const styles = StyleSheet.create((theme, rt) => {
         },
         imageContainer: {
             position: 'relative',
-            width: 96,
-            height: 96,
+            width: 75,
+            height: 75,
         },
         image: {
-            width: 96,
-            height: 96,
+            width: 75,
+            height: 75,
             borderRadius: theme.radius.m,
             borderWidth: 1,
             borderColor: theme.colors.border,
@@ -476,8 +478,9 @@ const styles = StyleSheet.create((theme, rt) => {
         variantAndRegionRow: {
             flexDirection: 'row',
             alignItems: 'center',
-            gap: 6,
-            marginTop: 4,
+            flexWrap: 'wrap',
+            rowGap: 4,
+            columnGap: 6,
             width: '100%',
         },
         variantSelector: {
@@ -609,33 +612,32 @@ const styles = StyleSheet.create((theme, rt) => {
             flexDirection: 'row',
             alignItems: 'center',
             gap: 4,
-            backgroundColor: 'rgba(34, 197, 94, 0.08)',
-            borderWidth: 1,
-            borderColor: 'rgba(34, 197, 94, 0.3)',
-            borderRadius: 99,
+            backgroundColor: 'rgba(34, 197, 94, 0.06)', // Muted sage/green tint
+            borderWidth: 0.5,
+            borderColor: 'rgba(34, 197, 94, 0.15)', // Super fine border
+            borderRadius: 6, // Rounded rect for modern premium feel
             paddingHorizontal: 6,
-            paddingVertical: 2,
+            paddingVertical: 3,
             flexShrink: 0,
         },
         regionPillIntl: {
-            backgroundColor: 'rgba(14, 165, 233, 0.08)',
-            borderColor: 'rgba(14, 165, 233, 0.3)',
+            backgroundColor: 'rgba(14, 165, 233, 0.06)', // Muted sky blue
+            borderColor: 'rgba(14, 165, 233, 0.15)',
         },
         regionPillBoth: {
-            backgroundColor: 'rgba(0, 136, 204, 0.08)',
-            borderColor: 'rgba(0, 136, 204, 0.3)',
+            backgroundColor: 'rgba(99, 102, 241, 0.06)', // Soft indigo tint
+            borderColor: 'rgba(99, 102, 241, 0.15)',
         },
         regionPillText: {
             fontSize: f(10),
-            fontWeight: '700',
-            color: theme.colors.success,
-            letterSpacing: 0.5,
+            fontWeight: '600', // Semibold
+            color: theme.colors.forestGreen, // Premium dark green
         },
         regionPillTextIntl: {
-            color: theme.colors.info,
+            color: '#0284c7', // Professional dark sky blue
         },
         regionPillTextBoth: {
-            color: theme.colors.primary,
+            color: '#4f46e5', // Royal indigo for dual support
         },
         // Unsupported Region Warning (Soft amber bar)
         regionWarningRow: {

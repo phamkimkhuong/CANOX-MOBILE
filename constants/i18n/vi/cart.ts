@@ -39,6 +39,9 @@ export const CART_STRINGS: CartTranslation = {
         selectVariation: 'Chọn phân loại hàng',
         unsupportedRegion: 'Không hỗ trợ giao đến {{location}}.',
         promoStockWarning: 'Chỉ còn {{count}} sản phẩm giá này',
+        regionDomestic: 'Nội địa',
+        regionInternational: 'Quốc tế',
+        regionBoth: 'Nội địa & Quốc tế',
     },
     status: {
         syncing: 'Đang cập nhật giá mới nhất...',

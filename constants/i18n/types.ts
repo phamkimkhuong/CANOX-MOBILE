@@ -717,6 +717,9 @@ export interface CartTranslation {
         selectVariation: string;
         unsupportedRegion: string;
         promoStockWarning: string;
+        regionDomestic?: string;
+        regionInternational?: string;
+        regionBoth?: string;
     };
     status: {
         syncing: string;

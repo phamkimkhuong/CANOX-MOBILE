@@ -39,6 +39,9 @@ export const CART_STRINGS: CartTranslation = {
         selectVariation: 'Select variation',
         unsupportedRegion: 'Does not support shipping to {{location}}.',
         promoStockWarning: 'Only {{count}} items left at this price',
+        regionDomestic: 'Domestic',
+        regionInternational: 'International',
+        regionBoth: 'Domestic & International',
     },
     status: {
         syncing: 'Updating latest prices...',
