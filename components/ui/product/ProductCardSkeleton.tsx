@@ -55,7 +55,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         padding: 4, // Matches ProductCard exactly
     },
     shadowWrapper: {
-        borderRadius: 24, // Matches ProductCard exactly
+        borderRadius: 12, // Matches ProductCard exactly
         backgroundColor: theme.colors.surface,
         // Premium Shadow (Matches ProductCard exactly)
         shadowColor: '#000',
@@ -65,7 +65,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         elevation: 6,
     },
     surface: {
-        borderRadius: 24, // Matches ProductCard exactly
+        borderRadius: 12, // Matches ProductCard exactly
         backgroundColor: theme.colors.surface,
         overflow: 'hidden',
         borderWidth: 1,

@@ -90,10 +90,10 @@ export const ProductSpecs = memo<ProductSpecsProps>(({
         const specs: ProductSpec[] = [];
 
         if (brandName) {
-            specs.push({ label: 'Thương hiệu', value: brandName });
+            specs.push({ label: t('specs.brandName', 'Thương hiệu'), value: brandName });
         }
         if (origin) {
-            specs.push({ label: 'Xuất xứ', value: origin });
+            specs.push({ label: t('specs.origin', 'Xuất xứ'), value: origin });
         }
         if (manufacturers && manufacturers.length > 0) {
             const manufacturerNames = manufacturers
@@ -101,18 +101,18 @@ export const ProductSpecs = memo<ProductSpecsProps>(({
                 .filter(Boolean)
                 .join(', ');
             if (manufacturerNames) {
-                specs.push({ label: 'Nhà sản xuất', value: manufacturerNames });
+                specs.push({ label: t('specs.manufacturers', 'Nhà sản xuất'), value: manufacturerNames });
             }
         }
         if (isMadeToOrder !== undefined && isMadeToOrder !== null) {
             specs.push({
-                label: 'Loại sản phẩm',
-                value: isMadeToOrder ? 'Hàng đặt trước (Pre-order)' : 'Hàng có sẵn',
+                label: t('specs.productType', 'Loại sản phẩm'),
+                value: isMadeToOrder ? t('specs.madeToOrder', 'Hàng đặt trước (Pre-order)') : t('specs.inStock', 'Hàng có sẵn'),
             });
         }
 
         return [...specs, ...specifications];
-    }, [brandName, origin, manufacturers, isMadeToOrder, specifications]);
+    }, [brandName, origin, manufacturers, isMadeToOrder, specifications, t]);
 
     const hasMoreSpecs = allSpecifications.length > initialVisibleCount;
 
@@ -140,13 +140,13 @@ export const ProductSpecs = memo<ProductSpecsProps>(({
     const getWarrantyTypeLabel = (type?: string | null) => {
         switch (type) {
             case 'MANUFACTURER':
-                return 'Hãng bảo hành';
+                return t('specs.typeManufacturer', 'Hãng bảo hành');
             case 'SHOP':
-                return 'Shop bảo hành';
+                return t('specs.typeShop', 'Shop bảo hành');
             case 'NONE':
-                return 'Không bảo hành';
+                return t('specs.typeNone', 'Không bảo hành');
             default:
-                return type || 'Bảo hành tiêu chuẩn';
+                return type || t('specs.typeDefault', 'Bảo hành tiêu chuẩn');
         }
     };
 
@@ -154,11 +154,11 @@ export const ProductSpecs = memo<ProductSpecsProps>(({
     const getActivationLabel = (method?: string | null) => {
         switch (method) {
             case 'INVOICE':
-                return 'Qua hóa đơn mua hàng';
+                return t('specs.activationInvoice', 'Qua hóa đơn mua hàng');
             case 'ELECTRONIC':
-                return 'Bảo hành điện tử';
+                return t('specs.activationElectronic', 'Bảo hành điện tử');
             default:
-                return method || 'Liên hệ cửa hàng';
+                return method || t('specs.activationDefault', 'Liên hệ cửa hàng');
         }
     };
 
@@ -214,7 +214,7 @@ export const ProductSpecs = memo<ProductSpecsProps>(({
                     <View style={styles.header}>
                         <View style={styles.headerTitleWithIcon}>
                             <IconSymbol name="shield-checkmark-outline" size={18} color={theme.colors.primary} />
-                            <Text style={styles.title}>Chính sách bảo hành & Đồng kiểm</Text>
+                            <Text style={styles.title}>{t('specs.warrantyTitle', 'Chính sách bảo hành & Đồng kiểm')}</Text>
                         </View>
                     </View>
 
@@ -226,7 +226,7 @@ export const ProductSpecs = memo<ProductSpecsProps>(({
                                 <View style={styles.iconContainer}>
                                     <IconSymbol name="business-outline" size={16} color={theme.colors.primary} />
                                 </View>
-                                <Text style={styles.gridLabel}>Loại bảo hành</Text>
+                                <Text style={styles.gridLabel}>{t('specs.warrantyType', 'Loại bảo hành')}</Text>
                                 <Text style={styles.gridValue} numberOfLines={1}>
                                     {getWarrantyTypeLabel(warranty.type)}
                                 </Text>
@@ -239,9 +239,9 @@ export const ProductSpecs = memo<ProductSpecsProps>(({
                                 <View style={styles.iconContainer}>
                                     <IconSymbol name="time-outline" size={16} color={theme.colors.primary} />
                                 </View>
-                                <Text style={styles.gridLabel}>Thời hạn</Text>
+                                <Text style={styles.gridLabel}>{t('specs.warrantyDuration', 'Thời hạn')}</Text>
                                 <Text style={styles.gridValue}>
-                                    {warranty.durationDays} ngày
+                                    {t('shop.durationDays', { count: warranty.durationDays })}
                                 </Text>
                             </View>
                         )}
@@ -252,7 +252,7 @@ export const ProductSpecs = memo<ProductSpecsProps>(({
                                 <View style={styles.iconContainer}>
                                     <IconSymbol name="receipt-outline" size={16} color={theme.colors.primary} />
                                 </View>
-                                <Text style={styles.gridLabel}>Kích hoạt</Text>
+                                <Text style={styles.gridLabel}>{t('specs.warrantyActivation', 'Kích hoạt')}</Text>
                                 <Text style={styles.gridValue} numberOfLines={1}>
                                     {getActivationLabel(warranty.activationMethod)}
                                 </Text>
@@ -265,9 +265,9 @@ export const ProductSpecs = memo<ProductSpecsProps>(({
                                 <View style={styles.iconContainer}>
                                     <IconSymbol name="checkmark-circle-outline" size={16} color={theme.colors.primary} />
                                 </View>
-                                <Text style={styles.gridLabel}>Đồng kiểm</Text>
+                                <Text style={styles.gridLabel}>{t('specs.warrantyInspection', 'Đồng kiểm')}</Text>
                                 <Text style={styles.gridValue}>
-                                    {warranty.inspectionOnDelivery ? 'Được đồng kiểm' : 'Không đồng kiểm'}
+                                    {warranty.inspectionOnDelivery ? t('specs.inspectionAllowed', 'Được đồng kiểm') : t('specs.inspectionNotAllowed', 'Không đồng kiểm')}
                                 </Text>
                             </View>
                         )}
@@ -277,7 +277,7 @@ export const ProductSpecs = memo<ProductSpecsProps>(({
                     {warranty.conditions && warranty.conditions.length > 0 && (
                         <View style={styles.conditionsWrapper}>
                             <Pressable style={styles.conditionsHeader} onPress={handleToggleWarranty}>
-                                <Text style={styles.conditionsTitle}>Điều kiện bảo hành & Đổi trả</Text>
+                                <Text style={styles.conditionsTitle}>{t('specs.conditionsTitle', 'Điều kiện bảo hành & Đổi trả')}</Text>
                                 <IconSymbol
                                     name={isWarrantyExpanded ? 'chevron-up' : 'chevron-down'}
                                     size={16}
@@ -357,11 +357,11 @@ const styles = StyleSheet.create((theme) => ({
         flexDirection: 'row',
         flexWrap: 'wrap',
         padding: theme.margins.md,
-        gap: theme.margins.sm,
+        justifyContent: 'space-between',
+        rowGap: theme.margins.sm,
     },
     gridItem: {
-        flex: 1,
-        minWidth: '45%',
+        width: '48%',
         backgroundColor: theme.colors.background,
         borderRadius: theme.radius.m,
         padding: theme.margins.sm,

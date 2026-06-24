@@ -504,7 +504,15 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
             { type: 'order_protection', id: 'order_protection' },
             { type: 'shop', id: 'shop' }
         );
-        if (product.specifications?.length > 0) items.push({ type: 'specs', id: 'specs' });
+        const hasSpecs = 
+            (product.specifications && product.specifications.length > 0) ||
+            !!product.brandName ||
+            !!product.origin ||
+            (!!product.manufacturers && product.manufacturers.length > 0) ||
+            (product.isMadeToOrder !== undefined && product.isMadeToOrder !== null) ||
+            (!!product.warranty && (!!product.warranty.type || !!product.warranty.durationDays || (!!product.warranty.conditions && product.warranty.conditions.length > 0)));
+
+        if (hasSpecs) items.push({ type: 'specs', id: 'specs' });
         if (selectionResult.selectedVariant?.dimensions) items.push({ type: 'packaging', id: 'packaging' });
         if (product.description) items.push({ type: 'description', id: 'description' });
         if (relatedProducts.length > 0) {

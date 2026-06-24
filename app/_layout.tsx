@@ -31,14 +31,13 @@ const navigationIntegration = Sentry.reactNavigationIntegration({
 
 Sentry.init({
   dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
-  // enabled: !__DEV__,
-  enabled: true,
+  enabled: !__DEV__,
   environment: process.env.EXPO_PUBLIC_APP_ENV || (__DEV__ ? 'development' : 'production'),
   integrations: [
     navigationIntegration,
   ],
   tracesSampleRate: 1.0,
-  profilesSampleRate: 1.0, // Enable CPU profiling
+  profilesSampleRate: __DEV__ ? 0.0 : 1.0, // Disable CPU profiling in dev mode to prevent Hermes Sampling thread crash
   enableUserInteractionTracing: true,
   enableAutoPerformanceTracing: true,
 });

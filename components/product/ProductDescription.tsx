@@ -245,7 +245,7 @@ export const ProductDescription = memo<ProductDescriptionProps>(({
                     <IconSymbol
                         name={isExpanded ? 'chevron-up' : 'chevron-down'}
                         size={18}
-                        color={theme.colors.primary}
+                        color={theme.colors.typographySecondary}
                     />
                 </Pressable>
             )}
@@ -316,7 +316,7 @@ const styles = StyleSheet.create((theme) => ({
     },
     toggleText: {
         fontSize: 14,
-        color: theme.colors.primary,
+        color: theme.colors.typographySecondary,
         fontWeight: '500',
     },
     emptyContainer: {

@@ -14,6 +14,27 @@ export interface ProductTranslation {
         title: string;
         viewMore: string;
         collapse: string;
+        brandName?: string;
+        origin?: string;
+        manufacturers?: string;
+        productType?: string;
+        madeToOrder?: string;
+        inStock?: string;
+        warrantyTitle?: string;
+        warrantyType?: string;
+        warrantyDuration?: string;
+        warrantyActivation?: string;
+        warrantyInspection?: string;
+        inspectionAllowed?: string;
+        inspectionNotAllowed?: string;
+        conditionsTitle?: string;
+        typeManufacturer?: string;
+        typeShop?: string;
+        typeNone?: string;
+        typeDefault?: string;
+        activationInvoice?: string;
+        activationElectronic?: string;
+        activationDefault?: string;
     };
     variant: {
         label: string;

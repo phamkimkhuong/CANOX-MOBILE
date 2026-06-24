@@ -263,15 +263,15 @@ const stylesheet = StyleSheet.create((theme) => ({
         opacity: 0.96,
     },
     shadowWrapper: {
-        borderRadius: 23,
+        borderRadius: 11,
         backgroundColor: theme.colors.surface,
-        elevation: 2,
+        elevation: 0.5,
     },
     surface: {
-        borderRadius: 16,
+        borderRadius: 11,
         backgroundColor: theme.colors.surface,
         overflow: 'hidden',
-        borderWidth: 1,
+        borderWidth: 0.2,
         borderColor: 'rgba(0,0,0,0.05)',
     },
     specularHighlight: {
