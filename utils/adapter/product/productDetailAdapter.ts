@@ -644,6 +644,11 @@ export const transformProductDetail = (
         name: data.name ?? '',
         slug: data.slug ?? '',
         description: data.description ?? null,
+        brandName: data.brandName ?? null,
+        origin: data.origin ?? null,
+        manufacturers: data.manufacturers ?? null,
+        isMadeToOrder: data.isMadeToOrder ?? null,
+        warranty: data.warranty ?? null,
 
         // Price
         priceDisplay,

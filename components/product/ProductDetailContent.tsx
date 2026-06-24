@@ -654,7 +654,14 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
             case 'specs':
                 return withSectionBoundary(
                     <View style={styles.fullWidthSection}>
-                        <ProductSpecs specifications={ctx.product.specifications} />
+                        <ProductSpecs
+                            specifications={ctx.product.specifications}
+                            brandName={ctx.product.brandName}
+                            origin={ctx.product.origin}
+                            manufacturers={ctx.product.manufacturers}
+                            isMadeToOrder={ctx.product.isMadeToOrder}
+                            warranty={ctx.product.warranty}
+                        />
                     </View>
                 );
             case 'packaging':

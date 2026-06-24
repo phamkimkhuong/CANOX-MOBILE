@@ -254,6 +254,25 @@ export const ProductSpecSchema = z.object({
 export type ProductSpec = z.infer<typeof ProductSpecSchema>;
 
 // ============================================
+// MANUFACTURER & WARRANTY SCHEMAS
+// ============================================
+
+export const ManufacturerSchema = z.object({
+    name: z.string().nullable().optional(),
+    address: z.string().nullable().optional(),
+});
+export type Manufacturer = z.infer<typeof ManufacturerSchema>;
+
+export const WarrantySchema = z.object({
+    type: z.string().nullable().optional(),
+    durationDays: z.number().nullable().optional(),
+    activationMethod: z.string().nullable().optional(),
+    inspectionOnDelivery: z.boolean().nullable().optional(),
+    conditions: z.array(z.string()).nullable().optional().default([]),
+});
+export type Warranty = z.infer<typeof WarrantySchema>;
+
+// ============================================
 // FULL PRODUCT DETAIL RESPONSE SCHEMA
 // ============================================
 
@@ -262,6 +281,11 @@ export const ProductDetailResponseSchema = z.object({
     name: z.string().nullable().optional().default(''),
     slug: z.string().nullable().optional().default(''),
     description: z.string().nullable().optional(),
+    brandName: z.string().nullable().optional(),
+    origin: z.string().nullable().optional(),
+    manufacturers: z.array(ManufacturerSchema).nullable().optional().default([]),
+    isMadeToOrder: z.boolean().nullable().optional(),
+    warranty: WarrantySchema.nullable().optional(),
 
     // Pricing
     priceMin: z.number().nullable().optional().default(0),
@@ -505,6 +529,11 @@ export interface ProductDetailUI {
     name: string;
     slug: string;
     description: string | null;
+    brandName?: string | null;
+    origin?: string | null;
+    manufacturers?: Manufacturer[] | null;
+    isMadeToOrder?: boolean | null;
+    warranty?: Warranty | null;
 
     // Price
     priceDisplay: PriceDisplay;
