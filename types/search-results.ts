@@ -14,7 +14,7 @@ import { createPaginatedResponseSchema } from './responseSchema';
 export type SearchSortField =
     | 'RELEVANCE'
     | 'NEWEST'
-    | 'BEST_SELLING'
+    | 'INTERNATIONAL'
     | 'PRICE_ASC'
     | 'PRICE_DESC';
 
@@ -183,6 +183,8 @@ export const SearchProductItemSchema = z.object({
     })).nullable().optional().default([]),
     // Best voucher info - pruned to check presence only
     bestShopVoucher: z.object({}).nullable().optional(),
+    // Regions info to check international status
+    availableRegions: z.array(z.string()).nullish().transform(val => val ?? []),
 });
 
 export type SearchProductItem = z.infer<typeof SearchProductItemSchema>;
@@ -219,4 +221,5 @@ export interface SearchProductUI {
     isFlashSale?: boolean;
     categoryName?: string;
     campaignLabel?: string;
+    isInternational?: boolean;
 }

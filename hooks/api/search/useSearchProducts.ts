@@ -104,6 +104,7 @@ const transformSearchProduct = (raw: NonNullable<SearchProductsResponse['data']>
         isFlashSale,
         categoryName: raw.category?.name ?? undefined,
         campaignLabel,
+        isInternational: raw.availableRegions?.includes('INTERNATIONAL') ?? false,
     };
 };
 
@@ -118,8 +119,8 @@ const getSortParams = (sortBy: SearchSortField): string[] => {
     switch (sortBy) {
         case 'NEWEST':
             return ['createdDate,desc'];
-        case 'BEST_SELLING':
-            return ['reviewStatistics.verifiedPurchaseCount,desc'];
+        case 'INTERNATIONAL':
+            return []; // Region filter, no API sorting
         case 'PRICE_ASC':
             return ['priceBeforeDiscount,asc'];
         case 'PRICE_DESC':
@@ -211,6 +212,11 @@ export const useSearchProducts = ({
             const sortParams = getSortParams(sortBy);
             if (sortParams.length > 0) {
                 params.sort = sortParams;
+            }
+
+            // Add region filter if international is active
+            if (sortBy === 'INTERNATIONAL') {
+                params.region = 'INTERNATIONAL';
             }
 
             // Add Advanced Filters (Price Range)

@@ -67,6 +67,13 @@ const AnimatedPrice: React.FC<{ value: number; isCalculating?: boolean }> = ({ v
     const [displayValue, setDisplayValue] = React.useState(value);
     const isMounted = React.useRef(true);
 
+    // Safe JS setter that respects the mount status
+    const safeSetDisplayValue = React.useCallback((val: number) => {
+        if (isMounted.current) {
+            setDisplayValue(val);
+        }
+    }, []);
+
     // Track mount status and cleanup animations on unmount
     React.useEffect(() => {
         isMounted.current = true;
@@ -84,9 +91,7 @@ const AnimatedPrice: React.FC<{ value: number; isCalculating?: boolean }> = ({ v
             rotation.value = withSequence(
                 withTiming(-90, { duration: 150 }, (finished) => {
                     if (finished) {
-                        if (isMounted.current) {
-                            runOnJS(setDisplayValue)(value);
-                        }
+                        runOnJS(safeSetDisplayValue)(value);
                         rotation.value = withTiming(0, { duration: 150 });
                     }
                 })
@@ -96,7 +101,7 @@ const AnimatedPrice: React.FC<{ value: number; isCalculating?: boolean }> = ({ v
                 withTiming(1, { duration: 150 })
             );
         }
-    }, [value, displayValue, rotation, opacity]);
+    }, [value, displayValue, rotation, opacity, safeSetDisplayValue]);
 
     const animatedStyle = useAnimatedStyle(() => ({
         transform: [{ rotateX: `${rotation.value}deg` }],

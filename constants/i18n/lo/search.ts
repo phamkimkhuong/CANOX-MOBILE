@@ -46,7 +46,7 @@ export const SEARCH_STRINGS: SearchTranslation = {
     sort: {
         relevance: 'ກ່ຽວຂ້ອງ',
         newest: 'ໃໝ່ລ່າສຸດ',
-        bestSelling: 'ຂາຍດີທີ່ສຸດ',
+        international: 'ສາກົນ',
         price: 'ລາຄາ',
         priceAsc: 'ລາຄາ: ຕ່ຳຫາສູງ',
         priceDesc: 'ລາຄາ: ສູງຫາຕ່ຳ',

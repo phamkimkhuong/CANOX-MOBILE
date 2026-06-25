@@ -400,63 +400,98 @@ export const useMoveCartItemsToWishlist = () => {
     const queryClient = useQueryClient();
     const { setSelectedItemIds } = useCartStore();
 
-    return useMutation({
-        mutationFn: async ({ items }: MoveToWishlistParams): Promise<void> => {
+    return useMutation<{ successCount: number; failedCount: number }, Error, MoveToWishlistParams>({
+        mutationFn: async ({ items }): Promise<{ successCount: number; failedCount: number }> => {
             logger.cart.info('Moving items to wishlist', { count: items.length });
 
-            //Add all items to default wishlist. Catch errors so a partial fail doesn't abort the whole block.
-            await Promise.allSettled(
-                items.map(item =>
-                    wishlistService.addToDefaultWishlist({
-                        productId: item.productId,
-                        variantId: item.variantId,
-                        quantity: 1, // Add 1 unit to wishlist
-                        priority: 0,
-                    })
-                )
-            );
+            const isSingle = items.length === 1;
 
-            //Remove them from the cart via BATCH_REMOVE
-            const itemIds = items.map(i => i.itemId);
-            await request(
-                {
-                    url: API_ROUTES.CART.BATCH_REMOVE,
-                    method: 'DELETE',
-                    data: { itemIds },
-                },
-                ResponseDefaultSchema
-            );
-        },
+            if (isSingle) {
+                const item = items[0];
+                // For single item, let any error throw directly to be caught by onError
+                await wishlistService.addToDefaultWishlist({
+                    productId: item.productId,
+                    variantId: item.variantId,
+                    quantity: 1,
+                    priority: 0,
+                });
 
-        // Optimistic update for the Cart
-        onMutate: async ({ items }) => {
-            await queryClient.cancelQueries({ queryKey: CART_QUERY_KEY });
+                const idempotencyKey = uuidv4();
+                await request(
+                    {
+                        url: API_ROUTES.CART.BATCH_REMOVE,
+                        method: 'DELETE',
+                        data: { itemIds: [item.itemId] },
+                        headers: {
+                            'Idempotency-Key': idempotencyKey,
+                            'If-Match': '0',
+                        },
+                    },
+                    ResponseDefaultSchema
+                );
 
-            const previousCart = queryClient.getQueryData<CartUI>(CART_QUERY_KEY);
-            const itemIdsSet = new Set(items.map(i => i.itemId));
+                return { successCount: 1, failedCount: 0 };
+            } else {
+                // For multiple items, handle settled results
+                const results = await Promise.allSettled(
+                    items.map(item =>
+                        wishlistService.addToDefaultWishlist({
+                            productId: item.productId,
+                            variantId: item.variantId,
+                            quantity: 1,
+                            priority: 0,
+                        })
+                    )
+                );
 
-            if (previousCart) {
-                const optimisticCart: CartUI = {
-                    ...previousCart,
-                    shops: previousCart.shops
-                        .map(shop => ({
-                            ...shop,
-                            items: shop.items.filter(item => !itemIdsSet.has(item.id)),
-                        }))
-                        .filter(shop => shop.items.length > 0),
+                const itemsToRemove: typeof items = [];
+                const itemsToKeep: typeof items = [];
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                let lastError: any = null;
+
+                results.forEach((res, index) => {
+                    const item = items[index];
+                    if (res.status === 'fulfilled') {
+                        itemsToRemove.push(item);
+                    } else {
+                        itemsToKeep.push(item);
+                        lastError = res.reason;
+                    }
+                });
+
+                // If ALL items failed, throw the last error to activate onError
+                if (itemsToRemove.length === 0) {
+                    if (lastError) {
+                        throw lastError;
+                    }
+                    throw new Error('Không thể lưu bất kỳ sản phẩm nào vào yêu thích');
+                }
+
+                // Delete only successfully added items
+                const itemIds = itemsToRemove.map(i => i.itemId);
+                const idempotencyKey = uuidv4();
+                await request(
+                    {
+                        url: API_ROUTES.CART.BATCH_REMOVE,
+                        method: 'DELETE',
+                        data: { itemIds },
+                        headers: {
+                            'Idempotency-Key': idempotencyKey,
+                            'If-Match': '0',
+                        },
+                    },
+                    ResponseDefaultSchema
+                );
+
+                return {
+                    successCount: itemsToRemove.length,
+                    failedCount: itemsToKeep.length,
                 };
-
-                queryClient.setQueryData(CART_QUERY_KEY, optimisticCart);
             }
-
-            return { previousCart };
         },
 
-        onError: (error, variables, context) => {
-            logger.cart.warn('Move to wishlist failed, rolling back cart', { error });
-            if (context?.previousCart) {
-                queryClient.setQueryData(CART_QUERY_KEY, context.previousCart);
-            }
+        onError: (error) => {
+            logger.cart.warn('Move to wishlist failed', { error });
             const errorMessage = error instanceof Error ? error.message : 'Không thể lưu vào yêu thích';
             Toast.show({
                 type: 'error',
@@ -468,17 +503,18 @@ export const useMoveCartItemsToWishlist = () => {
         },
         meta: { handledLocally: true },
 
-        onSuccess: () => {
-            logger.cart.info('Items moved to wishlist successfully');
+        onSuccess: (data) => {
+            logger.cart.info('Items moved to wishlist completed with results', data);
+            
+            // Invalidate queries to reload fresh data from server
             queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
-
-            // Also invalidate Wishlist queries so the profile/wishlist screens receive fresh data
             queryClient.invalidateQueries({ queryKey: wishlistKeys.default() });
             queryClient.invalidateQueries({ queryKey: [...wishlistKeys.all, 'check-variants'] });
 
             // Clear selection
             setSelectedItemIds(new Set());
 
+            // Always show success toast for successful operations (including partial success)
             Toast.show({
                 type: 'success',
                 text1: 'Đã lưu vào bộ sưu tập',

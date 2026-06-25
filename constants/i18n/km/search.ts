@@ -46,7 +46,7 @@ export const SEARCH_STRINGS: SearchTranslation = {
     sort: {
         relevance: 'ពាក់ព័ន្ធបំផុត',
         newest: 'ថ្មីបំផុត',
-        bestSelling: 'លក់ដាច់បំផុត',
+        international: 'អន្តរជាតិ',
         price: 'តម្លៃ',
         priceAsc: 'តម្លៃទាបទៅខ្ពស់',
         priceDesc: 'តម្លៃខ្ពស់ទៅទាប',

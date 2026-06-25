@@ -46,7 +46,7 @@ export const SEARCH_STRINGS: SearchTranslation = {
     sort: {
         relevance: 'Liên quan',
         newest: 'Mới nhất',
-        bestSelling: 'Bán chạy',
+        international: 'Quốc tế',
         price: 'Giá',
         priceAsc: 'Giá tăng',
         priceDesc: 'Giá giảm',

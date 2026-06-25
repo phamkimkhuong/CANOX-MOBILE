@@ -24,14 +24,14 @@ interface SortBarProps {
 
 interface SortTab {
     id: SearchSortField | 'PRICE';
-    labelKey: 'sort.relevance' | 'sort.newest' | 'sort.bestSelling' | 'sort.price';
+    labelKey: 'sort.relevance' | 'sort.newest' | 'sort.international' | 'sort.price';
     isPrice?: boolean;
 }
 
 const SORT_TABS: SortTab[] = [
     { id: 'RELEVANCE', labelKey: 'sort.relevance' },
     { id: 'NEWEST', labelKey: 'sort.newest' },
-    { id: 'BEST_SELLING', labelKey: 'sort.bestSelling' },
+    { id: 'INTERNATIONAL', labelKey: 'sort.international' },
     { id: 'PRICE', labelKey: 'sort.price', isPrice: true },
 ];
 

@@ -46,7 +46,7 @@ export const SEARCH_STRINGS: SearchTranslation = {
     sort: {
         relevance: 'Relevance',
         newest: 'Newest',
-        bestSelling: 'Best Selling',
+        international: 'International',
         price: 'Price',
         priceAsc: 'Price Low to High',
         priceDesc: 'Price High to Low',

@@ -1600,7 +1600,7 @@ export interface SearchTranslation {
     sort: {
         relevance: string;
         newest: string;
-        bestSelling: string;
+        international: string;
         price: string;
         priceAsc: string;
         priceDesc: string;
