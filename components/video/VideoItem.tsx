@@ -1,10 +1,10 @@
 import { IconSymbol } from '@/components/ui/Icon';
-import { useIsFocused } from '@react-navigation/native';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useVideoPlayer, VideoPlayer, VideoView } from 'expo-video';
+import { useNavigation } from 'expo-router';
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GestureResponderEvent, LayoutAnimation, Pressable, Text, TouchableOpacity, View } from 'react-native';
@@ -168,7 +168,18 @@ export const VideoItem = memo(({ item, mode }: VideoItemProps) => {
     const [hearts, setHearts] = useState<{ id: number, x: number, y: number }[]>([]);
     const [isExpanded, setIsExpanded] = useState(false);
     const [isProductVisible, setIsProductVisible] = useState(true);
-    const isFocused = useIsFocused();
+    const navigation = useNavigation();
+    const [isFocused, setIsFocused] = useState(false);
+
+    useEffect(() => {
+        setIsFocused(navigation.isFocused());
+        const unsubscribeFocus = navigation.addListener('focus', () => setIsFocused(true));
+        const unsubscribeBlur = navigation.addListener('blur', () => setIsFocused(false));
+        return () => {
+            unsubscribeFocus();
+            unsubscribeBlur();
+        };
+    }, [navigation]);
 
     const handleProfilePress = useCallback(() => {
         Navigator.push(creatorRoutes.detail(item.id));

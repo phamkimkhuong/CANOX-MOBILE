@@ -12,6 +12,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import { StyleSheet } from 'react-native-unistyles';
 
+import { cleanAndFlattenStyles } from '@/utils/style';
+
 interface InternationalBadgeProps {
     /** Label text */
     label: string;
@@ -61,7 +63,7 @@ export const InternationalBadge = React.memo(({ label, size = 'md', shimmerStyle
         >
             {/* Shimmer sweep overlay */}
             <View style={styles.shimmerMask}>
-                <Animated.View style={[styles.shimmerStrip, effectiveShimmerStyle]}>
+                <Animated.View style={[cleanAndFlattenStyles(styles.shimmerStrip), effectiveShimmerStyle]}>
                     <LinearGradient
                         colors={[
                             'transparent',

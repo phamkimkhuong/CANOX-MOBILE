@@ -26,7 +26,6 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
-import { useHeaderHeight } from '@react-navigation/elements';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -44,7 +43,7 @@ export default function EditProfileScreen() {
     const { t } = useTranslation(['profile', 'common']);
     const styles = stylesheet;
     const insets = useSafeAreaInsets();
-    const headerHeight = useHeaderHeight();
+    const headerHeight = Platform.OS === 'ios' ? (44 + insets.top) : 56;
 
     // Fetch current profile data
     const { data: profile, isLoading: isLoadingProfile } = useUserProfile();

@@ -74,10 +74,11 @@ const calculateLowStockWarning = (availableStock: number): CartItemUI['lowStockW
  * - discountPercent: From promotion.discountPercent if available
  * - totalPrice: unitPrice × quantity (pre-calculated by API)
  */
-export const transformCartItem = (item: CartItem): CartItemUI => {
+export const transformCartItem = (item: CartItem, shopId?: string): CartItemUI => {
     const unitPrice = item.unitPrice ?? 0;
     const priceBeforeDiscount = item.priceBeforeDiscount ?? 0;
     const availableStock = item.availableStock ?? 0;
+    const productInfo = item.product;
 
     // Only show original price if there's an actual discount
     const hasDiscount = priceBeforeDiscount > unitPrice;
@@ -92,15 +93,15 @@ export const transformCartItem = (item: CartItem): CartItemUI => {
 
     return {
         id: item.id,
-        productId: item.productId ?? '',
+        productId: productInfo?.productId ?? '',
         variantId: item.variantId,
-        productName: item.productName ?? '',
-        variantAttributes: item.variantAttributes || '',
-        imageUrl: buildImageUrl(item.imagePath),
+        productName: productInfo?.productName ?? '',
+        variantAttributes: productInfo?.variantAttributes || '',
+        imageUrl: buildImageUrl(productInfo?.imagePath),
         unitPrice,
         quantity: item.quantity ?? 1,
         totalPrice: item.totalPrice ?? 0,
-        shopId: item.shopId ?? '',
+        shopId: shopId ?? '',
 
         // Server selection state
         selectedForCheckout: item.selectedForCheckout ?? false,
@@ -165,7 +166,7 @@ export const transformCartShop = (shop: CartShop): CartShopUI => {
         shopId: shopInfo?.shopId ?? '',
         shopName: shopInfo?.shopName ?? '',
         shopLogoUrl: logoUrl,
-        items: shop.items ? shop.items.map(transformCartItem) : [],
+        items: shop.items ? shop.items.map((item) => transformCartItem(item, shopInfo?.shopId)) : [],
         // Shop totals (from API)
         discount: shop.discount ?? 0,
 

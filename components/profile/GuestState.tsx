@@ -8,6 +8,8 @@ import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
+import { cleanAndFlattenStyles } from '@/utils/style';
+
 interface GuestStateProps {
     onLogin?: () => void;
     onRegister?: () => void;
@@ -122,7 +124,7 @@ export const GuestState: React.FC<GuestStateProps> = memo(({ onLogin, onRegister
                 </View>
             </Animated.View>
 
-            <Animated.View entering={FadeInDown.duration(500).delay(100)} style={styles.actions}>
+            <Animated.View entering={FadeInDown.duration(500).delay(100)} style={cleanAndFlattenStyles(styles.actions)}>
                 <TouchableOpacity style={styles.loginBtn} onPress={handleLogin} activeOpacity={0.88}>
                     <Text style={styles.loginBtnText}>{t('guestState.login')}</Text>
                 </TouchableOpacity>

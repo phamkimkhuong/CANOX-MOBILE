@@ -16,11 +16,12 @@ import type { ProductFeedItem } from '@/types/product/product';
 import { createLogger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
 import { seedProductPreview } from '@/utils/productPreviewCache';
+import { cleanAndFlattenStyles } from '@/utils/style';
 import { toSizedImageUrl } from '@/utils/url';
 import { FlashList, FlashListRef, ListRenderItemInfo } from '@shopify/flash-list';
 import { useQueryClient } from '@tanstack/react-query';
 import { useFocusEffect } from 'expo-router';
-import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, LayoutChangeEvent, NativeScrollEvent, NativeSyntheticEvent, RefreshControl, Text, useWindowDimensions, View } from 'react-native';
 import Animated, {
@@ -325,8 +326,14 @@ export default function HomeScreen() {
   const stickyTabsAnimatedStyle = useAnimatedStyle(() => {
     // Chỉ hiện khi scrollY >= headerHeight (MarketingHeader đã khuất hoàn toàn)
     const shouldShow = scrollY.value >= headerHeight.value && headerHeight.value > 0;
+    
+    // Dịch chuyển ra khỏi màn hình khi ẩn để tránh lỗi Android elevation/render shadow trắng
+    const translateY = shouldShow ? 0 : -300;
+
     return {
       opacity: withTiming(shouldShow ? 1 : 0, { duration: 100 }),
+      transform: [{ translateY }],
+      elevation: shouldShow ? 4 : 0,
       // Tắt pointer events khi ẩn để không chặn touch
       pointerEvents: shouldShow ? 'auto' : 'none',
     };
@@ -533,7 +540,7 @@ export default function HomeScreen() {
       {isReady && (
         <Animated.View
           style={[
-            styles.stickyTabsOverlay,
+            cleanAndFlattenStyles(styles.stickyTabsOverlay),
             { top: homeHeaderHeight },
             stickyTabsAnimatedStyle,
           ]}

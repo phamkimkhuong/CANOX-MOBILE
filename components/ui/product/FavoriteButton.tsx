@@ -9,6 +9,8 @@ import Animated, {
 import { StyleSheet } from 'react-native-unistyles';
 import { IconSymbol } from '../Icon';
 
+import { cleanAndFlattenStyles } from '@/utils/style';
+
 interface FavoriteButtonProps {
     /** Variant ID to check liked status */
     variantId: string;
@@ -94,7 +96,7 @@ export const FavoriteButton = React.memo(({
     }, [onPress, variantId]);
 
     return (
-        <Animated.View style={[styles.container, animatedStyle]}>
+        <Animated.View style={[cleanAndFlattenStyles(styles.container), animatedStyle]}>
             <Pressable
                 onPress={handlePress}
                 hitSlop={8}

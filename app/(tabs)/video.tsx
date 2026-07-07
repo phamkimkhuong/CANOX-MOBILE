@@ -1,10 +1,10 @@
 import { VideoData, VideoItem } from '@/components/video/VideoItem';
 import { useNavigationUnlockOnFocus } from '@/hooks/useNavigationUnlockOnFocus';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
-import { useIsFocused } from '@react-navigation/native';
 import { FlashList } from '@shopify/flash-list';
-import React, { useCallback, useRef, useState } from 'react';
-import { StatusBar, View, useWindowDimensions } from 'react-native';
+import { useNavigation } from 'expo-router';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Platform, StatusBar, View, useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet } from 'react-native-unistyles';
 
 const MOCK_VIDEOS: VideoData[] = [
@@ -79,10 +79,22 @@ export default function VideoScreen() {
     useNavigationUnlockOnFocus();
 
     const { height: windowHeight } = useWindowDimensions();
+    const insets = useSafeAreaInsets();
+    const navigation = useNavigation();
 
-    const tabBarHeight = useBottomTabBarHeight();
-    const isFocused = useIsFocused();
+    const [isFocused, setIsFocused] = useState(false);
 
+    useEffect(() => {
+        setIsFocused(navigation.isFocused());
+        const unsubscribeFocus = navigation.addListener('focus', () => setIsFocused(true));
+        const unsubscribeBlur = navigation.addListener('blur', () => setIsFocused(false));
+        return () => {
+            unsubscribeFocus();
+            unsubscribeBlur();
+        };
+    }, [navigation]);
+
+    const tabBarHeight = Platform.OS === 'ios' ? (49 + insets.bottom) : (56 + insets.bottom);
     const [activeIndex, setActiveIndex] = useState(0);
 
     const visibleHeight = windowHeight - tabBarHeight;

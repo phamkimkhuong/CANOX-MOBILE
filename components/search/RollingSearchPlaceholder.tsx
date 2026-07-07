@@ -1,20 +1,12 @@
-/**
- * ==============================================
- * ROLLING SEARCH PLACEHOLDER
- * ==============================================
- * Animated placeholder that cycles through hot keywords
- * with smooth vertical slide transitions.
- * 
- * Used in HomeHeader to display trending search terms.
- */
-
 import React, { useEffect, useState } from 'react';
-import { Text } from 'react-native';
+import { StyleSheet as RNStyleSheet, Text } from 'react-native';
 import Animated, {
     FadeInUp,
     FadeOutUp,
 } from 'react-native-reanimated';
 import { StyleSheet } from 'react-native-unistyles';
+
+import { cleanAndFlattenStyles } from '@/utils/style';
 
 interface RollingSearchPlaceholderProps {
     /** Array of keywords to cycle through */
@@ -27,10 +19,6 @@ interface RollingSearchPlaceholderProps {
     animate?: boolean;
 }
 
-/**
- * RollingSearchPlaceholder
- * Displays animated cycling placeholder text for search input
- */
 export const RollingSearchPlaceholder: React.FC<RollingSearchPlaceholderProps> = ({
     keywords,
     fallbackText,
@@ -42,8 +30,15 @@ export const RollingSearchPlaceholder: React.FC<RollingSearchPlaceholderProps> =
     // Only cycle if we have multiple keywords and animation is enabled
     const shouldAnimate = animate && keywords.length > 1;
 
+    // If keywords array changes, reset index to 0
     useEffect(() => {
-        if (!shouldAnimate) return;
+        setCurrentIndex(0);
+    }, [keywords]);
+
+    useEffect(() => {
+        if (!shouldAnimate) {
+            return;
+        }
 
         const timer = setInterval(() => {
             setCurrentIndex((prev) => (prev + 1) % keywords.length);
@@ -52,16 +47,13 @@ export const RollingSearchPlaceholder: React.FC<RollingSearchPlaceholderProps> =
         return () => clearInterval(timer);
     }, [shouldAnimate, keywords.length, interval]);
 
-    // Get current display text
-    const displayText = keywords.length > 0
-        ? keywords[currentIndex % keywords.length]
-        : fallbackText;
+    const displayText = keywords.length > 0 ? keywords[currentIndex % keywords.length] : fallbackText;
 
     // If no animation needed, render simple text
     if (!shouldAnimate) {
         return (
             <Text
-                style={styles.text}
+                style={cleanAndFlattenStyles(styles.text)}
                 numberOfLines={1}
                 ellipsizeMode="tail"
             >
@@ -74,7 +66,7 @@ export const RollingSearchPlaceholder: React.FC<RollingSearchPlaceholderProps> =
     return (
         <Animated.Text
             key={`keyword-${currentIndex}`}
-            style={styles.text}
+            style={cleanAndFlattenStyles(styles.text)}
             entering={FadeInUp.duration(300)}
             exiting={FadeOutUp.duration(300)}
             numberOfLines={1}

@@ -27,15 +27,16 @@ import {
 
 const createCartItem = (overrides: Partial<CartItem> = {}): CartItem => ({
     id: 'item-1',
-    productId: 'prod-1',
     variantId: 'var-1',
-    productName: 'Test Product',
-    variantAttributes: 'Đỏ / M',
-    imagePath: 'products/img1.webp',
+    product: {
+        productId: 'prod-1',
+        productName: 'Test Product',
+        variantAttributes: 'Đỏ / M',
+        imagePath: 'products/img1.webp',
+    },
     unitPrice: 100000,
     quantity: 2,
     totalPrice: 200000,
-    shopId: 'shop-1',
     selectedForCheckout: true,
     availableStock: 50,
     stockStatus: 'IN_STOCK',

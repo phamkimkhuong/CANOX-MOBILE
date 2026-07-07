@@ -33,21 +33,21 @@
   },
   "dependencies": {
     "@expo/ui": "~57.0.3",
-    "@expo/vector-icons": "15.0.3",
+    "@expo/vector-icons": "^15.1.1",
     "@gorhom/bottom-sheet": "5.2.8",
-    "@hookform/resolvers": "5.2.2",
+    "@hookform/resolvers": "^5.4.0",
     "@react-native-firebase/analytics": "^23.8.6",
     "@react-native-firebase/app": "^23.8.6",
     "@react-native-firebase/messaging": "^23.8.6",
     "@react-native-firebase/remote-config": "^23.8.6",
-    "@react-native-google-signin/google-signin": "16.1.1",
-    "@react-native/normalize-colors": "0.83.1",
+    "@react-native-google-signin/google-signin": "^16.1.2",
+    "@react-native/normalize-colors": "^0.86.0",
     "@react-navigation/bottom-tabs": "^7.18.7",
     "@react-navigation/elements": "^2.9.29",
     "@react-navigation/native": "^7.1.8",
     "@sentry/react-native": "~7.11.0",
-    "@shopify/flash-list": "2.0.2",
-    "@stomp/stompjs": "7.2.1",
+    "@shopify/flash-list": "^2.3.2",
+    "@stomp/stompjs": "^7.3.0",
     "@tanstack/react-query": "^5.101.2",
     "axios": "^1.13.6",
     "expo": "^57.0.2",
@@ -89,19 +89,19 @@
     "react-native-gesture-handler": "~2.32.0",
     "react-native-get-random-values": "~1.11.0",
     "react-native-keyboard-controller": "1.21.9",
-    "react-native-mmkv": "4.1.0",
-    "react-native-nitro-modules": "0.31.10",
+    "react-native-mmkv": "^4.3.2",
+    "react-native-nitro-modules": "^0.36.1",
     "react-native-qrcode-svg": "6.3.21",
-    "react-native-reanimated": "4.5.0",
+    "react-native-reanimated": "4.5.1",
     "react-native-render-html": "6.3.4",
-    "react-native-safe-area-context": "~5.7.0",
+    "react-native-safe-area-context": "^5.8.0",
     "react-native-screens": "4.25.2",
-    "react-native-svg": "15.15.4",
+    "react-native-svg": "^15.15.5",
     "react-native-toast-message": "2.3.3",
-    "react-native-unistyles": "3.0.19",
+    "react-native-unistyles": "3.2.5",
     "react-native-web": "~0.21.0",
     "react-native-webview": "13.16.1",
-    "react-native-worklets": "0.10.0",
+    "react-native-worklets": "^0.10.2",
     "rn-emoji-keyboard": "1.7.0",
     "sockjs-client": "1.6.1",
     "text-encoding-polyfill": "0.6.7",
@@ -112,7 +112,7 @@
     "@eslint/js": "^9.39.2",
     "@ivotoby/openapi-mcp-server": "^1.12.4",
     "@mswjs/interceptors": "^0.41.4",
-    "@react-native/eslint-config": "^0.83.1",
+    "@react-native/eslint-config": "^0.86.0",
     "@react-native/jest-preset": "^0.86.0",
     "@testing-library/react-native": "^13.3.3",
     "@types/jest": "29.5.14",
@@ -160,6 +160,13 @@
       "/ios/",
       "/dist/"
     ]
+  },
+  "expo": {
+    "install": {
+      "exclude": [
+        "react-native-reanimated"
+      ]
+    }
   },
   "private": true
 }

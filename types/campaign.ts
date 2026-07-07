@@ -84,15 +84,24 @@ export const PublicSlotVariantResponseSchema = z.object({
 export type PublicSlotVariantResponse = z.infer<typeof PublicSlotVariantResponseSchema>;
 
 /**
+ * Public Slot Product Info Schema (Nested)
+ */
+export const PublicSlotProductInfoSchema = z.object({
+    productId: z.string(),
+    productName: z.string().nullable().optional(),
+    thumbnailUrl: z.string().nullable().optional(),
+    averageRating: z.number().nullable().optional().default(0),
+});
+
+export type PublicSlotProductInfo = z.infer<typeof PublicSlotProductInfoSchema>;
+
+/**
  * Public Slot Product Schema
  * Matches GET /api/v1/public/campaigns/slots/{slotId}
  */
 export const PublicSlotProductResponseSchema = z.object({
-    productId: z.string(),
-    productName: z.string().nullable().optional(),
-    productThumbnailUrl: z.string().nullable().optional(),
-    averageRating: z.number().nullable().optional().default(0),
     shopName: z.string().nullable().optional().default(''),
+    product: PublicSlotProductInfoSchema,
     variants: z.array(PublicSlotVariantResponseSchema).nullable().optional().default([]),
 });
 

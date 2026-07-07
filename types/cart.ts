@@ -5,15 +5,21 @@ import { ResponseDefaultSchema } from './responseSchema';
 // ZOD SCHEMAS (API Validation)
 // ============================================
 
+// Schema cho Product Line Snapshot
+export const ProductLineSnapshotSchema = z.object({
+    productId: z.string(),
+    productName: z.string().nullable().optional().default(''),
+    imagePath: z.string().nullable().optional(),
+    variantAttributes: z.string().nullable().optional().default(''),
+});
+
+export type ProductLineSnapshot = z.infer<typeof ProductLineSnapshotSchema>;
+
 // Schema cho từng Item trong giỏ (từ API /api/v1/cart)
 export const CartItemSchema = z.object({
     id: z.string(),
-    productId: z.string().nullable().optional(),
     variantId: z.string(),
-    productName: z.string().nullable().optional().default(''),
-    variantAttributes: z.string().nullable().optional().default(''),
-    shopId: z.string().nullable().optional(),
-    imagePath: z.string().nullable().optional(),
+    product: ProductLineSnapshotSchema, // <--- Lồng vào đây
 
     // Pricing
     priceBeforeDiscount: z.number().nullable().optional().default(0),
@@ -21,8 +27,8 @@ export const CartItemSchema = z.object({
     quantity: z.number().nullable().optional().default(1),
     totalPrice: z.number().nullable().optional().default(0),
     promotion: z.object({
-        discountPercent: z.number().nullable().optional(),
         campaignType: z.string().nullable().optional(),
+        discountPercent: z.number().nullable().optional(),
         stockRemaining: z.number().nullable().optional(),
         secondsRemaining: z.number().nullable().optional(),
     }).nullable().optional(),

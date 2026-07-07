@@ -9,7 +9,7 @@ import { lightTheme } from '@/constants/unistyles';
 import { queryClient } from '@/services/api/queryClient';
 import { useAppStore } from '@/store/useAppStore';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { DefaultTheme, ThemeProvider } from "expo-router/react-navigation";
 import * as Sentry from '@sentry/react-native';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { isRunningInExpoGo } from 'expo';

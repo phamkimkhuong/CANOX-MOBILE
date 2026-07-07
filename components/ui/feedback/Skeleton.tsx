@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { type StyleProp, ViewStyle } from 'react-native';
+import { type StyleProp, StyleSheet as RNStyleSheet, ViewStyle } from 'react-native';
 import Animated, {
     cancelAnimation,
     useAnimatedStyle,
@@ -64,6 +64,14 @@ export const useShimmerAnimation = (enabled: boolean = true) => {
 };
 
 /**
+ * Clean up and flatten style arrays to prevent Reanimated v4 empty style error.
+ */
+const cleanAndFlattenStyles = (...styles: any[]) => {
+    const flattened = RNStyleSheet.flatten(styles.filter(Boolean));
+    return Object.keys(flattened).length > 0 ? flattened : undefined;
+};
+
+/**
  * SkeletonBox - Base rectangular skeleton placeholder
  */
 export const SkeletonBox: React.FC<SkeletonBoxProps> = ({
@@ -78,18 +86,20 @@ export const SkeletonBox: React.FC<SkeletonBoxProps> = ({
     const internalShimmer = useShimmerAnimation(!animatedStyle);
     const finalAnimatedStyle = animatedStyle ?? internalShimmer;
 
+    const flattenedStyle = cleanAndFlattenStyles(
+        styles.box,
+        {
+            width,
+            height,
+            borderRadius: borderRadius ?? theme.radius.s,
+        },
+        finalAnimatedStyle,
+        style
+    );
+
     return (
         <Animated.View
-            style={[
-                styles.box,
-                {
-                    width,
-                    height,
-                    borderRadius: borderRadius ?? theme.radius.s,
-                },
-                finalAnimatedStyle,
-                style,
-            ]}
+            style={flattenedStyle}
             accessibilityLabel="Đang tải nội dung"
             accessibilityRole="progressbar"
         />
@@ -111,18 +121,20 @@ export const SkeletonCircle: React.FC<SkeletonCircleProps> = ({
     const internalShimmer = useShimmerAnimation(!animatedStyle);
     const finalAnimatedStyle = animatedStyle ?? internalShimmer;
 
+    const flattenedStyle = cleanAndFlattenStyles(
+        styles.box,
+        {
+            width: size,
+            height: size,
+            borderRadius: size / 2,
+        },
+        finalAnimatedStyle,
+        style
+    );
+
     return (
         <Animated.View
-            style={[
-                styles.box,
-                {
-                    width: size,
-                    height: size,
-                    borderRadius: size / 2,
-                },
-                finalAnimatedStyle,
-                style,
-            ]}
+            style={flattenedStyle}
             accessibilityLabel="Đang tải nội dung"
             accessibilityRole="progressbar"
         />
@@ -147,18 +159,20 @@ export const SkeletonText: React.FC<SkeletonTextProps> = ({
     const internalShimmer = useShimmerAnimation(!animatedStyle);
     const finalAnimatedStyle = animatedStyle ?? internalShimmer;
 
+    const flattenedStyle = cleanAndFlattenStyles(
+        styles.box,
+        {
+            width,
+            height,
+            borderRadius: theme.radius.s,
+        },
+        finalAnimatedStyle,
+        style
+    );
+
     return (
         <Animated.View
-            style={[
-                styles.box,
-                {
-                    width,
-                    height,
-                    borderRadius: theme.radius.s,
-                },
-                finalAnimatedStyle,
-                style,
-            ]}
+            style={flattenedStyle}
             accessibilityLabel="Đang tải nội dung"
             accessibilityRole="progressbar"
         />

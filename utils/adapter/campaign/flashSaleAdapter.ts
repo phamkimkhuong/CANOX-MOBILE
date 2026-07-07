@@ -11,8 +11,11 @@ export const transformSlotProductsToFlashSaleItems = (
 ): FlashSaleItem[] => {
     if (!slot?.products?.length) return [];
 
-    return slot.products.flatMap((product) => {
-        const representativeVariant = product.variants?.[0];
+    return slot.products.flatMap((item) => {
+        const productInfo = item.product;
+        if (!productInfo) return [];
+
+        const representativeVariant = item.variants?.[0];
         if (!representativeVariant) return [];
 
         const stockLimit = representativeVariant.stockLimit || 1;
@@ -21,16 +24,16 @@ export const transformSlotProductsToFlashSaleItems = (
         const progress = Math.min(Math.round((stockSold / stockLimit) * 100), 100);
 
         return [{
-            id: product.productId,
-            productId: product.productId,
-            name: product.productName || 'Sản phẩm Flash Sale',
-            shopName: product.shopName || '',
+            id: productInfo.productId,
+            productId: productInfo.productId,
+            name: productInfo.productName || 'Sản phẩm Flash Sale',
+            shopName: item.shopName || '',
             image: buildImageUrl(
-                product.productThumbnailUrl || representativeVariant.variantImagePath,
+                productInfo.thumbnailUrl || representativeVariant.variantImagePath,
                 null,
                 'medium'
             ),
-            rating: product.averageRating || 0,
+            rating: productInfo.averageRating || 0,
             price: representativeVariant.salePrice || 0,
             originalPrice: representativeVariant.originalPrice || 0,
             discountPercentage: representativeVariant.discountPercent || 0,
