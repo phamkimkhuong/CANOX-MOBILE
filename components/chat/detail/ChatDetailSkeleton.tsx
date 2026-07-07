@@ -10,13 +10,13 @@ import { StyleSheet } from 'react-native-unistyles';
 
 interface ChatDetailSkeletonProps {
     count?: number;
-    shimmerAnimatedStyle?: StyleProp<ViewStyle>;
+    shimmerAnimatedStyle?: any;
 }
 
 /**
  * Single bubble skeleton item
  */
-const SkeletonBubble: React.FC<{ isMe: boolean; shimmerAnimatedStyle?: StyleProp<ViewStyle> }> = ({ isMe, shimmerAnimatedStyle }) => {
+const SkeletonBubble: React.FC<{ isMe: boolean; shimmerAnimatedStyle?: any }> = ({ isMe, shimmerAnimatedStyle }) => {
     const styles = stylesheet;
 
     return (

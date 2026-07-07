@@ -22,7 +22,7 @@ interface CategoryContentProps {
     isLoading?: boolean;
     /** Category ID để hiển thị banner targeted */
     categoryId?: string | null;
-    shimmerAnimatedStyle?: StyleProp<ViewStyle>;
+    shimmerAnimatedStyle?: any;
 }
 
 // Constants
@@ -258,7 +258,7 @@ export const CategoryContent: React.FC<CategoryContentProps> = ({
  * Skeleton Component cho CategoryContent
  * Hiển thị ngay lập tức khi chuyển category
  */
-const CategoryContentSkeleton: React.FC<{ shimmerAnimatedStyle?: StyleProp<ViewStyle> }> = ({ shimmerAnimatedStyle }) => {
+const CategoryContentSkeleton: React.FC<{ shimmerAnimatedStyle?: any }> = ({ shimmerAnimatedStyle }) => {
     const styles = stylesheet;
 
     return (

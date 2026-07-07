@@ -11,7 +11,7 @@ interface CategorySidebarProps {
     selectedId: string | null;
     onSelect: (categoryId: string, index: number) => void;
     isLoading?: boolean;
-    shimmerAnimatedStyle?: StyleProp<ViewStyle>;
+    shimmerAnimatedStyle?: any;
 }
 
 /**

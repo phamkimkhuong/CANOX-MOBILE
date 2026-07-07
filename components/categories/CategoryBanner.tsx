@@ -41,7 +41,7 @@ interface CategoryBannerProps {
     /** Margin horizontal */
     marginHorizontal?: number;
     /** Shared animation style */
-    shimmerAnimatedStyle?: StyleProp<ViewStyle>;
+    shimmerAnimatedStyle?: any;
 }
 
 // ============================================

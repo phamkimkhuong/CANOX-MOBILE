@@ -1,6 +1,6 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { dateToDisplayFormat } from '@/hooks/api/profile/useUpdateProfile';
-import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import DateTimePicker, { type DateTimePickerChangeEvent } from '@expo/ui/community/datetime-picker';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, Text, TouchableOpacity, View } from 'react-native';
@@ -19,6 +19,7 @@ interface DatePickerFieldProps {
 
 /**
  * DatePickerField - Native Date Picker wrapper
+ * Sử dụng @expo/ui (SwiftUI trên iOS, Jetpack Compose trên Android)
  */
 export const DatePickerField: React.FC<DatePickerFieldProps> = ({
     value,
@@ -38,20 +39,17 @@ export const DatePickerField: React.FC<DatePickerFieldProps> = ({
     const actualLabel = label || t('profile:editProfile.form.birthday');
     const actualPlaceholder = placeholder || t('profile:editProfile.form.birthdayPlaceholder');
 
-    const handleChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
-        // On Android, picker auto-closes
-        if (Platform.OS === 'android' || event.type === 'dismissed') {
+    const handleValueChange = (_event: DateTimePickerChangeEvent, selectedDate: Date) => {
+        // Android dialog tự đóng sau khi chọn
+        if (Platform.OS === 'android') {
             setShowPicker(false);
         }
+        onChange(selectedDate);
+    };
 
-        if (event.type === 'set' && selectedDate) {
-            onChange(selectedDate);
-        }
-
-        // iOS: Close picker when done button is pressed
-        if (Platform.OS === 'ios' && event.type === 'dismissed') {
-            setShowPicker(false);
-        }
+    const handleDismiss = () => {
+        // Android: User nhấn Cancel trên dialog
+        setShowPicker(false);
     };
 
     const handlePress = () => {
@@ -102,11 +100,11 @@ export const DatePickerField: React.FC<DatePickerFieldProps> = ({
 
             {error && <Text style={styles.errorText}>{error}</Text>}
 
-            {/* Native Date Picker */}
+            {/* Native Date Picker — @expo/ui */}
             {showPicker && (
                 <>
                     {Platform.OS === 'ios' ? (
-                        // iOS: Show as modal overlay
+                        // iOS: Show inline spinner with Done button
                         <View style={styles.iosPickerContainer}>
                             <View style={styles.iosPickerHeader}>
                                 <TouchableOpacity onPress={handleIOSClose} accessibilityLabel={t('common:actions.done')}>
@@ -117,19 +115,21 @@ export const DatePickerField: React.FC<DatePickerFieldProps> = ({
                                 value={value || new Date(2000, 0, 1)}
                                 mode="date"
                                 display="spinner"
-                                onChange={handleChange}
+                                onValueChange={handleValueChange}
+                                onDismiss={handleDismiss}
                                 minimumDate={minDate}
                                 maximumDate={maxDate}
                                 locale={i18n.language === 'vi' ? 'vi-VN' : 'en-US'}
                             />
                         </View>
                     ) : (
-                        // Android: Native dialog
+                        // Android: Dialog presentation (default)
                         <DateTimePicker
                             value={value || new Date(2000, 0, 1)}
                             mode="date"
-                            display="default"
-                            onChange={handleChange}
+                            presentation="dialog"
+                            onValueChange={handleValueChange}
+                            onDismiss={handleDismiss}
                             minimumDate={minDate}
                             maximumDate={maxDate}
                         />

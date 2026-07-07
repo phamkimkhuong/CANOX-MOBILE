@@ -16,7 +16,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
 interface CheckoutSkeletonProps {
     /** Shared shimmer animation from parent — REQUIRED for performance */
-    animatedStyle?: StyleProp<ViewStyle>;
+    animatedStyle?: any;
 }
 
 /**
@@ -28,7 +28,7 @@ const Block: React.FC<{
     h: number;
     r?: number;
     style?: ViewStyle;
-    animatedStyle?: StyleProp<ViewStyle>;
+    animatedStyle?: any;
 }> = ({ w, h, r = 4, style, animatedStyle }) => {
     const { theme } = useUnistyles();
     return (

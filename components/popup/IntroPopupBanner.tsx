@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     overlayTouchable: {
-        ...StyleSheet.absoluteFillObject,
+        ...StyleSheet.absoluteFill,
     },
     bannerContainer: {
         width: BANNER_WIDTH,

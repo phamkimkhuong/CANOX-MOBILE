@@ -13,7 +13,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 // Helper để render Icon gọn gàng với IconSymbol
 function TabBarIcon(props: {
   name: IconSymbolName;
-  color: string;
+  color: any;
 }) {
   return <IconSymbol size={24} name={props.name} color={props.color} />;
 }
