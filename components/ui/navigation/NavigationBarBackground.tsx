@@ -1,5 +1,5 @@
+import { StatusBar } from 'expo-status-bar';
 import { Platform, StyleSheet, View } from 'react-native';
-import { SystemBars } from 'react-native-edge-to-edge';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 /**
@@ -26,7 +26,7 @@ export function NavigationBarBackground({
 
     return (
         <>
-            <SystemBars style="dark" />
+            <StatusBar style="dark" />
             <View
                 style={[
                     styles.container,

@@ -1,5 +1,5 @@
-import * as ConfigPlugins from '@expo/config-plugins';
-import { ConfigPlugin } from '@expo/config-plugins';
+import * as ConfigPlugins from 'expo/config-plugins';
+import { ConfigPlugin } from 'expo/config-plugins';
 
 /**
  * Plugin to disable Android Lint tasks which frequently fail on Windows

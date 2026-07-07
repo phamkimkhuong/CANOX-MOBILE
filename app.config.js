@@ -78,7 +78,6 @@ module.exports = {
             "expo-router",
             "expo-video",
             "expo-localization",
-            "@react-native-community/datetimepicker",
             "expo-font",
             "expo-image",
             "expo-secure-store",

@@ -1,5 +1,5 @@
-import * as ConfigPlugins from '@expo/config-plugins';
-import { ConfigPlugin } from '@expo/config-plugins';
+import * as ConfigPlugins from 'expo/config-plugins';
+import { ConfigPlugin } from 'expo/config-plugins';
 
 /**
  * Plugin auto add config support 16KB Page Size for Android 15+
