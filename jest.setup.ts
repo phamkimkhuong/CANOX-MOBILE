@@ -56,3 +56,57 @@ jest.mock('react-native-mmkv', () => ({
   }),
 }));
 
+// Mock Firebase modules
+jest.mock('@react-native-firebase/app', () => ({
+  initializeApp: jest.fn(),
+}));
+
+jest.mock('@react-native-firebase/analytics', () => ({
+  getAnalytics: jest.fn(() => ({})),
+  logEvent: jest.fn(),
+  setUserId: jest.fn(),
+  setAnalyticsCollectionEnabled: jest.fn(),
+}));
+
+jest.mock('@react-native-firebase/messaging', () => ({
+  AuthorizationStatus: {
+    NOT_DETERMINED: -1,
+    DENIED: 0,
+    AUTHORIZED: 1,
+    PROVISIONAL: 2,
+  },
+  getMessaging: jest.fn(() => ({
+    getToken: jest.fn(() => Promise.resolve('mock-fcm-token')),
+    requestPermission: jest.fn(() => Promise.resolve(1)),
+    onMessage: jest.fn(() => () => {}),
+    onTokenRefresh: jest.fn(() => () => {}),
+    onNotificationOpenedApp: jest.fn(() => () => {}),
+    getInitialNotification: jest.fn(() => Promise.resolve(null)),
+    setBackgroundMessageHandler: jest.fn(),
+  })),
+  getToken: jest.fn(() => Promise.resolve('mock-fcm-token')),
+  requestPermission: jest.fn(() => Promise.resolve(1)),
+  onMessage: jest.fn(() => () => {}),
+  onTokenRefresh: jest.fn(() => () => {}),
+  onNotificationOpenedApp: jest.fn(() => () => {}),
+  getInitialNotification: jest.fn(() => Promise.resolve(null)),
+  setBackgroundMessageHandler: jest.fn(),
+  unsubscribeFromTopic: jest.fn(() => Promise.resolve()),
+  subscribeToTopic: jest.fn(() => Promise.resolve()),
+  hasPermission: jest.fn(() => Promise.resolve(1)),
+}));
+
+jest.mock('@react-native-firebase/remote-config', () => ({
+  getRemoteConfig: jest.fn(() => ({
+    fetchAndActivate: jest.fn(() => Promise.resolve(true)),
+    getValue: jest.fn(() => ({ asBoolean: () => false, asString: () => '' })),
+    getBoolean: jest.fn(() => false),
+    getString: jest.fn(() => ''),
+    setConfigSettings: jest.fn(() => Promise.resolve()),
+  })),
+  fetchAndActivate: jest.fn(() => Promise.resolve(true)),
+  getBoolean: jest.fn(() => false),
+  getString: jest.fn(() => ''),
+  setConfigSettings: jest.fn(() => Promise.resolve()),
+}));
+

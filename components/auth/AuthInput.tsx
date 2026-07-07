@@ -1,6 +1,6 @@
 import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import React, { useState } from 'react';
-import { Control, Controller } from 'react-hook-form';
+import { Controller } from 'react-hook-form';
 import { Text, TextInput, TextInputProps, TouchableOpacity, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 
@@ -9,7 +9,7 @@ import { StyleSheet, useUnistyles } from 'react-native-unistyles';
  */
 interface AuthInputProps extends TextInputProps {
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-    control: Control<any>;
+    control: any;
     name: string;
     label: string;
     icon: IconSymbolName;

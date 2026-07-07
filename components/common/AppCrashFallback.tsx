@@ -195,7 +195,7 @@ export function AppRenderErrorFallback({
 }: AppRenderErrorFallbackProps) {
     return (
         <AppCrashFallbackView
-            error={error}
+            error={error as Error}
             title={title}
             titleKey={titleKey}
             message={message}

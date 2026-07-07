@@ -82,7 +82,6 @@ export const createTestI18n = (locale: 'en' | 'vi' = 'en'): I18nInstance => {
     interpolation: {
       escapeValue: false,
     },
-    initImmediate: false,
   });
 
   return instance;
