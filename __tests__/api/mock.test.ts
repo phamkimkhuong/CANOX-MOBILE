@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import { server } from '../setup/server';
 
 describe('MSW API Mocking', () => {
@@ -7,11 +7,8 @@ describe('MSW API Mocking', () => {
   it('should receive mock data from msw server', async () => {
     // 1. Phục kích một request tạm thời để test
     server.use(
-      rest.get(`http://app.test/test-mock`, (req, res, ctx) => {
-        return res(
-          ctx.status(200),
-          ctx.json({ message: 'Hello from MSW' })
-        );
+      http.get(`http://app.test/test-mock`, () => {
+        return HttpResponse.json({ message: 'Hello from MSW' }, { status: 200 });
       })
     );
 

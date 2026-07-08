@@ -1,4 +1,4 @@
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 
 const API_PREFIX = '/api/v1';
 
@@ -65,48 +65,49 @@ const logoutSuccessResponse = {
 
 export const authHandlers = [
     // Login
-    rest.post(`http://app.test${API_PREFIX}/auth/login/mobile`, (req, res, ctx) => {
-        return res(ctx.status(200), ctx.json(loginSuccessResponse));
+    http.post(`http://app.test${API_PREFIX}/auth/login/mobile`, () => {
+        return HttpResponse.json(loginSuccessResponse, { status: 200 });
     }),
 
     // Register
-    rest.post(`http://app.test${API_PREFIX}/users/buyer`, (req, res, ctx) => {
-        return res(ctx.status(200), ctx.json(registerSuccessResponse));
+    http.post(`http://app.test${API_PREFIX}/users/buyer`, () => {
+        return HttpResponse.json(registerSuccessResponse, { status: 200 });
     }),
 
     // Logout
-    rest.post(`http://app.test${API_PREFIX}/auth/logout`, (req, res, ctx) => {
-        return res(ctx.status(200), ctx.json(logoutSuccessResponse));
+    http.post(`http://app.test${API_PREFIX}/auth/logout`, () => {
+        return HttpResponse.json(logoutSuccessResponse, { status: 200 });
     }),
 
     // Verify OTP
-    rest.post(`http://app.test${API_PREFIX}/auth/otp/verify`, (req, res, ctx) => {
-        return res(ctx.status(200), ctx.json({ code: 200, success: true, message: 'OTP verified', data: null }));
+    http.post(`http://app.test${API_PREFIX}/auth/otp/verify`, () => {
+        return HttpResponse.json({ code: 200, success: true, message: 'OTP verified', data: null }, { status: 200 });
     }),
 
     // Resend OTP
-    rest.post(`http://app.test${API_PREFIX}/auth/otp/resend`, (req, res, ctx) => {
-        return res(ctx.status(200), ctx.json({ code: 200, success: true, message: 'OTP resent', data: null }));
+    http.post(`http://app.test${API_PREFIX}/auth/otp/resend`, () => {
+        return HttpResponse.json({ code: 200, success: true, message: 'OTP resent', data: null }, { status: 200 });
     }),
 
     // Forgot Password Flow
-    rest.post(`http://app.test${API_PREFIX}/auth/password/forgot`, (req, res, ctx) => {
-        return res(ctx.status(200), ctx.json({ code: 200, success: true, message: 'Password reset OTP sent', data: null }));
+    http.post(`http://app.test${API_PREFIX}/auth/password/forgot`, () => {
+        return HttpResponse.json({ code: 200, success: true, message: 'Password reset OTP sent', data: null }, { status: 200 });
     }),
-    rest.post(`http://app.test${API_PREFIX}/auth/password/verify`, (req, res, ctx) => {
-        return res(ctx.status(200), ctx.json({ code: 200, success: true, message: 'Password reset OTP verified', data: null }));
+    http.post(`http://app.test${API_PREFIX}/auth/password/verify`, () => {
+        return HttpResponse.json({ code: 200, success: true, message: 'Password reset OTP verified', data: null }, { status: 200 });
     }),
-    rest.post(`http://app.test${API_PREFIX}/auth/password/reset`, (req, res, ctx) => {
-        return res(ctx.status(200), ctx.json({ code: 200, success: true, message: 'Password reset successful', data: null }));
+    http.post(`http://app.test${API_PREFIX}/auth/password/reset`, () => {
+        return HttpResponse.json({ code: 200, success: true, message: 'Password reset successful', data: null }, { status: 200 });
     }),
 
     // Check email exists
-    rest.get(`http://app.test${API_PREFIX}/users/exists/email`, (req, res, ctx) => {
-        const email = req.url.searchParams.get('email');
+    http.get(`http://app.test${API_PREFIX}/users/exists/email`, ({ request }) => {
+        const url = new URL(request.url);
+        const email = url.searchParams.get('email');
         if (email === 'existing@example.com') {
-            return res(ctx.status(200), ctx.json({ code: 200, success: true, message: 'Email exists', data: true }));
+            return HttpResponse.json({ code: 200, success: true, message: 'Email exists', data: true }, { status: 200 });
         }
-        return res(ctx.status(200), ctx.json({ code: 200, success: true, message: 'Email not found', data: false }));
+        return HttpResponse.json({ code: 200, success: true, message: 'Email not found', data: false }, { status: 200 });
     }),
 ];
 

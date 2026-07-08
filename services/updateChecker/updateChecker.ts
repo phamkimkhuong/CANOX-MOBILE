@@ -17,8 +17,6 @@ import {
     getBoolean,
     getRemoteConfig,
     getString,
-    setConfigSettings,
-    setDefaults
 } from '@react-native-firebase/remote-config';
 import * as Application from 'expo-application';
 import { Platform } from 'react-native';
@@ -162,12 +160,13 @@ async function fetchRemoteConfig(): Promise<void> {
     const rc = getRemoteConfig();
 
     // Set defaults for first-time / offline scenarios
-    await setDefaults(rc, RC_DEFAULTS);
+    rc.defaultConfig = RC_DEFAULTS;
 
     // Set minimum fetch interval (0 for dev, 3600 for production)
-    await setConfigSettings(rc, {
+    rc.settings = {
         minimumFetchIntervalMillis: __DEV__ ? 0 : 3600 * 1000,
-    });
+        fetchTimeoutMillis: 30000, // 30 seconds
+    };
 
     // Fetch and activate
     await fetchAndActivate(rc);

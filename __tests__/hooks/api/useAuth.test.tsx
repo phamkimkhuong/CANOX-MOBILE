@@ -3,7 +3,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 import { router } from 'expo-router';
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import React from 'react';
 import Toast from 'react-native-toast-message';
 import { loginUnverifiedResponse } from '../../setup/handlers/auth.handlers';
@@ -138,8 +138,8 @@ describe('useLogin', () => {
     it('redirects to OTP verification when email is not verified', async () => {
         // Override handler to return unverified response
         server.use(
-            rest.post('http://app.test/api/v1/auth/login/mobile', (_req, res, ctx) => {
-                return res(ctx.status(200), ctx.json(loginUnverifiedResponse));
+            http.post('http://app.test/api/v1/auth/login/mobile', () => {
+                return HttpResponse.json(loginUnverifiedResponse, { status: 200 });
             })
         );
 
@@ -169,15 +169,12 @@ describe('useLogin', () => {
 
     it('shows error toast on login failure (wrong credentials)', async () => {
         server.use(
-            rest.post('http://app.test/api/v1/auth/login/mobile', (_req, res, ctx) => {
-                return res(
-                    ctx.status(401),
-                    ctx.json({
-                        code: 401,
-                        success: false,
-                        message: 'Invalid credentials',
-                    })
-                );
+            http.post('http://app.test/api/v1/auth/login/mobile', () => {
+                return HttpResponse.json({
+                    code: 401,
+                    success: false,
+                    message: 'Invalid credentials',
+                }, { status: 401 });
             })
         );
 
@@ -229,15 +226,12 @@ describe('useRegister', () => {
 
     it('shows error toast on registration failure (non-208/209 error)', async () => {
         server.use(
-            rest.post('http://app.test/api/v1/users/buyer', (_req, res, ctx) => {
-                return res(
-                    ctx.status(400),
-                    ctx.json({
-                        code: 400,
-                        success: false,
-                        message: 'Username already taken',
-                    })
-                );
+            http.post('http://app.test/api/v1/users/buyer', () => {
+                return HttpResponse.json({
+                    code: 400,
+                    success: false,
+                    message: 'Username already taken',
+                }, { status: 400 });
             })
         );
 
@@ -310,15 +304,12 @@ describe('useLogout', () => {
 
     it('shows error toast on logout failure (non-session-expired)', async () => {
         server.use(
-            rest.post('http://app.test/api/v1/auth/logout', (_req, res, ctx) => {
-                return res(
-                    ctx.status(500),
-                    ctx.json({
-                        code: 500,
-                        success: false,
-                        message: 'Internal server error',
-                    })
-                );
+            http.post('http://app.test/api/v1/auth/logout', () => {
+                return HttpResponse.json({
+                    code: 500,
+                    success: false,
+                    message: 'Internal server error',
+                }, { status: 500 });
             })
         );
 

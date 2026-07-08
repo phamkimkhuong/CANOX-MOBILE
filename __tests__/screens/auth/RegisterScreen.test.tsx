@@ -5,7 +5,7 @@ import { Navigator } from '@/utils/navigation';
 import RegisterScreen from '@/app/(auth)/register';
 import { useAuthStore } from '@/store/useAuthStore';
 import { server } from '../../setup/server';
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import { router } from 'expo-router';
 import { authRoutes } from '@/constants/routes';
 
@@ -100,15 +100,12 @@ describe('RegisterScreen Integration', () => {
     it('handles backend collision errors (209 Email Exists)', async () => {
         // Override MSW to return an error 209 for this test
         server.use(
-            rest.post('*/api/v1/users/buyer', (req, res, ctx) => {
-                return res(
-                    ctx.status(400),
-                    ctx.json({
-                        code: 209,
-                        success: false,
-                        message: 'Email already exists',
-                    })
-                );
+            http.post('*/api/v1/users/buyer', () => {
+                return HttpResponse.json({
+                    code: 209,
+                    success: false,
+                    message: 'Email already exists',
+                }, { status: 400 });
             })
         );
         

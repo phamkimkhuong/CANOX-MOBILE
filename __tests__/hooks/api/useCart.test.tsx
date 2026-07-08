@@ -2,7 +2,7 @@ import { useCart } from '@/hooks/api/cart/useCart';
 import { apiClient } from '@/services/api/client';
 import { useAuthStore } from '@/store/useAuthStore';
 import { act, waitFor } from '@testing-library/react-native';
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import { server } from '../../setup/server';
 import { renderHookWithProviders } from '../../utils/test-utils';
 
@@ -58,11 +58,8 @@ describe('useCart Hook Integration Test', () => {
         };
 
         server.use(
-            rest.get('http://app.test/api/v1/cart', (req, res, ctx) => {
-                return res(
-                    ctx.status(200),
-                    ctx.json(mockEmptyCart)
-                );
+            http.get('http://app.test/api/v1/cart', () => {
+                return HttpResponse.json(mockEmptyCart, { status: 200 });
             })
         );
 
@@ -86,11 +83,8 @@ describe('useCart Hook Integration Test', () => {
             useAuthStore.setState({ isAuthenticated: true });
         });
         server.use(
-            rest.get(`http://app.test/api/v1/cart`, (req, res, ctx) => {
-                return res(
-                    ctx.status(500),
-                    ctx.json({ message: 'Internal Server Error' })
-                );
+            http.get(`http://app.test/api/v1/cart`, () => {
+                return HttpResponse.json({ message: 'Internal Server Error' }, { status: 500 });
             })
         );
         const { result, queryClient, unmount } = renderHookWithProviders(() => useCart());

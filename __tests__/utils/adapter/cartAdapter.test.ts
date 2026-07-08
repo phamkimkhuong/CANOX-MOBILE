@@ -103,7 +103,7 @@ describe('buildImageUrl', () => {
 
 describe('transformCartItem', () => {
     it('transforms basic fields correctly', () => {
-        const result = transformCartItem(createCartItem());
+        const result = transformCartItem(createCartItem(), 'shop-1');
 
         expect(result.id).toBe('item-1');
         expect(result.productId).toBe('prod-1');

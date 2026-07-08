@@ -15,7 +15,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { isRunningInExpoGo } from 'expo';
 import { Asset } from 'expo-asset';
 import { useFonts } from 'expo-font';
-import { Stack, useNavigationContainerRef } from 'expo-router';
+import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
@@ -25,16 +25,14 @@ import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { enableFreeze } from 'react-native-screens';
 
-const navigationIntegration = Sentry.reactNavigationIntegration({
-  enableTimeToInitialDisplay: !isRunningInExpoGo(),
-});
-
 Sentry.init({
   dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
   enabled: !__DEV__,
   environment: process.env.EXPO_PUBLIC_APP_ENV || (__DEV__ ? 'development' : 'production'),
   integrations: [
-    navigationIntegration,
+    Sentry.expoRouterIntegration({
+      enableTimeToInitialDisplay: !isRunningInExpoGo(),
+    }),
   ],
   tracesSampleRate: 1.0,
   profilesSampleRate: __DEV__ ? 0.0 : 1.0, // Disable CPU profiling in dev mode to prevent Hermes Sampling thread crash
@@ -102,13 +100,6 @@ export const unstable_settings = {
 SplashScreen.preventAutoHideAsync();
 
 function RootLayout() {
-  const ref = useNavigationContainerRef();
-
-  useEffect(() => {
-    if (ref) {
-      navigationIntegration.registerNavigationContainer(ref);
-    }
-  }, [ref]);
 
   const isSystemDown = useAppStore((state) => state.isSystemDown);
   const setSystemDown = useAppStore((state) => state.setSystemDown);

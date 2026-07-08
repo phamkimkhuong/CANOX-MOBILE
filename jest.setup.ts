@@ -96,17 +96,20 @@ jest.mock('@react-native-firebase/messaging', () => ({
   hasPermission: jest.fn(() => Promise.resolve(1)),
 }));
 
-jest.mock('@react-native-firebase/remote-config', () => ({
-  getRemoteConfig: jest.fn(() => ({
+jest.mock('@react-native-firebase/remote-config', () => {
+  const mockConfig = {
     fetchAndActivate: jest.fn(() => Promise.resolve(true)),
     getValue: jest.fn(() => ({ asBoolean: () => false, asString: () => '' })),
     getBoolean: jest.fn(() => false),
     getString: jest.fn(() => ''),
-    setConfigSettings: jest.fn(() => Promise.resolve()),
-  })),
-  fetchAndActivate: jest.fn(() => Promise.resolve(true)),
-  getBoolean: jest.fn(() => false),
-  getString: jest.fn(() => ''),
-  setConfigSettings: jest.fn(() => Promise.resolve()),
-}));
+    settings: {},
+    defaultConfig: {},
+  };
+  return {
+    getRemoteConfig: jest.fn(() => mockConfig),
+    fetchAndActivate: jest.fn(() => Promise.resolve(true)),
+    getBoolean: jest.fn(() => false),
+    getString: jest.fn(() => ''),
+  };
+});
 
