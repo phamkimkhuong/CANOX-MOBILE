@@ -363,21 +363,7 @@ const lightTheme = {
 | `npm start` | Khởi động Expo development server |
 | `npm run clear` | Xóa cache và khởi động lại |
 | `npm run android` | Build và chạy trên Android |
-| `npm run a-dev` | Chạy dev variant trên Android device |
 | `npm run ios` | Build và chạy trên iOS (macOS only) |
-| `npm run lint` | Kiểm tra linting (ESLint) |
-| `npm run type-check` | Kiểm tra TypeScript types |
-| `npm run test` | Chạy toàn bộ test suite |
-| `npm run test:adapter` | Test adapters |
-| `npm run test:store` | Test Zustand stores |
-| `npm run test:hook` | Test custom hooks |
-| `npm run test:component` | Test components |
-| `npm run test:screen` | Test screens |
-| `npm run test:api` | Test API contracts (MSW) |
-| `npm run build-dev` | EAS Build — Development |
-| `npm run build-preview` | EAS Build — Preview (APK) |
-| `npm run build-prod` | EAS Build — Production |
-| `npm run prebuild` | Generate native projects (clean) |
 
 ## 🏗️ Build Variants
 

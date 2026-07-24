@@ -75,13 +75,11 @@ const calculateLowStockWarning = (availableStock: number): CartItemUI['lowStockW
  * - totalPrice: unitPrice × quantity (pre-calculated by API)
  */
 export const transformCartItem = (item: CartItem, shopId?: string): CartItemUI => {
-    const unitPrice = item.unitPrice ?? 0;
+    const rawUnitPrice = item.unitPrice ?? 0;
     const priceBeforeDiscount = item.priceBeforeDiscount ?? 0;
     const availableStock = item.availableStock ?? 0;
     const productInfo = item.product;
-
-    // Only show original price if there's an actual discount
-    const hasDiscount = priceBeforeDiscount > unitPrice;
+    const quantity = item.quantity ?? 1;
 
     // Active Promotion Details
     const promotion = item.promotion ? {
@@ -91,16 +89,33 @@ export const transformCartItem = (item: CartItem, shopId?: string): CartItemUI =
         secondsRemaining: item.promotion.secondsRemaining ?? 0,
     } : null;
 
+    // Check if promo stock limit is exceeded (e.g. quantity 10 > promo stockRemaining 9)
+    const stockRemaining = promotion?.stockRemaining ?? null;
+    const isPromoStockExceeded = promotion !== null && stockRemaining !== null && stockRemaining > 0 && quantity > stockRemaining;
+
+    // When promo stock limit is exceeded, price reverts to original price (priceBeforeDiscount)
+    const unitPrice = isPromoStockExceeded && priceBeforeDiscount > 0 ? priceBeforeDiscount : rawUnitPrice;
+    const totalPrice = unitPrice * quantity;
+
+    // Only show original price if there's an actual discount and promo stock limit is NOT exceeded
+    const hasDiscount = !isPromoStockExceeded && priceBeforeDiscount > unitPrice;
+
+    const promoExceededWarning = isPromoStockExceeded ? {
+        text: `Vượt quá ${stockRemaining} suất giá KM (Áp dụng giá gốc ${formatShortCurrency(priceBeforeDiscount)})`,
+        stockRemaining: stockRemaining ?? 0,
+        originalPrice: priceBeforeDiscount,
+    } : null;
+
     return {
         id: item.id,
         productId: productInfo?.productId ?? '',
-        variantId: item.variantId,
+        variantId: productInfo?.variantId ?? '',
         productName: productInfo?.productName ?? '',
         variantAttributes: productInfo?.variantAttributes || '',
         imageUrl: buildImageUrl(productInfo?.imagePath),
         unitPrice,
-        quantity: item.quantity ?? 1,
-        totalPrice: item.totalPrice ?? 0,
+        quantity,
+        totalPrice,
         shopId: shopId ?? '',
 
         // Server selection state
@@ -113,6 +128,10 @@ export const transformCartItem = (item: CartItem, shopId?: string): CartItemUI =
 
         // Low stock warning
         lowStockWarning: calculateLowStockWarning(availableStock),
+
+        // Promo stock exceeded warning
+        isPromoStockExceeded,
+        promoExceededWarning,
 
         // Discount pricing
         originalPrice: hasDiscount ? priceBeforeDiscount : null,

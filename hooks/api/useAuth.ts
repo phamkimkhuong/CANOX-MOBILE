@@ -3,7 +3,7 @@ import { authRoutes, ROUTES } from '@/constants/routes';
 import { ApiError, isSessionExpiredError, request } from '@/services/api/client';
 import { useAuthStore } from '@/store/useAuthStore';
 import { hideGlobalLoading, showGlobalLoading } from '@/store/useLoadingStore';
-import { AuthResponseSchema, LoginPayload, RegisterPayload, RegisterResponseSchema, ResetPasswordPayload, VerifyOtpPayload } from '@/types/auth';
+import { AuthResponseSchema, LoginPayload, RegisterPayload, RegisterResponseSchema, ResetPasswordPayload, VerifyForgotPasswordOtpResponseSchema, VerifyOtpPayload } from '@/types/auth';
 import { ResponseDefaultSchema } from '@/types/responseSchema';
 import { useMutation } from '@tanstack/react-query';
 import { router } from 'expo-router';
@@ -194,7 +194,7 @@ export const useVerifyForgotPasswordOtp = () => {
                 url: API_ROUTES.AUTH.VERIFY_FORGOT_PASSWORD_OTP,
                 method: 'POST',
                 data,
-            }, ResponseDefaultSchema);
+            }, VerifyForgotPasswordOtpResponseSchema);
         },
     });
 };

@@ -408,6 +408,7 @@ describe('OTP and Forgot Password Hooks', () => {
         await act(async () => {
             result.current.mutate({
                 email: 'test@example.com',
+                resetToken: 'mock-reset-token-123',
                 password: 'NewPassword123',
                 confirmPassword: 'NewPassword123',
             });

@@ -8,6 +8,7 @@ import { ResponseDefaultSchema } from './responseSchema';
 // Schema cho Product Line Snapshot
 export const ProductLineSnapshotSchema = z.object({
     productId: z.string(),
+    variantId: z.string().nullable().optional(),
     productName: z.string().nullable().optional().default(''),
     imagePath: z.string().nullable().optional(),
     variantAttributes: z.string().nullable().optional().default(''),
@@ -18,7 +19,6 @@ export type ProductLineSnapshot = z.infer<typeof ProductLineSnapshotSchema>;
 // Schema cho từng Item trong giỏ (từ API /api/v1/cart)
 export const CartItemSchema = z.object({
     id: z.string(),
-    variantId: z.string(),
     product: ProductLineSnapshotSchema, // <--- Lồng vào đây
 
     // Pricing
@@ -134,10 +134,18 @@ export interface CartItemUI {
     isOutOfStock: boolean;
     maxQuantity: number;
 
-    // Low stock warning
+    // Low stock & promo stock limit warnings
     lowStockWarning: {
         text: string;        // "Chỉ còn 3 sản phẩm" or "Còn 8 sản phẩm"
         isUrgent: boolean;   // true = red color, false = orange color
+    } | null;
+
+    // Promo stock exceeded warning
+    isPromoStockExceeded?: boolean;
+    promoExceededWarning?: {
+        text: string;
+        stockRemaining: number;
+        originalPrice: number;
     } | null;
 
     // Discount

@@ -49,6 +49,7 @@ import { logger } from '@/utils/logger';
 import { Navigator } from '@/utils/navigation';
 import { FlashList } from '@shopify/flash-list';
 import { useQueryClient } from '@tanstack/react-query';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -217,13 +218,18 @@ const EmptyCart: React.FC<EmptyCartProps> = ({ onRefresh, refreshing, isAuthenti
             }
         >
             <View style={styles.emptyContainer}>
-                <View style={styles.emptyIconCircle}>
+                <LinearGradient
+                    colors={['rgba(255, 122, 0, 0.15)', 'rgba(239, 68, 68, 0.08)']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.emptyIconCircle}
+                >
                     <IconSymbol
                         name="cart"
-                        size={60}
+                        size={48}
                         color={theme.colors.newPrimary}
                     />
-                </View>
+                </LinearGradient>
                 <Text style={styles.emptyTitle}>
                     {isAuthenticated ? t('cart:empty.title') : t('cart:authRequired.title')}
                 </Text>
@@ -236,13 +242,20 @@ const EmptyCart: React.FC<EmptyCartProps> = ({ onRefresh, refreshing, isAuthenti
                         <Pressable
                             onPress={() => Navigator.push('/(auth)/login')}
                             style={({ pressed }) => [
-                                styles.loginButton,
+                                styles.loginButtonWrapper,
                                 pressed && styles.buttonPressed
                             ]}
                             accessibilityLabel={t('cart:authRequired.login')}
                             accessibilityRole="button"
                         >
-                            <Text style={styles.loginButtonText}>{t('cart:authRequired.login')}</Text>
+                            <LinearGradient
+                                colors={[theme.colors.newPrimary, '#ff7a00']}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 0 }}
+                                style={styles.loginButtonGradient}
+                            >
+                                <Text style={styles.loginButtonText}>{t('cart:authRequired.login')}</Text>
+                            </LinearGradient>
                         </Pressable>
                     ) : (
                         <Pressable
@@ -861,13 +874,14 @@ const styles = StyleSheet.create((theme, runtime) => ({
         gap: theme.margins.sm,
     },
     emptyIconCircle: {
-        width: 80,
-        height: 80,
-        borderRadius: 50,
-        backgroundColor: theme.colors.activeSoft,
+        width: 96,
+        height: 96,
+        borderRadius: 48,
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: theme.margins.sm,
+        borderWidth: 1,
+        borderColor: 'rgba(239, 68, 68, 0.15)',
     },
     emptyTitle: {
         fontSize: 18,
@@ -911,19 +925,26 @@ const styles = StyleSheet.create((theme, runtime) => ({
         width: '100%',
         paddingHorizontal: theme.margins.xl,
     },
-    loginButton: {
-        backgroundColor: theme.colors.activeSoft,
-        paddingHorizontal: theme.margins.lg,
-        paddingVertical: theme.margins.md,
+    loginButtonWrapper: {
+        width: '100%',
+        shadowColor: '#ff7a00',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.35,
+        shadowRadius: 10,
+        elevation: 6,
+    },
+    loginButtonGradient: {
+        paddingHorizontal: theme.margins.xl,
+        paddingVertical: 14,
         borderRadius: theme.radius.full,
         alignItems: 'center',
-        borderWidth: 1,
-        borderColor: theme.colors.buttonActive,
+        justifyContent: 'center',
     },
     loginButtonText: {
-        fontSize: 15,
+        fontSize: 16,
         fontWeight: '700',
-        color: theme.colors.buttonActive,
+        color: '#ffffff',
+        letterSpacing: 0.3,
     },
     buttonPressed: {
         opacity: 0.8,

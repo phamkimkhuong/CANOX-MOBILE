@@ -27,9 +27,9 @@ import {
 
 const createCartItem = (overrides: Partial<CartItem> = {}): CartItem => ({
     id: 'item-1',
-    variantId: 'var-1',
     product: {
         productId: 'prod-1',
+        variantId: 'var-1',
         productName: 'Test Product',
         variantAttributes: 'Đỏ / M',
         imagePath: 'products/img1.webp',
@@ -209,7 +209,7 @@ describe('transformCartItem', () => {
     it('handles null/undefined fields with defaults', () => {
         const result = transformCartItem({
             id: 'item-null',
-            variantId: 'v1',
+            product: { productId: 'p1', variantId: 'v1', productName: null, variantAttributes: null, imagePath: null },
         } as CartItem);
 
         expect(result.productId).toBe('');

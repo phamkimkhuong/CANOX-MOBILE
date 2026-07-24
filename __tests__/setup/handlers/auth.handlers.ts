@@ -94,7 +94,7 @@ export const authHandlers = [
         return HttpResponse.json({ code: 200, success: true, message: 'Password reset OTP sent', data: null }, { status: 200 });
     }),
     http.post(`http://app.test${API_PREFIX}/auth/password/verify`, () => {
-        return HttpResponse.json({ code: 200, success: true, message: 'Password reset OTP verified', data: null }, { status: 200 });
+        return HttpResponse.json({ code: 200, success: true, message: 'Password reset OTP verified', data: { resetToken: 'mock-reset-token-xyz' } }, { status: 200 });
     }),
     http.post(`http://app.test${API_PREFIX}/auth/password/reset`, () => {
         return HttpResponse.json({ code: 200, success: true, message: 'Password reset successful', data: null }, { status: 200 });

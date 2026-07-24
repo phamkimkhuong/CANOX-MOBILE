@@ -335,7 +335,7 @@ export const authRoutes = {
         pathname: '/(auth)/verify-otp',
         params,
     }),
-    resetPassword: (params: { email: string; otpCode: string }): Href => ({
+    resetPassword: (params: { email: string; resetToken: string }): Href => ({
         pathname: '/(auth)/reset-password',
         params,
     }),

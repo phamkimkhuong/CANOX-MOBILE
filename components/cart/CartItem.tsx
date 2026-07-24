@@ -172,6 +172,7 @@ export const CartItem: React.FC<CartItemProps> = memo(({
         maxQuantity,
         isOutOfStock,
         lowStockWarning,
+        promoExceededWarning,
     } = item;
     const shouldShowPromotionRow = !!promotion && (isPromotionSyncing || !isCountdownExpired);
 
@@ -354,8 +355,8 @@ export const CartItem: React.FC<CartItemProps> = memo(({
                             </View>
                         </View>
 
-                        {/* Stock Warnings - moved out of price container, aligned to the right below the stepper */}
-                        {promotion?.secondsRemaining && promotion.stockRemaining > 0 && !isCountdownExpired && !isPromotionSyncing ? (
+                        {/* Stock Warnings - hide promo stock warning if promo limit is exceeded */}
+                        {!promoExceededWarning && promotion?.secondsRemaining && promotion.stockRemaining > 0 && !isCountdownExpired && !isPromotionSyncing ? (
                             <View style={styles.promoWarningRow}>
                                 <IconSymbol name="local-fire-department" size={14} color={theme.colors.error} />
                                 <Text style={[styles.lowStockWarning, styles.lowStockWarningUrgent, styles.noMarginTop]}>
@@ -375,6 +376,16 @@ export const CartItem: React.FC<CartItemProps> = memo(({
                     </View>
                 </View>
             </View>
+
+            {/* Promo Exceeded Warning - Full width banner spanning across left & right */}
+            {promoExceededWarning && (
+                <View style={styles.promoExceededWarningFullRow}>
+                    <IconSymbol name="alert-circle" size={14} color={theme.colors.buttonActive} />
+                    <Text style={styles.promoExceededWarningText}>
+                        {promoExceededWarning.text}
+                    </Text>
+                </View>
+            )}
 
             {/* Unsupported Region Warning - friendly message, full width */}
             {unsupportedMessage && (
@@ -603,6 +614,24 @@ const styles = StyleSheet.create((theme, rt) => {
             alignSelf: 'flex-start',
             gap: 4,
             marginTop: 2,
+        },
+        promoExceededWarningFullRow: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 4,
+            backgroundColor: 'rgba(239, 68, 68, 0.08)',
+            borderWidth: 0.5,
+            borderColor: 'rgba(239, 68, 68, 0.25)',
+            borderRadius: theme.radius.m,
+            paddingHorizontal: 10,
+            paddingVertical: 6,
+            width: '100%',
+        },
+        promoExceededWarningText: {
+            fontSize: f(11),
+            fontWeight: '600',
+            color: theme.colors.buttonActive,
+            flex: 1,
         },
         noMarginTop: {
             marginTop: 0,

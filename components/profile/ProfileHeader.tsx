@@ -3,6 +3,7 @@ import { CartHeaderButton, ChatHeaderButton } from '@/components/ui/navigation/H
 import { ROUTES } from '@/constants/routes';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Navigator } from '@/utils/navigation';
+import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
@@ -35,7 +36,12 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     };
 
     return (
-        <View style={[styles.container, { paddingTop: insets.top + theme.margins.sm }]}>
+        <LinearGradient
+            colors={[theme.colors.newPrimary, '#ff5500']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={[styles.container, { paddingTop: insets.top + theme.margins.sm }]}
+        >
             <Text style={styles.title}>{t('title')}</Text>
 
             <View style={styles.actions}>
@@ -58,7 +64,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                     </TouchableOpacity>
                 )}
             </View>
-        </View>
+        </LinearGradient>
     );
 };
 
@@ -68,7 +74,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: theme.margins.md,
-        backgroundColor: theme.colors.header.headerBackground,
         paddingBottom: theme.margins.sm,
     },
     title: {

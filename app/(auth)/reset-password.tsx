@@ -5,7 +5,7 @@
  * 
  * Flow:
  * 1. User comes here after verifying OTP from forgot-password flow
- * 2. Receives email and otpCode as params
+ * 2. Receives email and resetToken as params
  * 3. User enters new password + confirm
  * 4. Submit to reset password API
  * 5. Navigate to login on success
@@ -47,14 +47,13 @@ export default function ResetPasswordScreen() {
     useNavigationUnlockOnFocus();
 
     const { theme } = useUnistyles();
-
     const { t } = useTranslation('auth');
     const styles = stylesheet;
 
     // Get params from navigation
-    const params = useLocalSearchParams<{ email: string; otpCode: string }>();
+    const params = useLocalSearchParams<{ email: string; resetToken: string }>();
     const email = params.email;
-    const otpCode = params.otpCode;
+    const resetToken = params.resetToken;
 
     const { control, handleSubmit } = useForm<ResetPasswordFormData>({
         resolver: zodResolver(resetPasswordSchema),
@@ -69,7 +68,7 @@ export default function ResetPasswordScreen() {
 
     // Redirect if missing params
     useEffect(() => {
-        if (!email || !otpCode) {
+        if (!email || !resetToken) {
             Toast.show({
                 type: 'error',
                 text1: t('resetPassword.missingInfoToast'),
@@ -77,14 +76,15 @@ export default function ResetPasswordScreen() {
             });
             Navigator.replace(ROUTES.AUTH.FORGOT_PASSWORD);
         }
-    }, [email, otpCode, t]);
+    }, [email, resetToken, t]);
 
     const onSubmit = async (data: ResetPasswordFormData) => {
-        if (!email || !otpCode) return;
+        if (!email || !resetToken) return;
 
         try {
             await resetPassword({
                 email,
+                resetToken,
                 password: data.password,
                 confirmPassword: data.confirmPassword,
             });
@@ -148,26 +148,23 @@ export default function ResetPasswordScreen() {
                     {/* Welcome Section */}
                     <View style={styles.welcomeSection}>
                         <View style={styles.iconCircle}>
-                            <IconSymbol name="lock" size={36} color={theme.colors.buttonActive} />
+                            <IconSymbol name="lock-closed" size={32} color={theme.colors.buttonActive} />
                         </View>
-                        <Text style={styles.welcomeTitle}>{t('resetPassword.title')}</Text>
-                        <Text style={styles.welcomeSubtitle}>
-                            {t('resetPassword.subtitle')}
-                        </Text>
+                        <Text style={styles.title}>{t('resetPassword.title')}</Text>
+                        <Text style={styles.subtitle}>{t('resetPassword.subtitle')}</Text>
                     </View>
 
-                    {/* Form Card */}
-                    <View style={styles.card}>
+                    {/* Form Section */}
+                    <View style={styles.formSection}>
                         {/* New Password */}
                         <AuthInput
                             control={control}
                             name="password"
                             label={t('resetPassword.passwordLabel')}
-                            showLabel={false}
-                            icon="lock"
                             placeholder={t('resetPassword.passwordPlaceholder')}
+                            icon="lock-closed-outline"
                             isPassword
-                            editable={!isSubmitting}
+                            autoCapitalize="none"
                         />
 
                         {/* Confirm Password */}
@@ -175,56 +172,24 @@ export default function ResetPasswordScreen() {
                             control={control}
                             name="confirmPassword"
                             label={t('resetPassword.confirmPasswordLabel')}
-                            showLabel={false}
-                            icon="lock"
                             placeholder={t('resetPassword.confirmPasswordPlaceholder')}
+                            icon="lock-closed-outline"
                             isPassword
-                            editable={!isSubmitting}
+                            autoCapitalize="none"
                         />
-
-                        {/* Password Requirements */}
-                        <View style={styles.requirementsBox}>
-                            <Text style={styles.requirementsTitle}>{t('resetPassword.requirementsTitle')}</Text>
-                            <View style={styles.requirementRow}>
-                                <IconSymbol name="check" size={14} color={theme.colors.success} />
-                                <Text style={styles.requirementText}>{t('resetPassword.requirementLength')}</Text>
-                            </View>
-                            <View style={styles.requirementRow}>
-                                <IconSymbol name="check" size={14} color={theme.colors.success} />
-                                <Text style={styles.requirementText}>{t('resetPassword.requirementUppercase')}</Text>
-                            </View>
-                            <View style={styles.requirementRow}>
-                                <IconSymbol name="check" size={14} color={theme.colors.success} />
-                                <Text style={styles.requirementText}>{t('resetPassword.requirementLowercase')}</Text>
-                            </View>
-                            <View style={styles.requirementRow}>
-                                <IconSymbol name="check" size={14} color={theme.colors.success} />
-                                <Text style={styles.requirementText}>{t('resetPassword.requirementNumber')}</Text>
-                            </View>
-                        </View>
 
                         {/* Submit Button */}
                         <TouchableOpacity
-                            style={[styles.submitBtn, isSubmitting && styles.submitBtnDisabled]}
+                            style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
                             onPress={handleSubmit(onSubmit)}
                             disabled={isSubmitting}
+                            activeOpacity={0.8}
                         >
                             {isSubmitting ? (
-                                <View style={styles.loadingRow}>
-                                    <ActivityIndicator size="small" color={theme.colors.onPrimary} />
-                                    <Text style={styles.submitBtnText}>{t('resetPassword.submittingButton')}</Text>
-                                </View>
+                                <ActivityIndicator color={theme.colors.onPrimary} />
                             ) : (
-                                <Text style={styles.submitBtnText}>{t('resetPassword.submitButton')}</Text>
+                                <Text style={styles.submitButtonText}>{t('resetPassword.submitButton')}</Text>
                             )}
-                        </TouchableOpacity>
-                    </View>
-
-                    {/* Footer */}
-                    <View style={styles.footer}>
-                        <Text style={styles.footerText}>{t('resetPassword.rememberedPassword')}</Text>
-                        <TouchableOpacity onPress={() => Navigator.replace(ROUTES.AUTH.LOGIN)}>
-                            <Text style={styles.footerLink}>{t('resetPassword.loginLink')}</Text>
                         </TouchableOpacity>
                     </View>
                 </ScrollView>
@@ -243,26 +208,24 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     scrollContent: {
         flexGrow: 1,
-        paddingBottom: theme.margins.lg,
+        paddingHorizontal: theme.margins.lg,
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: theme.margins.md,
-        paddingVertical: 10,
+        height: 56,
     },
     backBtn: {
         width: 40,
         height: 40,
         borderRadius: 20,
-        backgroundColor: theme.colors.surfaceTranslucent,
         justifyContent: 'center',
         alignItems: 'center',
     },
     headerTitle: {
-        fontSize: 18,
-        fontWeight: '700',
+        fontSize: 16,
+        fontWeight: '600',
         color: theme.colors.typography,
     },
     headerSpacer: {
@@ -270,101 +233,47 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     welcomeSection: {
         alignItems: 'center',
-        paddingHorizontal: theme.margins.lg,
-        paddingVertical: theme.margins.lg,
+        marginTop: theme.margins.xl,
+        marginBottom: theme.margins.xl,
     },
     iconCircle: {
-        width: 70,
-        height: 70,
-        borderRadius: 35,
+        width: 72,
+        height: 72,
+        borderRadius: 36,
         backgroundColor: theme.colors.activeSoft,
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: theme.margins.md,
     },
-    welcomeTitle: {
+    title: {
         fontSize: 24,
-        fontWeight: 'bold',
+        fontWeight: '700',
         color: theme.colors.typography,
-        marginBottom: theme.margins.sm,
+        marginBottom: theme.margins.xs,
+        textAlign: 'center',
     },
-    welcomeSubtitle: {
+    subtitle: {
         fontSize: 14,
         color: theme.colors.typographySecondary,
         textAlign: 'center',
-        lineHeight: 20,
     },
-    card: {
-        backgroundColor: theme.colors.surface,
-        marginHorizontal: theme.margins.md,
-        borderRadius: theme.radius.l + 8,
-        padding: theme.margins.lg,
-        shadowColor: theme.colors.typography,
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
-        elevation: 2,
+    formSection: {
+        gap: theme.margins.lg,
     },
-    requirementsBox: {
-        backgroundColor: `${theme.colors.success}10`,
-        borderRadius: theme.radius.m,
-        padding: theme.margins.md,
-        marginBottom: theme.margins.lg,
-    },
-    requirementsTitle: {
-        fontSize: 13,
-        fontWeight: '600',
-        color: theme.colors.typography,
-        marginBottom: theme.margins.sm,
-    },
-    requirementRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-        marginTop: 4,
-    },
-    requirementText: {
-        fontSize: 12,
-        color: theme.colors.typographySecondary,
-    },
-    submitBtn: {
+    submitButton: {
         backgroundColor: theme.colors.buttonActive,
         height: 50,
-        borderRadius: theme.radius.full,
+        borderRadius: theme.radius.m,
         justifyContent: 'center',
         alignItems: 'center',
-        shadowColor: theme.colors.buttonActive,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-        elevation: 4,
+        marginTop: theme.margins.md,
     },
-    submitBtnDisabled: {
-        opacity: 0.7,
+    submitButtonDisabled: {
+        opacity: 0.6,
     },
-    submitBtnText: {
+    submitButtonText: {
         color: theme.colors.onPrimary,
-        fontWeight: 'bold',
         fontSize: 16,
-    },
-    loadingRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-    },
-    footer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        marginTop: theme.margins.xl,
-        marginBottom: theme.margins.sm,
-    },
-    footerText: {
-        color: theme.colors.typographySecondary,
-        fontSize: 14,
-    },
-    footerLink: {
-        color: theme.colors.buttonActive,
-        fontWeight: 'bold',
-        fontSize: 14,
+        fontWeight: '600',
     },
 }));

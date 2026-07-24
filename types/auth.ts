@@ -209,14 +209,23 @@ export const VerifyForgotPasswordOtpSchema = z.object({
 
 export type VerifyForgotPasswordOtpPayload = z.infer<typeof VerifyForgotPasswordOtpSchema>;
 
+export const VerifyForgotPasswordOtpResponseSchema = ResponseDefaultSchema.extend({
+    data: z.object({
+        resetToken: z.string(),
+    }),
+});
+
+export type VerifyForgotPasswordOtpResponse = z.infer<typeof VerifyForgotPasswordOtpResponseSchema>;
+
 /**
  * Schema for Reset Password Request
  * POST /api/v1/auth/password/reset
  */
 export const ResetPasswordRequestSchema = z.object({
     email: EmailSchema,
+    resetToken: z.string().min(1, 'resetToken là bắt buộc'),
     password: PasswordSchema,
-    confirmPassword: ConfirmPasswordSchema, // Keep if backend actually wants it as user said
+    confirmPassword: ConfirmPasswordSchema,
 });
 
 /**

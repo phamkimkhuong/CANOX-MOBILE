@@ -121,16 +121,17 @@ export default function VerifyOtpScreen() {
                 verifyForgotOtp(
                     { email, otpCode: completedOtp },
                     {
-                        onSuccess: () => {
+                        onSuccess: (response) => {
                             Toast.show({
                                 type: 'success',
                                 text1: content.successTitle,
                                 text2: content.successMessage,
                             });
-                            // Navigate to reset password screen with email and otp
+                            // Navigate to reset password screen with email and resetToken
+                            const resetToken = response?.data?.resetToken ?? '';
                             router.replace(authRoutes.resetPassword({
                                 email,
-                                otpCode: completedOtp,
+                                resetToken,
                             }));
                         },
                         onError: (error) => {
