@@ -15,7 +15,7 @@ export const VOUCHER_STRINGS: VoucherTranslation = {
     header: {
         title: 'Kho Voucher',
         myVouchers: 'Voucher của tôi',
-        searchPlaceholder: 'Tìm voucher CanoX, Shop...',
+        searchPlaceholder: 'Tìm voucher TCano, Shop...',
     },
 
     // === Filter Tabs ===
@@ -124,7 +124,7 @@ export const VOUCHER_STRINGS: VoucherTranslation = {
     },
     pdp: {
         sheetTitleShop: 'Voucher của shop',
-        sheetTitlePlatform: 'Voucher của CanoX',
+        sheetTitlePlatform: 'Voucher của TCano',
         sheetAppliedValue: 'Giảm {{amount}} cho lựa chọn hiện tại',
         sheetCode: 'Mã voucher',
         sheetBenefit: 'Ưu đãi',

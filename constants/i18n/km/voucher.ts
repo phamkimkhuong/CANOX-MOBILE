@@ -89,7 +89,7 @@ export const VOUCHER_STRINGS: VoucherTranslation = {
     },
     pdp: {
         sheetTitleShop: 'ប័ណ្ណបញ្ចុះតម្លៃហាង',
-        sheetTitlePlatform: 'ប័ណ្ណបញ្ចុះតម្លៃ CanoX',
+        sheetTitlePlatform: 'ប័ណ្ណបញ្ចុះតម្លៃ TCano',
         sheetAppliedValue: 'សន្សំបាន {{amount}} សម្រាប់ការផ្ដល់ជូនបច្ចុប្បន្ន',
         sheetCode: 'កូដបញ្ចុះតម្លៃ',
         sheetBenefit: 'អត្ថប្រយោជន៍',

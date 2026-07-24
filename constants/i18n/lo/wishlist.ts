@@ -28,7 +28,7 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
         title: 'ທ່ານຍັງບໍ່ມີສິນຄ້າທີ່ມັກ',
         subtitlePrefix: 'ແຕະໄອຄອນ',
         subtitleSuffix: 'ໃນບັດສິນຄ້າເພື່ອບັນທຶກ.',
-        subtitleTracking: 'Canox ຈະຊ່ວຍຕິດຕາມລາຄາ ແລະ ແຈ້ງເຕືອນເມື່ອສິນຄ້າຮອດລາຄາທີ່ທ່ານຕ້ອງການ.',
+        subtitleTracking: 'TCano ຈະຊ່ວຍຕິດຕາມລາຄາ ແລະ ແຈ້ງເຕືອນເມື່ອສິນຄ້າຮອດລາຄາທີ່ທ່ານຕ້ອງການ.',
         primaryCta: 'ຄົ້ນພົບສິນຄ້າ',
         benefitsTitle: 'ລາຍການທີ່ມັກຊ່ວຍທ່ານ',
         saveTitle: 'ບັນທຶກເພື່ອຊື້ພາຍຫຼັງ',
@@ -36,7 +36,7 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
         trackTitle: 'ຕິດຕາມລາຄາທີ່ຕ້ອງການ',
         trackSubtitle: 'ຕັ້ງລາຄາທີ່ທ່ານຢາກຊື້',
         notifyTitle: 'ຮັບແຈ້ງເຕືອນເມື່ອຮອດລາຄາ',
-        notifySubtitle: 'Canox ແຈ້ງເມື່ອສິນຄ້າຮອດລາຄາທີ່ຕັ້ງໄວ້',
+        notifySubtitle: 'TCano ແຈ້ງເມື່ອສິນຄ້າຮອດລາຄາທີ່ຕັ້ງໄວ້',
     },
     error: {
         loadFailed: 'ບໍ່ສາມາດໂຫຼດຄໍເລັກຊັນໄດ້',

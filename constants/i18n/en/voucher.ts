@@ -89,7 +89,7 @@ export const VOUCHER_STRINGS: VoucherTranslation = {
     },
     pdp: {
         sheetTitleShop: 'Shop voucher',
-        sheetTitlePlatform: 'CanoX voucher',
+        sheetTitlePlatform: 'TCano voucher',
         sheetAppliedValue: 'Saving {{amount}} for the current selection',
         sheetCode: 'Voucher code',
         sheetBenefit: 'Benefit',

@@ -58,7 +58,7 @@ export const ProductVoucherChip = memo<ProductVoucherChipProps>(({
 
         return {
             sponsorType,
-            title: resolvedVoucher?.name || summary.name || (sponsorType === 'PLATFORM' ? 'CanoX Voucher' : 'Shop Voucher'),
+            title: resolvedVoucher?.name || summary.name || (sponsorType === 'PLATFORM' ? 'TCano Voucher' : 'Shop Voucher'),
             appliedAmount: summary.amount,
             code: resolvedVoucher?.code,
             description: resolvedVoucher?.description,

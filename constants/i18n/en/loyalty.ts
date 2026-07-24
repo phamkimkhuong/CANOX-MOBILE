@@ -1,15 +1,15 @@
 import { LoyaltyTranslation } from '../types';
 
 export const LOYALTY_STRINGS: LoyaltyTranslation = {
-    title: 'Canox Coins',
+    title: 'TCano Coins',
     guestDashboard: {
         hero: {
-            title: 'Login to view Canox Coins',
-            description: 'Canox Coins and shop points are saved to your account. Login to view balances, history, and usable offers.',
+            title: 'Login to view TCano Coins',
+            description: 'TCano Coins and shop points are saved to your account. Login to view balances, history, and usable offers.',
             loginAction: 'Login / Sign up',
         },
         benefits: {
-            title: 'How Canox Coins help',
+            title: 'How TCano Coins help',
             discount: {
                 title: 'Use coins for discounts',
                 description: 'Applies to eligible orders',
@@ -27,12 +27,12 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
             title: 'Ways to earn coins',
             purchase: 'Buy eligible items',
             review: 'Review after receiving orders',
-            program: 'Join Canox programs',
+            program: 'Join TCano programs',
         },
     },
     overviewDashboard: {
         hero: {
-            platformLabel: 'Available Canox Coins',
+            platformLabel: 'Available TCano Coins',
             combinedLabel: 'Total available points',
             platformDescription: 'Can discount up to {{amount}}đ',
             combinedDescription: 'Usable under each shop’s conditions',
@@ -58,7 +58,7 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
     },
     emptyDashboard: {
         hero: {
-            label: 'Available Canox Coins',
+            label: 'Available TCano Coins',
             description: 'You do not have available coins yet',
             expiryStatus: 'No pending or expiring coins yet',
             primaryAction: 'Shop to earn coins',
@@ -75,7 +75,7 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
             title: 'Ways to earn coins',
             purchaseTitle: 'Shop and earn',
             reviewTitle: 'Review to earn',
-            programTitle: 'Canox programs',
+            programTitle: 'TCano programs',
             action: 'earn',
         },
         history: {
@@ -88,15 +88,15 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
         title: 'How it works',
         understood: 'Got it',
         what: {
-            title: 'What are Canox Coins?',
-            body: 'Canox Coins are reward points used to discount eligible orders on Canox. Coins cannot be converted to cash.',
+            title: 'What are TCano Coins?',
+            body: 'TCano Coins are reward points used to discount eligible orders on TCano. Coins cannot be converted to cash.',
         },
         earn: {
             title: 'How to earn coins',
             bullets: {
                 purchase: 'Buy eligible items',
                 review: 'Review after receiving orders',
-                program: 'Join Canox programs',
+                program: 'Join TCano programs',
             },
         },
         use: {

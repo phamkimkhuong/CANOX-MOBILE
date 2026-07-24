@@ -59,8 +59,8 @@ export const NOTIFICATION_STRINGS: NotificationTranslation = {
                     description: 'ແຟດເຊວ, ບັດສ່ວນຫຼຸດພິເສດ, ແລະ ຂອງຂວັນປະຈຳວັນ.',
                 },
                 news: {
-                    title: 'ຂ່າວສານ CanoX',
-                    description: 'ຄົ້ນພົບຄຸນສົມບັດໃໝ່, ເຄັດລັບການຊື້ເຄື່ອງ, ແລະ ອັບເດດຊຸມຊົນຈາກ CanoX.',
+                    title: 'ຂ່າວສານ TCano',
+                    description: 'ຄົ້ນພົບຄຸນສົມບັດໃໝ່, ເຄັດລັບການຊື້ເຄື່ອງ, ແລະ ອັບເດດຊຸມຊົນຈາກ TCano.',
                 },
             },
             advanced: {

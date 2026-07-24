@@ -1,15 +1,15 @@
 import { LoyaltyTranslation } from '../types';
 
 export const LOYALTY_STRINGS: LoyaltyTranslation = {
-    title: 'កាក់ Canox',
+    title: 'កាក់ TCano',
     guestDashboard: {
         hero: {
-            title: 'ចូលគណនីដើម្បីមើលកាក់ Canox',
-            description: 'កាក់ Canox និងពិន្ទុពីហាងត្រូវបានរក្សាទុកតាមគណនីរបស់អ្នក។ ចូលគណនីដើម្បីមើលសមតុល្យ ប្រវត្តិ និងអត្ថប្រយោជន៍ដែលអាចប្រើបាន។',
+            title: 'ចូលគណនីដើម្បីមើលកាក់ TCano',
+            description: 'កាក់ TCano និងពិន្ទុពីហាងត្រូវបានរក្សាទុកតាមគណនីរបស់អ្នក។ ចូលគណនីដើម្បីមើលសមតុល្យ ប្រវត្តិ និងអត្ថប្រយោជន៍ដែលអាចប្រើបាន។',
             loginAction: 'ចូល / ចុះឈ្មោះ',
         },
         benefits: {
-            title: 'កាក់ Canox ជួយអ្នក',
+            title: 'កាក់ TCano ជួយអ្នក',
             discount: {
                 title: 'ប្រើកាក់បញ្ចុះតម្លៃ',
                 description: 'អនុវត្តលើការបញ្ជាទិញដែលមានលក្ខខណ្ឌ',
@@ -27,12 +27,12 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
             title: 'វិធីរកកាក់',
             purchase: 'ទិញទំនិញដែលមានលក្ខខណ្ឌ',
             review: 'វាយតម្លៃបន្ទាប់ពីទទួលទំនិញ',
-            program: 'ចូលរួមកម្មវិធី Canox',
+            program: 'ចូលរួមកម្មវិធី TCano',
         },
     },
     overviewDashboard: {
         hero: {
-            platformLabel: 'កាក់ Canox ដែលអាចប្រើបាន',
+            platformLabel: 'កាក់ TCano ដែលអាចប្រើបាន',
             combinedLabel: 'ពិន្ទុសរុបដែលអាចប្រើបាន',
             platformDescription: 'អាចបញ្ចុះតម្លៃបានដល់ {{amount}}đ',
             combinedDescription: 'អាចប្រើបានតាមលក្ខខណ្ឌរបស់ហាងនីមួយៗ',
@@ -58,7 +58,7 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
     },
     emptyDashboard: {
         hero: {
-            label: 'កាក់ Canox ដែលអាចប្រើបាន',
+            label: 'កាក់ TCano ដែលអាចប្រើបាន',
             description: 'អ្នកមិនទាន់មានកាក់ដែលអាចប្រើបានទេ',
             expiryStatus: 'មិនទាន់មានកាក់រង់ចាំ ឬជិតផុតកំណត់ទេ',
             primaryAction: 'ទិញដើម្បីសន្សំកាក់',
@@ -75,7 +75,7 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
             title: 'វិធីរកកាក់',
             purchaseTitle: 'ទិញទំនិញសន្សំកាក់',
             reviewTitle: 'វាយតម្លៃទទួលកាក់',
-            programTitle: 'កម្មវិធី Canox',
+            programTitle: 'កម្មវិធី TCano',
             action: 'សន្សំកាក់',
         },
         history: {
@@ -88,15 +88,15 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
         title: 'របៀបដំណើរការ',
         understood: 'យល់ហើយ',
         what: {
-            title: 'កាក់ Canox គឺជាអ្វី?',
-            body: 'កាក់ Canox គឺជាពិន្ទុរង្វាន់សម្រាប់បញ្ចុះតម្លៃលើការបញ្ជាទិញដែលមានលក្ខខណ្ឌលើ Canox។ កាក់មិនអាចប្ដូរជាសាច់ប្រាក់បានទេ។',
+            title: 'កាក់ TCano គឺជាអ្វី?',
+            body: 'កាក់ TCano គឺជាពិន្ទុរង្វាន់សម្រាប់បញ្ចុះតម្លៃលើការបញ្ជាទិញដែលមានលក្ខខណ្ឌលើ TCano។ កាក់មិនអាចប្ដូរជាសាច់ប្រាក់បានទេ។',
         },
         earn: {
             title: 'របៀបរកកាក់',
             bullets: {
                 purchase: 'ទិញទំនិញដែលមានលក្ខខណ្ឌ',
                 review: 'វាយតម្លៃបន្ទាប់ពីទទួលទំនិញ',
-                program: 'ចូលរួមកម្មវិធី Canox',
+                program: 'ចូលរួមកម្មវិធី TCano',
             },
         },
         use: {

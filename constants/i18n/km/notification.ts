@@ -59,8 +59,8 @@ export const NOTIFICATION_STRINGS: NotificationTranslation = {
                     description: 'Flash Sales, ប័ណ្ណបញ្ចុះតម្លៃផ្តាច់មុខ និងកាដូប្រចាំថ្ងៃ។',
                 },
                 news: {
-                    title: 'ព័ត៌មានពី CanoX',
-                    description: 'ស្វែងរកមុខងារថ្មីៗ គន្លឹះទិញទំនិញ និងព័ត៌មានសហគមន៍ពី CanoX។',
+                    title: 'ព័ត៌មានពី TCano',
+                    description: 'ស្វែងរកមុខងារថ្មីៗ គន្លឹះទិញទំនិញ និងព័ត៌មានសហគមន៍ពី TCano។',
                 },
             },
             advanced: {

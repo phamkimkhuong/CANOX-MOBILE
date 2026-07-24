@@ -1,15 +1,15 @@
 import { LoyaltyTranslation } from '../types';
 
 export const LOYALTY_STRINGS: LoyaltyTranslation = {
-    title: 'Xu Canox',
+    title: 'Xu TCano',
     guestDashboard: {
         hero: {
-            title: 'Đăng nhập để xem Xu Canox',
-            description: 'Xu Canox và điểm từ shop được lưu theo tài khoản của bạn. Đăng nhập để xem số dư, lịch sử và ưu đãi có thể sử dụng.',
+            title: 'Đăng nhập để xem Xu TCano',
+            description: 'Xu TCano và điểm từ shop được lưu theo tài khoản của bạn. Đăng nhập để xem số dư, lịch sử và ưu đãi có thể sử dụng.',
             loginAction: 'Đăng nhập / Đăng ký',
         },
         benefits: {
-            title: 'Xu Canox giúp bạn',
+            title: 'Xu TCano giúp bạn',
             discount: {
                 title: 'Dùng xu giảm giá',
                 description: 'Áp dụng cho đơn hàng đủ điều kiện',
@@ -27,12 +27,12 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
             title: 'Cách kiếm xu',
             purchase: 'Mua hàng đủ điều kiện',
             review: 'Đánh giá sau khi nhận hàng',
-            program: 'Tham gia chương trình Canox',
+            program: 'Tham gia chương trình TCano',
         },
     },
     overviewDashboard: {
         hero: {
-            platformLabel: 'Xu Canox khả dụng',
+            platformLabel: 'Xu TCano khả dụng',
             combinedLabel: 'Tổng điểm khả dụng',
             platformDescription: 'Có thể giảm đến {{amount}}đ',
             combinedDescription: 'Có thể dùng theo điều kiện từng shop',
@@ -58,7 +58,7 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
     },
     emptyDashboard: {
         hero: {
-            label: 'Xu Canox khả dụng',
+            label: 'Xu TCano khả dụng',
             description: 'Bạn chưa có xu khả dụng',
             expiryStatus: 'Chưa có xu đang chờ hoặc sắp hết hạn',
             primaryAction: 'Mua hàng tích xu',
@@ -75,7 +75,7 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
             title: 'Cách kiếm xu',
             purchaseTitle: 'Mua hàng tích xu',
             reviewTitle: 'Đánh giá nhận xu',
-            programTitle: 'Chương trình Canox',
+            programTitle: 'Chương trình TCano',
             action: 'tích xu',
         },
         history: {
@@ -88,15 +88,15 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
         title: 'Cách hoạt động',
         understood: 'Đã hiểu',
         what: {
-            title: 'Xu Canox là gì?',
-            body: 'Xu Canox là điểm thưởng dùng để giảm giá đơn hàng đủ điều kiện trên Canox. Xu không quy đổi thành tiền mặt.',
+            title: 'Xu TCano là gì?',
+            body: 'Xu TCano là điểm thưởng dùng để giảm giá đơn hàng đủ điều kiện trên TCano. Xu không quy đổi thành tiền mặt.',
         },
         earn: {
             title: 'Cách kiếm xu',
             bullets: {
                 purchase: 'Mua hàng đủ điều kiện',
                 review: 'Đánh giá sau khi nhận hàng',
-                program: 'Tham gia chương trình Canox',
+                program: 'Tham gia chương trình TCano',
             },
         },
         use: {

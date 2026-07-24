@@ -131,7 +131,7 @@ export default function OrderDetailScreen() {
 
             // Navigate to chat with Help Center
             Navigator.push(chatRoutes.detail(conversationId, {
-                partnerName: 'CanoX Help Center',
+                partnerName: 'TCano Help Center',
                 contextType: 'ORDER',
                 orderId: order?.orderId ? String(order.orderId) : undefined,
                 orderCode: order?.orderNumber ? String(order.orderNumber) : undefined,

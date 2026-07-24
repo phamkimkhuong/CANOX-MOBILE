@@ -263,7 +263,7 @@ export const useProductVariant = (
                     totalDiscountAmount += bestPlatformAmount;
                     breakdown.platformVoucher = {
                         id: bestPlatformVoucher.id,
-                        name: bestPlatformVoucher.name || 'CanoX Voucher',
+                        name: bestPlatformVoucher.name || 'TCano Voucher',
                         amount: bestPlatformAmount,
                         discountType: bestPlatformVoucher.discountType,
                         discountValue: bestPlatformVoucher.discountValue,

@@ -6,7 +6,7 @@ import { createMMKV, type MMKV } from 'react-native-mmkv';
 import type { PersistStorage, StorageValue } from 'zustand/middleware';
 
 export const mmkvStorage: MMKV = createMMKV({
-    id: 'canox-app-storage',
+    id: 'tcano-app-storage',
 });
 
 // Zustand-compatible storage adapter with proper typing

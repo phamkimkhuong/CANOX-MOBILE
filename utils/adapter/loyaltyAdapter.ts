@@ -157,7 +157,7 @@ const getNearestExpiry = (
     if (platformEnabled && platformPointBalance) {
         const platformCandidate = toNearestExpiryCandidate(
             'PLATFORM',
-            'Xu Canox',
+            'Xu TCano',
             platformPointBalance.nearestExpiryDate,
             platformPointBalance.nearestExpiryPoints ?? platformPointBalance.expiringPoints
         );

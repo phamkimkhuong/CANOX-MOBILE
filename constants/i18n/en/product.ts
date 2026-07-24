@@ -120,23 +120,23 @@ export const PRODUCT_STRINGS: ProductTranslation = {
 
     // === Order Protection ===
     orderProtection: {
-        cardTitle: 'Canox order protection policy',
-        cardSubtitle: 'Orders are protected when paid and processed through the Canox platform',
+        cardTitle: 'TCano order protection policy',
+        cardSubtitle: 'Orders are protected when paid and processed through the TCano platform',
         sheetTitle: 'Order protection',
-        sheetHeading: 'Canox order protection policy',
-        sheetIntro: 'Canox helps protect orders when the transaction is paid and processed through the platform.',
+        sheetHeading: 'TCano order protection policy',
+        sheetIntro: 'TCano helps protect orders when the transaction is paid and processed through the platform.',
         learnMore: 'Learn more',
         items: {
             payment: {
                 summaryTitle: 'Secure payment',
                 title: 'Secure payment',
-                description: 'Choose local payment methods, credit/debit cards, bank transfers, or e-wallets.\nAll transactions through Canox are protected by SSL encryption and strict PCI DSS data security protocols.',
+                description: 'Choose local payment methods, credit/debit cards, bank transfers, or e-wallets.\nAll transactions through TCano are protected by SSL encryption and strict PCI DSS data security protocols.',
                 policyTitle: 'Payment Policy',
             },
             shipping: {
                 summaryTitle: 'Delivery tracking',
                 title: 'Delivery tracking',
-                description: 'Canox helps track order status from placement until successful delivery.',
+                description: 'TCano helps track order status from placement until successful delivery.',
                 policyTitle: 'Shipping Policy',
             },
             return: {
@@ -148,7 +148,7 @@ export const PRODUCT_STRINGS: ProductTranslation = {
             support: {
                 summaryTitle: '24/7 Support',
                 title: '24/7 Claim support',
-                description: 'Access Canox\'s 24/7 online help center or connect with support staff for assistance and resolution of any order-related issues.',
+                description: 'Access TCano\'s 24/7 online help center or connect with support staff for assistance and resolution of any order-related issues.',
                 policyTitle: 'Help Center',
             },
         },
@@ -213,7 +213,7 @@ export const PRODUCT_STRINGS: ProductTranslation = {
         basePrice: 'Product Price',
         productDiscount: 'Product Discount',
         shopVoucher: 'Shop Voucher',
-        platformVoucher: 'CanoX Voucher',
+        platformVoucher: 'TCano Voucher',
         finalSubtotal: 'Subtotal',
         legalNote: '* Final price may vary depending on shipping fees and other offers at checkout.',
         afterVoucher: 'Price after voucher',

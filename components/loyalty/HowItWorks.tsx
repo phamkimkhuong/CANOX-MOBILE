@@ -1,5 +1,5 @@
 /**
- * HowItWorks - Ways to earn Canox loyalty value.
+ * HowItWorks - Ways to earn TCano loyalty value.
  */
 
 import { IconSymbol } from '@/components/ui/Icon';

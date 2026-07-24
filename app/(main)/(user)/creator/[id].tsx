@@ -26,9 +26,9 @@ export default function CreatorProfileScreen() {
 
     // Mock User Data
     const creator = {
-        name: 'CANOX Official Store',
-        username: '@canox_vn',
-        avatar: 'https://i.pravatar.cc/300?u=canox',
+        name: 'TCANO Official Store',
+        username: '@tcano_vn',
+        avatar: 'https://i.pravatar.cc/300?u=tcano',
         bio: 'Chuyên cung cấp các sản phẩm gia dụng thông minh & phụ kiện công nghệ hàng đầu Việt Nam. Cam kết hàng chính hãng 100%.',
         followers: '1.2M',
         following: '150',

@@ -87,8 +87,8 @@ export const PROFILE_STRINGS: ProfileTranslation = {
         legal_policies: 'Policies & Terms',
     },
     guestState: {
-        eyebrow: 'Your CanoX account',
-        title: 'Welcome to CanoX',
+        eyebrow: 'Your TCano account',
+        title: 'Welcome to TCano',
         subtitle: 'Sign in to enjoy exclusive offers and track your orders easily',
         helper: 'Connect your account to sync orders, save addresses, manage vouchers, and unlock more relevant benefits faster.',
         signals: {
@@ -173,11 +173,11 @@ export const PROFILE_STRINGS: ProfileTranslation = {
         subtitle: 'Account Deletion Request',
         description: 'We are sorry to see you go. Please read the following important notices before confirming your account deletion.',
         warningTitle: 'What will happen?',
-        warningItem1: 'Deleting/canceling your Canox account is permanent and irreversible. This means you will not be able to log in or view any notifications in the app after your account has been deleted.',
+        warningItem1: 'Deleting/canceling your TCano account is permanent and irreversible. This means you will not be able to log in or view any notifications in the app after your account has been deleted.',
         warningItem2: 'All personal information, addresses, and purchase history will no longer be accessible.',
         warningItem3: 'Any existing rewards, vouchers, and accumulated coins will be completely lost.',
         warningItem4: 'Users must complete all orders before requesting account deletion.',
-        warningItem5: 'After you have deleted your current Canox account, Canox reserves the right to refuse your requests to create a new account in the future.',
+        warningItem5: 'After you have deleted your current TCano account, TCano reserves the right to refuse your requests to create a new account in the future.',
         confirmCheckbox: 'I understand that this action is irreversible and agree to delete my account.',
         confirmInputLabel: 'Text confirmation',
         confirmInputPlaceholder: 'Type "DELETE" to confirm',
@@ -229,7 +229,7 @@ export const PROFILE_STRINGS: ProfileTranslation = {
         },
         footer: {
             version: 'Version {{version}}',
-            copyright: '© 2026 CanoX VN. All rights reserved.',
+            copyright: '© 2026 TCano VN. All rights reserved.',
             deleteAccountHint: 'Permanently delete your account and data',
             deleteAccountAccessibility: 'Request account deletion',
         },

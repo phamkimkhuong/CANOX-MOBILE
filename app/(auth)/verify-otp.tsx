@@ -90,7 +90,7 @@ export default function VerifyOtpScreen() {
             title: 'Nhập mã xác thực',
             subtitle: `Chúng tôi đã gửi mã ${OTP_LENGTH} số đến email`,
             successTitle: 'Xác thực thành công',
-            successMessage: 'Chào mừng bạn đến với CanoX!',
+            successMessage: 'Chào mừng bạn đến với TCano!',
             changeEmailText: 'Đổi địa chỉ email khác',
             fallbackRoute: ROUTES.AUTH.REGISTER,
         };

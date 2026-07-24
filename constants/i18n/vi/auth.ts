@@ -32,7 +32,7 @@ export const AUTH_STRINGS: AuthTranslation = {
         termsLink: 'Điều khoản dịch vụ',
         agreeTermsAnd: ' và ',
         privacyLink: 'Chính sách bảo mật',
-        consentSuffix: ' của Canox.',
+        consentSuffix: ' của TCano.',
         socialLogin: 'Hoặc tiếp tục với',
         hasAccount: 'Bạn đã có tài khoản? ',
         loginNow: 'Đăng nhập',

@@ -1,5 +1,5 @@
 /**
- * LoyaltyHowItWorksSheet - Bottom sheet guide for Canox Coins.
+ * LoyaltyHowItWorksSheet - Bottom sheet guide for TCano Coins.
  */
 
 import { IconSymbol } from '@/components/ui/Icon';

@@ -28,7 +28,7 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
         title: 'Bạn chưa có sản phẩm yêu thích',
         subtitlePrefix: 'Nhấn biểu tượng',
         subtitleSuffix: 'trên thẻ sản phẩm để lưu lại.',
-        subtitleTracking: 'Canox sẽ giúp bạn theo dõi giá và thông báo khi sản phẩm đạt mức giá mong muốn.',
+        subtitleTracking: 'TCano sẽ giúp bạn theo dõi giá và thông báo khi sản phẩm đạt mức giá mong muốn.',
         primaryCta: 'Khám phá sản phẩm',
         benefitsTitle: 'Yêu thích giúp bạn',
         saveTitle: 'Lưu để mua sau',
@@ -36,7 +36,7 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
         trackTitle: 'Theo dõi giá mong muốn',
         trackSubtitle: 'Đặt mức giá bạn muốn mua',
         notifyTitle: 'Nhận thông báo khi đạt giá',
-        notifySubtitle: 'Canox báo khi sản phẩm chạm mức giá đã đặt',
+        notifySubtitle: 'TCano báo khi sản phẩm chạm mức giá đã đặt',
     },
     error: {
         loadFailed: 'Không thể tải bộ sưu tập',

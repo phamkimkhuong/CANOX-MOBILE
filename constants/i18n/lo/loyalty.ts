@@ -1,15 +1,15 @@
 import { LoyaltyTranslation } from '../types';
 
 export const LOYALTY_STRINGS: LoyaltyTranslation = {
-    title: 'ຫຼຽນ Canox',
+    title: 'ຫຼຽນ TCano',
     guestDashboard: {
         hero: {
-            title: 'ເຂົ້າລະບົບເພື່ອເບິ່ງຫຼຽນ Canox',
-            description: 'ຫຼຽນ Canox ແລະຄະແນນຈາກຮ້ານຖືກບັນທຶກຕາມບັນຊີຂອງທ່ານ. ເຂົ້າລະບົບເພື່ອເບິ່ງຍອດຄົງເຫຼືອ ປະຫວັດ ແລະສິດທິທີ່ໃຊ້ໄດ້.',
+            title: 'ເຂົ້າລະບົບເພື່ອເບິ່ງຫຼຽນ TCano',
+            description: 'ຫຼຽນ TCano ແລະຄະແນນຈາກຮ້ານຖືກບັນທຶກຕາມບັນຊີຂອງທ່ານ. ເຂົ້າລະບົບເພື່ອເບິ່ງຍອດຄົງເຫຼືອ ປະຫວັດ ແລະສິດທິທີ່ໃຊ້ໄດ້.',
             loginAction: 'ເຂົ້າລະບົບ / ລົງທະບຽນ',
         },
         benefits: {
-            title: 'ຫຼຽນ Canox ຊ່ວຍທ່ານ',
+            title: 'ຫຼຽນ TCano ຊ່ວຍທ່ານ',
             discount: {
                 title: 'ໃຊ້ຫຼຽນຫຼຸດລາຄາ',
                 description: 'ນຳໃຊ້ກັບຄຳສັ່ງຊື້ທີ່ມີເງື່ອນໄຂ',
@@ -27,12 +27,12 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
             title: 'ວິທີຮັບຫຼຽນ',
             purchase: 'ຊື້ສິນຄ້າທີ່ມີເງື່ອນໄຂ',
             review: 'ຣີວິວຫຼັງຈາກຮັບສິນຄ້າ',
-            program: 'ເຂົ້າຮ່ວມໂຄງການ Canox',
+            program: 'ເຂົ້າຮ່ວມໂຄງການ TCano',
         },
     },
     overviewDashboard: {
         hero: {
-            platformLabel: 'ຫຼຽນ Canox ທີ່ໃຊ້ໄດ້',
+            platformLabel: 'ຫຼຽນ TCano ທີ່ໃຊ້ໄດ້',
             combinedLabel: 'ຄະແນນທີ່ໃຊ້ໄດ້ທັງໝົດ',
             platformDescription: 'ສາມາດຫຼຸດໄດ້ສູງສຸດ {{amount}}đ',
             combinedDescription: 'ໃຊ້ໄດ້ຕາມເງື່ອນໄຂຂອງແຕ່ລະຮ້ານ',
@@ -58,7 +58,7 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
     },
     emptyDashboard: {
         hero: {
-            label: 'ຫຼຽນ Canox ທີ່ໃຊ້ໄດ້',
+            label: 'ຫຼຽນ TCano ທີ່ໃຊ້ໄດ້',
             description: 'ທ່ານຍັງບໍ່ມີຫຼຽນທີ່ໃຊ້ໄດ້',
             expiryStatus: 'ຍັງບໍ່ມີຫຼຽນລໍຖ້າ ຫຼື ໃກ້ຫມົດອາຍຸ',
             primaryAction: 'ຊື້ສິນຄ້າສະສົມຫຼຽນ',
@@ -75,7 +75,7 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
             title: 'ວິທີຮັບຫຼຽນ',
             purchaseTitle: 'ຊື້ສິນຄ້າສະສົມຫຼຽນ',
             reviewTitle: 'ຣີວິວຮັບຫຼຽນ',
-            programTitle: 'ໂຄງການ Canox',
+            programTitle: 'ໂຄງການ TCano',
             action: 'ສະສົມ',
         },
         history: {
@@ -88,15 +88,15 @@ export const LOYALTY_STRINGS: LoyaltyTranslation = {
         title: 'ວິທີເຮັດວຽກ',
         understood: 'ເຂົ້າໃຈແລ້ວ',
         what: {
-            title: 'ຫຼຽນ Canox ແມ່ນຫຍັງ?',
-            body: 'ຫຼຽນ Canox ແມ່ນຄະແນນລາງວັນທີ່ໃຊ້ເພື່ອຫຼຸດລາຄາຄຳສັ່ງຊື້ທີ່ມີເງື່ອນໄຂໃນ Canox. ຫຼຽນບໍ່ສາມາດແລກເປັນເງິນສົດໄດ້.',
+            title: 'ຫຼຽນ TCano ແມ່ນຫຍັງ?',
+            body: 'ຫຼຽນ TCano ແມ່ນຄະແນນລາງວັນທີ່ໃຊ້ເພື່ອຫຼຸດລາຄາຄຳສັ່ງຊື້ທີ່ມີເງື່ອນໄຂໃນ TCano. ຫຼຽນບໍ່ສາມາດແລກເປັນເງິນສົດໄດ້.',
         },
         earn: {
             title: 'ວິທີຮັບຫຼຽນ',
             bullets: {
                 purchase: 'ຊື້ສິນຄ້າທີ່ມີເງື່ອນໄຂ',
                 review: 'ຣີວິວຫຼັງຈາກຮັບສິນຄ້າ',
-                program: 'ເຂົ້າຮ່ວມໂຄງການ Canox',
+                program: 'ເຂົ້າຮ່ວມໂຄງການ TCano',
             },
         },
         use: {

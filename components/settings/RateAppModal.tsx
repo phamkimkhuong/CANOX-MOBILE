@@ -102,8 +102,8 @@ export const RateAppModal: React.FC<RateAppModalProps> = memo(({ visible, onClos
                 type: 'success',
                 text1: getText('Cảm ơn đóng góp của bạn!', 'Thank you for your feedback!'),
                 text2: getText(
-                    'Ý kiến của bạn đã được chuyển tới CSKH CanoX.',
-                    'Your input has been sent to CanoX support.'
+                    'Ý kiến của bạn đã được chuyển tới CSKH TCano.',
+                    'Your input has been sent to TCano support.'
                 ),
                 visibilityTime: 3000,
             });
@@ -146,12 +146,12 @@ export const RateAppModal: React.FC<RateAppModalProps> = memo(({ visible, onClos
                                 <IconSymbol name="star" size={24} color="#FFF" />
                             </View>
                             <Text style={styles.title}>
-                                {getText('Đánh giá CanoX', 'Rate CanoX')}
+                                {getText('Đánh giá TCano', 'Rate TCano')}
                             </Text>
                             <Text style={styles.subtitle}>
                                 {getText(
-                                    'Trải nghiệm của bạn với CanoX như thế nào?',
-                                    'How is your experience with CanoX so far?'
+                                    'Trải nghiệm của bạn với TCano như thế nào?',
+                                    'How is your experience with TCano so far?'
                                 )}
                             </Text>
 
@@ -223,8 +223,8 @@ export const RateAppModal: React.FC<RateAppModalProps> = memo(({ visible, onClos
                             </Text>
                             <Text style={styles.subtitle}>
                                 {getText(
-                                    'CanoX chân thành xin lỗi vì trải nghiệm chưa trọn vẹn này. Hãy chia sẻ thêm để chúng tôi cải thiện nhé!',
-                                    'CanoX sincerely apologizes for this imperfect experience. Please share your thoughts to help us improve!'
+                                    'TCano chân thành xin lỗi vì trải nghiệm chưa trọn vẹn này. Hãy chia sẻ thêm để chúng tôi cải thiện nhé!',
+                                    'TCano sincerely apologizes for this imperfect experience. Please share your thoughts to help us improve!'
                                 )}
                             </Text>
 

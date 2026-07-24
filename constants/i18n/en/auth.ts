@@ -28,7 +28,7 @@ export const AUTH_STRINGS: AuthTranslation = {
         passwordPlaceholder: 'Enter password',
         confirmPasswordPlaceholder: 'Re-enter password',
         registerButton: 'REGISTER',
-        agreeTermsPrefix: 'By continuing, you agree to CanoX\'s ',
+        agreeTermsPrefix: 'By continuing, you agree to TCano\'s ',
         termsLink: 'Terms of Service',
         agreeTermsAnd: ' and ',
         privacyLink: 'Privacy Policy',

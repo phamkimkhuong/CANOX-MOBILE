@@ -45,7 +45,7 @@ export const ORDER_STRINGS: OrderTranslation = {
             earned: 'Points earned',
             willEarn: 'Points upon completion',
             shopPoints: 'Points from Shop',
-            platformPoints: 'Points from CanoX',
+            platformPoints: 'Points from TCano',
             pointsUnit: 'points',
         },
         customerNote: 'Note:',
@@ -334,7 +334,7 @@ export const ORDER_STRINGS: OrderTranslation = {
     },
     success: {
         title: 'Order Successful',
-        subtitle: 'Thank you for shopping at CanoX. Your order is being processed.',
+        subtitle: 'Thank you for shopping at TCano. Your order is being processed.',
         orderTitle: 'Order Information',
         orderNumberLabel: 'Order Number',
         paymentLabel: 'Payment',

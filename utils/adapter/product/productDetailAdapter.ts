@@ -284,7 +284,7 @@ export const calculatePriceDisplay = (
             if (item.key === 'platformVoucher') {
                 breakdown.platformVoucher = {
                     id: v.voucherId || '',
-                    name: v.name || 'CanoX Voucher',
+                    name: v.name || 'TCano Voucher',
                     amount: currentVoucherDiscount,
                     discountType: v.discountType ?? undefined,
                     discountValue: v.discountValue,
@@ -350,7 +350,7 @@ export const calculatePriceDisplay = (
     if (data.bestPlatformVoucher) {
         defaultBreakdown.platformVoucher = {
             id: data.bestPlatformVoucher.voucherId || '',
-            name: data.bestPlatformVoucher.name || 'CanoX Voucher',
+            name: data.bestPlatformVoucher.name || 'TCano Voucher',
             amount: data.bestPlatformVoucher.discountAmount ?? 0,
             discountType: data.bestPlatformVoucher.discountType ?? undefined,
             discountValue: data.bestPlatformVoucher.discountValue,

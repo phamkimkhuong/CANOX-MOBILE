@@ -124,7 +124,7 @@ export const PriceBreakdownBottomSheet = memo<PriceBreakdownBottomSheetProps>(({
                             </View>
                         )}
 
-                        {/* Platform Voucher (CanoX) */}
+                        {/* Platform Voucher (TCano) */}
                         {breakdown.platformVoucher && breakdown.platformVoucher.amount > 0 && (
                             <View style={styles.voucherRow}>
                                 <View style={styles.voucherHeader}>

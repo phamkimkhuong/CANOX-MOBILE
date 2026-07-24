@@ -59,8 +59,8 @@ export const NOTIFICATION_STRINGS: NotificationTranslation = {
                     description: 'Flash Sales, exclusive Vouchers, and daily gifts.',
                 },
                 news: {
-                    title: 'CanoX News',
-                    description: 'Discover new features, shopping tips, and community updates from CanoX.',
+                    title: 'TCano News',
+                    description: 'Discover new features, shopping tips, and community updates from TCano.',
                 },
             },
             advanced: {

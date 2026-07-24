@@ -45,7 +45,7 @@ export const ORDER_STRINGS: OrderTranslation = {
             earned: 'ຄະແນນທີ່ໄດ້ຮັບ',
             willEarn: 'ຄະແນນເມື່ອສຳເລັດ',
             shopPoints: 'ຄະແນນຈາກຮ້ານ',
-            platformPoints: 'ຄະແນນຈາກ CanoX',
+            platformPoints: 'ຄະແນນຈາກ TCano',
             pointsUnit: 'ຄະແນນ',
         },
         customerNote: 'ໝາຍເຫດ:',
@@ -334,7 +334,7 @@ export const ORDER_STRINGS: OrderTranslation = {
     },
     success: {
         title: 'ສັ່ງຊື້ສຳເລັດ',
-        subtitle: 'ຂອບໃຈທີ່ຊື້ສິນຄ້າກັບ CanoX. ຄຳສັ່ງຊື້ຂອງທ່ານກຳລັງຖືກດຳເນີນການ.',
+        subtitle: 'ຂອບໃຈທີ່ຊື້ສິນຄ້າກັບ TCano. ຄຳສັ່ງຊື້ຂອງທ່ານກຳລັງຖືກດຳເນີນການ.',
         orderTitle: 'ຂໍ້ມູນການສັ່ງຊື້',
         orderNumberLabel: 'ໝາຍເລກຄຳສັ່ງຊື້',
         paymentLabel: 'ການຊຳລະເງິນ',

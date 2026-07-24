@@ -64,7 +64,7 @@ export const PROFILE_STRINGS: ProfileTranslation = {
         total: 'Tất cả',
     },
     menu: {
-        wallet: 'Ví CanoX',
+        wallet: 'Ví TCano',
         rewards: 'Ưu đãi thành viên',
         affiliate: 'Tiếp thị liên kết',
         favorites: 'Yêu thích',
@@ -87,8 +87,8 @@ export const PROFILE_STRINGS: ProfileTranslation = {
         legal_policies: 'Chính sách & Điều khoản',
     },
     guestState: {
-        eyebrow: 'Tài khoản CanoX',
-        title: 'Chào mừng bạn đến với CanoX',
+        eyebrow: 'Tài khoản TCano',
+        title: 'Chào mừng bạn đến với TCano',
         subtitle: 'Đăng nhập để nhận nhiều ưu đãi hấp dẫn và theo dõi đơn hàng dễ dàng',
         helper: 'Kết nối tài khoản để đồng bộ đơn hàng, lưu địa chỉ, quản lý voucher và nhận ưu đãi cá nhân hóa nhanh hơn.',
         signals: {
@@ -173,11 +173,11 @@ export const PROFILE_STRINGS: ProfileTranslation = {
         subtitle: 'Yêu cầu xóa tài khoản',
         description: 'Chúng tôi rất tiếc khi thấy bạn rời đi. Vui lòng đọc kỹ các lưu ý dưới đây trước khi xác nhận xóa tài khoản.',
         warningTitle: 'Điều gì sẽ xảy ra?',
-        warningItem1: 'Việc xóa/hủy tài khoản Canox là vĩnh viễn và không thể khôi phục. Đồng nghĩa bạn không thể đăng nhập hoặc xem lại các thông báo trong ứng dụng sau khi tài khoản đã bị xóa.',
+        warningItem1: 'Việc xóa/hủy tài khoản TCano là vĩnh viễn và không thể khôi phục. Đồng nghĩa bạn không thể đăng nhập hoặc xem lại các thông báo trong ứng dụng sau khi tài khoản đã bị xóa.',
         warningItem2: 'Tất cả thông tin cá nhân, địa chỉ và lịch sử mua hàng sẽ không thể truy cập.',
         warningItem3: 'Các ưu đãi, voucher và xu tích lũy hiện có sẽ bị mất hoàn toàn.',
         warningItem4: 'Người dùng phải hoàn thành tất cả đơn hàng trước khi yêu cầu xóa tài khoản.',
-        warningItem5: 'Sau khi bạn đã xoá tài khoản Canox hiện tại, Canox có quyền từ chối những yêu cầu thiết lập tài khoản mới của bạn trong tương lai.',
+        warningItem5: 'Sau khi bạn đã xoá tài khoản TCano hiện tại, TCano có quyền từ chối những yêu cầu thiết lập tài khoản mới của bạn trong tương lai.',
         confirmCheckbox: 'Tôi hiểu rằng hành động này không thể hoàn tác và đồng ý xóa tài khoản.',
         confirmInputLabel: 'Xác nhận bằng văn bản',
         confirmInputPlaceholder: 'Nhập chữ "DELETE" để xác nhận',
@@ -229,7 +229,7 @@ export const PROFILE_STRINGS: ProfileTranslation = {
         },
         footer: {
             version: 'Phiên bản {{version}}',
-            copyright: '© 2026 CanoX VN. All rights reserved.',
+            copyright: '© 2026 TCano VN. All rights reserved.',
             deleteAccountHint: 'Xóa vĩnh viễn tài khoản và dữ liệu của bạn',
             deleteAccountAccessibility: 'Yêu cầu xóa tài khoản',
         },

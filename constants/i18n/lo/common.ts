@@ -45,7 +45,7 @@ export const COMMON_STRINGS: CommonTranslation = {
         description: 'ພວກເຮົາກຳລັງອັບເກຣດລະບົບເພື່ອໃຫ້ທ່ານໄດ້ຮັບປະສົບການທີ່ດີທີ່ສຸດ. ກະລຸນາກັບມາໃໝ່ໃນອີກສອງສາມນາທີ.',
         retryButton: 'ລອງໃໝ່ອີກຄັ້ງດຽວນີ້',
         contactSupport: 'ຕິດຕໍ່ຝ່າຍຊ່ວຍເຫຼືອ',
-        support: '@CANOX E-Commerce Support',
+        support: '@TCANO E-Commerce Support',
     },
     update: {
         forceTitle: 'ຕ້ອງການອັບເດດແອັບຯ',

@@ -28,7 +28,7 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
         title: 'No favorite products yet',
         subtitlePrefix: 'Tap the',
         subtitleSuffix: 'icon on product cards to save items.',
-        subtitleTracking: 'Canox will help track prices and notify you when products reach your target price.',
+        subtitleTracking: 'TCano will help track prices and notify you when products reach your target price.',
         primaryCta: 'Explore products',
         benefitsTitle: 'Wishlist helps you',
         saveTitle: 'Save for later',
@@ -36,7 +36,7 @@ export const WISHLIST_STRINGS: WishlistTranslation = {
         trackTitle: 'Track target price',
         trackSubtitle: 'Set the price you want to buy at',
         notifyTitle: 'Get notified at target price',
-        notifySubtitle: 'Canox alerts you when a product reaches your price',
+        notifySubtitle: 'TCano alerts you when a product reaches your price',
     },
     error: {
         loadFailed: 'Failed to load collection',

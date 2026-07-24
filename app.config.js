@@ -13,12 +13,12 @@ const IS_PREVIEW = process.env.APP_VARIANT === 'preview';
 
 module.exports = {
     "expo": {
-        "name": IS_DEV ? "CanoX (Dev)" : (IS_PREVIEW ? "CanoX (Preview)" : "CanoX"),
-        "slug": "canox",
+        "name": IS_DEV ? "TCano (Dev)" : (IS_PREVIEW ? "TCano (Preview)" : "TCano"),
+        "slug": "tcano",
         "version": packageJson.version,
         "orientation": "portrait",
         "icon": "./assets/images/icon.png",
-        "scheme": "canox",
+        "scheme": "tcano",
         "userInterfaceStyle": "light",
         "newArchEnabled": true,
         "splash": {
@@ -35,7 +35,7 @@ module.exports = {
         },
         "ios": {
             "supportsTablet": true,
-            "bundleIdentifier": IS_DEV ? "com.cano.canox.dev" : (IS_PREVIEW ? "com.cano.canox.preview" : "com.cano.canox"),
+            "bundleIdentifier": IS_DEV ? "com.cano.tcano.dev" : (IS_PREVIEW ? "com.cano.tcano.preview" : "com.cano.tcano"),
             "googleServicesFile": IS_DEV
                 ? "./google-services/GoogleService-Info.dev.plist"
                 : (IS_PREVIEW
@@ -56,7 +56,7 @@ module.exports = {
             },
             "softwareKeyboardLayoutMode": "pan",
             "predictiveBackGestureEnabled": false,
-            "package": IS_DEV ? "com.cano.canox.dev" : (IS_PREVIEW ? "com.cano.canox.preview" : "com.cano.canox"),
+            "package": IS_DEV ? "com.cano.tcano.dev" : (IS_PREVIEW ? "com.cano.tcano.preview" : "com.cano.tcano"),
             "googleServicesFile": IS_DEV
                 ? "./google-services/google-services.dev.json"
                 : (IS_PREVIEW

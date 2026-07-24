@@ -403,7 +403,7 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
     const handleSharePress = useCallback(async () => {
         if (!product) return;
 
-        const productUrl = `https://canox.com/product/${product.id}`;
+        const productUrl = `https://tcano.com/product/${product.id}`;
         const message = t('product:share.msgTemplate', {
             name: product.name,
             url: Platform.OS === 'android' ? productUrl : '',

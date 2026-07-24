@@ -299,7 +299,7 @@ export const PrivateWishlistTab: React.FC<PrivateWishlistTabProps> = ({
         shareWishlistMutation.mutate(activeWishlist.id, {
             onSuccess: (response) => {
                 const token = response.data?.shareToken || response.data;
-                const url = `https://canox.com/wishlist/shared/${token}`;
+                const url = `https://tcano.com/wishlist/shared/${token}`;
                 Share.share({
                     message: t('share.message', { name: activeWishlist.name, url }),
                     url: url,

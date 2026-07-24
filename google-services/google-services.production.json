@@ -1,15 +1,15 @@
 {
   "project_info": {
     "project_number": "615278692622",
-    "project_id": "canox-9a8e6",
-    "storage_bucket": "canox-9a8e6.firebasestorage.app"
+    "project_id": "tcano-9a8e6",
+    "storage_bucket": "tcano-9a8e6.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
         "mobilesdk_app_id": "1:615278692622:android:57b5e64d5aaf02a275af5f",
         "android_client_info": {
-          "package_name": "com.calatha.canox.dev"
+          "package_name": "com.calatha.tcano.dev"
         }
       },
       "oauth_client": [],
@@ -28,7 +28,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:615278692622:android:2e1d5a3d0a5425a575af5f",
         "android_client_info": {
-          "package_name": "com.calatha.canox.preview"
+          "package_name": "com.calatha.tcano.preview"
         }
       },
       "oauth_client": [],
@@ -47,7 +47,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:615278692622:android:29e5a414de5fffe375af5f",
         "android_client_info": {
-          "package_name": "com.cano.canox"
+          "package_name": "com.cano.tcano"
         }
       },
       "oauth_client": [],

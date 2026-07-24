@@ -39,7 +39,7 @@ export const SocialActions = ({
     const handleShare = async () => {
         try {
             await Share.share({
-                message: 'Xem video sản phẩm tuyệt vời này trên CANOX!',
+                message: 'Xem video sản phẩm tuyệt vời này trên TCANO!',
             });
         } catch (error) {
             console.error(error);

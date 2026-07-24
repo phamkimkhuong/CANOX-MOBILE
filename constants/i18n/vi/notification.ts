@@ -59,8 +59,8 @@ export const NOTIFICATION_STRINGS: NotificationTranslation = {
                     description: 'Các chương trình Flash Sale, Voucher độc quyền và quà tặng mỗi ngày.',
                 },
                 news: {
-                    title: 'Tin tức CanoX',
-                    description: 'Khám phá các tính năng mới, mẹo mua sắm và cập nhật từ cộng đồng CanoX.',
+                    title: 'Tin tức TCano',
+                    description: 'Khám phá các tính năng mới, mẹo mua sắm và cập nhật từ cộng đồng TCano.',
                 },
             },
             advanced: {

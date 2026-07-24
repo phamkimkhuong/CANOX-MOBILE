@@ -18,7 +18,7 @@ interface LoyaltyHeroCardProps {
     onLearnMore: () => void;
 }
 
-const heroImage = require('@/assets/images/loyalty/canox-xu-guest-hero.png');
+const heroImage = require('@/assets/images/loyalty/tcano-xu-guest-hero.png');
 
 export const LoyaltyHeroCard: React.FC<LoyaltyHeroCardProps> = memo(({
     overview,

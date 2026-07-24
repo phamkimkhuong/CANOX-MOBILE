@@ -241,7 +241,7 @@ export default function VoucherDetailScreen() {
                             <IconSymbol name="store" size={18} color={theme.colors.secondary} />
                             <Text style={styles.conditionLabel}>Tài trợ bởi</Text>
                             <Text style={styles.conditionValue}>
-                                {voucher.sponsorType === 'SHOP' ? displayShopName : 'CanoX'}
+                                {voucher.sponsorType === 'SHOP' ? displayShopName : 'TCano'}
                             </Text>
                         </View>
                     </View>

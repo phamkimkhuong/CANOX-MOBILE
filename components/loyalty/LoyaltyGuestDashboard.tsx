@@ -1,5 +1,5 @@
 /**
- * LoyaltyGuestDashboard - Login onboarding for unauthenticated Canox Coins users.
+ * LoyaltyGuestDashboard - Login onboarding for unauthenticated TCano Coins users.
  */
 
 import { IconSymbol } from '@/components/ui/Icon';
@@ -16,7 +16,7 @@ interface LoyaltyGuestDashboardProps {
     onLogin: () => void;
 }
 
-const guestHeroImage = require('@/assets/images/loyalty/canox-xu-guest-hero.png');
+const guestHeroImage = require('@/assets/images/loyalty/tcano-xu-guest-hero.png');
 
 const GuestHeroIllustration = memo(() => (
     <Image

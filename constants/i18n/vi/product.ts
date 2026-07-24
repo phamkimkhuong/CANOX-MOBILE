@@ -136,23 +136,23 @@ export const PRODUCT_STRINGS: ProductTranslation = {
 
     // === Order Protection ===
     orderProtection: {
-        cardTitle: 'Chính sách bảo vệ đơn hàng của Canox',
-        cardSubtitle: 'Các đơn hàng được bảo vệ khi thanh toán và xử lý qua nền tảng Canox',
+        cardTitle: 'Chính sách bảo vệ đơn hàng của TCano',
+        cardSubtitle: 'Các đơn hàng được bảo vệ khi thanh toán và xử lý qua nền tảng TCano',
         sheetTitle: 'Bảo vệ đơn hàng',
-        sheetHeading: 'Chính sách bảo vệ đơn hàng của Canox',
-        sheetIntro: 'Canox hỗ trợ bảo vệ đơn hàng khi giao dịch được thanh toán và xử lý qua nền tảng.',
+        sheetHeading: 'Chính sách bảo vệ đơn hàng của TCano',
+        sheetIntro: 'TCano hỗ trợ bảo vệ đơn hàng khi giao dịch được thanh toán và xử lý qua nền tảng.',
         learnMore: 'Tìm hiểu thêm',
         items: {
             payment: {
                 summaryTitle: 'Thanh toán an toàn',
                 title: 'Thanh toán an toàn',
-                description: 'Chọn phương thức thanh toán nội địa, thẻ tín dụng/thẻ ghi nợ, chuyển khoản ngân hàng hoặc ví điện tử.\nMọi giao dịch thực hiện thông qua Canox đều được bảo vệ bằng tiêu chuẩn mã hoá SSL và giao thức bảo mật dữ liệu PCI DSS nghiêm ngặt.',
+                description: 'Chọn phương thức thanh toán nội địa, thẻ tín dụng/thẻ ghi nợ, chuyển khoản ngân hàng hoặc ví điện tử.\nMọi giao dịch thực hiện thông qua TCano đều được bảo vệ bằng tiêu chuẩn mã hoá SSL và giao thức bảo mật dữ liệu PCI DSS nghiêm ngặt.',
                 policyTitle: 'Chính sách thanh toán',
             },
             shipping: {
                 summaryTitle: 'Theo dõi giao hàng',
                 title: 'Theo dõi giao hàng',
-                description: 'Canox hỗ trợ theo dõi trạng thái đơn hàng từ khi đặt hàng đến khi giao thành công.',
+                description: 'TCano hỗ trợ theo dõi trạng thái đơn hàng từ khi đặt hàng đến khi giao thành công.',
                 policyTitle: 'Chính sách vận chuyển',
             },
             return: {
@@ -164,7 +164,7 @@ export const PRODUCT_STRINGS: ProductTranslation = {
             support: {
                 summaryTitle: 'Khiếu nại 24/7',
                 title: 'Hỗ trợ khiếu nại 24/7',
-                description: 'Truy cập trung tâm trợ giúp trực tuyến 24/7 của Canox hoặc kết nối với nhân viên hỗ trợ để được tiếp nhận và xử lý khi có vấn đề phát sinh với đơn hàng.',
+                description: 'Truy cập trung tâm trợ giúp trực tuyến 24/7 của TCano hoặc kết nối với nhân viên hỗ trợ để được tiếp nhận và xử lý khi có vấn đề phát sinh với đơn hàng.',
                 policyTitle: 'Trung tâm hỗ trợ',
             },
         },
@@ -229,7 +229,7 @@ export const PRODUCT_STRINGS: ProductTranslation = {
         basePrice: 'Giá sản phẩm',
         productDiscount: 'Giảm giá sản phẩm',
         shopVoucher: 'Voucher người bán',
-        platformVoucher: 'Voucher CanoX',
+        platformVoucher: 'Voucher TCano',
         finalSubtotal: 'Giá tạm tính',
         legalNote: '* Giá cuối cùng có thể thay đổi tùy thuộc vào phí vận chuyển và các ưu đãi khác khi thanh toán.',
         afterVoucher: 'Giá sau voucher',

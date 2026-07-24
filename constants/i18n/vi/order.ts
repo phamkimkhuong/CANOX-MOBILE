@@ -45,7 +45,7 @@ export const ORDER_STRINGS: OrderTranslation = {
             earned: 'Xu đã nhận',
             willEarn: 'Xu nhận khi hoàn thành',
             shopPoints: 'Xu thưởng từ Shop',
-            platformPoints: 'Xu thưởng từ CanoX',
+            platformPoints: 'Xu thưởng từ TCano',
             pointsUnit: 'xu',
         },
         customerNote: 'Ghi chú:',
@@ -334,7 +334,7 @@ export const ORDER_STRINGS: OrderTranslation = {
     },
     success: {
         title: 'Đặt hàng thành công',
-        subtitle: 'Cảm ơn bạn đã mua sắm tại CanoX. Đơn hàng của bạn đang được xử lý.',
+        subtitle: 'Cảm ơn bạn đã mua sắm tại TCano. Đơn hàng của bạn đang được xử lý.',
         orderTitle: 'Thông tin đơn hàng',
         orderNumberLabel: 'Mã đơn hàng',
         paymentLabel: 'Thanh toán',

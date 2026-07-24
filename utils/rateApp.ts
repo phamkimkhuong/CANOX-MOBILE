@@ -1,8 +1,8 @@
 import { logger } from '@/utils/logger';
 import { Linking, Platform } from 'react-native';
 
-const FALLBACK_APPLE_SLUG = 'canox';
-const FALLBACK_ANDROID_PACKAGE = 'com.cano.canox';
+const FALLBACK_APPLE_SLUG = 'tcano';
+const FALLBACK_ANDROID_PACKAGE = 'com.cano.tcano';
 
 /**
  * Redirects the user to the native store page directly in write-review mode
@@ -24,7 +24,7 @@ export async function redirectToStoreReview(): Promise<void> {
         if (idMatch && idMatch[1]) {
             nativeUrl = `itms-apps://itunes.apple.com/app/id${idMatch[1]}?action=write-review`;
         } else {
-            // Support slug-based urls like https://apps.apple.com/app/canox
+            // Support slug-based urls like https://apps.apple.com/app/tcano
             const slugMatch = webUrl.match(/\/app\/([^/?]+)/);
             const slug = slugMatch && slugMatch[1] ? slugMatch[1] : FALLBACK_APPLE_SLUG;
             nativeUrl = `itms-apps://itunes.apple.com/app/${slug}?action=write-review`;
