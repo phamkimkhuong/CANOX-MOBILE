@@ -68,7 +68,7 @@ export const CartItem: React.FC<CartItemProps> = memo(({
     item,
     onToggleSelect,
     onQuantityChange,
-    onVariantPress,
+    onVariantPress: _onVariantPress,
     onFindSimilar,
     onDelete: _onDelete,
     onPromotionExpired,

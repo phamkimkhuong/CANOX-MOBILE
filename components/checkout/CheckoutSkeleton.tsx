@@ -10,7 +10,7 @@
  */
 
 import React from 'react';
-import { type DimensionValue, type StyleProp, View, type ViewStyle } from 'react-native';
+import { type DimensionValue, View, type ViewStyle } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 

@@ -17,7 +17,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack } from 'expo-router';
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, RefreshControl, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
@@ -80,7 +80,6 @@ export default function FlashSaleScreen() {
     const { data: campaign } = useCampaignDetail(campaignId);
     const heroTitle = campaign?.name || t('home:flashSale.title');
     const heroRangeLabel = activeTab ? formatSlotRange(activeTab.startTime, activeTab.endTime) : '';
-    const heroStatusLabel = activeTab?.isActive ? t('home:flashSale.statusLive') : t('home:flashSale.statusUpcoming');
 
     const handleRefresh = useCallback(async () => {
         setRefreshing(true);
@@ -196,23 +195,6 @@ export default function FlashSaleScreen() {
                                             {heroRangeLabel}
                                         </Text>
                                     ) : null}
-
-                                    <View style={[
-                                        styles.heroStatusBadge,
-                                        activeTab.isActive ? styles.heroStatusBadgeLive : styles.heroStatusBadgeUpcoming,
-                                    ]}>
-                                        {activeTab.isActive ? (
-                                            <IconSymbol name="flame" size={10} color={theme.colors.onPrimary} />
-                                        ) : (
-                                            <View style={styles.heroStatusDot} />
-                                        )}
-                                        <Text style={[
-                                            styles.heroStatusText,
-                                            activeTab.isActive ? styles.heroStatusTextLive : styles.heroStatusTextUpcoming,
-                                        ]}>
-                                            {heroStatusLabel}
-                                        </Text>
-                                    </View>
                                 </View>
 
                                 <FlashSaleCountdown
@@ -410,7 +392,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     heroCard: {
         position: 'relative',
         overflow: 'hidden',
-        borderRadius: theme.radius.xl,
+        borderRadius: theme.radius.l,
         borderWidth: 1,
         borderColor: theme.colors.borderGlass,
         backgroundColor: theme.colors.surfaceGlass,
@@ -448,7 +430,7 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     heroSummary: {
         paddingHorizontal: theme.margins.md,
-        paddingTop: theme.margins.md,
+        paddingTop: theme.margins.xs,
         paddingBottom: theme.margins.md,
         gap: theme.margins.xs + 2,
     },
@@ -457,42 +439,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         alignItems: 'center',
         gap: theme.margins.sm,
         minHeight: 28,
-    },
-    heroStatusBadge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        paddingHorizontal: theme.margins.sm,
-        paddingVertical: 5,
-        borderRadius: theme.radius.full,
-        borderWidth: 1,
-        flexShrink: 0,
-    },
-    heroStatusBadgeLive: {
-        backgroundColor: theme.colors.newPrimary,
-        borderColor: theme.colors.newPrimary,
-    },
-    heroStatusBadgeUpcoming: {
-        backgroundColor: theme.colors.warningSubtle,
-        borderColor: theme.colors.warningLight,
-    },
-    heroStatusDot: {
-        width: 6,
-        height: 6,
-        borderRadius: theme.radius.full,
-        backgroundColor: theme.colors.warning,
-    },
-    heroStatusText: {
-        fontSize: theme.fontSizes.xs,
-        fontWeight: theme.fontWeights.bold,
-        letterSpacing: 0.4,
-        textTransform: 'uppercase',
-    },
-    heroStatusTextLive: {
-        color: theme.colors.onPrimary,
-    },
-    heroStatusTextUpcoming: {
-        color: theme.colors.warning,
     },
     heroTitleText: {
         fontSize: theme.fontSizes.xl,
@@ -510,8 +456,8 @@ const stylesheet = StyleSheet.create((theme) => ({
         flex: 1,
         marginTop: theme.margins.xs,
         backgroundColor: theme.colors.surface,
-        borderTopLeftRadius: theme.radius.xl,
-        borderTopRightRadius: theme.radius.xl,
+        borderTopLeftRadius: theme.radius.m,
+        borderTopRightRadius: theme.radius.m,
         justifyContent: 'center',
         alignItems: 'center',
         shadowColor: theme.colors.newPrimary,
@@ -530,8 +476,8 @@ const stylesheet = StyleSheet.create((theme) => ({
         marginTop: theme.margins.xs,
         height: theme.margins.md + 2,
         backgroundColor: theme.colors.surface,
-        borderTopLeftRadius: theme.radius.xl,
-        borderTopRightRadius: theme.radius.xl,
+        borderTopLeftRadius: theme.radius.m,
+        borderTopRightRadius: theme.radius.m,
         shadowColor: theme.colors.newPrimary,
         shadowOffset: { width: 0, height: -10 },
         shadowOpacity: 0.08,

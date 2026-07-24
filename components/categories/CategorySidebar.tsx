@@ -2,7 +2,7 @@ import { IconSymbol, IconSymbolName } from '@/components/ui/Icon';
 import type { ParentCategory } from '@/types/category';
 import { FlashList, FlashListRef } from '@shopify/flash-list';
 import React, { useCallback, useEffect, useRef } from 'react';
-import { Text, TouchableOpacity, View, type StyleProp, type ViewStyle } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 

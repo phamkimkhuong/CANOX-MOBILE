@@ -8,7 +8,7 @@ const loadPlugin = (path) => {
     return plugin.default || plugin;
 };
 
-const IS_DEV = process.env.APP_VARIANT === 'development';
+const IS_DEV = process.env.APP_VARIANT ? process.env.APP_VARIANT === 'development' : true;
 const IS_PREVIEW = process.env.APP_VARIANT === 'preview';
 
 module.exports = {
@@ -113,13 +113,14 @@ module.exports = {
             ],
             loadPlugin("./plugins/withNotificationManifest")
         ],
+        "owner": "phamkhuong436",
         "experiments": {
             "typedRoutes": true
         },
         "extra": {
             "router": {},
             "eas": {
-                "projectId": "34490ad6-6863-455c-bac8-4ee18be1a9a0"
+                "projectId": "2aafd1cb-268e-472c-b6ae-cde6fb364a05"
             }
         }
     }

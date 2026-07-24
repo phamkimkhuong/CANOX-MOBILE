@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { type StyleProp, StyleSheet as RNStyleSheet, ViewStyle } from 'react-native';
+import { StyleSheet as RNStyleSheet, ViewStyle } from 'react-native';
 import Animated, {
     cancelAnimation,
     useAnimatedStyle,

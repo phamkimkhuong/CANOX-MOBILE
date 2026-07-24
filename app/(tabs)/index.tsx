@@ -326,7 +326,7 @@ export default function HomeScreen() {
   const stickyTabsAnimatedStyle = useAnimatedStyle(() => {
     // Chỉ hiện khi scrollY >= headerHeight (MarketingHeader đã khuất hoàn toàn)
     const shouldShow = scrollY.value >= headerHeight.value && headerHeight.value > 0;
-    
+
     // Dịch chuyển ra khỏi màn hình khi ẩn để tránh lỗi Android elevation/render shadow trắng
     const translateY = shouldShow ? 0 : -300;
 

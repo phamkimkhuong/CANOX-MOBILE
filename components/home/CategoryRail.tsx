@@ -1,6 +1,7 @@
 import { ROUTES } from '@/constants/routes';
 import { Navigator } from '@/utils/navigation';
 import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -95,7 +96,12 @@ export const CategoryRail = memo(() => {
     }, []);
 
     return (
-        <View style={styles.container}>
+        <LinearGradient
+            colors={['#ff5500', '#ff7a00']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={styles.container}
+        >
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
@@ -141,14 +147,13 @@ export const CategoryRail = memo(() => {
                     </View>
                 </View>
             )}
-        </View>
+        </LinearGradient>
     );
 });
 
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
         paddingVertical: theme.margins.sm / 2,
-        backgroundColor: theme.colors.header.headerBackground,
         marginHorizontal: -theme.margins.sm, // Negative margin to full bleed
     },
     row: {

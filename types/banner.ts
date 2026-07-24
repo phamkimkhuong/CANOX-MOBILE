@@ -65,6 +65,8 @@ export const BannerSchema = z.object({
     imageAssetIdMobile: z.string().nullable().optional(),
     imageAssetIdDesktop: z.string().nullable().optional(),
     imagePath: z.string().nullable().optional(),
+    imagePathMobile: z.string().nullable().optional(),
+    imagePathDesktop: z.string().nullable().optional(),
 
     /** Action & Tracking */
     href: z.string().nullable().optional(),

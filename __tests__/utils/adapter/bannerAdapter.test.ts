@@ -13,11 +13,15 @@ const createBanner = (overrides: Partial<Banner> = {}): Banner => ({
 });
 
 describe('bannerAdapter', () => {
+  beforeAll(() => {
+    process.env.EXPO_PUBLIC_CDN_BASE_URL = 'https://pub-5341c10461574a539df355b9fbe87197.r2.dev/';
+  });
+
   it('uses mobile asset priority for mobile banners', () => {
     const banner = createBanner();
     const result = toBannerUI(banner, true);
 
-    expect(result.imageUrl).toBe('https://api.calatha.com/v1/public/assets/asset-mobile');
+    expect(result.imageUrl).toBe('https://pub-5341c10461574a539df355b9fbe87197.r2.dev/public/assets/asset-mobile');
     expect(result.id).toBe('banner-1');
     expect(result.href).toBe('/promo');
   });
@@ -41,7 +45,7 @@ describe('bannerAdapter', () => {
     const single = toBannerUI(withPath);
     const list = toBannerUIList([withPath, empty]);
 
-    expect(single.imageUrl).toBe('https://api.calatha.com/images/banner.png');
+    expect(single.imageUrl).toBe('https://pub-5341c10461574a539df355b9fbe87197.r2.dev/images/banner.png');
     expect(list).toHaveLength(1);
     expect(list[0]?.id).toBe('with-path');
   });

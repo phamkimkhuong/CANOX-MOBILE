@@ -5,7 +5,7 @@ import { formatCurrency } from '@/utils/format';
 import { buildImageUrl } from '@/utils/url';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
@@ -90,11 +90,11 @@ export const FlashSaleProductCard = memo(({
                 <View style={styles.content}>
                     <View style={styles.contentTop}>
                         <View style={styles.titleBlock}>
-                            <Text style={styles.title} numberOfLines={2}>{item.name}</Text>
+                            <Text style={styles.title} numberOfLines={1}>{item.name}</Text>
                             {shopName ? (
                                 <Text
                                     style={styles.shopName}
-                                    numberOfLines={2}
+                                    numberOfLines={1}
                                     ellipsizeMode="tail"
                                 >
                                     {shopName}
@@ -186,21 +186,15 @@ export const FlashSaleProductCard = memo(({
 const stylesheet = StyleSheet.create((theme) => ({
     container: {
         marginBottom: theme.margins.smd,
-        borderRadius: theme.radius.xl,
-        backgroundColor: theme.colors.surface,
+        borderRadius: theme.radius.m,
         overflow: 'hidden',
         borderWidth: 1,
         borderColor: theme.colors.borderMuted,
-        elevation: 4,
-        shadowColor: theme.colors.newPrimary,
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.08,
-        shadowRadius: 14,
     },
     card: {
         flexDirection: 'row',
-        padding: theme.margins.smd,
-        gap: theme.margins.smd,
+        padding: theme.margins.sm,
+        gap: theme.margins.sm,
         backgroundColor: theme.colors.surface,
     },
     cardSoldOut: {
@@ -213,10 +207,10 @@ const stylesheet = StyleSheet.create((theme) => ({
     imageWrapper: {
         width: 108,
         height: 108,
-        borderRadius: theme.radius.l,
+        borderRadius: theme.radius.m,
         backgroundColor: theme.colors.header.background,
         overflow: 'hidden',
-        borderWidth: 1,
+        borderWidth: 0.5,
         borderColor: theme.colors.borderMuted,
     },
     image: {
@@ -235,7 +229,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         left: theme.margins.xs,
         paddingHorizontal: 6,
         paddingVertical: 3,
-        borderRadius: theme.radius.l,
+        borderRadius: theme.radius.m,
     },
     discountText: {
         fontSize: theme.fontSizes.xsm,
@@ -345,7 +339,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         justifyContent: 'center',
         gap: 4,
         paddingHorizontal: theme.margins.sm,
-        borderRadius: theme.radius.l,
+        borderRadius: theme.radius.m,
         backgroundColor: theme.colors.backgroundNewSurface,
         borderWidth: 1,
         borderColor: theme.colors.borderMuted,
@@ -357,7 +351,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.typographySecondary,
     },
     buyBtn: {
-        borderRadius: theme.radius.l,
+        borderRadius: theme.radius.m,
         paddingVertical: theme.margins.sm,
         alignItems: 'center',
         justifyContent: 'center',
@@ -377,7 +371,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         justifyContent: 'center',
         gap: 6,
         paddingVertical: theme.margins.sm + 1,
-        borderRadius: theme.radius.l,
+        borderRadius: theme.radius.m,
         borderWidth: 1,
         borderColor: theme.colors.warningLight,
         backgroundColor: theme.colors.warningSubtle,

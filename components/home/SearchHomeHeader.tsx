@@ -5,6 +5,7 @@ import { searchRoutes } from '@/constants/routes';
 import '@/constants/unistyles';
 import { useHotKeywords } from '@/hooks/api/search';
 import { Navigator } from '@/utils/navigation';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
@@ -35,7 +36,12 @@ export const HomeHeader = () => {
     }, []);
 
     return (
-        <View style={styles.headerContainer}>
+        <LinearGradient
+            colors={[theme.colors.newPrimary, '#ff5500']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={styles.headerContainer}
+        >
             {/* 1. Thanh tìm kiếm - Rolling Keywords */}
             <Pressable
                 style={({ pressed }) => [
@@ -61,7 +67,7 @@ export const HomeHeader = () => {
                 <CartHeaderButton />
                 <ChatHeaderButton />
             </View>
-        </View>
+        </LinearGradient>
     );
 };
 const stylesheet = StyleSheet.create((theme) => ({
@@ -69,7 +75,6 @@ const stylesheet = StyleSheet.create((theme) => ({
         paddingHorizontal: theme.margins.md,
         paddingBottom: theme.margins.sm,
         paddingTop: UnistylesRuntime.insets.top + 10,
-        backgroundColor: theme.colors.header.headerBackground,
         flexDirection: 'row',
         alignItems: 'center',
         gap: 12,

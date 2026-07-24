@@ -1,4 +1,4 @@
-import { StyleSheet as RNStyleSheet, StyleProp } from 'react-native';
+import { StyleSheet as RNStyleSheet } from 'react-native';
 
 /**
  * Clean up and flatten style arrays to prevent Reanimated v4 empty style/unistyles metadata error.

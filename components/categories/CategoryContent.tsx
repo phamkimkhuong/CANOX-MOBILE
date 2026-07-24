@@ -12,7 +12,7 @@ import { FlashList } from '@shopify/flash-list';
 import { Image } from 'expo-image';
 import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Text, TouchableOpacity, View, type StyleProp, type ViewStyle } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
 import { CategoryBanner } from './CategoryBanner';

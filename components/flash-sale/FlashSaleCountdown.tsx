@@ -1,7 +1,7 @@
 import { formatSynchronizedTimeLeft, getSynchronizedTargetTimestamp } from '@/utils/date';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { memo, useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import { StyleSheet, useUnistyles } from 'react-native-unistyles';
@@ -236,7 +236,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         color: theme.colors.warning,
     },
     timeCapsuleWrapper: {
-        borderRadius: theme.radius.m,
+        borderRadius: theme.radius.s,
         overflow: 'hidden',
         borderWidth: 1,
         borderColor: theme.colors.warningLight,
@@ -268,7 +268,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         backgroundColor: 'rgba(255, 255, 255, 0.35)',
     },
     boxWrapper: {
-        borderRadius: theme.radius.m,
+        borderRadius: theme.radius.s,
         overflow: 'hidden',
         borderWidth: 1,
         borderColor: 'rgba(255, 255, 255, 0.15)',

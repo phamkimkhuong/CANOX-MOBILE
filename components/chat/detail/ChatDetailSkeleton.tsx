@@ -5,7 +5,7 @@
 
 import { SkeletonBox, SkeletonCircle } from '@/components/ui/feedback/Skeleton';
 import React from 'react';
-import { View, type StyleProp, type ViewStyle } from 'react-native';
+import { View } from 'react-native';
 import { StyleSheet } from 'react-native-unistyles';
 
 interface ChatDetailSkeletonProps {

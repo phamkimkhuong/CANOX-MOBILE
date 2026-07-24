@@ -1,7 +1,7 @@
 import { IconSymbol } from '@/components/ui/Icon';
 import { SlotStatus } from '@/types/campaign';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { memo, useEffect, useRef } from 'react';
+import { memo, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInRight } from 'react-native-reanimated';
@@ -66,8 +66,7 @@ export const FlashSaleTimeline = memo(({ tabs, activeTabId, onTabPress, embedded
                             >
                                 <TouchableOpacity
                                     style={[
-                                        styles.tab,
-                                        isSelected && styles.tabSelected,
+                                        styles.tab
                                     ]}
                                     activeOpacity={0.8}
                                     onPress={() => onTabPress(tab)}
@@ -76,7 +75,7 @@ export const FlashSaleTimeline = memo(({ tabs, activeTabId, onTabPress, embedded
                                         <LinearGradient
                                             colors={isLive
                                                 ? [theme.colors.newPrimary, theme.colors.accent]
-                                                : [theme.colors.surfaceGlassOverlay, theme.colors.warningLight]
+                                                : ['#fff7ed', '#fed7aa']
                                             }
                                             start={{ x: 0, y: 0 }}
                                             end={{ x: 1, y: 1 }}
@@ -86,8 +85,8 @@ export const FlashSaleTimeline = memo(({ tabs, activeTabId, onTabPress, embedded
                                             ]}
                                         >
                                             <Content tab={tab} isSelected={true} isLive={isLive} />
-                                            {/* Top Highlight */}
                                             <View style={[styles.tabHighlight, isLive ? styles.tabHighlightLive : styles.tabHighlightUpcoming]} />
+                                            <View style={[styles.activeIndicator, isLive ? styles.activeIndicatorLive : styles.activeIndicatorUpcoming]} />
                                         </LinearGradient>
                                     ) : (
                                         <View style={[
@@ -126,10 +125,10 @@ const Content = ({ tab, isSelected, isLive }: { tab: FlashSaleTab; isSelected: b
 
     return (
         <View style={styles.content}>
-            <Text style={[
-                styles.timeLabel,
-                timeLabelStyle,
-            ]}>
+            <Text
+                style={[styles.timeLabel, timeLabelStyle]}
+                numberOfLines={1}
+            >
                 {tab.label}
             </Text>
             <View style={[styles.statusPill, statusPillStyle]}>
@@ -137,7 +136,7 @@ const Content = ({ tab, isSelected, isLive }: { tab: FlashSaleTab; isSelected: b
                     <IconSymbol
                         name="flame"
                         size={10}
-                        color={isSelected ? theme.colors.onPrimary : theme.colors.warning}
+                        color={isSelected ? '#ffffff' : theme.colors.warning}
                     />
                 ) : (
                     <View style={[
@@ -165,25 +164,12 @@ const stylesheet = StyleSheet.create((theme) => ({
         paddingVertical: 0,
     },
     timelineWrapper: {
-        height: 74,
+        height: 78,
         marginHorizontal: theme.margins.md,
-        padding: theme.margins.xs,
-        borderRadius: theme.radius.xl,
-        backgroundColor: theme.colors.surfaceGlassOverlay,
-        borderWidth: 1,
-        borderColor: theme.colors.borderGlass,
-        shadowColor: theme.colors.newPrimary,
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.12,
-        shadowRadius: 20,
-        elevation: 8,
     },
     timelineWrapperEmbedded: {
         marginHorizontal: 0,
         backgroundColor: theme.colors.surfaceGlass,
-        shadowOpacity: 0.08,
-        shadowRadius: 14,
-        elevation: 5,
     },
     scrollContent: {
         paddingHorizontal: theme.margins.xs,
@@ -192,40 +178,35 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     tab: {
         width: TAB_WIDTH,
-        height: 58,
+        height: 60,
         borderRadius: theme.radius.l,
         overflow: 'hidden',
         borderWidth: 1,
         borderColor: 'transparent',
         backgroundColor: 'transparent',
     },
-    tabSelected: {
-        borderColor: theme.colors.borderGlass,
-        elevation: 10,
-        shadowColor: theme.colors.newPrimary,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.18,
-        shadowRadius: 10,
-    },
     activeGradient: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        paddingVertical: 4,
     },
     activeGradientLive: {
         borderColor: theme.colors.borderGlass,
     },
     activeGradientUpcoming: {
-        borderColor: theme.colors.warningLight,
+        borderColor: '#fdba74',
+        borderWidth: 1,
     },
     inactiveContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        borderRadius: theme.radius.l,
+        borderRadius: theme.radius.m,
         backgroundColor: theme.colors.surfaceTranslucent,
         borderWidth: 1,
         borderColor: theme.colors.borderGlass,
+        paddingVertical: 4,
     },
     inactiveContainerLive: {
         backgroundColor: theme.colors.warningSubtle,
@@ -234,18 +215,22 @@ const stylesheet = StyleSheet.create((theme) => ({
     content: {
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 6,
+        gap: 4,
+        paddingHorizontal: 4,
+        width: '100%',
     },
     timeLabel: {
-        fontSize: theme.fontSizes.mdbase,
+        fontSize: theme.fontSizes.sm,
         fontWeight: theme.fontWeights.bold,
-        letterSpacing: 0.3,
+        letterSpacing: 0.2,
+        textAlign: 'center',
+        backgroundColor: 'transparent',
     },
     timeLabelSelectedLive: {
-        color: theme.colors.onPrimary,
+        color: '#ffffff',
     },
     timeLabelSelectedUpcoming: {
-        color: theme.colors.typography,
+        color: '#c2410c',
     },
     timeLabelInactiveLive: {
         color: theme.colors.warning,
@@ -257,37 +242,37 @@ const stylesheet = StyleSheet.create((theme) => ({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 4,
-        paddingHorizontal: theme.margins.sm,
-        paddingVertical: 4,
+        paddingHorizontal: 8,
+        paddingVertical: 3,
         borderRadius: theme.radius.full,
         borderWidth: 1,
     },
     statusPillSelectedLive: {
-        backgroundColor: theme.colors.surfaceGlass,
-        borderColor: theme.colors.borderGlass,
+        backgroundColor: 'rgba(0, 0, 0, 0.28)',
+        borderColor: 'rgba(255, 255, 255, 0.40)',
     },
     statusPillSelectedUpcoming: {
-        backgroundColor: theme.colors.warningSubtle,
-        borderColor: theme.colors.warningLight,
+        backgroundColor: theme.colors.warning,
+        borderColor: theme.colors.warning,
     },
     statusPillInactiveLive: {
         backgroundColor: theme.colors.warningLight,
         borderColor: theme.colors.warningSoft,
     },
     statusPillInactiveUpcoming: {
-        backgroundColor: theme.colors.surfaceGlass,
-        borderColor: theme.colors.borderGlass,
+        backgroundColor: 'rgba(0, 0, 0, 0.04)',
+        borderColor: 'rgba(0, 0, 0, 0.08)',
     },
     statusLabel: {
-        fontSize: theme.fontSizes.xs,
+        fontSize: theme.fontSizes.xs - 1,
         fontWeight: theme.fontWeights.bold,
-        letterSpacing: 0.4,
+        letterSpacing: 0.3,
     },
     statusLabelSelectedLive: {
-        color: theme.colors.onPrimary,
+        color: '#ffffff',
     },
     statusLabelSelectedUpcoming: {
-        color: theme.colors.warning,
+        color: '#ffffff',
     },
     statusLabelInactiveLive: {
         color: theme.colors.warning,
@@ -301,7 +286,7 @@ const stylesheet = StyleSheet.create((theme) => ({
         borderRadius: theme.radius.full,
     },
     statusDotSelectedUpcoming: {
-        backgroundColor: theme.colors.warning,
+        backgroundColor: '#ffffff',
     },
     statusDotInactiveUpcoming: {
         backgroundColor: theme.colors.secondary,
@@ -318,5 +303,19 @@ const stylesheet = StyleSheet.create((theme) => ({
     },
     tabHighlightUpcoming: {
         backgroundColor: theme.colors.warningLight,
+    },
+    activeIndicator: {
+        position: 'absolute',
+        bottom: 2,
+        alignSelf: 'center',
+        width: 28,
+        height: 3,
+        borderRadius: 2,
+    },
+    activeIndicatorLive: {
+        backgroundColor: '#ffffff',
+    },
+    activeIndicatorUpcoming: {
+        backgroundColor: '#c2410c',
     },
 }));

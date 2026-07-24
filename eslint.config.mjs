@@ -11,6 +11,8 @@ export default [
     {
         ignores: [
             'node_modules/**',
+            '.agents/**',
+            '.agent/**',
             'android/**',
             'ios/**',
             '.expo/**',

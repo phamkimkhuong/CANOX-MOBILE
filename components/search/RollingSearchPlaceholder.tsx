@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet as RNStyleSheet, Text } from 'react-native';
+import { Text } from 'react-native';
 import Animated, {
     FadeInUp,
     FadeOutUp,

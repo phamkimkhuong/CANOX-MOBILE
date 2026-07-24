@@ -22,7 +22,7 @@ import { Navigator } from '@/utils/navigation';
 import { buildImageUrl } from '@/utils/url';
 import { Image } from 'expo-image';
 import React, { memo, useCallback } from 'react';
-import { Pressable, View, type StyleProp, type ViewStyle } from 'react-native';
+import { Pressable, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import { StyleSheet } from 'react-native-unistyles';

@@ -1,17 +1,26 @@
 import { Banner, BannerUI } from '@/types/banner';
+import { toPublicUrl, toSizedImageUrl } from '@/utils/url';
 
 /**
  * Transform API Banner to UI Banner model
  * Only maps fields that are actually used by the UI components.
  */
 export function toBannerUI(banner: Banner, isMobile = true): BannerUI {
-    const assetId = isMobile
-        ? (banner.imageAssetIdMobile || banner.imageAssetId || banner.imageAssetIdDesktop || '')
-        : (banner.imageAssetIdDesktop || banner.imageAssetId || banner.imageAssetIdMobile || '');
+    const rawPath = isMobile
+        ? (banner.imagePathMobile || banner.imagePath || banner.imagePathDesktop)
+        : (banner.imagePathDesktop || banner.imagePath || banner.imagePathMobile);
 
-    const imageUrl = assetId
-        ? `https://api.calatha.com/v1/public/assets/${assetId}`
-        : (banner.imagePath ? `https://api.calatha.com/${banner.imagePath}` : '');
+    let imageUrl = '';
+
+    if (rawPath) {
+        imageUrl = toSizedImageUrl(rawPath, null, 'orig') || toPublicUrl(rawPath);
+    } else {
+        const assetId = isMobile
+            ? (banner.imageAssetIdMobile || banner.imageAssetId || banner.imageAssetIdDesktop || '')
+            : (banner.imageAssetIdDesktop || banner.imageAssetId || banner.imageAssetIdMobile || '');
+
+        imageUrl = assetId ? toPublicUrl(`public/assets/${assetId}`) : '';
+    }
 
     return {
         id: banner.id,

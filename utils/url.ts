@@ -2,7 +2,7 @@
  * URL Utilities
  * Shared app-wide to create URL from path
  */
-const CDN_BASE_URL = process.env.EXPO_PUBLIC_CDN_BASE_URL;
+const getCdnBaseUrl = () => process.env.EXPO_PUBLIC_CDN_BASE_URL || '';
 /**
  * Convert relative path to full URL
  * @param path - Path from API (can be null, relative path, or full URL)
@@ -18,10 +18,10 @@ export const toPublicUrl = (
         return path;
     }
     // Relative path → append to CDN base URL
-    const base = (CDN_BASE_URL || '').replace(/\/$/, ''); // Remove trailing slash
+    const base = getCdnBaseUrl().replace(/\/$/, ''); // Remove trailing slash
     const cleanPath = path.replace(/^\/+/, ''); // Remove leading slash
     // console.log("Xem đường dẫn có đúng không", `${base}/${cleanPath}`);
-    return `${base}/${cleanPath}`;
+    return base ? `${base}/${cleanPath}` : `/${cleanPath}`;
 };
 
 /**
@@ -39,7 +39,7 @@ export const toSizedImageUrl = (
         return undefined;
     }
 
-    const base = (CDN_BASE_URL || '').replace(/\/$/, '');
+    const base = getCdnBaseUrl().replace(/\/$/, '');
 
     // Handle full URLs
     if (basePathOrTemplate.startsWith('http://') || basePathOrTemplate.startsWith('https://')) {
