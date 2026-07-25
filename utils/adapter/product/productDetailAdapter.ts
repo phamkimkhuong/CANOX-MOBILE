@@ -154,6 +154,7 @@ export const buildVariantMatrix = (
             promotionName: promo?.campaignName ?? undefined,
             promotionPercentage: promo?.discountPercent ?? undefined,
             campaignType: promo?.campaignType ?? undefined,
+            promoStockRemaining: promo?.stockRemaining ?? undefined,
             // Dimensions (packaging size/weight)
             dimensions: variant.dimensions ?? undefined,
             // Variant can have own image

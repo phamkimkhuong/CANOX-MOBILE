@@ -845,6 +845,7 @@ export const ProductDetailContent: React.FC<ProductDetailContentProps> = React.m
                     selectedImage={currentImage}
                     selectedPromotionType={selectionResult.selectedVariant?.campaignType}
                     selectedPromotionPercentage={selectionResult.selectedVariant?.promotionPercentage}
+                    promoStockRemaining={selectionResult.selectedVariant?.promoStockRemaining}
                     quantity={quantity}
                     onQuantityChange={setQuantity}
                     mode={variantSheetMode}

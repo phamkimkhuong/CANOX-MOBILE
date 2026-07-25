@@ -25,6 +25,7 @@ export const PromotionSchema = z.object({
     originalPrice: z.number().nullable().optional(),
     salePrice: z.number().nullable().optional(),
     discountPercent: z.number().nullable().optional(),
+    stockRemaining: z.number().nullable().optional(),
 });
 export type Promotion = z.infer<typeof PromotionSchema>;
 
@@ -372,6 +373,7 @@ export interface VariantMatrixValue {
     promotionName?: string;
     promotionPercentage?: number;
     campaignType?: string;
+    promoStockRemaining?: number;
     dimensions?: VariantDimensions;
 }
 

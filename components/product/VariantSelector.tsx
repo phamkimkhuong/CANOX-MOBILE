@@ -7,7 +7,7 @@ import type {
 import { formatCurrency } from '@/utils/format';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { memo, useCallback, useMemo } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Modal,
@@ -49,6 +49,7 @@ interface VariantBottomSheetProps {
     selectedImage?: string;
     selectedPromotionType?: string;
     selectedPromotionPercentage?: number;
+    promoStockRemaining?: number;
     quantity: number;
     onQuantityChange: (quantity: number) => void;
     mode: VariantSheetMode;
@@ -307,6 +308,7 @@ export const VariantBottomSheet = memo<VariantBottomSheetProps>(({
     selectedImage,
     selectedPromotionType,
     selectedPromotionPercentage,
+    promoStockRemaining,
     quantity,
     onQuantityChange,
     mode,
@@ -317,16 +319,19 @@ export const VariantBottomSheet = memo<VariantBottomSheetProps>(({
     const insets = useSafeAreaInsets();
     const { t } = useTranslation('product');
 
+    const isPromoStockExceeded = promoStockRemaining !== undefined && promoStockRemaining > 0 && quantity > promoStockRemaining;
+    const effectiveCurrentPrice = isPromoStockExceeded && originalPrice ? originalPrice : currentPrice;
+
     // Memoize formatted price để tránh tính lại mỗi render
     const formattedCurrentPrice = useMemo(() => {
-        return currentPrice !== undefined ? formatCurrency(currentPrice) : null;
-    }, [currentPrice]);
+        return effectiveCurrentPrice !== undefined ? formatCurrency(effectiveCurrentPrice) : null;
+    }, [effectiveCurrentPrice]);
 
     const formattedOriginalPrice = useMemo(() => {
-        return originalPrice && originalPrice !== currentPrice
+        return !isPromoStockExceeded && originalPrice && originalPrice !== currentPrice
             ? formatCurrency(originalPrice)
             : null;
-    }, [originalPrice, currentPrice]);
+    }, [originalPrice, currentPrice, isPromoStockExceeded]);
 
     // Memoize container padding style
     const containerStyle = useMemo(() => [
@@ -415,6 +420,14 @@ export const VariantBottomSheet = memo<VariantBottomSheetProps>(({
                                 <Text style={sheetStyles.stockText}>
                                     {t('variant.stock')}: {currentStock}
                                 </Text>
+                            )}
+                            {!isPromoStockExceeded && promoStockRemaining !== undefined && promoStockRemaining > 0 && (
+                                <View style={sheetStyles.promoStockTextRow}>
+                                    <IconSymbol name="local-fire-department" size={13} color={theme.colors.error} />
+                                    <Text style={sheetStyles.promoStockText}>
+                                        Chỉ còn {promoStockRemaining} sản phẩm giá này
+                                    </Text>
+                                </View>
                             )}
                             {selectedPromotionMeta && (
                                 selectedPromotionMeta.isFlashSale ? (
@@ -545,6 +558,16 @@ export const VariantBottomSheet = memo<VariantBottomSheetProps>(({
 
                     {/* Action Button - text changes based on mode */}
                     <View style={sheetStyles.footer}>
+                        {isPromoStockExceeded && promoStockRemaining !== undefined && (
+                            <View style={sheetStyles.promoExceededBanner}>
+                                <View style={sheetStyles.promoExceededTextRow}>
+                                    <IconSymbol name="alert-circle" size={14} color={theme.colors.buttonActive} />
+                                    <Text style={sheetStyles.promoExceededText}>
+                                        Vượt quá {promoStockRemaining} suất giá KM (Áp dụng giá gốc)
+                                    </Text>
+                                </View>
+                            </View>
+                        )}
                         <Pressable
                             style={[
                                 sheetStyles.confirmButton,
@@ -738,6 +761,42 @@ const sheetStyles = StyleSheet.create((theme) => ({
         paddingVertical: theme.margins.md,
         borderTopWidth: 1,
         borderTopColor: theme.colors.border,
+    },
+    promoStockTextRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        marginTop: 2,
+    },
+    promoStockText: {
+        fontSize: 11,
+        fontWeight: '600',
+        color: theme.colors.error,
+    },
+    promoExceededBanner: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 8,
+        backgroundColor: 'rgba(239, 68, 68, 0.08)',
+        borderWidth: 0.5,
+        borderColor: 'rgba(239, 68, 68, 0.25)',
+        borderRadius: theme.radius.m,
+        paddingHorizontal: 10,
+        paddingVertical: 8,
+        marginBottom: theme.margins.xs,
+    },
+    promoExceededTextRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 5,
+        flex: 1,
+    },
+    promoExceededText: {
+        fontSize: 11,
+        fontWeight: '600',
+        color: theme.colors.buttonActive,
+        flexShrink: 1,
     },
     confirmButton: {
         backgroundColor: theme.colors.newPrimary,
