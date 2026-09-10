@@ -356,14 +356,34 @@ const lightTheme = {
 - Scale range: 0.9 (min) — 1.15 (max)
 - Sử dụng `createScaledFontSize(size, screenWidth)` trong StyleSheet
 
-## 📝 Scripts
+## 📐 Quy ước lập trình quan trọng
 
+1. **Adapter Pattern**: Không dùng trực tiếp DTO thô từ Backend trong UI Component. Luôn cho dữ liệu đi qua `types/` (DTO) ➔ `utils/adapter/` ➔ `UI Model` để tránh crash khi backend đổi schema.
+2. **Phân định State rõ ràng**:
+   - **Server State**: Sử dụng `@tanstack/react-query` (tất cả API hooks tập trung tại `hooks/api/`).
+   - **Client/Session State**: Sử dụng `zustand` (các store tại `store/`).
+   - **Dữ liệu nhạy cảm**: Access Token, Refresh Token, User ID bắt buộc lưu trữ an toàn bằng `expo-secure-store`.
+3. **Responsive Typography**: Khi định nghĩa `fontSize` trong StyleSheet, luôn dùng hàm `createScaledFontSize(size, screenWidth)` từ `constants/unistyles.ts` để text tự co giãn tương thích đa kích thước màn hình.
+
+## 📝 Scripts & Lệnh kiểm thử
+
+### Chạy ứng dụng
 | Script | Mô tả |
 |--------|-------|
 | `npm start` | Khởi động Expo development server |
-| `npm run clear` | Xóa cache và khởi động lại |
+| `npm run clear` | Xóa cache Metro và khởi động lại |
 | `npm run android` | Build và chạy trên Android |
 | `npm run ios` | Build và chạy trên iOS (macOS only) |
+
+### Kiểm thử & Chất lượng mã nguồn
+| Script | Mô tả |
+|--------|-------|
+| `npm run type-check` | Kiểm tra lỗi TypeScript toàn dự án (không emit code) |
+| `npm run lint` | Chạy ESLint kiểm tra cú pháp và code conventions |
+| `npm run test` | Chạy toàn bộ Unit Tests bằng Jest |
+| `npm run test:adapter` | Test độc lập các hàm chuyển đổi dữ liệu DTO ➔ UI Model |
+| `npm run test:store` | Test logic trạng thái của 10 Zustand stores |
+| `npm run test:api` | Chạy MSW Contract Test kiểm tra tương thích API Backend |
 
 ## 🏗️ Build Variants
 
@@ -372,6 +392,30 @@ const lightTheme = {
 | **Development** | `com.cano.tcano.dev` | Dev build với Expo Dev Client |
 | **Preview** | `com.cano.tcano.preview` | Internal testing (APK) |
 | **Production** | `com.cano.tcano` | Store release |
+
+## 🚀 Chiến lược Cập nhật (Deployment)
+
+- **Cập nhật Over-The-Air (OTA - Không cần duyệt Store)**:
+  - Áp dụng khi: Chỉ chỉnh sửa mã nguồn JavaScript, UI Components, logic React, StyleSheet.
+  - Lệnh thực thi: `eas update --branch <branch_name> --message "mô tả cập nhật"`
+- **Native Build (Bắt buộc đẩy lên App Store / Google Play)**:
+  - Áp dụng khi: Cài đặt thêm thư viện Native mới (`pod`/`gradle`), thay đổi `app.config.js`, hoặc cập nhật Splash/Icon.
+  - Lệnh thực thi: `npm run build-preview` hoặc `npm run build-prod`
+
+## 🛠️ Xử lý sự cố thường gặp (Troubleshooting)
+
+- **Lỗi cache Metro / Không nhận thay đổi style**:
+  ```bash
+  npm run clear
+  ```
+- **Lỗi build Native sau khi cài package mới**:
+  ```bash
+  # Xóa thư mục native android/ios cũ và prebuild lại theo config mới
+  npm run prebuild
+  ```
+- **Lưu ý New Architecture & Android 15**:
+  - Dự án bật New Architecture (`newArchEnabled: true`) và hỗ trợ Android 15 (16KB page size).
+  - Mọi thư viện native cài thêm bắt buộc phải tương thích với TurboModules / Fabric.
 
 ## 📄 License
 
